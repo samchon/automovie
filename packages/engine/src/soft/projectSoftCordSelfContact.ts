@@ -1,3 +1,4 @@
+import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface";
 /**
  * Keep the segments of a cord apart: every two segments that share no
  * particle are held at least two radii apart along the line between their
@@ -43,21 +44,7 @@
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads the positions the last constraint pass left; the grid is rebuilt because they move.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grid is call-local; only the caller's predicted buffer is written.
  */
-export const projectSoftCordSelfContact: (props: {
-  count: number;
-  position: Float64Array<ArrayBufferLike>;
-  predicted: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  radius: number;
-  friction: number;
-}) => number = (props: {
-  count: number;
-  position: Float64Array<ArrayBufferLike>;
-  predicted: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  radius: number;
-  friction: number;
-}): number => {
+export const projectSoftCordSelfContact: (props: IAutoMovieProjectSoftCordSelfContact.IProps) => number = (props: IAutoMovieProjectSoftCordSelfContact.IProps): number => {
   // The pair projection reads the positions and the inverse masses from
   // `props`; the grid needs only the predicted positions.
   const { count, predicted }: typeof props = props;

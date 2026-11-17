@@ -1,10 +1,11 @@
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
+
 /**
  * The vector arithmetic of the event join: points and directions as triples of
  * millimetres, and the clamped smoothstep its fades use.
  */
 export namespace AutoMovieHumanEventJoinVector {
-  /** Point or vector in mm. */
-  export type Vec3 = [number, number, number];
+  
 
   /** Smoothstep on [0, 1], clamped. */
   export function smooth(x: number): number {
@@ -13,27 +14,27 @@ export namespace AutoMovieHumanEventJoinVector {
   }
 
   /** Difference. */
-  export function sub(a: Vec3, b: Vec3): Vec3 {
+  export function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** Sum. */
-  export function add(a: Vec3, b: Vec3): Vec3 {
+  export function add(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Scalar multiple. */
-  export function scale(a: Vec3, s: number): Vec3 {
+  export function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
   /** Dot product. */
-  export function dot(a: Vec3, b: Vec3): number {
+  export function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
   /** Cross product. */
-  export function cross(a: Vec3, b: Vec3): Vec3 {
+  export function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -42,12 +43,12 @@ export namespace AutoMovieHumanEventJoinVector {
   }
 
   /** Euclidean length. */
-  export function norm(a: Vec3): number {
+  export function norm(a: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0], a[1], a[2]);
   }
 
   /** Unit vector. */
-  export function unit(a: Vec3): Vec3 {
+  export function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return scale(a, 1 / (norm(a) || 1));
   }
 }

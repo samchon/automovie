@@ -1,14 +1,17 @@
+import type { IAutoMovieCaptureComparison, IAutoMovieCaptureComparisonProps, IAutoMovieCaptureLayout, IAutoMovieCaptureRecord, IAutoMovieRasterComparison, IAutoMovieRasterImage } from "@automovie/interface";
+
+
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import type { IAutoMovieRasterComparison } from "../picture/IAutoMovieRasterComparison.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+
+
 import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
-import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
-import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
+
+
+
+
+
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
@@ -27,28 +30,7 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pair is read and measured once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One pair of decoded stills, one difference image and the comparison sheet being filled are held at a time.
  */
-export async function compareAutoMovieCaptureRounds(props: {
-  /** The capture's folder, opened with the earlier round to compare against. */
-  folder: AutoMovieCaptureFolder;
-
-  /** Name of the earlier round. */
-  round: string;
-
-  /** This capture's rows, in plan order. */
-  rows: readonly IAutoMovieCaptureRecord.Row[];
-
-  /** How cells are paired. */
-  match: "cell" | "time";
-
-  /** Largest channel difference in bytes counted as unchanged. */
-  tolerance: number;
-
-  /** The reader the comparison sheets are laid out for. */
-  budget: IAutoMovieCaptureBudget;
-
-  /** This capture's still raster in pixels, which sizes the sheet cells. */
-  raster: { width: number; height: number };
-}): Promise<IAutoMovieCaptureComparison> {
+export async function compareAutoMovieCaptureRounds(props: IAutoMovieCaptureComparisonProps): Promise<IAutoMovieCaptureComparison> {
   const { folder, match } = props;
   const earlier: Extract<
     IAutoMovieCaptureRecord,

@@ -1,17 +1,9 @@
-import {
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  minimumJerk,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieSeededChainFit, IAutoMovieSwivelNear } from "@automovie/interface";
+
+import { minimumJerk } from "@automovie/engine";
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -41,7 +33,7 @@ export namespace HumanSegmentOverlay {
    */
   export interface IOverlaid extends HumanSegmentPose.ISeeded {
     /** World goals have received the root turn; attached goals retain `on`. */
-    contacts: IHumanPosture["limbs"];
+    contacts: IAutoMovieMotionHumanPosture["limbs"];
   }
 
   /**
@@ -74,27 +66,27 @@ export namespace HumanSegmentOverlay {
    * @returns The pose, the seeds of its fits and its open contact goals.
    */
   export function overlaid(
-    person: HumanSegment.IPerson,
-    posture: IHumanPosture,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-    carried: readonly HumanSegment.IHeld[] = [],
+    carried: readonly IAutoMovieMotionHumanSegment.IHeld[] = [],
     near?: HumanSegmentPose.INear,
   ): IOverlaid {
     const body = person.performer.body;
-    const active: HumanSegment.IOverlay[] = running(person, seconds);
+    const active: IAutoMovieMotionHumanSegment.IOverlay[] = running(person, seconds);
     const seeds: HumanSegmentPose.IFits = new Map();
     const build = (
       k: number,
-      under: IHumanPosture,
-      used: readonly HumanSegment.IOverlay[],
-    ): { pose: IAutoMoviePose; contacts: IHumanPosture["limbs"] } => {
-      const overlay: HumanSegment.IOverlay | undefined = active[k];
+      under: IAutoMovieMotionHumanPosture,
+      used: readonly IAutoMovieMotionHumanSegment.IOverlay[],
+    ): { pose: IAutoMoviePose; contacts: IAutoMovieMotionHumanPosture["limbs"] } => {
+      const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined = active[k];
       if (overlay === undefined) {
         // The leaf is named by the overlays written over it.
         const tag: string = used
-          .map((o: HumanSegment.IOverlay): number => person.overlays.indexOf(o))
+          .map((o: IAutoMovieMotionHumanSegment.IOverlay): number => person.overlays.indexOf(o))
           .join(",");
-        const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
           body,
           under,
           undefined,
@@ -103,8 +95,8 @@ export namespace HumanSegmentOverlay {
               .order(under.limbs)
               .flatMap(
                 (
-                  limb: IHumanPosture.Limb,
-                ): [IHumanPosture.Limb, IAutoMovieSwivelNear][] => {
+                  limb: IAutoMovieMotionHumanPosture.Limb,
+                ): [IAutoMovieMotionHumanPosture.Limb, IAutoMovieSwivelNear][] => {
                   const continued: IAutoMovieSwivelNear | undefined =
                     HumanSegmentPose.nearby(near, `leaf:${tag}:${limb}`);
                   return continued === undefined ? [] : [[limb, continued]];
@@ -119,8 +111,8 @@ export namespace HumanSegmentOverlay {
           person,
           leaf,
           carried.filter(
-            (h: HumanSegment.IHeld): boolean =>
-              !used.some((o: HumanSegment.IOverlay): boolean =>
+            (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+              !used.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
                 HumanSegment.drives(o.plan, h.side),
               ),
           ),
@@ -139,7 +131,7 @@ export namespace HumanSegmentOverlay {
         }
         return { pose: leaf, contacts: {} };
       }
-      const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
+      const written: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanChannel.merge(
         under,
         overlay.plan.posture(
           Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
@@ -158,7 +150,7 @@ export namespace HumanSegmentOverlay {
         ).s,
       );
       const over = build(k + 1, written, [...used, overlay]);
-      const contacts: IHumanPosture["limbs"] = {
+      const contacts: IAutoMovieMotionHumanPosture["limbs"] = {
         ...contactGoals(overlay, written, over.pose, seconds, person),
         ...over.contacts,
       };
@@ -204,7 +196,7 @@ export namespace HumanSegmentOverlay {
       return { pose, contacts };
     };
     const built = build(0, posture, []);
-    const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
+    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(
       body,
       built.pose,
       built.contacts,
@@ -235,21 +227,21 @@ export namespace HumanSegmentOverlay {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no state after the evaluation.
    */
   function contactGoals(
-    overlay: HumanSegment.IOverlay,
-    written: IHumanPosture,
+    overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    written: IAutoMovieMotionHumanPosture,
     over: IAutoMoviePose,
     seconds: number,
-    person: HumanSegment.IPerson,
-  ): IHumanPosture["limbs"] {
+    person: IAutoMovieMotionHumanSegment.IPerson,
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     const share: number = (seconds - overlay.start) / overlay.plan.duration;
-    const contacts: IHumanPosture["limbs"] = {};
-    const turned: IHumanPosture["limbs"] = turnHumanPosture(written).limbs;
+    const contacts: IAutoMovieMotionHumanPosture["limbs"] = {};
+    const turned: IAutoMovieMotionHumanPosture["limbs"] = turnHumanPosture(written).limbs;
     let placed: ReturnType<typeof poseBones> | undefined;
     for (const window of overlay.plan.contacts) {
       if (share < window.from || share > window.to) continue;
-      const limb: IHumanPosture.Limb | undefined = limbOf(window.part);
+      const limb: IAutoMovieMotionHumanPosture.Limb | undefined = limbOf(window.part);
       if (limb === undefined || !overlay.channels.includes(limb)) continue;
-      const goal: IHumanPosture.IGoal | undefined = turned[limb];
+      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = turned[limb];
       if (goal !== undefined) {
         contacts[limb] = { ...goal, planted: true };
         continue;
@@ -270,8 +262,8 @@ export namespace HumanSegmentOverlay {
 
   /** The limb carrying a contact part, if the part belongs to a limb. */
   function limbOf(
-    part: IHumanContactWindow["part"],
-  ): IHumanPosture.Limb | undefined {
+    part: IAutoMovieMotionHumanContactWindow["part"],
+  ): IAutoMovieMotionHumanPosture.Limb | undefined {
     if (part === "seat" || part === "back") return undefined;
     const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
     return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;
@@ -285,11 +277,11 @@ export namespace HumanSegmentOverlay {
    * @returns The overlays, in placement order.
    */
   export function running(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
-  ): HumanSegment.IOverlay[] {
+  ): IAutoMovieMotionHumanSegment.IOverlay[] {
     return person.overlays.filter(
-      (o: HumanSegment.IOverlay): boolean =>
+      (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
         seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
     );
   }

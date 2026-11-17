@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoverySceneCandidate } from "../structures/internal/IAutoMovieRecoverySceneCandidate";
-import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
+import type { IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoverySceneCandidate, IAutoMovieRecoverySceneSupportCollectionOperation } from "@automovie/interface";
+
+
+
 
 /**
  * Collect each target's distinct existing-map support once per accepted revision.
@@ -14,20 +15,17 @@ import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-owned candidate arrays borrow fixed observations only for the revision; no RGB, new descriptor or external resource is acquired.
  */
 export function collectRecoverySceneSupport(
-  landmarks: readonly IAutoMovieRecoveryMapLandmark[],
-  tracks: ReadonlyMap<
-    number,
-    ReturnType<typeof linkRecoveryCameraTracks>["tracks"][number]
-  >,
-  viewCount: number,
-): IAutoMovieRecoverySceneCandidate[][] {
+  landmarks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[0],
+  tracks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[1],
+  viewCount: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoverySceneSupportCollectionOperation.Operation> {
   const support: IAutoMovieRecoverySceneCandidate[][] = Array.from(
     { length: viewCount },
     (): IAutoMovieRecoverySceneCandidate[] => [],
   );
   for (let at: number = 0; at < landmarks.length; at++) {
     const track:
-      | ReturnType<typeof linkRecoveryCameraTracks>["tracks"][number]
+      | ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>["tracks"][number]
       | undefined = tracks.get(landmarks[at]!.id);
     if (!track)
       throw new Error(

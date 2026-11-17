@@ -1,11 +1,6 @@
-import {
-  IAutoMovieCameraIntent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieGrammarCameraObservation, type IAutoMovieGrammarSubjectObservation, type IAutoMovieNormalizedGrammarShot, type IAutoMovieProjectToNdc, IAutoMovieCameraIntent, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieGrammarCameraObservation } from "./IAutoMovieGrammarCameraObservation";
-import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectObservation";
-import { IAutoMovieNormalizedGrammarShot } from "./IAutoMovieNormalizedGrammarShot";
+
 import { classifyGrammarShotSize } from "./classifyGrammarShotSize";
 import { GRAMMAR_EPSILON } from "./constants/GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
@@ -38,13 +33,13 @@ export function measureGrammarShotSize(
   const camera: IAutoMovieGrammarCameraObservation = shot.camera[boundary];
   const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
   const point: IAutoMovieVector3 = subject[boundary];
-  const base: ReturnType<typeof projectToNdc> = projectToNdc(
+  const base: IAutoMovieProjectToNdc.IResult = projectToNdc(
     camera,
     point,
     halfY,
     camera.aspect,
   );
-  const top: ReturnType<typeof projectToNdc> = projectToNdc(
+  const top: IAutoMovieProjectToNdc.IResult = projectToNdc(
     camera,
     { ...point, y: point.y + subject.height },
     halfY,

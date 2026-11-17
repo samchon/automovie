@@ -1,15 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,14 +35,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, where the goals come from and the 2 scenarios with their bounds.
  */
 export function test_human_motion_core_fit_swivel(): void {
-  const body: IHumanBody = motionHumanBody("f-small");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const TOP: number = 0.6929;
   const bend: IAutoMovieVector3 = { x: 0, y: 0.6929, z: 0.4393 };
   const posture = (
     roll: number,
     twist: number,
     point: IAutoMovieVector3,
-  ): IHumanPosture => ({
+  ): IAutoMovieMotionHumanPosture => ({
     root: { x: 0, y: -0.1608, z: 1.3025 },
     yaw: 180,
     pitch: 36.8367,
@@ -90,11 +82,11 @@ export function test_human_motion_core_fit_swivel(): void {
     },
   });
   const fitted = (
-    of: IHumanPosture,
+    of: IAutoMovieMotionHumanPosture,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     poseBones(body, resolveHumanPosture(body, of));
   const complaints: string[] = [];
-  const pins: readonly (readonly [number, IHumanPosture])[] = [
+  const pins: readonly (readonly [number, IAutoMovieMotionHumanPosture])[] = [
     [0, posture(0, 0, { x: 0, y: 0.8935, z: 0.315 })],
     [15, posture(1.6667, -2.5, { x: 0.0519, y: 0.8866, z: 0.315 })],
   ];

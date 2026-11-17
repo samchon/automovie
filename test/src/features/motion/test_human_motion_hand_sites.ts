@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanSocial,
-  type IHumanBody,
-  touch,
-  type touchSite,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanTouchSite, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanSignature, HumanSocial, touch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,7 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 5 scenarios with their bounds.
  */
 export function test_human_motion_hand_sites(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
@@ -67,7 +58,7 @@ export function test_human_motion_hand_sites(): void {
     params: object,
   ): IRead | null => {
     try {
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed,
         laws: [HumanSocial.comfort],
         performers: [
@@ -91,20 +82,20 @@ export function test_human_motion_hand_sites(): void {
           .registered("comfort", params)
           .with(HumanChain.subject("b").stand({ seconds: 5 })).node,
       });
-      const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
       const instant = (event: string): number =>
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??
           NaN) *
           placed.plan.duration;
       const held: number = (instant("strokeEnd") + instant("relax")) / 2;
-      const mine: HumanSignature.IReader = HumanSignature.of(
+      const mine: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
         0,
       );
-      const theirs: HumanSignature.IReader = HumanSignature.of(
+      const theirs: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "b",
         body,
@@ -144,7 +135,7 @@ export function test_human_motion_hand_sites(): void {
       return null;
     }
   };
-  const sternum = (site?: touchSite.ISite): object => ({
+  const sternum = (site?: IAutoMovieMotionHumanTouchSite.ISite): object => ({
     target: { kind: "person", subject: "b", region: "sternum" },
     ...(site === undefined ? {} : { site }),
   });

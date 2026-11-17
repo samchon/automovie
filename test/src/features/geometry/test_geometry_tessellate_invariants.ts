@@ -1,10 +1,11 @@
-import { type ITessellation, tessellate } from "@automovie/engine";
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
+import type { IAutoMoviePrimitiveShape, IAutoMovieTessellation } from "@automovie/interface";
+import { tessellate } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 
-const SHAPES: AutoMoviePrimitiveShape[] = [
+const SHAPES: IAutoMoviePrimitiveShape[] = [
   { type: "box", width: 0.4, height: 0.6, depth: 0.2 },
   { type: "sphere", radius: 0.5 },
   { type: "cylinder", radius: 0.3, height: 1 },
@@ -37,7 +38,7 @@ const SHAPES: AutoMoviePrimitiveShape[] = [
  */
 export function test_geometry_tessellate_invariants(): void {
   for (const shape of SHAPES) {
-    const t: ITessellation = tessellate(shape);
+    const t: IAutoMovieTessellation = tessellate(shape);
     const vertexCount: number = t.positions.length / 3;
     TestValidator.predicate(
       `${shape.type}: positions are triples`,

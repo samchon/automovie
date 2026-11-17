@@ -1,5 +1,5 @@
-import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBodyLocator";
-import { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
+import type { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
 
 /**
  * What one whole-building support sweep measured, not only what it found.
@@ -46,5 +46,5 @@ export interface IAutoMovieBuiltSupportSweepReport {
   floating: IAutoMovieBuiltFloatingBody[];
 
   /** Bodies whose extent the record does not resolve, so nothing was judged. */
-  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+  unresolved: IAutoMovieBuiltPlacementBodyLocator[];
 }

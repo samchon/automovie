@@ -1,3 +1,4 @@
+import type { IAutoMovieAudioMixCue } from "@automovie/interface";
 import { decodeProductionAudioAsset } from "@automovie/ingest";
 import {
   encodeAutoMovieWavPcm16,
@@ -22,7 +23,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_audio_mix(): void {
   const centre: number = Math.cos(Math.PI / 4);
   const mix = (
-    cues: mixAutoMovieAudioPcm.ICue[],
+    cues: IAutoMovieAudioMixCue[],
     sources: Record<string, Float32Array>,
     fadeSeconds: number = 0,
   ): ReturnType<typeof mixAutoMovieAudioPcm> =>

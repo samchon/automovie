@@ -1,5 +1,4 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
-
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 /**
  * Refuse an id field of a performance input that is not a non-blank string.
  *
@@ -19,7 +18,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pushes at most one violation into the caller's collector and keeps nothing itself.
  */
 export function validatePerformShotId(
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   id: unknown,
   path: string,
   label: string,

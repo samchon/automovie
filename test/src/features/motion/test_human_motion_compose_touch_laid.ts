@@ -1,28 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
-  AutoMovieMotionHumanTouchLaid,
-  AutoMovieMotionHumanTouchUpright,
-  HumanHand,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanArm, AutoMovieMotionHumanTouch, AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchLaid, AutoMovieMotionHumanTouchUpright, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -61,8 +40,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_compose_touch_laid(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const body: IHumanBody = motionHumanBody("m-average");
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const entry: IAutoMoviePose = resolveHumanPosture(body, quiet);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
@@ -84,7 +63,7 @@ export function test_human_motion_compose_touch_laid(): void {
   ][];
   const limb = regions.find(([, f]) => f.bone === "leftLowerArm");
   const trunk = regions.find(([, f]) => f.bone === "chest");
-  const pitched: IHumanPosture = { ...quiet, pitch: 20, limbs: {} };
+  const pitched: IAutoMovieMotionHumanPosture = { ...quiet, pitch: 20, limbs: {} };
   const shown = poseBones(body, resolveHumanPosture(body, pitched));
   for (const [kind, found, on] of [
     ["limb", limb, bones],
@@ -120,7 +99,7 @@ export function test_human_motion_compose_touch_laid(): void {
       point: { x: shoulder.x, y: shoulder.y - 0.15, z: shoulder.z + 0.35 },
       normal: { x: 0, y: 0, z: -1 },
     };
-    const effector: AutoMovieMotionHumanTouchEffector.IEffector = {
+    const effector: IAutoMovieMotionHumanTouchEffector.IEffector = {
       surface: "palm",
       shape: "flat",
     };
@@ -195,7 +174,7 @@ export function test_human_motion_compose_touch_laid(): void {
 
     // The rest goal stands the effector a pad off the region along its
     // normal; an upright vessel faces a level direction.
-    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
+    const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       quiet,
       side,
@@ -249,15 +228,15 @@ export function test_human_motion_compose_touch_laid(): void {
     );
 
     // 3. Touch.
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
       prepare: 0.6,
       wait: 0.4,
       attack: 0.3,
       retract: 0.6,
     });
-    const rest: AutoMovieMotionHumanArm.IAngles =
+    const rest: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(entry, side);
-    const props = (count: number): AutoMovieMotionHumanTouch.ITouch => ({
+    const props = (count: number): IAutoMovieMotionHumanTouch.ITouch => ({
       body,
       clock,
       side,
@@ -283,9 +262,9 @@ export function test_human_motion_compose_touch_laid(): void {
       primitives.map((p) => p.channels),
       [[`${side}Arm`], [`${side}Hand`]],
     );
-    const written = (seconds: number): IHumanPosture =>
+    const written = (seconds: number): IAutoMovieMotionHumanPosture =>
       primitives.reduce(
-        (posture: IHumanPosture, p: IAutoMovieMotionHumanPrimitive) =>
+        (posture: IAutoMovieMotionHumanPosture, p: IAutoMovieMotionHumanPrimitive) =>
           p.write(posture, seconds),
         quiet,
       );

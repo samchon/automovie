@@ -1,3 +1,4 @@
+import type { IAutoMovieDecodedFrameAudit } from "@automovie/interface";
 import {
   assertAutoMovieCaptureClock,
   auditAutoMovieDecodedFrames,
@@ -27,7 +28,7 @@ export function test_render_delivery_audit(): void {
     ["#format: frame checksums", "#tb 0: 1/15360", ...rows].join("\n");
   const row = (pts: number, hash: number): string =>
     `0, ${pts}, ${pts}, 512, 2764800, ${md5(hash)}`;
-  const admitted: auditAutoMovieDecodedFrames.IResult =
+  const admitted: IAutoMovieDecodedFrameAudit =
     auditAutoMovieDecodedFrames(
       listing([row(0, 1), row(512, 1), row(1024, 2)]),
       3,

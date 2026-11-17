@@ -1,4 +1,7 @@
-import type { AutoMovieGuidePass } from "@automovie/interface";
+import type { AutoMovieGuidePass, IAutoMovieSemanticMaskBinding } from "@automovie/interface";
+
+
+
 import * as THREE from "three";
 
 import { DEPTH_NORMALIZATION_RANGE } from "./DEPTH_NORMALIZATION_RANGE.js";
@@ -13,10 +16,7 @@ import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import {
-  type IAutoMovieSemanticMaskBinding,
-  autoMovieSemanticMaskOf,
-} from "./semanticMask/index.js";
+import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (

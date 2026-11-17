@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanAffect,
-  HumanBreath,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanLayer,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanAffect, HumanBreath, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -56,11 +47,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_layer_windows(): void {
   const FRAME: number = 1 / 24;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const perform = (
-    layers: readonly (IHumanLayer | IHumanLayer.IScheduled)[],
-  ): HumanPerformance =>
+    layers: readonly (IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled)[],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "layer",
       layers: { a: layers },
@@ -83,11 +74,11 @@ export function test_human_motion_layer_windows(): void {
 
   // The farthest any of a's joint centres lies between two films, metres.
   const apart = (
-    one: HumanPerformance,
-    other: HumanPerformance,
+    one: IAutoMovieMotionHumanPerformance,
+    other: IAutoMovieMotionHumanPerformance,
     seconds: number,
   ): number => {
-    const there: ReturnType<HumanPerformance["bones"]> = other.bones(
+    const there: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = other.bones(
       "a",
       seconds,
     );
@@ -111,11 +102,11 @@ export function test_human_motion_layer_windows(): void {
     thrown instanceof Error ? thrown.message : String(thrown);
   const mm = (metres: number): string => `${(metres * 1000).toFixed(2)} mm`;
 
-  const bare: HumanPerformance = perform([]);
-  const whole: HumanPerformance = perform([HumanBreath.layer({ rate: 20 })]);
-  const windowed = (): HumanPerformance =>
+  const bare: IAutoMovieMotionHumanPerformance = perform([]);
+  const whole: IAutoMovieMotionHumanPerformance = perform([HumanBreath.layer({ rate: 20 })]);
+  const windowed = (): IAutoMovieMotionHumanPerformance =>
     perform([{ layer: HumanBreath.layer({ rate: 20 }), from: 2, to: 4 }]);
-  const breathing: HumanPerformance = windowed();
+  const breathing: IAutoMovieMotionHumanPerformance = windowed();
 
   // 1. Nothing outside, something inside.
   for (const seconds of [0.5, 1.99, 4.01, 5.5]) {
@@ -146,15 +137,15 @@ export function test_human_motion_layer_windows(): void {
     );
 
   // 4. A window opened at a partner's instant, the layer built from it.
-  const sighing: HumanPerformance = perform([
+  const sighing: IAutoMovieMotionHumanPerformance = perform([
     {
       from: { of: "bye", event: "strokeEnd" },
-      layer: (window: IHumanLayer.IWindow): IHumanLayer =>
+      layer: (window: IAutoMovieMotionHumanLayer.IWindow): IAutoMovieMotionHumanLayer =>
         HumanAffect.layer([{ kind: "sigh", at: window.from }]),
     },
   ]);
   const cue: number = sighing.instant({ of: "bye", event: "strokeEnd" });
-  const wave: HumanSegment.ISegment = sighing.segments("b")[1]!;
+  const wave: IAutoMovieMotionHumanSegment.ISegment = sighing.segments("b")[1]!;
   const stroke: number =
     wave.start +
     wave.plan.events.find((e): boolean => e.name === "strokeEnd")!.share *
@@ -181,10 +172,10 @@ export function test_human_motion_layer_windows(): void {
       layer: {
         name: "witness",
         apply: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           _seconds: number,
-          context: IHumanLayer.IContext,
-        ): IHumanPosture => {
+          context: IAutoMovieMotionHumanLayer.IContext,
+        ): IAutoMovieMotionHumanPosture => {
           seen.add(context.action()?.name ?? "none");
           return posture;
         },
@@ -197,7 +188,7 @@ export function test_human_motion_layer_windows(): void {
     );
 
   // 6. What cannot be scheduled.
-  const still: IHumanLayer["apply"] = (posture: IHumanPosture): IHumanPosture =>
+  const still: IAutoMovieMotionHumanLayer["apply"] = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
     posture;
   for (const [label, layer, kind, mentions] of [
     [
@@ -230,8 +221,8 @@ export function test_human_motion_layer_windows(): void {
     ],
   ] as const satisfies readonly (readonly [
     string,
-    IHumanLayer.IScheduled,
-    HumanRefusal["kind"],
+    IAutoMovieMotionHumanLayer.IScheduled,
+    IAutoMovieMotionHumanRefusal["kind"],
     string,
   ])[]) {
     const thrown: unknown = refused(() => perform([layer]));
@@ -248,7 +239,7 @@ export function test_human_motion_layer_windows(): void {
   }
 
   // 7. Twice the same.
-  const again: HumanPerformance = windowed();
+  const again: IAutoMovieMotionHumanPerformance = windowed();
   for (const seconds of [2.1, 3, 3.9])
     if (apart(breathing, again, seconds) !== 0)
       complaints.push(

@@ -1,28 +1,9 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
-  integrateMotionTrajectory,
-  resolveAutoMovieCenterOfMass,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieGravity, Quaternion, Vector3, integrateAirborneRotation, integrateMotionTrajectory, resolveAutoMovieCenterOfMass, solveAirborneTakeoff } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * The flight pass of a performance (#3427): every placed action that
@@ -85,12 +66,12 @@ export namespace HumanPerformanceFlight {
    * @throws {HumanRefusal} When a flight's turns cannot be met by its take-off.
    */
   export function flights(
-    self: HumanPerformanceState,
-    people: Iterable<HumanSegment.IPerson>,
+    self: IAutoMovieMotionHumanPerformanceState,
+    people: Iterable<IAutoMovieMotionHumanSegment.IPerson>,
   ): void {
     for (const person of people)
       for (const segment of person.segments) {
-        const plan: IHumanActionPlan = segment.plan;
+        const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
         if (plan.flight === undefined || plan.airborne === undefined) continue;
         flight(self, person, segment);
       }
@@ -105,15 +86,15 @@ export namespace HumanPerformanceFlight {
    * @throws {HumanRefusal} When the flight's turns cannot be met.
    */
   function flight(
-    self: HumanPerformanceState,
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    self: IAutoMovieMotionHumanPerformanceState,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment.ISegment,
   ): void {
-    const plan: IHumanActionPlan = segment.plan;
-    const declared: IHumanActionPlan.IFlight = plan.flight!;
+    const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
+    const declared: IAutoMovieMotionHumanActionPlan.IFlight = plan.flight!;
     const subject: string = person.performer.subject;
-    const body: IHumanBody = person.performer.body;
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
@@ -145,7 +126,7 @@ export namespace HumanPerformanceFlight {
         });
       return out;
     };
-    const history: integrateAirborneRotation.IHistory =
+    const history: IAutoMovieIntegrateAirborneRotation.IHistory =
       integrateAirborneRotation.history(model, shape, { from: t0, to: t1 });
     const q0: IAutoMovieQuaternion = root(unturned(t0));
 
@@ -178,13 +159,13 @@ export namespace HumanPerformanceFlight {
 
     // The momentum: given, or solved from the turns.
     let momentum: IAutoMovieVector3;
-    let solvedFlight: integrateAirborneRotation.IFlight | undefined;
+    let solvedFlight: IAutoMovieIntegrateAirborneRotation.IFlight | undefined;
     if (declared.momentum.kind === "momentum")
       momentum = declared.momentum.momentum;
     else {
-      const turns: IHumanActionPlan.IFlightTurns = declared.momentum;
+      const turns: IAutoMovieMotionHumanActionPlan.IFlightTurns = declared.momentum;
       const maximum: number = turns.maximum ?? ceiling(t0);
-      const solved: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+      const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
         history,
         t0,
         t1,
@@ -209,7 +190,7 @@ export namespace HumanPerformanceFlight {
       momentum = solved.momentum;
       solvedFlight = solved.flight;
     }
-    const turned: integrateAirborneRotation.IFlight =
+    const turned: IAutoMovieIntegrateAirborneRotation.IFlight =
       solvedFlight ??
       integrateAirborneRotation({
         history,
@@ -245,7 +226,7 @@ export namespace HumanPerformanceFlight {
           };
         },
       );
-    const rotation = (seconds: number): IHumanPosture.IRotation => {
+    const rotation = (seconds: number): IAutoMovieMotionHumanPosture.IRotation => {
       const t: number = Math.max(t0, Math.min(t1, segment.start + seconds));
       const i: number = Math.min(knots - 2, Math.floor((t - t0) / step));
       const a: number = times[i]!;

@@ -1,3 +1,4 @@
+import type { IAutoMovieNaturalSpline } from "@automovie/interface";
 /**
  * Natural cubic spline through knots: the C2 curve of least bending that
  * passes through every knot, with zero curvature at both ends.
@@ -12,24 +13,6 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieNaturalSpline {
-  /**
-   * A spline prepared for evaluation; knot arrays are borrowed and must remain unchanged.
-   *
-   * @evidence contracts/development/design.md#principled-representation Knot values and solved second derivatives represent the natural cubic on strictly increasing abscissae.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three arrays expose the interpolation data without a separate evaluator object.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This structural record carries no validation or immutability guarantee; matching finite arrays remain producer premises.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the borrowed knots, values and owned curvature array, including their mutation restriction.
-   */
-  export interface ISpline {
-    /** Strictly increasing knot abscissae. */
-    xs: readonly number[];
-
-    /** Knot values. */
-    ys: readonly number[];
-
-    /** Second derivative at every knot. */
-    curvatures: number[];
-  }
 
   /**
    * Solve the tridiagonal system of the knot curvatures.
@@ -48,7 +31,7 @@ export namespace AutoMovieNaturalSpline {
   export function create(
     xs: readonly number[],
     ys: readonly number[],
-  ): ISpline {
+  ): IAutoMovieNaturalSpline.ISpline {
     const n: number = xs.length;
     const diagonal: number[] = new Array<number>(n).fill(1);
     const upper: number[] = new Array<number>(n).fill(0);
@@ -82,14 +65,14 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the prepared knot curvatures and reads only one interval's coefficients; repeated query locations are not cached.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no input, buffer or handle.
    */
-  export function evaluate(spline: ISpline, x: number): number {
+  export function evaluate(spline: IAutoMovieNaturalSpline.ISpline, x: number): number {
     const k: number = interval(spline.xs, x);
     return valueAt(spline, x, k);
   }
 
   /** Same polynomial and tangent arithmetic at an already selected span. */
-  function valueAt(spline: ISpline, x: number, k: number): number {
-    const { xs, ys, curvatures }: ISpline = spline;
+  function valueAt(spline: IAutoMovieNaturalSpline.ISpline, x: number, k: number): number {
+    const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = x - xs[k]!;
     const slope: number =
@@ -131,18 +114,18 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both derivatives share the interval width, local parameter, secant and prepared curvatures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fresh two-number result escapes; the spline is not mutated or retained.
    */
-  export function derivative(spline: ISpline, x: number): [number, number] {
+  export function derivative(spline: IAutoMovieNaturalSpline.ISpline, x: number): [number, number] {
     const k: number = interval(spline.xs, x);
     return derivativeAt(spline, x, k);
   }
 
   /** Same derivative and exterior arithmetic at an already selected span. */
   function derivativeAt(
-    spline: ISpline,
+    spline: IAutoMovieNaturalSpline.ISpline,
     x: number,
     k: number,
   ): [number, number] {
-    const { xs, ys, curvatures }: ISpline = spline;
+    const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
     const n: number = xs.length;
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = Math.min(h, Math.max(0, x - xs[k]!));
@@ -171,7 +154,7 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both existing polynomial readers share the selected span without caching query history.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fresh three-number tuple and local derivative pair are call-owned; nothing is retained.
    */
-  export function read(spline: ISpline, x: number): [number, number, number] {
+  export function read(spline: IAutoMovieNaturalSpline.ISpline, x: number): [number, number, number] {
     const k: number = interval(spline.xs, x);
     const value: number = valueAt(spline, x, k);
     const jet: [number, number] = derivativeAt(spline, x, k);
@@ -207,8 +190,8 @@ export namespace AutoMovieNaturalSpline {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function jerk(spline: ISpline, x: number): number {
-    const { xs, curvatures }: ISpline = spline;
+  export function jerk(spline: IAutoMovieNaturalSpline.ISpline, x: number): number {
+    const { xs, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
     const n: number = xs.length;
     if (!(x >= xs[0]! && x <= xs[n - 1]!)) return 0;
     const k: number = interval(xs, x);

@@ -1,7 +1,4 @@
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
-
-import { ViolationCollector } from "./ViolationCollector";
-
+import type { IAutoMoviePrimitiveShape, IAutoMovieViolationCollector } from "@automovie/interface";
 /**
  * Switch on primitive shape and require finite positive supported dimensions, including capsule length policy.
  *
@@ -14,13 +11,13 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only collector rows remain with the caller; no mesh tessellation or renderer resource is acquired.
  */
 export const validateExtents: (
-  shape: AutoMoviePrimitiveShape,
+  shape: IAutoMoviePrimitiveShape,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
-  shape: AutoMoviePrimitiveShape,
+  shape: IAutoMoviePrimitiveShape,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   let dims: ReadonlyArray<readonly [string, number]>;
   switch (shape.type) {

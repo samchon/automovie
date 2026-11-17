@@ -1,13 +1,7 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChamber } from "./KickChamber";
 import { KickForm } from "./KickForm";
@@ -43,16 +37,16 @@ export namespace KickSwing {
   /** What a kicking leg's path is built from. */
   export interface IProps {
     /** The kicking body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The kicking side. */
     side: "left" | "right";
 
     /** The kick's timing. */
-    timing: IKickGeometry.ITiming;
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming;
 
     /** The body's posture at the contact, under which the leg was fitted. */
-    base: IHumanPosture;
+    base: IAutoMovieMotionHumanPosture;
 
     /** The chambered leg under that posture. */
     key: KickChamber.IKey;
@@ -83,9 +77,9 @@ export namespace KickSwing {
     props: IProps,
   ): (
     clock: number,
-    base: IHumanPosture,
+    base: IAutoMovieMotionHumanPosture,
     shift: IAutoMovieVector3,
-  ) => IKickGeometry.ILeg {
+  ) => IAutoMovieMotionHumanKickGeometry.ILeg {
     const { body, side, timing, key, contact, plant } = props;
     const { prep, chamber, impact, duration } = timing;
     const recoil: number = duration - impact;
@@ -138,9 +132,9 @@ export namespace KickSwing {
       ).s;
     return (
       clock: number,
-      base: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
       shift: IAutoMovieVector3,
-    ): IKickGeometry.ILeg => {
+    ): IAutoMovieMotionHumanKickGeometry.ILeg => {
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
       const carried = (v: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(

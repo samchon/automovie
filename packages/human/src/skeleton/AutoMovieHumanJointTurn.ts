@@ -1,4 +1,9 @@
-import type { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
+import type { AutoMovieQuaternionTuple, IAutoMovieHumanJointCentres, IAutoMovieHumanNeutral, IAutoMovieHumanSkeletonMath } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
@@ -23,37 +28,37 @@ export namespace AutoMovieHumanJointTurn {
    * @returns Per joint, radians, at most a half turn.
    */
   export function derive(
-    neutral: AutoMovieHumanNeutral.IOutput,
-    joints: readonly AutoMovieHumanJointCentres.IJoint[],
+    neutral: IAutoMovieHumanNeutral.IOutput,
+    joints: readonly IAutoMovieHumanJointCentres.IJoint[],
   ): Map<string, number> {
-    const standing: Map<string, AutoMovieHumanJointCentres.IJoint> = new Map(
+    const standing: Map<string, IAutoMovieHumanJointCentres.IJoint> = new Map(
       neutral.joints.map(
         (
-          j: AutoMovieHumanJointCentres.IJoint,
-        ): [string, AutoMovieHumanJointCentres.IJoint] => [j.bone, j],
+          j: IAutoMovieHumanJointCentres.IJoint,
+        ): [string, IAutoMovieHumanJointCentres.IJoint] => [j.bone, j],
       ),
     );
     const parentOf: Map<string, string | null> = new Map(
-      joints.map((j: AutoMovieHumanJointCentres.IJoint): [string, string | null] => [
+      joints.map((j: IAutoMovieHumanJointCentres.IJoint): [string, string | null] => [
         j.bone,
         j.parent,
       ]),
     );
-    const relative: (bone: string, q: Math3D.Quaternion) => number = (
+    const relative: (bone: string, q: AutoMovieQuaternionTuple) => number = (
       bone: string,
-      q: Math3D.Quaternion,
+      q: AutoMovieQuaternionTuple,
     ): number => {
       const parent: string | null = parentOf.get(bone) ?? null;
-      const p: Math3D.Quaternion =
+      const p: AutoMovieQuaternionTuple =
         parent === null ? [0, 0, 0, 1] : neutral.turns.get(parent)!;
-      const r: Math3D.Quaternion = Math3D.multiply(
+      const r: AutoMovieQuaternionTuple = Math3D.multiply(
         Math3D.multiply([-p[0], -p[1], -p[2], p[3]], q),
         neutral.turns.get(bone)!,
       );
       return 2 * Math.acos(Math.min(1, Math.abs(r[3])));
     };
     const out: Map<string, number> = new Map(
-      joints.map((j: AutoMovieHumanJointCentres.IJoint): [string, number] => [
+      joints.map((j: IAutoMovieHumanJointCentres.IJoint): [string, number] => [
         j.bone,
         relative(j.bone, [0, 0, 0, 1]),
       ]),
@@ -71,9 +76,9 @@ export namespace AutoMovieHumanJointTurn {
       if (path.startsWith("head.") || path.endsWith("knee.rotation")) continue;
       for (const side of template.includes("<side>") ? ["left", "right"] : [""]) {
         const bone: string = template.replace("<side>", side);
-        const own: AutoMovieHumanJointCentres.IJoint | undefined = standing.get(bone);
+        const own: IAutoMovieHumanJointCentres.IJoint | undefined = standing.get(bone);
         if (own === undefined) continue;
-        const axes: Math3D.IAxes = Math3D.boneAxes(
+        const axes: IAutoMovieHumanSkeletonMath.IAxes = Math3D.boneAxes(
           bone,
           Math3D.unit(Math3D.sub(own.toward, own.position)),
           standing,

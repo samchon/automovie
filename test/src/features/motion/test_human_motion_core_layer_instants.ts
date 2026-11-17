@@ -1,16 +1,7 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanAffect,
-  HumanBreath,
-  HumanChain,
-  HumanCue,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanLayer,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolveSchedule, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { HumanAffect, HumanBreath, HumanChain, HumanCue, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -48,14 +39,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_layer_instants(): void {
   const complaints: string[] = [];
   const FRAME: number = 1 / 24;
-  const cues: Record<string, readonly resolveAutoMovieSchedule.ICue[]> = {
+  const cues: Record<string, readonly IAutoMovieResolveSchedule.ICue[]> = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 3, accents: [2] }]),
   };
-  const bodies: Record<"a" | "b", IHumanBody> = {
+  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
-  const air: IHumanLayer.IScheduled = {
+  const air: IAutoMovieMotionHumanLayer.IScheduled = {
     anchor: "air",
     from: { of: "dialogue", event: "lineStart" },
     to: 4,
@@ -63,9 +54,9 @@ export function test_human_motion_core_layer_instants(): void {
     layer: HumanBreath.layer(),
   };
   const perform = (
-    composition: { node: HumanChain["node"] },
-    layers: readonly (IHumanLayer | IHumanLayer.IScheduled)[],
-  ): HumanPerformance =>
+    composition: { node: IAutoMovieMotionHumanChain["node"] },
+    layers: readonly (IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled)[],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "instants",
       cues,
@@ -91,11 +82,11 @@ export function test_human_motion_core_layer_instants(): void {
   };
   const said = (thrown: unknown): string =>
     thrown instanceof Error ? thrown.message : String(thrown);
-  const waiting = (): HumanChain =>
+  const waiting = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("b").stand({ seconds: 6 });
 
   // 1 and 2. The instants, a sync to one and a cut on another.
-  const film: HumanPerformance = perform(
+  const film: IAutoMovieMotionHumanPerformance = perform(
     waiting().with(
       HumanChain.subject("a")
         .stand({ seconds: 6 })
@@ -121,7 +112,7 @@ export function test_human_motion_core_layer_instants(): void {
     complaints.push(
       `a stand cut on the layer's end ends at ${cut?.toFixed(4)} s, 4.0 s expected`,
     );
-  const synced: HumanPerformance = perform(
+  const synced: IAutoMovieMotionHumanPerformance = perform(
     waiting().with(
       HumanChain.subject("a")
         .stand({ seconds: 6 })
@@ -137,18 +128,18 @@ export function test_human_motion_core_layer_instants(): void {
     );
 
   // 3. A layer windowed on a layer's instant.
-  const sigh: IHumanLayer.IScheduled = {
+  const sigh: IAutoMovieMotionHumanLayer.IScheduled = {
     from: { of: "air", event: "offset" },
-    layer: (window: IHumanLayer.IWindow): IHumanLayer =>
+    layer: (window: IAutoMovieMotionHumanLayer.IWindow): IAutoMovieMotionHumanLayer =>
       HumanAffect.layer([{ kind: "sigh", at: window.from }]),
   };
-  const plain: HumanSignature.IReader = HumanSignature.of(
+  const plain: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     perform(waiting(), [air]),
     "b",
     bodies.b,
     0,
   );
-  const sighing: HumanSignature.IReader = HumanSignature.of(
+  const sighing: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     perform(waiting(), [air, sigh]),
     "b",
     bodies.b,
@@ -187,7 +178,7 @@ export function test_human_motion_core_layer_instants(): void {
     );
 
   // 4. A fade never takes more than half its window.
-  const brief: HumanPerformance = perform(waiting(), [
+  const brief: IAutoMovieMotionHumanPerformance = perform(waiting(), [
     { anchor: "brief", from: 2, to: 2.4, layer: HumanBreath.layer() },
   ]);
   for (const event of ["full", "offset"] as const) {

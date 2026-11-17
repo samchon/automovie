@@ -1,8 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
@@ -44,7 +42,7 @@ export namespace HumanSwordLanding {
   /** What a cut's contact is placed by. */
   export interface IProps {
     /** The held blade. */
-    tool: StrikingHeld.ITool;
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
     /** How far behind the working point the landing part lies, metres. */
     back: number;
@@ -62,7 +60,7 @@ export namespace HumanSwordLanding {
     cone: number;
 
     /** The body as it stands at the decisive instant. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -81,11 +79,11 @@ export namespace HumanSwordLanding {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
-    context: Pick<IHumanActionContext, "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     props: IProps,
-  ): StrikingHeld.IHandFrame {
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const { tool, back, target, reach, travel, posture } = props;
-    const leaning = (lean: number, turn: number): StrikingHeld.IHandFrame =>
+    const leaning = (lean: number, turn: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
       StrikingHeld.hand(
         tool,
         back,
@@ -121,7 +119,7 @@ export namespace HumanSwordLanding {
       .map((c: [[number, number], number]): [number, number] => c[0]);
     // The line leaned further, `tilt` degrees inside `cone`
     // toward `around`, and an edgeless tool rolled `roll` degrees about it.
-    const free = (values: readonly number[]): StrikingHeld.IHandFrame => {
+    const free = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [lean, turn, roll, tilt, around] = values as readonly [
         number,
         number,
@@ -129,7 +127,7 @@ export namespace HumanSwordLanding {
         number,
         number,
       ];
-      const frame: StrikingHeld.IHandFrame = leaning(lean, turn);
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = leaning(lean, turn);
       if (roll === 0 && tilt === 0) return frame;
       const run: IAutoMovieVector3 = Quaternion.rotateVector(
         frame.rotation,

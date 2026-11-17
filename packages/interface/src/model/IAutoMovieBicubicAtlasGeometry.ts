@@ -30,21 +30,41 @@ export interface IAutoMovieBicubicAtlasGeometry {
   controls: IAutoMovieVector3[];
 
   /** Unique patch IDs and sixteen coefficient indices, u varying fastest within each v row. */
-  patches: { id: string; controlIds: number[] }[];
+  patches: {
+    /** Unique nonempty patch identity within this atlas. */
+    id: string;
+
+    /** Sixteen indices into controls, with u varying fastest in each v row. */
+    controlIds: number[];
+  }[];
 
   /** Source-free cubic position owners; each interval uses this complete canonical net. */
   boundaryAuthorities?: {
+    /** Unique nonempty identity of the complete canonical cubic. */
     id: string;
+
+    /** Four ordered indices into controls defining that cubic's Bernstein net. */
     controlIds: [number, number, number, number];
   }[];
 
   /** Explicit edge construction from an oriented canonical interval; normal fans remain independent. */
   boundaryBindings?: {
+    /** Existing patch identity whose side is constructed. */
     patch: string;
+
+    /** Parameter-square side: 0 is v=0, 1 is u=1, 2 is v=1, 3 is u=0. */
     side: 0 | 1 | 2 | 3;
+
+    /** Existing complete cubic identity in boundaryAuthorities. */
     authority: string;
+
+    /** Start parameter on the canonical cubic in [0, 1]. */
     start: number;
+
+    /** Distinct end parameter in [0, 1]; end below start reverses orientation. */
     end: number;
+
+    /** Nonempty identity selecting an independently retained analytic normal fan. */
     normalFan: string;
   }[];
 

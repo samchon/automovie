@@ -1,18 +1,8 @@
-import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
-import type {
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
-import type { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
@@ -57,13 +47,13 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bend(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
-    along: AutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
+    along: IAutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
     facing?: IAutoMovieVector3,
     elbow: "natural" | "level" = "natural",
     lean?: number,
@@ -75,7 +65,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
       tangent,
       side,
     );
-    const g: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
+    const g: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
       body,
       side,
       effector,
@@ -138,19 +128,19 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function laid(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     hint: IAutoMovieVector3,
-    along: AutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
+    along: IAutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
     facing?: IAutoMovieVector3,
-    elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
+    elbow?: IAutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
     lean?: number,
-  ): NonNullable<IHumanPosture.IGoal["reference"]> {
+  ): NonNullable<IAutoMovieMotionHumanPosture.IGoal["reference"]> {
     return reference(
       body,
       posture,
@@ -193,13 +183,13 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function reference(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    goal: IHumanPosture.IGoal,
-  ): NonNullable<IHumanPosture.IGoal["reference"]> {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+    goal: IAutoMovieMotionHumanPosture.IGoal,
+  ): NonNullable<IAutoMovieMotionHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const solved: IHumanPosture.IReference = resolveHumanPosture.reference(
+    const solved: IAutoMovieMotionHumanPosture.IReference = resolveHumanPosture.reference(
       resolveHumanPosture(body, {
         ...posture,
         limbs: { ...posture.limbs, [limb]: goal },
@@ -260,19 +250,19 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function rest(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     hint: IAutoMovieVector3,
-    along: AutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
+    along: IAutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
     facing?: IAutoMovieVector3,
-    elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
+    elbow?: IAutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
     lean?: number,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieMotionHumanPosture.IGoal {
     const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
     const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
       normal,
@@ -332,13 +322,13 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function settled(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
-    elbow: NonNullable<AutoMovieMotionHumanTouch.ITouch["elbow"]> = "natural",
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
+    elbow: NonNullable<IAutoMovieMotionHumanTouch.ITouch["elbow"]> = "natural",
   ): IAutoMovieVector3 {
     let from: IAutoMovieVector3 | undefined;
     let hint: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -347,7 +337,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
       side,
     );
     for (let round: number = 0; round < 3; ++round) {
-      const goal: IHumanPosture.IGoal = rest(
+      const goal: IAutoMovieMotionHumanPosture.IGoal = rest(
         body,
         posture,
         side,
@@ -410,15 +400,15 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lie(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    side: HumanHand.Side,
-    lay: AutoMovieMotionHumanTouch.ITouch["lay"],
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    side: IAutoMovieMotionHumanHand.Side,
+    lay: IAutoMovieMotionHumanTouch.ITouch["lay"],
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     travel: IAutoMovieVector3,
     facing?: IAutoMovieVector3,
-    elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
+    elbow?: IAutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
     lean: number = 0,
   ): [IAutoMovieVector3, IAutoMovieVector3] {

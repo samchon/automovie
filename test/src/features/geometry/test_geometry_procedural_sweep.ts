@@ -1,12 +1,6 @@
-import {
-  type IAutoMovieProfilePoint,
-  inspectAutoMovieMeshTopology,
-  meshAutoMovieSweep,
-} from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieProfilePoint, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { inspectAutoMovieMeshTopology, meshAutoMovieSweep } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";

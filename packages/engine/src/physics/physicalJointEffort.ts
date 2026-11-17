@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalJointEffort } from "@automovie/interface";
 /**
  * Effective tracking fraction of one joint motor at one native tick.
  *
@@ -15,14 +16,7 @@
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalJointEffort(input: {
-  /** Body tracking fraction for this interval, in [0, 1]. */ effort: number;
-  /** Explicit per-joint fraction, when the target declares one. */ override?: number;
-  /** Balance joint fraction, present only while this joint's limb is a moving recovery limb. */ recovery?: number;
-  /** Seconds until which the joint's child stays softened; absent when it never was. */ softenedUntil?: number;
-  /** Current native tick time, seconds. */ seconds: number;
-  /** Tracking fraction while compliant, in [0, 1]. */ compliance: number;
-}): number {
+export function physicalJointEffort(input: IAutoMoviePhysicalJointEffort.IInput): number {
   const base: number = input.override ?? input.effort;
   const recovery: number = input.recovery ?? 1;
   const compliant: boolean =

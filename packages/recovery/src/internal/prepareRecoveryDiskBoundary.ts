@@ -1,6 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryDiskBoundaryPreparationOperation } from "@automovie/interface";
 
-import type { IRecoveryDiskChart } from "./IRecoveryDiskChart";
+
+
+
 
 /**
  * Choose a private disk boundary anchor and exact physical quarter measures.
@@ -14,29 +16,19 @@ import type { IRecoveryDiskChart } from "./IRecoveryDiskChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The DataView and rank arrays are call-local; returned arrays and closure transfer to one chart preparation.
  */
 export function prepareRecoveryDiskBoundary(
-  input: IRecoveryDiskChart.Input,
-  fail: (reason: string) => never,
-): {
-  turns: number[];
-  features: number[];
-  anchor: number;
-  cycle: number[];
-  units: bigint[];
-  total: bigint;
-  scaled: (value: bigint) => { mantissa: number; shift: number };
-  perimeterMm: number;
-  quarterMm: number;
-} {
+  input: Parameters<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation>[0],
+  fail: Parameters<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation> {
   const turns: number[] = input.boundaryCycle.map(
     (id: number, i: number): number => {
-      const previous: C.Vector =
+      const previous: Readonly<AutoMovieVector3Tuple> =
           input.verticesMm[
             input.boundaryCycle[
               (i + input.boundaryCycle.length - 1) % input.boundaryCycle.length
             ]!
           ]!,
-        p: C.Vector = input.verticesMm[id]!,
-        next: C.Vector =
+        p: Readonly<AutoMovieVector3Tuple> = input.verticesMm[id]!,
+        next: Readonly<AutoMovieVector3Tuple> =
           input.verticesMm[
             input.boundaryCycle[(i + 1) % input.boundaryCycle.length]!
           ]!;
@@ -188,6 +180,5 @@ export function prepareRecoveryDiskBoundary(
     total,
     scaled,
     perimeterMm,
-    quarterMm,
-  };
+    quarterMm };
 }

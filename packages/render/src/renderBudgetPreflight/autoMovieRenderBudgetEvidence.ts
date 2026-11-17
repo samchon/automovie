@@ -1,11 +1,11 @@
-import {
-  autoMovieRenderDigest,
-  compareAutoMovieRenderIds,
-} from "@automovie/engine";
-import { IAutoMovieRenderBudget } from "@automovie/interface";
+import type { IAutoMovieRenderBudget, IAutoMovieRenderBudgetAssessment, IAutoMovieRenderBudgetEvidence, IAutoMovieRenderBudgetEvidenceProps } from "@automovie/interface";
 
-import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
-import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence.js";
+
+import { autoMovieRenderDigest, compareAutoMovieRenderIds } from "@automovie/engine";
+
+
+
+
 import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget.js";
 
 const STATUS_ORDER: Readonly<
@@ -27,18 +27,7 @@ const STATUS_ORDER: Readonly<
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing assessment reports and targets are referenced rather than recomputed; canonical ordering permits callers to reuse byte-identical evidence for equivalent verdict inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The output retains the sorted assessment array and tier list; sorting copies the input array and opens no file, encoder or renderer resource.
  */
-export const autoMovieRenderBudgetEvidence: (props: {
-  tier: string;
-  budgets: readonly IAutoMovieRenderBudget[] | undefined;
-  assessments: readonly IAutoMovieRenderBudgetAssessment[];
-}) => IAutoMovieRenderBudgetEvidence = (props: {
-  /** Quality tier the job targeted. */
-  tier: string;
-  /** Budgets the production declares. */
-  budgets: readonly IAutoMovieRenderBudget[] | undefined;
-  /** One assessment per shot; order is normalized here. */
-  assessments: readonly IAutoMovieRenderBudgetAssessment[];
-}): IAutoMovieRenderBudgetEvidence => {
+export const autoMovieRenderBudgetEvidence: (props: IAutoMovieRenderBudgetEvidenceProps) => IAutoMovieRenderBudgetEvidence = (props: IAutoMovieRenderBudgetEvidenceProps): IAutoMovieRenderBudgetEvidence => {
   const shots: IAutoMovieRenderBudgetAssessment[] = [...props.assessments].sort(
     (
       left: IAutoMovieRenderBudgetAssessment,

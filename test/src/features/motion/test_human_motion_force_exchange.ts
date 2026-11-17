@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSignature, IAutoMovieResolveCenterOfMass, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Vector3,
@@ -5,20 +6,8 @@ import {
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFoot,
-  HumanForceExchange,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+
+import { HumanChain, HumanFoot, HumanForceExchange, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -82,13 +71,13 @@ export function test_human_motion_force_exchange(): void {
   const STEP: number = integrateMotionTrajectory.STEP;
   const SITES: readonly AutoMovieHumanoidRegion[] = ["chestLeft", "elbowRight"];
   const perform = (
-    bodies: Readonly<Record<"a" | "b", IHumanBody>>,
+    bodies: Readonly<Record<"a" | "b", IAutoMovieMotionHumanBody>>,
     params: object,
     force: number,
     direction: IAutoMovieVector3,
     span: number,
     thrower: { at: IAutoMovieVector3; yaw: number } | null = null,
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "exchange",
       performers: [
@@ -132,8 +121,8 @@ export function test_human_motion_force_exchange(): void {
         to: START + span,
       }),
     });
-  const standing = (body: IHumanBody) => {
-    const film: HumanPerformance = new HumanPerformance({
+  const standing = (body: IAutoMovieMotionHumanBody) => {
+    const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "exchange",
       performers: [
         {
@@ -146,7 +135,7 @@ export function test_human_motion_force_exchange(): void {
       ],
       composition: HumanChain.subject("b").stand({ seconds: START }).node,
     });
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "b",
       body,
@@ -159,8 +148,8 @@ export function test_human_motion_force_exchange(): void {
   };
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const length: number = resolveAutoMovieCenterOfMass.pendulum(
       body.measure.hipHeight,
@@ -186,14 +175,14 @@ export function test_human_motion_force_exchange(): void {
       });
 
       // 1. Off-balancing.
-      const film: HumanPerformance = perform(
+      const film: IAutoMovieMotionHumanPerformance = perform(
         { a: body, b: body },
         { outcome: "yield" },
         force,
         direction,
         2 * declared,
       );
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "b",
         body,
@@ -281,14 +270,14 @@ export function test_human_motion_force_exchange(): void {
         ).reduce((a: number, b: number): number => a + b, 0) / SITES.length;
       const limit: number =
         (model.mass * AutoMovieGravity.STANDARD * behind) / grip;
-      const resisted: HumanPerformance = perform(
+      const resisted: IAutoMovieMotionHumanPerformance = perform(
         { a: body, b: body },
         { outcome: "resist" },
         limit / 2,
         direction,
         1,
       );
-      const held: HumanSignature.IReader = HumanSignature.of(
+      const held: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         resisted,
         "b",
         body,
@@ -307,7 +296,7 @@ export function test_human_motion_force_exchange(): void {
         `${cell}, resisting half the limit: the centre's least margin inside the base is ${(worst * 1000).toFixed(1)} mm, inside expected`,
         worst >= 0,
       );
-      let refusal: HumanRefusal | null = null;
+      let refusal: IAutoMovieMotionHumanRefusal | null = null;
       try {
         perform(
           { a: body, b: body },
@@ -357,14 +346,14 @@ export function test_human_motion_force_exchange(): void {
   }
 
   // 5. The throw.
-  const bodies: Record<"a" | "b", IHumanBody> = {
+  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("f-small"),
     b: motionHumanBody("m-large"),
   };
-  const model: resolveAutoMovieCenterOfMass.IModel =
+  const model: IAutoMovieResolveCenterOfMass.IModel =
     resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-  let thrown: HumanPerformance | null = null;
+  let thrown: IAutoMovieMotionHumanPerformance | null = null;
   try {
     thrown = perform(
       bodies,
@@ -401,8 +390,8 @@ export function test_human_motion_force_exchange(): void {
         kuzushi < release &&
         release <= land,
     );
-    const bearing: IHumanContactWindow | undefined = plan.contacts.find(
-      (w: IHumanContactWindow): boolean =>
+    const bearing: IAutoMovieMotionHumanContactWindow | undefined = plan.contacts.find(
+      (w: IAutoMovieMotionHumanContactWindow): boolean =>
         w.support.kind === "person" && w.support.subject === "a",
     );
     all.check(
@@ -412,13 +401,13 @@ export function test_human_motion_force_exchange(): void {
         Math.abs(bearing.to - (release - response.start) / plan.duration) <=
           1e-9,
     );
-    const partner: HumanSignature.IReader = HumanSignature.of(
+    const partner: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       thrown,
       "b",
       bodies.b,
       0,
     );
-    const thrower: HumanSignature.IReader = HumanSignature.of(
+    const thrower: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       thrown,
       "a",
       bodies.a,
@@ -476,7 +465,7 @@ export function test_human_motion_force_exchange(): void {
   }
 
   // 6. A throw with no fulcrum.
-  let missing: HumanRefusal | null = null;
+  let missing: IAutoMovieMotionHumanRefusal | null = null;
   try {
     perform(
       bodies,

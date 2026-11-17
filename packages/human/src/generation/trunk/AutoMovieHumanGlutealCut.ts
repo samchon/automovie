@@ -1,13 +1,7 @@
-import {
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-  AutoMovieSolidVector,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanGlutealCut } from "@automovie/interface";
+
+
+import { AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieLoftViewWorldJet, AutoMovieSolidVector, AutoMovieViewOutline } from "@automovie/engine";
 
 /** Numerical world-height meeting budget, calibration millimetres. */
 const TOLERANCE: number = 1e-9;
@@ -26,33 +20,25 @@ interface Station {
 /** One original point, before any loft or tessellation. */
 interface Reading {
   /** World point in calibration millimetres. */
-  point: AutoMovieSolidVector.Vec3;
+  point: AutoMovieVector3Tuple;
   /** Whether the original section is exactly its zero-radius axis point. */
   collapsed: boolean;
 }
 
 /** Original horizontal cuts of the same leg field consumed by the pelvis. */
 export namespace AutoMovieHumanGlutealCut {
-  /** One horizontal-cut point and the actual source chart that produced it. */
-  export interface IPoint {
-    /** World X/Z in calibration millimetres. */
-    point: [number, number];
-    /** Physical station of the identical original source, calibration mm. */
-    station: number;
-    /** Original local polar phase, radians. */
-    phase: number;
-  }
+  
 
   /** Preserve the existing point-only consumer without preparing another field or solving another cut. */
   export function create(
     part: IAutoMovieViewPart,
     y: number,
     count: number,
-  ): [number, number][] | string {
-    const cut: IPoint[] | string = records(part, y, count);
+  ): IAutoMovieHumanGlutealCut.CreateResult {
+    const cut: IAutoMovieHumanGlutealCut.IPoint[] | string = records(part, y, count);
     return typeof cut === "string"
       ? cut
-      : cut.map((record: IPoint): [number, number] => record.point);
+      : cut.map((record: IAutoMovieHumanGlutealCut.IPoint): [number, number] => record.point);
   }
 
   /**
@@ -68,15 +54,15 @@ export namespace AutoMovieHumanGlutealCut {
     part: IAutoMovieViewPart,
     y: number,
     count: number,
-  ): IPoint[] | string {
+  ): IAutoMovieHumanGlutealCut.IPoint[] | string {
     if (!Number.isFinite(y) || !Number.isInteger(count) || count < 4)
       return `${part.name}: level cut needs a finite height and at least four integer phases.`;
     try {
-      const prepared: AutoMovieLoftViewSource.IResult | null =
+      const prepared: IAutoMovieLoftViewSource.IResult | null =
         AutoMovieLoftViewSource.create(part);
       if (prepared === null || prepared.source === null)
         return `${part.name}: level cut needs its admitted direct-fullness original: ${JSON.stringify(prepared?.diagnostics ?? [])}`;
-      const source: AutoMovieLoftViewSource.ISource = prepared.source;
+      const source: IAutoMovieLoftViewSource.ISource = prepared.source;
       const partitions: number[] | string = stations(part, source);
       if (typeof partitions === "string") return partitions;
       const cache: Map<number, Station | string> = new Map();
@@ -86,7 +72,7 @@ export namespace AutoMovieHumanGlutealCut {
       ): Reading | string => {
         let station: Station | string | undefined = cache.get(s);
         if (station === undefined) {
-          const values: AutoMovieLoftViewRead.IValues | string =
+          const values: IAutoMovieLoftViewRead.IValues | string =
             AutoMovieLoftViewRead.values(source, s);
           station =
             typeof values === "string"
@@ -116,7 +102,7 @@ export namespace AutoMovieHumanGlutealCut {
           collapsed: false,
         };
       };
-      const points: IPoint[] = [];
+      const points: IAutoMovieHumanGlutealCut.IPoint[] = [];
       for (let k: number = 0; k < count; k++) {
         const phi: number = (2 * Math.PI * k) / count;
         const roots: number[] = [];
@@ -193,9 +179,9 @@ export namespace AutoMovieHumanGlutealCut {
 /** Reuse actual source partitions for discovery; no new shape or frame is fitted. */
 function stations(
   part: IAutoMovieViewPart,
-  source: AutoMovieLoftViewSource.ISource,
+  source: IAutoMovieLoftViewSource.ISource,
 ): number[] | string {
-  const full: AutoMovieViewOutline.IOutline[] =
+  const full: IAutoMovieViewOutline.IOutline[] =
     source.fullness.kind === "top"
       ? [...source.fullness.shoulders]
       : [source.fullness.owner, ...(source.fullness.departures ?? [])];
@@ -203,7 +189,7 @@ function stations(
     ...source.domain,
     ...part.stations,
     ...[...source.extents, ...full].flatMap(
-      (outline: AutoMovieViewOutline.IOutline): number[] => [
+      (outline: IAutoMovieViewOutline.IOutline): number[] => [
         ...outline.knots.map(
           (knot: IAutoMovieViewPart.IKnot): number => knot.station,
         ),
@@ -211,7 +197,7 @@ function stations(
       ],
     ),
     ...source.caps.flatMap(
-      (cap: AutoMovieLoftViewSource.ISource["caps"][number]): number[] =>
+      (cap: IAutoMovieLoftViewSource.ISource["caps"][number]): number[] =>
         cap.near === null ? [cap.pole] : [cap.pole, cap.near],
     ),
   ];

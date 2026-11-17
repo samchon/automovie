@@ -1,5 +1,4 @@
-import type { IAutoMovieSingularMatrixBudget } from "../math/IAutoMovieSingularMatrixBudget";
-
+import type { IAutoMovieSingularMatrixBudget } from "@automovie/interface";
 /**
  * Shared SVD work budget for physical target designs. A design has at most
  * 1024 residual rows and 64 coordinates, so 65536 entries bound it exactly;

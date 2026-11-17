@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanConicSection } from "@automovie/interface";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/human";
 
 /**
@@ -23,13 +24,13 @@ export function test_human_conic_featured(): void {
   type P = [number, number];
   const failures: string[] = [];
   const S = AutoMovieHumanConicSection;
-  const base: AutoMovieHumanConicSection.ILayout = S.bilateral(1);
-  const runs: AutoMovieHumanConicSection.IFeatureRun[] = [
+  const base: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
+  const runs: IAutoMovieHumanConicSection.IFeatureRun[] = [
     { after: 0, anchors: [{ kind: "f", feature: "inflection" }, { kind: "f", feature: "convex" }, { kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, { kind: "f", feature: "inflection" }] },
     { after: 3, anchors: [{ kind: "f", feature: "convex" }, { kind: "f", feature: "inflection" }] },
   ];
   // The drawn chain: each arc the rational quadratic on its ends and their tangents' meeting, 200 points an arc.
-  const draw = (values: readonly number[], layout: AutoMovieHumanConicSection.ILayout): P[] => {
+  const draw = (values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout): P[] => {
     const chain = S.resolve(values, layout).input;
     const n: number = chain.points.length;
     const out: P[] = [];
@@ -65,19 +66,19 @@ export function test_human_conic_featured(): void {
     return worst;
   };
   // Stored rounding: millimetres to 0.01, shares and angles to 1e-4.
-  const stored = (values: readonly number[], layout: AutoMovieHumanConicSection.ILayout): number[] =>
+  const stored = (values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout): number[] =>
     values.map((x: number, i: number): number => (S.units(layout)[i] === "mm" ? Math.round(x * 100) / 100 : Math.round(x * 1e4) / 1e4));
   const section = (lift: number): number[] => [128 + lift, 0.46, 12 + lift, 152 + lift, 0.52, -112 - lift, 0.31, 0.62, 0.47, 0.71];
 
   // 1. Freed medians: exact up to the stored rounding.
   const freed: number[] = [1, 3];
-  const lined: AutoMovieHumanConicSection.ILayout = S.featured(base, runs, freed);
+  const lined: IAutoMovieHumanConicSection.ILayout = S.featured(base, runs, freed);
   const converted: number[] = stored(S.convert(section(0), base, runs, freed), lined);
   const b: P[] = draw(section(0), base);
   const c: P[] = draw(converted, lined);
   const there: number = Math.max(far(c, b), far(b, c));
   if (!(there <= 0.01)) failures.push(`freed medians: the converted chain stands ${there.toFixed(4)} mm off the base, over 0.01`);
-  const units: AutoMovieHumanConicSection.Unit[] = S.units(lined);
+  const units: IAutoMovieHumanConicSection.Unit[] = S.units(lined);
   const { shoulders } = S.offsets(lined);
   converted.forEach((x: number, i: number): void => {
     if (i >= shoulders) {
@@ -86,13 +87,13 @@ export function test_human_conic_featured(): void {
   });
 
   // 2. Kept medians: the median re-resolves on its new neighbours and the chain leaves the base.
-  const plain: AutoMovieHumanConicSection.ILayout = S.featured(base, runs, []);
+  const plain: IAutoMovieHumanConicSection.ILayout = S.featured(base, runs, []);
   const kept: number[] = stored(S.convert(section(0), base, runs, []), plain);
   const off: number = Math.max(far(draw(kept, plain), b), far(b, draw(kept, plain)));
   if (!(off > 0.01)) failures.push(`kept medians: the plain conversion stands only ${off.toFixed(4)} mm off the base; it should leave it beside the medians`);
 
   // 3. Between knots: a family converted at its knots against the base family at the stations between them.
-  const family = (layout: AutoMovieHumanConicSection.ILayout, values: number[][]): AutoMovieHumanConicLoft.IFamily => ({ name: "probe", centres: [[0, 0, 0], [0, 100, 0]], halves: [], up: [1, 0, 0], layout, knots: [0, 4, 8], values: values[0]!.map((_: number, f: number): number[] => values.map((v: number[]): number => v[f]!)) });
+  const family = (layout: IAutoMovieHumanConicSection.ILayout, values: number[][]): IAutoMovieHumanConicLoft.IFamily => ({ name: "probe", centres: [[0, 0, 0], [0, 100, 0]], halves: [], up: [1, 0, 0], layout, knots: [0, 4, 8], values: values[0]!.map((_: number, f: number): number[] => values.map((v: number[]): number => v[f]!)) });
   const lifts: number[] = [0, 1.5, 2.5];
   const baseFamily = AutoMovieHumanConicLoft.reader(family(base, lifts.map(section)));
   const linedFamily = AutoMovieHumanConicLoft.reader(family(lined, lifts.map((l: number): number[] => stored(S.convert(section(l), base, runs, freed), lined))));

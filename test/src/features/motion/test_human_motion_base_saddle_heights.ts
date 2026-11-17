@@ -1,17 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createHorse, createMotorcycle } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFoot,
-  HumanFrame,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
-  type seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanFoot, HumanFrame, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -57,15 +47,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_base_saddle_heights(): void {
   const complaints: string[] = [];
-  const where: HumanObject.Placement = {
+  const where: IAutoMovieMotionHumanObject.Placement = {
     at: { x: 0, y: 0, z: -0.6 },
     yaw: 0,
   };
-  const horse: HumanObject.IModel = createHorse({});
+  const horse: IAutoMovieMotionHumanObject.IModel = createHorse({});
 
   // A saddle with its rests removed is one whose feet must hang.
-  const bare = (model: HumanObject.IModel): seated.ISeat => {
-    const { footrests: _rests, ...seat }: seated.ISeat = HumanObject.seat(
+  const bare = (model: IAutoMovieMotionHumanObject.IModel): IAutoMovieMotionHumanSeated.ISeat => {
+    const { footrests: _rests, ...seat }: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       model,
       where,
     );
@@ -74,7 +64,7 @@ export function test_human_motion_base_saddle_heights(): void {
   const pairs: readonly (readonly [
     "f-small" | "m-average" | "m-large",
     string,
-    seated.ISeat,
+    IAutoMovieMotionHumanSeated.ISeat,
   ])[] = [
     [
       "f-small",
@@ -85,9 +75,9 @@ export function test_human_motion_base_saddle_heights(): void {
     ["m-large", "a horse's saddle without its stirrups", bare(horse)],
   ];
   for (const [name, kind, seat] of pairs) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const label: string = `${name} on ${kind}`;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "seats",
@@ -112,13 +102,13 @@ export function test_human_motion_base_saddle_heights(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       seat.yaw,
     );
-    const [sitting, rising]: readonly (HumanSegment.ISegment | undefined)[] =
+    const [sitting, rising]: readonly (IAutoMovieMotionHumanSegment.ISegment | undefined)[] =
       performance.segments("a");
     if (sitting === undefined || rising === undefined) {
       complaints.push(
@@ -128,7 +118,7 @@ export function test_human_motion_base_saddle_heights(): void {
     }
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-        (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+        (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
       )!.point;
 
     // 2. The seat region rests at the saddle's height.
@@ -142,7 +132,7 @@ export function test_human_motion_base_saddle_heights(): void {
     // 3. Off the floor: on a rest, or hanging clear.
     for (const side of ["left", "right"] as const) {
       const planted: boolean = sitting.plan.contacts.some(
-        (c: IHumanContactWindow): boolean =>
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.part === `${side}Foot` && c.kind === "plant" && c.to >= 1 - 1e-9,
       );
       const tread: IAutoMovieVector3 | undefined = seat.footrests?.[side];

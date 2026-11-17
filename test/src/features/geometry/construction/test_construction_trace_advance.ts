@@ -1,10 +1,5 @@
-import {
-  type AutoMovieSolidIntersection,
-  AutoMovieSolidTraceLaw,
-  AutoMovieSolidTraceSolve,
-  type IAutoMovieSolidAtlas,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { IAutoMovieSolidAtlas, IAutoMovieSolidIntersection, IAutoMovieSolidSurface, IAutoMovieSolidTraceLaw } from "@automovie/interface";
+import { AutoMovieSolidTraceLaw, AutoMovieSolidTraceSolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -12,7 +7,7 @@ import { nclose } from "../../internal/nclose";
 /** World position or derivative of one analytic chart. */
 type V = [number, number, number];
 /** The actual meeting point and its physical parameter rates. */
-type Point = AutoMovieSolidIntersection.IPoint;
+type Point = IAutoMovieSolidIntersection.IPoint;
 /** Exact surface map and its two derivative orders. */
 type Jet = IAutoMovieSolidSurface.IJet;
 /** Existing meeting tolerance; no test changes the solver's acceptance rule. */
@@ -43,7 +38,7 @@ interface Problem {
   /** The caller-owned host charts and their actual crossing map. */
   host: IAutoMovieSolidAtlas;
   /** The unchanged phase law, with query-owned observation. */
-  law: AutoMovieSolidTraceLaw.ILaw;
+  law: IAutoMovieSolidTraceLaw.ILaw;
   /** A real initial meeting, obtained through the production solver. */
   from: Point;
   /** Observations retained only until this test completes. */
@@ -489,11 +484,11 @@ function made(
       }),
     ),
   };
-  const original: AutoMovieSolidTraceLaw.ILaw | null =
+  const original: IAutoMovieSolidTraceLaw.ILaw | null =
     AutoMovieSolidTraceLaw.of({ kind: "phase" });
   if (original === null)
     throw new Error("The actual phase law was unavailable");
-  const law: AutoMovieSolidTraceLaw.ILaw = {
+  const law: IAutoMovieSolidTraceLaw.ILaw = {
     ...original,
     g: (p: V, phi: number, t: number): number => {
       if (work.active && t !== work.last) {

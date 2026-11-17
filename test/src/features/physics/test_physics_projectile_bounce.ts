@@ -1,11 +1,5 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  Vector3,
-  projectileContinue,
-  projectileFirstContact,
-} from "@automovie/engine";
+import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileContinue, IAutoMovieProjectileFirstContact } from "@automovie/interface";
+import { AutoMovieGravity, Vector3, projectileContinue, projectileFirstContact } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -37,7 +31,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists five scenarios with their physical inputs, independent expectations, numeric bounds and the distinction between bounded shares and other nonnegative coefficients.
  */
 export function test_physics_projectile_bounce(): void {
-  const ground: projectileFirstContact.ICollider = projectileFirstContact.plane(
+  const ground: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
     "ground",
     { x: 0, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
@@ -61,7 +55,7 @@ export function test_physics_projectile_bounce(): void {
 
   // 1. Half the speed, a quarter of the height.
   const hit: IAutoMovieHit = first(drop);
-  const after: projectileContinue.Segment = projectileContinue(drop, hit, {
+  const after: IAutoMovieProjectileContinue.Segment = projectileContinue(drop, hit, {
     kind: "bounce",
     restitution: 0.5,
     friction: 0,
@@ -82,7 +76,7 @@ export function test_physics_projectile_bounce(): void {
   };
   let rolled: boolean = false;
   for (let k: number = 0; k < 3; k++) {
-    const next: projectileContinue.Segment = projectileContinue(
+    const next: IAutoMovieProjectileContinue.Segment = projectileContinue(
       current,
       first(current),
       {
@@ -102,7 +96,7 @@ export function test_physics_projectile_bounce(): void {
   TestValidator.predicate("the bounces end in a roll", rolled);
 
   // 3. A roll stops at v²/(2cg).
-  const rolling: projectileContinue.Segment = projectileContinue(
+  const rolling: IAutoMovieProjectileContinue.Segment = projectileContinue(
     {
       ...drop,
       origin: { x: 0, y: 0.0001, z: 0 },
@@ -129,7 +123,7 @@ export function test_physics_projectile_bounce(): void {
   );
 
   // 4. A stick rests on along the velocity.
-  const stuck: projectileContinue.Segment = projectileContinue(drop, hit, {
+  const stuck: IAutoMovieProjectileContinue.Segment = projectileContinue(drop, hit, {
     kind: "stick",
     depth: 0.02,
   });
@@ -159,7 +153,7 @@ export function test_physics_projectile_bounce(): void {
       Infinity,
       -Infinity,
     ]) {
-      const outcome: projectileContinue.Outcome =
+      const outcome: IAutoMovieProjectileContinue.Outcome =
         kind === "bounce"
           ? { kind, restitution: value, friction: 0 }
           : { kind, loss: value };
@@ -186,11 +180,11 @@ export function test_physics_projectile_bounce(): void {
   for (const kind of ["bounce", "pass"] as const)
     for (const value of [0, 0.5, 1])
       accepts(`${kind} admitted share ${value}`, (): boolean => {
-        const outcome: projectileContinue.Outcome =
+        const outcome: IAutoMovieProjectileContinue.Outcome =
           kind === "bounce"
             ? { kind, restitution: value, friction: 0 }
             : { kind, loss: value };
-        const continued: projectileContinue.Segment = projectileContinue(
+        const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
           flight,
           contact,
           outcome,
@@ -210,7 +204,7 @@ export function test_physics_projectile_bounce(): void {
         );
       });
   accepts("friction above one keeps its nonnegative domain", (): boolean => {
-    const continued: projectileContinue.Segment = projectileContinue(
+    const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
       flight,
       contact,
       {
@@ -228,7 +222,7 @@ export function test_physics_projectile_bounce(): void {
   accepts(
     "rolling resistance above one keeps its nonnegative domain",
     (): boolean => {
-      const continued: projectileContinue.Segment = projectileContinue(
+      const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
         { ...flight, gravity: AutoMovieGravity.DOWN },
         contact,
         { kind: "roll", resistance: 2 },
@@ -242,7 +236,7 @@ export function test_physics_projectile_bounce(): void {
   accepts(
     "embedding depth above one keeps its nonnegative domain",
     (): boolean => {
-      const continued: projectileContinue.Segment = projectileContinue(
+      const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
         flight,
         contact,
         {

@@ -1,12 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePoseRig, IAutoMoviePoseJointCodec, IAutoMovieSamplePoseVelocity, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMoviePoseRig } from "../kinematics/IAutoMoviePoseRig";
+
 import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
@@ -66,13 +60,13 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains only the captured offsets and the codec, bounded by the joint count.
  */
 export function inertializePose(
-  source: samplePoseVelocity.IState,
-  target: samplePoseVelocity.IState,
+  source: IAutoMovieSamplePoseVelocity.IState,
+  target: IAutoMovieSamplePoseVelocity.IState,
   duration: number,
   through: boolean = false,
   rig?: IAutoMoviePoseRig,
 ): (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose {
-  const codec: poseJointCodec.ICodec = poseJointCodec(rig);
+  const codec: IAutoMoviePoseJointCodec.ICodec = poseJointCodec(rig);
   const angles = (
     p: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, [number, number, number]> =>

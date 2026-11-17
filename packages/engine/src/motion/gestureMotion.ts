@@ -1,12 +1,5 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-} from "@automovie/interface";
+import { type AutoMovieGenericGesture, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
 
-import { AutoMovieGenericGesture } from "./AutoMovieGenericGesture";
 import { Transform } from "../math/Transform";
 
 const GENERIC: Set<string> = new Set<string>([

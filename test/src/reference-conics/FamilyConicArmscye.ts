@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieMeshExtract } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieLoftChain, AutoMovieMeshExtract, AutoMovieNaturalSpline, realizeAutoMovieConstruction } from "@automovie/engine";
@@ -34,7 +35,7 @@ namespace FamilyConicArmscye {
     const table: boolean = process.argv.includes("--table");
     const n: number = AutoMovieHumanF1.armscye(1).shape?.length ?? 96;
     const turn: number = 2 * Math.PI;
-    const chainOf = (family: AutoMovieHumanConicLoft.IFamily, from: number, to: number): NonNullable<ReturnType<typeof AutoMovieHumanConicLoft.create>["chain"]> => {
+    const chainOf = (family: IAutoMovieHumanConicLoft.IFamily, from: number, to: number): NonNullable<ReturnType<typeof AutoMovieHumanConicLoft.create>["chain"]> => {
       const count: number = Math.ceil((to - from) / 4) + 1;
       const loft = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
       if (loft.chain === null) throw new Error(family.name + " does not loft: " + JSON.stringify(loft.diagnostics).slice(0, 400));
@@ -42,7 +43,7 @@ namespace FamilyConicArmscye {
     };
     const trunk = chainOf(AutoMovieHumanF1.BODY.trunk, 380, 720);
     for (const side of [1, -1] as const) {
-      const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1.BODY.arm : AutoMovieHumanConicLoft.mirror(AutoMovieHumanF1.BODY.arm, "arm.mirror");
+      const family: IAutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1.BODY.arm : AutoMovieHumanConicLoft.mirror(AutoMovieHumanF1.BODY.arm, "arm.mirror");
       const first: number = family.knots[0]!;
       const arm = chainOf(family, first, first + 160);
       const host = (s: number, p: number): V3 => AutoMovieLoftChain.point(trunk, s, p) as V3;
@@ -172,7 +173,7 @@ namespace FamilyConicArmscye {
     // `--wall=<directory>`: the arm of a run not yet emitted (`<directory>/arm.family.json`), so the rails are read before the emit that
     // must land together with them.
     const wall: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--wall="))?.slice("--wall=".length);
-    const family: AutoMovieHumanConicLoft.IFamily = wall === undefined ? AutoMovieHumanF1.BODY.arm : (JSON.parse(await fs.readFile(path.join(wall, "arm.family.json"), "utf8")) as AutoMovieHumanConicLoft.IFamily);
+    const family: IAutoMovieHumanConicLoft.IFamily = wall === undefined ? AutoMovieHumanF1.BODY.arm : (JSON.parse(await fs.readFile(path.join(wall, "arm.family.json"), "utf8")) as IAutoMovieHumanConicLoft.IFamily);
     const first: number = family.knots[0]!;
     const loft = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, Array.from({ length: 61 }, (_: unknown, i: number): number => first + 4 * i));
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
@@ -210,10 +211,10 @@ namespace FamilyConicArmscye {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const declared = AutoMovieHumanF1.construction();
     const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
-    const generated: AutoMovieMeshExtract.IMesh = { positions: Array.from(real.mesh.positions, (x: number): number => x * 1000), indices: Array.from(real.mesh.indices) };
+    const generated: IAutoMovieMeshExtract.IMesh = { positions: Array.from(real.mesh.positions, (x: number): number => x * 1000), indices: Array.from(real.mesh.indices) };
     const joint: number[] = source.joints.get("upperarm_l")!;
     const shoulder: [number, number, number] = [joint[0]!, joint[1]!, Math.abs(joint[2]!)];
-    for (const [label, mesh] of [["reference", source.body], ["generated", generated]] as [string, AutoMovieMeshExtract.IMesh][]) {
+    for (const [label, mesh] of [["reference", source.body], ["generated", generated]] as [string, IAutoMovieMeshExtract.IMesh][]) {
       // The level's closed loops on the +Z side, in (x, z), mm.
       const level = (y: number): [number, number][][] =>
         AutoMovieMeshExtract.outline(mesh, { origin: [0, y, 0], axes: [[0, 1, 0], [1, 0, 0], [0, 0, 1]] }, [0], 0, 0.5, 0)[0]!

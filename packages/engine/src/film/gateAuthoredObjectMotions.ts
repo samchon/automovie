@@ -1,28 +1,15 @@
-import {
-  IAutoMovieCamera,
-  IAutoMovieClip,
-  IAutoMovieConstraintViolation,
-  IAutoMovieLight,
-  IAutoMovieNode,
-  IAutoMoviePropSpec,
-  IAutoMovieSceneNode,
-  IAutoMovieTrack,
-} from "@automovie/interface";
+import { type IAutoMovieClipChannelGate, type IAutoMovieNodeChannel, type IAutoMovieObjectMotionGate, type IAutoMovieProfileApplication, type IAutoMovieResolveViolation, type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieLight, IAutoMovieNode, IAutoMoviePropSpec, IAutoMovieSceneNode, IAutoMovieTrack } from "@automovie/interface";
 
-import { IAutoMovieProfileApplication } from "../resolve/IAutoMovieProfileApplication";
-import { IAutoMovieResolveViolation } from "../resolve/IAutoMovieResolveViolation";
+
 import { channelKey } from "../resolve/channelKey";
 import { placementNodePrefix } from "../resolve/placementNodePrefix";
 import { resolveFrame } from "../resolve/resolveFrame";
 import { sceneToNodes } from "../resolve/sceneToNodes";
-import { IAutoMovieClipChannelGate } from "../validation/IAutoMovieClipChannelGate";
-import { IAutoMovieNodeChannel } from "../validation/IAutoMovieNodeChannel";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
-import { IAutoMovieObjectMotionGate } from "./IAutoMovieObjectMotionGate";
 import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";
 import { forgeProp } from "./forgeProp";
 
@@ -55,7 +42,7 @@ import { forgeProp } from "./forgeProp";
 export function gateAuthoredObjectMotions(
   gate: IAutoMovieObjectMotionGate,
 ): IAutoMovieConstraintViolation[] {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   if (gate.clips.length === 0) return out.items;
 
   const registry: Record<string, IAutoMoviePropSpec> = Object.create(null);

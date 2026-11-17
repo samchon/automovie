@@ -1,8 +1,6 @@
+import type { IAutoMovieMotionHumanStrikingContact, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3, physicalShapeNearest } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 /**
  * When and where a moving weapon first touches a surface of another body.
@@ -31,24 +29,6 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface shape and transform and the engine's shape query; no shape distance is restated here.
  */
 export namespace StrikingContact {
-  /**
-   * One convex collision shape of the other body, in world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each variant and member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The profile's own shape with the posed frame of the segment that carries it, so every kind the profile can hold is posed one way and no second shape vocabulary exists.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape, its segment's pose and the bone name a verdict reports.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's shape and transform.
-   */
-  export interface ICollider {
-    /** What it is, such as the bone it rides. */
-    name: string;
-
-    /** The posed frame of the segment that carries the shape, world metres. */
-    pose: IAutoMoviePhysicalProfile.ITransform;
-
-    /** The profile shape, placed by `pose` composed with its own transform. */
-    shape: IAutoMoviePhysicalProfile.IShape;
-  }
 
   /**
    * The closest point of a segment to a point.
@@ -97,7 +77,7 @@ export namespace StrikingContact {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function distance(p: IAutoMovieVector3, shape: ICollider): number {
+  export function distance(p: IAutoMovieVector3, shape: IAutoMovieMotionHumanStrikingContact.ICollider): number {
     return physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
   }
 
@@ -118,8 +98,8 @@ export namespace StrikingContact {
    */
   export function nearest(
     p: IAutoMovieVector3,
-    shapes: readonly ICollider[],
-  ): { name: string; distance: number } | undefined {
+    shapes: readonly IAutoMovieMotionHumanStrikingContact.ICollider[],
+  ): IAutoMovieMotionHumanStrikingContact.INearestResult {
     let best: { name: string; distance: number } | undefined;
     for (const s of shapes) {
       const d: number = distance(p, s);

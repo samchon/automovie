@@ -13,6 +13,14 @@
 export type IAutoMovieLookAt =
   | IAutoMovieLookAt.IBone
   | IAutoMovieLookAt.IExpression;
+/**
+ * Bone-driven and expression-driven eye gaze alternatives.
+ *
+ * @evidence contracts/development/design.md#principled-representation Only bone gaze carries degree ranges; expression gaze preserves authored channel weights.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Model admission and gaze evaluation share these closed alternatives with the enclosing look-at contract.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not infer missing eye bones or add VRM target fields the current channel consumer does not use.
+ * @evidence contracts/development/common.md#meaningful-documentation Bone-driven and expression-driven eye gaze alternatives. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMovieLookAt {
   /**
    * Gaze turns the eye bones.

@@ -1,18 +1,8 @@
-import {
-  IAutoMovieBuiltConnector,
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieConnectorSection,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieConnectorSectionAt, type IAutoMoviePassageBlockage, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieConnectorSection, IAutoMovieModel, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieConnectorSectionAt } from "../architecture/IAutoMovieConnectorSectionAt";
 import { builtConnectorSection } from "../architecture/builtConnectorSection";
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
 import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
-import { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 

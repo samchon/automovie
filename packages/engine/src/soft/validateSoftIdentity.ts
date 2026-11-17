@@ -1,5 +1,4 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
-
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 /**
  * Report blank or duplicate sibling identities, then record the identity as seen.
  *
@@ -12,13 +11,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Seen ids live only as long as the validation owner's set; this helper retains no set or registry itself.
  */
 export const validateSoftIdentity: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   id: string,
   seen: Set<string>,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   id: string,

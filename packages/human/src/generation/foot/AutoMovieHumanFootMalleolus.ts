@@ -1,7 +1,14 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, AutoMovieVector3Tuple, IAutoMovieHumanFootBody, IAutoMovieHumanFootFrame, IAutoMovieHumanFootMalleolusBump, IAutoMovieHumanFootMalleolusWindow } from "@automovie/interface";
+
+
+
+
+
+
+
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-import type { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
+
+
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootMalleolusBump } from "./AutoMovieHumanFootMalleolusBump";
 import { AutoMovieHumanFootMalleolusWindow } from "./AutoMovieHumanFootMalleolusWindow";
@@ -33,13 +40,13 @@ export namespace AutoMovieHumanFootMalleolus {
    */
   export function of(
     which: "lateral" | "medial",
-    frame: AutoMovieHumanFootFrame.IFrame,
-    body: AutoMovieHumanFootBody.IBody,
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    body: IAutoMovieHumanFootBody.IBody,
     sign: 1 | -1,
     side: "left" | "right",
   ): IAutoMovieLoftRelief {
     const m: { height: number; prominence: number; radius: number } = AutoMovieHumanFootPrior.PRIOR.malleoli[which];
-    const place: AutoMovieHumanFootMalleolusWindow.IPlace = AutoMovieHumanFootMalleolusWindow.of({
+    const place: IAutoMovieHumanFootMalleolusWindow.IPlace = AutoMovieHumanFootMalleolusWindow.of({
       frame,
       body,
       which,
@@ -47,8 +54,8 @@ export namespace AutoMovieHumanFootMalleolus {
       radius: m.radius,
       sign,
     });
-    const bump: AutoMovieHumanFootMalleolusBump.IBump = AutoMovieHumanFootMalleolusBump.of(m.prominence);
-    const outward: G.Vec3 = which === "lateral" ? frame.lateral : G.scale(frame.lateral, -1);
+    const bump: IAutoMovieHumanFootMalleolusBump.IBump = AutoMovieHumanFootMalleolusBump.of(m.prominence);
+    const outward: AutoMovieVector3Tuple = which === "lateral" ? frame.lateral : G.scale(frame.lateral, -1);
     return {
       name: `foot.${side}.malleolus.${which}`,
       stations: place.stations,

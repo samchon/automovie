@@ -1,11 +1,17 @@
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanConstructionPath, IAutoMovieHumanLoftMesh, IAutoMovieHumanSurfaceContext, IAutoMovieHumanWebResult } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieLoftChain } from "@automovie/engine";
+
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodyWeb } from "./AutoMovieHumanBodyWeb";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
+
+
 
 const { chain, endHeight, ringVertices } = AutoMovieHumanBodySurfaceRead;
 const { arcVertices, ownPhases } = AutoMovieHumanBodySurfacePhases;
@@ -29,7 +35,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
    * vertices in ring order.
    */
   export function contact(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     event: IAutoMovieHumanBodyCalibration.IEvent,
   ): void {
     const parent: IAutoMovieLoftChain = chain(context, event.parent);
@@ -62,7 +68,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
     // Children that start apart from the ring meet it through the webs' own
     // surface, each from its own section.
     if (event.web === true) {
-      const built: AutoMovieHumanBodyWeb.IResult = AutoMovieHumanBodyWeb.build({
+      const built: IAutoMovieHumanWebResult = AutoMovieHumanBodyWeb.build({
         mesh: context.mesh,
         coordinates: context.coordinates,
         chain: (name: string): IAutoMovieLoftChain => chain(context, name),
@@ -170,10 +176,10 @@ export namespace AutoMovieHumanBodySurfaceContact {
   }
 
   /** Each mesh's webs' rows and separatrices, as construction. */
-  export const WEBS: WeakMap<AutoMovieHumanLoftMesh.IContext, IAutoMovieHumanConstructionPath[]> = new WeakMap();
+  export const WEBS: WeakMap<IAutoMovieHumanLoftMesh.IContext, IAutoMovieHumanConstructionPath[]> = new WeakMap();
 
   /** Each mesh's slit pinches, whose normal is their faces' own. */
-  export const PINNED: WeakMap<AutoMovieHumanLoftMesh.IContext, Set<number>> = new WeakMap();
+  export const PINNED: WeakMap<IAutoMovieHumanLoftMesh.IContext, Set<number>> = new WeakMap();
 
   /**
    * Normals with every slit pinch on its faces' own normal. A pinch lies on
@@ -184,7 +190,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
    * crease normal stood 38 degrees off its own surface behind the crotch.
    */
   export function held(
-    mesh: AutoMovieHumanLoftMesh.IContext,
+    mesh: IAutoMovieHumanLoftMesh.IContext,
     faces: readonly number[],
     normals: number[],
   ): number[] {

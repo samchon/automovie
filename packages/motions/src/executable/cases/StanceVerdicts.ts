@@ -1,16 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  closestPointsBetweenSegments,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
+import { closestPointsBetweenSegments, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanFoot } from "../../posture/HumanFoot";
 
 /**
@@ -41,9 +31,9 @@ export namespace StanceVerdicts {
    * @returns Metres.
    */
   export function outside(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     seconds: number,
   ): number {
@@ -53,7 +43,7 @@ export namespace StanceVerdicts {
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
       bones,
     );
-    const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
     const heel: IAutoMovieVector3 = { ...sockets[0]!.point, y: 0 };
     const toe: IAutoMovieVector3 = { ...sockets[2]!.point, y: 0 };
     const floor: IAutoMovieVector3 = { ...com, y: 0 };
@@ -76,9 +66,9 @@ export namespace StanceVerdicts {
    * @returns Metres and the second.
    */
   export function worstOutside(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     from: number,
     to: number,
@@ -101,7 +91,7 @@ export namespace StanceVerdicts {
    * @returns Flexion, abduction and twist; zeros when the pose omits the joint.
    */
   export function joint(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     bone: AutoMovieHumanoidBone,
     seconds: number,
@@ -126,7 +116,7 @@ export namespace StanceVerdicts {
    * @returns Degrees.
    */
   export function included(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,

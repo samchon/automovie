@@ -1,10 +1,5 @@
-import {
-  type IAutoMovieInspectionCamera,
-  type IAutoMovieViewerSubjectBounds,
-  formatAutoMovieInspectionCameraView,
-  parseAutoMovieInspectionView,
-  resolveAutoMovieInspectionView,
-} from "@automovie/render";
+import type { IAutoMovieInspectionCamera } from "@automovie/interface";
+import { type IAutoMovieViewerSubjectBounds, formatAutoMovieInspectionCameraView, parseAutoMovieInspectionView, resolveAutoMovieInspectionView } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieRenderTextureTarget,
-  resolveAutoMovieShadowProfile,
-} from "@automovie/engine";
-import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
+import type { IAutoMovieRenderTextureTarget, IAutoMovieSceneEnvironment } from "@automovie/interface";
+import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+
 import * as THREE from "three";
 
 import type { IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.js";

@@ -1,4 +1,6 @@
-import type { AutoMovieHumanReferenceOutlineTypes as Records } from "./AutoMovieHumanReferenceOutlineTypes";
+import type { IAutoMovieHumanReferenceOutlineTypes, IAutoMovieHumanReferenceOutlines } from "@automovie/interface";
+
+
 
 /**
  * Outline data between the published measures that size the view parts:
@@ -51,34 +53,12 @@ export namespace AutoMovieHumanReferenceOutlines {
     male: [[-12.869, -0.972], [-7.529, 5.598], [7.375, 6.139], [12.382, -4.274]],
   };
 
-  /**
-   * Existing qualified row name, forwarding the single sparse-record definition.
-   *
-   * @evidence contracts/common.md#principled-implementation The alias is exactly Records.IRow, preserving its sparse cells, station datum and compiler-only validation limit.
-   * @evidence contracts/common.md#clear-and-simple-design Preserves consumers' existing namespace type address while one module owns the record definition.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Copies no schema or data and introduces no alternate row representation.
-   * @evidence contracts/common.md#meaningful-documentation Identifies the compatibility address and the authoritative sparse-record type.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias selects no runtime algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The erased alias computes nothing.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type-only import and alias allocate no runtime object or handle.
-   */
-  export type IRow = Records.IRow;
+  
 
-  /**
-   * Existing qualified table name, forwarding the single metadata/row schema.
-   *
-   * @evidence contracts/common.md#principled-implementation The exact alias retains Records.ITable's columns, row ordering and normalization metadata without changing its structural API.
-   * @evidence contracts/common.md#clear-and-simple-design Separates record documentation from the large literal registry while preserving every caller's type address.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no wrapper, validator, copy or narrowed data state.
-   * @evidence contracts/common.md#meaningful-documentation Names the authoritative record definition and the preserved qualified API.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no table lookup.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type coordinates no repeated runtime work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The alias retains no runtime table or consumer state.
-   */
-  export type ITable = Records.ITable;
+  
 
   /** The trunk's outline along its height. */
-  export const TRUNK: ITable = {
+  export const TRUNK: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_trunk_outline",
     normalization: "share of crotch to cervicale; half breadth, front and back (forward of cervicale's back point) per stature; shoulders 0 chord to 1 box",
     consumers: "trunk/AutoMovieHumanTrunkInterim.upperSites and AutoMovieHumanTrunkLaws.of",
@@ -108,7 +88,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The head mass's outline along its height. */
-  export const HEAD: ITable = {
+  export const HEAD: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_head_outline",
     normalization: "share of menton to vertex; P and B forward of the skull's centre per head length; L per half head breadth; shoulders 0 chord to 1 box",
     consumers: "retained estimate; no current production reader",
@@ -138,7 +118,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The forearm's section along it, wrist 0 to elbow 1. */
-  export const FOREARM: ITable = {
+  export const FOREARM: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_arm_sections",
     normalization: "lowest arm cut as wrist proxy to inferred elbow at supplied RS along the line of loop point means; A-pose loops projected normal to that line; extents about the point mean per projected convex hull girth, not a measured bone axis; shoulders 0 chord to 1 box",
     consumers: "arm/AutoMovieHumanArmInterim.sites (forearm and wrist boxes)",
@@ -159,7 +139,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The upper arm's section along it, elbow 0 to the axilla 1. */
-  export const UPPER_ARM: ITable = {
+  export const UPPER_ARM: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_arm_sections",
     normalization: "inferred elbow to axilla top along the line of loop point means, not humeral joint length; A-pose loops projected normal to that line; extents about the point mean per projected convex hull girth, without a measured bone offset; shoulders 0 chord to 1 box",
     consumers: "arm/AutoMovieHumanArmInterim.sites (upper-arm boxes)",
@@ -180,7 +160,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The foot's outline along its axis, heel 0 to toe 1. */
-  export const FOOT: ITable = {
+  export const FOOT: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_foot_outline",
     normalization: "heel/toe selected by body-X extrema; shares of their planar Euclidean span; lateral/medial maxima and highest/lowest section in an along-axis +/-4 mm band, per that span",
     consumers: "foot/AutoMovieHumanFootInterim.define (host, attachments and retained supports); FootBreadth reads the actual group source to own its public-breadth scale",
@@ -211,7 +191,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The face's midline profile and front contour, nasion 0 to menton 1. */
-  export const FACE: ITable = {
+  export const FACE: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_face_profile",
     normalization: "share of nasion to menton; midline forward of the nasion per face height; setback at 0 to 1 of the half face width per half face width",
     consumers: "retained estimate; no current production reader",
@@ -242,7 +222,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The breast's profile about the bust point, -1 down or medial to 1 up or lateral. */
-  export const BREAST: ITable = {
+  export const BREAST: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_masses",
     normalization: "share of 0.1 stature (vertical) or a quarter section breadth (horizontal) about the bust point; setback behind the point per stature, women",
     consumers: "retained profile estimate; no current production reader",
@@ -261,7 +241,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The gluteal mass's profile about the buttock point, as the breast's. */
-  export const GLUTEAL: ITable = {
+  export const GLUTEAL: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_masses",
     normalization: "as BREAST, about the buttock's most posterior point, women and men apart",
     consumers: "retained profile estimate; no current production reader",
@@ -280,7 +260,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The ear's side outline, lobule 0 to top 1. */
-  export const EAR: ITable = {
+  export const EAR: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_ear_outline",
     normalization: "share of the ear's height; anterior and posterior rim forward of the ear's mean per ear breadth",
     consumers: "retained estimate; no current production reader",
@@ -301,7 +281,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The palpebral fissure, medial canthus 0 to lateral 1. */
-  export const FISSURE: ITable = {
+  export const FISSURE: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_lid_margins",
     normalization: "share of the fissure length; upper and lower margin heights per fissure height; forward per fissure length",
     consumers: "retained incomplete estimate; no current production reader; SHIN_UPPER_LID is a separate published record",
@@ -322,7 +302,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The lips' front-view half width, subnasale 0 to the lower lip's foot 1. */
-  export const LIPS: ITable = {
+  export const LIPS: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_face_detail",
     normalization: "share of subnasale to a quarter face height under the stomion; half width per half mouth width",
     consumers: "retained estimate; no current production reader",
@@ -340,7 +320,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The shank's lateral share about its bone line, ankle 0 to knee 1. */
-  export const SHANK_SPLIT: ITable = {
+  export const SHANK_SPLIT: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_leg_split",
     normalization: "share from the ankle pack cut to the inferred midpatella height; world-horizontal Z breadth split about the line between nearest ankle/knee loops' arithmetic point means, not measured bone centres",
     consumers: "leg/AutoMovieHumanLegLaws (the lateral split)",
@@ -359,7 +339,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   };
 
   /** The thigh's lateral share about the femur's line, knee 0 toward the crotch 1. */
-  export const THIGH_SPLIT: ITable = {
+  export const THIGH_SPLIT: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_thigh_split",
     normalization: "share from inferred knee height toward the pack crotch; world-horizontal Z breadth split about the trochanterion/Hara hip-Z proxy to the nearest loop's arithmetic point mean at tibiale plus de Leva knee height, not a measured femoral axis",
     consumers: "leg/AutoMovieHumanLegLaws (the lateral split)",
@@ -377,18 +357,7 @@ export namespace AutoMovieHumanReferenceOutlines {
     ],
   };
 
-  /**
-   * Existing qualified mass-summary name, forwarding its measured footprint record.
-   *
-   * @evidence contracts/common.md#principled-implementation The exact Records.IFootprint alias preserves each dimension key, sample and wall normalization without turning an observed amplitude into an input law.
-   * @evidence contracts/common.md#clear-and-simple-design MassInterim keeps its existing type address while the record fields have one documented owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no duplicate summary, fitted coefficient or geometry wrapper.
-   * @evidence contracts/common.md#meaningful-documentation Names the authoritative footprint schema and its observational meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias implements no processing strategy.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased alias performs no repeated computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type-only alias owns no runtime footprint, mesh or handle.
-   */
-  export type IFootprint = Records.IFootprint;
+  
 
   /**
    * The breast's footprint about the bust point, women. The lateral edge is
@@ -396,7 +365,7 @@ export namespace AutoMovieHumanReferenceOutlines {
    * laterally, so the lateral edge is the near bound of the base, not the
    * anterior axillary line.
    */
-  export const BREAST_FOOTPRINT: IFootprint = {
+  export const BREAST_FOOTPRINT: IAutoMovieHumanReferenceOutlineTypes.IFootprint = {
     reading: "test_human_estimate_mass_footprints",
     normalization:
       "per stature; amplitude the bust point's projection over the wall's line (the inframammary fold to the back hull's first vertex above, in the point's sagittal plane); up and down the edges' heights from the bust point along that profile; lateral and medial the distances in the bust's section to where the setback reaches the amplitude; halfPointWidth the bust point's distance from the median plane",
@@ -413,7 +382,7 @@ export namespace AutoMovieHumanReferenceOutlines {
    * the medial edge toward the cleft. The down edge's spread is near its
    * mean in women (the fold reads at varying depth on the leg's sections).
    */
-  export const GLUTEAL_FOOTPRINT: { readonly female: IFootprint; readonly male: IFootprint } = {
+  export const GLUTEAL_FOOTPRINT: IAutoMovieHumanReferenceOutlines.IGlutealFootprint = {
     female: {
       reading: "test_human_estimate_mass_footprints",
       normalization: "as BREAST_FOOTPRINT, about the buttock's most posterior point, per stature",
@@ -451,16 +420,16 @@ export namespace AutoMovieHumanReferenceOutlines {
    * @evidence contracts/performance.md#reuse-equivalent-work All callers read the same module tables, while each column/share lookup is call-local; no cache assumes equivalent tables or hides mutable input changes.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The filtered array and row references live only during this call; a scalar result retains no table, figure or source pack.
    */
-  export function at(table: ITable, column: string, share: number): number {
+  export function at(table: IAutoMovieHumanReferenceOutlineTypes.ITable, column: string, share: number): number {
     if (table.rows.length === 0) throw new Error(`AutoMovieHumanReferenceOutlines: ${table.reading} has not filled its table yet`);
     if (!table.columns.includes(column)) throw new Error(`AutoMovieHumanReferenceOutlines: ${table.reading} has no column ${column}`);
-    const rows: readonly IRow[] = table.rows.filter((r: IRow): boolean => r.values[column] !== undefined);
+    const rows: readonly IAutoMovieHumanReferenceOutlineTypes.IRow[] = table.rows.filter((r: IAutoMovieHumanReferenceOutlineTypes.IRow): boolean => r.values[column] !== undefined);
     if (rows.length === 0) throw new Error(`AutoMovieHumanReferenceOutlines: ${table.reading} kept no station of column ${column}`);
-    const read: (r: IRow) => number = (r: IRow): number => r.values[column]!;
+    const read: (r: IAutoMovieHumanReferenceOutlineTypes.IRow) => number = (r: IAutoMovieHumanReferenceOutlineTypes.IRow): number => r.values[column]!;
     if (share <= rows[0]!.share) return read(rows[0]!);
     for (let i: number = 0; i + 1 < rows.length; i++) {
-      const a: IRow = rows[i]!;
-      const b: IRow = rows[i + 1]!;
+      const a: IAutoMovieHumanReferenceOutlineTypes.IRow = rows[i]!;
+      const b: IAutoMovieHumanReferenceOutlineTypes.IRow = rows[i + 1]!;
       if (share <= b.share) return read(a) + ((share - a.share) / (b.share - a.share)) * (read(b) - read(a));
     }
     return read(rows[rows.length - 1]!);

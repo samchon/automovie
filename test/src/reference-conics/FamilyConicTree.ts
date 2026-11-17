@@ -1,6 +1,7 @@
+import type { IAutoMovieConstructionRealization, IAutoMovieHumanF1, IAutoMovieViewLoft } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type AutoMovieConstructionRealization, AutoMovieLoftChain, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
@@ -20,8 +21,8 @@ namespace FamilyConicTree {
     for (const family of [AutoMovieHumanF1.BODY.arm, AutoMovieHumanF1.BODY.hand, AutoMovieHumanF1.BODY.leg]) {
       const count: number = Math.ceil((family.knots.at(-1)! - family.knots[0]!) / 10) + 1;
       const stations: number[] = Array.from({ length: count }, (_: unknown, i: number): number => family.knots[0]! + ((family.knots.at(-1)! - family.knots[0]!) * i) / (count - 1));
-      const one: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
-      const two: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror"), stations);
+      const one: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
+      const two: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror"), stations);
       if (one.chain === null || two.chain === null) throw new Error("mirror: " + family.name + " does not loft: " + JSON.stringify([one.diagnostics, two.diagnostics]).slice(0, 600));
       let worst: number = 0;
       for (const s of stations)
@@ -35,7 +36,7 @@ namespace FamilyConicTree {
     }
     // The authored numbers: per family its knots, section fields and conic numbers (a knot's station and one value per field), and the heights
     // its reliefs store; then the totals, a twin counted once since it is derived.
-    const counted = AutoMovieHumanF1.FAMILIES.map((m: AutoMovieHumanF1.IMember): { name: string; knots: number; fields: number; conic: number; reliefs: number; heights: number } => ({
+    const counted = AutoMovieHumanF1.FAMILIES.map((m: IAutoMovieHumanF1.IMember): { name: string; knots: number; fields: number; conic: number; reliefs: number; heights: number } => ({
       name: m.family.name,
       knots: m.family.knots.length,
       fields: m.family.values.length,
@@ -49,9 +50,9 @@ namespace FamilyConicTree {
     // `FamilyConicTree.ts [layerMm] [chordMm]`: the families' layer spacing and the tessellation chord, to weigh time against the skin.
     const layer: number = Number(process.argv[2] ?? "2");
     const chord: number = Number(process.argv[3] ?? "1") / 1000;
-    const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction(layer);
+    const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction(layer);
     const started: number = performance.now();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord, sources: declared.sources });
+    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord, sources: declared.sources });
     const report = { layerMm: layer, chordMm: chord * 1000, milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, chains: real.chains.map((c: { name: string }): string => c.name), vertices: real.mesh.positions.length / 3, triangles: real.mesh.indices.length / 3 };
     process.stdout.write(JSON.stringify(report).slice(0, 4000) + "\n");
     if (real.mesh.positions.length === 0) return;

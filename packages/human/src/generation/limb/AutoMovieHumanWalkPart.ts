@@ -1,14 +1,14 @@
-import {
-  AutoMovieConstructionViews,
-  type AutoMovieSolidVector,
-  AutoMovieViewAxis,
-} from "@automovie/engine";
+import type { IAutoMovieViewAxis, AutoMovieVector3Tuple, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
+
+
+
+
+import { AutoMovieConstructionViews, AutoMovieViewAxis } from "@automovie/engine";
 
 import { AutoMovieHumanBendArc } from "./AutoMovieHumanBendArc";
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * A part lofted as one walk over a bone chain (a digit over its phalanges, a
@@ -28,73 +28,9 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * pulp beyond the distal phalanx's end).
  */
 export namespace AutoMovieHumanWalkPart {
-  /** One site on a bone. */
-  export interface ISite {
-    /** The measurement site, named in diagnostics. */
-    site: string;
+  
 
-    /** The bone, 0 the first (proximal). */
-    bone: number;
-
-    /** Share of that bone from its proximal centre, in `[0, 1]`. */
-    share: number;
-
-    /** The box's edges `[+u, +v, -u, -v]` relative to the axis, mm (`AutoMovieHumanSiteViewPart.ISite.edges`). */
-    edges: [number, number, number, number];
-
-    /** A tape solved on the site's box, or a sourced shoulder. */
-    fullness: AutoMovieHumanSiteViewPart.ISite["fullness"];
-    /** Optional normalized-parameter edge jets, in the same chart as edges. */
-    jets?: AutoMovieHumanSiteViewPart.ISite["jets"];
-  }
-
-  /** What a walk part is built from. */
-  export interface IInput {
-    /** Chain name. */
-    name: string;
-
-    /** The joint centres, proximal first, at least two (one bone). */
-    centres: Vec3[];
-
-    /** Each interior joint's turn half arclength, mm; distinct from its bend radius. */
-    joints: { half: number }[];
-
-    /** The chart's `u` on the first bone (dorsal on a digit, anterior on a limb). */
-    u: Vec3;
-
-    /** The sites, by rising place along the walk. */
-    sites: ISite[];
-    /** Optional scalar closed-span bounds in the caller's chart; these impose no moving world-plane constraint. */
-    ranges?: AutoMovieHumanSiteViewPart.IInput["ranges"];
-
-    /** Optional material-frame transition between actual bone/share positions; signed up is projected into the endpoint's normal plane by the engine. */
-    roll?: {
-      from: { bone: number; share: number };
-      to: { bone: number; share: number };
-      up: Vec3;
-    };
-
-    /**
-     * Whether the walk closes at its first centre in a G2 dome: the base of a
-     * part whose inner end lies inside its host (a limb in the trunk, a digit
-     * in the palm), so its station lines start inside the host at every phase
-     * and leave it once, as the merge's trace needs. No site may stand at the
-     * first centre then. Absent, the base is an open section.
-     */
-    base?: boolean;
-
-    /** The tip's distance past the last centre, mm (zero closes at the last centre itself), where the walk closes in a dome; absent, the distal end is open. */
-    tip?: number;
-
-    /** Control points of every section, a multiple of 4. */
-    order: number;
-
-    /** Uniform phases of the chain's rings. */
-    samples: number;
-
-    /** Widest spacing between layers, mm. */
-    gap: number;
-  }
+  
 
   /**
    * Build and loft the walk.
@@ -102,8 +38,8 @@ export namespace AutoMovieHumanWalkPart {
    * @param input The centres, joints, sites and tip.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
-    const built: ISource | string = source(input);
+  export function create(input: IAutoMovieHumanWalkPart.IInput): IAutoMovieHumanSiteViewPart.IResult {
+    const built: IAutoMovieHumanWalkPart.ISource | string = source(input);
     return typeof built === "string"
       ? {
           part: null,
@@ -121,18 +57,10 @@ export namespace AutoMovieHumanWalkPart {
       : AutoMovieHumanSiteViewPart.create(built.input);
   }
 
-  /** The identical pre-loft declaration and its authoritative course mapping. */
-  export interface ISource {
-    /** Actual input later consumed by SiteViewPart.create, calibration mm. */
-    input: AutoMovieHumanSiteViewPart.IInput;
-    /** Straight-run bounds computed from the canonical metre axis. */
-    runs: readonly AutoMovieViewAxis.IRun[];
-    /** Actual source station of a bone/share; no second axis is constructed. */
-    station: (bone: number, share: number) => number;
-  }
+  
 
   /** Prepare the production axis and named source once, without a section or loft. */
-  export function source(input: IInput): ISource | string {
+  export function source(input: IAutoMovieHumanWalkPart.IInput): IAutoMovieHumanWalkPart.ISource | string {
     const producer: string = `walk.${input.name}`;
 
     const fail = (detail: string): string => `${producer}: ${detail}`;
@@ -142,8 +70,8 @@ export namespace AutoMovieHumanWalkPart {
     // conversion may leave a tiny nonzero angle; use the same geometric
     // bend-radius conversion as every other digit joint, rather than
     // reserving a fixed quarter segment for that numerical angle.
-    const last: Vec3 = input.centres[input.centres.length - 1]!;
-    const before: Vec3 = input.centres[input.centres.length - 2]!;
+    const last: AutoMovieVector3Tuple = input.centres[input.centres.length - 1]!;
+    const before: AutoMovieVector3Tuple = input.centres[input.centres.length - 2]!;
     const length: number = Math.hypot(
       last[0] - before[0],
       last[1] - before[1],
@@ -154,21 +82,21 @@ export namespace AutoMovieHumanWalkPart {
         `the last bone of ${input.centres.length} centres has no length`,
       );
     const tip: number = input.tip ?? 0;
-    const raw: Vec3[] =
+    const raw: AutoMovieVector3Tuple[] =
       tip > 0
         ? [
             ...input.centres,
             [0, 1, 2].map(
               (c: number): number =>
                 last[c]! + ((last[c]! - before[c]!) * tip) / length,
-            ) as Vec3,
+            ) as AutoMovieVector3Tuple,
           ]
         : [...input.centres];
     // The tree's metre record is authoritative for both the runs and the
     // reconstructed axis. A second mm-to-m conversion need not be bit-identical.
     const positions: ReturnType<typeof AutoMovieHumanConstructionView.point>[] =
       raw.map(AutoMovieHumanConstructionView.point);
-    const centres: Vec3[] = positions.map(AutoMovieConstructionViews.point);
+    const centres: AutoMovieVector3Tuple[] = positions.map(AutoMovieConstructionViews.point);
     const metreHalves: number[] = [
       ...input.joints.map((j: { half: number }): number => j.half),
       ...(tip > 0
@@ -187,7 +115,7 @@ export namespace AutoMovieHumanWalkPart {
     const halves: number[] = metreHalves.map(
       (half: number): number => half * 1000,
     );
-    const runs: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+    const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
       centres,
       halves,
     );
@@ -195,8 +123,8 @@ export namespace AutoMovieHumanWalkPart {
 
     // Each site's station from its bone and share, then its edges in the
     // engine's chart.
-    const sites: AutoMovieHumanSiteViewPart.ISite[] = input.sites.map(
-      (s: ISite): AutoMovieHumanSiteViewPart.ISite => ({
+    const sites: IAutoMovieHumanSiteViewPart.ISite[] = input.sites.map(
+      (s: IAutoMovieHumanWalkPart.ISite): IAutoMovieHumanSiteViewPart.ISite => ({
         site: s.site,
         station: station(centres, runs, s.bone, s.share),
         edges: engine(s.edges),
@@ -265,20 +193,20 @@ export namespace AutoMovieHumanWalkPart {
    * @returns The station, mm.
    */
   function station(
-    centres: readonly Vec3[],
-    runs: readonly AutoMovieViewAxis.IRun[],
+    centres: readonly AutoMovieVector3Tuple[],
+    runs: readonly IAutoMovieViewAxis.IRun[],
     bone: number,
     share: number,
   ): number {
     const span = (i: number): number => {
-      const a: Vec3 = centres[i]!;
-      const b: Vec3 = centres[i + 1]!;
+      const a: AutoMovieVector3Tuple = centres[i]!;
+      const b: AutoMovieVector3Tuple = centres[i + 1]!;
       return Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
     };
-    const run: AutoMovieViewAxis.IRun = runs[bone]!;
+    const run: IAutoMovieViewAxis.IRun = runs[bone]!;
     const x: number = share * span(bone);
     if (x > run.to && bone + 1 < runs.length) {
-      const next: AutoMovieViewAxis.IRun = runs[bone + 1]!;
+      const next: IAutoMovieViewAxis.IRun = runs[bone + 1]!;
       return (
         run.end +
         ((x - run.to) * (next.start - run.end)) /
@@ -286,7 +214,7 @@ export namespace AutoMovieHumanWalkPart {
       );
     }
     if (x < run.from && bone > 0) {
-      const previous: AutoMovieViewAxis.IRun = runs[bone - 1]!;
+      const previous: IAutoMovieViewAxis.IRun = runs[bone - 1]!;
       const back: number = span(bone - 1) - previous.to;
       return (
         previous.end +
@@ -312,8 +240,8 @@ export namespace AutoMovieHumanWalkPart {
 
   /** Carry derivatives of the same signed edges through the side-pair reflection; their normalized parameter is unchanged. */
   function engineJets(
-    jets: NonNullable<ISite["jets"]>,
-  ): NonNullable<AutoMovieHumanSiteViewPart.ISite["jets"]> {
+    jets: NonNullable<IAutoMovieHumanWalkPart.ISite["jets"]>,
+  ): NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> {
     const neg = (jet: (typeof jets)[number]): (typeof jets)[number] =>
       jet === undefined
         ? undefined
@@ -326,8 +254,8 @@ export namespace AutoMovieHumanWalkPart {
 
   /** Negating a side edge exchanges its scalar bounds as well as their signs. */
   function engineRanges(
-    ranges: NonNullable<IInput["ranges"]>,
-  ): NonNullable<AutoMovieHumanSiteViewPart.IInput["ranges"]> {
+    ranges: NonNullable<IAutoMovieHumanWalkPart.IInput["ranges"]>,
+  ): NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]> {
     const neg = (range: (typeof ranges)[number]): (typeof ranges)[number] =>
       range === undefined
         ? undefined
@@ -347,9 +275,9 @@ export namespace AutoMovieHumanWalkPart {
    * @returns The site part's pole, or nothing for two open ends.
    */
   function pole(
-    input: IInput,
+    input: IAutoMovieHumanWalkPart.IInput,
     top: number,
-  ): Pick<AutoMovieHumanSiteViewPart.IInput, "pole"> {
+  ): Pick<IAutoMovieHumanSiteViewPart.IInput, "pole"> {
     if (input.base === true && input.tip !== undefined)
       return { pole: { end: "both", bottom: 0, top } };
     if (input.base === true) return { pole: { end: "bottom", station: 0 } };

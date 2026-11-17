@@ -1,15 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditGround,
-  type IAutoMovieMotionHumanAuditMeasure,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieMotionHumanAuditGround } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -58,23 +50,23 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_ground(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const stance: Bones = motionHumanStance(body);
-  const ground: IHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
   const contact = (
-    part: IHumanContactWindow["part"],
+    part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,
     to: number,
-    kind: IHumanContactWindow["kind"] = "plant",
-    support: IHumanContactWindow["support"] = ground,
-  ): IHumanContactWindow => ({ part, kind, from, to, support });
-  const feet: IHumanContactWindow[] = [
+    kind: IAutoMovieMotionHumanContactWindow["kind"] = "plant",
+    support: IAutoMovieMotionHumanContactWindow["support"] = ground,
+  ): IAutoMovieMotionHumanContactWindow => ({ part, kind, from, to, support });
+  const feet: IAutoMovieMotionHumanContactWindow[] = [
     contact("leftFoot", 0, 1),
     contact("rightFoot", 0.5, 1),
   ];
   const film = (
     move: (bone: AutoMovieHumanoidBone, seconds: number) => IAutoMovieVector3,
-    contacts: IHumanContactWindow[] = feet,
+    contacts: IAutoMovieMotionHumanContactWindow[] = feet,
   ): IAutoMovieMotionHumanAuditMotion =>
     motionAuditMoved(stance, 1, move, [
       {
@@ -172,7 +164,7 @@ export function test_human_motion_audit_ground(): void {
     "a sunk and a raised foot are equally far from the floor's two sides",
     near(lift(film(fixed(0.02))).value + lift(film(fixed(-0.02))).value, 0.04),
   );
-  const box: IHumanContactWindow[] = [
+  const box: IAutoMovieMotionHumanContactWindow[] = [
     contact("leftFoot", 0, 1, "plant", { kind: "prop", subject: "box" }),
   ];
   const onProp: IAutoMovieMotionHumanAuditMeasure = lift(

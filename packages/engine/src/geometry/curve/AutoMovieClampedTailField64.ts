@@ -1,3 +1,4 @@
+import type { IAutoMoviePchipField64 } from "@automovie/interface";
 import { AutoMoviePchipField64 } from "./AutoMoviePchipField64";
 
 /**
@@ -20,7 +21,7 @@ export class AutoMovieClampedTailField64 {
     /** Equal-length finite component vectors at those coordinates. */
     values: readonly (readonly number[])[],
   ) {
-    const original: AutoMoviePchipField64 = new AutoMoviePchipField64(
+    const original: IAutoMoviePchipField64 = new AutoMoviePchipField64(
       x,
       values,
     );

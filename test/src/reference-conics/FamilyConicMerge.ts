@@ -1,8 +1,9 @@
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieLoftFrame, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type AutoMovieConstructionRealization, AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -18,13 +19,13 @@ namespace FamilyConicMerge {
   /** Realize the merges and report them. */
   export async function main(): Promise<void> {
     const [limbName, chord, depth, ...digits]: string[] = process.argv.slice(2);
-    const member = (name: string | undefined): AutoMovieHumanF1.IMember => {
-      const found: AutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: AutoMovieHumanF1.IMember): boolean => m.family.name === name);
+    const member = (name: string | undefined): IAutoMovieHumanF1.IMember => {
+      const found: IAutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === name);
       if (found === undefined) throw new Error("no family named " + name);
       return found;
     };
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (m: AutoMovieHumanF1.IMember, from: number): AutoMovieConstructionNode => {
+    const leaf = (m: IAutoMovieHumanF1.IMember, from: number): IAutoMovieConstructionNode => {
       const to: number = m.family.knots.at(-1)!;
       const count: number = Math.ceil(to - from) + 1;
       sources.set(m.family.name, AutoMovieHumanConicLoft.part(m.family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1))));
@@ -33,25 +34,25 @@ namespace FamilyConicMerge {
 
     // A digit as a capsule: besides its tip it closes in a point `depth` mm behind its first joint, inside the limb. A closed body with one end
     // inside the limb and the other outside meets the limb's skin in a closed curve wherever it comes out, which is what a merge needs.
-    const capsule = (m: AutoMovieHumanF1.IMember, depth: number): AutoMovieConstructionNode => {
+    const capsule = (m: IAutoMovieHumanF1.IMember, depth: number): IAutoMovieConstructionNode => {
       const from: number = m.family.knots[0]!;
       const to: number = m.family.knots.at(-1)!;
-      const family: AutoMovieHumanConicLoft.IFamily = { ...m.family, tips: [{ from, tip: -depth }, m.family.tips?.[1] ?? null] };
+      const family: IAutoMovieHumanConicLoft.IFamily = { ...m.family, tips: [{ from, tip: -depth }, m.family.tips?.[1] ?? null] };
       const count: number = Math.ceil(to - from) + 1;
       sources.set(family.name, AutoMovieHumanConicLoft.part(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1))));
       return { type: "source", name: family.name, source: family.name };
     };
-    const limb: AutoMovieHumanF1.IMember = member(limbName);
-    let root: AutoMovieConstructionNode = leaf(limb, limb.family.tips![1]!.from - 80);
+    const limb: IAutoMovieHumanF1.IMember = member(limbName);
+    let root: IAutoMovieConstructionNode = leaf(limb, limb.family.tips![1]!.from - 80);
 
     // `--gap`: where the first digit's capsule lies against the limb, before any merge. For each of its stations and eight of its phases, how
     // far its point stands outside (+) or inside (-) the limb's skin along the limb's own radius, mm; a dot where the limb has no station.
     if (process.argv.includes("--gap")) {
-      const digit: AutoMovieHumanF1.IMember = member(digits[0]);
+      const digit: IAutoMovieHumanF1.IMember = member(digits[0]);
       capsule(digit, Number(depth));
       const host: IAutoMovieViewPart = sources.get(limb.family.name)!;
-      const hostLoft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(host);
-      const partLoft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(sources.get(digit.family.name)!);
+      const hostLoft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(host);
+      const partLoft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(sources.get(digit.family.name)!);
       if (hostLoft.chain === null || partLoft.chain === null) throw new Error("a leaf does not loft");
       const last: number = limb.family.tips![1]!.tip;
       const rows: string[] = [];
@@ -60,7 +61,7 @@ namespace FamilyConicMerge {
         for (let k: number = 0; k < 8; ++k) {
           const p: number[] = AutoMovieLoftChain.point(partLoft.chain, s, (k * Math.PI) / 4);
           let at: number = limb.family.tips![1]!.from;
-          let frame: AutoMovieLoftFrame.IFrame = host.axis.at(at);
+          let frame: IAutoMovieLoftFrame.IFrame = host.axis.at(at);
           for (let i: number = 0; i < 20; ++i) {
             const t: number[] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
             at += (p[0]! - frame.origin[0]) * t[0]! + (p[1]! - frame.origin[1]) * t[1]! + (p[2]! - frame.origin[2]) * t[2]!;
@@ -89,11 +90,11 @@ namespace FamilyConicMerge {
     for (const entry of digits) {
       // `name@chord@depth` gives one digit a blend chord and a root depth of its own, mm.
       const [name, own, deep]: string[] = entry.split("@");
-      const digit: AutoMovieHumanF1.IMember = member(name);
+      const digit: IAutoMovieHumanF1.IMember = member(name);
       const width: number = (own === undefined ? Number(chord) : Number(own)) / 1000;
       let kept: boolean = false;
       for (const quarter of [0, 1, 2, 3]) {
-        const candidate: AutoMovieConstructionNode = {
+        const candidate: IAutoMovieConstructionNode = {
           type: "join",
           kind: "merge",
           name: "web." + name,
@@ -108,8 +109,8 @@ namespace FamilyConicMerge {
           rows: 4,
           tolerance: 1e-12,
           grazing: 0.05,
-        } as AutoMovieConstructionNode;
-        const trial: Pick<AutoMovieConstructionRealization.IRealization, "diagnostics"> = realizeAutoMovieConstruction({ name: "f1.merge", root: candidate }, { chord: 0.002, sources, skin: false });
+        } as IAutoMovieConstructionNode;
+        const trial: Pick<IAutoMovieConstructionRealization.IRealization, "diagnostics"> = realizeAutoMovieConstruction({ name: "f1.merge", root: candidate }, { chord: 0.002, sources, skin: false });
         const refused = trial.diagnostics.filter((d: { node: string }): boolean => d.node === "web." + name);
         if (refused.length === 0) {
           root = candidate;
@@ -123,7 +124,7 @@ namespace FamilyConicMerge {
     }
     process.stdout.write(JSON.stringify({ chosen, refusals }).slice(0, 2500) + "\n");
     const started: number = performance.now();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.merge", root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.merge", root }, { chord: 0.0005, sources });
     process.stdout.write(JSON.stringify({ limb: limbName, digits, chordMm: Number(chord), milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, joins: real.joins.length, chains: real.chains.map((c: { name: string }): string => c.name), triangles: real.mesh.indices.length / 3 }).slice(0, 3000) + "\n");
     if (real.mesh.positions.length === 0) return;
     const out: string = path.join(path.resolve(process.cwd(), ".."), "test/.shots/family-conic-merge", new Date().toISOString().replaceAll(":", "-"));

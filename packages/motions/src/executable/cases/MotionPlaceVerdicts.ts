@@ -1,11 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../../posture/HumanFrame";
-import type { HumanHand } from "../../posture/HumanHand";
-import type { IHumanPosture } from "../../posture/IHumanPosture";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 
 /**
@@ -44,11 +41,11 @@ export namespace MotionPlaceVerdicts {
    */
   export function at(
     name: string,
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    side: IAutoMovieMotionHumanHand.Side,
     point: IAutoMovieVector3,
-    expected: AutoMovieMotionHumanTargetGrid.IGrid,
+    expected: IAutoMovieMotionHumanTargetGrid.IGrid,
   ): IMotionCaptureCase.IVerdict {
     const found = AutoMovieMotionHumanTargetGrid.nearest(
       body,
@@ -56,7 +53,7 @@ export namespace MotionPlaceVerdicts {
       side,
       point,
     );
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };

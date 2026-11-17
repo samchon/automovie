@@ -1,8 +1,9 @@
+import type { IAutoMovieCompactCurveApproximation, IAutoMovieConicApproximation } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
-import type { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
+
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { NodeCanvasCamera as V } from "./render/NodeCanvasCamera";
 import { CompactCurveSource as S } from "./CompactCurveSource";
@@ -41,11 +42,11 @@ export async function SurfaceQualitySeams(): Promise<void> {
     let smoothProfileBrokenSurface: number = 0, actualProfileCornerSamples: number = 0;
     for (let i: number = 0; i + 1 < rows.length; ++i) {
       const a: D.Row = rows[i]!, b: D.Row = rows[i + 1]!, h: number = b.loop.heightMm - a.loop.heightMm;
-      const phases: number[] = [...new Set([...a.pieces.map((p: C.IPiece): number => p.domain[0] / a.period), ...b.pieces.map((p: C.IPiece): number => p.domain[0] / b.period)])];
+      const phases: number[] = [...new Set([...a.pieces.map((p: IAutoMovieCompactCurveApproximation.IPiece): number => p.domain[0] / a.period), ...b.pieces.map((p: IAutoMovieCompactCurveApproximation.IPiece): number => p.domain[0] / b.period)])];
       for (const q of phases) for (const candidate of [false, true]) {
-        const aa: readonly C.IPiece[] = candidate ? a.pieces : a.source.pieces, bb: readonly C.IPiece[] = candidate ? b.pieces : b.source.pieces;
-        const al: P.Point = jet(aa, a.period, q, -1, 1), ar: P.Point = jet(aa, a.period, q, 1, 1), bl: P.Point = jet(bb, b.period, q, -1, 1), br: P.Point = jet(bb, b.period, q, 1, 1);
-        const ap: P.Point = jet(aa, a.period, q, 1, 0), bp: P.Point = jet(bb, b.period, q, 1, 0);
+        const aa: readonly IAutoMovieCompactCurveApproximation.IPiece[] = candidate ? a.pieces : a.source.pieces, bb: readonly IAutoMovieCompactCurveApproximation.IPiece[] = candidate ? b.pieces : b.source.pieces;
+        const al: IAutoMovieConicApproximation.Point = jet(aa, a.period, q, -1, 1), ar: IAutoMovieConicApproximation.Point = jet(aa, a.period, q, 1, 1), bl: IAutoMovieConicApproximation.Point = jet(bb, b.period, q, -1, 1), br: IAutoMovieConicApproximation.Point = jet(bb, b.period, q, 1, 1);
+        const ap: IAutoMovieConicApproximation.Point = jet(aa, a.period, q, 1, 0), bp: IAutoMovieConicApproximation.Point = jet(bb, b.period, q, 1, 0);
         const ds: N.Point = [(bp[0] - ap[0]) / h, 1, (bp[1] - ap[1]) / h];
         const angleA: number = D.angle([al[0], 0, al[1]], [ar[0], 0, ar[1]]), angleB: number = D.angle([bl[0], 0, bl[1]], [br[0], 0, br[1]]);
         const ratioA: number = Math.hypot(...al) / Math.hypot(...ar), ratioB: number = Math.hypot(...bl) / Math.hypot(...br);
@@ -71,17 +72,17 @@ export async function SurfaceQualitySeams(): Promise<void> {
 }
 
 /** Evaluate a literal one-sided polynomial jet; shared endpoint speeds are never replaced by artificial tangents. */
-function jet(pieces: readonly C.IPiece[], period: number, q: number, side: -1 | 1, order: 0 | 1): P.Point {
+function jet(pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[], period: number, q: number, side: -1 | 1, order: 0 | 1): IAutoMovieConicApproximation.Point {
   let t: number = q * period;
   const epsilon: number = 32 * Number.EPSILON * period;
   if (Math.abs(t) <= epsilon) t = side < 0 ? period : 0;
-  let index: number = pieces.findIndex((p: C.IPiece): boolean => side < 0 ? t > p.domain[0] + epsilon && t <= p.domain[1] + epsilon : t >= p.domain[0] - epsilon && t < p.domain[1] - epsilon);
+  let index: number = pieces.findIndex((p: IAutoMovieCompactCurveApproximation.IPiece): boolean => side < 0 ? t > p.domain[0] + epsilon && t <= p.domain[1] + epsilon : t >= p.domain[0] - epsilon && t < p.domain[1] - epsilon);
   if (index < 0) index = side < 0 ? pieces.length - 1 : 0;
-  const p: C.IPiece = pieces[index]!;
+  const p: IAutoMovieCompactCurveApproximation.IPiece = pieces[index]!;
   if (p.kind !== "polynomial") throw new Error("Exact source-clock polynomial control only");
   const h: number = p.domain[1] - p.domain[0], u: number = Math.max(0, Math.min(1, (t - p.domain[0]) / h));
-  let controls: P.Point[] = p.controls.map((v: P.Point): P.Point => [v[0], v[1]]);
-  if (order === 1) controls = controls.slice(1).map((v: P.Point, i: number): P.Point => [(v[0] - controls[i]![0]) * p.degree * period / h, (v[1] - controls[i]![1]) * p.degree * period / h]);
+  let controls: IAutoMovieConicApproximation.Point[] = p.controls.map((v: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point => [v[0], v[1]]);
+  if (order === 1) controls = controls.slice(1).map((v: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [(v[0] - controls[i]![0]) * p.degree * period / h, (v[1] - controls[i]![1]) * p.degree * period / h]);
   for (let n: number = controls.length - 1; n > 0; --n) for (let i: number = 0; i < n; ++i) controls[i] = [(1 - u) * controls[i]![0] + u * controls[i + 1]![0], (1 - u) * controls[i]![1] + u * controls[i + 1]![1]];
   return controls[0]!;
 }

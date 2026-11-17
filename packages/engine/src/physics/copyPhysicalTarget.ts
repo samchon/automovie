@@ -1,5 +1,4 @@
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
-
+import type { IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
 /**
  * Own sample/pose containers before replacing their fields. Metric vector values remain borrowed immutable inputs until replaced.
  *
@@ -12,7 +11,7 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function copyPhysicalTarget(
-  source: ReturnType<typeof samplePhysicalTarget>,
-): ReturnType<typeof samplePhysicalTarget> {
+  source: IAutoMovieSamplePhysicalTarget.IResult,
+): IAutoMovieSamplePhysicalTarget.IResult {
   return { ...source, pose: { ...source.pose } };
 }

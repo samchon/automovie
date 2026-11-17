@@ -1,9 +1,8 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieLoftChain, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftCoefficientSource, IAutoMovieStationHermite } from "@automovie/interface";
 
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * New principal-coefficient interpolation in the part's selected common root/angle pole coordinate.
@@ -14,84 +13,6 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftCoefficientSource {
-  /**
-   * A finite virtual endpoint in the chosen coordinate, not a physical-station jet.
-   *
-   * @evidence contracts/development/design.md#principled-representation A closing pole contributes the zero section and its natural-spline parameter jets without placing a degenerate principal layer in the chain.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One station and one existing Hermite endpoint layout carry virtual cap data.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite parameter slopes/curvatures make no claim of finite physical-station derivatives.
-   * @evidence contracts/development/common.md#meaningful-documentation Station uses kernel mm and slope/curvature use the selected parameter coordinate.
-   */
-  export interface IEnd extends AutoMovieStationHermite.IEnd {
-    /** Actual pole station, kernel mm. */
-    station: number;
-
-    /** Finite first derivatives in the chosen parameter, rather than per-mm station derivatives. */
-    slope: readonly number[];
-
-    /** Finite second derivatives in the chosen coordinate. */
-    curvature: readonly number[];
-  }
-
-  /**
-   * Optional virtual coefficient endpoints for actual closing ends.
-   *
-   * @evidence contracts/development/design.md#principled-representation Only a declared bottom/top pole receives a virtual zero section at its original station.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional records distinguish open ends from single/both caps.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Absence does not invent a cap or extend an open end.
-   * @evidence contracts/development/common.md#meaningful-documentation Members identify which end owns each finite parameter endpoint.
-   */
-  export interface IEnds {
-    /** Virtual zero section of a bottom cap; absent at an open bottom. */
-    bottom?: IEnd;
-
-    /** Virtual zero section of a top cap; absent at an open top. */
-    top?: IEnd;
-  }
-
-  /**
-   * Direct parameter-derivative data of one principal coefficient row.
-   *
-   * @evidence contracts/development/design.md#principled-representation The layer's existing coefficients remain its values; these arrays supply their first/second derivatives in the explicit map, so equal-value copies retain the same interpolation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One map, two derivative arrays and shared endpoint data extend the existing principal-layer definition without a hidden source-value copy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A transformed endpoint must explicitly remove/re-express this parameter data; mismatched or absent endpoint maps select the documented station-Hermite boundary, never a fitted source.
-   * @evidence contracts/development/common.md#meaningful-documentation Arrays use the existing coefficient layout; source data and the chain are immutable after preparation, as required by existing station caches.
-   */
-  export interface ISource {
-    /** Admitted root/angle map with kernel-mm endpoints. */
-    parameter: AutoMovieConstructionOutlineParameter;
-
-    /** First derivative of the layer's coefficients in that map. */
-    slopes: readonly number[];
-
-    /** Second derivative of the same coefficient row in that map. */
-    curvatures: readonly number[];
-
-    /** Shared finite virtual pole records. */
-    ends: IEnds;
-  }
-
-  /**
-   * One parameter span's direct endpoint arrays and three interpolation-weight rows.
-   *
-   * @evidence contracts/development/design.md#principled-representation Parameter Hermite weights and the forward map's optional station change define value and both physical derivative orders.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing Hermite endpoint arrays preserve lazy per-control combination in the consumer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A null change keeps a finite parameter value but supplies no finite physical 2-jet.
-   * @evidence contracts/development/common.md#meaningful-documentation Rows are value/first/second parameter orders; change is dq/ds,d2q/ds2.
-   */
-  export interface IControls {
-    /** Lower endpoint values and parameter derivatives. */
-    a: AutoMovieStationHermite.IEnd;
-
-    /** Upper endpoint values and parameter derivatives. */
-    b: AutoMovieStationHermite.IEnd;
-
-    /** Value/first/second parameter-coordinate Hermite weights. */
-    weights: number[][];
-
-    /** Forward parameter derivatives in physical station, or null at a singular/nonfinite 2-jet. */
-    change: [number, number] | null;
-  }
 
   /**
    * Prepare the capped coefficient data and carry its regular layer jets to station.
@@ -106,9 +27,9 @@ export namespace AutoMovieLoftCoefficientSource {
    */
   export function prepare(
     chain: IAutoMovieLoftChain,
-    parameter: AutoMovieConstructionOutlineParameter,
+    parameter: IAutoMovieConstructionOutlineParameter,
   ): IAutoMovieLoftChain | string {
-    const admitted: AutoMovieConstructionOutlineParameter | undefined | string =
+    const admitted: IAutoMovieConstructionOutlineParameter | undefined | string =
       AutoMovieViewParameter.prepare(parameter);
     if (admitted === undefined || typeof admitted === "string")
       return typeof admitted === "string"
@@ -163,13 +84,13 @@ export namespace AutoMovieLoftCoefficientSource {
       )
     )
       return "coefficient source has a nonfinite parameter derivative";
-    const end: (index: number) => IEnd = (index: number): IEnd => ({
+    const end: (index: number) => IAutoMovieLoftCoefficientSource.IEnd = (index: number): IAutoMovieLoftCoefficientSource.IEnd => ({
       station: stations[index]!,
       value: values[index]!,
       slope: slopes[index]!,
       curvature: curvatures[index]!,
     });
-    const ends: IEnds = {
+    const ends: IAutoMovieLoftCoefficientSource.IEnds = {
       ...(bottom === undefined ? {} : { bottom: end(0) }),
       ...(top === undefined ? {} : { top: end(stations.length - 1) }),
     };
@@ -218,7 +139,7 @@ export namespace AutoMovieLoftCoefficientSource {
   export function controls(
     chain: IAutoMovieLoftChain,
     station: number,
-  ): IControls | null {
+  ): IAutoMovieLoftCoefficientSource.IControls | null {
     const rows: readonly Layer[] = chain.layers;
     let lo: number = 0;
     let hi: number = rows.length - 1;
@@ -234,16 +155,16 @@ export namespace AutoMovieLoftCoefficientSource {
     const low: boolean = station < rows[0]!.y;
     const high: boolean = station > rows[rows.length - 1]!.y;
     const anchor: Layer = low ? rows[0]! : rows[rows.length - 1]!;
-    const source: ISource | undefined =
+    const source: IAutoMovieLoftCoefficientSource.ISource | undefined =
       low || high ? anchor.coefficientSource : a.coefficientSource;
     if (source === undefined) return null;
-    let left: AutoMovieStationHermite.IEnd;
-    let right: AutoMovieStationHermite.IEnd;
+    let left: IAutoMovieStationHermite.IEnd;
+    let right: IAutoMovieStationHermite.IEnd;
     let from: number;
     let to: number;
     if (low || high) {
       const which: "bottom" | "top" = low ? "bottom" : "top";
-      const pole: IEnd | undefined = source.ends[which];
+      const pole: IAutoMovieLoftCoefficientSource.IEnd | undefined = source.ends[which];
       if (pole === undefined || !closed(chain, which)) return null;
       if (pole.station !== poleStation(source.parameter, which))
         throw new Error("coefficient pole endpoint differs from its parameter");
@@ -300,7 +221,7 @@ export namespace AutoMovieLoftCoefficientSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the station's prepared parameter basis and map derivatives across all controls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns weights and retains no span or chain.
    */
-  export function weights(controls: IControls, order: 0 | 1 | 2): number[] {
+  export function weights(controls: IAutoMovieLoftCoefficientSource.IControls, order: 0 | 1 | 2): number[] {
     if (order === 0) return controls.weights[0]!;
     if (controls.change === null)
       throw new Error(
@@ -320,7 +241,7 @@ type Layer = IAutoMovieLoftChain.ILayer;
 
 /** Station forward jet computed from the stable inverse map, absent at an actual singularity or nonfinite result. */
 function forward(
-  parameter: AutoMovieConstructionOutlineParameter,
+  parameter: IAutoMovieConstructionOutlineParameter,
   station: number,
 ): [number, number] | null {
   const inverse: [number, number] | null = AutoMovieViewParameter.inverseJet(
@@ -336,7 +257,7 @@ function forward(
 }
 
 /** Direct layer endpoint in its retained parameter; no parallel value copy can become stale. */
-function endpoint(layer: Layer): AutoMovieStationHermite.IEnd {
+function endpoint(layer: Layer): IAutoMovieStationHermite.IEnd {
   return {
     value: layer.coefficients,
     slope: layer.coefficientSource!.slopes,
@@ -346,7 +267,7 @@ function endpoint(layer: Layer): AutoMovieStationHermite.IEnd {
 
 /** Present interpolation metadata must carry its declared map and matching derivative widths. */
 function validate(layer: Layer): void {
-  const source: AutoMovieLoftCoefficientSource.ISource | undefined =
+  const source: IAutoMovieLoftCoefficientSource.ISource | undefined =
     layer.coefficientSource;
   if (
     source !== undefined &&
@@ -367,7 +288,7 @@ function closed(chain: IAutoMovieLoftChain, end: "bottom" | "top"): boolean {
 
 /** Station of a real parameter pole, absent on its open side. */
 function poleStation(
-  parameter: AutoMovieConstructionOutlineParameter,
+  parameter: IAutoMovieConstructionOutlineParameter,
   end: "bottom" | "top",
 ): number | undefined {
   return parameter.type === "angle"
@@ -379,8 +300,8 @@ function poleStation(
 
 /** Numeric map equality preserves interpolation under value copying without hidden registration identity. */
 function same(
-  a: AutoMovieConstructionOutlineParameter,
-  b: AutoMovieConstructionOutlineParameter,
+  a: IAutoMovieConstructionOutlineParameter,
+  b: IAutoMovieConstructionOutlineParameter,
 ): boolean {
   return a.type === "root"
     ? b.type === "root" && a.pole === b.pole && a.end === b.end

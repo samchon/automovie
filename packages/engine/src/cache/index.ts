@@ -1,7 +1,4 @@
-export * from "./IAutoMovieArtifactKey";
-export * from "./IAutoMovieArtifactPlan";
-export * from "./IAutoMovieArtifactResolution";
-export * from "./IAutoMovieArtifactStore";
+
 export * from "./composeAutoMovieArtifactKey";
 export * from "./decodeAutoMovieArtifactJson";
 export * from "./encodeAutoMovieArtifactJson";

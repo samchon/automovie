@@ -1,14 +1,6 @@
-import {
-  type IAutoMovieBuiltEnvelopeCorner,
-  builtEnvironmentEnvelopeCorners,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import type { IAutoMovieBuiltEnvelopeCorner, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieQuaternion, IAutoMovieTransform } from "@automovie/interface";
+import { builtEnvironmentEnvelopeCorners, validateBuiltEnvironment } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -1,21 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanArmJacobian, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanArmClearance } from "./HumanArmClearance";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanJacobian } from "./HumanJacobian";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The analytic Jacobian of the arm planner's coordinates: for each free
@@ -41,15 +29,6 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export namespace HumanArmJacobian {
-  /** One coordinate's motion of the arm's three segments, per coordinate unit: radians and metres at each segment's origin (the shoulder, the elbow, the wrist). */
-  export interface IColumn {
-    /** The upper arm's twist. */
-    upper: HumanJacobian.ITwist;
-    /** The forearm's twist. */
-    lower: HumanJacobian.ITwist;
-    /** The hand's twist. */
-    hand: HumanJacobian.ITwist;
-  }
 
   /**
    * Each free coordinate's column at an arm placed in a frame.
@@ -62,12 +41,12 @@ export namespace HumanArmJacobian {
    * @returns One column per free coordinate.
    */
   export function columns(
-    setup: G.ISetup,
-    at: G.IFrame,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     c: readonly number[],
-    placed: G.IPlaced,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     free: readonly number[],
-  ): IColumn[] {
+  ): IAutoMovieMotionHumanArmJacobian.IColumn[] {
     const { upper, lower, hand } = setup.bones;
     const resolved = (
       bone: AutoMovieHumanoidBone,
@@ -91,7 +70,7 @@ export namespace HumanArmJacobian {
       resolved(lower, placed.elbow, placed.lower, placed.upper),
       resolved(hand, placed.wrist, placed.hand, placed.lower),
     ]);
-    const posture: IHumanPosture = {
+    const posture: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
       pitch: 0,
@@ -102,12 +81,12 @@ export namespace HumanArmJacobian {
       },
       limbs: {},
     };
-    const joints: (HumanJacobian.IMotion | undefined)[] = HumanJacobian.of(
+    const joints: (IAutoMovieMotionHumanJacobian.IMotion | undefined)[] = HumanJacobian.of(
       setup.body,
       posture,
       bones,
       [3, 4, 5, 6, 7, 8].map(
-        (d: number): HumanJacobian.IVariable => ({
+        (d: number): IAutoMovieMotionHumanJacobian.IVariable => ({
           kind: "angle",
           bone: d < 6 ? lower : hand,
           axis: AXES[d % 3]!,
@@ -118,13 +97,13 @@ export namespace HumanArmJacobian {
       G.clamped(setup, lower, [c[3]!, c[4]!, c[5]!]),
       G.clamped(setup, hand, [c[6]!, c[7]!, c[8]!]),
     ];
-    return free.map((d: number): IColumn => {
+    return free.map((d: number): IAutoMovieMotionHumanArmJacobian.IColumn => {
       if (d >= 3) {
         // Past its limit an angle is clamped by forward kinematics, so it
         // moves nothing.
         if (kept[d < 6 ? 0 : 1]![d % 3] !== c[d])
           return { upper: STILL, lower: STILL, hand: STILL };
-        const motion: HumanJacobian.IMotion = joints[d - 3]!;
+        const motion: IAutoMovieMotionHumanJacobian.IMotion = joints[d - 3]!;
         return {
           upper: HumanJacobian.twist(motion, upper, placed.shoulder),
           lower: HumanJacobian.twist(motion, lower, placed.elbow),
@@ -154,12 +133,6 @@ export namespace HumanArmJacobian {
     });
   }
 
-  /** An arm's chain placed at coordinates: each joint's point and each segment's world rotation. */
-  export type IChain = Pick<
-    G.IPlaced,
-    "shoulder" | "elbow" | "wrist" | "upper" | "lower" | "hand"
-  >;
-
   /**
    * One arm of a body on a pose, read at an arm moved by an offset in the
    * planner's coordinates: every coordinate's column, and the chain at any
@@ -173,19 +146,14 @@ export namespace HumanArmJacobian {
    * @returns The coordinates read at, the free ones (a hinge's fixed angle is not), their columns in that order and the chain.
    */
   export function read(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pose: IAutoMoviePose,
-    arm: HumanArmClearance.IArm,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
     offset: readonly number[] = [],
-  ): {
-    c: number[];
-    free: number[];
-    columns: IColumn[];
-    chain: (c: readonly number[]) => IChain;
-  } {
-    const setup: G.ISetup = G.prepare(body, side);
-    const at: G.IFrame = HumanArmFrame.of(setup, { pose, others: [] }, true);
+  ): IAutoMovieMotionHumanArmJacobian.IReadResult {
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = G.prepare(body, side);
+    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame.of(setup, { pose, others: [] }, true);
     const c: number[] = G.encode(setup, arm).map(
       (v: number, d: number): number => v + (offset[d] ?? 0),
     );
@@ -196,12 +164,12 @@ export namespace HumanArmJacobian {
       c,
       free,
       columns: columns(setup, at, c, G.placed(setup, at, c, false), free),
-      chain: (q: readonly number[]): IChain => G.placed(setup, at, q, false),
+      chain: (q: readonly number[]): IAutoMovieMotionHumanArmJacobian.IChain => G.placed(setup, at, q, false),
     };
   }
 
   /** A segment that does not move. */
-  const STILL: HumanJacobian.ITwist = {
+  const STILL: IAutoMovieMotionHumanJacobian.ITwist = {
     angular: { x: 0, y: 0, z: 0 },
     linear: { x: 0, y: 0, z: 0 },
   };

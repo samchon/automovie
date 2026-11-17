@@ -1,5 +1,4 @@
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-
+import type { IAutoMovieFairSolidMesh, IAutoMovieSolidMesh } from "@automovie/interface";
 /**
  * Fair a drawn mesh over the regions about given vertices: the discrete thin-plate fill of a hole, the triangles within each region moved
  * so that the bi-Laplacian of their positions vanishes, with the two rings of vertices outside the region held where they are.
@@ -41,8 +40,8 @@ import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local maps and arrays die with the call; only the mesh's positions are written.
  */
 export function fairAutoMovieSolidMesh(
-  mesh: AutoMovieSolidMesh.IMesh,
-  regions: readonly { vertices: readonly number[]; radius: number }[],
+  mesh: IAutoMovieSolidMesh.IMesh,
+  regions: IAutoMovieFairSolidMesh.IRegions,
 ): number {
   const count: number = mesh.positions.length / 3;
   if (regions.length === 0) return 0;

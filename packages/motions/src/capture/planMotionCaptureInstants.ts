@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/interface";
+
 /**
  * The instants a motion case's capture draws, each named by the case's own label: one per second written to the millisecond, the resolution a capture names its cells at.
  *
@@ -15,8 +17,8 @@
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and keeps nothing.
  */
 export function planMotionCaptureInstants(
-  times: readonly { seconds: number; label: string }[],
-): { seconds: number; label: string }[] {
+  times: IAutoMovieMotionHumanPlanMotionCaptureInstants.ITimes,
+): IAutoMovieMotionHumanPlanMotionCaptureInstants.IResult {
   const instants: Map<string, { seconds: number; labels: string[] }> = new Map();
   for (const time of times) {
     const key: string = time.seconds.toFixed(3);

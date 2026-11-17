@@ -1,22 +1,7 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanVerdicts, IAutoMovieMotionTarget } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
-  AutoMovieMotionHumanTouchForm,
-  AutoMovieMotionHumanTouchLaid,
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  HumanVerdicts,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanPosture,
-  type handToFace,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanTouch, AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchForm, AutoMovieMotionHumanTouchLaid, HUMAN_LEXICON, HumanChain, HumanPerformance, HumanVerdicts, poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,8 +27,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the bounds, why the row stands alone, what it was and the scenario.
  */
 export function test_human_motion_hand_verdicts_smoke(): void {
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const performance: HumanPerformance = new HumanPerformance({
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "verdict",
     laws,
     performers: [
@@ -59,21 +44,21 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       .stand({ seconds: 0.3 })
       .registered("smoke", {}).node,
   });
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 24);
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(performance, 24);
 
   // The touch's arm goal as its stroke builds it each second, rebuilt from
   // the placed action's own context and parameters, with the end the carry
   // goes toward and the carry's weight: what the reach blends the arm to.
   const touchGoals = (instants: readonly number[]): string[] => {
     const placed = performance.segments("a")[1]!;
-    const context = placed.context as IHumanActionContext<never>;
+    const context = placed.context as IAutoMovieMotionHumanActionContext<never>;
     const body = context.body;
-    const row = (placed.params as { task: handToFace.IRow }).task;
+    const row = (placed.params as { task: IAutoMovieMotionHumanHandToFaceRows.IRow }).task;
     const effector = row.effector;
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const entryBones = poseBones(body, context.entry.pose);
-    const target: AutoMovieMotionTarget = { kind: "self", region: "mouth" };
-    const place = (posture: IHumanPosture, seconds: number) =>
+    const target: IAutoMovieMotionTarget = { kind: "self", region: "mouth" };
+    const place = (posture: IAutoMovieMotionHumanPosture, seconds: number) =>
       AutoMovieMotionHumanTouch.region(
         context,
         target,
@@ -116,7 +101,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v;
     return instants.map((film: number): string => {
       const seconds: number = film - placed.start;
-      const posture: IHumanPosture = performance.posture("a", film);
+      const posture: IAutoMovieMotionHumanPosture = performance.posture("a", film);
       const at = place(posture, seconds);
       const normal = Vector3.normalize(at.normal);
       const along = AutoMovieMotionHumanTouchForm.tangent(
@@ -134,7 +119,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
         at.point,
         Vector3.scale(normal, standoff + body.measure.hand * (1 - weight)),
       );
-      const goal: IHumanPosture.IGoal = {
+      const goal: IAutoMovieMotionHumanPosture.IGoal = {
         ...AutoMovieMotionHumanTouchEffector.goal(
           body,
           "right",
@@ -169,7 +154,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       : [
           HumanVerdicts.describe(report),
           ...touchGoals([0.84, 0.861, 0.882, 0.903]),
-          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
+          ...report.findings.flatMap((f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
             [f.seconds - 1 / 48, f.seconds].map(
               (seconds: number): string =>
                 `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
@@ -184,7 +169,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
                 `${e.name} ${(performance.segments("a")[1]!.start + e.share * performance.segments("a")[1]!.plan.duration).toFixed(3)}`,
             )
             .join(", ")}`,
-          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
+          ...report.findings.flatMap((f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
             Array.from({ length: 13 }, (_: unknown, i: number): string => {
               const seconds: number = f.seconds + (i - 6) / 48;
               const bones = performance.bones("a", seconds);
@@ -205,7 +190,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
 }
 
 /** A posture as text for a complaint: root, yaw, pitch, roll, every set joint and every limb goal, numbers to four places, a goal's colliders left out. */
-function dump(posture: IHumanPosture): string {
+function dump(posture: IAutoMovieMotionHumanPosture): string {
   return JSON.stringify(
     {
       root: posture.root,
@@ -215,7 +200,7 @@ function dump(posture: IHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
+          ([limb, goal]: [string, IAutoMovieMotionHumanPosture.IGoal | undefined]): [
             string,
             object | undefined,
           ] => [

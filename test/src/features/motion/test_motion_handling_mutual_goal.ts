@@ -1,5 +1,6 @@
+import type { IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieMutualGoal } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -46,19 +47,19 @@ export function test_motion_handling_mutual_goal(): void {
     height: number,
     reach: number,
     limit: number,
-  ): resolveAutoMovieMutualGoal.ISide => ({
+  ): IAutoMovieResolveMutualGoal.ISide => ({
     shoulder: { x, y: height, z },
     reach,
     limit,
   });
   const far = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
-  const a: resolveAutoMovieMutualGoal.ISide = side(0.1, 0, 1.45, 0.5, 0.68);
-  const b: resolveAutoMovieMutualGoal.ISide = side(0.3, 0.8, 1.32, 0.45, 0.62);
+  const a: IAutoMovieResolveMutualGoal.ISide = side(0.1, 0, 1.45, 0.5, 0.68);
+  const b: IAutoMovieResolveMutualGoal.ISide = side(0.3, 0.8, 1.32, 0.45, 0.62);
 
   // 1. Both arms at their comfortable reach, in the shoulders' vertical
   // plane, below the line between the shoulders.
-  const goal: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({
+  const goal: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
     a,
     b,
   });
@@ -79,7 +80,7 @@ export function test_motion_handling_mutual_goal(): void {
   );
 
   // 2. Partner symmetry.
-  const swapped: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({
+  const swapped: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
     a: b,
     b: a,
   });
@@ -98,8 +99,8 @@ export function test_motion_handling_mutual_goal(): void {
   // 3. Scaling.
   const k: number = 0.8;
   const scale = (
-    s: resolveAutoMovieMutualGoal.ISide,
-  ): resolveAutoMovieMutualGoal.ISide => ({
+    s: IAutoMovieResolveMutualGoal.ISide,
+  ): IAutoMovieResolveMutualGoal.ISide => ({
     shoulder: { x: k * s.shoulder.x, y: k * s.shoulder.y, z: k * s.shoulder.z },
     reach: k * s.reach,
     limit: k * s.limit,
@@ -117,7 +118,7 @@ export function test_motion_handling_mutual_goal(): void {
 
   // 4. Equal people drop by the arm's triangle; stature raises the point and
   // draws it toward the taller partner.
-  const even: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({
+  const even: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
     a: side(0, 0, 1.4, 0.5, 0.65),
     b: side(0, 0.6, 1.4, 0.5, 0.65),
   });
@@ -129,7 +130,7 @@ export function test_motion_handling_mutual_goal(): void {
     "equal people drop by sqrt(reach^2 - h^2)",
     close(even.point.y, 1.4 - Math.sqrt(0.25 - 0.09)),
   );
-  const taller: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({
+  const taller: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
     a: side(0, 0, 1.4, 0.5, 0.65),
     b: side(0, 0.6, 1.6, 0.5, 0.65),
   });
@@ -152,7 +153,7 @@ export function test_motion_handling_mutual_goal(): void {
       side(0, 0.6, 1.7, 0.5, 0.65),
     ],
   ] as const) {
-    const wide: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({
+    const wide: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
       a: near,
       b: away,
     });
@@ -213,7 +214,7 @@ export function test_motion_handling_mutual_goal(): void {
     "equal people meet at the preferred height at the midpoint",
     close(level.x, 0) && close(level.y, 1.2) && close(level.z, 0.3),
   );
-  const uneven: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({
+  const uneven: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
     a,
     b,
     height: 1.2,

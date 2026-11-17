@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * Two or more parts continued from one open end of a host face (`outer` for more than two), the end split into the children's loops along shared seam chords: the pants topology, a trunk's crotch end into both thighs, where a closing pole has no room for two ports of the children's girth.
@@ -22,7 +22,7 @@ export interface IAutoMovieConstructionSplit {
   name: string;
 
   /** The solid whose face's end is split. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The host face whose end is split: a view part's name in the host's subtree. */
   hostFace: string;
@@ -59,6 +59,14 @@ export interface IAutoMovieConstructionSplit {
   children: [IAutoMovieConstructionSplit.IChild, IAutoMovieConstructionSplit.IChild, ...IAutoMovieConstructionSplit.IChild[]];
 }
 
+/**
+ * Child bands, seam curves and declared crease windows at a split end.
+ *
+ * @evidence contracts/development/design.md#principled-representation The members distinguish metre rail and seam geometry from radian loop windows and dimensionless reach shares.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Split realization reads the shared seam and per-child correspondence records without separate schemas for each child count.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored forks and child rails remain explicit; absent profile or crease has the documented geometric meaning.
+ * @evidence contracts/development/common.md#meaningful-documentation Child bands, seam curves and declared crease windows at a split end. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMovieConstructionSplit {
   /**
    * A curved seam: the shared contour both bands start from in place of the straight chord, such as a crotch's midsagittal line from the front fork under the perineum to the back fork.
@@ -152,7 +160,7 @@ export namespace IAutoMovieConstructionSplit {
     band: string;
 
     /** The child's subtree. */
-    part: AutoMovieConstructionNode;
+    part: IAutoMovieConstructionNode;
 
     /** The child face the band reaches: a view part's name in the child's subtree. */
     partFace: string;

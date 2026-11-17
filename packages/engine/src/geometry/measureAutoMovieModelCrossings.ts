@@ -1,14 +1,9 @@
-import type {
-  IAutoMovieMesh,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMeshCrossing, IAutoMovieModelCrossing, IAutoMovieMeasureModelCrossings, IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";
-import { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
-import { IAutoMovieModelCrossing } from "./IAutoMovieModelCrossing";
 import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./triangleIndicesOf";
@@ -60,10 +55,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  */
 export function measureAutoMovieModelCrossings(
   model: IAutoMovieModel,
-  options: {
-    /** Also count each part against itself. */
-    withinParts?: boolean;
-  } = {},
+  options: IAutoMovieMeasureModelCrossings.IOptions = {},
 ): IAutoMovieModelCrossing[] {
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
     autoMovieModelPartMatrices(model);

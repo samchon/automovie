@@ -1,4 +1,5 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieHumanConicRelief, IAutoMovieLoftRelief } from "@automovie/interface";
+
 import { AutoMovieHumanConicRelief as R } from "@automovie/human";
 
 /**
@@ -47,7 +48,7 @@ export function test_human_conic_relief(): void {
 
   // 3. A twin reverses columns and keeps rows.
   const original: IAutoMovieLoftRelief = { name: "made", stations: [10, 50], phases: [0.3, 2], axis: [1, 0, 0], turn: [0, 0, 1], rows: 5, columns: 6, heights: grid(5, 6, (a: number, b: number): number => 100 * a + b) };
-  const own: Omit<R.ITwin, "twin"> = { name: "made.twin", phases: [-2, -0.3], axis: [1, 0, 0], turn: [0, 0, -1] };
+  const own: Omit<IAutoMovieHumanConicRelief.ITwin, "twin"> = { name: "made.twin", phases: [-2, -0.3], axis: [1, 0, 0], turn: [0, 0, -1] };
   const twin: IAutoMovieLoftRelief = R.twin(original, own);
   same("twin heights", twin.heights, grid(5, 6, (a: number, b: number): number => 100 * a + (5 - b)));
   same("twin size and stations", [twin.rows, twin.columns, ...twin.stations], [5, 6, 10, 50]);

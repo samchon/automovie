@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
+import type { IAutoMovieHumanBodyMeasures } from "@automovie/interface";
+
 
 /**
  * The body frame's forward places of cervicale and the perineum, relative to

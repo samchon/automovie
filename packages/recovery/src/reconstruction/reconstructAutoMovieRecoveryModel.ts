@@ -1,14 +1,15 @@
+import type { AutoMovieRecoveryCurveData, IAutoMovieRecoveryDomainLedger, IAutoMovieRecoveryOptions, IAutoMovieRecoveryReconstructedModel, IAutoMovieRecoveryReconstruction, IAutoMovieRecoveryResult, IAutoMovieRecoveryTensorFamiliesInput } from "@automovie/interface";
 import { describeRecoveryDomains } from "../internal/describeRecoveryDomains";
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
 import { reconstructRecovery } from "../internal/reconstructRecovery";
 import { restoreRecoveryCurveBasis } from "../internal/restoreRecoveryCurveBasis";
-import type { IAutoMovieRecoveryDomainLedger } from "../structures/domain/IAutoMovieRecoveryDomainLedger";
-import type { IAutoMovieRecoveryReconstructedModel } from "../structures/domain/IAutoMovieRecoveryReconstructedModel";
-import type { IAutoMovieRecoveryReconstruction } from "../structures/domain/IAutoMovieRecoveryReconstruction";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
+
+
+
+
+
 
 /**
  * Reconstruct saved cubic and domain coefficients without access to source geometry.
@@ -38,12 +39,25 @@ export function reconstructAutoMovieRecoveryModel(
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryReconstructedModel> {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "legacy-contour-v1";
-  if (options.signal?.aborted)
+  let cancellationRequested: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error("Cancellation callback must return a boolean synchronously");
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
+  try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+
+  if (cancelled())
     return {
       operator,
       status: "cancelled",
-      diagnostics: ["Cancelled before reconstruction"],
-    };
+      diagnostics: ["Cancelled before reconstruction"] };
   if (
     !input ||
     !Array.isArray(input.loft?.sections) ||
@@ -54,35 +68,31 @@ export function reconstructAutoMovieRecoveryModel(
       status: "refused",
       diagnostics: [
         "A saved cubic bundle with explicit interval incidence is required",
-      ],
-    };
-  try {
+      ] };
+  
     const canonical: IAutoMovieRecoveryTensorFamiliesInput =
       restoreRecoveryCurveBasis(input);
     options.onProgress?.("reconstruction", 0, 1);
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before reconstruction"],
-      };
+        diagnostics: ["Cancelled before reconstruction"] };
     const value: IAutoMovieRecoveryReconstruction = reconstructRecovery(
       canonical,
       { observeWork: options.observeWork },
     );
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before publication"],
-      };
+        diagnostics: ["Cancelled before publication"] };
     options.onProgress?.("reconstruction", 1, 1);
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before publication"],
-      };
+        diagnostics: ["Cancelled before publication"] };
     const membership: IAutoMovieRecoveryDomainLedger = describeRecoveryDomains(
       canonical,
       value,
@@ -144,15 +154,13 @@ export function reconstructAutoMovieRecoveryModel(
       operator,
       status: partial ? "partial" : "complete",
       value: { ...value, membership },
-      diagnostics,
-    };
+      diagnostics };
   } catch (failure: unknown) {
     return {
       operator,
-      status: options.signal?.aborted ? "cancelled" : "failed",
+      status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ],
-    };
+      ] };
   }
 }

@@ -1,8 +1,7 @@
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
 
 /** The cut a standing action makes into a walk: only once both feet are down. */
-const SETTLED: readonly IHumanInterruptRow[] = [
+const SETTLED: readonly IAutoMovieMotionHumanInterruptRow[] = [
   { window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 },
 ];
 
@@ -12,7 +11,7 @@ const SETTLED: readonly IHumanInterruptRow[] = [
  * plans from the entry feet. A standing action (looking, gesturing, resting,
  * sitting) may cut only after the last footfall, once both feet are down.
  */
-export const walkCuts: IHumanActionLaw["interrupts"] = {
+export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
   stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],

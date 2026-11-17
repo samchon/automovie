@@ -1,4 +1,5 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanWorkoutKind, IAutoMovieMotionHumanWorkoutLying } from "@automovie/interface";
+
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
@@ -29,7 +30,7 @@ import { WorkoutKind } from "./WorkoutKind";
  */
 export namespace WorkoutLying {
   /** Hook lying: on the back, the knees bent and the feet flat. */
-  const hook = (body: IHumanBody, arms: ExerciseKey.ILimb): ExerciseKey.IKey =>
+  const hook = (body: IAutoMovieMotionHumanBody, arms: IAutoMovieMotionHumanExerciseKey.ILimb): IAutoMovieMotionHumanExerciseKey.IKey =>
     ExerciseKey.from(
       body,
       { pitch: -90 },
@@ -37,34 +38,21 @@ export namespace WorkoutLying {
     );
 
   /** Sitting on the floor with the legs straight ahead. */
-  const longSit = (body: IHumanBody): ExerciseKey.IKey =>
+  const longSit = (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey =>
     ExerciseKey.from(body, {}, { hip: 90, shoulder: 30, elbow: 20 });
 
   /** The back bears. */
-  const SUPINE: readonly WorkoutKind.ISupport[] = [
+  const SUPINE: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "back", kind: "lie" },
   ];
 
   /** The seat bears. */
-  const SEATED: readonly WorkoutKind.ISupport[] = [
+  const SEATED: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "seat", kind: "seat" },
   ];
 
-  /** The exercises' names. */
-  export type Name =
-    | "sitUp"
-    | "crunch"
-    | "gluteBridge"
-    | "pnfHamstring"
-    | "sidePlank"
-    | "seatedFold"
-    | "hurdlerStretch"
-    | "benchPress"
-    | "rowing"
-    | "cycling";
-
   /** The exercises. */
-  export const KINDS: Readonly<Record<Name, WorkoutKind>> = {
+  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkoutLying.Name, IAutoMovieMotionHumanWorkoutKind>> = {
     /** A sit-up: from hook lying, the trunk raised to the knees, 1 s each way (provisional). */
     sitUp: {
       base: "lying",
@@ -73,7 +61,7 @@ export namespace WorkoutLying {
       supports: SEATED,
       enter: 2.4,
       reps: 5,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           hook(body, { shoulder: 30, elbow: 130 }),
           1,
@@ -101,7 +89,7 @@ export namespace WorkoutLying {
       supports: SUPINE,
       enter: 2.4,
       reps: 8,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           hook(body, { shoulder: 30, elbow: 130 }),
           0.8,
@@ -133,7 +121,7 @@ export namespace WorkoutLying {
       ],
       enter: 2.4,
       reps: 5,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(hook(body, { elbow: 5 }), 1, "lower", "down"),
         WorkoutKind.step(
           ExerciseKey.from(
@@ -157,7 +145,7 @@ export namespace WorkoutLying {
       supports: SUPINE,
       enter: 2.4,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(body, { pitch: -90 }, { ankle: -20, elbow: 5 }),
           1.5,
@@ -192,14 +180,14 @@ export namespace WorkoutLying {
       ],
       enter: 2.4,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         // Tipped until the left forearm rests on the floor level with the
         // feet: both supports bear (`WorkoutFloor.rolled`).
         WorkoutKind.pose(
           WorkoutFloor.rolled(
             body,
             /^left(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/,
-            (roll: number): ExerciseKey.IKey =>
+            (roll: number): IAutoMovieMotionHumanExerciseKey.IKey =>
               ExerciseKey.from(
                 body,
                 { roll },
@@ -222,7 +210,7 @@ export namespace WorkoutLying {
       supports: SEATED,
       enter: 2,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(longSit(body), 1.5, "sitUp", "sitting"),
         WorkoutKind.pose(
           ExerciseKey.from(
@@ -244,7 +232,7 @@ export namespace WorkoutLying {
       supports: SEATED,
       enter: 2,
       reps: 1,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(longSit(body), 1.5, "sitUp", "sitting"),
         WorkoutKind.pose(
           ExerciseKey.from(
@@ -264,12 +252,12 @@ export namespace WorkoutLying {
       base: "lying",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      raise: (body: IHumanBody): number =>
+      raise: (body: IAutoMovieMotionHumanBody): number =>
         body.measure.shank + body.measure.ankleHeight,
       supports: SUPINE,
       enter: 2.4,
       reps: 5,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -298,7 +286,7 @@ export namespace WorkoutLying {
       base: "seated",
       anchor: "hips",
       pin: ["leftFoot", "rightFoot"],
-      raise: (body: IHumanBody): number => body.measure.shank / 3,
+      raise: (body: IAutoMovieMotionHumanBody): number => body.measure.shank / 3,
       supports: [
         { part: "seat", kind: "seat" },
         { part: "leftFoot", kind: "plant" },
@@ -306,7 +294,7 @@ export namespace WorkoutLying {
       ],
       enter: 2,
       reps: 5,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -335,15 +323,15 @@ export namespace WorkoutLying {
       base: "seated",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      raise: (body: IHumanBody): number =>
+      raise: (body: IAutoMovieMotionHumanBody): number =>
         0.9 * (body.measure.thigh + body.measure.shank),
       supports: SEATED,
       enter: 2,
       reps: 8,
-      route: (body: IHumanBody): WorkoutKind.IStep[] => {
-        const pedal = (down: "left" | "right"): ExerciseKey.IKey => {
-          const low: ExerciseKey.ILimb = { hip: 60, knee: 30 };
-          const high: ExerciseKey.ILimb = { hip: 110, knee: 105 };
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
+        const pedal = (down: "left" | "right"): IAutoMovieMotionHumanExerciseKey.IKey => {
+          const low: IAutoMovieMotionHumanExerciseKey.ILimb = { hip: 60, knee: 30 };
+          const high: IAutoMovieMotionHumanExerciseKey.ILimb = { hip: 110, knee: 105 };
           return ExerciseKey.from(
             body,
             { pitch: 35, neck: -25 },

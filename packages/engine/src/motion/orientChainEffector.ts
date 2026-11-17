@@ -1,12 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieFitChainToTargetProps, IAutoMovieResolvedJointAngles, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
@@ -14,7 +8,6 @@ import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { splitDistalTwist } from "./splitDistalTwist";
 
@@ -50,7 +43,7 @@ import { splitDistalTwist } from "./splitDistalTwist";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function orientChainEffector(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   fitted: IAutoMoviePose,
 ): IAutoMoviePose {
   if (props.effectorRotation === undefined) return fitted;
@@ -86,7 +79,7 @@ export function orientChainEffector(
   const effectorAxes: IAutoMovieJointAxes | undefined =
     axes[props.chain.effector];
   const frame = props.restFrames?.[props.chain.effector];
-  const angles: ReturnType<typeof decomposeJointRotation> =
+  const angles: IAutoMovieResolvedJointAngles =
     decomposeJointRotation(local, effectorAxes, frame);
   const raw: IAutoMovieJointPose = {
     bone: props.chain.effector,

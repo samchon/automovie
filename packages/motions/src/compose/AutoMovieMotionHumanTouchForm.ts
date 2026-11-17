@@ -1,10 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanTouchForm, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 
 /**
  * The kinds of a touch and how each moves in the region's surface frame: the
@@ -23,15 +20,6 @@ import type { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Periods are timing spans, amplitudes shares of the hand, so no metre is typed for one body.
  */
 export namespace AutoMovieMotionHumanTouchForm {
-  /**
-   * How the effector moves on the region.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a kind selects; the namespace states the source and `FORMS` each kind's movement.
-   * @evidence contracts/development/design.md#principled-representation The gesture names of the social touch corpus that differ in a surface frame; each maps to one row of `FORMS`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, the key of `FORMS`; a law names a kind and never a lift or a travel.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union, so `FORMS` is exhaustive and an unknown kind does not compile.
-   */
-  export type Kind = (typeof KINDS)[number];
 
   /** The touch kinds of {@link Kind}, as data. */
   export const KINDS = [
@@ -43,32 +31,7 @@ export namespace AutoMovieMotionHumanTouchForm {
     "squeeze",
     "hold",
     "scratch",
-  ] as const;
-
-  /**
-   * One kind's movement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The lift and the travel in hand lengths, the repetition as a span or a peak speed, the curl in degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by the touch stroke.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The speed is optional because only the stroke has a measured one.
-   */
-  export interface IForm {
-    /** The lift's greatest height, a share of the hand's length. */
-    lift: number;
-
-    /** The travel's greatest offset each way, a share of the hand's length. */
-    travel: number;
-
-    /** One repetition's length; ignored when `speed` is given. */
-    period: AutoMovieMotionHumanTiming.Span;
-
-    /** The travel's peak speed, metres per second; sets the period when present. */
-    speed?: number;
-
-    /** Extra flexion of every finger joint, degrees. */
-    curl: number;
-  }
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchForm.Kind>[];
 
   /**
    * The forms (provisional apart from the stroke's speed): a tap lifts a
@@ -77,7 +40,7 @@ export namespace AutoMovieMotionHumanTouchForm {
    * curled fingers, a stroke a fifth of a hand each way at a 5 cm/s peak
    * (Loken et al. 2009), and a squeeze curls the fingers by 20 degrees.
    */
-  export const FORMS: Readonly<Record<Kind, IForm>> = {
+  export const FORMS: Readonly<Record<IAutoMovieMotionHumanTouchForm.Kind, IAutoMovieMotionHumanTouchForm.IForm>> = {
     tap: {
       lift: 0.25,
       travel: 0,
@@ -103,18 +66,8 @@ export namespace AutoMovieMotionHumanTouchForm {
     },
   };
 
-  /**
-   * Which way the travel runs on the region: up its surface, or across it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two directions relative to the region's surface.
-   * @evidence contracts/development/design.md#principled-representation A surface has two tangent directions; they are named by the world's up projected on it and its perpendicular.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two literals, read by the region's tangent.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A named direction on the surface, not a free vector a law could point off it.
-   */
-  export type Tangent = (typeof TANGENTS)[number];
-
   /** The tangents of {@link Tangent}, as data. */
-  export const TANGENTS = ["up", "across"] as const;
+  export const TANGENTS = ["up", "across"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchForm.Tangent>[];
 
   /**
    * An effector read in the hand as a kind displays it: its fingers curled
@@ -137,7 +90,7 @@ export namespace AutoMovieMotionHumanTouchForm {
    */
   export function curled<E extends { curl?: number }>(
     effector: E,
-    kind: Kind,
+    kind: IAutoMovieMotionHumanTouchForm.Kind,
   ): E {
     const curl: number = FORMS[kind].curl;
     return curl === 0 ? effector : { ...effector, curl };
@@ -161,11 +114,11 @@ export namespace AutoMovieMotionHumanTouchForm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function period(
-    body: Pick<IHumanBody, "measure">,
-    kind: Kind,
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    kind: IAutoMovieMotionHumanTouchForm.Kind,
     seconds: number,
   ): number {
-    const form: IForm = FORMS[kind];
+    const form: IAutoMovieMotionHumanTouchForm.IForm = FORMS[kind];
     return form.speed === undefined
       ? seconds
       : (2 * Math.PI * form.travel * body.measure.hand) / form.speed;
@@ -195,13 +148,13 @@ export namespace AutoMovieMotionHumanTouchForm {
   export function tangent(
     normal: IAutoMovieVector3,
     yaw: number,
-    tangent: Tangent,
-    side: HumanHand.Side,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
+    side: IAutoMovieMotionHumanHand.Side,
   ): IAutoMovieVector3 {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
-    const frame: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
     const candidates: IAutoMovieVector3[] =
       tangent === "up"
         ? [{ x: 0, y: 1, z: 0 }, HumanFrame.point(frame, { x: 0, y: 0, z: 1 })]

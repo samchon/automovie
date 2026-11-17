@@ -1,13 +1,6 @@
-import {
-  IAutoMovieRenderSpec,
-  IAutoMovieSequence,
-  IAutoMovieShot,
-} from "@automovie/interface";
-import {
-  IAutoMovieSequenceRenderFrame,
-  planChunkedSequenceRender,
-  planSequenceRender,
-} from "@automovie/render";
+import { type IAutoMovieSequenceRenderFrame, IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+
+import { planChunkedSequenceRender, planSequenceRender } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

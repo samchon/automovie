@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieRecoveryMeshFrontier,
-  type IAutoMovieRecoveryMeshFrontierInput,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryMeshFrontier, IAutoMovieRecoveryMeshFrontierInput } from "@automovie/interface";
+
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";

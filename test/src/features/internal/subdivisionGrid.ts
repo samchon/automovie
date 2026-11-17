@@ -1,4 +1,5 @@
-import { type IAutoMovieSubdivisionCage } from "@automovie/engine";
+import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
+
 
 /**
  * A synthetic open quad grid of `columns` by `rows` unit cells in the XY plane,

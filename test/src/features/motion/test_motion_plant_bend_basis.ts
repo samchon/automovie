@@ -1,20 +1,6 @@
-import {
-  IAutoMoviePlantChain,
-  fitChainToTarget,
-  indexSkeletonTopology,
-  jointToQuaternion,
-  resolvePose,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMoviePlantChain, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { fitChainToTarget, indexSkeletonTopology, jointToQuaternion, resolvePose } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

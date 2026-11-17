@@ -1,12 +1,6 @@
-import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
-import {
-  IAutoMovieClip,
-  IAutoMovieNode,
-  IAutoMovieProfile,
-  IAutoMovieProfileBinding,
-  IAutoMovieTransform,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolveOutput, IAutoMovieClip, IAutoMovieNode, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMovieTransform, type IAutoMovieVector3 } from "@automovie/interface";
+import { resolveFrame } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

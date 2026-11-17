@@ -1,6 +1,5 @@
-import { IAutoMovieClip } from "@automovie/interface";
+import { type IAutoMovieSampledChannel, IAutoMovieClip } from "@automovie/interface";
 
-import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelKey } from "./channelKey";
 import { sampleClip } from "./sampleClip";
 

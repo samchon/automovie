@@ -1,11 +1,5 @@
-import {
-  IAutoMovieCompiledEffect,
-  IAutoMovieEffectRecipe,
-  IAutoMovieShotContract,
-  IAutoMovieShotEffectCue,
-  IAutoMovieWorldDesign,
-  IAutoMovieWorldEffectZone,
-} from "@automovie/interface";
+import { type IAutoMovieMaterializeCompiledEffects, IAutoMovieCompiledEffect, IAutoMovieEffectRecipe, IAutoMovieShotEffectCue, IAutoMovieWorldEffectZone } from "@automovie/interface";
+
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
@@ -28,17 +22,7 @@ import { admitEffectTransport } from "./admitEffectTransport";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The two lookup maps live only for the call. Returned streams own copied bounds, recipes and intensities, so retained storage grows with all nested copied records and text, including repeated recipes across cues; the caller owns their release.
  */
 export function materializeCompiledEffects(
-  props: {
-    world: Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">;
-    fixedStepSeconds: number;
-    cues: readonly IAutoMovieShotEffectCue[];
-  } & (
-    | { contract: IAutoMovieShotContract; seedOwner?: never }
-    | {
-        contract?: never;
-        seedOwner: { production: string; film: string };
-      }
-  ),
+  props: IAutoMovieMaterializeCompiledEffects.IProps,
 ): IAutoMovieCompiledEffect[] {
   const recipes: Map<string, IAutoMovieEffectRecipe> = new Map(
     props.world.effectRecipes.map(

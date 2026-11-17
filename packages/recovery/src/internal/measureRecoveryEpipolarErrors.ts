@@ -1,3 +1,4 @@
+import type { IAutoMovieRecoveryEpipolarErrorsMeasurementOperation } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
 
 /**
@@ -16,10 +17,10 @@ import { AutoMovieMatrix3 } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only owned scalar records escape, with no borrowed points, cache, image buffer or external handle retained.
  */
 export function measureRecoveryEpipolarErrors(
-  matrix: readonly number[],
-  first: readonly (readonly [number, number])[],
-  second: readonly (readonly [number, number])[],
-): ({ signedSampsonPx: number; symmetricPointLinePx: number } | null)[] {
+  matrix: Parameters<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation>[0],
+  first: Parameters<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation>[1],
+  second: Parameters<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation> {
   if (first.length !== second.length)
     throw new Error("camera-error: paired points required");
   const transpose: number[] = AutoMovieMatrix3.transpose(matrix);

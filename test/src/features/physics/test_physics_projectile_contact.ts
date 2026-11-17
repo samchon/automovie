@@ -1,10 +1,6 @@
-import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  Vector3,
-  projectileFirstContact,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMoviePhysicalProfile } from "@automovie/interface";
+import { Vector3, projectileFirstContact } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**

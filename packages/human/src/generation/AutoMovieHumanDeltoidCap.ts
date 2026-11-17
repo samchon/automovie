@@ -1,4 +1,6 @@
-import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
+import type { IAutoMovieHumanDeltoidCap } from "@automovie/interface";
+
+
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
 
 /**
@@ -13,29 +15,9 @@ import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
  * at the point where both stand at the same lateral place.
  */
 export namespace AutoMovieHumanDeltoidCap {
-  /** An ellipse in a horizontal plane. */
-  export interface IOval {
-    /** Forward place of the centre, mm. */
-    x: number;
+  
 
-    /** Lateral place of the centre, mm. */
-    z: number;
-
-    /** Forward half size, mm. */
-    rx: number;
-
-    /** Lateral half size, mm. */
-    rz: number;
-  }
-
-  /** What the cap reads. */
-  export interface IInput {
-    /** The glenohumeral centre `[x, y, z]`, mm. */
-    glenohumeral: readonly [number, number, number];
-
-    /** The cap's outline from the centre's height to the shoulder point. */
-    outline: IAutoMovieHumanShoulderOutline;
-  }
+  
 
   /** Smallest lateral half size kept, mm: under it the cap is the girdle's. */
   const MINIMUM: number = 0.5;
@@ -47,7 +29,7 @@ export namespace AutoMovieHumanDeltoidCap {
    * @param y Height, mm.
    * @returns The ellipse, or null at and above the shoulder point and where it is too small to keep.
    */
-  export function at(input: IInput, y: number): IOval | null {
+  export function at(input: IAutoMovieHumanDeltoidCap.IInput, y: number): IAutoMovieHumanDeltoidCap.IOval | null {
     const [x, , gz]: readonly [number, number, number] = input.glenohumeral;
     if (y >= input.outline.to) return null;
 

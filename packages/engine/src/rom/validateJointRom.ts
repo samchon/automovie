@@ -1,11 +1,5 @@
-import {
-  IAutoMovieAngleRange,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import { type IAutoMovieScanJointRom, type IAutoMovieValidateJointRom, type IAutoMovieViolationCollector, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
 
-import type { swingTwistRange } from "../kinematics/swingTwistRange";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { scanJointRom } from "./scanJointRom";
 
 /**
@@ -19,28 +13,7 @@ import { scanJointRom } from "./scanJointRom";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Detector/clamps share admitted constraints/metric, while collector effects are appended anew rather than cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns collector rows and release lifetime; joint/constraint references are borrowed and no handle or task is acquired.
  */
-export const validateJointRom: (props: {
-  joint: IAutoMovieJointPose;
-  constraint: IAutoMovieJointConstraint;
-  path: string;
-  collector: ViolationCollector;
-  rig?: swingTwistRange.IJoint;
-}) => void = (props: {
-  /** Borrowed joint angles in the constraint's degree frame; null means rest. */
-  joint: IAutoMovieJointPose;
-
-  /** Admitted finite ordered axis intervals and optional coupled swing policy. */
-  constraint: IAutoMovieJointConstraint;
-
-  /** Base JSON address; axis or swing suffixes identify each reported fault. */
-  path: string;
-
-  /** Caller-owned append-only diagnostic sink, advanced by this validation. */
-  collector: ViolationCollector;
-
-  /** The bone's frame as the caller's rig resolves it, for a joint gated by swing and twist; the humanoid tables' when absent. */
-  rig?: swingTwistRange.IJoint;
-}): void => {
+export const validateJointRom: (props: IAutoMovieValidateJointRom.IProps) => void = (props: IAutoMovieValidateJointRom.IProps): void => {
   const {
     joint,
     constraint,
@@ -50,7 +23,7 @@ export const validateJointRom: (props: {
     joint: IAutoMovieJointPose;
     constraint: IAutoMovieJointConstraint;
     path: string;
-    collector: ViolationCollector;
+    collector: IAutoMovieViolationCollector;
   } = props;
   // The faults and their distances come from `scanJointRom`, the measure the
   // solvers rank candidates by; only their wording is decided here.
@@ -58,7 +31,7 @@ export const validateJointRom: (props: {
     joint,
     constraint,
     (
-      part: scanJointRom.Part,
+      part: IAutoMovieScanJointRom.Part,
       actual: number,
       overshoot: number | undefined,
     ): void => {

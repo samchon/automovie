@@ -1,3 +1,5 @@
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
+
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 
 /**
@@ -42,7 +44,7 @@ export namespace AutoMovieHumanFootEdgeHandover {
    * @param edge The edge's own point.
    * @param after The neighbour after it.
    */
-  export function tangent(height: number, corner: number, before: G.Vec2, edge: G.Vec2, after: G.Vec2): G.Vec2 {
+  export function tangent(height: number, corner: number, before: AutoMovieVector2Tuple, edge: AutoMovieVector2Tuple, after: AutoMovieVector2Tuple): AutoMovieVector2Tuple {
     const w: number = G.smooth(height / corner);
     const d1: number = Math.hypot(edge[0] - before[0], edge[1] - before[1]) || 1;
     const d2: number = Math.hypot(after[0] - edge[0], after[1] - edge[1]) || 1;

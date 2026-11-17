@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanF1Frames, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieHumanF1Frames, AutoMovieHumanF1Joints as J, AutoMovieHumanSegmentFrame as F } from "@automovie/human";
@@ -16,14 +17,14 @@ namespace FamilyConicFrames {
     const root: string = path.resolve(process.cwd(), "..");
     const v = (p: readonly number[], digits: number = 2): string => "[" + p.map((x: number): string => x.toFixed(digits)).join(", ") + "]";
     const degrees = (r: number): string => ((r * 180) / Math.PI).toFixed(1);
-    const segments: AutoMovieHumanF1Frames.ISegment[] = AutoMovieHumanF1Frames.segments();
-    const joints: Map<string, F.IJoint> = new Map(AutoMovieHumanF1Frames.joints().map((j: F.IJoint): [string, F.IJoint] => [j.name, j]));
+    const segments: IAutoMovieHumanF1Frames.ISegment[] = AutoMovieHumanF1Frames.segments();
+    const joints: Map<string, IAutoMovieHumanSegmentFrame.IJoint> = new Map(AutoMovieHumanF1Frames.joints().map((j: IAutoMovieHumanSegmentFrame.IJoint): [string, IAutoMovieHumanSegmentFrame.IJoint] => [j.name, j]));
     const lines: string[] = ["f1 segment frames, reference pose; mm; the stored side (+Z), whose twin is the reflection in z = 0", "R = parent axes^T x child axes (rows); a joint is at zero when R is the identity", ""];
 
     // The angles first, so the pose reads as anatomy at a glance.
     lines.push("ISB joint-coordinate angles at the reference pose, degrees:");
     for (const angles of AutoMovieHumanF1Frames.ANGLES) {
-      const r: F.M3 = joints.get(angles.segment)!.rotation;
+      const r: IAutoMovieHumanSegmentFrame.M3 = joints.get(angles.segment)!.rotation;
       const read: [number, number, number] = angles.sequence === "YXY" ? F.eulerYXY(r) : F.cardanZXY(r);
       lines.push("  " + angles.joint + " (" + angles.segment + ", " + angles.sequence + "): " + angles.names.map((name: string, k: number): string => name + " " + degrees(read[k]!)).join(", "));
     }
@@ -35,8 +36,8 @@ namespace FamilyConicFrames {
     );
 
     // The two readings that look unanatomical, beside the lines they are not.
-    const frames: Map<string, F.IFrame> = new Map(segments.map((s: AutoMovieHumanF1Frames.ISegment): [string, F.IFrame] => [s.name, s.frame]));
-    const apart = (a: F.V3, b: F.V3): string => degrees(Math.acos(Math.max(-1, Math.min(1, F.dot(F.unit(a), F.unit(b))))));
+    const frames: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = new Map(segments.map((s: IAutoMovieHumanF1Frames.ISegment): [string, IAutoMovieHumanSegmentFrame.IFrame] => [s.name, s.frame]));
+    const apart = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): string => degrees(Math.acos(Math.max(-1, Math.min(1, F.dot(F.unit(a), F.unit(b))))));
     lines.push(
       "elbow: the joint-centre lines (GH to the elbow centre, the elbow centre to the wrist centre) stand " + apart(F.sub(J.lowerarm, J.upperarm), F.sub(J.hand, J.lowerarm)) + " degrees apart;",
       "  ISB's long axes (the humerus's Y from the epicondyles' midpoint to GH, the forearm's Y from US to that midpoint) stand " + apart(frames.get("humerus")!.axes[1], frames.get("forearm")!.axes[1]) + " apart, which the flexion reads.",
@@ -46,13 +47,13 @@ namespace FamilyConicFrames {
     );
 
     for (const s of segments) {
-      const joint: F.IJoint = joints.get(s.name)!;
+      const joint: IAutoMovieHumanSegmentFrame.IJoint = joints.get(s.name)!;
       lines.push(
         s.name + " (parent " + (s.parent ?? "none") + ")",
         "  rule: " + s.rule,
         "  origin " + v(s.frame.origin) + (s.parent === null ? "" : ", in the parent " + v(joint.offset)),
         "  X " + v(s.frame.axes[0], 4) + "  Y " + v(s.frame.axes[1], 4) + "  Z " + v(s.frame.axes[2], 4),
-        "  R " + joint.rotation.map((row: F.V3): string => v(row, 4)).join(" "),
+        "  R " + joint.rotation.map((row: AutoMovieVector3Tuple): string => v(row, 4)).join(" "),
         "",
       );
     }

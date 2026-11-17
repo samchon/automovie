@@ -1,16 +1,7 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+
+import { AutoMovieMotionHumanTouchEffector, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -37,8 +28,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the convention, its reason and the 3 scenarios with their bound.
  */
 export function test_human_motion_core_forearm_twist(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const base: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const complaints: string[] = [];
   const degrees = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     (Math.acos(
@@ -61,7 +52,7 @@ export function test_human_motion_core_forearm_twist(): void {
     ] as const) {
       const { [`${side}Arm` as const]: _, ...limbs } = base.limbs;
       void _;
-      const posture: IHumanPosture = {
+      const posture: IAutoMovieMotionHumanPosture = {
         ...base,
         joints: {
           ...base.joints,

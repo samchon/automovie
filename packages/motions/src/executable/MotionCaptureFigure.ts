@@ -1,5 +1,6 @@
+import type { IAutoMovieHumanCanonicalBody, IAutoMoviePose } from "@automovie/interface";
+
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type { IAutoMoviePose } from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,
@@ -31,7 +32,7 @@ export class MotionCaptureFigure {
 
   private readonly drawing: AutoMovieHumanPolygon.IDrawing;
 
-  private readonly body: AutoMovieHumanCanonicalBody.IBody;
+  private readonly body: IAutoMovieHumanCanonicalBody.IBody;
 
   /**
    * Build the drawing of a body.
@@ -39,7 +40,7 @@ export class MotionCaptureFigure {
    * @param body The canonical body.
    * @param color Optional colour of every part.
    */
-  public constructor(body: AutoMovieHumanCanonicalBody.IBody, color?: number) {
+  public constructor(body: IAutoMovieHumanCanonicalBody.IBody, color?: number) {
     this.body = body;
     const rest: ReturnType<typeof AutoMovieHumanCanonicalBody.display> =
       AutoMovieHumanCanonicalBody.display(body);
@@ -68,7 +69,7 @@ export class MotionCaptureFigure {
    * @param pose A canonical pose of the body.
    * @returns Every Human joint's canonical placement.
    */
-  public place(pose: IAutoMoviePose): AutoMovieHumanCanonicalBody.IPlacement[] {
+  public place(pose: IAutoMoviePose): IAutoMovieHumanCanonicalBody.IPlacement[] {
     this.drawing.setPose({
       posed: AutoMovieHumanCanonicalBody.display(this.body, pose).posed,
     });

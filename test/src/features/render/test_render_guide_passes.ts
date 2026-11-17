@@ -1,12 +1,6 @@
-import { AutoMovieGuidePass } from "@automovie/interface";
-import {
-  AUTOMOVIE_GUIDE_PASSES,
-  IAutoMovieGuidePassOutput,
-  guidePassFrameName,
-  guidePassFramePattern,
-  isGuidePass,
-  planGuidePassOutputs,
-} from "@automovie/render";
+import { type IAutoMovieGuidePassOutput, AutoMovieGuidePass } from "@automovie/interface";
+
+import { AUTOMOVIE_GUIDE_PASSES, guidePassFrameName, guidePassFramePattern, isGuidePass, planGuidePassOutputs } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

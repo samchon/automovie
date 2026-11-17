@@ -1,7 +1,8 @@
-import type { IAutoMovieShotBuildContext } from "@automovie/interface";
+import type { IAutoMovieSubjectContribution, IAutoMovieSubject, IAutoMovieShotBuildContext } from "@automovie/interface";
+
+
 
 import { AutoMovieSubject } from "./AutoMovieSubject";
-import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
 import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContributions";
 
 /**
@@ -28,7 +29,7 @@ import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContr
  */
 export abstract class AutoMovieSubjectGroup<
   TDesign,
-  TMember extends AutoMovieSubject<unknown>,
+  TMember extends IAutoMovieSubject<unknown>,
 > extends AutoMovieSubject<TDesign> {
   /**
    * The subjects this group holds, in a stable order.

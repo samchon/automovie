@@ -1,7 +1,11 @@
+import type { AutoMovieHumanSexPair, IAutoMovieHumanBodyMeasures, IAutoMovieHumanChestWall } from "@automovie/interface";
+
+
+
 import { AutoMovieViewSection } from "@automovie/engine";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
+
 
 /**
  * The chest wall's box at a girth: the thorax's breadth and depth without the
@@ -34,21 +38,14 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  * the few centimetres between the nipple line and the inframammary fold.
  */
 export namespace AutoMovieHumanChestWall {
-  /** One sex's two lines on the girth, `a + b girth`, mm. */
-  export interface IWall {
-    /** Chest depth, mid-sternum to spine: intercept, mm, and slope per mm of girth. */
-    depth: { a: number; b: number };
-
-    /** Chest diameter across the rib cage: intercept, mm, and slope per mm of girth. */
-    breadth: { a: number; b: number };
-  }
+  
 
   /**
    * Women's and men's lines, Heinz et al. 2003, mm on mm of girth: depth R2
    * 0.38 and 0.49 (residual SD 14.5 and 15.3 mm), diameter R2 0.54 and 0.53
    * (12.4 and 14.3 mm).
    */
-  export const LINES: readonly [IWall, IWall] = [
+  export const LINES: AutoMovieHumanSexPair<IAutoMovieHumanChestWall.IWall> = [
     { depth: { a: 19.97, b: 0.1828 }, breadth: { a: 74.78, b: 0.2164 } },
     { depth: { a: -2.46, b: 0.2085 }, breadth: { a: 87.04, b: 0.2104 } },
   ];
@@ -71,8 +68,8 @@ export namespace AutoMovieHumanChestWall {
   export function box(
     measures: IAutoMovieHumanBodyMeasures,
     girth: number,
-  ): { breadth: number; depth: number } {
-    const wall: IWall =
+  ): IAutoMovieHumanChestWall.IBoxResult {
+    const wall: IAutoMovieHumanChestWall.IWall =
       LINES[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
     const breadth: number = wall.breadth.a + wall.breadth.b * girth;
     const depth: number = wall.depth.a + wall.depth.b * girth;

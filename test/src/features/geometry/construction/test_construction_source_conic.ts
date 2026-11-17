@@ -1,10 +1,5 @@
-import {
-  AutoMovieConicArc,
-  AutoMovieConicHermite,
-  type AutoMoviePolarSector,
-  AutoMovieViewConic,
-  AutoMovieViewSection,
-} from "@automovie/engine";
+import type { IAutoMovieConicHermite, IAutoMoviePolarSector, IAutoMovieViewConic, IAutoMovieViewSection } from "@automovie/interface";
+import { AutoMovieConicArc, AutoMovieConicHermite, AutoMovieViewConic, AutoMovieViewSection } from "@automovie/engine";
 
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 import { ConstructionViewOracle } from "../../internal/construction/ConstructionViewOracle";
@@ -35,7 +30,7 @@ export function test_construction_source_conic(): void {
         const a: number = scale * (swap ? aspect : 1);
         const b: number = scale * (swap ? 1 : aspect);
         const label: string = `ellipse ${aspect}/${swap}/${scale}`;
-        const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+        const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
           { extents: [a, b, a, b] },
           [E, E, E, E],
         );
@@ -45,7 +40,7 @@ export function test_construction_source_conic(): void {
         }
         for (let i: number = 0; i < 512; i++) {
           const phi: number = (2 * Math.PI * (i + 0.37)) / 512;
-          const expected: AutoMoviePolarSector.Jet =
+          const expected: IAutoMoviePolarSector.Jet =
             ConstructionConicOracle.ellipse(a, b, phi);
           ConstructionConicOracle.compare(
             failures,
@@ -91,7 +86,7 @@ export function test_construction_source_conic(): void {
           );
           const phi: number =
             t === 1 ? Math.PI / 2 : Math.atan2(point[1], point[0]);
-          const expected: AutoMoviePolarSector.Jet =
+          const expected: IAutoMoviePolarSector.Jet =
             ConstructionConicOracle.implicit(a! * scale, b! * scale, r, point);
           ConstructionConicOracle.compare(
             failures,
@@ -140,7 +135,7 @@ export function test_construction_source_conic(): void {
         )
       )
         failures.push(`guide curvature law ${base}/${scale}: ${curvatures}`);
-      const curve: AutoMovieViewConic.ICurve = AutoMovieViewConic.create(
+      const curve: IAutoMovieViewConic.ICurve = AutoMovieViewConic.create(
         e,
         shoulders,
         curvatures,
@@ -151,7 +146,7 @@ export function test_construction_source_conic(): void {
         );
         continue;
       }
-      const complete: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+      const complete: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
         { extents: e },
         shoulders,
       );
@@ -166,7 +161,7 @@ export function test_construction_source_conic(): void {
         );
       if (
         complete.knots.some(
-          (knot: AutoMoviePolarSector.IGuide, i: number): boolean =>
+          (knot: IAutoMoviePolarSector.IGuide, i: number): boolean =>
             !Number.isFinite(knot.angle) ||
             knot.angle < 0 ||
             knot.angle >= 2 * Math.PI ||
@@ -175,13 +170,13 @@ export function test_construction_source_conic(): void {
       )
         failures.push(`ordered observations ${base}/${scale}`);
       for (let q: number = 0; q < 4; q++) {
-        const arc: AutoMovieViewConic.IQuarter = curve.quarters[q]!;
+        const arc: IAutoMovieViewConic.IQuarter = curve.quarters[q]!;
         const a: number = e[q]!;
         const b: number = e[(q + 1) % 4]!;
         const start: number = (q * Math.PI) / 2;
         if (
           complete.knots.filter(
-            (knot: AutoMoviePolarSector.IGuide): boolean =>
+            (knot: IAutoMoviePolarSector.IGuide): boolean =>
               knot.angle === start,
           ).length !== 1
         )
@@ -197,7 +192,7 @@ export function test_construction_source_conic(): void {
         const shoulder: number = Math.atan2(b, a);
         const shoulderRadius: number =
           (Math.hypot(a, b) * (1 + shoulders[q]!)) / 2;
-        const shoulderJet: AutoMoviePolarSector.Jet = AutoMovieViewConic.radius(
+        const shoulderJet: IAutoMoviePolarSector.Jet = AutoMovieViewConic.radius(
           curve,
           start + shoulder,
         );
@@ -244,7 +239,7 @@ export function test_construction_source_conic(): void {
             shoulders[q]!,
             patch.native,
           );
-          const endJet: AutoMoviePolarSector.Jet =
+          const endJet: IAutoMoviePolarSector.Jet =
             ConstructionConicOracle.implicit(x, y, shoulders[q]!, point);
           const endTurn: number =
             endJet[0] ** 2 + 2 * endJet[1] ** 2 - endJet[0] * endJet[2];
@@ -278,7 +273,7 @@ export function test_construction_source_conic(): void {
                 );
             const local: number = Math.atan2(expected[1], expected[0]);
             if (local > 0 && local < patch.angle) {
-              const radial: AutoMoviePolarSector.Jet =
+              const radial: IAutoMoviePolarSector.Jet =
                 AutoMovieConicHermite.radius(patch, local);
               if (
                 !Number.isFinite(radial[0]) ||
@@ -299,11 +294,11 @@ export function test_construction_source_conic(): void {
             );
         }
         for (const phi of angles) {
-          const jet: AutoMoviePolarSector.Jet = AutoMovieViewConic.radius(
+          const jet: IAutoMoviePolarSector.Jet = AutoMovieViewConic.radius(
             curve,
             start + phi,
           );
-          const source: AutoMoviePolarSector.Jet = AutoMovieConicArc.radius(
+          const source: IAutoMoviePolarSector.Jet = AutoMovieConicArc.radius(
             a,
             b,
             shoulders[q]!,
@@ -351,7 +346,7 @@ export function test_construction_source_conic(): void {
       [1, 1, 1, 1],
     ],
   ]) {
-    const failed: AutoMovieViewConic.ICurve = AutoMovieViewConic.create(
+    const failed: IAutoMovieViewConic.ICurve = AutoMovieViewConic.create(
       e!,
       r!,
       k!,
@@ -367,7 +362,7 @@ export function test_construction_source_conic(): void {
     { extents: [1, 1, 1, 1] },
     [E, E, E, E],
   );
-  const circle: AutoMovieViewConic.ICurve = AutoMovieViewConic.create(
+  const circle: IAutoMovieViewConic.ICurve = AutoMovieViewConic.create(
     [1, 1, 1, 1],
     [E, E, E, E],
     circleCurvatures,
@@ -383,7 +378,7 @@ export function test_construction_source_conic(): void {
     E - Number.EPSILON,
     E + Number.EPSILON,
   ]) {
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
       { extents: [10, 10, 10, 10] },
       [r, E, E, r],
     );
@@ -399,7 +394,7 @@ export function test_construction_source_conic(): void {
   // The raw middle is an exact unit-circle arc. Every substituted end must
   // add at least its chord, regardless of an arbitrarily concentrated native
   // speed. A coarse/half quadrature can miss both positive-weight end layers.
-  const weighted: AutoMovieViewConic.ICurve = AutoMovieViewConic.create(
+  const weighted: IAutoMovieViewConic.ICurve = AutoMovieViewConic.create(
     [1, 1, 1, 1],
     [E, E, E, E],
     [1e-60, 1e-60, 1e-60, 1e-60],
@@ -407,11 +402,11 @@ export function test_construction_source_conic(): void {
   if (weighted.failure !== null)
     failures.push(`weighted end fixture: ${weighted.failure}`);
   else {
-    const section: AutoMovieViewSection.ISection = {
+    const section: IAutoMovieViewSection.ISection = {
       ...AutoMovieViewSection.bare({ extents: [1, 1, 1, 1] }, [E, E, E, E]),
       conics: weighted,
     };
-    const patch: AutoMovieConicHermite.IPatch = weighted.quarters[0]!.start!;
+    const patch: IAutoMovieConicHermite.IPatch = weighted.quarters[0]!.start!;
     const endpoint: [number, number] = ConstructionConicOracle.native(
       1,
       1,
@@ -444,8 +439,8 @@ export function test_construction_source_conic(): void {
       [0, 0, 0, 0],
       [0.02, -0.01, 0.01, -0.02],
     ] as [number, number, number, number][]) {
-      const box: AutoMovieViewSection.IBox = { extents };
-      const reach: AutoMovieViewSection.IRange | null =
+      const box: IAutoMovieViewSection.IBox = { extents };
+      const reach: IAutoMovieViewSection.IRange | null =
         AutoMovieViewSection.range(box, departures);
       if (reach === null) {
         failures.push(
@@ -461,7 +456,7 @@ export function test_construction_source_conic(): void {
         const shoulders: [number, number, number, number] = departures.map(
           (departure: number): number => common + departure,
         ) as [number, number, number, number];
-        const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+        const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
           box,
           shoulders,
         );
@@ -472,7 +467,7 @@ export function test_construction_source_conic(): void {
           );
         previous = section.girth;
         if (i % 4 !== 0) continue;
-        const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+        const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
           "analytic conic",
           box,
           section.girth,

@@ -1,10 +1,11 @@
+import type { IAutoMovieWarpRoot, IAutoMovieTransform } from "@automovie/interface";
 import {
   createAutoMovieRandom,
   deriveAutoMovieSeed,
   seededSmoothNoise,
   warpRoot,
 } from "@automovie/engine";
-import type { IAutoMovieTransform } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -58,7 +59,7 @@ export function test_motion_noise_warp(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const warp: warpRoot.IWarp = {
+  const warp: IAutoMovieWarpRoot.IWarp = {
     translation: { x: 0.3, y: 0, z: -0.2 },
     yaw: 30,
     start: 0.5,

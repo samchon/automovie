@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFootMalleolusBump } from "@automovie/interface";
+
 /**
  * The profile of a malleolus's relief window: the bump's height net.
  *
@@ -15,24 +17,14 @@ export namespace AutoMovieHumanFootMalleolusBump {
   /** A window's half reach, in malleolus radii. Convention. */
   export const WINDOW: number = 1.6;
 
-  /** A relief window's net. */
-  export interface IBump {
-    /** Rows of the net. */
-    rows: number;
-
-    /** Columns of the net. */
-    columns: number;
-
-    /** Heights over the window, row by row, mm. */
-    heights: number[];
-  }
+  
 
   /**
    * The net of a bump of a stated prominence.
    *
    * @param prominence The bump's greatest height, mm.
    */
-  export function of(prominence: number): IBump {
+  export function of(prominence: number): IAutoMovieHumanFootMalleolusBump.IBump {
     const gain: number = prominence / PEAK;
 
     return {

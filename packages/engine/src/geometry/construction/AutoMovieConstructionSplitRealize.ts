@@ -1,7 +1,6 @@
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionSplit,
-} from "@automovie/interface";
+import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionNode, IAutoMovieConstructionSplitBand, IAutoMovieConstructionSplitSeam, IAutoMovieConstructionState, IAutoMovieLoftFrame, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieConstructionSplit } from "@automovie/interface";
+
+
 
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionSplitSeam } from "./AutoMovieConstructionSplitSeam";
@@ -9,15 +8,11 @@ import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World vector, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * Realize a split (`IAutoMovieConstructionSplit`): the host's open end divided by the seam chord into both children's loops, each spanned to its child's rail by a band (`AutoMovieConstructionSplitBand`), all sharing their boundary vertices.
@@ -36,9 +31,9 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  */
 export function AutoMovieConstructionSplitRealize(
   node: IAutoMovieConstructionSplit,
-  body: AutoMovieSolidBody.IBody,
-  state: AutoMovieConstructionState.IState,
-  walk: (node: AutoMovieConstructionNode) => void,
+  body: IAutoMovieSolidBody.IBody,
+  state: IAutoMovieConstructionState.IState,
+  walk: (node: IAutoMovieConstructionNode) => void,
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   if ((node.outer ?? []).length > 0) return fan(node, body, state, walk, report);
@@ -66,7 +61,7 @@ export function AutoMovieConstructionSplitRealize(
       "split end",
       `the host face's ${node.hostEnd} end is already cut away or shared`,
     );
-  const snapshot: AutoMovieConstructionState.ISnapshot =
+  const snapshot: IAutoMovieConstructionState.ISnapshot =
     AutoMovieConstructionState.snap(body, state);
 
   /** Keep the diagnostic while discarding every post-checkpoint effect. */
@@ -90,7 +85,7 @@ export function AutoMovieConstructionSplitRealize(
       hostChain.layers[
         node.hostEnd === "bottom" ? 0 : hostChain.layers.length - 1
       ]!;
-    const frame: AutoMovieLoftFrame.IFrame =
+    const frame: IAutoMovieLoftFrame.IFrame =
       layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
     const normal: Vec3 | null = AutoMovieSolidVector.unit(
       AutoMovieSolidVector.scale(
@@ -103,11 +98,11 @@ export function AutoMovieConstructionSplitRealize(
     // The curved seam, built once from the host so both bands read one curve.
     const [a, b]: [number, number] = node.seam;
     let seam:
-      | { curve: AutoMovieConstructionSplitSeam.ISeam; corner: number }
+      | { curve: IAutoMovieConstructionSplitSeam.ISeam; corner: number }
       | undefined;
     if (node.profile !== undefined) {
       const S: number = AutoMovieConstructionViews.SCALE;
-      const curve: AutoMovieConstructionSplitSeam.ISeam | string =
+      const curve: IAutoMovieConstructionSplitSeam.ISeam | string =
         AutoMovieConstructionSplitSeam.create({
           host,
           station: hostStation,
@@ -137,7 +132,7 @@ export function AutoMovieConstructionSplitRealize(
       surface: IAutoMovieSolidSurface;
       rail: number;
       kind: "start" | "end";
-      band: AutoMovieConstructionSplitBand.IBand;
+      band: IAutoMovieConstructionSplitBand.IBand;
     }[] = [];
     for (let i: number = 0; i < 2; ++i) {
       const child: IAutoMovieConstructionSplit.IChild = node.children[i]!;
@@ -166,7 +161,7 @@ export function AutoMovieConstructionSplitRealize(
         return fail(
           `the child face ${child.partFace}'s rail at station ${rail} mm lies outside its domain [${first}, ${last}] mm`,
         );
-      const band: AutoMovieConstructionSplitBand.IBand | string =
+      const band: IAutoMovieConstructionSplitBand.IBand | string =
         AutoMovieConstructionSplitBand.create({
           name: child.band,
           host: { surface: host, station: hostStation, into: hostInto },
@@ -184,7 +179,7 @@ export function AutoMovieConstructionSplitRealize(
 
     // Shared vertices: each arc's ring points before its end corner, the
     // chord's inner points on band 0, each child's rail points.
-    const mesh: AutoMovieSolidMesh.IMesh = body.mesh;
+    const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
     const hostOwner: number = AutoMovieSolidMesh.owner(mesh, host);
     const ring: number[][] = children.map(
       (c: (typeof children)[number]): number[] =>
@@ -272,7 +267,7 @@ export function AutoMovieConstructionSplitRealize(
         phi,
       ]),
       neighbours: hostVertices.map(
-        (_: number, h: number): AutoMovieSolidCycle.INeighbour => {
+        (_: number, h: number): IAutoMovieSolidCycle.INeighbour => {
           const i: number = h < m ? 0 : 1;
           const k: number = h - i * m;
           return {
@@ -296,7 +291,7 @@ export function AutoMovieConstructionSplitRealize(
             clock(k),
           ]),
           neighbours: loop.map(
-            (_: number, k: number): AutoMovieSolidCycle.INeighbour => {
+            (_: number, k: number): IAutoMovieSolidCycle.INeighbour => {
               if (k < m)
                 return {
                   face: hostIndex,
@@ -321,7 +316,7 @@ export function AutoMovieConstructionSplitRealize(
             clock(k),
           ]),
           neighbours: rails[i]!.map(
-            (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+            (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
               face: c.index,
               from: [c.rail, c.band.childPhases[k]!],
               to: [
@@ -354,7 +349,7 @@ export function AutoMovieConstructionSplitRealize(
           c.band.childPhases[k]!,
         ]),
         neighbours: order.map(
-          (k: number, j: number): AutoMovieSolidCycle.INeighbour => {
+          (k: number, j: number): IAutoMovieSolidCycle.INeighbour => {
             const next: number = order[(j + 1) % n]!;
             const wraps: boolean = j + 1 === n;
             return {
@@ -395,9 +390,9 @@ export function AutoMovieConstructionSplitRealize(
  */
 function fan(
   node: IAutoMovieConstructionSplit,
-  body: AutoMovieSolidBody.IBody,
-  state: AutoMovieConstructionState.IState,
-  walk: (node: AutoMovieConstructionNode) => void,
+  body: IAutoMovieSolidBody.IBody,
+  state: IAutoMovieConstructionState.IState,
+  walk: (node: IAutoMovieConstructionNode) => void,
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   walk(node.host);
@@ -407,7 +402,7 @@ function fan(
   const hostKind: "start" | "end" = node.hostEnd === "bottom" ? "start" : "end";
   if (closed(hostChain, node.hostEnd)) return report(node.name, "split end", `the host face's ${node.hostEnd} end closes in a pole`);
   if (cut(body, hostIndex, hostKind)) return report(node.name, "split end", `the host face's ${node.hostEnd} end is already cut away or shared`);
-  const snapshot: AutoMovieConstructionState.ISnapshot = AutoMovieConstructionState.snap(body, state);
+  const snapshot: IAutoMovieConstructionState.ISnapshot = AutoMovieConstructionState.snap(body, state);
   const fail = (detail: string): void => {
     report(node.name, "split", detail);
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -422,16 +417,16 @@ function fan(
     const hostStation: number = end(hostChain, node.hostEnd);
     const hostInto: 1 | -1 = node.hostEnd === "bottom" ? -1 : 1;
     const layer: IAutoMovieLoftChain.ILayer = hostChain.layers[node.hostEnd === "bottom" ? 0 : hostChain.layers.length - 1]!;
-    const frame: AutoMovieLoftFrame.IFrame = layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
+    const frame: IAutoMovieLoftFrame.IFrame = layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
     const normal: Vec3 | null = AutoMovieSolidVector.unit(AutoMovieSolidVector.scale(AutoMovieSolidVector.cross(frame.v, frame.u), hostInto));
     if (normal === null) return fail("the host's end section has no plane");
 
     // The seams, innermost first, each built once so both its bands read one curve.
     const seams: IAutoMovieConstructionSplit.ISeam[] = [{ seam: node.seam, ...(node.profile === undefined ? {} : { profile: node.profile }) }, ...(node.outer ?? [])];
     const S: number = seams.length;
-    const curves: AutoMovieConstructionSplitSeam.ISeam[] = [];
+    const curves: IAutoMovieConstructionSplitSeam.ISeam[] = [];
     for (const [j, s] of seams.entries()) {
-      const made: AutoMovieConstructionSplitSeam.ISeam | string =
+      const made: IAutoMovieConstructionSplitSeam.ISeam | string =
         s.profile === undefined
           ? AutoMovieConstructionSplitSeam.straight({ host, station: hostStation, seam: s.seam, normal })
           : AutoMovieConstructionSplitSeam.create({ host, station: hostStation, into: hostInto, seam: s.seam, normal, knots: s.profile.knots.map(([along, depth]: [number, number]): [number, number] => [along * AutoMovieConstructionViews.SCALE, depth * AutoMovieConstructionViews.SCALE]), ...(s.profile.heading === undefined ? {} : { heading: s.profile.heading }) });
@@ -463,7 +458,7 @@ function fan(
 
     // The children, once the host's end and seams are admitted.
     for (const child of node.children) walk(child.part);
-    const children: { index: number; surface: IAutoMovieSolidSurface; rail: number; kind: "start" | "end"; band: AutoMovieConstructionSplitBand.IStrip & { phases: number[] } }[] = [];
+    const children: { index: number; surface: IAutoMovieSolidSurface; rail: number; kind: "start" | "end"; band: IAutoMovieConstructionSplitBand.IStrip & { phases: number[] } }[] = [];
     for (const [c, child] of node.children.entries()) {
       const index: number | undefined = state.faces.get(child.partFace);
       const chain: IAutoMovieLoftChain | undefined = state.chains.get(child.partFace);
@@ -475,12 +470,12 @@ function fan(
       const rail: number = end(chain, child.partEnd) + into * child.rail * AutoMovieConstructionViews.SCALE;
       const [first, last]: [number, number] = surface.domain ?? [chain.layers[0]!.y, chain.layers[chain.layers.length - 1]!.y];
       if (!(rail > first && rail < last)) return fail(`the child face ${child.partFace}'s rail at station ${rail} mm lies outside its domain [${first}, ${last}] mm`);
-      const band: (AutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string = AutoMovieConstructionSplitBand.fan(
+      const band: (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string = AutoMovieConstructionSplitBand.fan(
         {
           name: child.band,
           host: { surface: host, station: hostStation, into: hostInto },
           child: { surface, station: rail, into },
-          stretches: plan[c]!.map((s: Arc | Seam): AutoMovieConstructionSplitBand.IStretch => (s.kind === "arc" ? { kind: "arc", from: s.from, to: s.to, columns: s.columns } : { kind: "seam", curve: curves[s.index]!, forward: s.forward, columns: s.columns })),
+          stretches: plan[c]!.map((s: Arc | Seam): IAutoMovieConstructionSplitBand.IStretch => (s.kind === "arc" ? { kind: "arc", from: s.from, to: s.to, columns: s.columns } : { kind: "seam", curve: curves[s.index]!, forward: s.forward, columns: s.columns })),
           corner,
           ...(reach === undefined ? {} : { reach }),
           ...(square ? { square } : {}),
@@ -512,7 +507,7 @@ function fan(
     const beside = (seam: number): [number, number] => [seam, seam + 1];
 
     // Shared vertices: ring points by arc and column (a fork is its arc's first), seam points by seam and share, rails per child.
-    const mesh: AutoMovieSolidMesh.IMesh = body.mesh;
+    const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
     const hostOwner: number = AutoMovieSolidMesh.owner(mesh, host);
     const ring: Map<string, number> = new Map();
     const ringVertex = (fork: string, j: number, phi: number): number => {
@@ -564,7 +559,7 @@ function fan(
       kind: hostKind,
       vertices: ordered.map(({ c, k }: { c: number; k: number }): number => loops[c]![k]!),
       chart: ordered.map(({ c, k }: { c: number; k: number }): [number, number] => [hostStation, children[c]!.band.phases[k]!]),
-      neighbours: ordered.map(({ c, k }: { c: number; k: number }): AutoMovieSolidCycle.INeighbour => ({ face: faces[c]!, from: [0, clock(k)], to: [0, clock(k + 1)] })),
+      neighbours: ordered.map(({ c, k }: { c: number; k: number }): IAutoMovieSolidCycle.INeighbour => ({ face: faces[c]!, from: [0, clock(k)], to: [0, clock(k + 1)] })),
     });
 
     children.forEach((child: (typeof children)[number], c: number): void => {
@@ -574,7 +569,7 @@ function fan(
           kind: "start",
           vertices: loop,
           chart: loop.map((_: number, k: number): [number, number] => [0, clock(k)]),
-          neighbours: loop.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => {
+          neighbours: loop.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => {
             const { stretch } = columns[c]![k]!;
             if (stretch.kind === "arc") return { face: hostIndex, from: [hostStation, child.band.phases[k]!], to: [hostStation, child.band.phases[k + 1]!] };
             // On a seam: the same two points in the other band beside it.
@@ -592,7 +587,7 @@ function fan(
           kind: "end",
           vertices: rails[c]!.slice(),
           chart: rails[c]!.map((_: number, k: number): [number, number] => [child.band.length, clock(k)]),
-          neighbours: rails[c]!.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+          neighbours: rails[c]!.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
             face: child.index,
             from: [child.rail, child.band.childPhases[k]!],
             to: [child.rail, k + 1 < n ? child.band.childPhases[k + 1]! : child.band.childPhases[0]! + Math.sign(child.band.childPhases[n - 1]! - child.band.childPhases[0]!) * turn],
@@ -607,7 +602,7 @@ function fan(
         kind: child.kind,
         vertices: order.map((k: number): number => rails[c]![k]!),
         chart: order.map((k: number): [number, number] => [child.rail, child.band.childPhases[k]!]),
-        neighbours: order.map((k: number, j: number): AutoMovieSolidCycle.INeighbour => {
+        neighbours: order.map((k: number, j: number): IAutoMovieSolidCycle.INeighbour => {
           const next: number = order[(j + 1) % n]!;
           const wraps: boolean = j + 1 === n;
           return { face: faces[c]!, from: [child.band.length, clock(k)], to: [child.band.length, clock(next) + (wraps ? (rising ? turn : -turn) : 0)] };
@@ -662,12 +657,12 @@ function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {
 
 /** A trimmed or shared end has consumed that boundary. */
 function cut(
-  body: AutoMovieSolidBody.IBody,
+  body: IAutoMovieSolidBody.IBody,
   index: number,
   kind: "start" | "end",
 ): boolean {
   return body.faces[index]!.cycles.some(
-    (cycle: AutoMovieSolidCycle.ICycle): boolean => cycle.kind === kind,
+    (cycle: IAutoMovieSolidCycle.ICycle): boolean => cycle.kind === kind,
   );
 }
 

@@ -1,4 +1,5 @@
-import type { AutoMovieHumanFootToeSpan } from "./AutoMovieHumanFootToeSpan";
+import type { IAutoMovieHumanFootToeSpan } from "@automovie/interface";
+
 
 /**
  * The lengths along a toe's line at which its chain has sections: a fixed
@@ -20,7 +21,7 @@ export namespace AutoMovieHumanFootToeStations {
    * @param toe The toe's span.
    * @param sections The toe's section count, at least 5.
    */
-  export function of(toe: AutoMovieHumanFootToeSpan.IToe, sections: number): number[] {
+  export function of(toe: IAutoMovieHumanFootToeSpan.IToe, sections: number): number[] {
     const shaft: number = Math.max(1, sections - TIP_SECTIONS.length - 1);
     const shaftEnd: number = Math.max(toe.first + 0.5, toe.cap - TIP);
     const stations: number[] = [

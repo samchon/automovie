@@ -1,4 +1,5 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
+
 import { transportAutoMovieRecoveryObservationChart as transport } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,10 +22,10 @@ import { nclose } from "../internal/nclose";
  */
 export function test_geometry_recovery_observation_transport(): void {
   const closeVector: (
-    a: C.Vector,
-    b: C.Vector,
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
     tolerance: number,
-  ) => boolean = (a: C.Vector, b: C.Vector, tolerance: number): boolean =>
+  ) => boolean = (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, tolerance: number): boolean =>
     a.every((value: number, i: number): boolean =>
       nclose(value, b[i]!, tolerance),
     );
@@ -138,7 +139,7 @@ export function test_geometry_recovery_observation_transport(): void {
     reversed.virtualSeam,
     false,
   );
-  const expected: C.Vector[] = [
+  const expected: Readonly<AutoMovieVector3Tuple>[] = [
     [0, 1, 0],
     [4, 1, 0],
     [4, 1, 4],
@@ -165,7 +166,7 @@ export function test_geometry_recovery_observation_transport(): void {
   );
   TestValidator.predicate(
     "named positions survive reversal",
-    reversed.row.pointsMm.every((point: C.Vector, i: number): boolean =>
+    reversed.row.pointsMm.every((point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
       closeVector(point, expected[i]!, 1e-14),
     ),
   );
@@ -266,11 +267,11 @@ export function test_geometry_recovery_observation_transport(): void {
   TestValidator.predicate(
     "returned positions do not alias caller observations",
     reversed.row.pointsMm.every(
-      (point: C.Vector): boolean => !current.pointsMm.includes(point),
+      (point: Readonly<AutoMovieVector3Tuple>): boolean => !current.pointsMm.includes(point),
     ),
   );
-  const nonfinite: C.Vector[] = current.pointsMm.map(
-    (point: C.Vector, i: number): C.Vector =>
+  const nonfinite: Readonly<AutoMovieVector3Tuple>[] = current.pointsMm.map(
+    (point: Readonly<AutoMovieVector3Tuple>, i: number): Readonly<AutoMovieVector3Tuple> =>
       i === 0 ? [Number.NaN, point[1], point[2]] : [...point],
   );
   TestValidator.error("nonfinite physical data is malformed", (): void => {

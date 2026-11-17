@@ -1,9 +1,6 @@
-import {
-  IAutoMovieGrammarDiagnostic,
-  IAutoMovieGrammarShotObservation,
-  grammarDiagnosticsToReviewNotes,
-} from "@automovie/engine";
-import { IAutoMovieReviewNote } from "@automovie/interface";
+import { type IAutoMovieGrammarDiagnostic, type IAutoMovieGrammarShotObservation, IAutoMovieReviewNote } from "@automovie/interface";
+import { grammarDiagnosticsToReviewNotes } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";

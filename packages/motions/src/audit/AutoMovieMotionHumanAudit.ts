@@ -1,13 +1,9 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditContinuity, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditTangle, IAutoMovieMotionHumanBody, IAutoMovieResolvedBone } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanAuditBalance } from "./AutoMovieMotionHumanAuditBalance";
 import { AutoMovieMotionHumanAuditContinuity } from "./AutoMovieMotionHumanAuditContinuity";
 import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
 import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTangle";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * The generic audit of a displayed human motion: every check that holds for
@@ -36,49 +32,6 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolved bones are held by one run's own closure and released when it returns.
  */
 export namespace AutoMovieMotionHumanAudit {
-  /** The name of a check. */
-  export type Check =
-    | "tangle"
-    | "floor"
-    | "slip"
-    | "lift"
-    | "jump"
-    | "reversal"
-    | "speed"
-    | "balance";
-
-  /** The largest reading each check allows; `null` leaves a check unread. */
-  export type ILimits = Record<Check, number | null>;
-
-  /** How an audit is run. */
-  export interface IOptions {
-    /** Grid samples per second; 24 by default. */
-    rate?: number;
-
-    /** Limits that replace the defaults. */
-    limits?: Partial<ILimits>;
-  }
-
-  /** A reading above its limit. */
-  export interface IFinding extends IAutoMovieMotionHumanAuditMeasure {
-    /** The check that read it. */
-    check: Check;
-
-    /** The limit it exceeds. */
-    limit: number;
-  }
-
-  /** What an audit read. */
-  export interface IReport {
-    /** Every check's reading; absent for a check left unread. */
-    measures: Partial<Record<Check, IAutoMovieMotionHumanAuditMeasure>>;
-
-    /** Every pair of body parts that passed into each other, deepest first; empty when `tangle` is unread. */
-    pairs: AutoMovieMotionHumanAuditTangle.IPair[];
-
-    /** The readings above their limits, in check order. */
-    findings: IFinding[];
-  }
 
   /**
    * The default limits, metres unless stated: 10 mm of self-penetration (the
@@ -88,7 +41,7 @@ export namespace AutoMovieMotionHumanAudit {
    * hand peaks near 40 m/s only at ball release, a punch's fist near 10 m/s)
    * and no departure of the extrapolated centre of mass from the feet.
    */
-  export const LIMITS: Readonly<Record<Check, number>> = {
+  export const LIMITS: Readonly<Record<IAutoMovieMotionHumanAudit.Check, number>> = {
     tangle: 0.01,
     floor: 0.005,
     slip: 0.005,
@@ -100,7 +53,7 @@ export namespace AutoMovieMotionHumanAudit {
   };
 
   /** The checks in report order. */
-  export const CHECKS: readonly Check[] = [
+  export const CHECKS: readonly IAutoMovieMotionHumanAudit.Check[] = [
     "tangle",
     "floor",
     "slip",
@@ -126,16 +79,16 @@ export namespace AutoMovieMotionHumanAudit {
   export function run(
     source: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
-    options: IOptions = {},
-  ): IReport {
+    body: IAutoMovieMotionHumanBody,
+    options: IAutoMovieMotionHumanAudit.IOptions = {},
+  ): IAutoMovieMotionHumanAudit.IReport {
     const motion: IAutoMovieMotionHumanAuditMotion = remember(source);
     const rate: number = options.rate ?? 24;
-    const limits: ILimits = { ...LIMITS, ...options.limits };
-    const measures: IReport["measures"] = {};
-    let pairs: AutoMovieMotionHumanAuditTangle.IPair[] = [];
+    const limits: IAutoMovieMotionHumanAudit.ILimits = { ...LIMITS, ...options.limits };
+    const measures: IAutoMovieMotionHumanAudit.IReport["measures"] = {};
+    let pairs: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     if (limits.tangle !== null) {
-      const tangle: AutoMovieMotionHumanAuditTangle.IResult =
+      const tangle: IAutoMovieMotionHumanAuditTangle.IResult =
         AutoMovieMotionHumanAuditTangle.measure(motion, subject, body, rate);
       measures.tangle = tangle.worst;
       pairs = tangle.pairs;
@@ -166,7 +119,7 @@ export namespace AutoMovieMotionHumanAudit {
       limits.reversal !== null ||
       limits.speed !== null
     ) {
-      const continuity: AutoMovieMotionHumanAuditContinuity.IResult =
+      const continuity: IAutoMovieMotionHumanAuditContinuity.IResult =
         AutoMovieMotionHumanAuditContinuity.measure(
           motion,
           subject,
@@ -185,7 +138,7 @@ export namespace AutoMovieMotionHumanAudit {
         body,
         rate,
       );
-    const findings: IFinding[] = [];
+    const findings: IAutoMovieMotionHumanAudit.IFinding[] = [];
     for (const check of CHECKS) {
       const measure: IAutoMovieMotionHumanAuditMeasure | undefined =
         measures[check];
@@ -206,10 +159,10 @@ export namespace AutoMovieMotionHumanAudit {
    * @param report An audit's report.
    * @returns The findings in millimetres (metres per second for `speed`), or `clean`.
    */
-  export function describe(report: IReport): string {
+  export function describe(report: IAutoMovieMotionHumanAudit.IReport): string {
     if (report.findings.length === 0) return "clean";
     return report.findings
-      .map((f: IFinding): string =>
+      .map((f: IAutoMovieMotionHumanAudit.IFinding): string =>
         f.check === "speed"
           ? `speed ${f.value.toFixed(2)} m/s > ${f.limit} at ${f.seconds.toFixed(3)} s (${f.where})`
           : `${f.check} ${(f.value * 1000).toFixed(1)} mm > ${(f.limit * 1000).toFixed(1)} at ${f.seconds.toFixed(3)} s (${f.where})`,

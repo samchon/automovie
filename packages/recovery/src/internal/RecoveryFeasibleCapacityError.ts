@@ -10,9 +10,11 @@
  * @evidence contracts/development/common.md#meaningful-documentation Defines the producer, exact capacity meanings and whole-transaction consumer boundary.
  */
 export class RecoveryFeasibleCapacityError extends Error {
-  /** Create a fixed resource refusal after the camera owner's core admission. */
+ 
+ /** Create a fixed resource refusal after the camera owner's core admission. */
   public constructor(
-    /** The valid bound exceeded by the current complete population. */
+ 
+   /** The valid bound exceeded by the current complete population. */
     public readonly reason: "resident" | "direction-entries" | "direction-work",
   ) {
     super(`camera-feasible-capacity: ${reason}`);

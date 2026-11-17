@@ -1,11 +1,6 @@
-import { getConstraint } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
+import { getConstraint } from "@automovie/engine";
 
 /**
  * A trunk turned toward one side by a share of its own range, with the head
@@ -46,13 +41,13 @@ export namespace HumanTrunkTurn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function turned(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     share: number,
     side: "left" | "right",
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const toLeft: number = side === "left" ? 1 : -1;
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
     let roll: number = 0;
     let twist: number = 0;
     for (const bone of ["spine", "chest"] as const) {
@@ -85,7 +80,7 @@ type Limits = NonNullable<ReturnType<typeof getConstraint>>["twist"];
 
 /** A joint's range on this body's rig. */
 function range(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
 ): ReturnType<typeof getConstraint> {
   return getConstraint(

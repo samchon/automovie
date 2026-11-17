@@ -1,5 +1,5 @@
+import type { IAutoMoviePatternPoint } from "@automovie/interface";
 import { intersectAutoMovieConvexPolygons } from "../geometry/intersectAutoMovieConvexPolygons";
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 
 /**
  * Clip a convex face-local pattern outline by its canonical counter-clockwise boundary.

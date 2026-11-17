@@ -1,4 +1,5 @@
-import type { IAutoMovieWearableSoftFrame } from "@automovie/engine";
+import type { IAutoMovieWearableSoftFrame } from "@automovie/interface";
+
 
 import { wearableSoftBodyTestBone as bone } from "./wearableSoftBodyTestBone";
 

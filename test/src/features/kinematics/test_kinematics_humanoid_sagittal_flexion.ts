@@ -1,17 +1,6 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolvePose,
-} from "@automovie/engine";
-import {
-  type AutoMovieHumanoidBone,
-  type IAutoMovieBone,
-  type IAutoMovieJointPose,
-  type IAutoMovieSkeleton,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, resolvePose } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createAutoMovieStickman } from "../internal/createAutoMovieStickman";

@@ -1,4 +1,5 @@
-import { IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
+import { type IAutoMovieSelectInstancePrototype, IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
+
 
 import { seededValue } from "../math/seededValue";
 import { instancePrototypeChoices } from "./instancePrototypeChoices";
@@ -34,12 +35,7 @@ export const selectInstancePrototype: <
     "id" | "model" | "weight"
   >,
 >(
-  instanceSet: {
-    id: string;
-    seed: number;
-    model: string;
-    prototypes?: readonly Choice[];
-  },
+  instanceSet: IAutoMovieSelectInstancePrototype.IInstanceSet<Choice>,
   slot: number,
   explicit: string | undefined,
 ) =>
@@ -50,12 +46,7 @@ export const selectInstancePrototype: <
     "id" | "model" | "weight"
   >,
 >(
-  instanceSet: {
-    id: string;
-    seed: number;
-    model: string;
-    prototypes?: readonly Choice[];
-  },
+  instanceSet: IAutoMovieSelectInstancePrototype.IInstanceSet<Choice>,
   slot: number,
   explicit: string | undefined,
 ):
@@ -65,6 +56,8 @@ export const selectInstancePrototype: <
     | Choice
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
   )[] = instancePrototypeChoices(instanceSet);
+  if (choices.length === 0)
+    throw new Error(`Instance set "${instanceSet.id}" has no prototype choices.`);
   if (explicit !== undefined) {
     const selected:
       | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">

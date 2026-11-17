@@ -1,10 +1,13 @@
+import type { IAutoMovieInspectionRequest } from "@automovie/interface";
+
+
 import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../applyRenderMode.js";
 import { overrideAutoMovieRenderModeMaterials } from "../overrideAutoMovieRenderModeMaterials.js";
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+
 
 /** Vertex stage of the faces shade: three.js's own deformation, projection and clipping chunks, with no lighting. */
 const VERTEX: string = `

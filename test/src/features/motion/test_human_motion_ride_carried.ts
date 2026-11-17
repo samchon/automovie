@@ -1,15 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createCar, driveCar } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  HumanRide,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanRide, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,7 +34,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_ride_carried(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const car = createCar({ kind: "sedan" });
   const drive = driveCar(car, {
     start: { x: 0, z: 0, heading: 0 },
@@ -57,7 +49,7 @@ export function test_human_motion_ride_carried(): void {
   const WAIT: number = 3;
 
   // The car stands for the first seconds, while the driver sits down.
-  const placed = (seconds: number): IHumanProp.IFrame => {
+  const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
     const sample = drive.at(Math.max(0, seconds - WAIT));
     return {
       position: sample.placement.translation,
@@ -66,7 +58,7 @@ export function test_human_motion_ride_carried(): void {
   };
   const seat = HumanObject.seat(car, placed(0), "driverSeat");
   const radians: number = (seat.yaw * Math.PI) / 180;
-  const perform = (chain: HumanChain): HumanPerformance =>
+  const perform = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "ride",
       laws: [HumanRide.ride],
@@ -89,15 +81,15 @@ export function test_human_motion_ride_carried(): void {
       composition: chain.node,
     });
   const complaints: string[] = [];
-  const riding = (): HumanChain =>
+  const riding = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a")
       .sit({ seat })
       .registered("ride", { on: "car", seconds: drive.duration });
 
   // 1 to 3. Carried on the seat, facing the car's way.
-  const performance: HumanPerformance = perform(riding());
+  const performance: IAutoMovieMotionHumanPerformance = perform(riding());
   const ride = performance.segments("a")[1]!;
-  const reader: HumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     performance,
     "a",
     body,

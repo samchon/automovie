@@ -1,8 +1,5 @@
-import {
-  type AutoMovieSolidMeshConstraints,
-  AutoMovieSolidMeshPlan,
-  triangulateAutoMovieSolidBoundary,
-} from "@automovie/engine";
+import type { IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import { AutoMovieSolidMeshPlan, triangulateAutoMovieSolidBoundary } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionGridAuthorities } from "../../internal/construction/ConstructionGridAuthorities";
@@ -64,7 +61,7 @@ function ears(failures: string[]): void {
       const before: string = JSON.stringify([...vertices]);
       for (const first of [0, 1, 2, 3]) {
         const ring: number[] = [0, 1, 2, 3];
-        const made: AutoMovieSolidMeshPlan.ITriangle[] | string =
+        const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
           triangulateAutoMovieSolidBoundary(vertices, {
             vertices: [...ring.slice(first), ...ring.slice(0, first)],
             lifts: [0, 0, 0, 0],
@@ -111,7 +108,7 @@ function ears(failures: string[]): void {
       [4, [scale, 3]],
       [5, [0, 2]],
     ]);
-    const balanced: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    const balanced: IAutoMovieSolidMeshPlan.ITriangle[] | string =
       triangulateAutoMovieSolidBoundary(hexagon, {
         vertices: [0, 1, 2, 3, 4, 5],
         lifts: [0, 0, 0, 0, 0, 0],
@@ -142,7 +139,7 @@ function holes(failures: string[]): void {
     const vertices: Map<number, Point> = new Map(
       points.map((point: Point, id: number): [number, Point] => [id, point]),
     );
-    const constraints: AutoMovieSolidMeshConstraints.ISegment[] = [];
+    const constraints: IAutoMovieSolidMeshConstraints.ISegment[] = [];
     for (const ring of [
       [0, 1, 2, 3],
       [4, 5, 6, 7],
@@ -162,7 +159,7 @@ function holes(failures: string[]): void {
         x > 0 && x < 4 && v > 0 && v < 4 && !(x > 1 && x < 3 && v > 1 && v < 3)
       );
     };
-    const made: AutoMovieSolidMeshPlan.IPlan | string =
+    const made: IAutoMovieSolidMeshPlan.IPlan | string =
       AutoMovieSolidMeshPlan.triangulate(vertices, constraints, contains);
     if (typeof made === "string") {
       failures.push(`hole selection/${scale}: ${made}`);
@@ -210,7 +207,7 @@ function holes(failures: string[]): void {
     }
     const source: Set<string> = new Set(
       constraints.map(
-        (edge: AutoMovieSolidMeshConstraints.ISegment): string =>
+        (edge: IAutoMovieSolidMeshConstraints.ISegment): string =>
           `${edge.a}/${edge.b}`,
       ),
     );

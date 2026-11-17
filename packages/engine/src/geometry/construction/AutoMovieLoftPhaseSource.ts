@@ -1,3 +1,4 @@
+import type { IAutoMovieLoftPhaseSource, IAutoMovieStationHermite, IAutoMovieViewConic } from "@automovie/interface";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
@@ -20,43 +21,6 @@ import { AutoMovieViewConic } from "./AutoMovieViewConic";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieLoftPhaseSource {
-  /**
-   * Explicit native functions and their natural-coordinate cardinal jets.
-   *
-   * @evidence contracts/development/design.md#principled-representation Native curve records own geometry while cardinal derivative tables depend only on increasing interpolation coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Coordinates, native curves and two derivative tables completely describe the candidate without identity registration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal-value structured/JSON copies preserve geometry; inputs and prepared records must remain immutable after preparation.
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its coordinate, physical length or derivative meaning.
-   */
-  export interface ISource {
-    /** Increasing coordinates q: station mm, signed sqrt(mm), or radians as chosen by the caller. */
-    coordinates: readonly number[];
-
-    /** Native sections in the same order, with millimetre radii and polar-radian phase. */
-    curves: readonly AutoMovieViewConic.ICurve[];
-
-    /** Cardinal first derivatives in q at every source coordinate. */
-    slopes: readonly (readonly number[])[];
-
-    /** Cardinal second derivatives in q at the same coordinates. */
-    curvatures: readonly (readonly number[])[];
-  }
-
-  /**
-   * One station's explicit linear combinations of native source functions.
-   *
-   * @evidence contracts/development/design.md#principled-representation Three weight rows evaluate value and first/second chosen-coordinate derivatives of the same interpolant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One source reference and three numeric rows separate reusable station preparation from phase evaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A supplied finite change of coordinate reexpresses both derivative orders; no finite singular-pole derivative is fabricated.
-   * @evidence contracts/development/common.md#meaningful-documentation Rows specify derivative order and source/physical-coordinate units.
-   */
-  export interface IStation {
-    /** Explicit immutable native source. */
-    source: ISource;
-
-    /** Value, first and second derivative weights, in q unless station supplied a physical change of coordinate. */
-    weights: readonly (readonly number[])[];
-  }
 
   /**
    * Prepare a natural-coordinate operator without fitting any phase samples.
@@ -71,8 +35,8 @@ export namespace AutoMovieLoftPhaseSource {
    */
   export function prepare(
     coordinates: readonly number[],
-    curves: readonly AutoMovieViewConic.ICurve[],
-  ): ISource | string {
+    curves: readonly IAutoMovieViewConic.ICurve[],
+  ): IAutoMovieLoftPhaseSource.ISource | string {
     const n: number = coordinates.length;
     if (
       n < 2 ||
@@ -91,7 +55,7 @@ export namespace AutoMovieLoftPhaseSource {
         return `native phase source is not admitted: ${curve.failure ?? "four quarters required"}`;
       if (
         !curve.quarters.every(
-          (quarter: AutoMovieViewConic.IQuarter): boolean =>
+          (quarter: IAutoMovieViewConic.IQuarter): boolean =>
             quarter.extents.every(
               (value: number): boolean => Number.isFinite(value) && value > 0,
             ) &&
@@ -144,10 +108,10 @@ export namespace AutoMovieLoftPhaseSource {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns three rows and borrows source; endpoint identity rows and raw parameter weights are call-local.
    */
   export function station(
-    source: ISource,
+    source: IAutoMovieLoftPhaseSource.ISource,
     q: number,
     change?: readonly [number, number],
-  ): IStation {
+  ): IAutoMovieLoftPhaseSource.IStation {
     const t: readonly number[] = source.coordinates;
     const n: number = t.length;
     if (
@@ -168,9 +132,9 @@ export namespace AutoMovieLoftPhaseSource {
       if (t[middle]! <= q) lo = middle;
       else hi = middle;
     }
-    const endpoint: (index: number) => AutoMovieStationHermite.IEnd = (
+    const endpoint: (index: number) => IAutoMovieStationHermite.IEnd = (
       index: number,
-    ): AutoMovieStationHermite.IEnd => {
+    ): IAutoMovieStationHermite.IEnd => {
       const slope: readonly number[] = source.slopes[index]!;
       const curvature: readonly number[] = source.curvatures[index]!;
       if (
@@ -188,8 +152,8 @@ export namespace AutoMovieLoftPhaseSource {
         curvature,
       };
     };
-    const a: AutoMovieStationHermite.IEnd = endpoint(lo);
-    const b: AutoMovieStationHermite.IEnd = endpoint(hi);
+    const a: IAutoMovieStationHermite.IEnd = endpoint(lo);
+    const b: IAutoMovieStationHermite.IEnd = endpoint(hi);
     const span: number = t[hi]! - t[lo]!;
     const raw: number[][] = [0, 1, 2].map((order: number): number[] =>
       AutoMovieStationHermite.combine(
@@ -232,7 +196,7 @@ export namespace AutoMovieLoftPhaseSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses one prepared value row without a new station solve; zero cardinal weights avoid irrelevant source reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh pair and retains no source/query state globally.
    */
-  export function point(at: IStation, phi: number): [number, number] {
+  export function point(at: IAutoMovieLoftPhaseSource.IStation, phi: number): [number, number] {
     validate(at);
     if (!Number.isFinite(phi)) throw new Error("native phase must be finite");
     let radius: number = 0;
@@ -256,7 +220,7 @@ export namespace AutoMovieLoftPhaseSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Source radius and trigonometric values serve all station/phase derivative orders in one query.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh six-entry rows; no phase or geometry registry is retained.
    */
-  export function jet(at: IStation, phi: number): number[][] {
+  export function jet(at: IAutoMovieLoftPhaseSource.IStation, phi: number): number[][] {
     validate(at);
     if (!Number.isFinite(phi)) throw new Error("native phase must be finite");
     const cosine: number = Math.cos(phi);
@@ -289,7 +253,7 @@ export namespace AutoMovieLoftPhaseSource {
 }
 
 /** Validate explicit prepared rows without selecting geometry by registration identity. */
-function validate(at: AutoMovieLoftPhaseSource.IStation): void {
+function validate(at: IAutoMovieLoftPhaseSource.IStation): void {
   const count: number = at.source.curves.length;
   if (
     count < 2 ||
@@ -299,7 +263,7 @@ function validate(at: AutoMovieLoftPhaseSource.IStation): void {
         row.length === count && row.every(Number.isFinite),
     ) ||
     at.source.curves.some(
-      (curve: AutoMovieViewConic.ICurve): boolean =>
+      (curve: IAutoMovieViewConic.ICurve): boolean =>
         curve.failure !== null || curve.quarters.length !== 4,
     )
   )
@@ -308,7 +272,7 @@ function validate(at: AutoMovieLoftPhaseSource.IStation): void {
 
 /** A broken present source is an error, never a request for legacy coefficient geometry. */
 function read(
-  curve: AutoMovieViewConic.ICurve,
+  curve: IAutoMovieViewConic.ICurve,
   phi: number,
 ): readonly [number, number, number] {
   const radius: readonly [number, number, number] = AutoMovieViewConic.radius(

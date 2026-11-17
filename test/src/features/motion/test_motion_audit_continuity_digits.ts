@@ -1,11 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditContinuity,
-  type IAutoMovieMotionHumanAuditMotion,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditContinuity, IAutoMovieMotionHumanAuditMotion, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
@@ -51,15 +46,15 @@ export function test_motion_audit_continuity_digits(): void {
   const read = (
     at: (t: number) => Points,
     limit: number = 0.005,
-  ): AutoMovieMotionHumanAuditContinuity.IResult =>
+  ): IAutoMovieMotionHumanAuditContinuity.IResult =>
     AutoMovieMotionHumanAuditContinuity.measure(film(at), "a", 24, limit);
-  const show = (r: AutoMovieMotionHumanAuditContinuity.IResult): string =>
+  const show = (r: IAutoMovieMotionHumanAuditContinuity.IResult): string =>
     `${(r.jump.value * 1000).toFixed(3)} mm at ${r.jump.seconds.toFixed(5)} s on ${r.jump.where}`;
   const step = (t: number, at: number, size: number): number =>
     t >= at ? size : 0;
 
   // 1. A fingertip.
-  const finger: AutoMovieMotionHumanAuditContinuity.IResult = read(
+  const finger: IAutoMovieMotionHumanAuditContinuity.IResult = read(
     (t: number): Points => ({
       leftHand: { x: 0.3, y: 1, z: 0 },
       leftIndexDistal: { x: 0.38, y: 1 - step(t, 0.4321, 0.008), z: 0 },
@@ -74,7 +69,7 @@ export function test_motion_audit_continuity_digits(): void {
   );
 
   // 2. A toe.
-  const toe: AutoMovieMotionHumanAuditContinuity.IResult = read(
+  const toe: IAutoMovieMotionHumanAuditContinuity.IResult = read(
     (t: number): Points => ({
       rightFoot: { x: -0.1, y: 0.08, z: 0 },
       rightToes: { x: -0.1, y: 0.02 + step(t, 0.61, 0.006), z: 0.15 },
@@ -86,7 +81,7 @@ export function test_motion_audit_continuity_digits(): void {
   );
 
   // 3. A fingertip beside a fast wrist.
-  const beside: AutoMovieMotionHumanAuditContinuity.IResult = read(
+  const beside: IAutoMovieMotionHumanAuditContinuity.IResult = read(
     (t: number): Points => ({
       rightHand: { x: -0.3, y: 1, z: 3 * t },
       leftIndexDistal: { x: 0.38, y: 1 - step(t, 0.4321, 0.008), z: 0 },
@@ -99,7 +94,7 @@ export function test_motion_audit_continuity_digits(): void {
   );
 
   // 4. A stall, then a step.
-  const stalled: AutoMovieMotionHumanAuditContinuity.IResult = read(
+  const stalled: IAutoMovieMotionHumanAuditContinuity.IResult = read(
     (t: number): Points => ({
       rightHand: { x: -0.3, y: 1 + step(t, 0.8125, 0.04), z: 0.2 },
     }),
@@ -113,7 +108,7 @@ export function test_motion_audit_continuity_digits(): void {
   );
 
   // 5. A stall, then a smooth start.
-  const smooth: AutoMovieMotionHumanAuditContinuity.IResult = read(
+  const smooth: IAutoMovieMotionHumanAuditContinuity.IResult = read(
     (t: number): Points => ({
       rightHand: {
         x: -0.3,
@@ -136,7 +131,7 @@ export function test_motion_audit_continuity_digits(): void {
     read(thumb).jump.value,
     0,
   );
-  const tight: AutoMovieMotionHumanAuditContinuity.IResult = read(thumb, 0.002);
+  const tight: IAutoMovieMotionHumanAuditContinuity.IResult = read(thumb, 0.002);
   TestValidator.predicate(
     `a 2 mm limit reads the 4 mm snap, got ${show(tight)}`,
     Math.abs(tight.jump.value - 0.004) <= 1e-6 &&

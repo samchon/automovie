@@ -1,14 +1,7 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieLookAt,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieLookAt, IAutoMovieSkeleton } from "@automovie/interface";
+
 
 import { getConstraint } from "../rom/getConstraint";
-import { ViolationCollector } from "./ViolationCollector";
 import { finiteMinimum } from "./finiteMinimum";
 
 type AutoMovieLookAtRange =
@@ -55,12 +48,12 @@ export const validateLookAt: (
   lookAt: IAutoMovieLookAt,
   skeleton: IAutoMovieSkeleton | null,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   lookAt: IAutoMovieLookAt,
   skeleton: IAutoMovieSkeleton | null,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (lookAt.type === "expression") return;
   if (lookAt.type !== "bone") {

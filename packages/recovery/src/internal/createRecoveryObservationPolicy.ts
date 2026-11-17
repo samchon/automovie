@@ -30,6 +30,5 @@ export function createRecoveryObservationPolicy(
     cornerDegrees: input.cornerDegrees,
     ...(input.criticalPolicy === undefined
       ? {}
-      : { criticalPolicy: input.criticalPolicy }),
-  };
+      : { criticalPolicy: input.criticalPolicy }) };
 }

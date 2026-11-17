@@ -1,20 +1,5 @@
-import type {
-  AutoMovieEasing,
-  AutoMovieExpressionPreset,
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieBeatEndState,
-  IAutoMovieExpression,
-  IAutoMovieGait,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-  IAutoMovieYawPitch,
-} from "@automovie/interface";
+import type { IAutoMovieActionSynthesizer, IAutoMovieActorContext, IAutoMovieActorWorldFrame, IAutoMovieRecoilPush, AutoMovieEasing, AutoMovieExpressionPreset, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieExpression, IAutoMovieGait, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform, IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
+
 
 import { aimYawPitch } from "../kinematics/aimYawPitch";
 import { gazeChainJoints } from "../kinematics/gazeChainJoints";
@@ -28,10 +13,6 @@ import { holdMotion } from "../motion/holdMotion";
 import { locomoteMotion } from "../motion/locomoteMotion";
 import { reactMotion } from "../motion/reactMotion";
 import { timeScaleMotion } from "../motion/timeScaleMotion";
-import type { IAutoMovieRecoilPush } from "../physics/IAutoMovieRecoilPush";
-import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
-import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 import { actorAimPoints } from "./actorAimPoints";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 import { actorPointInModelSpace } from "./actorPointInModelSpace";

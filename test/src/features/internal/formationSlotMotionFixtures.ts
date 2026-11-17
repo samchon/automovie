@@ -1,18 +1,6 @@
-import {
-  type IAutoMovieFormationPlacement,
-  validateAutoMovieFormationGround,
-  validateAutoMovieFormationSlotMotions,
-} from "@automovie/engine";
-import type {
-  IAutoMovieCompiledFormation,
-  IAutoMovieDiagnostic,
-  IAutoMovieFormationMotionState,
-  IAutoMovieFormationSlotMotion,
-  IAutoMovieFormationSlotState,
-  IAutoMovieShotContract,
-  IAutoMovieSpace,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieFormationPlacement, IAutoMovieCompiledFormation, IAutoMovieDiagnostic, IAutoMovieFormationMotionState, IAutoMovieFormationSlotMotion, IAutoMovieFormationSlotState, IAutoMovieShotContract, IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
+import { validateAutoMovieFormationGround, validateAutoMovieFormationSlotMotions } from "@automovie/engine";
+
 
 /** Original square floor centered at the origin, with the supplied half extent. */
 const field: (half: number) => IAutoMovieSpace = (

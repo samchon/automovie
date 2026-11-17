@@ -1,11 +1,12 @@
+import type { AutoMovieVector3Tuple, IAutoMovieContourSlit64 } from "@automovie/interface";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
-const dot: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
+const dot: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
   a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const dist: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
+const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
   Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /**
@@ -29,18 +30,18 @@ export namespace AutoMovieContourSlit64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function join(
-    a: M.V[],
-    b: M.V[],
-    inserted: (p: M.V, a: M.V, b: M.V, t: number) => void,
-  ): M.V[] {
+    a: AutoMovieVector3Tuple[],
+    b: AutoMovieVector3Tuple[],
+    inserted: (p: AutoMovieVector3Tuple, a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, t: number) => void,
+  ): AutoMovieVector3Tuple[] {
     let ai: number = 0,
       bi: number = 0,
       ta: number = 0,
       tb: number = 0,
       best: number = Infinity;
     const accept = (i: number, j: number, u: number, v: number): void => {
-      const p: M.V = add(a[i], mul(sub(a[(i + 1) % a.length], a[i]), u));
-      const q: M.V = add(b[j], mul(sub(b[(j + 1) % b.length], b[j]), v));
+      const p: AutoMovieVector3Tuple = add(a[i], mul(sub(a[(i + 1) % a.length], a[i]), u));
+      const q: AutoMovieVector3Tuple = add(b[j], mul(sub(b[(j + 1) % b.length], b[j]), v));
       const d: number = dist(p, q);
       if (d < best) {
         best = d;
@@ -52,15 +53,15 @@ export namespace AutoMovieContourSlit64 {
     };
     for (let i: number = 0; i < a.length; i++)
       for (let j: number = 0; j < b.length; j++) {
-        const an: M.V = a[(i + 1) % a.length],
-          bn: M.V = b[(j + 1) % b.length];
+        const an: AutoMovieVector3Tuple = a[(i + 1) % a.length],
+          bn: AutoMovieVector3Tuple = b[(j + 1) % b.length];
         accept(i, j, 0, closest(a[i], b[j], bn).t);
         accept(i, j, 1, closest(an, b[j], bn).t);
         accept(i, j, closest(b[j], a[i], an).t, 0);
         accept(i, j, closest(bn, a[i], an).t, 1);
-        const x: M.V = sub(an, a[i]),
-          y: M.V = sub(bn, b[j]),
-          z: M.V = sub(b[j], a[i]);
+        const x: AutoMovieVector3Tuple = sub(an, a[i]),
+          y: AutoMovieVector3Tuple = sub(bn, b[j]),
+          z: AutoMovieVector3Tuple = sub(b[j], a[i]);
         const xx: number = dot(x, x),
           yy: number = dot(y, y),
           xy: number = dot(x, y);
@@ -73,14 +74,14 @@ export namespace AutoMovieContourSlit64 {
           if (u >= 0 && u <= 1 && v >= 0 && v <= 1) accept(i, j, u, v);
         }
       }
-    const open = (ring: M.V[], edge: number, t: number): M.V[] => {
+    const open = (ring: AutoMovieVector3Tuple[], edge: number, t: number): AutoMovieVector3Tuple[] => {
       const next: number = (edge + 1) % ring.length;
       if (t === 0 || t === 1) {
         const start: number = t === 0 ? edge : next;
-        const walk: M.V[] = [...ring.slice(start), ...ring.slice(0, start)];
+        const walk: AutoMovieVector3Tuple[] = [...ring.slice(start), ...ring.slice(0, start)];
         return [...walk, walk[0]];
       }
-      const p: M.V = add(ring[edge], mul(sub(ring[next], ring[edge]), t));
+      const p: AutoMovieVector3Tuple = add(ring[edge], mul(sub(ring[next], ring[edge]), t));
       inserted(p, ring[edge], ring[next], t);
       return [p, ...ring.slice(edge + 1), ...ring.slice(0, edge + 1), p];
     };
@@ -99,16 +100,16 @@ export namespace AutoMovieContourSlit64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function closest(
-    p: M.V,
-    a: M.V,
-    b: M.V,
-  ): { p: M.V; t: number; distance: number } {
-    const ab: M.V = sub(b, a);
+    p: AutoMovieVector3Tuple,
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): IAutoMovieContourSlit64.IClosestResult {
+    const ab: AutoMovieVector3Tuple = sub(b, a);
     const t: number = Math.max(
       0,
       Math.min(1, dot(sub(p, a), ab) / (dot(ab, ab) || 1)),
     );
-    const q: M.V = add(a, mul(ab, t));
+    const q: AutoMovieVector3Tuple = add(a, mul(ab, t));
     return { p: q, t, distance: dist(p, q) };
   }
 }

@@ -1,8 +1,5 @@
-import {
-  type AutoMovieLoftContract,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
+import { AutoMovieViewSection } from "@automovie/engine";
 import { PriorityQueue } from "tstl";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
@@ -37,10 +34,10 @@ export function test_construction_operator_view_section_girth(): void {
   ];
   for (const extents of boxes) {
     const label: string = `box [${extents.join(", ")}]`;
-    const box: AutoMovieViewSection.IBox = { extents };
+    const box: IAutoMovieViewSection.IBox = { extents };
     const W: number = extents[0] + extents[2];
     const D: number = extents[1] + extents[3];
-    const range: AutoMovieViewSection.IRange | null =
+    const range: IAutoMovieViewSection.IRange | null =
       AutoMovieViewSection.range(box);
     if (range === null) {
       failures.push(`${label}: no valid range`);
@@ -100,12 +97,12 @@ export function test_construction_operator_view_section_girth(): void {
     }
 
     // 4. Girths 1 mm outside the reach each way.
-    const under: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+    const under: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
       "made",
       box,
       lo - 1,
     );
-    const over: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+    const over: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
       "made",
       box,
       hi + 1,
@@ -113,7 +110,7 @@ export function test_construction_operator_view_section_girth(): void {
     for (const [name, solved, end] of [
       ["under", under, range.shoulder[0]],
       ["over", over, range.shoulder[1]],
-    ] as [string, AutoMovieViewSection.ISolved, number][]) {
+    ] as [string, IAutoMovieViewSection.ISolved, number][]) {
       if (
         solved.section === null ||
         solved.section.shoulders.some((s: number): boolean => s !== end)
@@ -128,15 +125,15 @@ export function test_construction_operator_view_section_girth(): void {
         )
       )
         failures.push(
-          `${label} ${name} the reach: diagnostics [${solved.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.contract).join(", ")}], expected one girth in reach`,
+          `${label} ${name} the reach: diagnostics [${solved.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.contract).join(", ")}], expected one girth in reach`,
         );
     }
   }
 
   // 3b. Round trip with sourced departures per quarter.
-  const box: AutoMovieViewSection.IBox = { extents: [30, 12, 18, 25] };
+  const box: IAutoMovieViewSection.IBox = { extents: [30, 12, 18, 25] };
   const departures: Quarters = [0.05, -0.05, 0.03, -0.03];
-  const range: AutoMovieViewSection.IRange | null = AutoMovieViewSection.range(
+  const range: IAutoMovieViewSection.IRange | null = AutoMovieViewSection.range(
     box,
     departures,
   );
@@ -160,7 +157,7 @@ export function test_construction_operator_view_section_girth(): void {
   }
 
   // 5. A box with no valid section.
-  const none: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+  const none: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
     "made",
     { extents: [30, 20, 30, 20] },
     150,
@@ -175,13 +172,13 @@ export function test_construction_operator_view_section_girth(): void {
     )
   )
     failures.push(
-      `no valid section: diagnostics [${none.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.contract).join(", ")}], expected one view section`,
+      `no valid section: diagnostics [${none.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.contract).join(", ")}], expected one view section`,
     );
 
   // Red proofs of the readers.
   if (falls([1, 2, 3, 2.5, 4]) === null)
     failures.push("proof: a falling girth sequence passes the monotone reader");
-  const made: AutoMovieViewSection.ISolved = {
+  const made: IAutoMovieViewSection.ISolved = {
     section: AutoMovieViewSection.of(box, [0.42, 0.42, 0.42, 0.42]),
     diagnostics: [],
   };
@@ -201,7 +198,7 @@ export function test_construction_operator_view_section_girth(): void {
   ] as [Quarters, number][]) {
     for (const offset of [0, -1e-6, -2e-6]) {
       const r: number = shoulder + offset;
-      const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+      const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
         { extents },
         [r, r, r, r],
       );
@@ -249,10 +246,10 @@ function falls(sequence: readonly number[]): string | null {
  */
 function roundTrip(
   label: string,
-  box: AutoMovieViewSection.IBox,
+  box: IAutoMovieViewSection.IBox,
   departures: Quarters,
   r: number,
-  solved: AutoMovieViewSection.ISolved,
+  solved: IAutoMovieViewSection.ISolved,
   reach?: readonly [number, number],
 ): string[] {
   const at: (x: number) => number = (x: number): number =>
@@ -263,7 +260,7 @@ function roundTrip(
   const target: number = at(r);
   if (solved.diagnostics.length !== 0)
     return [
-      `${label}: diagnostics ${solved.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")}`,
+      `${label}: diagnostics ${solved.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")}`,
     ];
   if (solved.section === null) return [`${label}: no section`];
   const out: string[] = [];
@@ -294,7 +291,7 @@ function roundTrip(
         i: number,
       ): { shoulder: number; girth: number; fault: string | null } => {
         const x: number = r + i * h;
-        const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+        const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
           box,
           departures.map((d: number): number => x + d) as Quarters,
         );

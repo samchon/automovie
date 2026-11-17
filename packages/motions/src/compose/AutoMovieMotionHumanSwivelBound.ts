@@ -1,16 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  swivelArcs,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSwivelBound, IAutoMovieResolvedBone, IAutoMovieSwivelArcs, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { Vector3, swivelArcs } from "@automovie/engine";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -30,43 +20,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The arcs are the engine's; nothing is sampled.
  */
 export namespace AutoMovieMotionHumanSwivelBound {
-  /**
-   * The half-space an elbow is kept in: `normal · (elbow - point) >= margin`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A plane and how far inside it, the form every bound here takes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional.
-   */
-  export interface IHalfPlane {
-    /** The direction inside, world; any length, read as its own unit times its length. */
-    normal: IAutoMovieVector3;
-
-    /** A point on the plane, world metres. */
-    point: IAutoMovieVector3;
-
-    /** How far inside the elbow is kept, in the normal's units (metres for a unit normal). */
-    margin: number;
-  }
-
-  /**
-   * An arm on a posture's trunk: its shoulder and its two lengths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation What fixes the elbow's circle for a wrist's place.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, read by `bounded`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read off the posed trunk, never estimated.
-   */
-  export interface IArm {
-    /** The shoulder joint, world metres. */
-    shoulder: IAutoMovieVector3;
-
-    /** The shoulder to the elbow, metres. */
-    upper: number;
-
-    /** The elbow to the wrist, metres. */
-    lower: number;
-  }
 
   /**
    * An arm on a posture's trunk, the limbs left unfitted.
@@ -85,10 +38,10 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function arm(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-  ): IArm {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): IAutoMovieMotionHumanSwivelBound.IArm {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = trunk(
       body,
       posture,
@@ -127,10 +80,10 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bounded(
-    of: IArm,
+    of: IAutoMovieMotionHumanSwivelBound.IArm,
     point: IAutoMovieVector3,
     hint: IAutoMovieVector3,
-    bounds: readonly IHalfPlane[],
+    bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
   ): IAutoMovieVector3 {
     const { shoulder, upper, lower } = of;
     const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
@@ -173,16 +126,16 @@ export namespace AutoMovieMotionHumanSwivelBound {
     ];
     // How far past a bound an elbow lies, from its offset from the
     // shoulder, refused where positive.
-    const past = (bound: IHalfPlane, at: IAutoMovieVector3): number =>
+    const past = (bound: IAutoMovieMotionHumanSwivelBound.IHalfPlane, at: IAutoMovieVector3): number =>
       -(
         Vector3.dot(
           bound.normal,
           Vector3.subtract(at, Vector3.subtract(bound.point, shoulder)),
         ) - bound.margin
       );
-    const refused: swivelArcs.IArc[] = [];
+    const refused: IAutoMovieSwivelArcs.IArc[] = [];
     for (const bound of bounds) {
-      const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
+      const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
         swivelArcs.fitted(
           past(bound, zero),
           past(bound, quarter),
@@ -204,8 +157,8 @@ export namespace AutoMovieMotionHumanSwivelBound {
 
   /** The posture's bones with no limb fitted. */
   const trunk = (
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     poseBones(body, resolveHumanPosture(body, { ...posture, limbs: {} }));
 }

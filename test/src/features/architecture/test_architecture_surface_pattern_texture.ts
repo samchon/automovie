@@ -1,12 +1,5 @@
-import {
-  type IAutoMoviePatternPlacement,
-  type IAutoMoviePatternPoint,
-  type IAutoMoviePatternTextureTransform,
-  type IAutoMoviePatternTexturing,
-  type IAutoMovieSurfacePatternResult,
-  autoMoviePatternTextureTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import type { IAutoMoviePatternPlacement, IAutoMoviePatternPoint, IAutoMoviePatternTextureTransform, IAutoMoviePatternTexturing, IAutoMovieSurfacePatternResult } from "@automovie/interface";
+import { autoMoviePatternTextureTransforms, generateAutoMovieSurfacePattern } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertPatternTextureBookMatch } from "../internal/assertPatternTextureBookMatch";

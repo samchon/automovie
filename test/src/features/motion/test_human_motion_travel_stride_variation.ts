@@ -1,12 +1,6 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionEvent } from "@automovie/interface";
+
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,13 +36,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_stride_variation(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const strides = (row: string | null, seed: string): number[] => {
-      const standing: HumanChain = HumanChain.subject("a").stand({
+      const standing: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
         seconds: 0.3,
       });
       const to: { x: number; y: number; z: number } = { x: 0, y: 0, z: 16 };
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed,
         laws: [...HUMAN_LEXICON.gait!],
         performers: [
@@ -65,8 +59,8 @@ export function test_human_motion_travel_stride_variation(): void {
           : standing.registered(row, { to })
         ).node,
       });
-      const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,

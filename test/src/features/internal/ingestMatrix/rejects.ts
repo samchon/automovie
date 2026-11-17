@@ -1,4 +1,5 @@
-import type { IAutoMovieExternalModelInspection } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
+
 
 import { throwsError } from "../predicates";
 import { humanoidResolver } from "./humanoidResolver";

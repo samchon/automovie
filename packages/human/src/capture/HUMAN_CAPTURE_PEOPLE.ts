@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
+
 import { AutoMovieHumanF1 } from "../generation/f1/AutoMovieHumanF1";
 
 /**
@@ -10,10 +12,10 @@ export const HUMAN_CAPTURE_PEOPLE: Readonly<
     string,
     {
       /** The authored families the surface is lofted from, with their mirroring. */
-      readonly members: readonly AutoMovieHumanF1.IMember[];
+      readonly members: readonly IAutoMovieHumanF1.IMember[];
 
       /** Generate the surface pieces, metres in the figure's frame (forward +X, up +Y, left +Z). */
-      readonly create: () => AutoMovieHumanF1.IPiece[];
+      readonly create: () => IAutoMovieHumanF1.IPiece[];
 
       /** The poses the person can be drawn in, the canonical one first. */
       readonly poses: readonly string[];
@@ -22,7 +24,7 @@ export const HUMAN_CAPTURE_PEOPLE: Readonly<
 > = {
   f1: {
     members: AutoMovieHumanF1.FAMILIES,
-    create: (): AutoMovieHumanF1.IPiece[] => AutoMovieHumanF1.create(),
+    create: (): IAutoMovieHumanF1.IPiece[] => AutoMovieHumanF1.create(),
     poses: ["reference"],
   },
 };

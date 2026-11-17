@@ -1,4 +1,4 @@
-import { AutoMovieDerivedArtifactEncoding } from "./AutoMovieDerivedArtifactEncoding";
+import type { AutoMovieDerivedArtifactEncoding } from "./AutoMovieDerivedArtifactEncoding";
 
 /**
  * One current derived artifact projected into deterministic source context.

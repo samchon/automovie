@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanConversation } from "@automovie/interface";
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import { HumanConversation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -24,9 +25,9 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_motion_everyday_conversation(): void {
-  const turns: HumanConversation.ITurn[] = Array.from(
+  const turns: IAutoMovieMotionHumanConversation.ITurn[] = Array.from(
     { length: 20 },
-    (_: unknown, i: number): HumanConversation.ITurn => ({
+    (_: unknown, i: number): IAutoMovieMotionHumanConversation.ITurn => ({
       speaker: i % 2 === 0 ? "a" : "b",
       from: 30 * i,
       to: 30 * (i + 1),

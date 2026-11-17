@@ -1,8 +1,6 @@
-import {
-  AutoMoviePhysicalBalance as Balance,
-  physicalBalanceBracing,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMoviePhysicalBalance, IAutoMovieVector3 } from "@automovie/interface";
+import { physicalBalanceBracing } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /** Bounded effort survives prediction/step failure while the body can still stand.
@@ -19,7 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_physical_bracing(): void {
   const point: IAutoMovieVector3 = { x: 2, y: 0, z: 0 };
-  const assessment: Balance.IResult = {
+  const assessment: IAutoMoviePhysicalBalance.IResult = {
     state: "unrecoverable",
     capturePoint: point,
     outside: 1.5,

@@ -1,27 +1,17 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
 
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBlade } from "../striking/StrikingBlade";
-import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPose } from "./HumanWeaponPose";
@@ -72,78 +62,6 @@ import { HumanWeaponTrack } from "./HumanWeaponTrack";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end, and lengths are shares of the arm and the weapon's own length.
  */
 export namespace HumanWeaponPresent {
-  /** What every presenting action takes. */
-  export interface IWield {
-    /** The held weapon's prop subject id; the bare hand when absent. */
-    gun?: string;
-
-    /** The shooting hand; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** How many hands hold it; 2 when absent. */
-    hands?: 1 | 2;
-
-    /** The weapon's working point affordance, put on the line; `muzzle` when absent. */
-    tip?: string;
-
-    /** The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it. */
-    from?: string;
-
-    /** The weapon's sighting affordance, square to its line; `sight` when absent. */
-    edge?: string;
-
-    /** Where the line of aim starts on the body; the eye for a handgun and the cheek for a long gun when absent. */
-    anchor?: Anchor;
-
-    /** How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own. */
-    manner?: AutoMovieMotionManner.IManner;
-
-    /**
-     * What a shot launches (#3488): the prop that flies (a ball the scene
-     * gives), its speed out of the muzzle in m/s (the gun's muzzle
-     * velocity) and the lock's time from the break to the launch in seconds
-     * (the gun's lock time; 0 when absent). Nothing is launched when absent.
-     */
-    shot?: { prop: string; speed: number; lock?: number };
-  }
-
-  /** Where a line of aim starts: the eye, the cheek on a stock, the face a bow's hand draws to, the arm a lance is couched under. */
-  export type Anchor = "eye" | "cheek" | "face" | "arm";
-
-  /**
-   * How the weapon is carried: on the line of aim; at a ready position with
-   * the muzzle down or up; or at a long arm's recover, the firelock upright
-   * with its butt at the support side's breast (the 1764 Manual Exercise's
-   * position from which it is cocked); or shouldered, the piece in one hand
-   * against the shoulder, its butt on the hip (the manual's Position of a
-   * Soldier under Arms).
-   */
-  export type Carriage =
-    | "aim"
-    | "lowReady"
-    | "highReady"
-    | "recover"
-    | "shoulder";
-
-  /** Parameters of presenting the weapon. */
-  export interface IPresent extends IWield, HumanWeaponTrack.IParams {
-    /** What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming. */
-    target?: AutoMovieMotionTarget;
-
-    /** The carriage; `aim` when absent. */
-    carriage?: Carriage;
-
-    /**
-     * Whether the presenting arm reaches straight out along the line of aim
-     * to its own reach, a bow arm extended to the target; otherwise the
-     * working point is held the presentation's own share of the arm out.
-     * Not extended when absent.
-     */
-    extended?: boolean;
-
-    /** Seconds the carriage is held once reached; 1 when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-  }
 
   /** The widest angle between the heading and the target the arms present to without a turn of the feet, degrees (provisional). */
   export const TURN: number = 60;
@@ -171,7 +89,7 @@ export namespace HumanWeaponPresent {
   };
 
   /** The cancel table of a firearm action: anything may follow from the named instant on, the grip kept. */
-  const from = (instant: string): IHumanActionLaw["interrupts"] => ({
+  const from = (instant: string): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
     any: [
       {
         window: [instant, 1],
@@ -196,13 +114,13 @@ export namespace HumanWeaponPresent {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and its demands read one pose (`HumanWeaponPose`), so a grip is judged at the pose the plan strokes to.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const present: IHumanActionLaw<IPresent> = {
+  export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> = {
     name: "presentWeapon",
     interrupts: from("stroke"),
     overlay: true,
-    plan: (context: IHumanActionContext<IPresent>): IHumanActionPlan => {
-      const p: IPresent = context.params;
-      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>): IAutoMovieMotionHumanActionPlan => {
+      const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
+      const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
         context,
         HumanWeaponHeld.held(context),
       );
@@ -272,19 +190,19 @@ export namespace HumanWeaponPresent {
     // refuses it by (`StrikingRoll.reachable`); a presentation the plan
     // refuses whatever the grip (a target past `TURN`) asks nothing of it.
     demands: (
-      ahead: IHumanActionLaw.IAhead<IPresent>,
-    ): readonly IHumanActionLaw.IDemand[] => {
-      const p: IPresent = ahead.params;
-      const grip: IHumanActionLaw.IGrip = ahead.grip;
+      ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanWeaponPresent.IPresent>,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
+      const p: IAutoMovieMotionHumanWeaponPresent.IPresent = ahead.params;
+      const grip: IAutoMovieMotionHumanActionLaw.IGrip = ahead.grip;
       if (
         p.gun === undefined ||
         grip.prop !== p.gun ||
         grip.side !== HumanWeaponHeld.hand(p)
       )
         return [];
-      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+      const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
         ahead,
-        (points: StrikingHeld.IPoints): StrikingHeld.ITool => grip.tool(points),
+        (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool => grip.tool(points),
       );
       try {
         const { bladed, pose, carriage } = HumanWeaponPose.of(
@@ -314,8 +232,8 @@ export namespace HumanWeaponPresent {
           // A pose impossible for this grip is an infeasibility certificate,
           // not an absence of requirements on the grip. The candidate's
           // entry frame supplies a finite key; least forbids accepting it.
-          const lying: IHumanProp.IFrame = ahead.prop(p.gun).frame(ahead.start);
-          const frame: IHumanProp.IFrame = HumanPropFrame.parent(
+          const lying: IAutoMovieMotionHumanProp.IFrame = ahead.prop(p.gun).frame(ahead.start);
+          const frame: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.parent(
             lying,
             s.tool.held!.frame,
           );
@@ -349,12 +267,12 @@ export namespace HumanWeaponPresent {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const fire: IHumanActionLaw<IWield> = {
+  export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> = {
     name: "fireWeapon",
     interrupts: from("relax"),
     overlay: true,
-    plan: (context: IHumanActionContext<IWield>): IHumanActionPlan => {
-      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>): IAutoMovieMotionHumanActionPlan => {
+      const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
         context,
         HumanWeaponHeld.held(context),
       );
@@ -362,7 +280,7 @@ export namespace HumanWeaponPresent {
         context.body,
         context.entry.pose,
       );
-      const held: StrikingHeld.IHandFrame = {
+      const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
         point: HumanHand.frame(context.body, bones, s.tool.side, "grip").point,
         rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
       };
@@ -388,7 +306,7 @@ export namespace HumanWeaponPresent {
         RISE[0],
         RISE[1],
       );
-      const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+      const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
         AutoMovieMotionClock.phrase({
           prepare: 0,
           wait: SHOT.press,
@@ -397,10 +315,10 @@ export namespace HumanWeaponPresent {
         }),
         AutoMovieMotionManner.of(context, context.params.manner),
       );
-      const shot: IHumanActionPlan = StrikingBlade.plan(context, {
+      const shot: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(context, {
         tool: s.tool,
         clock,
-        path: (progress: number): StrikingHeld.IHandFrame => ({
+        path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
           point: held.point,
           rotation: Quaternion.multiply(
             Quaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
@@ -426,7 +344,7 @@ export namespace HumanWeaponPresent {
               (a: IAutoMovieAffordance): boolean => a.kind === "trigger",
             );
       const full: number | undefined = trigger?.travel;
-      const drives: IHumanActionPlan.IDrive[] =
+      const drives: IAutoMovieMotionHumanActionPlan.IDrive[] =
         trigger === undefined || full === undefined
           ? []
           : [
@@ -449,8 +367,8 @@ export namespace HumanWeaponPresent {
       // inside the declared dispersion's cone from the shooter's own stream
       // (uniform over the cone's disc), at the break plus the lock's time,
       // with the support's velocity added (#3488, #3491).
-      const fired: IWield["shot"] = context.params.shot;
-      const launches: IHumanActionPlan.ILaunch[] = [];
+      const fired: IAutoMovieMotionHumanWeaponPresent.IWield["shot"] = context.params.shot;
+      const launches: IAutoMovieMotionHumanActionPlan.ILaunch[] = [];
       if (fired !== undefined) {
         const random: ReturnType<typeof context.random> =
           context.random("dispersion");

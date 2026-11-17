@@ -1,9 +1,5 @@
-import {
-  IAutoMovieCompiledFormation,
-  IAutoMovieFormationDesign,
-  IAutoMovieModel,
-  IAutoMovieWorldSurface,
-} from "@automovie/interface";
+import { type IAutoMovieMaterializeCompiledFormationInventory, IAutoMovieCompiledFormation, IAutoMovieFormationDesign } from "@automovie/interface";
+
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { materializeCompiledFormation } from "./materializeCompiledFormation";
@@ -25,30 +21,7 @@ import { materializeCompiledFormation } from "./materializeCompiledFormation";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All entries share the same read-only input maps during this call; complete compiled results are not cached across mutable design or measurement inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned dictionary and compiled snapshots; local ordering arrays disappear after completion or failure, with no background work retained.
  */
-export const materializeCompiledFormationInventory: (props: {
-  /** Formation designs keyed by id. */ formations: ReadonlyMap<
-    string,
-    IAutoMovieFormationDesign
-  >;
-  /** Model groups keyed by the id the formation and its tiers name; empty when none are supplied. */ models?: ReadonlyMap<
-    string,
-    IAutoMovieModel
-  >;
-  /** Supplied root-centered radius estimate in metres keyed by model group id. */ projectionRadii?: ReadonlyMap<
-    string,
-    number
-  >;
-  /** World terrain in declared order; empty when the world has none. */ surfaces?: readonly IAutoMovieWorldSurface[];
-}) => Readonly<Record<string, IAutoMovieCompiledFormation>> = (props: {
-  /** Formation designs keyed by id. */
-  formations: ReadonlyMap<string, IAutoMovieFormationDesign>;
-  /** Model groups keyed by the id the formation and its tiers name; empty when none are supplied. */
-  models?: ReadonlyMap<string, IAutoMovieModel>;
-  /** Supplied root-centered radius estimate in metres keyed by model group id. */
-  projectionRadii?: ReadonlyMap<string, number>;
-  /** World terrain in declared order; empty when the world has none. */
-  surfaces?: readonly IAutoMovieWorldSurface[];
-}): Readonly<Record<string, IAutoMovieCompiledFormation>> =>
+export const materializeCompiledFormationInventory: (props: IAutoMovieMaterializeCompiledFormationInventory.IProps) => Readonly<Record<string, IAutoMovieCompiledFormation>> = (props: IAutoMovieMaterializeCompiledFormationInventory.IProps): Readonly<Record<string, IAutoMovieCompiledFormation>> =>
   Object.fromEntries(
     [...props.formations]
       .sort(

@@ -1,8 +1,6 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPreshape } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 
@@ -38,15 +36,15 @@ export namespace HumanPreshape {
    * @returns The pre-shape's angles and the aperture it reaches, metres.
    */
   export function open(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    closed: IHumanPosture["joints"],
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+    closed: IAutoMovieMotionHumanPosture["joints"],
     width: number,
-  ): { joints: IHumanPosture["joints"]; aperture: number } {
+  ): IAutoMovieMotionHumanPreshape.IOpenResult {
     const want: number = HumanPrehension.aperture(width);
-    const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
-    const blend = (w: number): IHumanPosture["joints"] => {
-      const out: IHumanPosture["joints"] = {};
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+    const blend = (w: number): IAutoMovieMotionHumanPosture["joints"] => {
+      const out: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of new Set([
         ...Object.keys(closed),
         ...Object.keys(flat),
@@ -62,9 +60,9 @@ export namespace HumanPreshape {
       return out;
     };
     const solve = (
-      shape: (x: number) => IHumanPosture["joints"],
+      shape: (x: number) => IAutoMovieMotionHumanPosture["joints"],
       hi: number,
-    ): { joints: IHumanPosture["joints"]; aperture: number } => {
+    ): { joints: IAutoMovieMotionHumanPosture["joints"]; aperture: number } => {
       let lo: number = 0;
       let top: number = hi;
       if (HumanGrip.aperture(body, side, shape(top)) <= want)
@@ -90,7 +88,7 @@ export namespace HumanPreshape {
       `${side}ThumbMetacarpal` as AutoMovieHumanoidBone;
     const abducted =
       (sense: number) =>
-      (x: number): IHumanPosture["joints"] => ({
+      (x: number): IAutoMovieMotionHumanPosture["joints"] => ({
         ...flat,
         [thumb]: [0, sense * 60 * x, 0] as const,
       });

@@ -1,17 +1,6 @@
-import {
-  AutoMovieConstructionContinuation,
-  type AutoMovieConstructionRealization,
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  IAutoMovieConstructionContinuation,
-  IAutoMovieConstructionDiagnostic,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieSolidSurface, IAutoMovieViewPart, IAutoMovieConstructionContinuation, IAutoMovieConstructionDiagnostic } from "@automovie/interface";
+import { AutoMovieConstructionContinuation, AutoMovieLoftChain, AutoMovieLoftJet, realizeAutoMovieConstruction } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionNativeContinuation as Made } from "../../internal/construction/ConstructionNativeContinuation";
@@ -128,8 +117,8 @@ function equivalent(
   )
     failures.push("Native boundary admission mutated an input.");
   for (const phi of [-0.37, 0, 0.23, Math.PI / 2, 2.1, 4.7, 7.3]) {
-    const expected: AutoMovieLoftJet.IJet = Made.oracle(hs, sign * phi, scale);
-    const actual: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, ps, phi);
+    const expected: IAutoMovieLoftJet.IJet = Made.oracle(hs, sign * phi, scale);
+    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, ps, phi);
     jets(actual, expected, sign, failures, "whole boundary");
     for (const station of [
       0.125 * scale,
@@ -159,7 +148,7 @@ function equivalent(
 function skin(failures: string[]): void {
   const host: IAutoMovieViewPart = Made.source("skin.host", 256, 24);
   const part: IAutoMovieViewPart = Made.source("skin.part", 64, 40, 1);
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction(
       { name: "native", root: tree(host.name, part.name) },
       {
@@ -223,7 +212,7 @@ function skin(failures: string[]): void {
 
 /** Observe actual adjacent mesh triangles by face, never reconstructing product geometry from them. */
 function meshStrip(
-  mesh: AutoMovieConstructionRealization.IMesh,
+  mesh: IAutoMovieConstructionRealization.IMesh,
   ring: readonly number[],
   faces: readonly [string, string],
   failures: string[],
@@ -318,7 +307,7 @@ function meshStrip(
 
 /** Read actual emitted metre positions in the independent oracle's millimetres. */
 function position(
-  mesh: AutoMovieConstructionRealization.IMesh,
+  mesh: IAutoMovieConstructionRealization.IMesh,
   id: number,
 ): number[] {
   return mesh.positions
@@ -338,7 +327,7 @@ function rollback(failures: string[]): void {
     hostEnd: "bottom",
     partEnd: "top",
   };
-  const real: AutoMovieConstructionRealization.IWithoutSkin =
+  const real: IAutoMovieConstructionRealization.IWithoutSkin =
     realizeAutoMovieConstruction(
       { name: "rollback", root },
       {
@@ -391,7 +380,7 @@ function surfaceJet(
   surface: IAutoMovieSolidSurface,
   station: number,
   phi: number,
-  expected: AutoMovieLoftJet.IJet,
+  expected: IAutoMovieLoftJet.IJet,
   failures: string[],
 ): void {
   const actual: IAutoMovieSolidSurface.IJet = surface.jet(station, phi);
@@ -413,8 +402,8 @@ function surfaceJet(
 
 /** Both chart coordinates receive sign; the mixed second derivative therefore keeps its sign. */
 function jets(
-  actual: AutoMovieLoftJet.IJet,
-  expected: AutoMovieLoftJet.IJet,
+  actual: IAutoMovieLoftJet.IJet,
+  expected: IAutoMovieLoftJet.IJet,
   sign: 1 | -1,
   failures: string[],
   label: string,

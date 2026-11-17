@@ -1,5 +1,4 @@
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
-
+import type { IAutoMovieSweepTransport } from "@automovie/interface";
 /** Transport samples per spine segment; the frame between samples takes one more reflection step. */
 const DENSITY: number = 64;
 

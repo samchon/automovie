@@ -1,9 +1,12 @@
-import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanBodyMeasures, IAutoMovieHumanHeadInputs, IAutoMovieHumanParameters } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanBodyFrame } from "./AutoMovieHumanBodyFrame";
 import { AutoMovieHumanHeadAnatomy } from "./AutoMovieHumanHeadAnatomy";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
+
 
 /** World-unit head inputs and the common C7 datum, before either head or torso originals. */
 export namespace AutoMovieHumanHeadInputs {

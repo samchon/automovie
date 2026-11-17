@@ -1,13 +1,5 @@
-import {
-  IAutoMovieCompiledPredicateResult,
-  IAutoMoviePose,
-  IAutoMovieSceneNode,
-  IAutoMovieShotPredicate,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieShotContractSubjectReader, IAutoMovieCompiledPredicateResult, IAutoMoviePose, IAutoMovieSceneNode, IAutoMovieShotPredicate, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
 
 /**
  * Measure one typed shot-contract predicate in the compiled artifacts at a shot-local second and compare it with its declared value.
@@ -30,7 +22,7 @@ import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned result references the caller's predicate and holds one number.
  */
 export function evaluateShotPredicate(
-  reader: IShotContractSubjectReader,
+  reader: IAutoMovieShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,
   time: number,
 ): IAutoMovieCompiledPredicateResult {
@@ -56,7 +48,7 @@ export function evaluateShotPredicate(
 
 /** The scalar a predicate compares; throws when a reference does not resolve. */
 function measure(
-  reader: IShotContractSubjectReader,
+  reader: IAutoMovieShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,
   time: number,
 ): number {

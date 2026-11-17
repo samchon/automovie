@@ -1,3 +1,5 @@
+import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanPropDynamics } from "@automovie/interface";
+
 import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
 
 /**
@@ -37,29 +39,6 @@ import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned trajectory holds its knots for as long as its caller keeps it.
  */
 export namespace HumanPropDynamics {
-  /** A prop pushed or pulled across the floor. */
-  export interface ISlide {
-    /** Kilograms. */
-    mass: number;
-
-    /** The static Coulomb coefficient. */
-    friction: number;
-
-    /** The kinetic Coulomb coefficient, at most `friction`. */
-    kinetic: number;
-
-    /**
-     * The horizontal force along the push at a second, newtons, positive
-     * along it. Pure.
-     */
-    force: (seconds: number) => number;
-
-    /** Start, seconds. */
-    from: number;
-
-    /** End, seconds. */
-    to: number;
-  }
 
   /**
    * A slide's distance and speed along the push.
@@ -79,12 +58,12 @@ export namespace HumanPropDynamics {
    * @returns The trajectory of `[distance, speed]`, the integrator's step
    *   its first piece's and its knots those of all its pieces.
    */
-  export function slide(props: ISlide): integrateMotionTrajectory.ITrajectory {
+  export function slide(props: IAutoMovieMotionHumanPropDynamics.ISlide): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const g: number = AutoMovieGravity.STANDARD;
     const sliding = (
       t: number,
       x: readonly number[],
-    ): integrateMotionTrajectory.IRate => ({
+    ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
       dx: [
         x[1]!,
         (props.force(t) - props.kinetic * props.mass * g) / props.mass,
@@ -93,7 +72,7 @@ export namespace HumanPropDynamics {
     const law = (
       t: number,
       x: readonly number[],
-    ): integrateMotionTrajectory.IRate =>
+    ): IAutoMovieIntegrateMotionTrajectory.IRate =>
       x[1]! <= 0 && props.force(t) <= props.friction * props.mass * g
         ? { dx: [0, 0] }
         : sliding(t, x);
@@ -103,7 +82,7 @@ export namespace HumanPropDynamics {
       from: number,
       x: readonly number[],
       until: number,
-    ): integrateMotionTrajectory.ITrajectory =>
+    ): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
       integrateMotionTrajectory({
         f: sliding,
         x0: x,
@@ -113,12 +92,12 @@ export namespace HumanPropDynamics {
       });
     const pieces: {
       to: number;
-      path: integrateMotionTrajectory.ITrajectory;
+      path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
     }[] = [];
     let from: number = props.from;
     let x0: readonly number[] = [0, 0];
     for (;;) {
-      const path: integrateMotionTrajectory.ITrajectory =
+      const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({ f: law, x0, t0: from, t1: props.to });
       const knot = (k: number): number => path.times[k]!;
       let k: number = 1;
@@ -144,18 +123,18 @@ export namespace HumanPropDynamics {
           if (step(a, start, mid).at(mid).x[1]! > 0) lo = mid;
           else hi = mid;
         }
-      const tail: integrateMotionTrajectory.ITrajectory = step(a, start, hi);
+      const tail: IAutoMovieIntegrateMotionTrajectory.ITrajectory = step(a, start, hi);
       pieces.push({ to: a, path }, { to: hi, path: tail });
       if (!(hi < props.to)) break;
       from = hi;
       x0 = [tail.at(hi).x[0]!, 0];
     }
-    const last: integrateMotionTrajectory.ITrajectory =
+    const last: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       pieces[pieces.length - 1]!.path;
     // Each piece's knots within its own span, after the piece before it.
     const times: number[] = pieces.flatMap(
       (
-        p: { to: number; path: integrateMotionTrajectory.ITrajectory },
+        p: { to: number; path: IAutoMovieIntegrateMotionTrajectory.ITrajectory },
         i: number,
       ): number[] =>
         p.path.times.filter(
@@ -169,7 +148,7 @@ export namespace HumanPropDynamics {
       h: pieces[0]!.path.h,
       knots: times.length,
       times,
-      at: (time: number): integrateMotionTrajectory.IState =>
+      at: (time: number): IAutoMovieIntegrateMotionTrajectory.IState =>
         (
           pieces.find((p: { to: number }): boolean => time <= p.to)?.path ??
           last
@@ -191,12 +170,12 @@ export namespace HumanPropDynamics {
     torque: (seconds: number) => number,
     from: number,
     to: number,
-  ): integrateMotionTrajectory.ITrajectory {
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     return integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
-      ): integrateMotionTrajectory.IRate => ({
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
         dx: [x[1]!, torque(t) / inertia],
       }),
       x0: [0, 0],

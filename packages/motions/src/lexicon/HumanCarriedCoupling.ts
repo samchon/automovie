@@ -1,24 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCoupling, IAutoMovieMotionHumanCarriedCouplingFit, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionMeeting, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanCarried } from "./HumanCarried";
 import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
@@ -99,7 +84,7 @@ export namespace HumanCarriedCoupling {
 
   /** The carry the second helper takes beside each carry that has one: a supported walk's other side. */
   export const PAIRED: Readonly<
-    Partial<Record<HumanCarried.Carry, HumanCarried.Carry>>
+    Partial<Record<IAutoMovieMotionHumanCarried.Carry, IAutoMovieMotionHumanCarried.Carry>>
   > = {
     supported: "supportedLeft",
   };
@@ -114,7 +99,7 @@ export namespace HumanCarriedCoupling {
    */
   export const HOLDS: Readonly<
     Record<
-      HumanCarried.Carry,
+      IAutoMovieMotionHumanCarried.Carry,
       readonly [AutoMovieHumanoidRegion | null, AutoMovieHumanoidRegion | null]
     >
   > = {
@@ -150,34 +135,34 @@ export namespace HumanCarriedCoupling {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the carry, the rows and the extra mass.
    */
   export function kind(
-    carry: HumanCarried.Carry,
-    rows: Readonly<Record<HumanCarried.Carry, HumanCarried.IRow>>,
+    carry: IAutoMovieMotionHumanCarried.Carry,
+    rows: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, IAutoMovieMotionHumanCarried.IRow>>,
     extra: number = 0,
     paired: boolean = false,
-  ): AutoMovieMotionMeeting.IKind {
-    const other: HumanCarried.Carry | undefined = paired
+  ): IAutoMovieMotionMeeting.IKind {
+    const other: IAutoMovieMotionHumanCarried.Carry | undefined = paired
       ? PAIRED[carry]
       : undefined;
     return {
       name: `carried:${carry}${other === undefined ? "" : `+${other}`}`,
       roles: other === undefined ? [BEARER, BORNE] : [BEARER, BORNE, SECOND],
       contacts: {},
-      timing: (): AutoMovieMotionMeeting.ITiming => ({
+      timing: (): IAutoMovieMotionMeeting.ITiming => ({
         ready: 0,
         stroke: 0,
         relax: 0,
       }),
       couple: (
-        roles: readonly AutoMovieMotionMeeting.IRole[],
-      ): AutoMovieMotionMeeting.ICoupling => {
-        const bearer: AutoMovieMotionMeeting.IRole = roles.find(
-          (r: AutoMovieMotionMeeting.IRole): boolean => r.name === BEARER,
+        roles: readonly IAutoMovieMotionMeeting.IRole[],
+      ): IAutoMovieMotionCoupling => {
+        const bearer: IAutoMovieMotionMeeting.IRole = roles.find(
+          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === BEARER,
         )!;
-        const borne: AutoMovieMotionMeeting.IRole = roles.find(
-          (r: AutoMovieMotionMeeting.IRole): boolean => r.name === BORNE,
+        const borne: IAutoMovieMotionMeeting.IRole = roles.find(
+          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === BORNE,
         )!;
-        const second: AutoMovieMotionMeeting.IRole | undefined = roles.find(
-          (r: AutoMovieMotionMeeting.IRole): boolean => r.name === SECOND,
+        const second: IAutoMovieMotionMeeting.IRole | undefined = roles.find(
+          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === SECOND,
         );
         return couple(
           bearer.body,
@@ -215,17 +200,13 @@ export namespace HumanCarriedCoupling {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body or bone.
    */
   export function couple(
-    bearer: IHumanBody,
-    borne: IHumanBody,
-    row: HumanCarried.IRow,
-    carry: HumanCarried.Carry,
+    bearer: IAutoMovieMotionHumanBody,
+    borne: IAutoMovieMotionHumanBody,
+    row: IAutoMovieMotionHumanCarried.IRow,
+    carry: IAutoMovieMotionHumanCarried.Carry,
     extra: number = 0,
-    second?: {
-      body: IHumanBody;
-      row: HumanCarried.IRow;
-      carry: HumanCarried.Carry;
-    },
-  ): AutoMovieMotionMeeting.ICoupling {
+    second?: IAutoMovieMotionHumanCarriedCoupling.ICoupleSecond,
+  ): IAutoMovieMotionCoupling {
     if (!(extra >= 0))
       throw new HumanRefusal({
         kind: "parameter",
@@ -237,7 +218,7 @@ export namespace HumanCarriedCoupling {
       });
     // A lone bearer's stance and the borne legs are fitted so its arms
     // reach the holds; a second helper keeps both bearers upright.
-    const fit: HumanCarriedCouplingFit.IFit = HumanCarriedCouplingFit.fit(
+    const fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit = HumanCarriedCouplingFit.fit(
       bearer,
       borne,
       row,
@@ -253,7 +234,7 @@ export namespace HumanCarriedCoupling {
       row.theirs,
     );
     const anchored: IAutoMovieResolvedBone = theirs.get(anchor)!;
-    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row, fit.legs);
+    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(row, fit.legs);
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
@@ -270,8 +251,8 @@ export namespace HumanCarriedCoupling {
     // body's region on that side, facing as the first does.
     const besides: {
       role: string;
-      row: HumanCarried.IRow;
-      carry: HumanCarried.Carry;
+      row: IAutoMovieMotionHumanCarried.IRow;
+      carry: IAutoMovieMotionHumanCarried.Carry;
     }[] = [{ role: BEARER, row, carry }];
     const bearers: Record<
       string,
@@ -335,7 +316,7 @@ export namespace HumanCarriedCoupling {
         },
       );
     }
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(borne.skeleton, borne.profile);
     const centre: IAutoMovieVector3 = fit.place(
       resolveAutoMovieCenterOfMass.place(model, mine),
@@ -370,7 +351,7 @@ export namespace HumanCarriedCoupling {
       ),
       centre,
     );
-    const contacts: AutoMovieMotionMeeting.ICoupledContact[] = bearing.map(
+    const contacts: IAutoMovieMotionCoupling.IContact[] = bearing.map(
       (
         b: {
           role: string;
@@ -378,7 +359,7 @@ export namespace HumanCarriedCoupling {
           on: AutoMovieHumanoidRegion;
         },
         index: number,
-      ): AutoMovieMotionMeeting.ICoupledContact => ({
+      ): IAutoMovieMotionCoupling.IContact => ({
         part: part(borne, b.region),
         region: b.region,
         on: { role: b.role, region: b.on },
@@ -401,7 +382,7 @@ export namespace HumanCarriedCoupling {
             });
         },
       );
-    const coupling: AutoMovieMotionMeeting.ICoupling = {
+    const coupling: IAutoMovieMotionCoupling = {
       bearer: BEARER,
       borne: BORNE,
       contacts,
@@ -429,11 +410,11 @@ export namespace HumanCarriedCoupling {
 
   /** The contact window part a region's bone belongs to. */
   const part = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     name: AutoMovieHumanoidRegion,
-  ): IHumanContactWindow["part"] => {
+  ): IAutoMovieMotionHumanContactWindow["part"] => {
     const bone: AutoMovieHumanoidBone = body.surfaces.regions[name].bone;
-    const limb: IHumanContactWindow["part"] | undefined = (
+    const limb: IAutoMovieMotionHumanContactWindow["part"] | undefined = (
       {
         leftHand: "leftHand",
         rightHand: "rightHand",
@@ -447,7 +428,7 @@ export namespace HumanCarriedCoupling {
         rightUpperLeg: "rightUpperLeg",
         leftLowerLeg: "leftLowerLeg",
         rightLowerLeg: "rightLowerLeg",
-      } as Partial<Record<AutoMovieHumanoidBone, IHumanContactWindow["part"]>>
+      } as Partial<Record<AutoMovieHumanoidBone, IAutoMovieMotionHumanContactWindow["part"]>>
     )[bone];
     return limb ?? (bone === "hips" ? "seat" : "back");
   };

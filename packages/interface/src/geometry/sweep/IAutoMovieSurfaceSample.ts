@@ -1,0 +1,69 @@
+import type { IAutoMovieSurfaceCurveRig } from "./IAutoMovieSurfaceCurveRig";
+import type { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
+
+/**
+ * One point of a patch side or loop as a surface rig plans it: its identity,
+ * how it is written per pose, and what it lies on, which decides the
+ * direction a bridge leaves it along. Its writer is made lazily, so a point
+ * sampled again for a ring or a loop registers nothing twice.
+ *
+ * @evidence contracts/development/design.md#principled-representation Identity and dimensionless domain coordinates select a model-metre writer; the registry resolves shared sample spacing before writing, while bridge callers require compatible sweep/curve metadata.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSurfaceNetwork and patch planning produce these records for registerAutoMovieSurfaceVertices and rigAutoMovieSurfaceBridge; point metadata controls sampling while primitive metadata controls bridge directions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Points are welded by key. Nullable sweep and curve metadata are not a discriminated union: producers must supply the primitive a bridge needs; a curve endpoint can also have a non-null sweep-domain point.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies quantized identity, delayed writer creation, output frame, borrowed rigs, correspondence-dependent v and unconstrained spacing resolution.
+ */
+export interface IAutoMovieSurfaceSample {
+  /** Stable welding identity: sweep name with clamped u and wrapped v quantized to nine decimals, curve name with quantized share, or free node name. Registry equality is string equality, not spatial proximity. */
+  key: string;
+
+  /**
+   * Make the writer of a point that is not a sweep point, registering the slots it reads; called once, when the point first becomes a vertex.
+   *
+   * @returns A writer taking a borrowed Float64Array and scalar offset, writing three model-space metre coordinates after bones, sweeps and curves update; the writer retains bound rig state and propagates its failures
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation registerAutoMovieSurfaceVertices invokes this factory only when point is null and the key has no vertex; resolved sweep-domain samples use a separate finalized-cell writer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A factory, so repeated samplings register nothing twice.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Called only for new vertices.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines factory timing, current-pose ordering, borrowed output, scalar offset and propagated writer failures.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Registry invocation creates one bound writer per new nonsweep vertex; curve writers perform the curve transport's segment lookup when evaluated.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
+   */
+  writer(): (out: Float64Array, at: number) => void;
+
+  /** For a point of a sweep, its sweep's name, domain point and the spacing this sampling gives its cell, below and above along `u` then along `v`, infinite where it gives none; otherwise null. Sweep points are finalized once every patch has sampled them, so the cell does not depend on patch order. */
+  point: {
+    /** Network sweep name whose registry resolves this point's shared sampling footprint. */
+    sweep: string;
+
+    /** Normalized chord-length position along the sweep spine, clamped to [0,1] by sweep evaluation and identity construction. */
+    u: number;
+
+    /** Section coordinate in turns, wrapped modulo one for identity. Direction correspondence uses polar angle; parameter correspondence uses the section curve parameter. */
+    v: number;
+
+    /** Sample spacing below/above u, then below/above v, in dimensionless parameter units. Quadrature reaches half each resolved spacing. Infinity leaves that side unconstrained; the registry takes the smallest supplied spacing and mirrors an unconstrained opposite side, or uses zero if both sides are unconstrained. */
+    cell: [number, number, number, number];
+  } | null;
+
+  /** The sweep and domain point it lies on, for a point of a sweep edge; otherwise null. */
+  sweep: {
+  /** Borrowed compiled sweep rig whose live pose supplies the loop's normal or spine derivative. It must be updated before a bridge reads its probes. */
+  rig: IAutoMovieSweepRig;
+
+  /** Normalized chord-length position used with the sweep rig's section point and probe registration. */
+  u: number;
+
+  /** Section turn used with the sweep rig; wraps with the sweep's section parameter convention. */
+  v: number;
+  } | null;
+
+  /** The curve and share it lies at, for a point of a curve edge; otherwise null. */
+  curve: {
+  /** Borrowed network-curve rig. Update it after its source sweeps/bones and before reading bridge points, normals or declared directions. */
+  rig: IAutoMovieSurfaceCurveRig;
+
+  /** Curve share in [0,1], used consistently for point and blended normal queries. */
+  t: number;
+  } | null;
+}

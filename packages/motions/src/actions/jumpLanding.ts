@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { stand } from "./stand";
@@ -28,7 +27,7 @@ export namespace jumpLanding {
    */
   export interface ILanding {
     /** Each foot flat on its footprint, world metres. */
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The root at touchdown, world metres. */
     touched: IAutoMovieVector3;
@@ -59,7 +58,7 @@ export namespace jumpLanding {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     to: IAutoMovieVector3,
     heading: number,
     rise: number,
@@ -67,8 +66,8 @@ export namespace jumpLanding {
   ): ILanding {
     const m = body.measure;
     const l: number = m.hipHeight;
-    const frame: HumanFrame.IFrame = { origin: { ...to, y: 0 }, yaw: heading };
-    const footprint = (s: "left" | "right"): HumanFoot.IPlacement => ({
+    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: { ...to, y: 0 }, yaw: heading };
+    const footprint = (s: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: HumanFrame.point(frame, {
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
         y: m.ankleHeight + rise,

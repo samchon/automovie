@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieSubdivisionCage,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
+import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
+import { subdivideAutoMovieSurface } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";

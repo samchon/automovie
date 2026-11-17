@@ -1,15 +1,12 @@
+import type { IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
   curlChainUntilContact,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import CORPUS from "../internal/MOTION_HUMAN_POSE_CORPUS.json";
@@ -61,7 +58,7 @@ export function test_human_motion_core_pose_regression(): void {
   recorded.forEach((was: motionHumanPoseCorpus.IPose, i: number): void => {
     const now: motionHumanPoseCorpus.IPose | undefined = read[i];
     if (now === undefined) return;
-    const body: IHumanBody = motionHumanBody(
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(
       was.name.split(" ")[2]!.split("+")[0]! as motionHumanBody.Name,
     );
     const bones: string[] = [
@@ -98,7 +95,7 @@ export function test_human_motion_core_pose_regression(): void {
  * A joint's tolerance, degrees: a curled digit's at its lever to the tip
  * (`curlChainUntilContact.resolution`), every other joint's `ROM_TOLERANCE`.
  */
-function tolerance(body: IHumanBody, bone: string): number {
+function tolerance(body: IAutoMovieMotionHumanBody, bone: string): number {
   const digit: RegExpExecArray | null = DIGIT.exec(bone);
   if (digit === null) return ROM_TOLERANCE;
   const side: string = digit[1]!;

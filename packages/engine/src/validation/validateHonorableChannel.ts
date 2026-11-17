@@ -1,7 +1,5 @@
-import type { IAutoMovieConstraintViolation } from "@automovie/interface";
+import type { IAutoMovieClipChannelGate, IAutoMovieNodeChannel, IAutoMovieConstraintViolation } from "@automovie/interface";
 
-import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
-import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
 import { NODE_CHANNEL_PATHS } from "./constants/NODE_CHANNEL_PATHS";
 import { pushViolation } from "./pushViolation";
 

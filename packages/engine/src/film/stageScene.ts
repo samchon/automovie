@@ -1,17 +1,6 @@
-import {
-  IAutoMovieCamera,
-  IAutoMovieConstraintViolation,
-  IAutoMovieLight,
-  IAutoMovieSceneNode,
-  IAutoMovieScript,
-  IAutoMovieStage,
-  IAutoMovieStageActor,
-  IAutoMovieStageCamera,
-  IAutoMovieStageLight,
-  IAutoMovieStageSetPiece,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieStagedSet, type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieConstraintViolation, IAutoMovieLight, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieStage, IAutoMovieStageActor, IAutoMovieStageCamera, IAutoMovieStageLight, IAutoMovieStageSetPiece, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -20,7 +9,6 @@ import { collectNonEmptyId } from "../validation/collectNonEmptyId";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { lookRotation } from "./lookRotation";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { lightTypeOf } from "./staging/lightTypeOf";
@@ -68,7 +56,7 @@ export function stageScene(
   script: IAutoMovieScript,
   staging: IAutoMovieStage,
 ): IAutoMovieStagedSet {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const set: IAutoMovieStageSetPiece[] = staging.set ?? [];
   const cast: Map<string, IAutoMovieScript["cast"][number]> = new Map();
   const castIndex: Map<string, number> = new Map();

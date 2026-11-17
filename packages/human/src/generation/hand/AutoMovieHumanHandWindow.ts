@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanHandWindow } from "@automovie/interface";
+
 /**
  * The compact windows the hand's reliefs are made of: a bump that is one at
  * its centre and zero, with its first and second derivatives, at its edge.
@@ -10,17 +12,7 @@
  * the hand uses it, each with its own centre, half extent and amplitude.
  */
 export namespace AutoMovieHumanHandWindow {
-  /** A function's value and its first and second derivatives. */
-  export interface IJet {
-    /** Value. */
-    value: number;
-
-    /** First derivative in the window's own coordinate. */
-    slope: number;
-
-    /** Second derivative in the window's own coordinate. */
-    curvature: number;
-  }
+  
 
   /**
    * The bump `(1 - x^2)^3` of a coordinate scaled so its edge is at 1; zero
@@ -28,7 +20,7 @@ export namespace AutoMovieHumanHandWindow {
    *
    * @param x Coordinate over the window's half extent, so the window is `|x| < 1`.
    */
-  export function bump(x: number): IJet {
+  export function bump(x: number): IAutoMovieHumanHandWindow.IJet {
     if (Math.abs(x) >= 1) return { value: 0, slope: 0, curvature: 0 };
     const q: number = 1 - x * x;
     return { value: q ** 3, slope: -6 * x * q * q, curvature: q * (30 * x * x - 6) };
@@ -47,36 +39,9 @@ export namespace AutoMovieHumanHandWindow {
     return q <= 0 ? 0 : q ** 3;
   }
 
-  /**
-   * An elliptic mass over the palmar skin, `h(s, t) = height D (1 - (s /
-   * a)^2 - (t / b)^2)^3` with `a = length L` and `b = width W`: its height
-   * over a depth `D` and its footprint's half extents over a length `L` and a
-   * half width `W` of its own frame, all CONVENTIONS (no mass of the hand is
-   * measured in the repository). It vanishes with slope and curvature at the
-   * footprint's edge (rule J7), so it meets the skin under it without a seam.
-   */
-  export interface IMass {
-    /** Height over the depth `D`. */
-    height: number;
+  
 
-    /** Footprint half length over the length `L`. */
-    length: number;
-
-    /** Footprint half width over the half width `W`. */
-    width: number;
-  }
-
-  /** A mass's fixed sizes in its own frame, mm. */
-  export interface IMassSize {
-    /** The length `L` its footprint's half length is a share of. */
-    length: number;
-
-    /** The half width `W` its footprint's half width is a share of. */
-    width: number;
-
-    /** The depth `D` its height is a share of. */
-    depth: number;
-  }
+  
 
   /**
    * The fingertip pulp: the fat pad of the palmar side of the distal phalanx,
@@ -91,7 +56,7 @@ export namespace AutoMovieHumanHandWindow {
    * the extra a knot cannot, localised at the pad. The toes' pads take the same
    * mass (`AutoMovieHumanFootToeSpan`, `AutoMovieHumanFootToeLines`).
    */
-  export const PULP: IMass = { height: 0.12, length: 0.45, width: 0.85 };
+  export const PULP: IAutoMovieHumanHandWindow.IMass = { height: 0.12, length: 0.45, width: 0.85 };
 
   /**
    * The hypothenar eminence: the long narrow mass along the fifth metacarpal on
@@ -101,7 +66,7 @@ export namespace AutoMovieHumanHandWindow {
    * is lower than the thenar's mass, and meets the palmar sector at the
    * proximal palmar crease, a declared G1 seam.
    */
-  export const HYPOTHENAR: IMass = { height: 0.18, length: 0.7, width: 0.2 };
+  export const HYPOTHENAR: IAutoMovieHumanHandWindow.IMass = { height: 0.18, length: 0.7, width: 0.2 };
 
   /**
    * A mass's height over the skin under it, mm.
@@ -112,7 +77,7 @@ export namespace AutoMovieHumanHandWindow {
    * @param t Across it, mm.
    * @returns The height, mm.
    */
-  export function mass(mass: IMass, size: IMassSize, s: number, t: number): number {
+  export function mass(mass: IAutoMovieHumanHandWindow.IMass, size: IAutoMovieHumanHandWindow.IMassSize, s: number, t: number): number {
     return mass.height * size.depth * ellipse(s / (mass.length * size.length), t / (mass.width * size.width));
   }
 }

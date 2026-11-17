@@ -1,4 +1,7 @@
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage } from "@automovie/interface";
+
+
+
 import { crcAutoMoviePngChunk } from "./crcAutoMoviePngChunk.js";
 
 /** The eight bytes every PNG file starts with. */

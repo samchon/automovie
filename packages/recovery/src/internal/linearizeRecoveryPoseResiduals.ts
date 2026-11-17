@@ -1,6 +1,7 @@
+import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
 
-import type { createRecoveryPoseModel } from "./createRecoveryPoseModel";
+
 
 /**
  * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
@@ -17,10 +18,10 @@ import type { createRecoveryPoseModel } from "./createRecoveryPoseModel";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only owned residual and Jacobian arrays return; no borrowed observations, calibration, image buffer or external handle remains after return or throw.
  */
 export function linearizeRecoveryPoseResiduals(
-  model: ReturnType<typeof createRecoveryPoseModel>,
-  first: readonly (readonly [number, number])[],
-  second: readonly (readonly [number, number])[],
-): { residuals: number[]; jacobian: number[][] } {
+  model: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[0],
+  first: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[1],
+  second: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation> {
   if (first.length !== second.length || model.derivatives.length !== 5)
     throw new Error(
       "camera-refinement: paired points and five derivatives required",

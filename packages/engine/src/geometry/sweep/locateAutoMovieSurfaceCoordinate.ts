@@ -1,6 +1,5 @@
-import { IAutoMovieSubdivisionParameter } from "../IAutoMovieSubdivisionParameter";
-import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
-import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
+import type { IAutoMovieSubdivisionParameter, IAutoMovieSurfaceCage, IAutoMovieLocateSurfaceCoordinate } from "@automovie/interface";
+
 
 /**
  * Find the cage face and local coordinates of a surface coordinate on one
@@ -30,13 +29,7 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export const locateAutoMovieSurfaceCoordinate: (props: {
-  cage: IAutoMovieSurfaceCage;
-  coordinate: IAutoMovieSurfaceCoordinate;
-}) => IAutoMovieSubdivisionParameter = (props: {
-  cage: IAutoMovieSurfaceCage;
-  coordinate: IAutoMovieSurfaceCoordinate;
-}): IAutoMovieSubdivisionParameter => {
+export const locateAutoMovieSurfaceCoordinate: (props: IAutoMovieLocateSurfaceCoordinate.IProps) => IAutoMovieSubdivisionParameter = (props: IAutoMovieLocateSurfaceCoordinate.IProps): IAutoMovieSubdivisionParameter => {
   const { patch, s, t }: typeof props.coordinate = props.coordinate;
   const grid: IAutoMovieSurfaceCage.IPatch | undefined =
     props.cage.patches[patch];

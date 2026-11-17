@@ -1,9 +1,5 @@
-import type {
-  IAutoMovieCapturePlanRequest,
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
-  IAutoMovieInspectionLegendEntry,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import type { IAutoMovieDrawScene, IAutoMovieDrawSubject } from "@automovie/render";
 import {
   AutoMovieInspectorPlayhead,
   type IAutoMovieInspectorScene,

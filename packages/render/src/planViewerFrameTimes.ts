@@ -1,3 +1,6 @@
+import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface";
+
+
 /**
  * Plan the film seconds whose frames a still capture writes.
  *
@@ -15,28 +18,7 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call plans from its arguments alone; there is no shared work to reuse.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned array is allocated, bounded by the requested range divided by its interval.
  */
-export function planViewerFrameTimes(request: {
-  /** Frames per second of the film's encoded grid. */
-  fps: number;
-
-  /** Film running time in seconds. */
-  durationSeconds: number;
-
-  /** Explicit film seconds, kept as given. */
-  at?: readonly number[];
-
-  /** Start of the range in film seconds, inclusive. */
-  from?: number;
-
-  /** End of the range in film seconds, inclusive. */
-  to?: number;
-
-  /** Range interval in whole frames. */
-  every?: number;
-
-  /** Range interval in seconds, rounded to the nearest frame per sample. */
-  step?: number;
-}): number[] {
+export function planViewerFrameTimes(request: IAutoMoviePlanViewerFrameTimesRequest): number[] {
   const fps: number = request.fps;
   const durationSeconds: number = request.durationSeconds;
   if (!Number.isFinite(fps) || fps <= 0)

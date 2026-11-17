@@ -1,16 +1,6 @@
-import {
-  type AutoMoviePhysicalSimulation as Simulation,
-  bindPhysicalWorld,
-  collectPhysicalSupports as collect,
-  collectPhysicalContacts,
-  recordPhysicalContact,
-  solvePhysicalCompliantContacts,
-} from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieFootfallPattern as Pattern,
-  IAutoMovieContactReceipt as Receipt,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P, IAutoMovieFootfallPattern as Pattern, IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
+import { bindPhysicalWorld, collectPhysicalSupports as collect, collectPhysicalContacts, recordPhysicalContact, solvePhysicalCompliantContacts } from "@automovie/engine";
+
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +26,7 @@ export async function test_physical_support_receipts(): Promise<void> {
   for (const variant of ["rigid", "soft", "rounded-zero"] as const) {
     const compliant: boolean = variant !== "rigid";
     const profile: P = PhysicalFixtures.sphere(0.1, compliant ? 0.1 : 0);
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "sphere",
       profile,
       1 / 120,
@@ -52,7 +42,7 @@ export async function test_physical_support_receipts(): Promise<void> {
       };
     for (const target of body.targets)
       target.segments.root!.position.y = compliant ? 0.08 : 0.099;
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
     Object.assign(input, {
       gravity: { x: 0, y: -9.81, z: 0 },
       floor: 0,

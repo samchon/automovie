@@ -1,3 +1,4 @@
+import type { IAutoMovieTessellation } from "@automovie/interface";
 import { tessellate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +19,7 @@ import { nclose } from "../internal/predicates";
  */
 export function test_geometry_tessellate_sphere(): void {
   const r: number = 0.5;
-  const sphere: import("@automovie/engine").ITessellation = tessellate({
+  const sphere: IAutoMovieTessellation = tessellate({
     type: "sphere",
     radius: r,
   });

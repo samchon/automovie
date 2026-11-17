@@ -1,12 +1,6 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditReturn, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { Quaternion } from "@automovie/engine";
 
 /**
  * Whether a body is back where it was: how far the joint centres of one
@@ -32,21 +26,6 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditReturn {
-  /**
-   * What the reading found.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and its frame.
-   * @evidence contracts/development/design.md#principled-representation Form and placement apart, since an action may promise one without the other.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IResult {
-    /** The largest distance between a joint centre at the two instants, world frame, metres, with the bone, at the later instant. */
-    world: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The same in each instant's own pelvis frame, metres. */
-    shape: IAutoMovieMotionHumanAuditMeasure;
-  }
 
   /**
    * Read how far a person at one instant is from themselves at another.
@@ -71,7 +50,7 @@ export namespace AutoMovieMotionHumanAuditReturn {
     subject: string,
     from: number,
     to: number,
-  ): IResult {
+  ): IAutoMovieMotionHumanAuditReturn.IResult {
     const before: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       motion.bones(subject, from);
     const after: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -96,7 +75,7 @@ export namespace AutoMovieMotionHumanAuditReturn {
       local(before);
     const second: (point: IAutoMovieVector3) => IAutoMovieVector3 =
       local(after);
-    const out: IResult = {
+    const out: IAutoMovieMotionHumanAuditReturn.IResult = {
       world: { value: 0, seconds: to, where: "none" },
       shape: { value: 0, seconds: to, where: "none" },
     };

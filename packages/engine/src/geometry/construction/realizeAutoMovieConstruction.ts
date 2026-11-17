@@ -1,66 +1,52 @@
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstruction,
-  IAutoMovieConstructionContinuation,
-  IAutoMovieConstructionJoin,
-  IAutoMovieConstructionSource,
-  IAutoMovieConstructionTrim,
-  IAutoMovieConstructionView,
-} from "@automovie/interface";
+import type { IAutoMovieLoftChain, IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMovieViewPart, IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionState, IAutoMovieConstructionWidths, IAutoMovieLoftContract, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidIntersection, IAutoMovieSolidJoin, IAutoMovieSolidMesh, IAutoMovieSolidTrim, IAutoMovieViewLoft, IAutoMovieConstruction, IAutoMovieConstructionContinuation, IAutoMovieConstructionJoin, IAutoMovieConstructionSource, IAutoMovieConstructionTrim, IAutoMovieConstructionView } from "@automovie/interface";
+
+
 
 import { AutoMovieConstructionAdmission } from "./AutoMovieConstructionAdmission";
 import { AutoMovieConstructionContinuationRealize } from "./AutoMovieConstructionContinuationRealize";
 import { AutoMovieConstructionPortRealize } from "./AutoMovieConstructionPortRealize";
 import { AutoMovieConstructionProfileRealize } from "./AutoMovieConstructionProfileRealize";
 import { AutoMovieConstructionProfileSkin } from "./AutoMovieConstructionProfileSkin";
-import type { AutoMovieConstructionRealization } from "./AutoMovieConstructionRealization";
 import { AutoMovieConstructionSeeds } from "./AutoMovieConstructionSeeds";
 import { AutoMovieConstructionSkin } from "./AutoMovieConstructionSkin";
 import { AutoMovieConstructionSplitRealize } from "./AutoMovieConstructionSplitRealize";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieConstructionWidths } from "./AutoMovieConstructionWidths";
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieLoftStations } from "./AutoMovieLoftStations";
 import { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidTrim } from "./AutoMovieSolidTrim";
 import { AutoMovieViewLoft } from "./AutoMovieViewLoft";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { fairAutoMovieSolidMesh } from "./fairAutoMovieSolidMesh";
 
 /** Realize operator and boundary records with no final skin when explicitly requested. */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
-  props: AutoMovieConstructionRealization.IProps & {
+  props: IAutoMovieConstructionRealization.IProps & {
     /** Omit only the final skin. */
     skin: false;
   },
-): AutoMovieConstructionRealization.IWithoutSkin;
+): IAutoMovieConstructionRealization.IWithoutSkin;
 
 /** Realize the normal required mesh when the skin request is omitted or true. */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
-  props: AutoMovieConstructionRealization.IProps & {
+  props: IAutoMovieConstructionRealization.IProps & {
     /** Draw the final skin, also the default when omitted. */
     skin?: true;
   },
-): AutoMovieConstructionRealization.IRealization;
+): IAutoMovieConstructionRealization.IRealization;
 
 /** A runtime boolean request returns either result; callers must distinguish mesh from null. */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
-  props: AutoMovieConstructionRealization.IProps,
+  props: IAutoMovieConstructionRealization.IProps,
 ):
-  | AutoMovieConstructionRealization.IRealization
-  | AutoMovieConstructionRealization.IWithoutSkin;
+  | IAutoMovieConstructionRealization.IRealization
+  | IAutoMovieConstructionRealization.IWithoutSkin;
 
 /**
  * Realize a construction tree: loft declared views or explicit complete sources, apply joins, continuation, splits (`AutoMovieConstructionSplitRealize`: an open end split into two children's bands, published with the chains) and trims in containment order, and draw the body of trimmed faces as one skin sharing every boundary.
@@ -80,10 +66,10 @@ export function realizeAutoMovieConstruction(
  */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
-  props: AutoMovieConstructionRealization.IProps,
+  props: IAutoMovieConstructionRealization.IProps,
 ):
-  | AutoMovieConstructionRealization.IRealization
-  | AutoMovieConstructionRealization.IWithoutSkin {
+  | IAutoMovieConstructionRealization.IRealization
+  | IAutoMovieConstructionRealization.IWithoutSkin {
   if (!(props.chord > 0))
     throw new Error(
       `realizeAutoMovieConstruction: chord ${props.chord} m is not positive`,
@@ -94,11 +80,11 @@ export function realizeAutoMovieConstruction(
   const withSkin: boolean = props.skin !== false;
   const S: number = AutoMovieConstructionViews.SCALE;
   const chord: number = props.chord * S;
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
     construction.name,
     [],
   );
-  const state: AutoMovieConstructionState.IState = {
+  const state: IAutoMovieConstructionState.IState = {
     faces: new Map(),
     chains: new Map(),
     chainList: [],
@@ -117,7 +103,7 @@ export function realizeAutoMovieConstruction(
   /** Preserve each operator diagnostic's order under its construction node. */
   function absorb(
     node: string,
-    list: readonly AutoMovieLoftContract.IDiagnostic[],
+    list: readonly IAutoMovieLoftContract.IDiagnostic[],
   ): void {
     for (const d of list) report(node, d.contract, d.detail);
   }
@@ -137,11 +123,11 @@ export function realizeAutoMovieConstruction(
           node.type === "source" ? "source" : "axis",
           part,
         );
-      const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+      const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
       absorb(node.name, loft.diagnostics);
       if (loft.chain === null) return;
       let chain: IAutoMovieLoftChain = loft.chain;
-      const override: AutoMovieConstructionState.IOverride | undefined =
+      const override: IAutoMovieConstructionState.IOverride | undefined =
         state.overrides.get(node.name);
       if (override !== undefined) {
         const replaced: IAutoMovieLoftChain | string = override.apply(chain);
@@ -206,7 +192,7 @@ export function realizeAutoMovieConstruction(
   /** Realize the part transactionally against the host already retained by this node. */
   function join(node: IAutoMovieConstructionJoin): void {
     walk(node.host);
-    const snapshot: AutoMovieConstructionState.ISnapshot =
+    const snapshot: IAutoMovieConstructionState.ISnapshot =
       AutoMovieConstructionState.snap(body, state);
     walk(node.part);
     /** Restore the same host checkpoint when this join cannot be retained. */
@@ -234,7 +220,7 @@ export function realizeAutoMovieConstruction(
     const layers: number[] = state.chains
       .get(node.seed.partFace)!
       .layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
-    const seed: AutoMovieSolidIntersection.IInput["seed"] | string =
+    const seed: IAutoMovieSolidIntersection.IInput["seed"] | string =
       AutoMovieConstructionSeeds.create(
         node.seed,
         partSurface,
@@ -244,14 +230,14 @@ export function realizeAutoMovieConstruction(
         tolerance,
       );
     if (typeof seed === "string") return fail("seed", seed);
-    const parameter: AutoMovieSolidIntersection.Parameter =
+    const parameter: IAutoMovieSolidIntersection.Parameter =
       AutoMovieConstructionViews.parameter(node.parameter);
-    let traced: AutoMovieConstructionWidths.ITraced | null = null;
+    let traced: IAutoMovieConstructionWidths.ITraced | null = null;
     if (
       AutoMovieConstructionWidths.traced(node.partWidth) ||
       AutoMovieConstructionWidths.traced(node.hostWidth)
     ) {
-      const r: AutoMovieSolidIntersection.IResult =
+      const r: IAutoMovieSolidIntersection.IResult =
         AutoMovieSolidIntersection.trace({
           part: partSurface,
           host: atlas,
@@ -272,7 +258,7 @@ export function realizeAutoMovieConstruction(
         diff: node.kind === "diff",
       };
     }
-    const width: AutoMovieSolidJoin.IInput["width"] | string =
+    const width: IAutoMovieSolidJoin.IInput["width"] | string =
       AutoMovieConstructionWidths.create(
         node.partWidth,
         node.hostWidth,
@@ -281,7 +267,7 @@ export function realizeAutoMovieConstruction(
       );
     if (typeof width === "string") return fail("width", width);
     if (node.kind === "diff") body.faces[partIndex]!.inverted = true;
-    const merged: AutoMovieSolidBody.IMerged = AutoMovieSolidBody.merge(body, {
+    const merged: IAutoMovieSolidBody.IMerged = AutoMovieSolidBody.merge(body, {
       name: node.name,
       kind: node.kind,
       part: partIndex,
@@ -331,7 +317,7 @@ export function realizeAutoMovieConstruction(
         `the face ${node.face} was not realized`,
       );
     const surface: IAutoMovieSolidSurface = body.faces[index]!.surface;
-    const result: AutoMovieSolidTrim.IResult = AutoMovieSolidTrim.create(
+    const result: IAutoMovieSolidTrim.IResult = AutoMovieSolidTrim.create(
       surface,
       node.landmarks.map(AutoMovieConstructionViews.point),
       node.guesses.map((g: [number, number]): [number, number] => [
@@ -342,7 +328,7 @@ export function realizeAutoMovieConstruction(
     );
     absorb(node.name, result.diagnostics);
     if (result.trim === null) return;
-    const t: AutoMovieSolidTrim.ITrim = result.trim;
+    const t: IAutoMovieSolidTrim.ITrim = result.trim;
     const count: number = AutoMovieSolidTrim.DENSITY * node.landmarks.length;
     const owner: number = AutoMovieSolidMesh.owner(body.mesh, surface);
     const chart: [number, number][] = Array.from(
@@ -368,7 +354,7 @@ export function realizeAutoMovieConstruction(
       vertices,
       chart,
       neighbours: chart.map(
-        (c: [number, number], m: number): AutoMovieSolidCycle.INeighbour => ({
+        (c: [number, number], m: number): IAutoMovieSolidCycle.INeighbour => ({
           face: -1,
           from: c,
           to: chart[(m + 1) % count]!,
@@ -379,7 +365,7 @@ export function realizeAutoMovieConstruction(
   }
 
   /** Dispatch only the closed construction union in containment order. */
-  function walk(node: AutoMovieConstructionNode): void {
+  function walk(node: IAutoMovieConstructionNode): void {
     switch (node.type) {
       case "view":
       case "source":
@@ -419,7 +405,7 @@ export function realizeAutoMovieConstruction(
 
   walk(construction.root);
   if (withSkin) {
-    const open: AutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
+    const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
       body,
       (face: string, detail: string): void =>
         report(face, "face triangulation", detail),
@@ -436,7 +422,7 @@ export function realizeAutoMovieConstruction(
     // every face is drawn and closed, so each region reads the whole skin round it. A region about a surface (a merge's blend) starts from
     // every vertex that surface owns; a datum's disc is centred on the skin vertex nearest it.
     const regions: { vertices: number[]; radius: number }[] = (state.fairs ?? [])
-      .map((fair: NonNullable<AutoMovieConstructionState.IState["fairs"]>[number]): { vertices: number[]; radius: number } => {
+      .map((fair: NonNullable<IAutoMovieConstructionState.IState["fairs"]>[number]): { vertices: number[]; radius: number } => {
         if (fair.surface === undefined) return { vertices: fair.vertices ?? [], radius: fair.radius };
         const owner: number = AutoMovieSolidMesh.owner(body.mesh, fair.surface);
         const vertices: number[] = [];
@@ -466,12 +452,12 @@ export function realizeAutoMovieConstruction(
     }
     fairAutoMovieSolidMesh(body.mesh, regions);
   }
-  const published: AutoMovieSolidBody.IPublished =
+  const published: IAutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);
 
   /** Shared result fields in their original order, before either mesh variant. */
   const records: Omit<
-    AutoMovieConstructionRealization.IRealization,
+    IAutoMovieConstructionRealization.IRealization,
     "mesh" | "diagnostics"
   > = {
     name: construction.name,
@@ -482,7 +468,7 @@ export function realizeAutoMovieConstruction(
       ...(state.profiles ?? []).flatMap(
         (
           profile: NonNullable<
-            AutoMovieConstructionState.IState["profiles"]
+            IAutoMovieConstructionState.IState["profiles"]
           >[number],
         ): IAutoMovieSolidSurface[] => [...profile.originals.values()],
       ),

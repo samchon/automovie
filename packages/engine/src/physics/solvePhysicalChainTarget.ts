@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMovieSolvePhysicalChainTarget, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -25,17 +23,7 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 18 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function solvePhysicalChainTarget(input: {
-  /** Admitted physical tree and angular coordinates. */ profile: P;
-  /** Proximal-to-distal support path. */ chain: readonly string[];
-  /** Authored world placements to copy, never mutate. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Actual requested endpoint location, metres. */ goal: IAutoMovieVector3;
-  /** Optional terminal bone-local support point, metres. */ localPoint?: IAutoMovieVector3;
-  /** Positive fixed coordinate-descent budget. */ iterations: number;
-  /** Metre early-out residual; no target is silently relocated. */ tolerance: number;
-}): { targets: Record<string, P.ITransform>; residual: number } {
+export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarget.IInput): IAutoMovieSolvePhysicalChainTarget.IResult {
   if (
     !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
@@ -46,9 +34,9 @@ export function solvePhysicalChainTarget(input: {
     ![input.goal.x, input.goal.y, input.goal.z].every(Number.isFinite)
   )
     throw new Error("Invalid physical chain target or work budget");
-  const targets: Record<string, P.ITransform> = { ...input.targets };
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.targets };
   const owned: Set<string> = new Set();
-  const parents: Map<string, P.IJoint> = new Map();
+  const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> = new Map();
   const children: Map<string, string[]> = new Map();
   for (const joint of input.profile.joints) {
     parents.set(joint.child, joint);
@@ -57,10 +45,10 @@ export function solvePhysicalChainTarget(input: {
     children.set(joint.parent, list);
   }
   const endpoint: string = input.chain.at(-1)!;
-  const joints: P.IJoint[] = input.chain
-    .map((bone: string): P.IJoint | undefined => parents.get(bone))
+  const joints: IAutoMoviePhysicalProfile.IJoint[] = input.chain
+    .map((bone: string): IAutoMoviePhysicalProfile.IJoint | undefined => parents.get(bone))
     .filter(
-      (joint: P.IJoint | undefined): joint is P.IJoint => joint !== undefined,
+      (joint: IAutoMoviePhysicalProfile.IJoint | undefined): joint is IAutoMoviePhysicalProfile.IJoint => joint !== undefined,
     )
     .reverse();
   const descendants: Map<string, string[]> = new Map(
@@ -90,8 +78,8 @@ export function solvePhysicalChainTarget(input: {
   ) {
     for (const joint of joints)
       for (const axis of joint.axes) {
-        const parent: P.ITransform = targets[joint.parent]!;
-        const frame: P.ITransform["rotation"] = Quaternion.multiply(
+        const parent: IAutoMoviePhysicalProfile.ITransform = targets[joint.parent]!;
+        const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
           parent.rotation,
           joint.parentFrame.rotation,
         );
@@ -134,14 +122,14 @@ export function solvePhysicalChainTarget(input: {
   return { targets, residual };
 
   /** Apply one admitted angular update to exactly the joint's descendants. */
-  function rotate(joint: P.IJoint, axis: P.IAxis, request: number): void {
-    const parent: P.ITransform = targets[joint.parent]!;
-    const child: P.ITransform = targets[joint.child]!;
-    const frame: P.ITransform["rotation"] = Quaternion.multiply(
+  function rotate(joint: IAutoMoviePhysicalProfile.IJoint, axis: IAutoMoviePhysicalProfile.IAxis, request: number): void {
+    const parent: IAutoMoviePhysicalProfile.ITransform = targets[joint.parent]!;
+    const child: IAutoMoviePhysicalProfile.ITransform = targets[joint.child]!;
+    const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
       parent.rotation,
       joint.parentFrame.rotation,
     );
-    const relative: P.ITransform["rotation"] = Quaternion.multiply(
+    const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
       Quaternion.inverse(frame),
       Quaternion.multiply(child.rotation, joint.childFrame.rotation),
     );
@@ -152,11 +140,11 @@ export function solvePhysicalChainTarget(input: {
       y: axis.axis === "y" ? 1 : 0,
       z: axis.axis === "z" ? 1 : 0,
     };
-    const candidate: P.ITransform["rotation"] = Quaternion.multiply(
+    const candidate: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
       Quaternion.fromAxisAngle(localAxis, (request * 180) / Math.PI),
       relative,
     );
-    const admitted: P.ITransform["rotation"] = projectPhysicalJointRotation(
+    const admitted: IAutoMoviePhysicalProfile.ITransform["rotation"] = projectPhysicalJointRotation(
       joint,
       candidate,
     );

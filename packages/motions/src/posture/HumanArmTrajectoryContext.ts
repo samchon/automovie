@@ -1,9 +1,8 @@
+import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
+
 import { physicalShapeSegmentDistance } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -23,7 +22,7 @@ export namespace HumanArmTrajectoryContext {
   /** What the context is built from: the trajectory's problem, or a still configuration of it. */
   export interface IProblem {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
     /** The waypoints' seconds. */
     times: readonly number[];
     /** What every arm is read against at each waypoint. */
@@ -33,9 +32,9 @@ export namespace HumanArmTrajectoryContext {
       /** The arm. */
       side: "left" | "right";
       /** The arm at the first waypoint, and the arm the allowances are read from at every waypoint but a fixed last one. */
-      rest: HumanArmClearance.IArm;
+      rest: IAutoMovieMotionHumanArmClearance.IArm;
       /** The arm at the last waypoint, which the allowances there are read from when the waypoint is fixed; `rest` when absent. */
-      back?: HumanArmClearance.IArm;
+      back?: IAutoMovieMotionHumanArmClearance.IArm;
       /** Its site at each waypoint, on the hold. */
       sites: readonly (M.ISite | undefined)[];
       /** Its segments' declared rests over the hold. */
@@ -43,7 +42,7 @@ export namespace HumanArmTrajectoryContext {
       /** Its segments that grasp one object with the other arm over the action (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
       grasp?: readonly M.Segment[];
       /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
-      anchor?: HumanArmClearance.IArm;
+      anchor?: IAutoMovieMotionHumanArmClearance.IArm;
     }[];
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
@@ -59,8 +58,8 @@ export namespace HumanArmTrajectoryContext {
   export function of(problem: IProblem, previous?: M.IContext): M.IContext {
     const n: number = problem.times.length;
     const alone: boolean = problem.arms.length === 1;
-    const setups: G.ISetup[] = problem.arms.map(
-      (arm: IProblem["arms"][number]): G.ISetup =>
+    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = problem.arms.map(
+      (arm: IProblem["arms"][number]): IAutoMovieMotionHumanArmGeometry.ISetup =>
         G.prepare(problem.body, arm.side),
     );
     const rest: number[][] = problem.arms.map(
@@ -71,7 +70,7 @@ export namespace HumanArmTrajectoryContext {
       (arm: IProblem["arms"][number], a: number): number[] =>
         G.encode(setups[a]!, arm.back ?? arm.rest),
     );
-    const free: number[][] = setups.map((setup: G.ISetup): number[] => {
+    const free: number[][] = setups.map((setup: IAutoMovieMotionHumanArmGeometry.ISetup): number[] => {
       const out: number[] = [];
       for (let d: number = 0; d < G.DIMENSIONS; ++d)
         if (setup.free[d]!) out.push(d);
@@ -104,8 +103,8 @@ export namespace HumanArmTrajectoryContext {
       (previous === undefined ? undefined : STORES.get(previous)) ?? new Map();
     const points: W.IWaypoint[] = problem.times.map(
       (t: number, k: number): W.IWaypoint => {
-        const frames: G.IFrame[] = setups.map(
-          (setup: G.ISetup): G.IFrame =>
+        const frames: IAutoMovieMotionHumanArmGeometry.IFrame[] = setups.map(
+          (setup: IAutoMovieMotionHumanArmGeometry.ISetup): IAutoMovieMotionHumanArmGeometry.IFrame =>
             HumanArmFrame.of(setup, problem.bases[k]!, alone),
         );
         const sites: (M.ISite | undefined)[] = problem.arms.map(
@@ -115,7 +114,7 @@ export namespace HumanArmTrajectoryContext {
         if (
           known !== undefined &&
           known.frames.every(
-            (f: G.IFrame, a: number): boolean => f === frames[a],
+            (f: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): boolean => f === frames[a],
           ) &&
           known.sites.every(
             (s: M.ISite | undefined, a: number): boolean => s === sites[a],
@@ -133,12 +132,12 @@ export namespace HumanArmTrajectoryContext {
         return made;
       },
     );
-    const frames: G.IFrame[][] = setups.map(
-      (_: G.ISetup, a: number): G.IFrame[] =>
-        points.map((p: W.IWaypoint): G.IFrame => p.frames[a]!),
+    const frames: IAutoMovieMotionHumanArmGeometry.IFrame[][] = setups.map(
+      (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): IAutoMovieMotionHumanArmGeometry.IFrame[] =>
+        points.map((p: W.IWaypoint): IAutoMovieMotionHumanArmGeometry.IFrame => p.frames[a]!),
     );
     const sites: (M.ISite | undefined)[][] = setups.map(
-      (_: G.ISetup, a: number): (M.ISite | undefined)[] =>
+      (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): (M.ISite | undefined)[] =>
         points.map((p: W.IWaypoint): M.ISite | undefined => p.sites[a]),
     );
 
@@ -209,8 +208,8 @@ export namespace HumanArmTrajectoryContext {
       const key: number = probe * point.frames[a]!.shapes.length + shape;
       let v: number | undefined = point.allowed[a]!.get(key);
       if (v === undefined) {
-        const frame: G.IFrame = point.frames[a]!;
-        const s: G.IShape = frame.shapes[shape]!;
+        const frame: IAutoMovieMotionHumanArmGeometry.IFrame = point.frames[a]!;
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         const rested: number = give(declared(a, k, probe, s.bone));
         if (probe >= G.SURFACE)
           v =
@@ -239,7 +238,7 @@ export namespace HumanArmTrajectoryContext {
       const key: number = probe * point.colliders[1 - a]!.length + shape;
       let v: number | undefined = point.between[a]!.get(key);
       if (v === undefined) {
-        const s: G.IShape = point.colliders[1 - a]![shape]!;
+        const s: IAutoMovieMotionHumanArmGeometry.IShape = point.colliders[1 - a]![shape]!;
         const rested: number = give(declared(a, k, probe, bone));
         if (probe >= G.SURFACE) v = -corner(a, k, probe, s.part) - rested;
         else {
@@ -274,13 +273,13 @@ export namespace HumanArmTrajectoryContext {
       a: number,
       k: number,
       shape: number,
-    ): G.IFrame["colliders"][number] => {
+    ): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] => {
       const point: W.IWaypoint = points[k]!;
-      let list: G.IFrame["colliders"] | undefined = point.flat[a];
+      let list: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] | undefined = point.flat[a];
       if (list === undefined) {
         list = point.frames[a]!.colliders.flatMap(
-          (col: G.IFrame["colliders"][number]): G.IFrame["colliders"] =>
-            col.shapes.map((): G.IFrame["colliders"][number] => col),
+          (col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number]): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] =>
+            col.shapes.map((): IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] => col),
         );
         point.flat[a] = list;
       }
@@ -296,8 +295,8 @@ export namespace HumanArmTrajectoryContext {
       const key: number = shape * point.frames[a]!.body.length + corner;
       let v: number | undefined = point.inside[a]!.get(key);
       if (v === undefined) {
-        const body: G.IFrame["body"][number] = point.frames[a]!.body[corner]!;
-        const col: G.IFrame["colliders"][number] = collider(a, k, shape);
+        const body: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number] = point.frames[a]!.body[corner]!;
+        const col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] = collider(a, k, shape);
         const own: "upperArm" | "lowerArm" | "hand" =
           col.owner === "upper"
             ? "upperArm"
@@ -340,7 +339,7 @@ export namespace HumanArmTrajectoryContext {
       offset,
       width,
       bounds: setups.map(
-        (setup: G.ISetup, a: number): ([number, number] | null)[] =>
+        (setup: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): ([number, number] | null)[] =>
           boxes(setup, rest[a]!, back[a]!),
       ),
       allowed,
@@ -360,12 +359,12 @@ export namespace HumanArmTrajectoryContext {
       inside,
       lying,
       normals: setups.map(
-        (_: G.ISetup, a: number): (IAutoMovieVector3 | undefined)[] =>
+        (_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): (IAutoMovieVector3 | undefined)[] =>
           points.map(
             (p: W.IWaypoint): IAutoMovieVector3 | undefined => p.normals[a],
           ),
       ),
-      touched: setups.map((_: G.ISetup, a: number): number[] =>
+      touched: setups.map((_: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): number[] =>
         points.map((p: W.IWaypoint): number => p.touched[a]!),
       ),
       rested: declared,
@@ -388,7 +387,7 @@ const STORES: WeakMap<M.IContext, Map<number, W.IWaypoint>> = new WeakMap();
  * for the chart's two, which the chart's disc bounds.
  */
 function boxes(
-  setup: G.ISetup,
+  setup: IAutoMovieMotionHumanArmGeometry.ISetup,
   rest: readonly number[],
   back: readonly number[],
 ): ([number, number] | null)[] {

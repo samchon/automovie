@@ -1,14 +1,11 @@
-import {
-  type AutoMoviePolarSector,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMoviePolarSector, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
+import { AutoMovieViewSection } from "@automovie/engine";
 
 import { ConstructionConicOracle } from "../../../internal/construction/ConstructionConicOracle";
 import { ConstructionViewOracle } from "../../../internal/construction/ConstructionViewOracle";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
-type Jet = AutoMoviePolarSector.Jet;
+type Jet = IAutoMoviePolarSector.Jet;
 
 /**
  * Four reference spans retain the ellipse oracle's existing Hermite error
@@ -45,9 +42,9 @@ export function test_construction_operator_view_section(): void {
     [20, 60],
     [25, 25],
   ] as [number, number][]) {
-    const box: AutoMovieViewSection.IBox = { extents: [a, b, a, b] };
+    const box: IAutoMovieViewSection.IBox = { extents: [a, b, a, b] };
     const bound: number = ConstructionViewOracle.bound(a, b, SPANS);
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
       box,
       [E, E, E, E],
     );
@@ -97,8 +94,8 @@ export function test_construction_operator_view_section(): void {
     [12, 40, 20, 8],
   ];
   for (const extents of boxes) {
-    const box: AutoMovieViewSection.IBox = { extents };
-    const range: AutoMovieViewSection.IRange | null =
+    const box: IAutoMovieViewSection.IBox = { extents };
+    const range: IAutoMovieViewSection.IRange | null =
       AutoMovieViewSection.range(box);
     if (range === null) {
       failures.push(
@@ -110,7 +107,7 @@ export function test_construction_operator_view_section(): void {
       const r: number =
         range.shoulder[0] + share * (range.shoulder[1] - range.shoulder[0]);
       const shoulders: Quarters = [r, r, r, r];
-      const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+      const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
         box,
         shoulders,
       );
@@ -122,7 +119,7 @@ export function test_construction_operator_view_section(): void {
           extents,
           law(extents, shoulders),
           section.knots.map(
-            (k: AutoMoviePolarSector.IGuide): number => k.angle,
+            (k: IAutoMoviePolarSector.IGuide): number => k.angle,
           ),
         ),
       );
@@ -180,7 +177,7 @@ export function test_construction_operator_view_section(): void {
       [-0.01, 0.02, -0.02, 0.01],
     ],
   ] as [Quarters, Quarters][]) {
-    const reach: AutoMovieViewSection.IRange | null =
+    const reach: IAutoMovieViewSection.IRange | null =
       AutoMovieViewSection.range({ extents }, departures);
     if (reach === null) {
       failures.push(
@@ -192,7 +189,7 @@ export function test_construction_operator_view_section(): void {
     const shoulders: Quarters = departures.map(
       (d: number): number => r + d,
     ) as Quarters;
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
       { extents },
       shoulders,
     );
@@ -255,7 +252,7 @@ export function test_construction_operator_view_section(): void {
 
 /** The largest radius difference from the closed-form ellipse over 4096 angles, mm. */
 function radiusError(
-  section: AutoMovieViewSection.ISection,
+  section: IAutoMovieViewSection.ISection,
   a: number,
   b: number,
 ): number {

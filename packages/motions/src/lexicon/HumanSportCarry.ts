@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { walk } from "../actions/walk";
 import { carryHang } from "../handling/carryHang";
 import { pushSled } from "../handling/pushSled";
@@ -15,14 +17,14 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanSportCarry {
   /** A farmer's walk: a slow walk with the arms still, carrying what both hands took before it (a kettlebell or a dumbbell in each), so the arms hang and do not swing (provisional: no arm swing, as a loaded carry is taught). The composition gives where to. */
-  export const farmersWalk = HumanActionRow.of("farmersWalk", walk, {
+  export const farmersWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersWalk"]> = HumanActionRow.of("farmersWalk", walk, {
     pace: "slow",
     armSwing: 0,
   });
 
   /** The loads of a farmer's walk held at the sides with the arms hanging, performed over `farmersWalk`: the composition names the prop in each hand and how long. */
-  export const farmersHold = HumanActionRow.of("farmersHold", carryHang, {});
+  export const farmersHold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersHold"]> = HumanActionRow.of("farmersHold", carryHang, {});
 
   /** A sled push: the handles of a pushed load held in both hands through a slow walk, the trunk leaning as measured pushers do at the handles' height (`pushSledStance`). The composition gives the sled and where to. */
-  export const sledPush = HumanActionRow.of("sledPush", pushSled, {});
+  export const sledPush: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportCarry"]["sledPush"]> = HumanActionRow.of("sledPush", pushSled, {});
 }

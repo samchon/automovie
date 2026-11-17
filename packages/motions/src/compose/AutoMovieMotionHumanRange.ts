@@ -1,11 +1,6 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
-  IAutoMovieJointConstraint,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanRange } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
@@ -40,15 +35,6 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Levels and motions are closed unions; the ranges are the engine's and are not copied here.
  */
 export namespace AutoMovieMotionHumanRange {
-  /**
-   * How far, as a named share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is named; `LEVELS` gives each share.
-   * @evidence contracts/development/design.md#principled-representation Five steps from barely to nearly all of a range, ordered so a scale past its bound names the next one.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five names, each with a shipped law that uses its share.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No level is the whole range: a joint at its limit is an explicit decision on the explicit rung.
-   */
-  export type Level = (typeof LEVEL_NAMES)[number];
 
   /** The levels of {@link Level}, as data. */
   export const LEVEL_NAMES = [
@@ -57,30 +43,20 @@ export namespace AutoMovieMotionHumanRange {
     "half",
     "deep",
     "full",
-  ] as const;
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanRange.Level>[];
 
   /**
    * The share of each level (provisional; checked by the fit of the gesture
    * amplitudes and the reaction sizes that were converted onto them, listed
    * in the campaign's pull request).
    */
-  export const LEVELS: Readonly<Record<Level, number>> = {
+  export const LEVELS: Readonly<Record<IAutoMovieMotionHumanRange.Level, number>> = {
     slight: 0.1,
     light: 0.25,
     half: 0.5,
     deep: 0.75,
     full: 0.9,
   };
-
-  /**
-   * A direction a joint turns in, by its clinical name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is named; the namespace gives the limit each reads.
-   * @evidence contracts/development/design.md#principled-representation The six clinical motions of a three-axis joint, so a law never writes a sign.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six names, the two ends of the three axes of `IAutoMovieJointConstraint`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union mapped exhaustively to a limit.
-   */
-  export type Motion = (typeof MOTIONS)[number];
 
   /** The motions of {@link Motion}, as data. */
   export const MOTIONS = [
@@ -90,49 +66,7 @@ export namespace AutoMovieMotionHumanRange {
     "adduction",
     "external",
     "internal",
-  ] as const;
-
-  /**
-   * A level with a scale.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two members and the scale's range.
-   * @evidence contracts/development/design.md#principled-representation The middle rung of an amount: the level keeps the intent and the scale states the correction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; read by `share`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The scale is bounded so it cannot stand in for another level.
-   */
-  export interface IScaled {
-    /** The level. */
-    level: Level;
-
-    /** The factor, in [0.5, 1.5]. */
-    scale: number;
-  }
-
-  /**
-   * Explicit degrees with where they come from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the magnitude's sign rule and what a source is.
-   * @evidence contracts/development/design.md#principled-representation The last rung of an amount: a magnitude the motion signs, for a sourced angle no level states.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; read by `degrees` and `lean`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The source is required by the type and refused when empty.
-   */
-  export interface IExplicit {
-    /** The magnitude, degrees; not negative, since the motion gives the sign. */
-    degrees: number;
-
-    /** A citation, or `provisional: <capture case name>`. */
-    source: string;
-  }
-
-  /**
-   * An amount on one of three rungs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three rungs; the namespace describes them.
-   * @evidence contracts/development/design.md#principled-representation Intent first and degrees on demand: every rung resolves to degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One union of three members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union; the rungs do not nest.
-   */
-  export type Amount = Level | IScaled | IExplicit;
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanRange.Motion>[];
 
   /**
    * The share of a level, scaled or not.
@@ -149,11 +83,11 @@ export namespace AutoMovieMotionHumanRange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function share(amount: Level | IScaled): number {
+  export function share(amount: IAutoMovieMotionHumanRange.Level | IAutoMovieMotionHumanRange.IScaled): number {
     if (typeof amount === "string") return LEVELS[amount];
     if (!(amount.scale >= 0.5 && amount.scale <= 1.5)) {
-      const names: Level[] = Object.keys(LEVELS) as Level[];
-      const next: Level | undefined =
+      const names: IAutoMovieMotionHumanRange.Level[] = Object.keys(LEVELS) as IAutoMovieMotionHumanRange.Level[];
+      const next: IAutoMovieMotionHumanRange.Level | undefined =
         names[names.indexOf(amount.level) + (amount.scale > 1 ? 1 : -1)];
       throw new Error(
         `A scale of ${amount.scale} on ${amount.level} lies outside [0.5, 1.5]; ${
@@ -190,8 +124,8 @@ export namespace AutoMovieMotionHumanRange {
    */
   export function degrees(
     bone: AutoMovieHumanoidBone,
-    motion: Motion,
-    amount: Amount,
+    motion: IAutoMovieMotionHumanRange.Motion,
+    amount: IAutoMovieMotionHumanRange.Amount,
   ): number {
     const end: number | null = limit(bone, motion);
     if (end === null) throw new Error(`${bone} has no range in ${motion}`);
@@ -218,7 +152,7 @@ export namespace AutoMovieMotionHumanRange {
    */
   export function limit(
     bone: AutoMovieHumanoidBone,
-    motion: Motion,
+    motion: IAutoMovieMotionHumanRange.Motion,
   ): number | null {
     const joint: IAutoMovieJointConstraint | undefined =
       DEFAULT_HUMANOID_ROM[bone];
@@ -252,7 +186,7 @@ export namespace AutoMovieMotionHumanRange {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function lean(amount: Amount): number {
+  export function lean(amount: IAutoMovieMotionHumanRange.Amount): number {
     const end: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
     if (typeof amount === "string" || "level" in amount)
       return share(amount) * end;
@@ -276,7 +210,7 @@ export namespace AutoMovieMotionHumanRange {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function shift(
-    body: Pick<IHumanBody, "measure">,
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
     share: number,
   ): number {
     return share * body.measure.stature;
@@ -285,7 +219,7 @@ export namespace AutoMovieMotionHumanRange {
 
 /** Refuses explicit degrees that are unsourced, negative or past a limit. */
 function checked(
-  amount: AutoMovieMotionHumanRange.IExplicit,
+  amount: IAutoMovieMotionHumanRange.IExplicit,
   most: number,
   what: string,
 ): void {

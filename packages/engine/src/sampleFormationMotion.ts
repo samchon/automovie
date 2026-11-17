@@ -1,6 +1,5 @@
-import { IAutoMovieFormationMotion } from "@automovie/interface";
+import { type IAutoMovieSampledFormationMotion, IAutoMovieFormationMotion } from "@automovie/interface";
 
-import { IAutoMovieSampledFormationMotion } from "./IAutoMovieSampledFormationMotion";
 import { lerp } from "./lerp";
 import { ease } from "./motion/ease";
 

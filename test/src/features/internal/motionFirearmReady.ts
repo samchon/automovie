@@ -1,24 +1,8 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createHandgun, createTable } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFirearm,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanWeaponFirearm,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
+import { HumanChain, HumanFirearm, HumanObject, HumanPerformance, HumanWeaponFirearm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -60,7 +44,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionFirearmReady(name: motionHumanBody.Name): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const pistol: ReturnType<typeof createHandgun> = createHandgun({
     frame: "fullSize",
@@ -79,18 +63,18 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
     ) *
       180) /
     Math.PI;
-  const laws: IHumanActionLaw<never>[] = [
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
     ...Object.values(HumanFirearm),
     HumanWeaponFirearm.draw,
     HumanWeaponFirearm.present,
-  ] as IHumanActionLaw<never>[];
+  ] as IAutoMovieMotionHumanActionLaw<never>[];
   const regions: Record<"highReady" | "lowReady", readonly [number, number]> = {
     highReady: [45, 75],
     lowReady: [-45, -30],
   };
 
   for (const carriage of ["highReady", "lowReady"] as const) {
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "ready",
@@ -132,11 +116,11 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
       );
       continue;
     }
-    const named = (row: string): HumanSegment.ISegment =>
+    const named = (row: string): IAutoMovieMotionHumanSegment.ISegment =>
       film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
-    const present: HumanSegment.ISegment = named("presentFirearm");
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+    const present: IAutoMovieMotionHumanSegment.ISegment = named("presentFirearm");
     const stroke: number =
       present.start +
       (present.plan.events.find((e): boolean => e.name === "stroke")?.share ??
@@ -161,7 +145,7 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
 
     // 3. The pistol stays in the hand.
     const held = (seconds: number): IAutoMovieVector3 => {
-      const frame: IHumanProp.IFrame = film.prop("pistol", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("pistol", seconds);
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;
@@ -176,7 +160,7 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
         ),
       );
     };
-    const draw: HumanSegment.ISegment = named("drawFirearm");
+    const draw: IAutoMovieMotionHumanSegment.ISegment = named("drawFirearm");
     const closed: number =
       draw.start +
       (draw.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??

@@ -1,13 +1,8 @@
-import {
-  type AutoMovieLoftFrame,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadEarRidge } from "@automovie/interface";
+
+
+
+import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
 
 import { AutoMovieHumanHeadEarRidgeAxis } from "./AutoMovieHumanHeadEarRidgeAxis";
 
@@ -28,74 +23,11 @@ import { AutoMovieHumanHeadEarRidgeAxis } from "./AutoMovieHumanHeadEarRidgeAxis
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the view and prepared axis; no figure survives globally.
  */
 export namespace AutoMovieHumanHeadEarRidge {
-  /**
-   * Ridge together with the original coordinate sources its course evaluates.
-   * @evidence contracts/common.md#principled-implementation Original coordinate curves and the view retain the same course clock.
-   * @evidence contracts/common.md#clear-and-simple-design Extends the existing view with its three coordinate sources.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled output surface recovers these coordinates.
-   * @evidence contracts/common.md#meaningful-documentation Coordinates use calibration mm and physical station mm.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The ridge factory owns preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains three knot-sized coordinate sources with its ridge.
-   */
-  export interface IRidge extends IAutoMovieViewPart {
-    /** Original world-mm coordinates in the same physical station clock as axis.at. */
-    coordinates: [
-      AutoMovieViewOutline.IOutline,
-      AutoMovieViewOutline.IOutline,
-      AutoMovieViewOutline.IOutline,
-    ];
-  }
+  
 
-  /**
-   * A regular fork's complete original source, frame and available local derivatives.
-   * @evidence contracts/common.md#principled-implementation Retains one original whole-phase family with its source clock, complete frame and available scalar/coordinate derivatives.
-   * @evidence contracts/common.md#clear-and-simple-design Both branches consume one shared record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither four extents nor a shared site alone replaces the full source and frame.
-   * @evidence contracts/common.md#meaningful-documentation Fields distinguish native phase derivatives from physical station2 and numerical frame values.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The port factory owns preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The composition retains its parent ridge, admitted source and native phase closure.
-   */
-  export interface IPort {
-    /** Shared anatomical source site. */
-    site: string;
-    /** Actual generating ridge, in calibration mm. */
-    owner: IRidge;
-    /** Actual regular station on that original ridge, mm. */
-    station: number;
-    /** All original signed scalar supports, fullness and cap laws. */
-    source: AutoMovieLoftViewSource.ISource;
-    /** Same source's local scalar values, not measured mesh extents. */
-    inputs: AutoMovieLoftViewRead.IValues;
-    /** Actual source station2 when finite; null preserves unavailable physical derivatives. */
-    jets: AutoMovieLoftViewRead.IJets | null;
-    /** Actual reason physical scalar2 is unavailable, preserved separately from finite phase geometry. */
-    jetFailure: string | null;
-    /** The same original ridge's section plane. */
-    frame: AutoMovieLoftFrame.IFrame;
-    /** Actual first/second derivatives of the common original course coordinates, per physical station mm. */
-    originJet: [[number, number, number], [number, number, number]];
-    /** Whole native phase function and its available first/second phase derivatives. */
-    phase: ReturnType<typeof AutoMovieLoftSectionNative.phase>;
-  }
+  
 
-  /**
-   * A local named port or a borrowed complete parent port.
-   * @evidence contracts/common.md#principled-implementation Distinguishes a newly authored site from borrowing an actual source family.
-   * @evidence contracts/common.md#clear-and-simple-design Optional start and end use the same port type.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A string name alone supplies no shared frame or section.
-   * @evidence contracts/common.md#meaningful-documentation Ports are regular sections inside hidden poles.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The constructor owns source reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed ports remain owned by the same composition.
-   */
-  export interface IPorts {
-    /** Source start's regular fork, before its hidden closing pole. */
-    start?: string | IPort;
-    /** Source end's regular fork, before its hidden closing pole. */
-    end?: string | IPort;
-  }
+  
 
   /**
    * Draw one closed ridge, calibration mm, capped at both course ends.
@@ -118,12 +50,12 @@ export namespace AutoMovieHumanHeadEarRidge {
    */
   export function of(
     name: string,
-    course: readonly [number, number, number][],
-    normal: [number, number, number],
+    course: ReadonlyArray<AutoMovieVector3Tuple>,
+    normal: AutoMovieVector3Tuple,
     height: number,
     width: number,
-    ports: IPorts = {},
-  ): IRidge {
+    ports: IAutoMovieHumanHeadEarRidge.IPorts = {},
+  ): IAutoMovieHumanHeadEarRidge.IRidge {
     const points: [number, number, number][] = course.map(
       (point: [number, number, number]): [number, number, number] => [...point],
     );
@@ -180,12 +112,12 @@ export namespace AutoMovieHumanHeadEarRidge {
         .slice(1)
         .map((s: number, i: number): number => (s + source[i]!) / 2),
     ].sort((a: number, b: number): number => a - b);
-    const port: (i: number) => string | IPort | undefined = (
+    const port: (i: number) => string | IAutoMovieHumanHeadEarRidge.IPort | undefined = (
       i: number,
-    ): string | IPort | undefined =>
+    ): string | IAutoMovieHumanHeadEarRidge.IPort | undefined =>
       i === 1 ? ports.start : i === points.length - 2 ? ports.end : undefined;
     const site: (i: number) => string = (i: number): string => {
-      const named: string | IPort | undefined = port(i);
+      const named: string | IAutoMovieHumanHeadEarRidge.IPort | undefined = port(i);
       return typeof named === "object" ? named.site : (named ?? `${name}.${i}`);
     };
     const outline: (
@@ -197,7 +129,7 @@ export namespace AutoMovieHumanHeadEarRidge {
     ): IAutoMovieViewPart.IOutline => ({
       knots: source.map(
         (station: number, i: number): IAutoMovieViewPart.IKnot => {
-          const shared: string | IPort | undefined = port(i);
+          const shared: string | IAutoMovieHumanHeadEarRidge.IPort | undefined = port(i);
           const sign: number = quarter < 2 ? 1 : -1;
           const jet: IAutoMovieViewPart.IKnot["jet"] =
             typeof shared === "object" && shared.jets !== null
@@ -227,11 +159,11 @@ export namespace AutoMovieHumanHeadEarRidge {
           value,
           ...[ports.start, ports.end]
             .filter(
-              (p: string | IPort | undefined): p is IPort =>
+              (p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined): p is IAutoMovieHumanHeadEarRidge.IPort =>
                 typeof p === "object",
             )
             .map(
-              (p: IPort): number =>
+              (p: IAutoMovieHumanHeadEarRidge.IPort): number =>
                 (quarter < 2 ? 1 : -1) * p.inputs.extents[quarter]!,
             ),
         ),
@@ -240,19 +172,19 @@ export namespace AutoMovieHumanHeadEarRidge {
           value,
           ...[ports.start, ports.end]
             .filter(
-              (p: string | IPort | undefined): p is IPort =>
+              (p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined): p is IAutoMovieHumanHeadEarRidge.IPort =>
                 typeof p === "object",
             )
             .map(
-              (p: IPort): number =>
+              (p: IAutoMovieHumanHeadEarRidge.IPort): number =>
                 (quarter < 2 ? 1 : -1) * p.inputs.extents[quarter]!,
             ),
         ),
       },
     });
     const prepared: {
-      axis: AutoMovieViewAxis.IAxis;
-      coordinates: IRidge["coordinates"];
+      axis: IAutoMovieViewAxis.IAxis;
+      coordinates: IAutoMovieHumanHeadEarRidge.IRidge["coordinates"];
     } = AutoMovieHumanHeadEarRidgeAxis.of(name, points, source, normal, ports);
     return {
       name,
@@ -267,7 +199,7 @@ export namespace AutoMovieHumanHeadEarRidge {
           (quarter: number): IAutoMovieViewPart.IOutline => ({
             knots: source.map(
               (station: number, i: number): IAutoMovieViewPart.IKnot => {
-                const shared: string | IPort | undefined = port(i);
+                const shared: string | IAutoMovieHumanHeadEarRidge.IPort | undefined = port(i);
                 const span: number = source.at(-1)! - source[0]!;
                 const jet: IAutoMovieViewPart.IKnot["jet"] =
                   typeof shared === "object" && shared.jets !== null
@@ -341,30 +273,30 @@ export namespace AutoMovieHumanHeadEarRidge {
    * @evidence contracts/performance.md#reuse-equivalent-work The returned complete field and original ridge serve both crura.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The composition owns the port and parent; no registry or global identity cache exists.
    */
-  export function port(owner: IRidge, site: string): IPort {
+  export function port(owner: IAutoMovieHumanHeadEarRidge.IRidge, site: string): IAutoMovieHumanHeadEarRidge.IPort {
     const knot: IAutoMovieViewPart.IKnot | undefined =
       owner.front.positive.knots.find(
         (k: IAutoMovieViewPart.IKnot): boolean => k.site === site,
       );
     if (knot === undefined)
       throw new Error(`Ear ridge ${owner.name} has no original port ${site}`);
-    const admitted: AutoMovieLoftViewSource.IResult | null =
+    const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(owner);
     if (admitted === null || admitted.source === null)
       throw new Error(
         `Ear ridge ${owner.name} has no admitted original port field`,
       );
-    const inputs: AutoMovieLoftViewRead.IValues | string =
+    const inputs: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(admitted.source, knot.station);
     if (typeof inputs === "string")
       throw new Error(`Ear port ${site}: ${inputs}`);
-    const jets: AutoMovieLoftViewRead.IJets | string =
+    const jets: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftViewRead.jets(admitted.source, knot.station);
-    const coordinate: AutoMovieViewOutline.IReading[] = owner.coordinates.map(
+    const coordinate: IAutoMovieViewOutline.IReading[] = owner.coordinates.map(
       (
-        outline: AutoMovieViewOutline.IOutline,
-      ): AutoMovieViewOutline.IReading => {
-        const reading: AutoMovieViewOutline.IReading | string =
+        outline: IAutoMovieViewOutline.IOutline,
+      ): IAutoMovieViewOutline.IReading => {
+        const reading: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(outline, knot.station);
         if (typeof reading === "string" || reading.stationJet === null)
           throw new Error(
@@ -384,11 +316,11 @@ export namespace AutoMovieHumanHeadEarRidge {
       frame: owner.axis.at(knot.station),
       originJet: [
         coordinate.map(
-          (reading: AutoMovieViewOutline.IReading): number =>
+          (reading: IAutoMovieViewOutline.IReading): number =>
             reading.stationJet![0],
         ) as [number, number, number],
         coordinate.map(
-          (reading: AutoMovieViewOutline.IReading): number =>
+          (reading: IAutoMovieViewOutline.IReading): number =>
             reading.stationJet![1],
         ) as [number, number, number],
       ],
@@ -406,7 +338,7 @@ export namespace AutoMovieHumanHeadEarRidge {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The port owns tangent preparation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one owned vector.
    */
-  function extension(port: IPort, distance: number): [number, number, number] {
+  function extension(port: IAutoMovieHumanHeadEarRidge.IPort, distance: number): [number, number, number] {
     const speed: number = Math.hypot(...port.originJet[0]);
     if (!(speed > 0 && Number.isFinite(speed)))
       throw new Error(`Ear port ${port.site} has no regular original course`);

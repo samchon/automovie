@@ -1,9 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieConstructionView } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -64,7 +61,7 @@ export function test_construction_view_touch(): void {
       ],
     ];
     for (const [part, half] of parts) {
-      const r: AutoMovieConstructionRealization.IRealization =
+      const r: IAutoMovieConstructionRealization.IRealization =
         realizeAutoMovieConstruction(
           { name: "made", root: part },
           { chord: 1e-4 * k },

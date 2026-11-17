@@ -1,5 +1,6 @@
-import type { IAutoMovieModel } from "@automovie/interface";
-import type { IAutoMovieRecoveryOpenContinuation } from "@automovie/recovery";
+import type { IAutoMovieRecoveryOpenContinuation, IAutoMovieModel } from "@automovie/interface";
+
+
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { ReferenceRuledRealization } from "./ReferenceRuledRealization";
 import { ConicPaperRender as R } from "./ConicPaperRender";

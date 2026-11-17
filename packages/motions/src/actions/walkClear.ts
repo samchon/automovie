@@ -1,8 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObstacle, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanObstacle } from "../perform/HumanObstacle";
 
 /**
@@ -29,25 +27,25 @@ import { HumanObstacle } from "../perform/HumanObstacle";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function walkClear(
-  context: IHumanActionContext<{
+  context: IAutoMovieMotionHumanActionContext<{
     to: IAutoMovieVector3;
     via?: IAutoMovieVector3[];
   }>,
 ): void {
-  const obstacles: readonly HumanObstacle.IObstacle[] = context.obstacles();
+  const obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[] = context.obstacles();
   if (obstacles.length === 0) return;
-  const body: IHumanBody = context.body;
+  const body: IAutoMovieMotionHumanBody = context.body;
   const way: readonly IAutoMovieVector3[] = [
     context.entry.posture.root,
     ...(context.params.via ?? []),
     context.params.to,
   ];
-  const need: HumanObstacle.INeed = {
+  const need: IAutoMovieMotionHumanObstacle.INeed = {
     breadth: body.measure.chestBreadth,
     height: body.measure.stature,
   };
   for (let i: number = 0; i + 1 < way.length; ++i) {
-    const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
       obstacles,
       way[i]!,
       way[i + 1]!,
@@ -64,10 +62,10 @@ export function walkClear(
           kind: "alternatives",
           values: (
             obstacles.find(
-              (o: HumanObstacle.IObstacle): boolean =>
+              (o: IAutoMovieMotionHumanObstacle.IObstacle): boolean =>
                 o.subject === block.subject,
             )?.apertures ?? []
-          ).map((a: HumanObstacle.IAperture): string => a.id),
+          ).map((a: IAutoMovieMotionHumanObstacle.IAperture): string => a.id),
         },
         reason: `the way goes through ${where}, which has no opening there`,
         fix: "pass by one of its openings, or by places that go round it",
@@ -119,11 +117,11 @@ export namespace walkClear {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function between(
-    context: IHumanActionContext<object>,
+    context: IAutoMovieMotionHumanActionContext<object>,
     place: IAutoMovieVector3,
     person: IAutoMovieVector3,
   ): void {
-    const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
       context.obstacles(),
       place,
       person,

@@ -1,15 +1,6 @@
-import {
-  type IAutoMovieTextureImageFacts,
-  validateModel,
-  validateTextureAssets,
-} from "@automovie/engine";
-import type {
-  IAutoMovieConstraintViolation,
-  IAutoMovieImage,
-  IAutoMovieMaterial,
-  IAutoMovieModel,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import type { IAutoMovieTextureImageFacts, IAutoMovieConstraintViolation, IAutoMovieImage, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieValidation } from "@automovie/interface";
+import { validateModel, validateTextureAssets } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { encodeTestPng } from "../internal/encodeTestPng";

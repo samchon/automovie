@@ -1,4 +1,6 @@
-import type { AutoMovieHumanSegmentFrame } from "../frame/AutoMovieHumanSegmentFrame";
+import type { IAutoMovieHumanF1Placing, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
+
+
 
 /**
  * f1's placing, re-based: the chain of its segment frames and every quantity that places a part, each in the frame of the segment it
@@ -26,20 +28,10 @@ import type { AutoMovieHumanSegmentFrame } from "../frame/AutoMovieHumanSegmentF
  * Millimetres; directions are as their sources wrote them (a relief's `axis` is rounded to 1e-5, so it is unit only to that).
  */
 export namespace AutoMovieHumanF1Placing {
-  /** One placed quantity. */
-  export interface IPlaced {
-    /** The segment whose frame holds it. */
-    frame: string;
-
-    /** The point, mm, or the direction in that frame. */
-    local: [number, number, number];
-
-    /** How a relief's window lies on its course, when it crosses a joint. */
-    note?: string;
-  }
+  
 
   /** The chain, parent first: each segment's origin in its parent's frame, mm, and its reference rotation `A_parent^T A_child` by rows. */
-  export const CHAIN: AutoMovieHumanSegmentFrame.IJoint[] = [
+  export const CHAIN: IAutoMovieHumanSegmentFrame.IJoint[] = [
     {"name": "pelvis", "parent": null, "offset": [25.37, 904.79, 0], "rotation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]},
     {"name": "thorax", "parent": "pelvis", "offset": [17.779999999999998, 510.71000000000004, 0], "rotation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]},
     {"name": "head", "parent": "thorax", "offset": [-21.599999999999998, 147.5, 0], "rotation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]},
@@ -80,7 +72,7 @@ export namespace AutoMovieHumanF1Placing {
   ];
 
   /** Every datum and course centre: a joint centre reads `[0, 0, 0]` in the segment whose origin it is; a polyline's centres are `<name>.<index>`. */
-  export const POINTS: Record<string, IPlaced> = {
+  export const POINTS: Record<string, IAutoMovieHumanF1Placing.IPlaced> = {
     "upperarm": {"frame": "humerus", "local": [0, 0, 0]},
     "lowerarm": {"frame": "forearm", "local": [0, 0, 0]},
     "hand": {"frame": "hand", "local": [0, 0, 0]},
@@ -194,7 +186,7 @@ export namespace AutoMovieHumanF1Placing {
   };
 
   /** Every placing direction: a family's `<family>.up` in its course's first segment, a relief's `<relief>.axis` and `<relief>.turn` in its window's segment. */
-  export const DIRECTIONS: Record<string, IPlaced> = {
+  export const DIRECTIONS: Record<string, IAutoMovieHumanF1Placing.IPlaced> = {
     "trunk.up": {"frame": "pelvis", "local": [1, 0, 0]},
     "trunk.low.axis": {"frame": "pelvis", "local": [1, 0, 0]},
     "trunk.low.turn": {"frame": "pelvis", "local": [0, 0, 1]},

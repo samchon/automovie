@@ -1,7 +1,5 @@
-import { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import { type IAutoMovieFootPlant, type IAutoMoviePlantedFeet, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 
-import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
-import { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
 
 /**
  * Assemble corrected planting keyframes and stance metadata while retaining the original clip's identity, clock and cycle metadata; arrays and nested records are borrowed from the pass.

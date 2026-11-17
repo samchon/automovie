@@ -1,17 +1,6 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  IAutoMovieResolvedBone,
-  reachPose,
-  resolvePose,
-} from "@automovie/engine";
-import {
-  IAutoMovieBone,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, reachPose, resolvePose } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/createSkeleton";

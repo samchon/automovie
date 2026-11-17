@@ -1,8 +1,8 @@
+import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { KneeForm } from "./KneeForm";
-import type { StrikingReach } from "./StrikingReach";
 
 /**
  * The knee strike's reach: the thigh carries the knee on a circle about the
@@ -38,7 +38,7 @@ export namespace KneeReach {
     heading: IAutoMovieVector3;
 
     /** Whether the knee's front reaches the target, falls short, or is jammed. */
-    status: StrikingReach.ISolution["status"];
+    status: IAutoMovieMotionHumanStrikingReach.ISolution["status"];
   }
 
   /**
@@ -95,7 +95,7 @@ export namespace KneeReach {
       distance > 1e-6 ? Vector3.scale(flat, 1 / distance) : fallback;
     const want: number = distance - radius * Math.cos(elevation);
     const moved: number = Math.max(-travel, Math.min(travel, want));
-    const status: StrikingReach.ISolution["status"] =
+    const status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] =
       wanted > highest + 1e-9 ||
       wanted < -KneeForm.LOWEST - 1e-9 ||
       want > travel + 1e-9

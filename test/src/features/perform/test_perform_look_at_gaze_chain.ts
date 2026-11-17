@@ -1,20 +1,6 @@
-import {
-  IAutoMovieActorContext,
-  makeActorSynthesizer,
-  validatePoseResult,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
-  IAutoMovieGait,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActorContext, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieGait, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { makeActorSynthesizer, validatePoseResult } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton, joint, makePose } from "../internal/fixtures";

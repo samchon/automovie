@@ -1,22 +1,12 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolveCenterOfMass, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanCoupled,
-  HumanForceExchange,
-  HumanPerformance,
-  HumanSignature,
-  type IHumanBody,
-  clinch,
-} from "@automovie/motions";
+
+import { HumanChain, HumanCoupled, HumanForceExchange, HumanPerformance, HumanSignature, clinch } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,14 +39,14 @@ export function test_human_motion_force_exchange_grips(): void {
   const START: number = 0.3;
   const SITES: readonly AutoMovieHumanoidRegion[] = ["chestLeft", "elbowRight"];
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-  const bodies: Record<"a" | "b", IHumanBody> = {
+  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("f-small"),
     b: motionHumanBody("m-large"),
   };
-  const model: resolveAutoMovieCenterOfMass.IModel =
+  const model: IAutoMovieResolveCenterOfMass.IModel =
     resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);
   const grips = clinch.regions("collarSleeve", "right");
-  let gripped: HumanPerformance | null = null;
+  let gripped: IAutoMovieMotionHumanPerformance | null = null;
   try {
     gripped = new HumanPerformance({
       seed: "exchange",
@@ -106,13 +96,13 @@ export function test_human_motion_force_exchange_grips(): void {
       release === undefined
         ? response.start + response.plan.duration
         : response.start + release * response.plan.duration;
-    const thrower: HumanSignature.IReader = HumanSignature.of(
+    const thrower: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       gripped,
       "a",
       bodies.a,
       0,
     );
-    const partner: HumanSignature.IReader = HumanSignature.of(
+    const partner: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       gripped,
       "b",
       bodies.b,

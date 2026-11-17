@@ -1,10 +1,11 @@
-import type { IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
+import type { IAutoMovieRecoveryMapCurvatureBlocks, IAutoMovieRecoveryMapLocalCurvature, IAutoMovieRecoveryMapMetricScales, IAutoMovieRecoveryMapState, IAutoMovieRecoveryUntiltedEstimate, IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapCurvatureBlocks } from "../structures/internal/IAutoMovieRecoveryMapCurvatureBlocks";
-import type { IAutoMovieRecoveryMapLocalCurvature } from "../structures/internal/IAutoMovieRecoveryMapLocalCurvature";
-import type { IAutoMovieRecoveryMapMetricScales } from "../structures/internal/IAutoMovieRecoveryMapMetricScales";
-import type { IAutoMovieRecoveryMapState } from "../structures/internal/IAutoMovieRecoveryMapState";
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
+
+
+
+
+
+
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapProjection } from "./differentiateRecoveryMapProjection";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";

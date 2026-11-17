@@ -1,3 +1,7 @@
+import type { IAutoMovieViewOutline, IAutoMovieHumanArmBreadth, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
+
+
+
 import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 
@@ -9,21 +13,15 @@ import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
  * station. Source critical roots are binary64 candidates, not interval proof.
  */
 export namespace AutoMovieHumanArmBreadth {
-  /** Actual source and positive family multiplier after residual admission. */
-  export interface IResult {
-    /** Identical source declaration to be lofted by the production caller. */
-    input: AutoMovieHumanSiteViewPart.IInput;
-    /** Dimensionless across multiplier, with no person-specific coefficient. */
-    scale: number;
-  }
+  
 
   /** Read the selected source's outward support using the common scalar owner. */
-  export function maximum(input: AutoMovieHumanSiteViewPart.IInput, side: "left" | "right", domain: readonly [number, number]): { radius: number; station: number } | string {
+  export function maximum(input: IAutoMovieHumanSiteViewPart.IInput, side: "left" | "right", domain: IAutoMovieHumanArmBreadth.Domain): IAutoMovieHumanArmBreadth.IMaximumResult {
     const quarter: 1 | 3 = side === "left" ? 3 : 1;
     const sign: 1 | -1 = side === "left" ? -1 : 1;
-    const pole: AutoMovieHumanSiteViewPart.IInput["pole"] = input.pole;
-    const ends: AutoMovieViewOutline.IEnds = pole === undefined ? {} : pole.end === "both" ? { bottom: pole.bottom, top: pole.top } : pole.end === "bottom" ? { bottom: pole.station } : { top: pole.station };
-    const curve: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(AutoMovieHumanSiteViewPart.outline(input, quarter), ends);
+    const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] = input.pole;
+    const ends: IAutoMovieViewOutline.IEnds = pole === undefined ? {} : pole.end === "both" ? { bottom: pole.bottom, top: pole.top } : pole.end === "bottom" ? { bottom: pole.station } : { top: pole.station };
+    const curve: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(AutoMovieHumanSiteViewPart.outline(input, quarter), ends);
     if ("detail" in curve) return curve.detail;
     if (!(domain[0] >= curve.domain[0] && domain[1] <= curve.domain[1] && domain[1] > domain[0])) return "Deltoid source domain lies outside its original curve";
     const stations: number[] = [domain[0], domain[1], ...curve.knots.map((k: (typeof curve.knots)[number]): number => k.station), ...AutoMovieViewOutline.criticalStations(curve)].filter((s: number): boolean => s >= domain[0] && s <= domain[1]);
@@ -38,10 +36,10 @@ export namespace AutoMovieHumanArmBreadth {
   }
 
   /** Solve the fixed source family's public width, then verify the actual residual. */
-  export function fit(input: AutoMovieHumanSiteViewPart.IInput, side: "left" | "right", domain: readonly [number, number], breadth: number, lateral: number): IResult | string {
+  export function fit(input: IAutoMovieHumanSiteViewPart.IInput, side: "left" | "right", domain: IAutoMovieHumanArmBreadth.Domain, breadth: number, lateral: number): IAutoMovieHumanArmBreadth.IResult | string {
     const target: number = breadth / 2 - lateral;
     if (![breadth, lateral, target].every(Number.isFinite) || !(target > 0)) return "Bideltoid leaves no positive outward support at the independently placed GH";
-    const family = (scale: number): AutoMovieHumanSiteViewPart.IInput => ({ ...input, sites: input.sites.map((site: AutoMovieHumanSiteViewPart.ISite): AutoMovieHumanSiteViewPart.ISite => site.site === "deltoid" || site.site === "biceps" ? { ...site, edges: [site.edges[0], site.edges[1] * scale, site.edges[2], site.edges[3] * scale] } : site) });
+    const family = (scale: number): IAutoMovieHumanSiteViewPart.IInput => ({ ...input, sites: input.sites.map((site: IAutoMovieHumanSiteViewPart.ISite): IAutoMovieHumanSiteViewPart.ISite => site.site === "deltoid" || site.site === "biceps" ? { ...site, edges: [site.edges[0], site.edges[1] * scale, site.edges[2], site.edges[3] * scale] } : site) });
     let failure: string | null = null;
     const residual = (scale: number): number => {
       const support: ReturnType<typeof maximum> = maximum(family(scale), side, domain);

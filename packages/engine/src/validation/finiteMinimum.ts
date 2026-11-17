@@ -1,5 +1,4 @@
-import { ViolationCollector } from "./ViolationCollector";
-
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 /**
  * Reject nonfinite values and values below the supplied inclusive minimum, appending the caller's range path.
  *
@@ -16,13 +15,13 @@ export const finiteMinimum: (
   minimum: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   minimum: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (!Number.isFinite(value) || value < minimum)
     collector.push(

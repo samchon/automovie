@@ -1,16 +1,8 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTouchSite, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchSite } from "./touchSite";
@@ -52,18 +44,18 @@ export namespace touchRegion {
    */
   export function reader(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "aim" | "body" | "prop" | "series" | "start"
     >,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
-    target: AutoMovieMotionTarget,
-    site: touchSite.ISite | undefined,
+    side: IAutoMovieMotionHumanHand.Side,
+    target: IAutoMovieMotionTarget,
+    site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): (
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     legs: boolean,
-  ) => (posture: IHumanPosture, seconds: number) => touchSite.IFrame {
-    const body: IHumanBody = context.body;
+  ) => (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
     const shoulder: IAutoMovieVector3 = bones.get(
@@ -85,11 +77,11 @@ export namespace touchRegion {
       along = touchSite.span(context, target.subject, target.point, site.along);
     }
     return (
-        aimed: AutoMovieMotionTarget,
+        aimed: IAutoMovieMotionTarget,
         legs: boolean,
-      ): ((posture: IHumanPosture, seconds: number) => touchSite.IFrame) =>
-      (posture: IHumanPosture, seconds: number): touchSite.IFrame => {
-        const frame: touchSite.IFrame = AutoMovieMotionHumanTouch.region(
+      ): ((posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame) =>
+      (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanTouchSite.IFrame => {
+        const frame: IAutoMovieMotionHumanTouchSite.IFrame = AutoMovieMotionHumanTouch.region(
           context,
           aimed,
           context.start + seconds,
@@ -133,9 +125,9 @@ export namespace touchRegion {
    * @returns Metres, or `undefined`.
    */
   export function disc(
-    context: Pick<IHumanActionContext, "body" | "performer">,
-    target: AutoMovieMotionTarget,
-    site: touchSite.ISite | undefined,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    target: IAutoMovieMotionTarget,
+    site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): number | undefined {
     if (site !== undefined && "draw" in site) return site.draw;
     if (site !== undefined && "within" in site) return site.within;
@@ -151,8 +143,8 @@ export namespace touchRegion {
 
 /** Whether a self region rides a leg, which a lean moves with the hips. */
 function onLeg(
-  body: IHumanActionContext["body"],
-  target: AutoMovieMotionTarget,
+  body: IAutoMovieMotionHumanActionContext["body"],
+  target: IAutoMovieMotionTarget,
 ): boolean {
   if (target.kind !== "self") return false;
   return /(UpperLeg|LowerLeg|Foot|Toes)$/.test(

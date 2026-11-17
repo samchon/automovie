@@ -1,19 +1,17 @@
-import type {
-  IAutoMovieSimplexAtom,
-  IAutoMovieSimplexBudget,
-} from "@automovie/engine";
+import type { IAutoMovieRecoveryFeasibleDirection, IAutoMovieRecoveryFeasibleDirectionReport, IAutoMovieRecoveryFeasibleFit, IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoveryFeasibleProblem, IAutoMovieRecoveryFeasibleTrialSelection, IAutoMovieRecoveryFeasibleTrials, IAutoMovieRecoverySqpArc, IAutoMovieRecoverySqpOptions, IAutoMovieRecoverySqpReport, IAutoMovieRecoveryUntiltedEstimate, IAutoMovieSimplexAtom, IAutoMovieSimplexBudget } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryFeasibleDirection } from "../structures/internal/IAutoMovieRecoveryFeasibleDirection";
-import type { IAutoMovieRecoveryFeasibleDirectionReport } from "../structures/internal/IAutoMovieRecoveryFeasibleDirectionReport";
-import type { IAutoMovieRecoveryFeasibleFit } from "../structures/internal/IAutoMovieRecoveryFeasibleFit";
-import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import type { IAutoMovieRecoveryFeasibleTrialSelection } from "../structures/internal/IAutoMovieRecoveryFeasibleTrialSelection";
-import type { IAutoMovieRecoveryFeasibleTrials } from "../structures/internal/IAutoMovieRecoveryFeasibleTrials";
-import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
-import type { IAutoMovieRecoverySqpOptions } from "../structures/internal/IAutoMovieRecoverySqpOptions";
-import type { IAutoMovieRecoverySqpReport } from "../structures/internal/IAutoMovieRecoverySqpReport";
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
+
+
+
+
+
+
+
+
+
+
+
+
 import { createRecoveryFeasibleSqpArc } from "./createRecoveryFeasibleSqpArc";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
 import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
@@ -92,8 +90,7 @@ export function refineRecoveryFeasibleState<State>(
     nondecreasing: 0,
     armijo: 0,
     lastFailure: null,
-    work: 0,
-  };
+    work: 0 };
   let termination: IAutoMovieRecoveryFeasibleFit<State>["termination"] =
     "iteration-budget";
   while (true) {
@@ -152,8 +149,7 @@ export function refineRecoveryFeasibleState<State>(
       roundoffLimited: direction.roundoffLimited,
       certified: direction.certified,
       iterations: direction.iterations,
-      work: direction.work,
-    };
+      work: direction.work };
     objectiveMultiplier = direction.multipliers[0]!;
     const gradient: number[] = new Array<number>(model.width).fill(0);
     let gradientScale: number = 1;
@@ -260,8 +256,7 @@ export function refineRecoveryFeasibleState<State>(
               acceleration.maxWork,
               directionBudget.maxWork - direction.work,
             ),
-          ),
-        },
+          ) },
         charge,
       );
       lastSqp = arc.report;
@@ -304,8 +299,7 @@ export function refineRecoveryFeasibleState<State>(
               width: model.width,
               rowCount: model.physicalRows.length,
               selected: arc.selected,
-              multipliers: arc.multipliers,
-            }
+              multipliers: arc.multipliers }
           : null;
       problem.accepted!(
         state,
@@ -336,6 +330,5 @@ export function refineRecoveryFeasibleState<State>(
     directionWork,
     lastDirection,
     lastSqp,
-    trials,
-  };
+    trials };
 }

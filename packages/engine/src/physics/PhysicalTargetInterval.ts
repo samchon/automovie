@@ -1,7 +1,5 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalTargetInterval, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
 import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Shared interval clock and coherent pose/twist sampling for every fitted target owner.
@@ -12,26 +10,6 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace PhysicalTargetInterval {
-  /**
-   * A causal plan ends at step/rate; a revision starts at the preceding integer native boundary.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A causal plan ends at step/rate; a revision starts at the preceding integer native boundary.
-   * @evidence contracts/development/design.md#principled-representation Represents A causal plan ends at step/rate; a revision starts at the preceding integer native boundary: interface of 5 members (`step`, `revision`, `start`, `from`, `targets`); units and frames named in its text: local, seconds, world. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPlan` in packages/engine/src/physics/PhysicalTargetInterval.ts; its surface is the 5 members listed and the text shows 16 other files naming it, mostly packages/engine (6), packages/human (6), test (4), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IPlan {
-    /** Cached interval index; its ending clock is step divided by the declared cache rate. */
-    step: number;
-    /** Recovery-policy revision used to fit this plan; a new revision invalidates its remaining future. */
-    revision: number;
-    /** Local seconds at this plan's start on the declared integer native-tick grid. */
-    start: number;
-    /** Coherent world bone poses at start, retaining the completed prefix when a revision replans. */
-    from: Record<string, P.ITransform>;
-    /** Fitted world bone poses at the complete cached interval end. */
-    targets: Record<string, P.ITransform>;
-  }
 
   /**
    * Retain the completed prefix when an in-interval policy revision changes its future goal.
@@ -44,16 +22,7 @@ export namespace PhysicalTargetInterval {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function plan(input: {
-    step: number;
-    revision: number;
-    seconds: number;
-    rate: number;
-    nativeRate: number;
-    previous?: IPlan;
-    initial: Record<string, P.ITransform>;
-    targets: Record<string, P.ITransform>;
-  }): IPlan {
+  export function plan(input: IAutoMoviePhysicalTargetInterval.IPlanInput): IAutoMoviePhysicalTargetInterval.IPlan {
     const start: number =
       input.previous?.step === input.step
         ? (Math.round(input.seconds * input.nativeRate) - 1) / input.nativeRate
@@ -68,8 +37,8 @@ export namespace PhysicalTargetInterval {
               Object.entries(sample(input.previous, start, input.rate)).map(
                 ([bone, goal]: [
                   string,
-                  ReturnType<typeof samplePhysicalTarget>,
-                ]): [string, P.ITransform] => [bone, goal.pose],
+                  IAutoMovieSamplePhysicalTarget.IResult,
+                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [bone, goal.pose],
               ),
             )
           : input.previous?.step === input.step - 1
@@ -90,7 +59,7 @@ export namespace PhysicalTargetInterval {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function fraction(plan: IPlan, seconds: number, rate: number): number {
+  export function fraction(plan: IAutoMoviePhysicalTargetInterval.IPlan, seconds: number, rate: number): number {
     return Math.max(
       0,
       Math.min(1, (seconds - plan.start) / (plan.step / rate - plan.start)),
@@ -109,14 +78,14 @@ export namespace PhysicalTargetInterval {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function sample(
-    plan: IPlan,
+    plan: IAutoMoviePhysicalTargetInterval.IPlan,
     seconds: number,
     rate: number,
     selection?: ReadonlySet<string>,
-  ): Record<string, ReturnType<typeof samplePhysicalTarget>> {
+  ): Record<string, IAutoMovieSamplePhysicalTarget.IResult> {
     const result: Record<
       string,
-      ReturnType<typeof samplePhysicalTarget>
+      IAutoMovieSamplePhysicalTarget.IResult
     > = Object.create(null);
     const portion: number = fraction(plan, seconds, rate);
     const speed: number = 1 / (plan.step / rate - plan.start);
@@ -159,17 +128,17 @@ export namespace PhysicalTargetInterval {
 
 /** Weak lifetime follows transient plans; scalar-checked samplers never trust mutable pose identity alone. Functions remain outside checkpoint-serializable plans. */
 const MOTIONS: WeakMap<
-  PhysicalTargetInterval.IPlan,
+  IAutoMoviePhysicalTargetInterval.IPlan,
   {
     speed: number;
-    from: PhysicalTargetInterval.IPlan["from"];
-    targets: PhysicalTargetInterval.IPlan["targets"];
+    from: IAutoMoviePhysicalTargetInterval.IPlan["from"];
+    targets: IAutoMoviePhysicalTargetInterval.IPlan["targets"];
     bones: Map<
       string,
       {
-        before: P.ITransform;
-        after: P.ITransform;
-        sample: ReturnType<typeof preparePhysicalTargetSampler>;
+        before: IAutoMoviePhysicalProfile.ITransform;
+        after: IAutoMoviePhysicalProfile.ITransform;
+        sample: ((fraction: number) => IAutoMovieSamplePhysicalTarget.IResult);
       }
     >;
   }

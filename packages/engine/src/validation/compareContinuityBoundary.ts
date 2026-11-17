@@ -1,11 +1,8 @@
-import {
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-} from "@automovie/interface";
+import { type IAutoMovieContinuityTolerances, type IAutoMovieViolationCollector, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState } from "@automovie/interface";
+
+
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
-import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Index opening actors by node and compare every prior actor or report its absence.
@@ -23,13 +20,13 @@ export const compareContinuityBoundary: (
   opening: IAutoMovieBeatEndState,
   root: string,
   tolerances: IAutoMovieContinuityTolerances,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   previous: IAutoMovieBeatEndState,
   opening: IAutoMovieBeatEndState,
   root: string,
   tolerances: IAutoMovieContinuityTolerances,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const openingByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
     opening.actors.map(
@@ -81,13 +78,13 @@ const compareActor: (
   open: IAutoMovieBeatEndActorState,
   path: string,
   tolerances: IAutoMovieContinuityTolerances,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   prev: IAutoMovieBeatEndActorState,
   open: IAutoMovieBeatEndActorState,
   path: string,
   tolerances: IAutoMovieContinuityTolerances,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const drift: number = Vector3.length(
     Vector3.subtract(open.transform.translation, prev.transform.translation),

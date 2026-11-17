@@ -1,8 +1,10 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryAnalyticPublication, IAutoMovieRecoveryInputHashes, IAutoMovieRecoveryTensorFamiliesInput } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryAnalyticPublication } from "../structures/operation/IAutoMovieRecoveryAnalyticPublication";
-import type { IAutoMovieRecoveryInputHashes } from "../structures/operation/IAutoMovieRecoveryInputHashes";
+
+
+
+
+
 
 /**
  * Bind a source-free coefficient extension to its exact original curve and graph bytes.
@@ -36,7 +38,7 @@ export function applyAutoMovieRecoveryAnalyticPublication(
     throw new Error(
       "An unused analytic publication must bind both exact original inputs",
     );
-  const originals: Map<string, C.Cubic> = new Map(),
+  const originals: Map<string, IAutoMovieCurve64.Cubic> = new Map(),
     ambiguous: Set<string> = new Set();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
@@ -48,9 +50,9 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       if (originals.has(arc.curve.name)) ambiguous.add(arc.curve.name);
       originals.set(arc.curve.name, arc.curve);
     }
-  const curves: Map<string, C.Cubic> = new Map();
+  const curves: Map<string, IAutoMovieCurve64.Cubic> = new Map();
   for (const row of publication.curveOverrides) {
-    const curve: C.Cubic = row.curve;
+    const curve: IAutoMovieCurve64.Cubic = row.curve;
     if (
       !originals.has(curve.name) ||
       ambiguous.has(curve.name) ||
@@ -69,10 +71,10 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       !Number.isFinite(row.dataUpperEstimateMm) ||
       row.dataUpperEstimateMm < 0 ||
       curve.spans.some(
-        (net: C.Span): boolean =>
+        (net: IAutoMovieCurve64.Span): boolean =>
           net.length !== 4 ||
           net.some(
-            (point: C.Vector): boolean =>
+            (point: Readonly<AutoMovieVector3Tuple>): boolean =>
               point.length !== 3 || !point.every(Number.isFinite),
           ),
       )
@@ -82,9 +84,9 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       );
     for (let i: number = 0; i < curve.spans.length; i++)
       if (i > 0 || curve.closed) {
-        const a: C.Vector =
+        const a: Readonly<AutoMovieVector3Tuple> =
             curve.spans[(i + curve.spans.length - 1) % curve.spans.length]![3],
-          b: C.Vector = curve.spans[i]![0];
+          b: Readonly<AutoMovieVector3Tuple> = curve.spans[i]![0];
         if (a.some((x: number, axis: number): boolean => x !== b[axis]))
           throw new Error(
             "A named override must retain exact C0 endpoint authority",
@@ -106,12 +108,9 @@ export function applyAutoMovieRecoveryAnalyticPublication(
               loop: (typeof section.loops)[number],
             ): (typeof section.loops)[number] => ({
               ...loop,
-              curve: curves.get(loop.curve.name) ?? loop.curve,
-            }),
-          ),
-        }),
-      ),
-    },
+              curve: curves.get(loop.curve.name) ?? loop.curve }),
+          ) }),
+      ) },
     reports: bundle.reports.map(
       (
         row: IAutoMovieRecoveryTensorFamiliesInput["reports"][number],
@@ -120,10 +119,8 @@ export function applyAutoMovieRecoveryAnalyticPublication(
         open: row.open.map(
           (arc: (typeof row.open)[number]): (typeof row.open)[number] => ({
             ...arc,
-            curve: curves.get(arc.curve.name) ?? arc.curve,
-          }),
-        ),
-      }),
+            curve: curves.get(arc.curve.name) ?? arc.curve }),
+        ) }),
     ),
     analyticDomains: publication.analyticDomains,
     coefficientPublication: {
@@ -134,13 +131,10 @@ export function applyAutoMovieRecoveryAnalyticPublication(
           row: (typeof publication.curveOverrides)[number],
         ): { curveName: string; dataUpperEstimateMm: number } => ({
           curveName: row.curve.name,
-          dataUpperEstimateMm: row.dataUpperEstimateMm,
-        }),
-      ),
-    },
+          dataUpperEstimateMm: row.dataUpperEstimateMm }),
+      ) },
     diagnostics: [
       ...bundle.diagnostics,
       "Original observation-fit reports are retained. Replaced named coefficients have separate numerical PL-data estimates in coefficientPublication; no source-interior, material-phase or embedding qualification follows.",
-    ],
-  };
+    ] };
 }

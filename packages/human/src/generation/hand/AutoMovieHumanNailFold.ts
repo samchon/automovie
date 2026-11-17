@@ -1,5 +1,7 @@
+import type { IAutoMovieHumanNailPlate } from "@automovie/interface";
+
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
-import type { AutoMovieHumanNailPlate } from "./AutoMovieHumanNailPlate";
+
 
 const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
 
@@ -43,7 +45,7 @@ export namespace AutoMovieHumanNailFold {
    * @param u Along the plate, 0 at the root and 1 at the free edge; the fold continues past 1 and fades.
    * @param v Across the plate, -1 to 1 over the plate itself.
    */
-  export function height(size: AutoMovieHumanNailPlate.ISize, u: number, v: number): number {
+  export function height(size: IAutoMovieHumanNailPlate.ISize, u: number, v: number): number {
     const behind: number = size.length * Math.max(0, -u);
     const beside: number = (size.width / 2) * Math.max(0, Math.abs(v) - 1);
     const d: number = Math.hypot(behind, beside);

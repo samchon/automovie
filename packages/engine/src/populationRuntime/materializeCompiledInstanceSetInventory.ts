@@ -1,9 +1,5 @@
-import type {
-  IAutoMovieCompiledInstanceSet,
-  IAutoMovieInstanceSetDesign,
-  IAutoMovieModel,
-  IAutoMovieWorldDesign,
-} from "@automovie/interface";
+import type { IAutoMovieMaterializeCompiledInstanceSetInventory, IAutoMovieCompiledInstanceSet, IAutoMovieInstanceSetDesign } from "@automovie/interface";
+
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet";
@@ -23,27 +19,7 @@ import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Model group and radius maps are borrowed once for all entries; mutable world routes and set laws mean prior compiled results are not reusable merely by id.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller receives the inventory and compact snapshots; local sorted entries and failed partial results are collectable, with no open resource or worker.
  */
-export const materializeCompiledInstanceSetInventory: (props: {
-  /** World whose instance sets and routes are compiled. */ world: Pick<
-    IAutoMovieWorldDesign,
-    "instanceSets" | "routes"
-  >;
-  /** Model groups keyed by the id the sets, their prototypes and their tiers name; empty when none are supplied. */ models?: ReadonlyMap<
-    string,
-    IAutoMovieModel
-  >;
-  /** Supplied root-centered radius estimate in metres keyed by model group id. */ projectionRadii?: ReadonlyMap<
-    string,
-    number
-  >;
-}) => Readonly<Record<string, IAutoMovieCompiledInstanceSet>> = (props: {
-  /** World whose instance sets and routes are compiled. */
-  world: Pick<IAutoMovieWorldDesign, "instanceSets" | "routes">;
-  /** Model groups keyed by the id the sets, their prototypes and their tiers name; empty when none are supplied. */
-  models?: ReadonlyMap<string, IAutoMovieModel>;
-  /** Supplied root-centered radius estimate in metres keyed by model group id. */
-  projectionRadii?: ReadonlyMap<string, number>;
-}): Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =>
+export const materializeCompiledInstanceSetInventory: (props: IAutoMovieMaterializeCompiledInstanceSetInventory.IProps) => Readonly<Record<string, IAutoMovieCompiledInstanceSet>> = (props: IAutoMovieMaterializeCompiledInstanceSetInventory.IProps): Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =>
   Object.fromEntries(
     [...(props.world.instanceSets ?? [])]
       .sort(

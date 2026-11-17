@@ -1,4 +1,7 @@
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage } from "@automovie/interface";
+
+
+
 
 /** SHA-256 round constants, FIPS 180-4 section 4.2.2. */
 const K: Uint32Array = Uint32Array.from([

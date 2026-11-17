@@ -1,14 +1,10 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryNetworkAugment, IAutoMovieRecoveryChartBoundaryNetworkRegistry } from "@automovie/interface";
 
-import type { RecoveryChartBoundaryNetwork } from "./RecoveryChartBoundaryNetwork";
-import type { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNetworkRegistry";
-
-type Input = Parameters<typeof RecoveryChartBoundaryNetwork>[0];
 
 type Cut = {
   key: string;
   fraction: number;
-  point: C.Vector;
+  point: Readonly<AutoMovieVector3Tuple>;
   aliases: Set<string>;
 };
 /**
@@ -23,9 +19,9 @@ type Cut = {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the caller-owned registry is mutated; local incidence and normal arrays expire per chart.
  */
 export function RecoveryChartBoundaryNetworkAugment(
-  input: Input,
-  context: ReturnType<typeof RecoveryChartBoundaryNetworkRegistry>,
-): number {
+  input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkAugment.Operation>[0],
+  context: Parameters<IAutoMovieRecoveryChartBoundaryNetworkAugment.Operation>[1],
+): ReturnType<IAutoMovieRecoveryChartBoundaryNetworkAugment.Operation> {
   const {
     cuts,
     insertionKeys,
@@ -35,14 +31,12 @@ export function RecoveryChartBoundaryNetworkAugment(
     diagnostics,
     normal,
     indexed,
-    blend,
-  }: ReturnType<typeof RecoveryChartBoundaryNetworkRegistry> = context;
+    blend }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> = context;
   let {
-    maximumPointChange,
-  }: ReturnType<typeof RecoveryChartBoundaryNetworkRegistry> = context;
-  const coherent: (n: C.Vector, before: C.Vector) => boolean = (
-    n: C.Vector,
-    before: C.Vector,
+    maximumPointChange }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> = context;
+  const coherent: (n: Readonly<AutoMovieVector3Tuple>, before: Readonly<AutoMovieVector3Tuple>) => boolean = (
+    n: Readonly<AutoMovieVector3Tuple>,
+    before: Readonly<AutoMovieVector3Tuple>,
   ): boolean => {
     const a: number = Math.hypot(...n),
       b: number = Math.hypot(...before);
@@ -80,7 +74,7 @@ export function RecoveryChartBoundaryNetworkAugment(
     };
     let originalArea: number = 0,
       missingBanks: number = 0;
-    const originalNormals: C.Vector[] = [];
+    const originalNormals: Readonly<AutoMovieVector3Tuple>[] = [];
     for (let face: number = 0; face < chart.triangles.length; face++) {
       const t: [number, number, number] = chart.triangles[face]!;
       if (
@@ -95,7 +89,7 @@ export function RecoveryChartBoundaryNetworkAugment(
         )
       )
         throw new Error("Private triangle identities are invalid");
-      const n: C.Vector = normal(
+      const n: Readonly<AutoMovieVector3Tuple> = normal(
         source.verticesMm[t[0]]!,
         source.verticesMm[t[1]]!,
         source.verticesMm[t[2]]!,
@@ -117,10 +111,10 @@ export function RecoveryChartBoundaryNetworkAugment(
         const cut: Cut = cuts
             .get(ancestry.base)!
             .values.get(ancestry.fraction)!,
-          point: C.Vector = chart.verticesMm[i]!;
+          point: Readonly<AutoMovieVector3Tuple> = chart.verticesMm[i]!;
         if (
           ![cut.point, ...declaredPoints.get(key)!].some(
-            (allowed: C.Vector): boolean =>
+            (allowed: Readonly<AutoMovieVector3Tuple>): boolean =>
               allowed.every((v: number, k: number): boolean => v === point[k]),
           )
         )
@@ -208,7 +202,7 @@ export function RecoveryChartBoundaryNetworkAugment(
             const local: number = (cut.fraction - qa) / (qb - qa);
             if (!(local > 0 && local < 1 && Number.isFinite(local)))
               throw new Error("A bank-local cut has no representable phase");
-            const prior: C.Vector = blend(
+            const prior: Readonly<AutoMovieVector3Tuple> = blend(
               chart.verticesMm[a]!,
               chart.verticesMm[b]!,
               local,
@@ -227,7 +221,7 @@ export function RecoveryChartBoundaryNetworkAugment(
                 [first, id, opposite],
                 [id, last, opposite],
               ],
-              oldNormal: C.Vector = normal(
+              oldNormal: Readonly<AutoMovieVector3Tuple> = normal(
                 chart.verticesMm[old[0]]!,
                 chart.verticesMm[old[1]]!,
                 chart.verticesMm[old[2]]!,

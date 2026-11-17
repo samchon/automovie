@@ -1,4 +1,5 @@
-import type { IAutoMovieFootfallPattern } from "@automovie/interface";
+import type { IAutoMovieStepPlanner, IAutoMovieFootfallPattern } from "@automovie/interface";
+
 
 import { AutoMovieEnvelope as Envelope } from "../motion/AutoMovieEnvelope";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
@@ -11,23 +12,23 @@ import { freezePhysicalRecord } from "./freezePhysicalRecord";
  */
 export class AutoMovieStepPlanner {
   /** Every scheduled swing and reservation, ordered by lift time. */
-  public get steps(): readonly AutoMovieStepPlanner.IStep[] {
+  public get steps(): readonly IAutoMovieStepPlanner.IStep[] {
     return this.schedule;
   }
   /** Owned schedule, frozen after construction. */
-  private readonly schedule: AutoMovieStepPlanner.IStep[] = [];
+  private readonly schedule: IAutoMovieStepPlanner.IStep[] = [];
   /** Owned swing clearance, independent of later caller input edits. */
   private readonly height: number;
   /** Caller-declared peak swing pitch, radians. */
   private readonly peakPitch: number;
   /** Per-limb lists avoid scanning the complete film on seek. */
-  private readonly segments: Map<string, AutoMovieStepPlanner.IStep[]> =
+  private readonly segments: Map<string, IAutoMovieStepPlanner.IStep[]> =
     new Map();
   /** Owned initial support placements. */
-  private readonly initial: Record<string, AutoMovieStepPlanner.IPlacement>;
+  private readonly initial: Record<string, IAutoMovieStepPlanner.IPlacement>;
 
   /** Compute a complete schedule from pure desired-placement inputs. */
-  public constructor(input: AutoMovieStepPlanner.IInput) {
+  public constructor(input: IAutoMovieStepPlanner.IInput) {
     const limbs: IAutoMovieFootfallPattern["limbs"] = input.pattern.limbs;
     if (
       !Number.isFinite(input.start) ||
@@ -96,14 +97,14 @@ export class AutoMovieStepPlanner {
       input.swingRetargeting !== "from-scheduled-landing"
     )
       throw new Error("Invalid swing retargeting policy");
-    const planted: Record<string, AutoMovieStepPlanner.IPlacement> =
+    const planted: Record<string, IAutoMovieStepPlanner.IPlacement> =
       structuredClone(this.initial);
-    const busy: AutoMovieStepPlanner.IReservation[] = [
+    const busy: IAutoMovieStepPlanner.IReservation[] = [
       ...input.reservations,
     ].sort(
       (
-        a: AutoMovieStepPlanner.IReservation,
-        b: AutoMovieStepPlanner.IReservation,
+        a: IAutoMovieStepPlanner.IReservation,
+        b: IAutoMovieStepPlanner.IReservation,
       ): number => a.start - b.start,
     );
     for (const [i, reservation] of busy.entries()) {
@@ -115,7 +116,7 @@ export class AutoMovieStepPlanner {
         busy
           .slice(0, i)
           .some(
-            (other: AutoMovieStepPlanner.IReservation): boolean =>
+            (other: IAutoMovieStepPlanner.IReservation): boolean =>
               other.bone === reservation.bone && other.end > reservation.start,
           )
       )
@@ -128,8 +129,8 @@ export class AutoMovieStepPlanner {
     const available: Map<string, number> = new Map();
     for (let t: number = input.start; t < input.end; t += 1 / input.rate) {
       while (next < busy.length && busy[next]!.start <= t) {
-        const reservation: AutoMovieStepPlanner.IReservation = busy[next++]!;
-        const to: AutoMovieStepPlanner.IPlacement = structuredClone(
+        const reservation: IAutoMovieStepPlanner.IReservation = busy[next++]!;
+        const to: IAutoMovieStepPlanner.IPlacement = structuredClone(
           input.desired(reservation.end)[reservation.bone]!,
         );
         this.add({
@@ -146,7 +147,7 @@ export class AutoMovieStepPlanner {
         t + input.duration + input.margin > (busy[next]?.start ?? Infinity)
       )
         continue;
-      const targets: Record<string, AutoMovieStepPlanner.IPlacement> =
+      const targets: Record<string, IAutoMovieStepPlanner.IPlacement> =
         structuredClone(input.desired(t + input.duration));
       const active: Set<string> = new Set(
         limbs
@@ -161,8 +162,8 @@ export class AutoMovieStepPlanner {
       );
       const over: IAutoMovieFootfallPattern["limbs"] = limbs.filter(
         (limb: (typeof limbs)[number]): boolean => {
-          const to: AutoMovieStepPlanner.IPlacement = targets[limb.bone]!;
-          const from: AutoMovieStepPlanner.IPlacement = planted[limb.bone]!;
+          const to: IAutoMovieStepPlanner.IPlacement = targets[limb.bone]!;
+          const from: IAutoMovieStepPlanner.IPlacement = planted[limb.bone]!;
           if (
             !to ||
             !from ||
@@ -245,8 +246,8 @@ export class AutoMovieStepPlanner {
         over.length > 1
       )
         chosen = over[1]!;
-      const from: AutoMovieStepPlanner.IPlacement = planted[chosen.bone]!;
-      const to: AutoMovieStepPlanner.IPlacement = targets[chosen.bone]!;
+      const from: IAutoMovieStepPlanner.IPlacement = planted[chosen.bone]!;
+      const to: IAutoMovieStepPlanner.IPlacement = targets[chosen.bone]!;
       const reach: number = Math.hypot(
         to.point[0] - from.point[0],
         to.point[1] - from.point[1],
@@ -273,7 +274,7 @@ export class AutoMovieStepPlanner {
           from.point[0] + ((to.point[0] - from.point[0]) * limit) / reach,
           from.point[1] + ((to.point[1] - from.point[1]) * limit) / reach,
         ];
-      const step: AutoMovieStepPlanner.IStep = {
+      const step: IAutoMovieStepPlanner.IStep = {
         bone: chosen.bone,
         kind: "swing",
         start: t,
@@ -292,7 +293,7 @@ export class AutoMovieStepPlanner {
       lastEnd = step.end;
     }
     this.schedule.sort(
-      (a: AutoMovieStepPlanner.IStep, b: AutoMovieStepPlanner.IStep): number =>
+      (a: IAutoMovieStepPlanner.IStep, b: IAutoMovieStepPlanner.IStep): number =>
         a.start - b.start,
     );
     freezePhysicalRecord(this.schedule);
@@ -309,8 +310,8 @@ export class AutoMovieStepPlanner {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  public at(bone: string, seconds: number): AutoMovieStepPlanner.IState {
-    const list: AutoMovieStepPlanner.IStep[] | undefined =
+  public at(bone: string, seconds: number): IAutoMovieStepPlanner.IState {
+    const list: IAutoMovieStepPlanner.IStep[] | undefined =
       this.segments.get(bone);
     if (!list || !Number.isFinite(seconds))
       throw new Error("Unknown support or nonfinite film second");
@@ -321,7 +322,7 @@ export class AutoMovieStepPlanner {
       if (list[middle]!.start <= seconds) low = middle + 1;
       else high = middle - 1;
     }
-    const step: AutoMovieStepPlanner.IStep | undefined = list[high];
+    const step: IAutoMovieStepPlanner.IStep | undefined = list[high];
     if (!step)
       return {
         phase: "planted",
@@ -353,7 +354,7 @@ export class AutoMovieStepPlanner {
   }
 
   /** One schedule owns both the global and indexed view of each segment. */
-  private add(step: AutoMovieStepPlanner.IStep): void {
+  private add(step: IAutoMovieStepPlanner.IStep): void {
     this.schedule.push(step);
     this.segments.get(step.bone)!.push(step);
   }
@@ -368,121 +369,6 @@ export class AutoMovieStepPlanner {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieStepPlanner {
-  /**
-   * Anchor in world X/Z, orientation in radians, clearance in metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Anchor in world X/Z, orientation in radians, clearance in metres.
-   * @evidence contracts/development/design.md#principled-representation Represents Anchor in world X/Z, orientation in radians, clearance in metres: interface of 4 members (`point`, `yaw`, `pitch`, `clearance`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPlacement` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 4 members listed and the text shows 66 other files naming it, mostly movies (30), packages/human (21), test (10), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IPlacement {
-    /** Floor-plane anchor. */ point: [number, number];
-    /** Heading about +Y. */ yaw: number;
-    /** Rotation about the support's lateral axis. */ pitch: number;
-    /** Vertical displacement above its planted placement. */ clearance: number;
-  }
-  /**
-   * A support temporarily controlled by authored motion.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A support temporarily controlled by authored motion.
-   * @evidence contracts/development/design.md#principled-representation Represents A support temporarily controlled by authored motion: interface of 3 members (`bone`, `start`, `end`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IReservation` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 3 members listed and the text shows 0 other files naming it, so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IReservation {
-    /** Endpoint bone id. */
-    bone: string;
-    /** Lift second. */
-    start: number;
-    /** Landing second. */
-    end: number;
-  }
-  /**
-   * Immutable endpoints; the querying method returns independent copies.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Immutable endpoints; the querying method returns independent copies.
-   * @evidence contracts/development/design.md#principled-representation Represents Immutable endpoints; the querying method returns independent copies: interface of 3 members (`kind`, `from`, `to`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IStep` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 3 members listed and the text shows 5 other files naming it, mostly packages/engine (2), test (2), packages/human (1), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IStep extends IReservation {
-    /** Movement owner. */
-    kind: "swing" | "reserved";
-    /** Departure. */
-    from: IPlacement;
-    /** Landing. */
-    to: IPlacement;
-  }
-  /**
-   * Instantaneous phase, with an optional moving segment.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Instantaneous phase, with an optional moving segment.
-   * @evidence contracts/development/design.md#principled-representation Represents Instantaneous phase, with an optional moving segment: interface of 4 members (`phase`, `placement`, `progress`, `step`). Optional members `step` express documented absence, and the ranges its member docs state are left to runtime validation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IState` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 4 members listed and the text shows 37 other files naming it, mostly packages/engine (17), packages/human (8), test (7), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IState {
-    /** Contact phase. */
-    phase: "planted" | "swing" | "reserved";
-    /** Current support. */
-    placement: IPlacement;
-    /** Fraction through its segment. */
-    progress: number;
-    /** Absent while planted. */
-    step?: IStep;
-  }
-  /**
-   * Numeric policy has no hidden body or film presets.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Numeric policy has no hidden body or film presets.
-   * @evidence contracts/development/design.md#principled-representation Represents Numeric policy has no hidden body or film presets: interface of 19 members (`pattern`, `start`, `end`, `rate`, `desired`, `heading`, ...); units and frames named in its text: second, world, metres, radians, seconds. Optional members `peakPitch`, `swingRetargeting` express documented absence, and the ranges its member docs state are left to runtime validation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 19 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`peakPitch`, `swingRetargeting`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IInput {
-    /** Complete limb and footfall declaration. */ pattern: IAutoMovieFootfallPattern;
-    /** First film second. */ start: number;
-    /** Last film second. */ end: number;
-    /** Scheduling ticks per second. */ rate: number;
-    /**
-     * Pure desired support placements in world metres/radians.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pure desired support placements in world metres/radians) as stated in this comment.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Pure desired support placements in world metres/radians.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */ desired: (seconds: number) => Record<string, IPlacement>;
-    /**
-     * Pure body heading in radians.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pure body heading in radians) as stated in this comment.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Pure body heading in radians.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */ heading: (seconds: number) => number;
-    /** Authored support exclusions. */ reservations: IReservation[];
-    /** Swing seconds. */ duration: number;
-    /** Weighted placement-error trigger, metres. */ threshold: number;
-    /** Peak vertical swing clearance, metres. */ height: number;
-    /** Additional peak swing pitch, radians; defaults to zero. */ peakPitch?: number;
-    /** Maximum single-step reach, metres. */ maximumStride: number;
-    /** Seconds of allowed swing overlap; negative means double support. */ overlap: number;
-    /** Default after-landing waits for an active swing to finish. The explicit from-scheduled-landing policy lets zero-duty limbs supersede it from its planned endpoint, retaining a kinematic discontinuity. */ swingRetargeting?:
-      | "after-landing"
-      | "from-scheduled-landing";
-    /** Post-reservation clearance, seconds. */ reservationMargin: number;
-    /** Pre-reservation clearance, seconds. */ margin: number;
-    /** Yaw error lever, metres/radian. */ yawLever: number;
-    /** Pitch error lever, metres/radian. */ pitchLever: number;
-    /** Prefer another support within this many seconds of the last landing. */ alternationWindow: number;
-  }
   /**
    * Signed shortest angle, radians, preserving both pi endpoints.
    *
@@ -509,12 +395,12 @@ export namespace AutoMovieStepPlanner {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function swing(
-    from: IPlacement,
-    to: IPlacement,
+    from: IAutoMovieStepPlanner.IPlacement,
+    to: IAutoMovieStepPlanner.IPlacement,
     progress: number,
     height: number,
     peakPitch: number = 0,
-  ): IPlacement {
+  ): IAutoMovieStepPlanner.IPlacement {
     if (
       ![
         ...from.point,

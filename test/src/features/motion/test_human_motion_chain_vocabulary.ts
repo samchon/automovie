@@ -1,11 +1,6 @@
-import type { AutoMovieComposition } from "@automovie/engine";
-import {
-  HUMAN_ACTIONS,
-  type HumanActionName,
-  HumanChain,
-  type HumanChainCore,
-  type IHumanActionParams,
-} from "@automovie/motions";
+import type { AutoMovieMotionHumanActionName, IAutoMovieComposition, IAutoMovieMotionHumanActionParams, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChainCore } from "@automovie/interface";
+
+import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /** `true` only when two types are each assignable to the other. */
@@ -13,15 +8,15 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 
 /** The action names whose chain method is absent or takes another parameter type than the action's own. */
 type Mistyped = {
-  [Name in HumanActionName]: HumanChain[Name] extends (
+  [Name in AutoMovieMotionHumanActionName]: IAutoMovieMotionHumanChain[Name] extends (
     params: infer Params,
     anchor?: string,
-  ) => HumanChain
-    ? Same<NonNullable<Params>, IHumanActionParams[Name]> extends true
+  ) => IAutoMovieMotionHumanChain
+    ? Same<NonNullable<Params>, IAutoMovieMotionHumanActionParams[Name]> extends true
       ? never
       : Name
     : Name;
-}[HumanActionName];
+}[AutoMovieMotionHumanActionName];
 
 /**
  * Every action of the vocabulary is a typed method of the chain, and the
@@ -53,10 +48,10 @@ type Mistyped = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and why the chain must be typed for its reader.
  */
 export function test_human_motion_chain_vocabulary(): void {
-  const names: HumanActionName[] = Object.keys(
+  const names: AutoMovieMotionHumanActionName[] = Object.keys(
     HUMAN_ACTIONS,
-  ) as HumanActionName[];
-  const appended = (chain: HumanChain): AutoMovieComposition | undefined =>
+  ) as AutoMovieMotionHumanActionName[];
+  const appended = (chain: IAutoMovieMotionHumanChain): IAutoMovieComposition | undefined =>
     chain.node.kind === "sequence" ? chain.node.parts.at(-1) : chain.node;
 
   // 1. One method per action, each appending its own action.
@@ -67,10 +62,10 @@ export function test_human_motion_chain_vocabulary(): void {
       typeof method === "function",
     );
     const params: object = { marker: name };
-    const chain: HumanChain = (
-      method as (this: HumanChain, params: object, anchor: string) => HumanChain
+    const chain: IAutoMovieMotionHumanChain = (
+      method as (this: IAutoMovieMotionHumanChain, params: object, anchor: string) => IAutoMovieMotionHumanChain
     ).call(HumanChain.subject("a"), params, `anchor-${name}`);
-    const last: AutoMovieComposition | undefined = appended(chain);
+    const last: IAutoMovieComposition | undefined = appended(chain);
     TestValidator.predicate(
       `${name} appends an intent`,
       last !== undefined && last.kind === "intent",
@@ -98,11 +93,11 @@ export function test_human_motion_chain_vocabulary(): void {
   }
 
   // 2. The named append gives the same intent as the method.
-  const walked: HumanChain = HumanChain.subject("a").walk(
+  const walked: IAutoMovieMotionHumanChain = HumanChain.subject("a").walk(
     { to: { x: 0, y: 0, z: 2 } },
     "w",
   );
-  const acted: HumanChain = HumanChain.subject("a").act(
+  const acted: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
     "walk",
     { to: { x: 0, y: 0, z: 2 } },
     "w",
@@ -123,20 +118,20 @@ export function test_human_motion_chain_vocabulary(): void {
 
   // 4. Compile time: the named append is typed by its name.
   const selected: Same<
-    NonNullable<HumanChainCore.Arguments<"touch">[0]>,
-    IHumanActionParams["touch"]
+    NonNullable<IAutoMovieMotionHumanChainCore.Arguments<"touch">[0]>,
+    IAutoMovieMotionHumanActionParams["touch"]
   > = true;
-  const undeclared: "hand" extends keyof IHumanActionParams["touch"]
+  const undeclared: "hand" extends keyof IAutoMovieMotionHumanActionParams["touch"]
     ? false
     : true = true;
   const unknownRow: "patt" extends NonNullable<
-    IHumanActionParams["touch"]["kind"]
+    IAutoMovieMotionHumanActionParams["touch"]["kind"]
   >
     ? false
     : true = true;
-  const required: [] extends HumanChainCore.Arguments<"walk"> ? false : true =
+  const required: [] extends IAutoMovieMotionHumanChainCore.Arguments<"walk"> ? false : true =
     true;
-  const optional: [] extends HumanChainCore.Arguments<"stand"> ? true : false =
+  const optional: [] extends IAutoMovieMotionHumanChainCore.Arguments<"stand"> ? true : false =
     true;
   TestValidator.predicate(
     "the type pins hold",

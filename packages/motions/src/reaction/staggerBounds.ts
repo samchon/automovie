@@ -1,9 +1,10 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTiming } from "@automovie/interface";
+
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 
 import { walk } from "../actions/walk";
 import { walkFoot } from "../actions/walkFoot";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 
 /**
  * The measured bounds and the model's own constants of a stagger's recovery
@@ -19,13 +20,13 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
  */
 export namespace staggerBounds {
   /** The reaction before the first step's weight shift, at the threshold of balance recovery (Cyr, Moglo and Smeesters 2005, ISB XXth Congress 401: 82 ms, younger adults released from a forward lean). */
-  export const REACTION: AutoMovieMotionHumanTiming.Span = {
+  export const REACTION: IAutoMovieMotionHumanTiming.Span = {
     seconds: 0.082,
     source: "Cyr, Moglo and Smeesters 2005, ISB XXth Congress 401",
   };
 
   /** The weight shift onto the stance foot before a recovery step lifts off (Cyr, Moglo and Smeesters 2005: 138 ms). */
-  export const TRANSFER: AutoMovieMotionHumanTiming.Span = {
+  export const TRANSFER: IAutoMovieMotionHumanTiming.Span = {
     seconds: 0.138,
     source: "Cyr, Moglo and Smeesters 2005, ISB XXth Congress 401",
   };
@@ -41,7 +42,7 @@ export namespace staggerBounds {
    * reaction, the weight shift and the forward swing at the threshold of
    * balance recovery (`REACTION`, `TRANSFER`, `STEP_TIME.forward`), 458 ms.
    */
-  export const LANDING: AutoMovieMotionHumanTiming.Span = {
+  export const LANDING: IAutoMovieMotionHumanTiming.Span = {
     seconds:
       AutoMovieMotionHumanTiming.seconds(REACTION) +
       AutoMovieMotionHumanTiming.seconds(TRANSFER) +
@@ -78,7 +79,7 @@ export namespace staggerBounds {
   > = { forward: 1.032 / 1.74, side: 0.664 / 1.74, backward: 0.724 / 1.74 };
 
   /** The trunk's righting after the last step at a neutral manner (provisional). */
-  export const RIGHTING: AutoMovieMotionHumanTiming.Span = {
+  export const RIGHTING: IAutoMovieMotionHumanTiming.Span = {
     pause: "beat",
     scale: 1.125,
   };
@@ -108,7 +109,7 @@ export namespace staggerBounds {
   export const ABDUCTION: number = 9.4;
 
   /** The arms' reaction onset after the push. */
-  export const ONSET: AutoMovieMotionHumanTiming.Span = {
+  export const ONSET: IAutoMovieMotionHumanTiming.Span = {
     seconds: 0.154,
     source: "Weerdesteyn, Laing and Robinovitch 2008, Exp Brain Res 186:571",
   };
@@ -133,7 +134,7 @@ export namespace staggerBounds {
    * @param body The body.
    * @returns Radians per second.
    */
-  export function omega(body: IHumanActionContext["body"]): number {
+  export function omega(body: IAutoMovieMotionHumanActionContext["body"]): number {
     return resolveAutoMovieCenterOfMass.frequency(
       resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );

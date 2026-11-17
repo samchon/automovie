@@ -1,15 +1,6 @@
-import type {
-  IAutoMovieCameraClearanceRuntime,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-} from "@automovie/engine";
-import type {
-  IAutoMovieCamera,
-  IAutoMovieClip,
-  IAutoMovieModel,
-  IAutoMovieSceneNode,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import type { IAutoMovieCameraClearanceRuntime, IAutoMoviePerformedShot, IAutoMovieStagedSet, IAutoMovieCamera, IAutoMovieClip, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieTransform } from "@automovie/interface";
+
+
 
 import type { IFilmCameraClearanceAdapterOverrides } from "./IFilmCameraClearanceAdapterOverrides";
 import type { IFilmCameraClearanceAdapterResult } from "./IFilmCameraClearanceAdapterResult";

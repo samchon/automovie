@@ -1,8 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionTarget } from "@automovie/interface";
+
 import { physicalShapeBounds } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { StrikingLimb } from "./StrikingLimb";
@@ -40,28 +40,28 @@ import type { StrikingVerdicts } from "./StrikingVerdicts";
  * @returns Each scenario by its family name, built on demand.
  */
 export function strikingScenarios(
-  A: IHumanBody,
-  B: IHumanBody,
+  A: IAutoMovieMotionHumanBody,
+  B: IAutoMovieMotionHumanBody,
 ): Record<string, () => strikingScenarios.IScenario> {
-  const faceB: AutoMovieMotionTarget = {
+  const faceB: IAutoMovieMotionTarget = {
     kind: "person",
     subject: "b",
     region: "face",
   };
-  const faceA: AutoMovieMotionTarget = {
+  const faceA: IAutoMovieMotionTarget = {
     kind: "person",
     subject: "a",
     region: "face",
   };
-  const guardA = (): HumanChain =>
+  const guardA = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").act("guard", { seconds: 0.8, facing: faceB });
-  const guardB = (seconds: number = 0.8): HumanChain =>
+  const guardB = (seconds: number = 0.8): IAutoMovieMotionHumanChain =>
     HumanChain.subject("b").act("guard", { seconds, facing: faceA });
-  const arm = (body: IHumanBody): number =>
+  const arm = (body: IAutoMovieMotionHumanBody): number =>
     StrikingLimb.length(body, "leftHand", false);
-  const leg = (body: IHumanBody): number =>
+  const leg = (body: IAutoMovieMotionHumanBody): number =>
     StrikingLimb.length(body, "leftFoot", false);
-  const middle = (): HumanChain =>
+  const middle = (): IAutoMovieMotionHumanChain =>
     guardA().act(
       "kick",
       {
@@ -70,7 +70,7 @@ export function strikingScenarios(
       },
       "middle",
     );
-  const redirect = (share: number): HumanChain =>
+  const redirect = (share: number): IAutoMovieMotionHumanChain =>
     middle()
       .until({ share })
       .act(
@@ -200,19 +200,19 @@ export namespace strikingScenarios {
   /** One scenario. */
   export interface IScenario {
     /** Subject `a`'s chain. */
-    a: HumanChain;
+    a: IAutoMovieMotionHumanChain;
 
     /** Subject `b`'s chain; undefined when `a` strikes at no one. */
-    b: HumanChain | undefined;
+    b: IAutoMovieMotionHumanChain | undefined;
 
     /** The gap between the two roots along +Z, metres. */
     gap: number;
 
     /** A chain of `a` drawn as a translucent figure, the uninterrupted source of a redirect. */
-    ghost: HumanChain | undefined;
+    ghost: IAutoMovieMotionHumanChain | undefined;
 
     /** A chain of `a` whose planning must be refused as an illegal cut. */
-    late: HumanChain | undefined;
+    late: IAutoMovieMotionHumanChain | undefined;
 
     /** The part classes each strike is declared to meet, by its segment id; a strike not named may meet any. */
     meets: Record<string, readonly StrikingVerdicts.Class[]>;
@@ -250,13 +250,13 @@ export namespace strikingScenarios {
  * gap closes by their separation.
  */
 function touching(
-  A: IHumanBody,
-  B: IHumanBody,
-  a: HumanChain,
-  b: HumanChain,
+  A: IAutoMovieMotionHumanBody,
+  B: IAutoMovieMotionHumanBody,
+  a: IAutoMovieMotionHumanChain,
+  b: IAutoMovieMotionHumanChain,
 ): number {
   const apart: number = 2;
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "touching",
     performers: [
       {
@@ -276,7 +276,7 @@ function touching(
     ],
     composition: a.with(b).node,
   });
-  const extent = (body: IHumanBody, subject: string, sign: 1 | -1): number => {
+  const extent = (body: IAutoMovieMotionHumanBody, subject: string, sign: 1 | -1): number => {
     const seconds: number = performance.segments(subject).at(-1)!.end;
     let most: number = -Infinity;
     for (const { pose, shapes } of HumanColliders.placed(

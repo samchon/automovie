@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveMorphTargetWeights,
-  skinAutoMovieMesh,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMesh,
-  IAutoMovieMeshMorphTarget,
-  IAutoMovieMorphTargetDriver,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieMesh, IAutoMovieMeshMorphTarget, IAutoMovieMorphTargetDriver } from "@automovie/interface";
+import { resolveMorphTargetWeights, skinAutoMovieMesh } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkinnedTubeMesh } from "../internal/createSkinnedTubeMesh";

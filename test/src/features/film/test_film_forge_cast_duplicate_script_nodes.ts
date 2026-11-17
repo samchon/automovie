@@ -1,4 +1,5 @@
-import { IAutoMovieForgedCast, forgeCast } from "@automovie/engine";
+import type { IAutoMovieForgedCast } from "@automovie/interface";
+import { forgeCast } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";

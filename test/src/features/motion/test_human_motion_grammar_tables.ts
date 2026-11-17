@@ -1,13 +1,5 @@
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanVariation,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanVariation } from "@automovie/interface";
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanRefusal, HumanVariation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -38,13 +30,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
  */
 export function test_human_motion_grammar_tables(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
   const complaints: string[] = [];
   const perform = (
     seed: string,
-    registered: readonly IHumanActionLaw<never>[],
-  ): HumanPerformance =>
+    registered: readonly IAutoMovieMotionHumanActionLaw<never>[],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed,
       laws: registered,
@@ -62,7 +54,7 @@ export function test_human_motion_grammar_tables(): void {
         .gesture({ kind: "wave", manner: { variation: 1 } }).node,
     });
   const stroke = (seed: string): number => {
-    const wave: HumanSegment.ISegment = perform(seed, laws).segments("a")[1]!;
+    const wave: IAutoMovieMotionHumanSegment.ISegment = perform(seed, laws).segments("a")[1]!;
     const share: number =
       wave.plan.events.find(
         (event: { name: string; share: number }): boolean =>
@@ -93,7 +85,7 @@ export function test_human_motion_grammar_tables(): void {
     );
 
   // 3. Seeds are takes.
-  const takes: HumanVariation.IReport = HumanVariation.over(24, stroke);
+  const takes: IAutoMovieMotionHumanVariation.IReport = HumanVariation.over(24, stroke);
   if (!(takes.distinct >= 12 && takes.deviation > 0.001))
     complaints.push(
       `over 24 seeds a varied wave's stroke starts at ${takes.distinct} distinct seconds with a spread of ${(takes.deviation * 1000).toFixed(2)} ms; at least 12 and over 1 ms expected`,
@@ -107,7 +99,7 @@ export function test_human_motion_grammar_tables(): void {
     );
 
   // 4. One seed is one take.
-  const same: HumanVariation.IReport = HumanVariation.over(
+  const same: IAutoMovieMotionHumanVariation.IReport = HumanVariation.over(
     ["take", "take", "take"],
     stroke,
   );

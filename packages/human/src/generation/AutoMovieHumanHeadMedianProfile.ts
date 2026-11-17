@@ -1,6 +1,8 @@
+import type { IAutoMovieHumanHeadLayout } from "@automovie/interface";
+
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
+
 
 /**
  * The median front profile P as one curve: the vault's ellipse about the

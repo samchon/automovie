@@ -1,17 +1,9 @@
-import {
-  IAutoMovieBoundaryFace,
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMoviePlanarPoint,
-  IAutoMovieServicePenetration,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMoviePlanarPoint, IAutoMovieServicePenetration, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { outlineHull } from "../architecture/outlineHull";
 import { polygonInside } from "../architecture/polygonInside";
 import { Quaternion } from "../math/Quaternion";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
 
 /**
@@ -47,12 +39,12 @@ export const appendServiceSleeveOnFace: (
   environment: IAutoMovieBuiltEnvironment,
   sleeve: IAutoMovieServicePenetration,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   sleeve: IAutoMovieServicePenetration,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const boundary: IAutoMovieBuiltBoundary | undefined =
     environment.boundaries.find(

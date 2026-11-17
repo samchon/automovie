@@ -1,5 +1,4 @@
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
-import { ISubdivisionVertexMask } from "./ISubdivisionVertexMask";
+import type { IAutoMovieRefineSubdivisionUvs, IAutoMovieSubdivisionTopology, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 
 /**
@@ -35,11 +34,11 @@ import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the child values and four corner indices per parent corner; the continuity, pin and owner tables are released on return.
  */
 export const refineSubdivisionUvs = (
-  topology: ISubdivisionTopology,
+  topology: IAutoMovieSubdivisionTopology,
   uvs: readonly number[],
   cornerUvs: readonly number[],
-  masks: readonly ISubdivisionVertexMask[],
-): { uvs: number[]; cornerUvs: number[] } => {
+  masks: readonly IAutoMovieSubdivisionVertexMask[],
+): IAutoMovieRefineSubdivisionUvs.IResult => {
   const faceOffsets: number[] = topology.faceOffsets;
   const faceCount: number = faceOffsets.length - 1;
   const edgeCount: number = topology.edgeSharpness.length;
@@ -127,7 +126,7 @@ export const refineSubdivisionUvs = (
       out[value * 2 + 1] = uvs[value * 2 + 1]!;
       continue;
     }
-    const mask: ISubdivisionVertexMask = masks[v]!;
+    const mask: IAutoMovieSubdivisionVertexMask = masks[v]!;
     const fanStart: number = topology.fanCornerOffsets[v]!;
     for (let axis: number = 0; axis < 2; ++axis) {
       let sum: number = mask.vertex * uvs[value * 2 + axis]!;

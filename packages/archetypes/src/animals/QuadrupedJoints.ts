@@ -1,9 +1,6 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 import { QuadrupedBody } from "./QuadrupedBody";
 
@@ -42,7 +39,7 @@ export namespace QuadrupedJoints {
       const part: IAutoMovieModelPart = parts.find(
         (p: IAutoMovieModelPart): boolean => p.id === id,
       )!;
-      const shape: AutoMoviePrimitiveShape | null =
+      const shape: IAutoMoviePrimitiveShape | null =
         part.geometry.type === "primitive" ? part.geometry.shape : null;
       const half: number =
         shape !== null &&

@@ -1,11 +1,5 @@
-import {
-  AutoMovieSolidCycle,
-  AutoMovieSolidMesh,
-  AutoMovieSolidMeshConstraints,
-  type AutoMovieSolidMeshPlan,
-  type IAutoMovieSolidSurface,
-  openAutoMovieSolidMesh,
-} from "@automovie/engine";
+import type { IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan, IAutoMovieSolidSurface } from "@automovie/interface";
+import { AutoMovieSolidCycle, AutoMovieSolidMesh, AutoMovieSolidMeshConstraints, openAutoMovieSolidMesh } from "@automovie/engine";
 
 import { nclose } from "../../internal/nclose";
 
@@ -82,7 +76,7 @@ function cycleSeams(failures: string[]): void {
               ];
               for (const kind of ["start", "end"] as const) {
                 const cycle: Pick<
-                  AutoMovieSolidCycle.ICycle,
+                  IAutoMovieSolidCycle.ICycle,
                   "kind" | "chart"
                 > = { kind, chart };
                 const read: (u: number, v: number) => boolean =
@@ -120,19 +114,19 @@ function occurrences(failures: string[]): void {
     [2, [1, 0]],
     [3, [1, 3]],
   ]);
-  const segments: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const segments: IAutoMovieSolidMeshConstraints.ISegment[] = [
     { a: 0, b: 1, turn: 0 },
     { a: 0, b: 1, turn: -1 },
     { a: 2, b: 3, turn: 0 },
     { a: 2, b: 3, turn: -1 },
   ];
-  const split: AutoMovieSolidMeshConstraints.IEdge[] | string =
+  const split: IAutoMovieSolidMeshConstraints.IEdge[] | string =
     AutoMovieSolidMeshConstraints.split(chart, segments, 6);
   if (typeof split === "string") {
     failures.push(`native occurrence fixture: ${split}`);
     return;
   }
-  const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [
+  const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [
     { vertices: [0, 2, 3], lifts: [0, 0, 0] },
     { vertices: [0, 3, 1], lifts: [0, 0, 0] },
     { vertices: [1, 3, 2], lifts: [0, 0, 1] },
@@ -192,12 +186,12 @@ function closed(
 ): void {
   const label: string = `${scale}/${orientation}/${inverted}`;
   const surface: IAutoMovieSolidSurface = cylinder(scale, orientation);
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const phases: number[] = Array.from(
     { length: 12 },
     (_: unknown, k: number): number => (2 * Math.PI * k) / 12,
   );
-  let open: AutoMovieSolidMesh.IOpen[];
+  let open: IAutoMovieSolidMesh.IOpen[];
   try {
     open = AutoMovieSolidMesh.face(mesh, {
       surface,
@@ -287,7 +281,7 @@ function closed(
 /** A legitimate partial source end must not become a false event or pole ring. */
 function partial(failures: string[], turns: number): void {
   const surface: IAutoMovieSolidSurface = cylinder(1, 1);
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
   const chart: [number, number][] = [
     [0, turns * 2 * Math.PI - 0.3],
@@ -302,7 +296,7 @@ function partial(failures: string[], turns: number): void {
     { length: 16 },
     (_: unknown, k: number): number => (2 * Math.PI * k) / 16,
   );
-  const input: AutoMovieSolidMesh.IFace = {
+  const input: IAutoMovieSolidMesh.IFace = {
     surface,
     stations: [0, 1, 2, 3, 4],
     phases,
@@ -324,7 +318,7 @@ function partial(failures: string[], turns: number): void {
       `partial/${turns}: callback-free partial end was silent or mutated mesh (${String(missing)})`,
     );
   const reports: string[] = [];
-  let open: AutoMovieSolidMesh.IOpen[];
+  let open: IAutoMovieSolidMesh.IOpen[];
   try {
     open = AutoMovieSolidMesh.face(mesh, {
       ...input,

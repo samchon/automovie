@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanPalmPalmarSector } from "@automovie/interface";
+
 /**
  * The palm's palmar sector: the thick skin over the palmar aponeurosis, from
  * the distal wrist crease to the webs' palmar crests, between the thenar and
@@ -22,14 +24,7 @@ export namespace AutoMovieHumanPalmPalmarSector {
   /** Pad depth below the bones' palmar line over the palm's half width: a convention. */
   export const PAD_SHARE: number = 0.25;
 
-  /** A sector's fixed inputs. */
-  export interface IInput {
-    /** The two side guides' places in the section, `[b, c]`, mm, the thumb side first. */
-    sides: [[number, number], [number, number]];
-
-    /** The palm's palmar bone line's `c` at the middle, mm. */
-    bone: number;
-  }
+  
 
   /**
    * Points of the sector's arc from the first side guide to the second,
@@ -38,7 +33,7 @@ export namespace AutoMovieHumanPalmPalmarSector {
    * @param input The sector's inputs.
    * @param count Points, at least 2.
    */
-  export function arc(input: IInput, count: number): [number, number][] {
+  export function arc(input: IAutoMovieHumanPalmPalmarSector.IInput, count: number): IAutoMovieHumanPalmPalmarSector.ArcResult {
     const [a, b] = input.sides;
     const mid: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
     const half: number = Math.hypot(b[0] - a[0], b[1] - a[1]) / 2;

@@ -1,11 +1,9 @@
+import type { AutoMovieVector3Tuple, IAutoMovieSolidAtlas, IAutoMovieSolidIntersection, IAutoMovieSolidRail, IAutoMovieSolidRailSolveAtlasSection, IAutoMovieSolidSurface } from "@automovie/interface";
+
+
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidRailSolve } from "./AutoMovieSolidRailSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-
-type Vec3 = AutoMovieSolidVector.Vec3;
 type IJet = IAutoMovieSolidSurface.IJet;
 const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
@@ -25,65 +23,6 @@ const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidRail {
-  /**
-   * The two rail chart/world readings and offset directions at one traced point.
-   *
-   * @evidence contracts/development/design.md#principled-representation Links both trimmed endpoints to one contact point and its kept-side chart directions, with host-face identity after atlas traversal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A plain record exposes coordinates, positions and directions needed by ribbons and clipping without another surface model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not certify normal-section convergence or domain/kept-region membership; sigma uses a positive tie when a square direction's station component is zero.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives mm positions, chart coordinates, phase/mode meaning and where unit-world-speed directions are evaluated.
-   */
-  export interface IRail {
-    /** The curve point the rails are read from. */
-    curve: AutoMovieSolidIntersection.IPoint;
-
-    /** The part's rail station. */
-    s: number;
-
-    /** The part's rail phase: the curve's own under the `station` mode. */
-    phi: number;
-
-    /** Sign of the part's kept side in its station, +1 or -1 (under the `square` mode, the sign of `partAcross`'s station part). */
-    sigma: number;
-
-    /** The part's offset direction in its chart, from the curve's preimage toward its rail, the chart vector of unit world speed at the preimage. */
-    partAcross: [number, number];
-
-    /** The part's rail point, mm. */
-    partPoint: Vec3;
-
-    /** The host face its rail lies on (`IAutoMovieSolidAtlas`); the curve's own face unless the offset crossed a trim. */
-    hostFace: number;
-
-    /** The host's rail chart point `[y, theta]` on that face. */
-    host: [number, number];
-
-    /** Original outward direction projected into the rail face's tangent plane, as a chart vector of unit world speed. */
-    across: [number, number];
-
-    /** The host's rail point, mm. */
-    hostPoint: Vec3;
-  }
-
-  /**
-   * Which side of the host the part keeps: merge outside, cutter diff inside.
-   *
-   * @evidence contracts/development/design.md#principled-representation The closed choice determines the part offset's sign against the host's outward normal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One literal union shares the same side convention across merge/diff and rail evaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Selects a side without inferring it from a fixture or a sampled mesh.
-   * @evidence contracts/development/common.md#meaningful-documentation Names which solid's kept side changes and the merge/diff mapping.
-   */
-  export type Keep = "outside" | "inside";
-
-  /**
-   * Part-offset mode: fixed-phase station line or metric-square normal section.
-   *
-   * @evidence contracts/development/design.md#principled-representation Station mode preserves a phase column; square mode uses the inverse first fundamental form to define a transverse world direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A closed discriminator selects only the part strategy; the host keeps its metric-square strategy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed station width is accepted only in station mode, without silently converting it to a chord.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes chart-station and world-square offset semantics.
-   */
-  export type Mode = "station" | "square";
 
   /** Newton steps of one offset. */
   export const STEPS: number = 40;
@@ -120,33 +59,13 @@ export namespace AutoMovieSolidRail {
   export function at(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
-    curve: AutoMovieSolidIntersection.IPoint,
-    keep: Keep,
-    partWidth: number | { station: number },
+    curve: IAutoMovieSolidIntersection.IPoint,
+    keep: IAutoMovieSolidRail.Keep,
+    partWidth: IAutoMovieSolidRail.IAtPartWidth,
     hostWidth: number,
-    mode: Mode = "station",
-  ): IRail | null {
+    mode: IAutoMovieSolidRail.Mode = "station",
+  ): IAutoMovieSolidRail.IRail | null {
     return explain(part, host, curve, keep, partWidth, hostWidth, mode).rail;
-  }
-
-  /**
-   * The rails at a curve point with the reading of every premise the solve checks: the quantities it computed, in the order computed, and,
-   * when it returns no rail, the premise that failed.
-   *
-   * @evidence contracts/development/design.md#principled-representation The rail and a nullable refusal partition success from the failed premise; quantities are the solve's own numbers keyed by what they measure.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record reports what `at` already computes, so a join can name a refusal without a second solver.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It changes no solve, threshold or result: `at` returns exactly its rail.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units of the recorded quantities: mm, chart units and dimensionless dot products.
-   */
-  export interface IExplanation {
-    /** The rails, or null. */
-    rail: IRail | null;
-
-    /** The failed premise, or null with a rail. */
-    refusal: string | null;
-
-    /** The quantities read on the way, by name. */
-    quantities: Record<string, number>;
   }
 
   /**
@@ -172,12 +91,12 @@ export namespace AutoMovieSolidRail {
   export function explain(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
-    curve: AutoMovieSolidIntersection.IPoint,
-    keep: Keep,
-    partWidth: number | { station: number },
+    curve: IAutoMovieSolidIntersection.IPoint,
+    keep: IAutoMovieSolidRail.Keep,
+    partWidth: IAutoMovieSolidRail.IAtPartWidth,
     hostWidth: number,
-    mode: Mode = "station",
-  ): IExplanation {
+    mode: IAutoMovieSolidRail.Mode = "station",
+  ): IAutoMovieSolidRail.IExplanation {
     const quantities: Record<string, number> = {
       face: curve.face,
       s: curve.s,
@@ -187,7 +106,7 @@ export namespace AutoMovieSolidRail {
       hostWidth,
       ...(typeof partWidth === "number" ? { partWidth } : { partStation: partWidth.station }),
     };
-    const refuse = (premise: string): IExplanation => ({ rail: null, refusal: premise, quantities });
+    const refuse = (premise: string): IAutoMovieSolidRail.IExplanation => ({ rail: null, refusal: premise, quantities });
     const a: IJet | null = AutoMovieSolidDomain.jet(part, curve.s, curve.phi);
     const surface: IAutoMovieSolidSurface = host.faces[curve.face]!;
     const b: IJet | null = AutoMovieSolidDomain.jet(
@@ -197,17 +116,17 @@ export namespace AutoMovieSolidRail {
     );
     if (a === null) return refuse("the part has no jet at the curve point");
     if (b === null) return refuse("the host face has no jet at the curve point");
-    const outA: Vec3 | null = unit(cross(a.u, a.v));
-    const outB: Vec3 | null = unit(cross(b.u, b.v));
+    const outA: AutoMovieVector3Tuple | null = unit(cross(a.u, a.v));
+    const outB: AutoMovieVector3Tuple | null = unit(cross(b.u, b.v));
     if (outA === null) return refuse("the part's normal vanishes at the curve point");
     if (outB === null) return refuse("the host's normal vanishes at the curve point");
     quantities.normals = dot(outA, outB);
-    const nA: Vec3 = [
+    const nA: AutoMovieVector3Tuple = [
       outA[0] * part.orientation,
       outA[1] * part.orientation,
       outA[2] * part.orientation,
     ];
-    const nB: Vec3 = [
+    const nB: AutoMovieVector3Tuple = [
       outB[0] * surface.orientation,
       outB[1] * surface.orientation,
       outB[2] * surface.orientation,
@@ -303,7 +222,7 @@ export namespace AutoMovieSolidRail {
     const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
     // The initial chart displacement selects a local branch; every equation
     // is subsequently read on its actual retained face, including neighbours.
-    const settled: ReturnType<typeof AutoMovieSolidRailSolve.atlas> =
+    const settled: (IAutoMovieSolidRailSolveAtlasSection | null) =
       AutoMovieSolidRailSolve.atlas(
         host,
         curve.face,
@@ -357,8 +276,8 @@ export namespace AutoMovieSolidRail {
   }
 
   /** Unit normal of the plane spanned by the preimage jet j's surface normal and the world image of square chart direction e; failed normalization returns [0,0,0]. */
-  function plane(j: IJet, e: readonly [number, number]): Vec3 {
-    const d: Vec3 = combine([
+  function plane(j: IJet, e: readonly [number, number]): AutoMovieVector3Tuple {
+    const d: AutoMovieVector3Tuple = combine([
       [e[0], j.u],
       [e[1], j.v],
     ]);
@@ -369,8 +288,8 @@ export namespace AutoMovieSolidRail {
   function section(
     surface: IAutoMovieSolidSurface,
     start: readonly [number, number],
-    from: Readonly<Vec3>,
-    m: Readonly<Vec3>,
+    from: Readonly<AutoMovieVector3Tuple>,
+    m: Readonly<AutoMovieVector3Tuple>,
     width: number,
   ): [number, number] | null {
     return AutoMovieSolidRailSolve.section(
@@ -388,7 +307,7 @@ export namespace AutoMovieSolidRail {
   function square(
     j: IJet,
     tangent: readonly [number, number],
-    toward: Readonly<Vec3>,
+    toward: Readonly<AutoMovieVector3Tuple>,
     side: number,
     note?: Record<string, number>,
     key: string = "",
@@ -425,7 +344,7 @@ export namespace AutoMovieSolidRail {
   function offset(
     along: (l: number) => IJet | null,
     d: readonly [number, number],
-    from: Readonly<Vec3>,
+    from: Readonly<AutoMovieVector3Tuple>,
     width: number,
     start?: number,
   ): number | null {

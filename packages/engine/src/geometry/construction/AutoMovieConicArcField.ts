@@ -1,12 +1,5 @@
-import type { AutoMovieConicArc } from "./AutoMovieConicArc";
+import type { IAutoMovieAlgebra, IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet } from "@automovie/interface";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
-
-/** Scalar operation contract shared with the numeric source. */
-type Algebra<T> = AutoMovieConicFieldJet.IAlgebra<T>;
-
-/** Actual source partials [value,s,p,ss,sp,pp]. */
-type Jet = AutoMovieConicFieldJet.IJet;
 
 /** Invocation-local normalized positive Bernstein terms, before velocity work. */
 interface Basis<T> {
@@ -27,65 +20,6 @@ interface Basis<T> {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicArcField {
-  /**
-   * Cartesian point and increasing-polar unit tangent in one quarter chart.
-   *
-   * @evidence contracts/development/design.md#principled-representation The normalized positive native velocity fixes orientation independently of its speed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two pairs separate position from unit direction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Higher source tangent partials are internal algebra outputs, not required physical derivatives.
-   * @evidence contracts/development/common.md#meaningful-documentation Point uses source length units; tangent is dimensionless.
-   */
-  export interface IGeometry<T> {
-    /** Cartesian point, in the selected quarter chart. */
-    point: readonly [T, T];
-
-    /** Unit tangent in increasing original polar direction. */
-    tangent: readonly [T, T];
-  }
-
-  /**
-   * Required fixed-clock source jets, paired with the same primal ray geometry.
-   *
-   * @evidence contracts/development/design.md#principled-representation Only point source order two and unit-tangent source order one feed the geometric radial lift.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One reading exposes the exact derivative orders its consumer needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Tangent Hessians are neither fabricated as zero nor required finite.
-   * @evidence contracts/development/common.md#meaningful-documentation Point entries use [value,s,p,ss,sp,pp]; tangent entries use [value,s,p]; radial uses [rho,rho_phi,rho_phiphi].
-   */
-  export interface IReading {
-    /** Successful source reading discriminator. */
-    kind: "reading";
-
-    /** Two Cartesian source Hessians in source length units. */
-    point: readonly [Jet, Jet];
-
-    /** Two unit-tangent source gradients. */
-    tangent: readonly [
-      readonly [number, number, number],
-      readonly [number, number, number],
-    ];
-
-    /** Existing numeric radial phase jet. */
-    radial: AutoMoviePolarSector.Jet;
-
-    /** Natural logarithm of positive geometric curvature, inverse length. */
-    logCurvature: number;
-  }
-
-  /**
-   * Named source-reading failure, never a replacement derivative.
-   *
-   * @evidence contracts/development/design.md#principled-representation A failed finite-input or required-output premise remains explicit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One discriminator and detail identify failure.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing derivatives are never silently zeroed or sent to a legacy shape.
-   * @evidence contracts/development/common.md#meaningful-documentation Detail names the failed fixed-clock source premise.
-   */
-  export interface IFailure {
-    /** Failed source-reading discriminator. */
-    kind: "failure";
-
-    /** Original failed numerical premise. */
-    detail: string;
-  }
 
   /**
    * The original dimensionless shoulder-to-weight map.
@@ -98,7 +32,7 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both numeric and differentiated preparations call this formula.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar without retained data.
    */
-  export function weight<T>(ops: Algebra<T>, r: T): T {
+  export function weight<T>(ops: IAutoMovieAlgebra<T>, r: T): T {
     return ops.divide(r, ops.subtract(ops.constant(1), r));
   }
 
@@ -113,7 +47,7 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Weight conversion is shared with point and preparation readers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar without retained data.
    */
-  export function curvature<T>(ops: Algebra<T>, a: T, b: T, r: T): T {
+  export function curvature<T>(ops: IAutoMovieAlgebra<T>, a: T, b: T, r: T): T {
     const w: T = weight(ops, r);
     const divisor: T = ops.multiply(
       ops.multiply(ops.multiply(ops.multiply(ops.constant(2), w), w), b),
@@ -133,7 +67,7 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The scaled pair shares its one gauge.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains neither input.
    */
-  export function norm<T>(ops: Algebra<T>, a: T, b: T): T {
+  export function norm<T>(ops: IAutoMovieAlgebra<T>, a: T, b: T): T {
     const scale: number = Math.max(
       Math.abs(ops.value(a)),
       Math.abs(ops.value(b)),
@@ -159,7 +93,7 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two invocation-owned scalars.
    */
   export function velocity<T>(
-    ops: Algebra<T>,
+    ops: IAutoMovieAlgebra<T>,
     a: T,
     b: T,
     w: T,
@@ -210,12 +144,12 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two fixed pairs without retaining sources.
    */
   export function evaluate<T>(
-    ops: Algebra<T>,
+    ops: IAutoMovieAlgebra<T>,
     a: T,
     b: T,
     w: T,
     t: T,
-  ): IGeometry<T> {
+  ): IAutoMovieConicArcField.IGeometry<T> {
     const basis: Basis<T> = pointBasis(ops, a, b, w, t);
     const speed: readonly [T, T] = velocity(ops, basis.a, basis.b, w, t);
     const length: T = norm(ops, speed[0], speed[1]);
@@ -240,7 +174,7 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fixed local basis and a fresh coordinate pair are call-owned; nothing is cached.
    */
   export function point<T>(
-    ops: Algebra<T>,
+    ops: IAutoMovieAlgebra<T>,
     a: T,
     b: T,
     w: T,
@@ -250,7 +184,7 @@ export namespace AutoMovieConicArcField {
   }
 
   /** Preserve the original pre-velocity operation order and normalization. */
-  function pointBasis<T>(ops: Algebra<T>, a: T, b: T, w: T, t: T): Basis<T> {
+  function pointBasis<T>(ops: IAutoMovieAlgebra<T>, a: T, b: T, w: T, t: T): Basis<T> {
     const scale: number = Math.max(
       Math.abs(ops.value(a)),
       Math.abs(ops.value(b)),
@@ -270,7 +204,7 @@ export namespace AutoMovieConicArcField {
   }
 
   /** The same final point operations occur after velocity work in evaluate. */
-  function restorePoint<T>(ops: Algebra<T>, basis: Basis<T>): readonly [T, T] {
+  function restorePoint<T>(ops: IAutoMovieAlgebra<T>, basis: Basis<T>): readonly [T, T] {
     return [
       ops.multiply(
         ops.divide(ops.multiply(basis.a, basis.left), basis.denominator),
@@ -295,10 +229,10 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fixed pairs and retains no branch state.
    */
   export function orient<T>(
-    ops: Algebra<T>,
-    geometry: IGeometry<T>,
+    ops: IAutoMovieAlgebra<T>,
+    geometry: IAutoMovieConicArcField.IGeometry<T>,
     reverse: boolean,
-  ): IGeometry<T> {
+  ): IAutoMovieConicArcField.IGeometry<T> {
     if (!reverse) return geometry;
     return {
       point: [geometry.point[1], geometry.point[0]],
@@ -321,9 +255,9 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh output tuples retain no prepared source or operation table.
    */
   export function finish(
-    geometry: IGeometry<Jet>,
-    ray: AutoMovieConicArc.IRay,
-  ): IReading | IFailure {
+    geometry: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet>,
+    ray: IAutoMovieConicArc.IRay,
+  ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
     const required: number[] = [
       ...geometry.point[0],
       ...geometry.point[1],
@@ -371,10 +305,10 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh tuples or a named failure without caching.
    */
   export function read(
-    extents: readonly [Jet, Jet],
-    shoulder: Jet,
-    ray: AutoMovieConicArc.IRay,
-  ): IReading | IFailure {
+    extents: readonly [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+    shoulder: IAutoMovieConicFieldJet.IJet,
+    ray: IAutoMovieConicArc.IRay,
+  ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
     if (
       ray.native === null ||
       !Number.isFinite(ray.native) ||
@@ -392,10 +326,10 @@ export namespace AutoMovieConicArcField {
           "Raw conic reading requires finite supplied source jets and a selected native clock.",
       };
 
-    const ops: Algebra<Jet> = AutoMovieConicFieldJet.AD;
-    const a: Jet = extents[ray.reverse ? 1 : 0];
-    const b: Jet = extents[ray.reverse ? 0 : 1];
-    const geometry: IGeometry<Jet> = evaluate(
+    const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> = AutoMovieConicFieldJet.AD;
+    const a: IAutoMovieConicFieldJet.IJet = extents[ray.reverse ? 1 : 0];
+    const b: IAutoMovieConicFieldJet.IJet = extents[ray.reverse ? 0 : 1];
+    const geometry: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet> = evaluate(
       ops,
       a,
       b,

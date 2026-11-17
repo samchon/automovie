@@ -1,8 +1,9 @@
+import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -24,24 +25,24 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The original decimal-radius sphere tangent is returned with zero native distance at default and tiny explicit prediction.).
  */
 export async function test_physical_geometry_boundary(): Promise<void> {
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const sphere: P.IShape = PhysicalFixtures.sphere().segments[0]!.shapes[0]!;
   const make: (
     shape: P.IShape,
     x: number,
     rotation?: P.ITransform["rotation"],
-  ) => Geometry.ICollider = (
+  ) => IAutoMoviePreparePhysicalGeometry.ICollider = (
     shape: P.IShape,
     x: number,
     rotation: P.ITransform["rotation"] = Quaternion.identity(),
-  ): Geometry.ICollider => ({
+  ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
     body: x === 0 ? "first" : "second",
     bone: "root",
     shape,
     pose: { position: { x, y: 0, z: 0 }, rotation },
   });
   for (const prediction of [0, 1e-9]) {
-    const contact: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
+    const contact: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
       make(sphere, 0),
       make(sphere, 0.2),
       0,
@@ -68,14 +69,14 @@ export async function test_physical_geometry_boundary(): Promise<void> {
         rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 17),
       },
     };
-    const first: Geometry.ICollider = make(
+    const first: IAutoMoviePreparePhysicalGeometry.ICollider = make(
       shape,
       0,
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
     );
-    const second: Geometry.ICollider = make(shape, 0.2, first.pose.rotation);
+    const second: IAutoMoviePreparePhysicalGeometry.ICollider = make(shape, 0.2, first.pose.rotation);
     const input: string = JSON.stringify({ first, second });
-    const tangent: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
+    const tangent: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
       first,
       second,
       0,
@@ -88,7 +89,7 @@ export async function test_physical_geometry_boundary(): Promise<void> {
     );
     second.pose.position.x = 0.2001;
     assert.equal(geometry.contact(first, second, 0), null);
-    const predicted: ReturnType<Geometry.IQueries["contact"]> =
+    const predicted: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
       geometry.contact(first, second, 0, 0.001);
     TestValidator.predicate(
       `${shape.kind} explicit prediction retains positive native distance honestly`,
@@ -100,7 +101,7 @@ export async function test_physical_geometry_boundary(): Promise<void> {
     second.pose.position.x = 0.2;
     assert.equal(JSON.stringify({ first, second }), input);
   }
-  const overflowing: Geometry.ICollider = make(
+  const overflowing: IAutoMoviePreparePhysicalGeometry.ICollider = make(
     {
       ...sphere,
       transform: { ...sphere.transform, position: { x: 2e38, y: 0, z: 0 } },
@@ -108,7 +109,7 @@ export async function test_physical_geometry_boundary(): Promise<void> {
     2e38,
   );
   assert.throws(
-    (): ReturnType<Geometry.IQueries["project"]> =>
+    (): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["project"]> =>
       geometry.project(overflowing, { x: 0, y: 0, z: 0 }),
     /Derived native/,
   );

@@ -1,6 +1,9 @@
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionRequest } from "@automovie/interface";
+
+
+
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
+
 import { parseAutoMovieCapturePlanRequest } from "./parseAutoMovieCapturePlanRequest.js";
 
 /**

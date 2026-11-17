@@ -1,11 +1,7 @@
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -14,7 +10,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * A leg goal's bend point states the knee's plane: with the ankle placed a
  * shank below a knee that lies a thigh from the hip, the fitted knee is on
  * that point, also when the point is to the side of the hip
- * (`IHumanPosture.IGoal.bend`: the world point the middle joint bends
+ * (`HumanPosture.IGoal.bend`: the world point the middle joint bends
  * toward).
  *
  * One body, the average man, standing at the origin; the right leg is given
@@ -39,8 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its source, the construction, the 2 scenarios and what each complaint carries.
  */
 export function test_human_motion_core_leg_pole(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const standing: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const standing: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   const at = (
     pose: IAutoMoviePose,

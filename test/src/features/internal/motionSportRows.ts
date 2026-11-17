@@ -1,11 +1,5 @@
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSport,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanSport } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -74,13 +68,13 @@ export namespace motionSportRows {
     level: Level = "trained",
     part?: readonly [number, number],
   ): void {
-    const laws: IHumanActionLaw<never>[] = Object.values(HumanSport);
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HumanSport);
     const complaints: string[] = [];
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     checks().forEach((c: ICheck, index: number): void => {
       if (part !== undefined && index % part[1] !== part[0]) return;
       try {
-        const film: HumanPerformance = new HumanPerformance({
+        const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "sport",
           laws,
           performers: [
@@ -94,7 +88,7 @@ export namespace motionSportRows {
           ],
           composition: c.build().node,
         });
-        const act: HumanSegment.ISegment | undefined = film.segments("a")[1];
+        const act: IAutoMovieMotionHumanSegment.ISegment | undefined = film.segments("a")[1];
         if (act === undefined || !(act.end - act.entryTime > 0))
           complaints.push(`${c.label} on ${name} (${level}): it plans no time`);
         else if (c.placed !== undefined && act.name !== c.placed)
@@ -118,15 +112,15 @@ export namespace motionSportRows {
 /** One check of the net: what it is called, how it is composed and the name its act must be placed under. */
 interface ICheck {
   label: string;
-  build: () => HumanChain;
+  build: () => IAutoMovieMotionHumanChain;
   placed?: string;
 }
 
 /** The net's checks in order: every kind by its own method, then every row under its own name. */
 function checks(): ICheck[] {
-  const start = (): HumanChain =>
+  const start = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").stand({ seconds: 0.3 });
-  const kinds: Readonly<Record<string, () => HumanChain>> = {
+  const kinds: Readonly<Record<string, () => IAutoMovieMotionHumanChain>> = {
     "exercise squat": () => start().exercise({ kind: "squat" }),
     "exercise lunge": () => start().exercise({ kind: "lunge" }),
     "exercise highKnees": () => start().exercise({ kind: "highKnees" }),
@@ -159,13 +153,13 @@ function checks(): ICheck[] {
   };
   return [
     ...Object.entries(kinds).map(
-      ([label, build]: [string, () => HumanChain]): ICheck => ({
+      ([label, build]: [string, () => IAutoMovieMotionHumanChain]): ICheck => ({
         label,
         build,
       }),
     ),
     ...Object.values(HumanSport).map(
-      (law: IHumanActionLaw<never>): ICheck => ({
+      (law: IAutoMovieMotionHumanActionLaw<never>): ICheck => ({
         label: `the row ${law.name}`,
         build: () => start().registered(law.name),
         placed: law.name,

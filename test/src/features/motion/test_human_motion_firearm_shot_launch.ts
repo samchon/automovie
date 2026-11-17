@@ -1,14 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createHandgun, createProjectile } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanVerdicts,
-  HumanWeaponFirearm,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanVerdicts, HumanWeaponFirearm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,8 +38,8 @@ export function test_human_motion_firearm_shot_launch(): void {
   const ball: ReturnType<typeof createProjectile> = createProjectile({
     kind: "ball",
   });
-  const body: IHumanBody = motionHumanBody("m-average");
-  const perform = (shot: object | undefined): HumanPerformance =>
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const perform = (shot: object | undefined): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "shot",
       laws: [HumanWeaponFirearm.present, HumanWeaponFirearm.fire],
@@ -75,7 +69,7 @@ export function test_human_motion_firearm_shot_launch(): void {
         }).node,
     });
   for (const lock of [0, 0.005]) {
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform({ prop: "ball", speed: 350, lock });
     } catch (error) {
@@ -146,7 +140,7 @@ export function test_human_motion_firearm_shot_launch(): void {
       performance.flights("ball").length === 1,
     );
   }
-  let quiet: HumanPerformance | undefined;
+  let quiet: IAutoMovieMotionHumanPerformance | undefined;
   try {
     quiet = perform(undefined);
   } catch {

@@ -1,12 +1,8 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { Vector3 } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Where a hand-to-face task holds a sheet to be read: the one task whose
@@ -44,10 +40,10 @@ export namespace handToFaceSheet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "body">,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-  ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     const bones = HumanTrunk.resolve(context.body, posture);
     const eyes: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(

@@ -1,12 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditReach,
-  IAutoMovieMotionHumanAuditMotion,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditReach, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieMotionHumanAuditReach } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -75,7 +70,7 @@ export function test_motion_audit_reach(): void {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 => bones.get("rightHand")!.worldPosition;
   const place: IAutoMovieVector3 = { x: 0.3, y: 1, z: 0 };
-  const span: AutoMovieMotionHumanAuditReach.ISpan = { from: 0, to: 1 };
+  const span: IAutoMovieMotionHumanAuditReach.ISpan = { from: 0, to: 1 };
   const near = (label: string, got: number, expected: number): void => {
     TestValidator.predicate(
       `${label}: expected ${expected}, got ${got}`,
@@ -85,7 +80,7 @@ export function test_motion_audit_reach(): void {
   const gap = (
     at: (seconds: number) => IAutoMovieVector3,
     to: (seconds: number) => IAutoMovieVector3,
-  ): AutoMovieMotionHumanAuditReach.IResult =>
+  ): IAutoMovieMotionHumanAuditReach.IResult =>
     AutoMovieMotionHumanAuditReach.gap(
       hand(at, (): number => 0),
       "a",
@@ -96,7 +91,7 @@ export function test_motion_audit_reach(): void {
     );
 
   // 1. An arrival.
-  const arrives: AutoMovieMotionHumanAuditReach.IResult = gap(
+  const arrives: IAutoMovieMotionHumanAuditReach.IResult = gap(
     (t: number): IAutoMovieVector3 => ({ x: 0.3 * t, y: 1, z: 0 }),
     (): IAutoMovieVector3 => place,
   );
@@ -111,7 +106,7 @@ export function test_motion_audit_reach(): void {
   );
 
   // 2. A shortfall.
-  const short: AutoMovieMotionHumanAuditReach.IResult = gap(
+  const short: IAutoMovieMotionHumanAuditReach.IResult = gap(
     (t: number): IAutoMovieVector3 => ({ x: 0.26 * t, y: 1, z: 0 }),
     (): IAutoMovieVector3 => place,
   );
@@ -119,7 +114,7 @@ export function test_motion_audit_reach(): void {
   near("its nearest is at the end", short.best.seconds, 1);
 
   // 3. A place left during a hold.
-  const lifts: AutoMovieMotionHumanAuditReach.IResult = gap(
+  const lifts: IAutoMovieMotionHumanAuditReach.IResult = gap(
     (t: number): IAutoMovieVector3 => ({
       x: place.x,
       y:
@@ -136,10 +131,10 @@ export function test_motion_audit_reach(): void {
   // 4. A moving place.
   const moving = (t: number): IAutoMovieVector3 => ({ x: t, y: 1, z: 0 });
   const beside = (t: number): IAutoMovieVector3 => ({ x: t, y: 1, z: 0.02 });
-  const follows: AutoMovieMotionHumanAuditReach.IResult = gap(beside, moving);
+  const follows: IAutoMovieMotionHumanAuditReach.IResult = gap(beside, moving);
   near("a hand that follows stays 20 mm away", follows.worst.value, 0.02);
   near("at its nearest too", follows.best.value, 0.02);
-  const left: AutoMovieMotionHumanAuditReach.IResult = gap(
+  const left: IAutoMovieMotionHumanAuditReach.IResult = gap(
     beside,
     (): IAutoMovieVector3 => moving(0),
   );
@@ -156,7 +151,7 @@ export function test_motion_audit_reach(): void {
     degrees: (seconds: number) => number,
     axis: IAutoMovieVector3,
     toward: IAutoMovieVector3,
-  ): AutoMovieMotionHumanAuditReach.IResult =>
+  ): IAutoMovieMotionHumanAuditReach.IResult =>
     AutoMovieMotionHumanAuditReach.tilt(
       hand((): IAutoMovieVector3 => place, degrees),
       "a",
@@ -165,7 +160,7 @@ export function test_motion_audit_reach(): void {
       (): IAutoMovieVector3 => toward,
       span,
     );
-  const held: AutoMovieMotionHumanAuditReach.IResult = tilt(
+  const held: IAutoMovieMotionHumanAuditReach.IResult = tilt(
     (): number => 53,
     up,
     up,
@@ -177,7 +172,7 @@ export function test_motion_audit_reach(): void {
     held.worst.where,
     "rightHand axis",
   );
-  const tips: AutoMovieMotionHumanAuditReach.IResult = tilt(
+  const tips: IAutoMovieMotionHumanAuditReach.IResult = tilt(
     (t: number): number => 30 * t,
     up,
     up,

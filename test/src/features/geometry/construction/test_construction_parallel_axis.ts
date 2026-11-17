@@ -1,16 +1,6 @@
-import {
-  AutoMovieConstructionViews,
-  type AutoMovieViewAxis,
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewParallelAxis,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type {
-  IAutoMovieConstructionKnot,
-  IAutoMovieConstructionOutline,
-  IAutoMovieConstructionParallelAxis,
-} from "@automovie/interface";
+import type { IAutoMovieViewAxis, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewParallelAxis, IAutoMovieViewPart, IAutoMovieConstructionKnot, IAutoMovieConstructionOutline, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import { AutoMovieConstructionViews, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewParallelAxis } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -63,14 +53,14 @@ export function test_construction_parallel_axis(): void {
         z: outline([0, 2], [0, 2], scale / 1000),
       },
     };
-    const axis: AutoMovieViewAxis.IAxis | string =
+    const axis: IAutoMovieViewAxis.IAxis | string =
       AutoMovieConstructionViews.frame(record);
     if (typeof axis === "string") {
       failures.push(axis);
       continue;
     }
     for (const s of [-0.5, 0, 0.5, 1, 1.25, 2, 2.5]) {
-      const frame: ReturnType<AutoMovieViewAxis.IAxis["at"]> = axis.at(
+      const frame: ReturnType<IAutoMovieViewAxis.IAxis["at"]> = axis.at(
         s * scale,
       );
       compare(
@@ -110,9 +100,9 @@ export function test_construction_parallel_axis(): void {
       order: 32,
       samples: 64,
     };
-    const source: AutoMovieViewCurves.IResult =
+    const source: IAutoMovieViewCurves.IResult =
       AutoMovieViewCurves.create(part);
-    const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     if (
       source.diagnostics.length !== 0 ||
       loft.diagnostics.length !== 0 ||
@@ -127,7 +117,7 @@ export function test_construction_parallel_axis(): void {
         (ordinate(s) + 2 + s) * scale,
         s * scale,
       ];
-      const point: AutoMovieViewCurves.IReading | string =
+      const point: IAutoMovieViewCurves.IReading | string =
         AutoMovieViewCurves.at(source.curves[0]!, axis, s * scale);
       if (typeof point === "string") failures.push(point);
       else compare(`source guide ${scale}/${s}`, point.point, expected, scale);
@@ -139,7 +129,7 @@ export function test_construction_parallel_axis(): void {
       );
     }
   }
-  const origin: AutoMovieViewParallelAxis.IOrigin = {
+  const origin: IAutoMovieViewParallelAxis.IOrigin = {
     x: {
       knots: [
         { site: "a", station: 0, value: 0 },
@@ -184,7 +174,7 @@ export function test_construction_parallel_axis(): void {
   )
     failures.push("a missing origin curve was admitted");
   const u: [number, number, number] = [0, 1, 0];
-  const fixed: AutoMovieViewAxis.IAxis | string =
+  const fixed: IAutoMovieViewAxis.IAxis | string =
     AutoMovieViewParallelAxis.create(origin, u, [1, 0, 0]);
   u[1] = 5;
   if (typeof fixed === "string") failures.push(fixed);

@@ -1,33 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFreedomChoice, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPushSled, IAutoMovieMotionHumanStand, IAutoMovieMotionHumanWalkParams, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkDelayed } from "../actions/walkDelayed";
-import type { walkFacing } from "../actions/walkFacing";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -76,10 +60,10 @@ import { pushSledStance } from "./pushSledStance";
  */
 export namespace pushSled {
   /** The action's name. */
-  export const name: HumanActionKey = "pushSled";
+  export const name: AutoMovieMotionHumanActionKey = "pushSled";
 
   /** Cancel table: the push may be left at any time. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -91,43 +75,6 @@ export namespace pushSled {
 
   /** The refinement step of a hand's turn about a round handle, and the spacing of the turns tried first round it, degrees (search resolution: an eighth of a turn, halving to under 6). */
   export const TURN: number = 45;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The load, its two handles, the lean and the length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The handles are named affordances of the prop.
-   */
-  export interface IParams {
-    /** The pushed prop's subject id. */
-    sled: string;
-
-    /** Where the walk goes, world metres. */
-    to: IAutoMovieVector3;
-
-    /** The handle the left hand takes, an affordance id; `left` when absent. */
-    left?: string;
-
-    /** The handle the right hand takes, an affordance id; `right` when absent. */
-    right?: string;
-
-    /** How far the trunk leans into the load at least, degrees from the vertical in [0, `pushSledStance.RANGE`]; absent, the trunk leans as measured pushers do at the handles' height (`pushSledStance.INCLINES`), which a lean beyond it overrides. */
-    lean?: number;
-
-    /** The trunk's incline from the vertical asked outright, degrees in [-`pushSledStance.RANGE`, `pushSledStance.RANGE`], negative leaning back away from the load; it replaces the measured incline and `lean` (a haul at a declared load, `pushPull`); absent, the measured one. */
-    incline?: number;
-
-    /** Which way the body faces while it walks (`walk.IParams.facing`), so a pull walks backward facing the load; along the way when absent. */
-    facing?: walkFacing.IFacing;
-
-    /** Seconds to stand in place against the load instead of walking to `to`, the hands on the handles throughout; absent, the body walks. */
-    seconds?: number;
-
-    /** Whether the load moves with the hands; `false` presses the handles without gripping, so the load stays where it stands (a stuck door, a car that will not move); `true` when absent. */
-    moves?: boolean;
-  }
 
   /**
    * Plan a push.
@@ -145,9 +92,9 @@ export namespace pushSled {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the held places.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPushSled.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanPushSled.IParams = context.params;
     const body = context.body;
     const lean: number = p.lean ?? 0;
     HumanBound.within("lean", lean, 0, pushSledStance.RANGE, "degrees");
@@ -160,13 +107,13 @@ export namespace pushSled {
         "degrees",
       );
 
-    const grips: Record<HumanHand.Side, pushSledHandles.IHandle> =
+    const grips: Record<IAutoMovieMotionHumanHand.Side, pushSledHandles.IHandle> =
       pushSledHandles.of(context, p.sled, p.left ?? "left", p.right ?? "right");
-    const sockets: Record<HumanHand.Side, IAutoMovieVector3> = {
+    const sockets: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = {
       left: HumanHand.offset(body, "left", "grip", "fist").point,
       right: HumanHand.offset(body, "right", "grip", "fist").point,
     };
-    const walking: IHumanActionContext<walk.IParams> = {
+    const walking: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams> = {
       ...context,
       start: context.start + SETTLE,
       params: {
@@ -175,16 +122,16 @@ export namespace pushSled {
         armSwing: 0,
         ...(p.facing === undefined ? {} : { facing: p.facing }),
       },
-    } as IHumanActionContext<walk.IParams>;
+    } as IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>;
 
     // Take the handles before moving the load, or stand against it throughout.
-    const base: IHumanActionPlan =
+    const base: IAutoMovieMotionHumanActionPlan =
       p.seconds === undefined
         ? walkDelayed(walk.plan(walking), SETTLE)
         : stand.plan({
             ...context,
             params: { seconds: p.seconds },
-          } as IHumanActionContext<stand.IParams>);
+          } as IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>);
     const duration: number = base.duration;
     HumanBound.above("walk", duration, SETTLE, "s");
 
@@ -201,7 +148,7 @@ export namespace pushSled {
       lean,
       p.incline,
     );
-    const leaned = (posture: IHumanPosture, share: number): IHumanPosture =>
+    const leaned = (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
       AutoMovieMotionHumanTrunk.sunk(
         body,
         posture,
@@ -209,7 +156,7 @@ export namespace pushSled {
         stance.incline * share,
         0,
       );
-    const chest = (posture: IHumanPosture): IAutoMovieResolvedBone =>
+    const chest = (posture: IAutoMovieMotionHumanPosture): IAutoMovieResolvedBone =>
       HumanTrunk.resolve(body, posture).get("chest")!;
 
     // A turn's heading about the vertical, degrees; the load turns with the
@@ -222,12 +169,12 @@ export namespace pushSled {
       });
       return (Math.atan2(f.x, f.z) * 180) / Math.PI;
     };
-    const taking: IHumanPosture = leaned(base.posture(SETTLE), 1);
+    const taking: IAutoMovieMotionHumanPosture = leaned(base.posture(SETTLE), 1);
     const arrived: IAutoMovieResolvedBone = chest(taking);
     const facing: number = heading(arrived.worldRotation);
 
     // A hand's hold: the wrist it takes and the place its elbow bends toward.
-    type Hold = { wrist: HumanHand.IWrist; bend: IAutoMovieVector3 };
+    type Hold = { wrist: IAutoMovieMotionHumanHand.IWrist; bend: IAutoMovieVector3 };
 
     // A hold taken at the grip, on a pushing posture: the load slides on
     // the floor as one rigid thing with the hands, carried along it with the
@@ -236,7 +183,7 @@ export namespace pushSled {
     // load's turn there), never tilted by its sway, so both fists keep their
     // places on it and each elbow its side of the arm.
     const carry = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       hold: Hold,
     ): { hold: Hold; turn: IAutoMovieQuaternion } => {
       const c: IAutoMovieResolvedBone = chest(posture);
@@ -270,18 +217,18 @@ export namespace pushSled {
 
     // An arm's goal on a hold: where the arm cannot meet its turn, the grip
     // socket stays on the handle and the turn gives.
-    const goal = (side: HumanHand.Side, hold: Hold): IHumanPosture.IGoal => ({
+    const goal = (side: IAutoMovieMotionHumanHand.Side, hold: Hold): IAutoMovieMotionHumanPosture.IGoal => ({
       point: hold.wrist.point,
       rotation: hold.wrist.rotation,
       contact: sockets[side],
       bend: hold.bend,
     });
     const fit = (
-      posture: IHumanPosture,
-      side: HumanHand.Side,
+      posture: IAutoMovieMotionHumanPosture,
+      side: IAutoMovieMotionHumanHand.Side,
       hold: Hold,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       limbs[`${side}Arm`] = goal(side, hold);
       return poseBones(body, resolveHumanPosture(body, { ...posture, limbs }));
     };
@@ -295,13 +242,13 @@ export namespace pushSled {
     // push. The wrist the arm takes it with is what the push keeps, so the
     // hands never ask a turn the arms gave up, and the load riding one hand
     // stays where the other holds it.
-    const pushing: IHumanPosture[] = SAMPLES.map(
-      (share: number): IHumanPosture =>
+    const pushing: IAutoMovieMotionHumanPosture[] = SAMPLES.map(
+      (share: number): IAutoMovieMotionHumanPosture =>
         leaned(base.posture(SETTLE + share * (duration - SETTLE)), 1),
     );
     type Grasp = { point: IAutoMovieVector3; hold: Hold; off: number };
     type Held = { hold: Hold; off: number };
-    const take = (side: HumanHand.Side): Held => {
+    const take = (side: IAutoMovieMotionHumanHand.Side): Held => {
       const { frame: at, symmetry, length } = grips[side];
 
       // A turn and a place on the handle: the point, the hold the arm takes
@@ -313,7 +260,7 @@ export namespace pushSled {
           at.point,
           Vector3.scale(at.forward, values[1]!),
         );
-        const wrist: HumanHand.IWrist = HumanHand.reach(
+        const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.reach(
           body,
           side,
           "grip",
@@ -362,7 +309,7 @@ export namespace pushSled {
         for (let k: number = TURN; k <= 180; k += TURN)
           turns.push(...(k < 180 ? [k, -k] : [k]));
       else if (symmetry === "half") turns.push(180);
-      const choice: HumanFreedomChoice.IChoice = HumanFreedomChoice.chosen({
+      const choice: IAutoMovieMotionHumanFreedomChoice.IChoice = HumanFreedomChoice.chosen({
         tried: turns.map((turn: number): number[] => [turn, 0]),
         freedoms: [
           {
@@ -412,7 +359,7 @@ export namespace pushSled {
       });
       return { hold: grasp(choice.values).hold, off: choice.miss };
     };
-    const taken: Record<HumanHand.Side, Held> = {
+    const taken: Record<IAutoMovieMotionHumanHand.Side, Held> = {
       left: take("left"),
       right: take("right"),
     };
@@ -436,7 +383,7 @@ export namespace pushSled {
 
     // The hands reach for the holds they keep, so the reach ends where the
     // hold begins.
-    const kept: Record<HumanHand.Side, Hold> = {
+    const kept: Record<IAutoMovieMotionHumanHand.Side, Hold> = {
       left: taken.left.hold,
       right: taken.right.hold,
     };
@@ -444,7 +391,7 @@ export namespace pushSled {
       ...HumanHand.shape("left", "fist"),
       ...HumanHand.shape("right", "fist"),
     };
-    const sides: HumanHand.Side[] = ["left", "right"];
+    const sides: IAutoMovieMotionHumanHand.Side[] = ["left", "right"];
 
     // The arms carried on the leaning walk from the entry's arms to the
     // handles by `SETTLE`, then held on them as the load is carried, the
@@ -455,7 +402,7 @@ export namespace pushSled {
       contacts: [
         ...base.contacts,
         ...sides.map(
-          (side: HumanHand.Side): IHumanContactWindow => ({
+          (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,
             // A load that does not move is pressed, bearing none of the
             // body's weight, not gripped, so it stays where it stands.
@@ -469,11 +416,11 @@ export namespace pushSled {
         ),
       ],
       hands: sides,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const share: number = minimumJerk(Math.min(1, t / SETTLE)).s;
-        const posture: IHumanPosture = leaned(base.posture(t), share);
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        const posture: IAutoMovieMotionHumanPosture = leaned(base.posture(t), share);
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of sides)
           limbs[`${side}Arm`] = goal(
             side,

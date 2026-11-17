@@ -1,6 +1,5 @@
-import { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieHeightSurface, IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieHeightSurface } from "./IAutoMovieHeightSurface";
 
 /** Squared XZ ramp span below this square-metre threshold reads as flat. */
 const MIN_RAMP_AXIS: number = 1e-9;

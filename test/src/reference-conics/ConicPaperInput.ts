@@ -1,3 +1,4 @@
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -6,7 +7,7 @@ import path from "node:path";
 /** Private observation reader; only index rows explicitly marked closed enter the experiment. */
 export namespace ConicPaperInput {
   /** Weak source-identity reuse shares exact preprocessing between the two methods without retaining source curves. */
-  const criticalCache: WeakMap<Span, C.ICubicCriticalParameters> = new WeakMap();
+  const criticalCache: WeakMap<Span, IAutoMovieConicApproximation.ICubicCriticalParameters> = new WeakMap();
   /** Spatial coefficients retain the saved millimetre, +X forward/+Y up/+Z left chart. */
   export type V = readonly [number, number, number];
   /** Four actual Bernstein controls, not interpolated display points. */
@@ -140,22 +141,22 @@ export namespace ConicPaperInput {
   }
 
   /** Evaluate one cubic's exact Bernstein derivatives; derivatives four and five vanish inside its chart. */
-  export function value(span: Span, u: number, order: 0 | 1 | 2 | 3 | 4 | 5): C.Point {
+  export function value(span: Span, u: number, order: 0 | 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
     if (order >= 4) return [0, 0];
-    let controls: C.Point[] = span.map((p: V): C.Point => [p[0], p[2]]);
+    let controls: IAutoMovieConicApproximation.Point[] = span.map((p: V): IAutoMovieConicApproximation.Point => [p[0], p[2]]);
     for (let k: number = 0; k < order; ++k) {
       const degree: number = controls.length - 1;
-      controls = controls.slice(1).map((p: C.Point, i: number): C.Point => [degree * (p[0] - controls[i]![0]), degree * (p[1] - controls[i]![1])]);
+      controls = controls.slice(1).map((p: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [degree * (p[0] - controls[i]![0]), degree * (p[1] - controls[i]![1])]);
     }
     while (controls.length > 1)
-      controls = controls.slice(1).map((p: C.Point, i: number): C.Point => [(1 - u) * controls[i]![0] + u * p[0], (1 - u) * controls[i]![1] + u * p[1]]);
+      controls = controls.slice(1).map((p: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [(1 - u) * controls[i]![0] + u * p[0], (1 - u) * controls[i]![1] + u * p[1]]);
     return controls[0]!;
   }
 
   /** Exact critical boundaries split the original cubic without changing its values, jets, controls or phase registration. */
-  export function chart(span: Span, ordinal: number, query: () => void, method: "ahn" | "ghosh", report: (summary: CriticalSummary, diagnostics: readonly string[]) => void): C.ICurve {
+  export function chart(span: Span, ordinal: number, query: () => void, method: "ahn" | "ghosh", report: (summary: CriticalSummary, diagnostics: readonly string[]) => void): IAutoMovieConicApproximation.ICurve {
     const started: number = performance.now();
-    let critical: C.ICubicCriticalParameters | undefined = criticalCache.get(span);
+    let critical: IAutoMovieConicApproximation.ICubicCriticalParameters | undefined = criticalCache.get(span);
     const cached: boolean = critical !== undefined;
     if (critical === undefined) {
       critical = C.cubicCriticalParameters([[span[0][0], span[0][2]], [span[1][0], span[1][2]], [span[2][0], span[2][2]], [span[3][0], span[3][2]]]);
@@ -170,7 +171,7 @@ export namespace ConicPaperInput {
       collapsedBreaks: collapsed, computedCharts: Number(!cached), cachedCharts: Number(cached), milliseconds: performance.now() - started }, critical.diagnostics);
     if (collapsed > 0) throw new Error("Source cubic " + ordinal + " has " + collapsed + " critical roots unrepresentable in its ordinal chart; no epsilon move or merge was applied.");
     return { domain: [ordinal, ordinal + 1], breaks: mapped, closed: false,
-      evaluate: (t: number): C.Point => { query(); return value(span, t - ordinal, 0); },
-      derivative: (t: number, order: 1 | 2 | 3 | 4 | 5): C.Point => { query(); return value(span, t - ordinal, order); } };
+      evaluate: (t: number): IAutoMovieConicApproximation.Point => { query(); return value(span, t - ordinal, 0); },
+      derivative: (t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point => { query(); return value(span, t - ordinal, order); } };
   }
 }

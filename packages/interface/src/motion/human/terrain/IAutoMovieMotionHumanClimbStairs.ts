@@ -1,0 +1,74 @@
+import type { IAutoMovieMotionHumanClimbStairsFlight } from "./IAutoMovieMotionHumanClimbStairsFlight";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+
+/**
+ * Climbing a flight of stairs up or down from standing before its first
+ * nosing, step over step (one foot per tread) or step by step (both feet on
+ * each tread), ending with both feet on the last tread.
+ *
+ * The flight lies ahead along the heading: its first nosing `start` metres
+ * ahead of the toes, `count` treads of `riser` and `tread` metres, rising for
+ * `up` and falling below the floor for `down`. The goals are footprints: each
+ * foot lands with the middle of its sole on the middle of its tread, at its
+ * standing lateral place; a sole too long to keep `EDGE` from both edges
+ * there hangs its heel over the nosing ascending and its toes over the next
+ * one descending, as a long foot stands on a short tread, and on the landing
+ * stands `EDGE` past the last nosing. A swinging foot
+ * takes the shortest path over the flight that keeps every point of its sole
+ * above the surface under it and `CLEARANCE` above each edge it passes
+ * (`AutoMovieMotionHumanClearance`): ascending it lifts beside the riser and
+ * follows the line of the nosings, descending it moves forward and lowers
+ * once its heel is past the nosing. The pelvis moves between the stances on
+ * minimum-jerk progress over the middle of the two feet, half a step behind
+ * them over the floor (`climbStairsPelvis`). Its height at a
+ * stance is the highest from which both legs reach their feet, so the lower
+ * foot's leg is straight and the upper one's bent; it changes while a foot
+ * swings and holds in double support, and is lowered wherever either leg,
+ * planted or swinging, could not reach its foot.
+ *
+ * The trunk inclines forward by `ASCENT_LEAN` going up and by a walk's
+ * inclination going down, shared between the pelvis and the spine by the
+ * lumbopelvic rhythm and tipped about the hips, since the trunk flexes
+ * forward more in stair ascent than in level walking (McFadyen and Winter
+ * 1988, J Biomech 21:733).
+ *
+ * The cadence is 90 steps a minute (Mian, Narici, Minetti and Baltzopoulos
+ * 2007, Gait Posture 26:463), scaled by the square root of the hip height
+ * (Alexander 1984) and by the manner's tempo; each swing takes 0.8 of a step
+ * and the double support the rest (provisional). Risers from 100 to 180 mm and
+ * treads from 280 mm are the 2010 ADA ranges (504.2), the defaults 170 and
+ * 280 mm; a riser above 0.35 of the hip height or a tread shorter than 0.6
+ * of the foot is refused with the body's feasible range (provisional limits).
+ * Events: `toeOff<n>` and `treadContact<n>` per step, numbered from 1.
+ *
+ * Not yet: handrail use (no `bar` affordance exists, A8), landing turns,
+ * ramps and slopes, which belong to the walk on a sloped support.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation pattern: One foot per tread, or both feet on each; `stepOverStep` when absent. lead: The foot that steps first; `right` when absent.
+ * @evidence contracts/development/design.md#principled-representation pattern: One foot per tread, or both feet on each; `stepOverStep` when absent. lead: The foot that steps first; `right` when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.climbStairs, params); terrain/climbStairs.ts (climbStairs.plan, context); executable/cases/stairsCases.ts (stairsCases); terrain/climbStairs.ts (climbStairs.plan).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanClimbStairs {
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
+   * @evidence contracts/development/design.md#principled-representation The flight's architecture and the stepping pattern.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `plan`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No footprint is typed; they follow from the flight.
+   *
+   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
+   */
+  export interface IParams
+    extends IAutoMovieMotionHumanClimbStairsFlight.IStairs {
+    /** One foot per tread, or both feet on each; `stepOverStep` when absent. */
+    pattern?: "stepOverStep" | "stepByStep";
+
+    /** The foot that steps first; `right` when absent. */
+    lead?: "left" | "right";
+
+    /** How it is performed. */
+    manner?: IAutoMovieMotionManner.IManner;
+  }
+}

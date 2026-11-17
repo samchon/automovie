@@ -1,7 +1,5 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMark, IAutoMovieMeshClearanceWitness, IAutoMovieMarkMeshClearance } from "@automovie/interface";
 
-import type { IAutoMovieMark } from "./IAutoMovieMark";
-import type { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 
 /**
  * Turn the witnesses of a mesh clearance measurement into inspection marks: one segment per witness from its point on the front surface to the matching point on the back surface, flagged where the back lies in front.
@@ -25,13 +23,7 @@ import type { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWi
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one measurement.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
-export function markAutoMovieMeshClearance(props: {
-  path: string;
-  front: Pick<IAutoMovieMesh, "positions">;
-  axis: "x" | "y" | "z";
-  witnesses: readonly IAutoMovieMeshClearanceWitness[];
-  anchor: string | null;
-}): IAutoMovieMark[] {
+export function markAutoMovieMeshClearance(props: IAutoMovieMarkMeshClearance.IProps): IAutoMovieMark[] {
   const vertices: number = props.front.positions.length / 3;
   const axis: number = { x: 0, y: 1, z: 2 }[props.axis];
   return props.witnesses.map(

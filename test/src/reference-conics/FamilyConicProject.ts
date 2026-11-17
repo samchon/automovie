@@ -1,4 +1,5 @@
-import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief } from "@automovie/interface";
+import { AutoMovieLoftRelief } from "@automovie/engine";
 
 /**
  * A relief net re-represented on a coarser grid of its own window (issue #3197, stage B2): the least-squares projection of the stored

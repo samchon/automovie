@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieTetrahedralizeDelaunay, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "./Vector3";
 import { seededValue } from "./seededValue";
@@ -30,7 +31,7 @@ import { seededValue } from "./seededValue";
  */
 export function tetrahedralizeAutoMovieDelaunay(
   points: readonly IAutoMovieVector3[],
-): tetrahedralizeAutoMovieDelaunay.IMesh {
+): IAutoMovieTetrahedralizeDelaunay.IMesh {
   const n: number = points.length;
 
   // Qhull's joggle: each coordinate within `JOGGLE` epsilons of the
@@ -145,15 +146,6 @@ export namespace tetrahedralizeAutoMovieDelaunay {
 
   /** The seed domain of the joggle's draws, so no other draw shares them. */
   export const DOMAIN: number = 3438;
-
-  /** The tetrahedra over the points, each by four indices in positive orientation on the joggled points. */
-  export interface IMesh {
-    /** The tetrahedra. */
-    tetrahedra: readonly (readonly [number, number, number, number])[];
-
-    /** The joggled points the mesh is Delaunay and positively oriented on, world metres. */
-    points: readonly IAutoMovieVector3[];
-  }
   /**
    * Each point's neighbours along the mesh's edges, ascending.
    *
@@ -161,7 +153,7 @@ export namespace tetrahedralizeAutoMovieDelaunay {
    * @param n The number of points.
    * @returns The neighbour lists by point.
    */
-  export function neighbours(mesh: IMesh, n: number): number[][] {
+  export function neighbours(mesh: IAutoMovieTetrahedralizeDelaunay.IMesh, n: number): number[][] {
     const sets: Set<number>[] = Array.from(
       { length: n },
       (): Set<number> => new Set(),

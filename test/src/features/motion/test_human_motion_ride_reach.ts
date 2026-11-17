@@ -1,14 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanMountReach,
-  HumanMountRider,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+
+import { HumanMountReach, HumanMountRider, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,8 +36,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_ride_reach(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const seated: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const seated: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const read = (degrees: number): ReturnType<typeof poseBones> =>
       poseBones(
         body,

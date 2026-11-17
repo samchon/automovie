@@ -1,9 +1,14 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame, IAutoMovieHumanTrunkReliefNet } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
-import type { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
+
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
 import { AutoMovieHumanUmbilicalProfile } from "./AutoMovieHumanUmbilicalProfile";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The umbilicus merged into the trunk: the pit as a relief window centred on
@@ -18,7 +23,7 @@ export namespace AutoMovieHumanUmbilicus {
    * @param frame The umbilical frame.
    * @returns The pit as a height field.
    */
-  export function feature(frame: AutoMovieHumanTrunkFeatureFrame.IFrame): IAutoMovieHumanTrunkFeature {
+  export function feature(frame: IAutoMovieHumanTrunkFeatureFrame.IFrame): IAutoMovieHumanTrunkFeature {
     const R: number = AutoMovieHumanUmbilicalProfile.RADIUS;
 
     return {
@@ -39,8 +44,8 @@ export namespace AutoMovieHumanUmbilicus {
    * @returns The relief.
    */
   export function create(
-    frame: AutoMovieHumanTrunkFeatureFrame.IFrame,
-    base: AutoMovieHumanTrunkReliefNet.Base,
+    frame: IAutoMovieHumanTrunkFeatureFrame.IFrame,
+    base: IAutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
   ): IAutoMovieLoftRelief {
     const R: number = AutoMovieHumanUmbilicalProfile.RADIUS;

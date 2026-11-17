@@ -1,3 +1,4 @@
+import type { IAutoMovieRecoveryImageDirectionSolverCreationOperation } from "@automovie/interface";
 /**
  * Factor a two-column camera-direction design without normal equations.
  * Reorthogonalized modified Gram-Schmidt supplies the small QR factors; the
@@ -14,9 +15,9 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns two O(V) arrays and scalar factors for the request lifetime; it acquires no file, process, listener or global cache.
  */
 export function createRecoveryImageDirectionSolver(
-  directions: readonly [number, number][],
-  minimumRatio: number,
-): { ratio: number; solve: (values: readonly number[]) => [number, number] } {
+  directions: Parameters<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation>[0],
+  minimumRatio: Parameters<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation> {
   let r00: number = 0;
   for (const row of directions) r00 = Math.hypot(r00, row[0]);
   if (!(r00 > 0) || !Number.isFinite(r00))
@@ -74,6 +75,5 @@ export function createRecoveryImageDirectionSolver(
       if (!Number.isFinite(x) || !Number.isFinite(z))
         throw new Error("Direction solve exceeded finite arithmetic");
       return [x, z];
-    },
-  };
+    } };
 }

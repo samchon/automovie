@@ -1,4 +1,5 @@
-import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
+import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanPropDynamics } from "@automovie/interface";
+import { AutoMovieGravity } from "@automovie/engine";
 import { HumanPropDynamics } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,7 +49,7 @@ export function test_human_motion_prop_dynamics(): void {
   const crate = (
     mass: number,
     force: (seconds: number) => number,
-  ): HumanPropDynamics.ISlide => ({
+  ): IAutoMovieMotionHumanPropDynamics.ISlide => ({
     mass,
     friction: 0.5,
     kinetic: 0.4,
@@ -59,14 +60,14 @@ export function test_human_motion_prop_dynamics(): void {
   const threshold: number = 0.5 * 40 * g;
 
   // 1. The static threshold.
-  const under: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+  const under: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
     crate(40, (): number => 0.99 * threshold),
   );
   if (under.at(2).x[0] !== 0)
     findings.push(
       `a push under the threshold moves the crate ${under.at(2).x[0]} m`,
     );
-  const over: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+  const over: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
     crate(40, (): number => 1.01 * threshold),
   );
   if (!(over.at(2).x[0]! > 0))
@@ -75,7 +76,7 @@ export function test_human_motion_prop_dynamics(): void {
   // 2. Newton under kinetic friction.
   const F: number = 300;
   const a: number = (F - 0.4 * 40 * g) / 40;
-  const pushed: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+  const pushed: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
     crate(40, (): number => F),
   );
   for (const t of [0.5, 1, 2]) {
@@ -90,10 +91,10 @@ export function test_human_motion_prop_dynamics(): void {
 
   // 3. Mass halves the acceleration; a ramp starts it at its crossing.
   const net: number = 100;
-  const light: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+  const light: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
     crate(40, (): number => net + 0.4 * 40 * g),
   );
-  const heavy: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide({
+  const heavy: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide({
     ...crate(80, (): number => net + 0.4 * 80 * g),
     friction: 0.4,
   });
@@ -104,7 +105,7 @@ export function test_human_motion_prop_dynamics(): void {
     findings.push(
       `twice the mass reaches ${heavy.at(1).x[1]} for ${light.at(1).x[1]}`,
     );
-  const ramp: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+  const ramp: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
     crate(40, (t: number): number => 300 * t),
   );
   const crossing: number = threshold / 300;
@@ -116,7 +117,7 @@ export function test_human_motion_prop_dynamics(): void {
     );
 
   // 4. A released push: kinetic friction stops the crate, never reverses it.
-  const released: integrateMotionTrajectory.ITrajectory =
+  const released: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     HumanPropDynamics.slide(crate(40, (t: number): number => (t < 1 ? F : 0)));
   const release: number = a * 1;
   const rest: number = a / 2 + (release * release) / (2 * 0.4 * g);
@@ -137,7 +138,7 @@ export function test_human_motion_prop_dynamics(): void {
   }
 
   // 5. A door.
-  const door: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
+  const door: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
     6,
     (): number => 3,
     0,
@@ -154,7 +155,7 @@ export function test_human_motion_prop_dynamics(): void {
         `the door at ${t} s turns at ${speed} rad/s, expected ${(3 * t) / 6}`,
       );
   }
-  const swung: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
+  const swung: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
     6,
     (t: number): number => 3 * Math.cos(Math.PI * t),
     0,

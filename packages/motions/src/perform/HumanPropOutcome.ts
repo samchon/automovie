@@ -1,20 +1,8 @@
-import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  type IAutoMovieProjectileState,
-  Vector3,
-  projectileContinue,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBody,
-  IAutoMovieBodyContact,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMovieBody, IAutoMovieBodyContact, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMoviePhysicalProfile, IAutoMovieProjectile, IAutoMovieProjectileContinue, IAutoMovieProjectileState, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Vector3, projectileContinue } from "@automovie/engine";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanPropFlight } from "./HumanPropFlight";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * How a prop's flight goes on after a contact (#3479), from its model body's
@@ -54,46 +42,6 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is the model body's; an absent datum withholds its outcome, never stands in as zero.
  */
 export namespace HumanPropOutcome {
-  /**
-   * A leg of a flight after its first contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents launch-relative seconds, the engine segment, an infinite unended leg and its optional ending contact.
-   * @evidence contracts/development/design.md#principled-representation One engine continuation segment retains its timing and observed contact without a parallel trajectory representation; sorted/progressing times remain the producer's obligation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPropFlight reads segment frames and recorded contacts; legs constructs every field.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing contact is explicit and no predicted impact is substituted for an observed one.
-   */
-  export interface ILeg {
-    /** Seconds since the launch it begins. */
-    from: number;
-
-    /** The engine's segment, its times since the launch. */
-    segment: projectileContinue.Segment;
-
-    /** Seconds since the launch it ends at a contact; Infinity when it does not. */
-    end: number;
-
-    /** The contact that ends it, absent when none does. */
-    contact?: HumanPropFlight.IContact;
-  }
-
-  /**
-   * A meeting of a flight with what it strikes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sweep-relative hit, target kind and collider identity used for pass exclusion or a resolved bounce's physical departure query.
-   * @evidence contracts/development/design.md#principled-representation Reuses the engine hit and the flight's target union; their correspondence is supplied by the sweep rather than encoded twice.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The continuation loop reads the hit, target and collider for outcome, settlement and the next sweep.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no inferred material coefficient or alternative collision solver.
-   */
-  export interface IMeeting {
-    /** The engine's hit, its time since the swept flight's own zero. */
-    hit: IAutoMovieHit;
-
-    /** What it struck. */
-    struck: HumanPropFlight.Struck;
-
-    /** The struck collider's id, for pass exclusion or a resolved bounce's departure query. */
-    collider: string;
-  }
 
   /**
    * The quadratic drag a prop's body declares (`IAutoMovieBody.drag`), with
@@ -111,7 +59,7 @@ export namespace HumanPropOutcome {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh scalar record and retains no prop, callback or host resource.
    */
   export function drag(
-    prop: IHumanProp,
+    prop: IAutoMovieMotionHumanProp,
   ): IAutoMovieProjectile.IDrag | undefined {
     const body: IAutoMovieBody | undefined = prop.body;
     if (!body?.drag) return undefined;
@@ -140,9 +88,9 @@ export namespace HumanPropOutcome {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns an owned small outcome or refusal and retains no prop, collider or external resource.
    */
   export function decide(
-    prop: IHumanProp,
-    struck: HumanPropFlight.Struck,
-  ): projectileContinue.Outcome | undefined {
+    prop: IAutoMovieMotionHumanProp,
+    struck: IAutoMovieMotionHumanPropFlight.Struck,
+  ): IAutoMovieProjectileContinue.Outcome | undefined {
     const body: IAutoMovieBody | undefined = prop.body;
     if (body === undefined) return undefined;
     const contact: IAutoMovieBodyContact | undefined =
@@ -208,23 +156,7 @@ export namespace HumanPropOutcome {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each continuation segment is constructed once and retained for later sampling; the engine owns optional drag-flight integration reuse, and this loop installs no callback or cross-flight cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned legs retain only their segments and contacts; local projectile and meeting references are released on return or refusal, and no host task is started.
    */
-  export function legs(props: {
-    prop: IHumanProp;
-    projectile: IAutoMovieProjectile;
-    meeting: IMeeting;
-    horizon: number;
-    meet: (
-      projectile: IAutoMovieProjectile,
-      base: number,
-      leave?: string,
-      departing?: string,
-    ) => IMeeting | null;
-    settle: (
-      meeting: IMeeting,
-      projectile: IAutoMovieProjectile,
-      base: number,
-    ) => HumanPropFlight.IContact;
-  }): ILeg[] {
+  export function legs(props: IAutoMovieMotionHumanPropOutcome.ILegsProps): IAutoMovieMotionHumanPropOutcome.ILeg[] {
     if (!Number.isFinite(props.horizon) || props.horizon < 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -244,17 +176,17 @@ export namespace HumanPropOutcome {
         fix: "supply the contact's seconds after this flight's launch",
       });
     if (props.meeting.hit.time >= props.horizon) return [];
-    const out: ILeg[] = [];
+    const out: IAutoMovieMotionHumanPropOutcome.ILeg[] = [];
     let projectile: IAutoMovieProjectile = props.projectile;
-    let meeting: IMeeting = props.meeting;
+    let meeting: IAutoMovieMotionHumanPropOutcome.IMeeting = props.meeting;
     let base: number = 0;
     for (;;) {
-      const outcome: projectileContinue.Outcome | undefined = decide(
+      const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
         props.prop,
         meeting.struck,
       );
       if (outcome === undefined || outcome.kind === "stick") return out;
-      const next: projectileContinue.Segment = shift(
+      const next: IAutoMovieProjectileContinue.Segment = shift(
         projectileContinue(projectile, meeting.hit, outcome),
         base,
       );
@@ -274,7 +206,7 @@ export namespace HumanPropOutcome {
           : Infinity;
       if (outcome.kind === "bounce" && rise < radius(props.prop)!) return out;
       if (!(next.from < props.horizon)) return out;
-      const met: IMeeting | null = props.meet(
+      const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null = props.meet(
         next.projectile,
         next.from,
         outcome.kind === "pass" ? meeting.collider : undefined,
@@ -332,7 +264,7 @@ export namespace HumanPropOutcome {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Samples the retained segment without rebuilding contact sweeps or its outcome.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no task or resource and retains neither leg nor returned state.
    */
-  export function at(leg: ILeg, seconds: number): IAutoMovieProjectileState {
+  export function at(leg: IAutoMovieMotionHumanPropOutcome.ILeg, seconds: number): IAutoMovieProjectileState {
     return projectileContinue.at(leg.segment, seconds);
   }
 
@@ -354,11 +286,11 @@ export namespace HumanPropOutcome {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no prop or state and returns either a fresh embedded point or the borrowed contact position.
    */
   export function rest(
-    prop: IHumanProp,
-    struck: HumanPropFlight.Struck,
+    prop: IAutoMovieMotionHumanProp,
+    struck: IAutoMovieMotionHumanPropFlight.Struck,
     state: IAutoMovieProjectileState,
   ): IAutoMovieVector3 {
-    const outcome: projectileContinue.Outcome | undefined = decide(
+    const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
       prop,
       struck,
     );
@@ -372,14 +304,14 @@ export namespace HumanPropOutcome {
   }
 
   /** A body's radius: its least round shape's, or half its boxes' least extent; none without such a shape. */
-  function radius(prop: IHumanProp): number | undefined {
+  function radius(prop: IAutoMovieMotionHumanProp): number | undefined {
     let least: number = Infinity;
     for (const shape of prop.shapes ?? []) least = Math.min(least, half(shape));
     return Number.isFinite(least) ? least : undefined;
   }
 
   /** A shape's half thickness, metres; a hull is not counted. */
-  function half(shape: P.IShape): number {
+  function half(shape: IAutoMoviePhysicalProfile.IShape): number {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? shape.radius
       : shape.kind === "box"
@@ -393,9 +325,9 @@ export namespace HumanPropOutcome {
 
   /** A segment of a flight whose zero is `base` seconds after the launch, timed from the launch. */
   function shift(
-    segment: projectileContinue.Segment,
+    segment: IAutoMovieProjectileContinue.Segment,
     base: number,
-  ): projectileContinue.Segment {
+  ): IAutoMovieProjectileContinue.Segment {
     switch (segment.kind) {
       case "flight":
         return { ...segment, from: segment.from + base };

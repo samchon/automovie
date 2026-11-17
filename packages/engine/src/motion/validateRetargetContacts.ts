@@ -1,6 +1,5 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
-import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
+import type { IAutoMovieRetargetContactProps, IAutoMovieRetargetHandContact, IAutoMovieViolationCollector } from "@automovie/interface";
+
 
 /**
  * Append field-located errors for an enabled retarget contact policy before source FK or IK. Disabled contact preservation ignores its unused numeric policy; ground callback results are validated only when sampled.
@@ -16,7 +15,7 @@ import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 export function validateRetargetContacts(
   contacts: IAutoMovieRetargetContactProps | undefined,
   duration: number,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void {
   if (contacts === undefined || contacts.enabled === false) return;
   if (contacts.tolerance !== undefined)

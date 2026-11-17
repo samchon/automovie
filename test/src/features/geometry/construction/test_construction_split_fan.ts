@@ -1,12 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionSplit,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieConstructionSplit } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -42,7 +36,7 @@ export function test_construction_split_fan(): void {
   const turn: number = 2 * Math.PI;
   const R: number = 25 * Math.sqrt(1 - (30 / 80) ** 2);
   const t: number = Math.acos(8 / R);
-  const host: AutoMovieConstructionNode = ConstructionShapes.part(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.part(
     "trunk",
     ConstructionShapes.DOWN,
     ConstructionShapes.uniform(-0.06, 0.03, 13),
@@ -52,7 +46,7 @@ export function test_construction_split_fan(): void {
     },
     "open",
   );
-  const finger = (name: string, x: number): AutoMovieConstructionNode =>
+  const finger = (name: string, x: number): IAutoMovieConstructionNode =>
     ConstructionShapes.part(
       name,
       { ...ConstructionShapes.DOWN, origin: { x, y: 0, z: -0.03 } },
@@ -79,11 +73,11 @@ export function test_construction_split_fan(): void {
     rows: 4,
     children: (options.children ?? [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)]) as IAutoMovieConstructionSplit["children"],
   });
-  const realize = (root: AutoMovieConstructionNode): AutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+  const realize = (root: IAutoMovieConstructionNode): IAutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
   const outer: IAutoMovieConstructionSplit.ISeam[] = [{ seam: [t - Math.PI, Math.PI - t] }];
 
   // 1. The positive tree.
-  const real: AutoMovieConstructionRealization.IRealization = realize(split({ outer }));
+  const real: IAutoMovieConstructionRealization.IRealization = realize(split({ outer }));
   if (real.diagnostics.length !== 0) failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
   const names: string = real.body.faces
     .map((f: { chain: string }): string => f.chain)
@@ -147,12 +141,12 @@ export function test_construction_split_fan(): void {
   refused(split({ outer, children: [child("f.0", 0.0165), child("f.2", -0.0165)] }), "two children for two seams");
 
   // 7. Correspondence by length: every child matched by arclength share realizes with no diagnostic.
-  const lengthwise: AutoMovieConstructionRealization.IRealization = realize(split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }));
+  const lengthwise: IAutoMovieConstructionRealization.IRealization = realize(split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }));
   if (lengthwise.diagnostics.length !== 0) failures.push(`length correspondence: ${ConstructionRead.diagnostics(lengthwise)}`);
 
   // 8. Heading: seam 0 curved in the plane that holds the chord and the heading (0.6, 0, -0.8), whose normal is (-0.8, 0, -0.6).
   const half: number = Math.sqrt(R * R - 64);
-  const headed: AutoMovieConstructionRealization.IRealization = realize({
+  const headed: IAutoMovieConstructionRealization.IRealization = realize({
     ...split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }),
     profile: { knots: [[half / 1000, 0.004]], corner: 0.3, heading: [0.6, 0, -0.8] },
   });
@@ -173,7 +167,7 @@ export function test_construction_split_fan(): void {
 
   // 9. Correspondence by length starts where the loop and the rail stand closest: with child f.0 hung 4 mm aside, its band's loop and
   // rail points, each about its own centroid and projected on the rail's plane, turn by less than 3 degrees on average.
-  const aside: AutoMovieConstructionRealization.IRealization = realize(split({ outer, children: [{ ...child("f.0", 0.0165), part: ConstructionShapes.part("f.0", { ...ConstructionShapes.DOWN, origin: { x: 0.0165, y: 0.004, z: -0.03 } }, ConstructionShapes.uniform(0, 0.06, 7), (): [number, number, number, number] => [0.007, 0.007, 0.007, 0.007], "open"), correspondence: "length" }, child("f.1", 0), child("f.2", -0.0165)] }));
+  const aside: IAutoMovieConstructionRealization.IRealization = realize(split({ outer, children: [{ ...child("f.0", 0.0165), part: ConstructionShapes.part("f.0", { ...ConstructionShapes.DOWN, origin: { x: 0.0165, y: 0.004, z: -0.03 } }, ConstructionShapes.uniform(0, 0.06, 7), (): [number, number, number, number] => [0.007, 0.007, 0.007, 0.007], "open"), correspondence: "length" }, child("f.1", 0), child("f.2", -0.0165)] }));
   if (aside.diagnostics.length !== 0) failures.push(`aside: ${ConstructionRead.diagnostics(aside)}`);
   else {
     const band: IAutoMovieSolidSurface = ConstructionRead.surface(aside, "band.f.0");
@@ -209,7 +203,7 @@ export function test_construction_split_fan(): void {
   }
   // 11. Reach: the headed tree's bands, their ribbons kept at a quarter of their length at each fork, fold in fewer clocks than with
   // their whole length, read every 1/384 turn and 1/40 of each band's span where the normal flips from its neighbour's.
-  const folds = (r: AutoMovieConstructionRealization.IRealization): number => {
+  const folds = (r: IAutoMovieConstructionRealization.IRealization): number => {
     let count: number = 0;
     const normal = (s: IAutoMovieSolidSurface, w: number, c: number): number[] => {
       const j: IAutoMovieSolidSurface.IJet = s.jet(w, c);
@@ -234,12 +228,12 @@ export function test_construction_split_fan(): void {
     }
     return count;
   };
-  const fine: AutoMovieConstructionRealization.IRealization = realize({
+  const fine: IAutoMovieConstructionRealization.IRealization = realize({
     ...split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }),
     count: 96,
     profile: { knots: [[half / 1000, 0.004]], corner: 0.3, heading: [0.6, 0, -0.8] },
   });
-  const reached: AutoMovieConstructionRealization.IRealization = realize({
+  const reached: IAutoMovieConstructionRealization.IRealization = realize({
     ...split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }),
     count: 96,
     profile: { knots: [[half / 1000, 0.004]], corner: 0.3, heading: [0.6, 0, -0.8], reach: 0.25 },
@@ -255,12 +249,12 @@ export function test_construction_split_fan(): void {
   // fixed polar phase moves radially, which on an ellipse is not square to its ring, so the station line leans along the ring. Without
   // `square` the outer bands' arc columns away from the forks leave the loop leaning along it (the cosine between a column's start and
   // the ring exceeds 0.02 somewhere: 0.046); with it every such column leaves square to the loop (within 1e-6).
-  const oval: AutoMovieConstructionNode = ConstructionShapes.part("trunk", ConstructionShapes.DOWN, ConstructionShapes.uniform(-0.06, 0.03, 13), (s: number): [number, number, number, number] => {
+  const oval: IAutoMovieConstructionNode = ConstructionShapes.part("trunk", ConstructionShapes.DOWN, ConstructionShapes.uniform(-0.06, 0.03, 13), (s: number): [number, number, number, number] => {
     const r: number = 0.025 * Math.sqrt(1 - (s / 0.08) ** 2);
     return [r, 0.6 * r, r, 0.6 * r];
   }, "open");
   const lean = (square: boolean): number | string => {
-    const made: AutoMovieConstructionRealization.IRealization = realize({ ...split({ outer }), host: oval, profile: { knots: [[0.002, 0.002]], corner: 0.3, ...(square ? { square } : {}) } });
+    const made: IAutoMovieConstructionRealization.IRealization = realize({ ...split({ outer }), host: oval, profile: { knots: [[0.002, 0.002]], corner: 0.3, ...(square ? { square } : {}) } });
     if (made.diagnostics.length !== 0) return ConstructionRead.diagnostics(made);
     let most: number = 0;
     const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(made, "trunk");
@@ -281,7 +275,7 @@ export function test_construction_split_fan(): void {
   if (typeof leaning === "string" || typeof squared === "string") failures.push(`square: ${String(leaning)} / ${String(squared)}`);
   else if (!(leaning > 0.02 && squared <= 1e-6)) failures.push(`square: arc columns lean along the loop by a cosine of ${leaning} on the station line and ${squared} square to the ring`);
   // 6. Red: without its further seam the tree has two bands.
-  const red: AutoMovieConstructionRealization.IRealization = realize(split({ children: [child("f.0", 0.0165), child("f.2", -0.0165)] }));
+  const red: IAutoMovieConstructionRealization.IRealization = realize(split({ children: [child("f.0", 0.0165), child("f.2", -0.0165)] }));
   if (red.body.faces.filter((f: { chain: string }): boolean => f.chain.startsWith("band.")).length !== 2) failures.push("red: a two-way split did not realize two bands");
 
   if (failures.length !== 0) throw new Error("test_construction_split_fan:\n" + failures.join("\n"));

@@ -1,10 +1,5 @@
-import {
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftCompliance,
-  IAutoMovieSoftContact,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieSoftBodyDomain, IAutoMovieSoftCompliance, IAutoMovieSoftContact } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 
 /**
@@ -35,11 +30,11 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's collector.
  */
 export const validateSoftCompliance: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
 ): void => {

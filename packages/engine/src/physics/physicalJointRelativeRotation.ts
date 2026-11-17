@@ -1,5 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 
 /**
@@ -14,9 +13,9 @@ import { Quaternion } from "../math/Quaternion";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalJointRelativeRotation(
-  poses: Readonly<Record<string, P.ITransform>>,
-  joint: P.IJoint,
-): P.ITransform["rotation"] {
+  poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  joint: IAutoMoviePhysicalProfile.IJoint,
+): IAutoMoviePhysicalProfile.ITransform["rotation"] {
   return Quaternion.multiply(
     Quaternion.inverse(
       Quaternion.multiply(

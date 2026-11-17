@@ -1,3 +1,4 @@
+import type { IAutoMovieMonotone } from "@automovie/interface";
 /**
  * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed
  * in place and evaluation without allocation, so a profile whose values
@@ -42,7 +43,7 @@ export namespace AutoMovieMonotone {
     ys: ArrayLike<number>,
     n: number,
     period: number,
-    slopes: { [index: number]: number },
+    slopes: IAutoMovieMonotone.ISlopeSlopes,
   ): void => {
     if (n < 2) {
       if (n === 1) slopes[0] = 0;

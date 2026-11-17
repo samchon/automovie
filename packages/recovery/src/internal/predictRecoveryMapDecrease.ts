@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
+import type { IAutoMovieRecoveryMapJointBlock } from "@automovie/interface";
+
 
 /**
  * Apply the current undamped weighted original design to an actual increment.

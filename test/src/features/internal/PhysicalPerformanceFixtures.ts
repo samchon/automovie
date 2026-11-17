@@ -1,16 +1,6 @@
-import {
-  AutoMovieStepPlanner as Planner,
-  Quaternion,
-  type AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  physicalSupportPoint,
-  planPhysicalSupportTargets,
-} from "@automovie/engine";
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMovieStepPlanner, IAutoMovieFootfallPattern, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import { AutoMovieStepPlanner as Planner, Quaternion, Vector3, physicalSupportPoint, planPhysicalSupportTargets } from "@automovie/engine";
+
 
 import { PhysicalFixtures } from "./PhysicalFixtures";
 
@@ -87,8 +77,8 @@ export namespace PhysicalPerformanceFixtures {
     duration: number,
     peakPitch: number = 0,
   ): {
-    body: Simulation.IBody;
-    planner: Planner;
+    body: IAutoMoviePhysicalSimulationInput.IBody;
+    planner: IAutoMovieStepPlanner;
     pattern: IAutoMovieFootfallPattern;
   } {
     const pattern: IAutoMovieFootfallPattern = supports(profile);
@@ -122,17 +112,17 @@ export namespace PhysicalPerformanceFixtures {
         ],
       ),
     );
-    const planner: Planner = new Planner({
+    const planner: IAutoMovieStepPlanner = new Planner({
       pattern,
       start: 0,
       end: duration,
       rate: 120,
-      desired: (seconds: number): Record<string, Planner.IPlacement> =>
+      desired: (seconds: number): Record<string, IAutoMovieStepPlanner.IPlacement> =>
         Object.fromEntries(
           pattern.limbs.map(
             (
               limb: (typeof pattern.limbs)[number],
-            ): [string, Planner.IPlacement] => [
+            ): [string, IAutoMovieStepPlanner.IPlacement] => [
               limb.bone,
               {
                 point: [
@@ -160,7 +150,7 @@ export namespace PhysicalPerformanceFixtures {
       pitchLever: 0,
       alternationWindow: 0.5,
     });
-    const body: Simulation.IBody = trackedBody(profile, duration);
+    const body: IAutoMoviePhysicalSimulationInput.IBody = trackedBody(profile, duration);
     body.supportTracking = {
       pattern,
       stiffness: 100 * profile.mass,
@@ -169,7 +159,7 @@ export namespace PhysicalPerformanceFixtures {
       iterations: 0,
     };
     body.targets = body.targets.map(
-      (_: Simulation.ITarget, step: number): Simulation.ITarget => {
+      (_: IAutoMoviePhysicalSimulationInput.ITarget, step: number): IAutoMoviePhysicalSimulationInput.ITarget => {
         const seconds: number = step / 120;
         const targets: Record<string, P.ITransform> = Object.fromEntries(
           Object.entries(original).map(
@@ -191,7 +181,7 @@ export namespace PhysicalPerformanceFixtures {
             (
               limb: (typeof pattern.limbs)[number],
             ): [string, IAutoMovieVector3] => {
-              const placement: Planner.IPlacement = planner.at(
+              const placement: IAutoMovieStepPlanner.IPlacement = planner.at(
                 limb.bone,
                 seconds,
               ).placement;
@@ -232,8 +222,8 @@ export namespace PhysicalPerformanceFixtures {
   }
 
   /** Declare finite physical actuator budgets with no endpoint teleports or fixed root. */
-  export function trackedBody(profile: P, duration: number): Simulation.IBody {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+  export function trackedBody(profile: P, duration: number): IAutoMoviePhysicalSimulationInput.IBody {
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       profile.id,
       profile,
       duration,
@@ -243,7 +233,7 @@ export namespace PhysicalPerformanceFixtures {
   }
 
   /** Apply the same explicit bounded actuator policy to a caller-positioned body. */
-  export function track(body: Simulation.IBody): void {
+  export function track(body: IAutoMoviePhysicalSimulationInput.IBody): void {
     const profile: P = body.profile;
     Object.assign(body, {
       rootStiffness: 100 * profile.mass,

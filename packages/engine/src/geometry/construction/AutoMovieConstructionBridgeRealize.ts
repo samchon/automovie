@@ -1,17 +1,10 @@
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionContinuation,
-} from "@automovie/interface";
+import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionBridgeRealize, IAutoMovieConstructionNode, IAutoMovieConstructionSplitBand, IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidMesh } from "@automovie/interface";
 
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Realize a continuation with a band (`IAutoMovieConstructionContinuation.band`): the host's open end and the part's ring at `rail` inside
@@ -43,10 +36,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains the vertices, the band's face and its cycles; the checkpoint is released when the node settles.
  */
 export function AutoMovieConstructionBridgeRealize(
-  node: IAutoMovieConstructionContinuation & { band: IAutoMovieConstructionContinuation.IBand },
-  body: AutoMovieSolidBody.IBody,
-  state: AutoMovieConstructionState.IState,
-  walk: (node: AutoMovieConstructionNode) => void,
+  node: IAutoMovieConstructionBridgeRealize.INode,
+  body: IAutoMovieSolidBody.IBody,
+  state: IAutoMovieConstructionState.IState,
+  walk: (node: IAutoMovieConstructionNode) => void,
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   walk(node.host);
@@ -56,7 +49,7 @@ export function AutoMovieConstructionBridgeRealize(
   const hostKind: "start" | "end" = node.hostEnd === "bottom" ? "start" : "end";
   if (closed(hostChain, node.hostEnd)) return report(node.name, "shared end", `the host face's ${node.hostEnd} end closes in a pole`);
   if (cut(body, hostIndex, hostKind)) return report(node.name, "shared end", `the host face's ${node.hostEnd} end is already cut away or shared`);
-  const snapshot: AutoMovieConstructionState.ISnapshot = AutoMovieConstructionState.snap(body, state);
+  const snapshot: IAutoMovieConstructionState.ISnapshot = AutoMovieConstructionState.snap(body, state);
   const fail = (detail: string): void => {
     report(node.name, "band", detail);
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -81,7 +74,7 @@ export function AutoMovieConstructionBridgeRealize(
     if (!(rail > first && rail < last)) return fail(`the part face ${node.partFace}'s rail at station ${rail} mm lies outside its domain [${first}, ${last}] mm`);
 
     // One stretch round the whole ring, from the host's phase 0, and no seam: the split's band with its corner turn idle.
-    const band: (AutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string = AutoMovieConstructionSplitBand.fan(
+    const band: (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string = AutoMovieConstructionSplitBand.fan(
       {
         name: node.name,
         host: { surface: host, station: hostStation, into: hostInto },
@@ -95,7 +88,7 @@ export function AutoMovieConstructionBridgeRealize(
     if (typeof band === "string") return fail(band);
 
     // The shared vertices: the host's end ring at the band's columns and the part's rail at their matched phases.
-    const mesh: AutoMovieSolidMesh.IMesh = body.mesh;
+    const mesh: IAutoMovieSolidMesh.IMesh = body.mesh;
     const hostOwner: number = AutoMovieSolidMesh.owner(mesh, host);
     const ring: number[] = band.phases.map((phi: number): number => AutoMovieSolidMesh.vertex(mesh, host.jet(hostStation, phi).p, hostOwner, hostStation, phi));
     const partOwner: number = AutoMovieSolidMesh.owner(mesh, part);
@@ -115,20 +108,20 @@ export function AutoMovieConstructionBridgeRealize(
       kind: hostKind,
       vertices: ring.slice(),
       chart: band.phases.map((phi: number): [number, number] => [hostStation, phi]),
-      neighbours: ring.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({ face, from: [0, clock(k)], to: [0, clock(k + 1)] })),
+      neighbours: ring.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({ face, from: [0, clock(k)], to: [0, clock(k + 1)] })),
     });
     body.faces[face]!.cycles.push(
       {
         kind: "start",
         vertices: ring.slice(),
         chart: ring.map((_: number, k: number): [number, number] => [0, clock(k)]),
-        neighbours: ring.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({ face: hostIndex, from: [hostStation, band.phases[k]!], to: [hostStation, next(band.phases, k)] })),
+        neighbours: ring.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({ face: hostIndex, from: [hostStation, band.phases[k]!], to: [hostStation, next(band.phases, k)] })),
       },
       {
         kind: "end",
         vertices: rails.slice(),
         chart: rails.map((_: number, k: number): [number, number] => [band.length, clock(k)]),
-        neighbours: rails.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({ face: partIndex, from: [rail, band.childPhases[k]!], to: [rail, next(band.childPhases, k)] })),
+        neighbours: rails.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({ face: partIndex, from: [rail, band.childPhases[k]!], to: [rail, next(band.childPhases, k)] })),
       },
     );
 
@@ -139,7 +132,7 @@ export function AutoMovieConstructionBridgeRealize(
       kind: partKind,
       vertices: order.map((k: number): number => rails[k]!),
       chart: order.map((k: number): [number, number] => [rail, band.childPhases[k]!]),
-      neighbours: order.map((k: number, j: number): AutoMovieSolidCycle.INeighbour => {
+      neighbours: order.map((k: number, j: number): IAutoMovieSolidCycle.INeighbour => {
         const following: number = order[(j + 1) % n]!;
         const wraps: boolean = j + 1 === n;
         return { face, from: [band.length, clock(k)], to: [band.length, clock(following) + (wraps ? (rising ? turn : -turn) : 0)] };
@@ -162,8 +155,8 @@ function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {
 }
 
 /** Whether a face's end is already trimmed or shared. */
-function cut(body: AutoMovieSolidBody.IBody, index: number, kind: "start" | "end"): boolean {
-  return body.faces[index]!.cycles.some((cycle: AutoMovieSolidCycle.ICycle): boolean => cycle.kind === kind);
+function cut(body: IAutoMovieSolidBody.IBody, index: number, kind: "start" | "end"): boolean {
+  return body.faces[index]!.cycles.some((cycle: IAutoMovieSolidCycle.ICycle): boolean => cycle.kind === kind);
 }
 
 /** The end station of a chain, mm. */

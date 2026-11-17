@@ -1,8 +1,8 @@
-import { IAutoMovieScriptActNode } from "./IAutoMovieScriptActNode";
-import { IAutoMovieScriptBeatNode } from "./IAutoMovieScriptBeatNode";
-import { IAutoMovieScriptGroupNode } from "./IAutoMovieScriptGroupNode";
-import { IAutoMovieScriptIntentNode } from "./IAutoMovieScriptIntentNode";
-import { IAutoMovieScriptSceneNode } from "./IAutoMovieScriptSceneNode";
+import type { IAutoMovieScriptActNode } from "./IAutoMovieScriptActNode";
+import type { IAutoMovieScriptBeatNode } from "./IAutoMovieScriptBeatNode";
+import type { IAutoMovieScriptGroupNode } from "./IAutoMovieScriptGroupNode";
+import type { IAutoMovieScriptIntentNode } from "./IAutoMovieScriptIntentNode";
+import type { IAutoMovieScriptSceneNode } from "./IAutoMovieScriptSceneNode";
 
 /**
  * One node of the screenplay refinement tree, which refines one intent down to the beats the pipeline builds shots from.

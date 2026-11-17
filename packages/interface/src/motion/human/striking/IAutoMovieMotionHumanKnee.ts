@@ -1,0 +1,63 @@
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+
+/**
+ * A knee strike: the knee driven up and forward onto the target while the
+ * hands hold the opponent's head or neck (the clinch) or stay at the guard.
+ *
+ * The knee is the weapon, and the thigh carries it on a circle about the hip
+ * ({@link KneeReach}). The hips square to the thigh's heading, the support
+ * foot pivoting on its ball with them; the pelvis travels along the line
+ * until the knee's front is on the target, lowered as far as the planted
+ * support leg needs to keep its foot, and the knee is solved from the hip
+ * that carriage leaves it. A target outside the thigh's range or the pelvis's
+ * travel is the declared miss at maximum reach (`short`), and one closer than
+ * the hips can withdraw is `jammed`: the knee lands where it first meets the
+ * body.
+ *
+ * The knee is lifted, then the hips are driven in
+ * ({@link KneeForm.LIFT_SHARE}): the thigh swings about the hip from where
+ * the stance had it to its solved elevation on an early clock, the pelvis
+ * travels on a late one, and the way back mirrors it. The shank folds under
+ * the knee and the toes point down along it ({@link KneeForm.FLEXION},
+ * {@link KneeForm.PLANTAR}), so the foot trails behind the knee instead of
+ * leading it into the opponent's legs. The trunk leans back slightly to keep
+ * the centre of mass over the pivoting support foot.
+ *
+ * The thigh, the shank and the foot are offered to the performance's joint
+ * contact resolution as capsules on the shown leg ({@link StrikingWeapon}),
+ * so the knee stops where any part of the leg first meets the other body; it
+ * holds for the contact dwell, gives way before the body it rests on
+ * ({@link StrikingRide}), and withdraws along the way it came, as the kick
+ * does.
+ *
+ * Timing (kickboxing research of #3201): the knee rises through the round
+ * kick's chamber only, so it lands at the chamber key (preparation 0.074 s
+ * plus 14 % of the 1.02 s execution) and recoils over the kick's 0.65 s;
+ * skill scales them like the kick's. With a person target, the hands reach
+ * either side of the other's nape for the clinch; GLORY allows one knee per
+ * clinch, which the kickboxing rules check.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation leg: Which leg: lead or rear; rear when absent.
+ * @evidence contracts/development/design.md#principled-representation leg: Which leg: lead or rear; rear when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.knee, params); striking/knee.ts (knee.plan, context); striking/knee.ts (knee.plan).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanKnee {
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
+   * @evidence contracts/development/design.md#principled-representation The interface's motion target and a closed union of legs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan and the kickboxing rules read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   *
+   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
+   */
+  export interface IParams {
+    /** What it strikes. */
+    at: IAutoMovieMotionTarget;
+
+    /** Which leg: lead or rear; rear when absent. */
+    leg?: "lead" | "rear";
+  }
+}

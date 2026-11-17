@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
+import type { IAutoMovieRecoveryFeasibleReportCapacity } from "@automovie/interface";
+
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 
 /**
@@ -33,6 +34,5 @@ export function prepareRecoveryFeasibleReportCapacity(
   return {
     sceneEntries: sceneEntries - reservedEntries,
     fitEntries: Math.min(fitEntries - 512, sceneEntries - reservedEntries),
-    reservedEntries,
-  };
+    reservedEntries };
 }

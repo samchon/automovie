@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalHullMass, IAutoMoviePhysicalPrincipalAxes, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "./physicalHullFaces";
@@ -32,13 +30,8 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A profile integrates each hull once while it is built; the face search behind it is already shared by `physicalHullFaces`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
-export function physicalHullMass(points: readonly IAutoMovieVector3[]): {
-  volume: number;
-  centerOfMass: IAutoMovieVector3;
-  inertia: IAutoMovieVector3;
-  inertiaRotation: IAutoMovieQuaternion;
-} {
-  const hull: physicalHullFaces.IHull = physicalHullFaces(points);
+export function physicalHullMass(points: readonly IAutoMovieVector3[]): IAutoMoviePhysicalHullMass.IResult {
+  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   const axes: ("x" | "y" | "z")[] = ["x", "y", "z"];
   let volume: number = 0;
   let moment: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -88,7 +81,7 @@ export function physicalHullMass(points: readonly IAutoMovieVector3[]): {
           (row === column ? trace : 0) - value,
       ),
   );
-  const principal: ReturnType<typeof physicalPrincipalAxes> =
+  const principal: IAutoMoviePhysicalPrincipalAxes.IResult =
     physicalPrincipalAxes(tensor);
   return {
     volume,

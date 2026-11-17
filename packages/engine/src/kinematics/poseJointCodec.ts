@@ -1,15 +1,8 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import { type IAutoMoviePoseRig, type IAutoMovieResolvedJointAngles, type IAutoMoviePoseJointCodec, AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion } from "@automovie/interface";
+
+
 
 import { getConstraint } from "../rom/getConstraint";
-import { IAutoMoviePoseRig } from "./IAutoMoviePoseRig";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { decomposeJointRotation } from "./decomposeJointRotation";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { skeletonJointAxes } from "./skeletonJointAxes";
@@ -50,7 +43,7 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The indexed tables are shared by every conversion of one codec.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rig's tables and one range per bone, bounded by the bone count.
  */
-export function poseJointCodec(rig?: IAutoMoviePoseRig): poseJointCodec.ICodec {
+export function poseJointCodec(rig?: IAutoMoviePoseRig): IAutoMoviePoseJointCodec.ICodec {
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     rig === undefined ? {} : skeletonJointAxes(rig.skeleton, rig.jointAxes);
   const declared: Map<AutoMovieHumanoidBone, IAutoMovieJointConstraint | null> =
@@ -104,45 +97,4 @@ export function poseJointCodec(rig?: IAutoMoviePoseRig): poseJointCodec.ICodec {
       );
     },
   };
-}
-
-/**
- * Companion types of {@link poseJointCodec}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each map's units and frame.
- * @evidence contracts/development/design.md#principled-representation Clinical degrees on one side, the unit articulation quaternion `resolvePose` composes after the rest rotation on the other.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two maps and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface quaternion and bone names.
- */
-export namespace poseJointCodec {
-  /** The two maps of one rig. */
-  export interface ICodec {
-    /**
-     * A bone's articulation, the rotation applied after its rest rotation,
-     * from its clinical `[flexion, abduction, twist]` in degrees.
-     */
-    rotation: (
-      bone: AutoMovieHumanoidBone,
-      angles: readonly [number, number, number],
-    ) => IAutoMovieQuaternion;
-
-    /**
-     * A bone's clinical `[flexion, abduction, twist]` in degrees from its
-     * unit articulation.
-     */
-    angles: (
-      bone: AutoMovieHumanoidBone,
-      rotation: IAutoMovieQuaternion,
-    ) => [number, number, number];
-
-    /**
-     * Whether a bone's articulations fill a three-dimensional set of
-     * rotations: its effective range of motion is absent or moves all three
-     * axes. A hinge or a two-axis joint is not one; a rotation composed from
-     * two of its articulations generally leaves the set its angles span, so
-     * such a joint is differenced and blended on its own angles. Every bone
-     * is one without a rig, where no range is read.
-     */
-    ball: (bone: AutoMovieHumanoidBone) => boolean;
-  }
 }

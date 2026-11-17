@@ -1,12 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditDifference,
-  type IAutoMovieMotionHumanAuditMotion,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditDifference, IAutoMovieMotionHumanAuditMotion, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
@@ -69,7 +64,7 @@ export function test_motion_audit_difference(): void {
   const measure = AutoMovieMotionHumanAuditDifference.measure;
   const a: IAutoMovieMotionHumanAuditMotion = film(1, first);
 
-  const same: AutoMovieMotionHumanAuditDifference.IResult = measure(a, a, "a");
+  const same: IAutoMovieMotionHumanAuditDifference.IResult = measure(a, a, "a");
   TestValidator.predicate(
     "a motion does not differ from itself",
     same.distance.value === 0 &&
@@ -77,7 +72,7 @@ export function test_motion_audit_difference(): void {
       same.duration === 0,
   );
 
-  const drifted: AutoMovieMotionHumanAuditDifference.IResult = measure(
+  const drifted: IAutoMovieMotionHumanAuditDifference.IResult = measure(
     a,
     film(
       1,
@@ -112,7 +107,7 @@ export function test_motion_audit_difference(): void {
     ) <= 1e-12,
   );
 
-  const own: AutoMovieMotionHumanAuditDifference.IResult = measure(a, a, "a", {
+  const own: IAutoMovieMotionHumanAuditDifference.IResult = measure(a, a, "a", {
     mirror: 0,
   });
   TestValidator.predicate(
@@ -122,7 +117,7 @@ export function test_motion_audit_difference(): void {
       (own.distance.where === "leftHand" || own.distance.where === "rightHand"),
   );
 
-  const longer: AutoMovieMotionHumanAuditDifference.IResult = measure(
+  const longer: IAutoMovieMotionHumanAuditDifference.IResult = measure(
     a,
     film(
       1.5,

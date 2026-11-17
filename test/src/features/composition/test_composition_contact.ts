@@ -1,9 +1,10 @@
+import type { IAutoMovieAuditOutcome, IAutoMovieMeasureContact, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   auditAutoMovieOutcome,
   measureAutoMovieContact,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -22,9 +23,9 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two 0.1 m spheres 0.19 m apart compress by 0.01 m and yield a contact record that satisfies a required-contact audit.).
  */
 export async function test_composition_contact(): Promise<void> {
-  const queries: Geometry.IQueries = await Geometry();
+  const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const profile: P = PhysicalFixtures.sphere(0.1);
-  const side = (subject: string, x: number): measureAutoMovieContact.ISide => ({
+  const side = (subject: string, x: number): IAutoMovieMeasureContact.ISide => ({
     subject,
     region: subject === "a" ? "hand" : "head",
     profile,
@@ -36,19 +37,19 @@ export async function test_composition_contact(): Promise<void> {
     },
     bones: ["root"],
   });
-  const touching: measureAutoMovieContact.IResult = measureAutoMovieContact({
+  const touching: IAutoMovieMeasureContact.IResult = measureAutoMovieContact({
     a: side("a", 0),
     b: side("b", 0.19),
     queries,
     seconds: 1,
   });
-  const apart: measureAutoMovieContact.IResult = measureAutoMovieContact({
+  const apart: IAutoMovieMeasureContact.IResult = measureAutoMovieContact({
     a: side("a", 0),
     b: side("b", 0.25),
     queries,
     seconds: 1,
   });
-  const outcome: auditAutoMovieOutcome.IOutcome = {
+  const outcome: IAutoMovieAuditOutcome.IOutcome = {
     id: "lands",
     required: [
       {

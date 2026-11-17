@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import assert from "node:assert/strict";
 
@@ -21,7 +22,7 @@ export async function test_physical_cancellation(): Promise<void> {
   const isReason: (error: unknown) => boolean = (error: unknown): boolean =>
     error === reason;
   for (const kind of ["kinematic", "simulated"] as const) {
-    const input: Simulation.IInput = PhysicalFixtures.input(
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
       [PhysicalFixtures.body("solid", PhysicalFixtures.sphere(), 0.05)],
       0.05,
     );
@@ -30,7 +31,7 @@ export async function test_physical_cancellation(): Promise<void> {
     const pre: AbortController = new AbortController();
     pre.abort(reason);
     await assert.rejects(
-      (): Promise<Simulation> =>
+      (): Promise<IAutoMoviePhysicalSimulation> =>
         Simulation.compute(input, undefined, pre.signal),
       isReason,
     );
@@ -38,19 +39,19 @@ export async function test_physical_cancellation(): Promise<void> {
     setTimeout((): void => {
       timerFired = true;
     }, 0);
-    const complete: Simulation = await Simulation.compute(input);
+    const complete: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     assert.ok(
       timerFired,
       "declared host yields service the actual timer queue",
     );
     await assert.rejects(
-      (): Promise<Simulation> =>
+      (): Promise<IAutoMoviePhysicalSimulation> =>
         Simulation.compute(input, complete, pre.signal),
       isReason,
     );
     const reuse: AbortController = new AbortController();
     await assert.rejects(
-      (): Promise<Simulation> =>
+      (): Promise<IAutoMoviePhysicalSimulation> =>
         Simulation.compute(input, complete, reuse.signal, (): void => {
           reuse.abort(reason);
         }),
@@ -59,7 +60,7 @@ export async function test_physical_cancellation(): Promise<void> {
     const during: AbortController = new AbortController();
     const progress: number[] = [];
     await assert.rejects(
-      (): Promise<Simulation> =>
+      (): Promise<IAutoMoviePhysicalSimulation> =>
         Simulation.compute(
           input,
           undefined,
@@ -77,7 +78,7 @@ export async function test_physical_cancellation(): Promise<void> {
       host.abort(reason);
     }, 0);
     await assert.rejects(
-      (): Promise<Simulation> =>
+      (): Promise<IAutoMoviePhysicalSimulation> =>
         Simulation.compute(input, undefined, host.signal),
       isReason,
     );

@@ -1,8 +1,5 @@
-import {
-  AutoMovieMotionHumanAuditBalance,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType, IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
+import { AutoMovieMotionHumanAuditBalance, IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
@@ -45,22 +42,22 @@ import { motionAuditPoints } from "../internal/motionAuditPoints";
  * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 7 scenarios with their seconds.
  */
 export function test_motion_audit_windows(): void {
-  const ground: IHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
   const contact = (
-    part: IHumanContactWindow["part"],
-    kind: IHumanContactWindow["kind"],
+    part: IAutoMovieMotionHumanContactWindow["part"],
+    kind: IAutoMovieMotionHumanContactWindow["kind"],
     from: number,
     to: number,
-    support: IHumanContactWindow["support"] = ground,
-  ): IHumanContactWindow => ({ part, kind, from, to, support });
+    support: IAutoMovieMotionHumanContactWindow["support"] = ground,
+  ): IAutoMovieMotionHumanContactWindow => ({ part, kind, from, to, support });
   const span = (
     name: string,
     start: number,
     entryTime: number,
     end: number,
     duration: number,
-    contacts: IHumanContactWindow[],
-  ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
+    contacts: IAutoMovieMotionHumanContactWindow[],
+  ): IAutoMovieMotionHumanAuditMotionType.ISpan => ({
     name,
     start,
     entryTime,
@@ -68,8 +65,8 @@ export function test_motion_audit_windows(): void {
     plan: { duration, contacts },
   });
   const film = (
-    spans: IAutoMovieMotionHumanAuditMotion.ISpan[],
-  ): IAutoMovieMotionHumanAuditMotion.IWindow[] =>
+    spans: IAutoMovieMotionHumanAuditMotionType.ISpan[],
+  ): IAutoMovieMotionHumanAuditMotionType.IWindow[] =>
     IAutoMovieMotionHumanAuditMotion.windows(
       motionAuditPoints(6.5, () => ({}), spans),
       "a",
@@ -77,7 +74,7 @@ export function test_motion_audit_windows(): void {
   const near = (got: number, expected: number): boolean =>
     Math.abs(got - expected) <= 1e-9;
 
-  const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] = film([
+  const windows: IAutoMovieMotionHumanAuditMotionType.IWindow[] = film([
     span("first", 1, 1, 3, 2, [contact("leftFoot", "plant", 0.25, 0.75)]),
     span("second", 2.5, 3, 6.5, 4, [
       contact("rightFoot", "plant", 0, 1),
@@ -108,7 +105,7 @@ export function test_motion_audit_windows(): void {
   );
 
   const standing = AutoMovieMotionHumanAuditBalance.standing;
-  const stance: IAutoMovieMotionHumanAuditMotion.IWindow[] = film([
+  const stance: IAutoMovieMotionHumanAuditMotionType.IWindow[] = film([
     span("stance", 3, 3, 6.5, 2, [
       contact("leftFoot", "plant", 0, 1),
       contact("rightFoot", "plant", 0.5, 1),
@@ -148,7 +145,7 @@ export function test_motion_audit_windows(): void {
 
   // 7. A step being taken: the left foot planted by two actions back to back,
   // the right planted to 1 s and again from 1.6 s.
-  const gait: IAutoMovieMotionHumanAuditMotion.IWindow[] = film([
+  const gait: IAutoMovieMotionHumanAuditMotionType.IWindow[] = film([
     span("one", 0, 0, 2, 2, [
       contact("leftFoot", "plant", 0, 1),
       contact("rightFoot", "plant", 0, 0.5),

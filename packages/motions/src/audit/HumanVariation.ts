@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanVariation } from "@automovie/interface";
+
 /**
  * How much a quantity varies over seeds: build the same composition under
  * each seed, read one number from each, and report its spread. A film's
@@ -10,29 +12,6 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The reading is the caller's function of a seed, so nothing about a law is assumed.
  */
 export namespace HumanVariation {
-  /** The spread of one quantity over seeds. */
-  export interface IReport {
-    /** How many seeds were read. */
-    count: number;
-
-    /** The mean. */
-    mean: number;
-
-    /** The standard deviation (population). */
-    deviation: number;
-
-    /** The least value and its seed. */
-    minimum: { value: number; seed: string };
-
-    /** The greatest value and its seed. */
-    maximum: { value: number; seed: string };
-
-    /** The deviation over the mean's magnitude; 0 when the mean is 0. */
-    coefficient: number;
-
-    /** How many distinct values were read, to a part in a million of the range. */
-    distinct: number;
-  }
 
   /**
    * Read one quantity under each seed.
@@ -53,7 +32,7 @@ export namespace HumanVariation {
   export function over(
     seeds: readonly string[] | number,
     read: (seed: string) => number,
-  ): IReport {
+  ): IAutoMovieMotionHumanVariation.IReport {
     const names: readonly string[] =
       typeof seeds === "number"
         ? Array.from({ length: seeds }, (_, index: number) => `seed-${index}`)

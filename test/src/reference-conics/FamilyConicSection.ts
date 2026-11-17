@@ -1,4 +1,5 @@
-import type { AutoMovieViewChain as Q } from "@automovie/engine";
+import type { AutoMovieVector2Tuple, IAutoMovieHumanConicSection, IAutoMovieViewChain } from "@automovie/interface";
+
 import { AutoMovieHumanConicSection as S } from "@automovie/human";
 import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
@@ -13,19 +14,19 @@ import { FamilyConicFair as F } from "./FamilyConicFair";
  */
 export namespace FamilyConicSection {
   /** A planar chart point, millimetres. */
-  export type P = S.P;
+  export type P = AutoMovieVector2Tuple;
 
   /** One anchor of a layout. */
-  export type IAnchor = S.IAnchor;
+  export type IAnchor = IAutoMovieHumanConicSection.IAnchor;
 
   /** The anchors of a section family. */
-  export type ILayout = S.ILayout;
+  export type ILayout = IAutoMovieHumanConicSection.ILayout;
 
   /** What a field measures. */
-  export type Unit = S.Unit;
+  export type Unit = IAutoMovieHumanConicSection.Unit;
 
   /** The closed chain of a field vector. */
-  export type IChain = S.IChain;
+  export type IChain = IAutoMovieHumanConicSection.IChain;
 
   /** The limb layout of the given median depth. */
   export const limb: (depth: number) => ILayout = S.limb;
@@ -96,7 +97,7 @@ export namespace FamilyConicSection {
   export const resolve: (values: readonly number[], layout: ILayout) => IChain = S.resolve;
 
   /** Build the engine's native conic chain from a field vector. */
-  export const chain: (values: readonly number[], layout: ILayout) => Q.ISection = S.chain;
+  export const chain: (values: readonly number[], layout: ILayout) => IAutoMovieViewChain.ISection = S.chain;
 
   /** A stored shoulder as the model reads it, inside its bounds. */
   export const shoulder: (value: number, layout: ILayout, arc?: number) => number = S.shoulder;

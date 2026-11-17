@@ -1,11 +1,6 @@
-import {
-  IAutoMovieClosestSegmentPoints,
-  closestPointOnSegmentXZ,
-  closestPointsBetweenSegments,
-  pointSegmentDistance,
-  segmentSegmentDistance,
-} from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieClosestSegmentPoints, IAutoMovieVector3 } from "@automovie/interface";
+import { closestPointOnSegmentXZ, closestPointsBetweenSegments, pointSegmentDistance, segmentSegmentDistance } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";

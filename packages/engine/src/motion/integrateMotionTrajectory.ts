@@ -1,10 +1,7 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionTrajectoryInterval, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
-import type { IMotionTrajectoryInterval } from "./IMotionTrajectoryInterval";
 import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
 import { samplePoseVelocity } from "./samplePoseVelocity";
 
@@ -32,8 +29,8 @@ const { turn, scaled, dexpinv } = MotionTrajectoryStepper;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trajectory retains one state/derivative per knot for its lifetime. An interval record transfers four fresh arrays, retains no callback and cannot mutate source knots.
  */
 export function integrateMotionTrajectory(
-  props: integrateMotionTrajectory.IProps,
-): integrateMotionTrajectory.ITrajectory {
+  props: IAutoMovieIntegrateMotionTrajectory.IProps,
+): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
   const h: number = props.h ?? integrateMotionTrajectory.STEP;
   const { t0, t1 } = props;
   if (!(Number.isFinite(t0) && Number.isFinite(t1) && t1 > t0))
@@ -50,8 +47,8 @@ export function integrateMotionTrajectory(
     t: number,
     x: readonly number[],
     q: IAutoMovieQuaternion | null,
-  ): integrateMotionTrajectory.IRate => {
-    const r: integrateMotionTrajectory.IRate = props.f(t, x, q);
+  ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+    const r: IAutoMovieIntegrateMotionTrajectory.IRate = props.f(t, x, q);
     if (r.dx.length !== n)
       throw new Error(
         `integrateMotionTrajectory: f returned ${r.dx.length} rates for ${n} states`,
@@ -86,7 +83,7 @@ export function integrateMotionTrajectory(
   const qs: (IAutoMovieQuaternion | null)[] = [
     oriented ? Quaternion.normalize(props.q0!) : null,
   ];
-  const ks: integrateMotionTrajectory.IRate[] = [rate(t0, xs[0]!, qs[0]!)];
+  const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [rate(t0, xs[0]!, qs[0]!)];
   for (let s: number = 0; s < steps; s++) {
     const t: number = times[s]!;
     const next: number = s === steps - 1 ? t1 : t0 + (s + 1) * h;
@@ -97,24 +94,24 @@ export function integrateMotionTrajectory(
     // turned by a rotation vector, and the stage's body rate is carried back
     // to that vector's derivative by the inverse differential of the
     // exponential, so the orientation keeps the method's fourth order.
-    const k1: integrateMotionTrajectory.IRate = ks[s]!;
+    const k1: IAutoMovieIntegrateMotionTrajectory.IRate = ks[s]!;
     const u1: IAutoMovieVector3 | undefined = k1.w;
     const v2: IAutoMovieVector3 | undefined = scaled(u1, dt / 2);
-    const k2: integrateMotionTrajectory.IRate = rate(
+    const k2: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
       t + dt / 2,
       add(x, k1.dx, dt / 2),
       turn(q, v2),
     );
     const u2: IAutoMovieVector3 | undefined = dexpinv(v2, k2.w);
     const v3: IAutoMovieVector3 | undefined = scaled(u2, dt / 2);
-    const k3: integrateMotionTrajectory.IRate = rate(
+    const k3: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
       t + dt / 2,
       add(x, k2.dx, dt / 2),
       turn(q, v3),
     );
     const u3: IAutoMovieVector3 | undefined = dexpinv(v3, k3.w);
     const v4: IAutoMovieVector3 | undefined = scaled(u3, dt);
-    const k4: integrateMotionTrajectory.IRate = rate(
+    const k4: IAutoMovieIntegrateMotionTrajectory.IRate = rate(
       t + dt,
       add(x, k3.dx, dt),
       turn(q, v4),
@@ -146,7 +143,7 @@ export function integrateMotionTrajectory(
     h,
     knots: times.length,
     times,
-    interval: (time: number): integrateMotionTrajectory.IInterval => {
+    interval: (time: number): IAutoMovieMotionTrajectoryInterval => {
       const t: number = Math.max(t0, Math.min(t1, time));
       const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
       return {
@@ -158,7 +155,7 @@ export function integrateMotionTrajectory(
         last: ks[i + 1]!.dx.slice(),
       };
     },
-    at: (time: number): integrateMotionTrajectory.IState => {
+    at: (time: number): IAutoMovieIntegrateMotionTrajectory.IState => {
       const t: number = Math.max(t0, Math.min(t1, time));
       const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
       const a: number = times[i]!;
@@ -214,120 +211,4 @@ export function integrateMotionTrajectory(
 export namespace integrateMotionTrajectory {
   /** The default step, seconds: a sixtieth of a second, under which the classical method's error stays far below a millimetre for the motions planned (#3424). */
   export const STEP: number = 1 / 60;
-
-  /**
-   * What a trajectory is integrated from.
-   *
-   */
-  export interface IProps {
-    /**
-     * The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
-     *
-     */
-    f: (
-      t: number,
-      x: readonly number[],
-      q: IAutoMovieQuaternion | null,
-    ) => IRate;
-
-    /** The vector state at `t0`. */
-    x0: readonly number[];
-
-    /** The orientation at `t0`, a unit quaternion; absent for a state without one. */
-    q0?: IAutoMovieQuaternion;
-
-    /** The first second. */
-    t0: number;
-
-    /** The last second, after `t0`. */
-    t1: number;
-
-    /** The step, seconds, positive; `STEP` when absent. Under a `tolerance`, the first step tried. */
-    h?: number;
-
-    /**
-     * Error control: when given, the trajectory is integrated by the
-     * Dormand-Prince 5(4) pair with steps chosen so each step's error
-     * estimate stays within it, and read between knots by the pair's
-     * continuous extension; when absent, the fixed-step classical method,
-     * unchanged.
-     */
-    tolerance?: ITolerance;
-  }
-
-  /**
-   * A step's accepted error, per component: `absolute + relative × |value|`,
-   * the vector state's value the larger of the step's two ends, the
-   * orientation's the length of its rotation vector over the step, the
-   * error norm the root mean square of the components' error over that.
-   */
-  export interface ITolerance {
-    /** The share of a component's value, non-negative. */
-    relative: number;
-
-    /** The component's own unit, non-negative; not both zero. */
-    absolute: number;
-  }
-
-  /**
-   * A state's rate.
-   *
-   */
-  export interface IRate {
-    /** The vector state's derivative, one per component. */
-    dx: readonly number[];
-
-    /** The body-frame angular velocity, radians per second; required when the state has an orientation. */
-    w?: IAutoMovieVector3;
-  }
-
-  /**
-   * A state read at one time.
-   *
-   */
-  export interface IState {
-    /** The vector state. */
-    x: number[];
-
-    /** The orientation, or null. */
-    q: IAutoMovieQuaternion | null;
-  }
-
-  /** Existing namespace spelling of the shared fixed Hermite endpoint contract. */
-  export type IInterval = IMotionTrajectoryInterval;
-
-  /**
-   * An integrated trajectory.
-   *
-   */
-  export interface ITrajectory {
-    /** The first second. */
-    t0: number;
-
-    /** The last second. */
-    t1: number;
-
-    /** The step; under a tolerance, the first step tried. */
-    h: number;
-
-    /** The number of knots, the steps plus one. */
-    knots: number;
-
-    /** The knots' times, seconds, from `t0` to `t1`: a fixed grid, or the accepted steps' ends under a tolerance. */
-    times: readonly number[];
-
-    /**
-     * Read adjacent actual fixed-step Hermite data; absent for adaptive continuous extensions.
-     *
-     * @param time Finite query second; outside the interval selects the nearest end interval.
-     * @returns Fresh copies of actual states and derivatives with their adjacent knot times.
-     */
-    interval?: (time: number) => IInterval;
-
-    /**
-     * The state at a time, held at the ends outside `[t0, t1]`.
-     *
-     */
-    at: (time: number) => IState;
-  }
 }

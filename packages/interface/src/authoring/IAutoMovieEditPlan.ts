@@ -1,5 +1,7 @@
-import { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
-import { IAutoMovieEditEntry } from "./IAutoMovieEditEntry";
+import type { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
+import type { IAutoMovieSequenceEntry } from "../cinematics/IAutoMovieSequenceEntry";
+
+
 
 /**
  * Coding-agent-owned edit over shot artifacts that were already built.
@@ -21,7 +23,7 @@ export interface IAutoMovieEditPlan {
   fps: number;
 
   /** Shot placements in playback order; at least one is required. */
-  entries: IAutoMovieEditEntry[];
+  entries: IAutoMovieSequenceEntry[];
 
   /** Why the trims and transitions serve the film's rhythm; never read. */
   pacing: string;

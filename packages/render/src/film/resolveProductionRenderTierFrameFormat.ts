@@ -1,13 +1,10 @@
-import {
-  canonicalProductionFrameRate,
-  resolveProductionFrameRate,
-} from "@automovie/engine";
-import type {
-  IAutoMovieProductionDesign,
-  IAutoMovieProductionFrameRate,
-} from "@automovie/interface";
+import type { IAutoMovieProductionDesign, IAutoMovieProductionFrameRate, IAutoMovieProductionRenderTier } from "@automovie/interface";
 
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
+
+import { canonicalProductionFrameRate, resolveProductionFrameRate } from "@automovie/engine";
+
+
+
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
 
 /**

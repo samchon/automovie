@@ -1,9 +1,6 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  type linearizePhysicalTargetRows,
-  physicalContactSupportRows,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalContactSupportRows, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import { preparePhysicalGeometry as Geometry, physicalContactSupportRows } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -25,11 +22,11 @@ import { nclose } from "../internal/predicates";
  */
 export async function test_physical_contact_support_patch(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere(0.1);
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const targets: Record<string, P.ITransform> = {
     root: structuredClone(profile.segments[0]!.neutral),
   };
-  const support: physicalContactSupportRows.ISupport = {
+  const support: IAutoMoviePhysicalContactSupportRows.ISupport = {
     bone: "root",
     localPoint: { x: 0, y: -0.1, z: 0 },
     point: { x: 0, y: 0.9, z: 0 },
@@ -40,7 +37,7 @@ export async function test_physical_contact_support_patch(): Promise<void> {
     },
   };
   const before: string = JSON.stringify({ profile, support, targets });
-  const rows: linearizePhysicalTargetRows.IRows[] = physicalContactSupportRows({
+  const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] = physicalContactSupportRows({
     profile,
     supports: [support],
     body: "primitive",
@@ -78,11 +75,11 @@ export async function test_physical_contact_support_patch(): Promise<void> {
     "nonpenetration cannot substitute for the planted witness equality",
     nclose(floating[4]!, 0, 0),
   );
-  const complete: physicalContactSupportRows.ISupport = {
+  const complete: IAutoMoviePhysicalContactSupportRows.ISupport = {
     ...support,
     patch: { contacts: ["root"], floor: 0.9 },
   };
-  const withoutWitness: linearizePhysicalTargetRows.IRows[] =
+  const withoutWitness: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
     physicalContactSupportRows({
       profile,
       supports: [complete],
@@ -109,7 +106,7 @@ export async function test_physical_contact_support_patch(): Promise<void> {
     },
   ])
     assert.throws(
-      (): linearizePhysicalTargetRows.IRows[] =>
+      (): IAutoMovieLinearizePhysicalTargetRows.IRows[] =>
         physicalContactSupportRows({
           profile,
           supports: [invalid],

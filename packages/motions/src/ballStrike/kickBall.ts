@@ -1,12 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanKickBall, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import { Vector3 } from "@automovie/engine";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
@@ -14,12 +9,8 @@ import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLe
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { HumanBall } from "./HumanBall";
 
@@ -55,10 +46,10 @@ import { HumanBall } from "./HumanBall";
  */
 export namespace kickBall {
   /** The action's name. */
-  export const name: HumanActionName = "kickBall";
+  export const name: AutoMovieMotionHumanActionName = "kickBall";
 
   /** Cancel table: stand or walk after the follow-through. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -66,28 +57,6 @@ export namespace kickBall {
       { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The ball, the kicking foot and the direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; its size is its own.
-   */
-  export interface IParams {
-    /** The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts). */
-    ball: string;
-
-    /** The kicking foot; `right` when absent. */
-    foot?: "left" | "right";
-
-    /** Where the ball is kicked toward; along the heading when absent. */
-    toward?: AutoMovieMotionTarget;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** The foot's plantarflexion at contact, degrees (provisional). */
   export const POINT: number = 50;
@@ -109,12 +78,12 @@ export namespace kickBall {
    * @returns The placement.
    */
   export function contact(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     centre: IAutoMovieVector3,
     radius: number,
     direction: IAutoMovieVector3,
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(
       body,
       side,
@@ -133,15 +102,15 @@ export namespace kickBall {
    * @throws {HumanRefusal} When the prop declares no sized grip, or the ball lies beyond the kicking leg's reach.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKickBall.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const side: "left" | "right" = context.params.foot ?? "right";
 
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const ball: HumanBall.IBall = HumanBall.of(
@@ -168,7 +137,7 @@ export namespace kickBall {
       y: 0,
       z: toward.z,
     });
-    const hit: HumanFoot.IPlacement = contact(
+    const hit: IAutoMovieMotionHumanFoot.IPlacement = contact(
       body,
       side,
       centre,
@@ -190,7 +159,7 @@ export namespace kickBall {
         reason: `the ball's back lies ${Vector3.length(Vector3.subtract(hit.ankle, hip)).toFixed(2)} m from the kicking hip, beyond the leg's ${leg.toFixed(2)} m`,
         fix: "stand nearer the ball (approach it) so that its back lies within the leg's length of the kicking hip",
       });
-    const chamber: HumanFoot.IPlacement = {
+    const chamber: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: Vector3.add(
         hit.ankle,
         Vector3.add(Vector3.scale(direction, -CHAMBER.back * m.shank), {
@@ -202,7 +171,7 @@ export namespace kickBall {
       rotation: hit.rotation,
     };
 
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: 0.35,
         attack: 0.1,
@@ -215,10 +184,10 @@ export namespace kickBall {
     );
     const duration: number = clock.duration;
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const stance: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+    const stance: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
     // The body stands under the kick, its sway signed in the kicking side's
     // frame, so a left kick mirrors a right one (`stand.plan`).
-    const base: IHumanActionPlan = stand.plan(
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: duration } },
       side,
     );
@@ -243,8 +212,8 @@ export namespace kickBall {
             ankle: stance.point,
             rotation: stance.rotation ?? HumanFrame.turn(standing.yaw),
           },
-          chamber: (): HumanFoot.IPlacement => chamber,
-          target: (): HumanFoot.IPlacement => hit,
+          chamber: (): IAutoMovieMotionHumanFoot.IPlacement => chamber,
+          target: (): IAutoMovieMotionHumanFoot.IPlacement => hit,
         }),
         // The opposite arm swings out for balance (provisional angles).
         AutoMovieMotionHumanJoints.pulse(
@@ -253,7 +222,7 @@ export namespace kickBall {
           ["relax", "end"],
           {
             [`${support}UpperArm`]: [10, 40, 0],
-          } as AutoMovieMotionHumanJoints.Angles,
+          } as IAutoMovieMotionHumanJoints.Angles,
         ),
       ],
     });

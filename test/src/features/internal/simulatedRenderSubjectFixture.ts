@@ -1,4 +1,5 @@
-import { IAutoMovieRenderSubject } from "@automovie/engine";
+import type { IAutoMovieRenderSubject } from "@automovie/interface";
+
 
 import { flatBasin } from "./fluidFixtures";
 import { leaflessPlantingRecipeFixture } from "./leaflessPlantingRecipeFixture";

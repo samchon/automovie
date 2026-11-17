@@ -1,35 +1,19 @@
+import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyApertures, IAutoMovieHumanBodyCalibration, IAutoMovieHumanEyelid, IAutoMovieHumanLoftAperture } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import { AutoMovieLoftChain } from "@automovie/engine";
+
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+
 
 /** Openings prepared once: their margins, cut outlines and lids, and the rows refined near them. */
 export namespace AutoMovieHumanBodyApertures {
-  /** An aperture with its margin and projected cut outline evaluated once. */
-  export interface IPrepared {
-    /** Aperture data. */
-    aperture: IAutoMovieHumanLoftAperture;
-
-    /**
-     * Projected outline of the cut: the margin itself, or for an eye the
-     * outer edge of the lid band around it.
-     */
-    outline: AutoMovieHumanLoftAperture.IOutline;
-
-    /**
-     * Lid of an eye opening: the calibrated eye nearest the margin's centre
-     * lies behind it; null for any other opening.
-     */
-    lid: AutoMovieHumanEyelid.ILid | null;
-
-    /**
-     * The points the skin is cut along, whose projection is {@link outline}:
-     * the margin, or for an eye the lid band's outer edge, one point per lid
-     * sample.
-     */
-    edge: AutoMovieHumanLoftAperture.Point[];
-  }
+  
 
   /** Station spacing where a chain's rings pass near an opening, mm. */
   const SPACING: number = 0.5;
@@ -46,9 +30,9 @@ export namespace AutoMovieHumanBodyApertures {
   export function prepare(
     apertures: readonly IAutoMovieHumanLoftAperture[],
     eyes: readonly IAutoMovieHumanBodyCalibration.IEye[],
-  ): IPrepared[] {
-    return apertures.map((aperture: IAutoMovieHumanLoftAperture): IPrepared => {
-      const margin: AutoMovieHumanLoftAperture.Point[] =
+  ): IAutoMovieHumanBodyApertures.IPrepared[] {
+    return apertures.map((aperture: IAutoMovieHumanLoftAperture): IAutoMovieHumanBodyApertures.IPrepared => {
+      const margin: AutoMovieVector3Tuple[] =
         AutoMovieHumanLoftAperture.polyline(aperture);
 
       // A globe belongs to the opening whose margin centre lies within its
@@ -56,7 +40,7 @@ export namespace AutoMovieHumanBodyApertures {
       const centre: number[] = [0, 1, 2].map(
         (axis: number): number =>
           margin.reduce(
-            (sum: number, p: AutoMovieHumanLoftAperture.Point): number =>
+            (sum: number, p: AutoMovieVector3Tuple): number =>
               sum + p[axis]!,
             0,
           ) / margin.length,
@@ -83,12 +67,12 @@ export namespace AutoMovieHumanBodyApertures {
         };
 
       // An eye is cut out to the lid band's outer edge.
-      const lid: AutoMovieHumanEyelid.ILid = AutoMovieHumanEyelid.create(
+      const lid: IAutoMovieHumanEyelid.ILid = AutoMovieHumanEyelid.create(
         aperture,
         globe,
       );
-      const edge: AutoMovieHumanLoftAperture.Point[] = lid.samples.map(
-        (s: AutoMovieHumanEyelid.ISample): AutoMovieHumanLoftAperture.Point =>
+      const edge: AutoMovieVector3Tuple[] = lid.samples.map(
+        (s: IAutoMovieHumanEyelid.ISample): AutoMovieVector3Tuple =>
           AutoMovieHumanEyelid.add(s.contact, AutoMovieHumanEyelid.scale(s.outward, AutoMovieHumanEyelid.rule.band)),
       );
       return {
@@ -112,7 +96,7 @@ export namespace AutoMovieHumanBodyApertures {
    * @param phases Probe phases, the chain's own ring phases.
    */
   export function detail(
-    boxes: readonly [[number, number, number], [number, number, number]][],
+    boxes: IAutoMovieHumanBodyApertures.DetailBoxes,
     target: IAutoMovieLoftChain,
     heights: readonly number[],
     phases: readonly number[],
@@ -151,7 +135,7 @@ export namespace AutoMovieHumanBodyApertures {
    * @param phases Probe phases, the chain's own ring phases.
    */
   export function refine(
-    apertures: readonly IPrepared[],
+    apertures: readonly IAutoMovieHumanBodyApertures.IPrepared[],
     target: IAutoMovieLoftChain,
     heights: readonly number[],
     phases: readonly number[],
@@ -161,7 +145,7 @@ export namespace AutoMovieHumanBodyApertures {
       AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           apertures.some(
-            (a: IPrepared): boolean =>
+            (a: IAutoMovieHumanBodyApertures.IPrepared): boolean =>
               AutoMovieHumanLoftAperture.signed(a.outline, p, REACH) < REACH,
           ),
       );

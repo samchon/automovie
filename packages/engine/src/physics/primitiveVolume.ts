@@ -1,5 +1,4 @@
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
-
+import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 /**
  * Analytic solid volume of a primitive, in cubic meters.
  *
@@ -17,8 +16,8 @@ import { AutoMoviePrimitiveShape } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work deriveCenterOfMass reuses this owner for every part; no identity cache would be valid after dimension mutation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a number is returned; no vectors, mesh storage, handles or tasks survive the call.
  */
-export const primitiveVolume: (shape: AutoMoviePrimitiveShape) => number = (
-  shape: AutoMoviePrimitiveShape,
+export const primitiveVolume: (shape: IAutoMoviePrimitiveShape) => number = (
+  shape: IAutoMoviePrimitiveShape,
 ): number => {
   switch (shape.type) {
     case "box":

@@ -1,3 +1,6 @@
+import type { IAutoMovieLoftChain, IAutoMovieLoftSectionConnect, IAutoMovieLoftSectionJet, IAutoMovieLoftSectionLegacy, IAutoMovieLoftSectionPhase, IAutoMovieLoftSectionSource, IAutoMovieViewSectionField } from "@automovie/interface";
+
+
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftSectionBoundary } from "./AutoMovieLoftSectionBoundary";
 import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
@@ -5,33 +8,20 @@ import { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-
-/** Local mm and phase-radian derivatives without a station-jet requirement. */
-type Phase = ReturnType<typeof AutoMovieLoftSectionLegacy.phase>;
-
-/** Only the six required total-order-two local components. */
-type Jet = ReturnType<typeof AutoMovieLoftSectionLegacy.jet>;
 
 /** Both primal weights survive rounding independently; the last two are native-weight derivatives. */
 type Weight = readonly [number, number, number, number];
 
-/** A structural source carrier also works before public interface wiring. */
-type Chain = IAutoMovieLoftChain & {
-  nativeSource?: AutoMovieLoftSectionSource.ISource;
-  sectionSpans?: AutoMovieLoftSectionConnect.ISpan[];
-};
-
 /** An actual complete endpoint family, already expressed in the receiver. */
-type Family = AutoMovieLoftSectionSource.IEndpoint["field"];
+type Family = IAutoMovieLoftSectionSource.IEndpoint["field"];
 
 /** One admitted explicit station owner or genuine legacy absence. */
 type Owner =
   | { kind: "family"; field: Family }
-  | { kind: "source"; data: AutoMovieLoftSectionSource.ISource["data"] }
+  | { kind: "source"; data: IAutoMovieLoftSectionSource.ISource["data"] }
   | {
       kind: "span";
-      span: Exclude<AutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
+      span: Exclude<IAutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
     };
 
 /**
@@ -54,14 +44,14 @@ export namespace AutoMovieLoftSection {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure predicate owns no preparation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
-  export function present(chain: Chain): boolean {
+  export function present(chain: IAutoMovieLoftChain): boolean {
     return (
       chain.nativeSource !== undefined ||
       chain.sectionSpans !== undefined ||
       chain.layers.some(
         (
           layer: IAutoMovieLoftChain.ILayer & {
-            sectionSource?: AutoMovieLoftSectionSource.IEndpoint;
+            sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
           },
         ): boolean => layer.sectionSource !== undefined,
       )
@@ -79,7 +69,7 @@ export namespace AutoMovieLoftSection {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure predicate owns no station preparation or cross-call result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or output and adds no cache.
    */
-  export function regular(chain: Chain): boolean {
+  export function regular(chain: IAutoMovieLoftChain): boolean {
     if (!AutoMovieLoftSectionSource.regular(chain)) return false;
     if (!present(chain))
       return chain.layers.every(
@@ -91,9 +81,9 @@ export namespace AutoMovieLoftSection {
     for (let q: number = 0; q + 1 < chain.layers.length; q++) {
       const a: IAutoMovieLoftChain.ILayer = chain.layers[q]!;
       const b: IAutoMovieLoftChain.ILayer = chain.layers[q + 1]!;
-      const law: AutoMovieLoftSectionConnect.ISpan | undefined =
+      const law: IAutoMovieLoftSectionConnect.ISpan | undefined =
         chain.sectionSpans?.find(
-          (span: AutoMovieLoftSectionConnect.ISpan): boolean => {
+          (span: IAutoMovieLoftSectionConnect.ISpan): boolean => {
             const [from, to]: readonly [number, number] =
               AutoMovieLoftSectionConnect.bounds(span);
             return from <= a.y && to >= b.y;
@@ -125,9 +115,9 @@ export namespace AutoMovieLoftSection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller-owned closures retain their geometry/rows; results own fresh local vectors and there is no cache insertion.
    */
   export function phase(
-    chain: Chain,
+    chain: IAutoMovieLoftChain,
     station: number,
-  ): ((phi: number) => Phase) | null {
+  ): ((phi: number) => IAutoMovieLoftSectionPhase) | null {
     if (!present(chain)) return null;
     const selected: Owner | null = owner(chain, station);
     if (selected === null) return null;
@@ -141,22 +131,22 @@ export namespace AutoMovieLoftSection {
       return AutoMovieLoftSectionNative.phase(
         need(AutoMovieLoftSectionBoundary.values(span.span.law, station)),
       );
-    const mixed: Extract<AutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }> =
+    const mixed: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }> =
       span.span;
     const w: Weight = weight(mixed, station);
     if (w[0] === 0 && station === mixed.basis.binding.station)
       return familyPhase(mixed.basis.field);
-    const native: (phi: number) => Phase = AutoMovieLoftSectionNative.phase(
+    const native: (phi: number) => IAutoMovieLoftSectionPhase = AutoMovieLoftSectionNative.phase(
       need(AutoMovieLoftSectionBoundary.values(mixed.native, station)),
     );
     if (w[0] === 1 && (station === mixed.from || station === mixed.to))
       return native;
-    const basis: AutoMovieLoftSectionLegacy.IPrepared = extension(
+    const basis: IAutoMovieLoftSectionLegacy.IPrepared = extension(
       mixed,
       station,
       0,
     );
-    return (phi: number): Phase =>
+    return (phi: number): IAutoMovieLoftSectionPhase =>
       phaseProduct(
         native(phi),
         AutoMovieLoftSectionLegacy.phase(basis, phi),
@@ -176,9 +166,9 @@ export namespace AutoMovieLoftSection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Geometry/rows belong to the caller's closure; each returned total2 owns new vectors and no global cache is added.
    */
   export function jet(
-    chain: Chain,
+    chain: IAutoMovieLoftChain,
     station: number,
-  ): ((phi: number) => Jet) | null {
+  ): ((phi: number) => IAutoMovieLoftSectionJet) | null {
     if (!present(chain)) return null;
     const selected: Owner | null = owner(chain, station);
     if (selected === null) return null;
@@ -191,39 +181,39 @@ export namespace AutoMovieLoftSection {
       return AutoMovieLoftSectionNative.jet(
         need(AutoMovieLoftSectionBoundary.read(selected.span.law, station)),
       );
-    const mixed: Extract<AutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }> =
+    const mixed: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }> =
       selected.span;
     const w: Weight = weight(mixed, station);
     if (w[0] === 0 && station === mixed.basis.binding.station)
       return familyJet(mixed.basis.field);
-    const native: (phi: number) => Jet = AutoMovieLoftSectionNative.jet(
+    const native: (phi: number) => IAutoMovieLoftSectionJet = AutoMovieLoftSectionNative.jet(
       need(AutoMovieLoftSectionBoundary.read(mixed.native, station)),
     );
     if (w[0] === 1 && (station === mixed.from || station === mixed.to))
       return native;
-    const basis: AutoMovieLoftSectionLegacy.IPrepared = extension(
+    const basis: IAutoMovieLoftSectionLegacy.IPrepared = extension(
       mixed,
       station,
       2,
     );
-    return (phi: number): Jet =>
+    return (phi: number): IAutoMovieLoftSectionJet =>
       product(native(phi), AutoMovieLoftSectionLegacy.jet(basis, phi), w);
   }
 }
 
 /** Validate explicit original ownership before choosing its actual changed-span law. */
-function owner(chain: Chain, station: number): Owner | null {
+function owner(chain: IAutoMovieLoftChain, station: number): Owner | null {
   const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, station);
-  const source: AutoMovieLoftSectionSource.ISource | null =
+  const source: IAutoMovieLoftSectionSource.ISource | null =
     AutoMovieLoftSectionSource.validate(chain, lo, hi);
-  const span: AutoMovieLoftSectionConnect.ISpan | null =
+  const span: IAutoMovieLoftSectionConnect.ISpan | null =
     AutoMovieLoftSectionConnect.active(chain, station);
   if (span !== null)
     return span.kind === "basis" ? null : { kind: "span", span };
   const layer: IAutoMovieLoftChain.ILayer | undefined = chain.layers.find(
     (value: IAutoMovieLoftChain.ILayer): boolean => value.y === station,
   );
-  const endpoint: AutoMovieLoftSectionSource.IEndpoint | null =
+  const endpoint: IAutoMovieLoftSectionSource.IEndpoint | null =
     layer === undefined ? null : AutoMovieLoftSectionSource.endpoint(layer);
   if (endpoint !== null) return { kind: "family", field: endpoint.field };
   if (
@@ -246,7 +236,7 @@ function need<T>(value: T | string): T {
 }
 
 /** Value-only complete endpoint functions need no physical derivative evaluation. */
-function familyPhase(field: Family): (phi: number) => Phase {
+function familyPhase(field: Family): (phi: number) => IAutoMovieLoftSectionPhase {
   if (field.kind === "native")
     return AutoMovieLoftSectionNative.phase({
       extents: field.inputs.extents.map(
@@ -255,33 +245,45 @@ function familyPhase(field: Family): (phi: number) => Phase {
       shoulders: field.inputs.shoulders.map(
         (row: readonly number[]): number => row[0]!,
       ),
+      ...(field.inputs.touch === undefined ? {} : {
+        touch: field.inputs.touch.map((row: readonly number[]): number => row[0]!),
+      }),
+      ...(field.inputs.splits === undefined ? {} : {
+        splits: field.inputs.splits.map((split: IAutoMovieViewSectionField.IStationJet[]): number[] =>
+          split.map((row: readonly number[]): number => row[0]!)),
+      }),
+      ...(field.inputs.pieces === undefined ? {} : {
+        pieces: field.inputs.pieces.map((pieces: IAutoMovieViewSectionField.IStationJet[][]): number[][] =>
+          pieces.map((split: IAutoMovieViewSectionField.IStationJet[]): number[] =>
+            split.map((row: readonly number[]): number => row[0]!))),
+      }),
     });
-  const basis: AutoMovieLoftSectionLegacy.IPrepared = {
+  const basis: IAutoMovieLoftSectionLegacy.IPrepared = {
     kind: "value",
     order: field.order,
     rows: [field.rows[0]],
   };
-  return (phi: number): Phase => AutoMovieLoftSectionLegacy.phase(basis, phi);
+  return (phi: number): IAutoMovieLoftSectionPhase => AutoMovieLoftSectionLegacy.phase(basis, phi);
 }
 
 /** Exact retained source2 owns an endpoint's complete local jet. */
-function familyJet(field: Family): (phi: number) => Jet {
+function familyJet(field: Family): (phi: number) => IAutoMovieLoftSectionJet {
   if (field.kind === "native")
     return AutoMovieLoftSectionNative.jet(field.inputs);
-  const basis: AutoMovieLoftSectionLegacy.IPrepared = {
+  const basis: IAutoMovieLoftSectionLegacy.IPrepared = {
     kind: "jet",
     order: field.order,
     rows: field.rows,
   };
-  return (phi: number): Jet => AutoMovieLoftSectionLegacy.jet(basis, phi);
+  return (phi: number): IAutoMovieLoftSectionJet => AutoMovieLoftSectionLegacy.jet(basis, phi);
 }
 
 /** Define the complete legacy field on the receiving span, not beyond its host. */
 function extension(
-  span: Extract<AutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }>,
+  span: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }>,
   station: number,
   order: 0 | 2,
-): AutoMovieLoftSectionLegacy.IPrepared {
+): IAutoMovieLoftSectionLegacy.IPrepared {
   const field: Family = span.basis.field;
   if (field.kind !== "basis")
     throw new Error("The mixed extension has no actual basis endpoint2.");
@@ -295,7 +297,7 @@ function extension(
 
 /** Quintic flat weight has zero first/second derivatives at both exact ends. */
 function weight(
-  span: Extract<AutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }>,
+  span: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }>,
   station: number,
 ): Weight {
   const h: number = span.to - span.from;
@@ -316,8 +318,8 @@ function weight(
 }
 
 /** Shared value/phase product rule uses a station-only scalar weight. */
-function phaseProduct(a: Phase, b: Phase, w: Weight): Phase {
-  const out: Phase = { p: [0, 0], t: [0, 0], tt: [0, 0] };
+function phaseProduct(a: IAutoMovieLoftSectionPhase, b: IAutoMovieLoftSectionPhase, w: Weight): IAutoMovieLoftSectionPhase {
+  const out: IAutoMovieLoftSectionPhase = { p: [0, 0], t: [0, 0], tt: [0, 0] };
   for (const key of ["p", "t", "tt"] as const)
     for (let q: number = 0; q < 2; q++)
       out[key][q] = w[0] * a[key][q]! + w[1] * b[key][q]!;
@@ -325,8 +327,8 @@ function phaseProduct(a: Phase, b: Phase, w: Weight): Phase {
 }
 
 /** The whole-field product closes with total2, without source3/4. */
-function product(a: Jet, b: Jet, w: Weight): Jet {
-  const out: Jet = {
+function product(a: IAutoMovieLoftSectionJet, b: IAutoMovieLoftSectionJet, w: Weight): IAutoMovieLoftSectionJet {
+  const out: IAutoMovieLoftSectionJet = {
     ...phaseProduct(a, b, w),
     s: [0, 0],
     ss: [0, 0],
@@ -345,7 +347,7 @@ function product(a: Jet, b: Jet, w: Weight): Jet {
 }
 
 /** Only requested result vectors are required finite; no absent derivative is requested. */
-function admit<T extends Phase>(out: T): T {
+function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   if (
     !Object.values(out).every(
       (row: unknown): boolean =>

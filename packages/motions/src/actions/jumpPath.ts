@@ -1,5 +1,6 @@
-import { AutoMovieStationHermite, wrapDegrees } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieStationHermite, wrapDegrees } from "@automovie/engine";
 
 /**
  * The paths the jump's phases are drawn on: a quintic Hermite path for the

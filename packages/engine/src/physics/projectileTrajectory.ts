@@ -1,12 +1,7 @@
-import type {
-  IAutoMovieClip,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { aimRotation } from "../kinematics/aimRotation";
-import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { projectileAt } from "./projectileAt";
 
 /** A projectile model faces +Z; its trajectory rotates that onto the flight. */

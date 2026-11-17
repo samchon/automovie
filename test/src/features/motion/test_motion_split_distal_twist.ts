@@ -1,20 +1,6 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  fitChainToTarget,
-  resolvePose,
-  swingTwist,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitChainToTarget, resolvePose, swingTwist } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

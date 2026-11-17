@@ -1,5 +1,4 @@
-import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
-import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
+import type { IAutoMovieSweepPath, IAutoMovieSweepSpine } from "@automovie/interface";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 

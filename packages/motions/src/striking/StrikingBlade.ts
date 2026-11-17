@@ -1,15 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingAdvance, IAutoMovieMotionHumanStrikingBlade, IAutoMovieMotionHumanStrikingHeld, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
@@ -41,73 +37,6 @@ import { StrikingSupport } from "./StrikingSupport";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind and no technique is named here; lengths are shares of the body's measure.
  */
 export namespace StrikingBlade {
-  /** How the body goes with a stroke. */
-  export type Advance = StrikingAdvance.Advance;
-
-  /** The other hand's hold on a tool held in both hands. */
-  export interface ISupport {
-    /** Its grip socket from the first hand's, metres: `x` along the tool's axis, `y` along its edge, `z` along their cross product. */
-    offset: IAutoMovieVector3;
-
-    /** Which of the tool's directions the handle it wraps runs along: a sword's grip runs along the blade's axis, a pistol's along its sights' side. */
-    handle: "axis" | "edge";
-  }
-
-  /** A stroke. */
-  export interface IStroke {
-    /** The tool. */
-    tool: StrikingHeld.ITool;
-
-    /** The clock, a phrase with the standard instants. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /**
-     * The tool's pose along the stroke.
-     *
-     * @param progress 0 at the ready pose, 1 at the decisive pose, more than 1 through the follow-through.
-     * @param seconds Seconds since the action's start, for a path that follows something moving (an aim kept on a walking target); a path of a stroke ignores it.
-     * @returns The hand's grip frame, world.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the progress's three marks, what the seconds are for and the result's frame.
-     * @evidence contracts/development/implementation.md#principled-implementation A stroke's path is a pure function of its progress, so the planner alone decides the time course; the seconds are given beside it because a held pose's progress stays at 1 while what it is held on may move.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The planner passes the progress unclamped above 1, so a follow-through is the path's own.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
-     */
-    path(progress: number, seconds: number): StrikingHeld.IHandFrame;
-
-    /** The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. */
-    back: number;
-
-    /** Where the other hand holds the tool, or null when one hand holds it. */
-    support: ISupport | null;
-
-    /** The instant that is the action's decisive one; `stroke` when absent. */
-    decisive?: string;
-
-    /** How the body goes with it. */
-    advance: Advance;
-
-    /** How far the advance carries the leading foot, metres; the advance's full travel (`StrikingAdvance.travel`) when absent. */
-    travel?: number;
-
-    /** The horizontal unit line an advance travels. */
-    line: IAutoMovieVector3;
-
-    /** Whether the tool stays in the pose the stroke left it in, instead of returning to the entry hold. */
-    stay: boolean;
-
-    /** The share of the path a stopped stroke is arrested at, in (0, 1]; 1 when the stroke runs its path. */
-    stop: number;
-
-    /** The trunk's twist while the tool is on its path, degrees, positive toward the performer's left: a shouldered long gun turns the support shoulder forward. 0 when absent. */
-    turn?: number;
-
-    /** Whether the stroke starts from the pose the previous action holds, so the holding arm keeps that action's elbow hint and reference (the entry posture's goal) instead of solving its own; false when absent. */
-    kept?: boolean;
-  }
 
   /**
    * The holding arm's shoulder on the body as it stands at an instant of an
@@ -129,9 +58,9 @@ export namespace StrikingBlade {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shoulder(
-    context: Pick<IHumanActionContext, "body" | "entry">,
-    side: HumanHand.Side,
-    advance: Advance,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    side: IAutoMovieMotionHumanHand.Side,
+    advance: IAutoMovieMotionHumanStrikingAdvance.Advance,
     line: IAutoMovieVector3,
     travel: number = StrikingAdvance.travel(context, advance),
   ): IAutoMovieVector3 {
@@ -160,9 +89,9 @@ export namespace StrikingBlade {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turned(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     degrees: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (degrees === 0) return posture;
     const add = (
       bone: "chest" | "spine",
@@ -198,14 +127,14 @@ export namespace StrikingBlade {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke and the entry state only.
    */
   export function plan(
-    context: IHumanActionContext,
-    stroke: IStroke,
-  ): IHumanActionPlan {
-    const { tool, clock }: IStroke = stroke;
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext,
+    stroke: IAutoMovieMotionHumanStrikingBlade.IStroke,
+  ): IAutoMovieMotionHumanActionPlan {
+    const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const duration: number = clock.duration;
-    const other: HumanHand.Side = tool.side === "left" ? "right" : "left";
-    const base: IHumanActionPlan = StrikingAdvance.base(context, stroke);
+    const other: IAutoMovieMotionHumanHand.Side = tool.side === "left" ? "right" : "left";
+    const base: IAutoMovieMotionHumanActionPlan = StrikingAdvance.base(context, stroke);
 
     // The hand as displayed at the entry, kept relative to the root so it
     // travels with an advance.
@@ -213,14 +142,14 @@ export namespace StrikingBlade {
       body,
       context.entry.pose,
     );
-    const held: StrikingHeld.IHandFrame = {
+    const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
       point: Vector3.subtract(
         HumanHand.frame(body, bones, tool.side, "grip").point,
         context.entry.posture.root,
       ),
       rotation: bones.get(`${tool.side}Hand`)!.worldRotation,
     };
-    const fingers: IHumanPosture["joints"] =
+    const fingers: IAutoMovieMotionHumanPosture["joints"] =
       tool.prop === undefined
         ? HumanHand.shape(tool.side, "fist")
         : (StrikingHeld.holds(context, tool)[0]?.fingers ?? {});
@@ -230,7 +159,7 @@ export namespace StrikingBlade {
       stroke.stay
         ? clock.progress("start", "ready", seconds)
         : clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-    const shoulderOf = (posture: IHumanPosture): IAutoMovieVector3 =>
+    const shoulderOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       HumanTrunk.resolve(body, posture).get(`${tool.side}UpperArm`)!
         .worldPosition;
 
@@ -242,9 +171,9 @@ export namespace StrikingBlade {
         shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
       ]);
     const frame = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): StrikingHeld.IHandFrame => {
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const progress: number =
         stroke.stop *
         AutoMovieMotionClock.through(
@@ -252,7 +181,7 @@ export namespace StrikingBlade {
           ["strokeStart", "stroke", "strokeEnd"],
           seconds,
         );
-      const sought: StrikingHeld.IHandFrame = stroke.path(
+      const sought: IAutoMovieMotionHumanStrikingHeld.IHandFrame = stroke.path(
         stroke.stop < 1 ? Math.min(stroke.stop, progress) : progress,
         seconds,
       );
@@ -262,7 +191,7 @@ export namespace StrikingBlade {
       // progress. The body advances on its own time, so the hand is carried
       // by what the shoulder is ahead of or behind that: otherwise a lunge
       // drives the body through its own hand and folds the arm to its limit.
-      const at: StrikingHeld.IHandFrame =
+      const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
         stroke.advance === "none" || !(stroke.stop > 0)
           ? sought
           : {
@@ -299,9 +228,9 @@ export namespace StrikingBlade {
     // pose and carried on the chest from the shoulder, since a hint solved
     // anew at each instant jumped by 0.24 m inside one 1/48 s step and
     // swapped the arm's configuration by itself.
-    let anchored: IHumanPosture.IReference | undefined;
+    let anchored: IAutoMovieMotionHumanPosture.IReference | undefined;
     let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const carried = (posture: IHumanPosture): IAutoMovieVector3 => {
+    const carried = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
       reference();
       const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
         body,
@@ -312,13 +241,13 @@ export namespace StrikingBlade {
         Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
       );
     };
-    const reference = (): IHumanPosture.IReference => {
+    const reference = (): IAutoMovieMotionHumanPosture.IReference => {
       if (anchored !== undefined) return anchored;
 
       // A stroke that starts from the pose the previous action holds keeps
       // that arm: its elbow's hint, carried on the chest as it stood, and
       // its reference, so the same pose is the same arm at the boundary.
-      const entered: IHumanPosture.IGoal | undefined =
+      const entered: IAutoMovieMotionHumanPosture.IGoal | undefined =
         stroke.kept === true
           ? context.entry.posture.limbs[`${tool.side}Arm`]
           : undefined;
@@ -337,18 +266,18 @@ export namespace StrikingBlade {
         anchored = entered.reference;
         return anchored;
       }
-      const decisive: StrikingHeld.IHandFrame = stroke.path(
+      const decisive: IAutoMovieMotionHumanStrikingHeld.IHandFrame = stroke.path(
         stroke.stop,
         clock.at("stroke"),
       );
-      const stood: IHumanPosture = StrikingSupport.posture(
+      const stood: IAutoMovieMotionHumanPosture = StrikingSupport.posture(
         body,
         turned(base.posture(clock.at("stroke")), stroke.turn ?? 0),
         tool,
         decisive,
         stroke.support,
       );
-      const goal: IHumanPosture.IGoal = StrikingHeld.goal(
+      const goal: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
         context,
         tool,
         decisive,
@@ -393,21 +322,21 @@ export namespace StrikingBlade {
       holds: StrikingHeld.holds(context, tool),
       ...(tool.wields === undefined ? {} : { wields: tool.wields }),
       hands: stroke.support === null ? [tool.side] : [tool.side, other],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = turned(
+        const posture: IAutoMovieMotionHumanPosture = turned(
           base.posture(t),
           (stroke.turn ?? 0) * present(t),
         );
-        const at: StrikingHeld.IHandFrame = frame(posture, t);
-        const first: IHumanPosture.IGoal = StrikingHeld.goal(
+        const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(posture, t);
+        const first: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,
           at,
           stroke.back,
           { x: 0, y: 0, z: 0 },
         );
-        const limbs: IHumanPosture["limbs"] = {
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...first,

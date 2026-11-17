@@ -1,8 +1,5 @@
+import type { IAutoMoviePatternFinding, IAutoMoviePatternPlacement, IAutoMoviePatternPoint, IAutoMovieSurfacePattern } from "@automovie/interface";
 import { positiveModulo } from "../math/positiveModulo";
-import { IAutoMoviePatternFinding } from "./IAutoMoviePatternFinding";
-import { IAutoMoviePatternPlacement } from "./IAutoMoviePatternPlacement";
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
-import { IAutoMovieSurfacePattern } from "./IAutoMovieSurfacePattern";
 
 /** Smallest metre length counted as a real gap or overlap. */
 const LENGTH_EPSILON: number = 1e-9;

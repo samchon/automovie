@@ -1,16 +1,23 @@
-import type { AutoMovieLoftContract } from "@automovie/engine";
-import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanHandJoints } from "./IAutoMovieHumanHandJoints";
-import type { IAutoMovieHumanHandMeasures } from "./IAutoMovieHumanHandMeasures";
-import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
-import type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
+import type { IAutoMovieLoftContract, IAutoMovieHumanHandSkinTargets, AutoMovieVector3Tuple, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandJoints, IAutoMovieHumanHandMeasures, IAutoMovieHumanHandScales, IAutoMovieHumanHandSolve, IAutoMovieHumanHandWrist } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, plus, scale, dot, unit, cross, hull }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 const { jointsOf, STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
@@ -35,17 +42,7 @@ export namespace AutoMovieHumanHandSolve {
   /** The solve's construction level: the hand's landmarks and scales (`construction-levels.md`, level 1). */
   const SOLVE_LEVEL: number = 1;
 
-  /** What the solve gives: the hand's scales, the arm built with them, and the joints. */
-  export interface ISolved<A extends IAutoMovieHumanHandWrist> {
-    /** The hand's scales as solved, each at its measure's site. */
-    measures: IAutoMovieHumanHandScales;
-
-    /** The arm built with those scales, whatever more than the wrist it carries. */
-    law: A;
-
-    /** The knuckles and the thumb's base for those scales. */
-    joints: IAutoMovieHumanHandJoints;
-  }
+  
 
   /**
    * Solve the hand's scales and the wrist's circle at their measurement sites
@@ -63,10 +60,10 @@ export namespace AutoMovieHumanHandSolve {
     given: IAutoMovieHumanHandMeasures,
     circumference: number,
     wristTape: number,
-    makeArm: (measures: IAutoMovieHumanHandScales) => A,
-    targets?: { breadth: number; girth: number },
-    diagnostics?: AutoMovieLoftContract.IDiagnostic[],
-  ): ISolved<A> {
+    makeArm: IAutoMovieHumanHandSolve.SolveMakeArm<A>,
+    targets?: IAutoMovieHumanHandSkinTargets.ISkinTargetsResult,
+    diagnostics?: IAutoMovieLoftContract.IDiagnostic[],
+  ): IAutoMovieHumanHandSolve.ISolved<A> {
     const widest: number = Math.max(
       ...hand.palmRings.map((r: readonly Vec3[]): number =>
         Math.max(...r.map((q: Vec3): number => q[1])) - Math.min(...r.map((q: Vec3): number => q[1])),

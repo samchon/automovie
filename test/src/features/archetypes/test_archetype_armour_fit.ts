@@ -1,10 +1,7 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieBodyMeasure, IAutoMovieModelPart } from "@automovie/interface";
 import { createArmour } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieBodyMeasure,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { ARMOUR_RECORDS } from "../internal/ARMOUR_RECORDS";
@@ -31,9 +28,9 @@ export function test_archetype_armour_fit(): void {
   const EPSILON: number = 1e-9;
   const shape: (
     piece: ReturnType<typeof createArmour>,
-  ) => AutoMoviePrimitiveShape = (
+  ) => IAutoMoviePrimitiveShape = (
     piece: ReturnType<typeof createArmour>,
-  ): AutoMoviePrimitiveShape => {
+  ): IAutoMoviePrimitiveShape => {
     const part: IAutoMovieModelPart = piece.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === "piece",
     )!;
@@ -55,7 +52,7 @@ export function test_archetype_armour_fit(): void {
         kind,
         measure: m,
       });
-      const s: AutoMoviePrimitiveShape = shape(piece);
+      const s: IAutoMoviePrimitiveShape = shape(piece);
       const label: string = `${kind} on ${name}`;
       if (
         kind === "openHelmet" ||
@@ -119,7 +116,7 @@ export function test_archetype_armour_fit(): void {
         kind,
         model: model as createArmour.Model,
       });
-      const s: AutoMoviePrimitiveShape = shape(piece);
+      const s: IAutoMoviePrimitiveShape = shape(piece);
       if (!validateModel({ model: piece }).success)
         findings.push(`${kind} ${model}: not admitted`);
       if (

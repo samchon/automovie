@@ -1,20 +1,10 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRide, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -54,54 +44,6 @@ import { HumanRideHands } from "./HumanRideHands";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's motion is read from the performance's prop, never from parameters of the rider's own.
  */
 export namespace HumanRide {
-  /** Parameters of a ride. */
-  export interface IParams {
-    /** The moving prop ridden: its subject id in the performance. */
-    on: string;
-
-    /** Seconds ridden, more than none. */
-    seconds: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
-
-    /**
-     * A rising trot: the mount's stride time, seconds, or the cue track of
-     * the performance that holds its strides (the footfalls of one
-     * diagonal, as the mount's own ride publishes them). The rider stands
-     * in the stirrups and sits again once a stride, the seat rising `POST`
-     * thigh lengths off the saddle, so both feet must rest on the support.
-     * On a cue track the seat is down at each of its instants and seated
-     * before the first and after the last. Seated throughout when absent.
-     */
-    rising?:
-      | (number & tags.ExclusiveMinimum<0> & HumanUnit<"s">)
-      | { cue: string };
-
-    /**
-     * The support's point each foot stays on, by its id, for a part that
-     * moves within the support: a pedal on its turning crank, a stirrup on
-     * a trotting horse (`IHumanProp.point`). The foot keeps the place it
-     * had on that point when the ride began. A foot not named, or a point
-     * that only moves with the support, is carried rigidly.
-     */
-    feet?: Partial<Record<"left" | "right", string>>;
-
-    /**
-     * The support's point the seat stays on, by its id, where the seat
-     * itself moves within the support: a saddle on a horse's trunk, which
-     * rises and falls with the stride over the course its root follows.
-     * The body is carried with the support alone when absent.
-     */
-    seat?: string;
-
-    /**
-     * The support's point each hand holds, by its id: a handlebar grip, a
-     * rein, a wheel's rim. The hand goes to it over `TAKE` seconds from the
-     * ride's start and stays on it, following a part that moves within the
-     * support. The arms are still yielded, so an arm action over the ride
-     * takes a hand off for as long as it lasts. The hand turns to the
-     * point and closes on it (`HumanMountRider.hold`).
-     */
-    hands?: Partial<Record<"left" | "right", string>>;
-  }
 
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
@@ -110,7 +52,7 @@ export namespace HumanRide {
   export const POST: number = 0.25;
 
   /** Ride a moving support, seated on it. */
-  export const ride: IHumanActionLaw<IParams> = {
+  export const ride: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide.IParams> = {
     name: "ride",
     interrupts: {
       any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
@@ -123,8 +65,8 @@ export namespace HumanRide {
       "rightArm",
       "trunkTurn",
     ],
-    plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
-      const { on, seconds }: IParams = context.params;
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>): IAutoMovieMotionHumanActionPlan => {
+      const { on, seconds }: IAutoMovieMotionHumanRide.IParams = context.params;
       if (!(seconds > 0))
         throw new HumanRefusal({
           kind: "parameter",
@@ -151,13 +93,13 @@ export namespace HumanRide {
           reason: `a ride is entered seated on its support, and the performer is ${context.entry.base.kind}`,
           fix: "sit on the support's seat first, then ride it",
         });
-      const support: IHumanActionContext.IProp = context.prop(on);
-      const seated: IHumanPosture = context.entry.posture;
-      const origin: IHumanProp.IFrame = support.frame(context.start);
+      const support: IAutoMovieMotionHumanActionContext.IProp = context.prop(on);
+      const seated: IAutoMovieMotionHumanPosture = context.entry.posture;
+      const origin: IAutoMovieMotionHumanProp.IFrame = support.frame(context.start);
       const bears = (
-        part: IHumanContactWindow["part"],
-        kind: IHumanContactWindow["kind"],
-      ): IHumanContactWindow => ({
+        part: IAutoMovieMotionHumanContactWindow["part"],
+        kind: IAutoMovieMotionHumanContactWindow["kind"],
+      ): IAutoMovieMotionHumanContactWindow => ({
         part,
         kind,
         from: 0,
@@ -202,7 +144,7 @@ export namespace HumanRide {
       }
 
       // A foot bears on the support only where it bore when the ride began: a foot that hangs from a saddle keeps hanging. The seat bears throughout unless the rider rises from it.
-      const contacts: IHumanContactWindow[] =
+      const contacts: IAutoMovieMotionHumanContactWindow[] =
         rising === undefined ? [bears("seat", "seat")] : [];
       for (const side of ["left", "right"] as const)
         if (context.entry.feet[side].planted)
@@ -279,7 +221,7 @@ export namespace HumanRide {
         id: string,
         began: IAutoMovieVector3,
         film: number,
-        now: IHumanProp.IFrame,
+        now: IAutoMovieMotionHumanProp.IFrame,
       ): IAutoMovieVector3 => {
         const moved: IAutoMovieVector3 | undefined = support.prop.point?.(
           id,
@@ -310,14 +252,14 @@ export namespace HumanRide {
           context.entry.base.kind === "seated"
             ? context.entry.base
             : { kind: "seated" },
-        posture: (at: number): IHumanPosture => {
-          const now: IHumanProp.IFrame = support.frame(
+        posture: (at: number): IAutoMovieMotionHumanPosture => {
+          const now: IAutoMovieMotionHumanProp.IFrame = support.frame(
             context.start + Math.min(seconds, Math.max(0, at)),
           );
-          const carried: IHumanPosture = carryHumanPosture(seated, origin, now);
+          const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(seated, origin, now);
 
           // The pelvis keeps its place on the seat, so it tips with a support that leans or pitches; the heading stays the unwrapped one the carry gives.
-          const tipped: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> =
+          const tipped: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
             resolveHumanPosture.angles(
               Quaternion.multiply(
                 Quaternion.multiply(now.rotation, turned),
@@ -339,9 +281,9 @@ export namespace HumanRide {
           // A foot on a part that moves within the support goes with the part: by how far the part has left the place the support alone would have carried it to.
           const film: number =
             context.start + Math.min(seconds, Math.max(0, at));
-          const limbs: IHumanPosture["limbs"] = { ...carried.limbs };
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...carried.limbs };
           for (const pedal of pedals) {
-            const goal: IHumanPosture.IGoal | undefined =
+            const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
               carried.limbs[`${pedal.side}Leg`];
             if (goal === undefined) continue;
             limbs[`${pedal.side}Leg`] = {
@@ -356,7 +298,7 @@ export namespace HumanRide {
             sat === undefined || saddle === undefined
               ? { x: 0, y: 0, z: 0 }
               : strayed(saddle, sat, film, now);
-          const out: IHumanPosture = {
+          const out: IAutoMovieMotionHumanPosture = {
             ...HumanMountRider.leant(
               carried,
               lean(film, now) * minimumJerk(Math.min(1, at / TAKE)).s,
@@ -374,7 +316,7 @@ export namespace HumanRide {
           };
 
           // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
-          const grasp: IHumanPosture["joints"] = {};
+          const grasp: IAutoMovieMotionHumanPosture["joints"] = {};
           for (const side of ["left", "right"] as const) {
             const id: string | undefined = context.params.hands?.[side];
             if (id === undefined) continue;
@@ -402,7 +344,7 @@ export namespace HumanRide {
             out.joints.hips,
           );
           for (const pedal of pedals) {
-            const goal: IHumanPosture.IGoal | undefined =
+            const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
               limbs[`${pedal.side}Leg`];
             if (goal !== undefined)
               limbs[`${pedal.side}Leg`] = HumanMountRider.ankled(

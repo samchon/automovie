@@ -1,4 +1,7 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, AutoMovieVector3Tuple } from "@automovie/interface";
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * How the skeleton reads the chains it stands in: a chain's first and last
@@ -7,8 +10,7 @@ import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine"
  * calibration millimetres.
  */
 export namespace AutoMovieHumanSkeletonChain {
-  /** Point or vector, mm. */
-  export type Vec3 = [number, number, number];
+  
 
   /** Phases sampling a section for perimeters and extremities. */
   export const PHASES: number[] = Array.from(
@@ -30,7 +32,7 @@ export namespace AutoMovieHumanSkeletonChain {
   }
 
   /** Axis point at a station, clamped into the chain. */
-  export function axis(chain: IAutoMovieLoftChain, s: number): Vec3 {
+  export function axis(chain: IAutoMovieLoftChain, s: number): AutoMovieVector3Tuple {
     return AutoMovieLoftChain.axis(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
@@ -38,41 +40,41 @@ export namespace AutoMovieHumanSkeletonChain {
   }
 
   /** Axis point at a chain end. */
-  export function end(chain: IAutoMovieLoftChain, which: "top" | "bottom"): Vec3 {
+  export function end(chain: IAutoMovieLoftChain, which: "top" | "bottom"): AutoMovieVector3Tuple {
     return axis(chain, which === "top" ? stop(chain) : start(chain));
   }
 
   /** Girth radius, perimeter / 2pi, of the section at a station clamped into the chain. */
   export function girth(chain: IAutoMovieLoftChain, s: number): number {
-    const ring: Vec3[] = AutoMovieLoftChain.ring(
+    const ring: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
       PHASES,
     );
     let perimeter: number = 0;
-    ring.forEach((p: Vec3, i: number): void => {
+    ring.forEach((p: AutoMovieVector3Tuple, i: number): void => {
       perimeter += distance(ring[(i + 1) % ring.length]!, p);
     });
     return perimeter / (2 * Math.PI);
   }
 
   /** Mean height of a ring. */
-  export function level(ring: Vec3[]): number {
+  export function level(ring: AutoMovieVector3Tuple[]): number {
     return mean(ring, 1);
   }
 
   /** Mean of one coordinate of points. */
-  export function mean(points: Vec3[], c: number): number {
-    return points.reduce((s: number, p: Vec3): number => s + p[c]!, 0) / points.length;
+  export function mean(points: AutoMovieVector3Tuple[], c: number): number {
+    return points.reduce((s: number, p: AutoMovieVector3Tuple): number => s + p[c]!, 0) / points.length;
   }
 
   /** Euclidean distance. */
-  export function distance(a: Vec3, b: Vec3): number {
+  export function distance(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
   /** Linear interpolation a + (b - a) t. */
-  export function lerp(a: Vec3, b: Vec3, t: number): Vec3 {
+  export function lerp(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, t: number): AutoMovieVector3Tuple {
     return [
       a[0] + (b[0] - a[0]) * t,
       a[1] + (b[1] - a[1]) * t,

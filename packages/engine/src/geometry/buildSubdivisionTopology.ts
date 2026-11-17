@@ -1,5 +1,4 @@
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
-
+import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
 /**
  * Build the edges and vertex fans of polygon rows, refusing anything that is
  * not an oriented manifold.
@@ -32,7 +31,7 @@ export const buildSubdivisionTopology = (
   faceOffsets: number[],
   faceVertices: number[],
   sharpnessOf: (a: number, b: number) => number,
-): ISubdivisionTopology => {
+): IAutoMovieSubdivisionTopology => {
   const faceCount: number = faceOffsets.length - 1;
   const cornerCount: number = faceVertices.length;
   const cornerFaces: number[] = new Array<number>(cornerCount);

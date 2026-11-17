@@ -1,19 +1,15 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLegChain, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWalkFoot, IAutoMovieMotionHumanWalkLegClearance, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { walkFoot } from "../actions/walkFoot";
 import { walkLegClearance } from "../actions/walkLegClearance";
 import { walkReach } from "../actions/walkReach";
 import { walkReachHeld } from "../actions/walkReachHeld";
 import { walkStanceCourse } from "../actions/walkStanceCourse";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanLegChain } from "../posture/HumanLegChain";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
@@ -47,7 +43,7 @@ import type { staggerRecover } from "./staggerRecover";
  */
 export class StaggerFeet {
   /** The feet as the entry stands them. */
-  private readonly entered: Record<"left" | "right", HumanFoot.IPlacement>;
+  private readonly entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
   /** The share of a swing a foot rises in (`staggerKnots.risingOf`). */
   private readonly rising: number;
@@ -59,10 +55,10 @@ export class StaggerFeet {
   private readonly bows: Map<staggerRecover.IStep, number> = new Map();
 
   /** The entry's posture. */
-  private readonly posture: IHumanPosture;
+  private readonly posture: IAutoMovieMotionHumanPosture;
 
   /** The body. */
-  private readonly body: IHumanActionContext["body"];
+  private readonly body: IAutoMovieMotionHumanActionContext["body"];
 
   /** The judged recovery. */
   private readonly recovery: staggerRecover.IRecovery;
@@ -79,8 +75,8 @@ export class StaggerFeet {
    * @param bend The trunk's shift of the centre of mass per sine of its tilt.
    */
   public constructor(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     recovery: staggerRecover.IRecovery,
     bend: Record<"pitch" | "roll", IAutoMovieVector3>,
   ) {
@@ -93,17 +89,17 @@ export class StaggerFeet {
   }
 
   /** The judged course. */
-  public course(): walkStanceCourse.ICourse {
+  public course(): IAutoMovieMotionHumanWalkStanceCourse.ICourse {
     return this.recovery.stances!;
   }
 
   /** The pelvis and the stances at a second, as the course holds them. */
   public settle(
     seconds: number,
-    feet: Record<"left" | "right", walkFoot.IScheduled>,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>,
   ): walkReach.IGround {
-    const entry: IHumanPosture = this.posture;
-    const reading: walkStanceCourse.IReading = walkStanceCourse.at(
+    const entry: IAutoMovieMotionHumanPosture = this.posture;
+    const reading: IAutoMovieMotionHumanWalkStanceCourse.IReading = walkStanceCourse.at(
       this.course(),
       seconds,
     );
@@ -122,8 +118,8 @@ export class StaggerFeet {
   /** The feet as they stand at a second no foot swings: each where the last of its steps put it. */
   public standing(
     seconds: number,
-  ): Record<"left" | "right", walkFoot.IScheduled> {
-    const out: Record<"left" | "right", walkFoot.IScheduled> = {
+  ): Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> {
+    const out: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
       left: { placement: this.entered.left, toes: 0 },
       right: { placement: this.entered.right, toes: 0 },
     };
@@ -136,8 +132,8 @@ export class StaggerFeet {
   /** The feet at a second as a gait schedules them: a stance where it stands, and a swing as a walking foot swings. */
   public scheduled(
     seconds: number,
-  ): Record<"left" | "right", walkFoot.IScheduled> {
-    const out: Record<"left" | "right", walkFoot.IScheduled> =
+  ): Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> {
+    const out: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
       this.standing(seconds);
     for (const step of this.recovery.steps) {
       if (seconds <= step.start || seconds >= step.land) continue;
@@ -152,11 +148,11 @@ export class StaggerFeet {
    * (`walkReach.swing`).
    */
   public solve(seconds: number): {
-    feet: Record<"left" | "right", walkFoot.IScheduled>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
   } {
-    const feet: Record<"left" | "right", walkFoot.IScheduled> =
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
       this.scheduled(seconds);
     const settled: walkReach.IGround = this.settle(seconds, feet);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
@@ -204,7 +200,7 @@ export class StaggerFeet {
     step: staggerRecover.IStep,
     seconds: number,
     bow: number,
-  ): walkFoot.IScheduled {
+  ): IAutoMovieMotionHumanWalkFoot.IScheduled {
     const { CLEARANCE, LIFT } = staggerBounds;
     const rising: number = this.rising;
     const u: number = (seconds - step.start) / (step.land - step.start);
@@ -215,7 +211,7 @@ export class StaggerFeet {
       ankle: { ...from.ankle, y: from.ankle.y + CLEARANCE },
     };
     const share: number = Math.max(0, (u - rising) / (1 - rising));
-    const swung: walkFoot.IFoot =
+    const swung: IAutoMovieMotionHumanWalkFoot.IFoot =
       u < rising
         ? {
             placement: {
@@ -283,7 +279,7 @@ export class StaggerFeet {
     const instants = Array.from({ length: count - 1 }, (_: unknown, i: number) => {
       const seconds: number =
         step.start + ((i + 1) / count) * (step.land - step.start);
-      const feet: Record<"left" | "right", walkFoot.IScheduled> =
+      const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
         this.standing(seconds);
       feet[step.side] = this.swungAt(step, seconds, 0);
       return { seconds, settled: this.settle(seconds, feet) };
@@ -294,11 +290,11 @@ export class StaggerFeet {
       side: "left" | "right",
       settled: walkReach.IGround,
       foot: walkFoot.IEnd,
-    ): walkLegClearance.ILeg => {
+    ): IAutoMovieMotionHumanWalkLegClearance.ILeg => {
       const pelvis: IAutoMovieQuaternion =
         settled.pelvis ??
         resolveHumanPosture.heading({ yaw: settled.yaw, pitch: 0, roll: 0 });
-      const swivel: HumanLegChain.ISwivel = HumanLegChain.fit(
+      const swivel: IAutoMovieMotionHumanLegChain.ISwivel = HumanLegChain.fit(
         body,
         side,
         pelvis,
@@ -327,7 +323,7 @@ export class StaggerFeet {
       };
     };
     // The standing leg's fit is read once a knot.
-    const standingLegs: walkLegClearance.ILeg[] = instants.map(({ settled }) =>
+    const standingLegs: IAutoMovieMotionHumanWalkLegClearance.ILeg[] = instants.map(({ settled }) =>
       legOf(stance, settled, settled.feet[stance]),
     );
     const worst = (bow: number): number => {

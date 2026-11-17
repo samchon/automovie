@@ -1,4 +1,4 @@
-import { IAutoMovieCarriageValue } from "./IAutoMovieCarriageValue";
+import type { IAutoMovieCarriageValue } from "./IAutoMovieCarriageValue";
 
 /**
  * One named operating state of a run and the travel it gives each carriage.

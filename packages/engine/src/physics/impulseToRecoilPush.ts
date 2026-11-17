@@ -1,7 +1,7 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieRecoilPush, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 
 /**
  * Bridge an {@link IAutoMovieImpact}'s impulse to a recoil

@@ -1,10 +1,8 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSword, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -42,14 +40,14 @@ export namespace HumanSwordThrust {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const thrust: IHumanActionLaw<HumanSword.IAttack> = {
+  export const thrust: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.IAttack> = {
     name: "swordThrust",
     interrupts: HumanSword.follows("stroke"),
     plan: (
-      context: IHumanActionContext<HumanSword.IAttack>,
-    ): IHumanActionPlan => {
-      const s: HumanSword.ISetup = HumanSword.setup(context);
-      const a: HumanSword.IAim = HumanSword.aim(
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
+    ): IAutoMovieMotionHumanActionPlan => {
+      const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
+      const a: IAutoMovieMotionHumanSword.IAim = HumanSword.aim(
         context,
         s,
         { out: 0, up: -0.15, forward: 0.85 },
@@ -58,7 +56,7 @@ export namespace HumanSwordThrust {
 
       // A thrust states no edge, so the blade is turned about its own line
       // the way the arm holds it with the least strain.
-      const landed: StrikingHeld.IHandFrame = StrikingRoll.hand(
+      const landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
         context,
         s.tool,
         0,
@@ -117,7 +115,7 @@ export namespace HumanSwordThrust {
       // as the landing's is: with the landing's turn carried back, the arm
       // of a small body could not hold the chamber (the hand 35 degrees off
       // what was asked, the wrist at its limits) and the fit jumped there.
-      const drawn: StrikingHeld.IHandFrame = StrikingRoll.hand(
+      const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
         context,
         s.tool,
         s.tool.length,
@@ -137,7 +135,7 @@ export namespace HumanSwordThrust {
           0,
           Vector3.length(Vector3.subtract(a.reach, s.shoulder)),
         ),
-        path: (progress: number): StrikingHeld.IHandFrame => ({
+        path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
           point: Vector3.lerp(drawn.point, landed.point, progress),
           rotation: Quaternion.slerp(
             drawn.rotation,

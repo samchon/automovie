@@ -1,13 +1,6 @@
-import {
-  IAutoMovieAcousticResponseProfile,
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisRun,
-  IAutoMovieProductionAcousticResponse,
-} from "@automovie/interface";
+import { type IAutoMovieAcousticReceiver, type IAutoMovieAcousticSource, type IAutoMovieDeriveInteriorAcousticResponse, IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieProductionAcousticResponse } from "@automovie/interface";
 
-import { IAutoMovieAcousticReceiver } from "../analysis/IAutoMovieAcousticReceiver";
-import { IAutoMovieAcousticRequest } from "../analysis/IAutoMovieAcousticRequest";
-import { IAutoMovieAcousticSource } from "../analysis/IAutoMovieAcousticSource";
+
 import { analyzeAutoMovieAcoustics } from "../analysis/analyzeAutoMovieAcoustics";
 import { Vector3 } from "../math/Vector3";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
@@ -23,24 +16,7 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared analysis and the canonical SHA-256 format owner supply one physical/digest policy; changed request/profile/input revision causes fresh derivation, with no completed response cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The analysis and metric objects are call-local; the returned receipt retains only scalar/profile/revision facts or a refusal reason, without room geometry, adopted audio or solver tasks.
  */
-export const deriveAutoMovieInteriorAcousticResponse: (props: {
-  sourceSpace: string | null;
-  listenerSpace: string | null;
-  inputRevision: string;
-  request: IAutoMovieAcousticRequest | null;
-  profile: IAutoMovieAcousticResponseProfile;
-}) => IAutoMovieProductionAcousticResponse = (props: {
-  /** Source space, or `null` outdoors. */
-  sourceSpace: string | null;
-  /** Listener space, or `null` outdoors. */
-  listenerSpace: string | null;
-  /** Exact geometry/material/emitter/listener input digest. */
-  inputRevision: string;
-  /** Shared acoustic request for the source room, when available. */
-  request: IAutoMovieAcousticRequest | null;
-  /** Explicit production-owned response source. */
-  profile: IAutoMovieAcousticResponseProfile;
-}): IAutoMovieProductionAcousticResponse => {
+export const deriveAutoMovieInteriorAcousticResponse: (props: IAutoMovieDeriveInteriorAcousticResponse.IProps) => IAutoMovieProductionAcousticResponse = (props: IAutoMovieDeriveInteriorAcousticResponse.IProps): IAutoMovieProductionAcousticResponse => {
   if (props.profile.id.trim().length === 0)
     throw new Error("acoustic response profile id must not be blank");
   if (SHA256_DIGEST_PATTERN.test(props.inputRevision) === false)

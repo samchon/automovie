@@ -1,17 +1,10 @@
-import {
-  IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieJointRotationDomain, type IAutoMovieResolvedJointAngles, type IAutoMovieRestFrame, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/nearestAngleAlias";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 

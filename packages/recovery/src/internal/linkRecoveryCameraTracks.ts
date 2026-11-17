@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
+import type { IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoveryMapObservation } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
-import type { IAutoMovieRecoveryTrackLinkage } from "../structures/internal/IAutoMovieRecoveryTrackLinkage";
-import type { IAutoMovieRecoveryTrackPair } from "../structures/internal/IAutoMovieRecoveryTrackPair";
-import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
+
+
+
+
+
 
 /**
  * Link bidirectionally ratio-qualified feature identities across fixed images.
@@ -20,10 +21,10 @@ import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeature
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bounded owned components and scalar counts return. Parent/link maps and borrowed descriptors expire without global cache or external handles.
  */
 export function linkRecoveryCameraTracks(
-  features: readonly ReturnType<typeof extractRecoveryImageFeatures>[],
-  pairs: readonly IAutoMovieRecoveryTrackPair[],
-  budget: IAutoMovieRecoveryCameraMapBudget,
-): IAutoMovieRecoveryTrackLinkage {
+  features: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[0],
+  pairs: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[1],
+  budget: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation> {
   const offsets: number[] = [0];
   for (const feature of features)
     offsets.push(offsets[offsets.length - 1]! + feature.points.length);
@@ -77,13 +78,12 @@ export function linkRecoveryCameraTracks(
     observations.push({
       viewIndex: view,
       featureIndex,
-      pixel: [...features[view]!.points[featureIndex]!.point],
-    });
+      pixel: [...features[view]!.points[featureIndex]!.point] });
     grouped.set(root, observations);
     if (grouped.size > budget.maxTracks)
       throw new Error("camera-map: linked track budget exhausted");
   }
-  const tracks: ReturnType<typeof linkRecoveryCameraTracks>["tracks"] = [];
+  const tracks: ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>["tracks"] = [];
   let conflictingComponents: number = 0;
   for (const [id, observations] of grouped) {
     if (
@@ -102,6 +102,5 @@ export function linkRecoveryCameraTracks(
     linkedObservations: linked.size,
     components: grouped.size,
     conflictingComponents,
-    intersectionMatches,
-  };
+    intersectionMatches };
 }

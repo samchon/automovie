@@ -1,19 +1,7 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld } from "@automovie/interface";
 import { createLongGun, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import {
-  HumanChain,
-  HumanMusketDrill,
-  HumanObject,
-  HumanPerformance,
-  HumanWeaponPresent,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanProp,
-  StrikingHeld,
-  stand,
-} from "@automovie/motions";
+import { HumanChain, HumanMusketDrill, HumanObject, HumanPerformance, HumanWeaponPresent, StrikingHeld, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,20 +23,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Two short in-memory performances using package exports, with no viewer or external host.
  */
 export function test_human_motion_grasp_closure(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   for (const kind of ["sword", "musket"] as const) {
-    const prospective: IHumanProp.IFrame[] = [];
-    const points: StrikingHeld.IPoints =
+    const prospective: IAutoMovieMotionHumanProp.IFrame[] = [];
+    const points: IAutoMovieMotionHumanStrikingHeld.IPoints =
       kind === "sword"
         ? { tip: "point", edge: "edge" }
         : { tip: "muzzle", edge: "sight" };
-    const law: IHumanActionLaw<{ prop: string }> = {
+    const law: IAutoMovieMotionHumanActionLaw<{ prop: string }> = {
       name: "inspectClosure",
       interrupts: {},
       demands: (
-        ahead: IHumanActionLaw.IAhead<{ prop: string }>,
-      ): readonly IHumanActionLaw.IDemand[] => {
+        ahead: IAutoMovieMotionHumanActionLaw.IAhead<{ prop: string }>,
+      ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
         prospective.push(ahead.grip.tool(points).held!.frame);
         return kind === "sword"
           ? []
@@ -58,9 +46,9 @@ export function test_human_motion_grasp_closure(): void {
             });
       },
       plan: (
-        context: IHumanActionContext<{ prop: string }>,
-      ): IHumanActionPlan => {
-        const actual: IHumanProp.IFrame = StrikingHeld.of(
+        context: IAutoMovieMotionHumanActionContext<{ prop: string }>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const actual: IAutoMovieMotionHumanProp.IFrame = StrikingHeld.of(
           context,
           "right",
           context.params.prop,

@@ -1,7 +1,5 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanAuditContinuity, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
 import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,7 +47,7 @@ export function test_motion_audit_continuity_reversal(): void {
   const lifted = (
     elbow: (seconds: number) => number,
     hand: (seconds: number) => number = (): number => 0,
-  ): AutoMovieMotionHumanAuditContinuity.IResult =>
+  ): IAutoMovieMotionHumanAuditContinuity.IResult =>
     AutoMovieMotionHumanAuditContinuity.measure(
       motionAuditPoints(
         1,
@@ -68,7 +66,7 @@ export function test_motion_audit_continuity_reversal(): void {
     (t: number): number =>
       Math.abs(t - frame) < half ? height : 0;
 
-  const full: AutoMovieMotionHumanAuditContinuity.IResult = lifted(spike(0.08));
+  const full: IAutoMovieMotionHumanAuditContinuity.IResult = lifted(spike(0.08));
   TestValidator.predicate(
     "a one-frame spike is its own height",
     Math.abs(full.reversal.value - 0.08) <= 1e-9 &&
@@ -81,7 +79,7 @@ export function test_motion_audit_continuity_reversal(): void {
       full.jump.where === "rightLowerArm",
   );
 
-  const partial: AutoMovieMotionHumanAuditContinuity.IResult = lifted(
+  const partial: IAutoMovieMotionHumanAuditContinuity.IResult = lifted(
     (t: number): number =>
       t < frame - half ? 0 : t < frame + half ? 0.08 : 0.05,
   );
@@ -91,7 +89,7 @@ export function test_motion_audit_continuity_reversal(): void {
       Math.abs(partial.reversal.seconds - frame) <= 1e-9,
   );
 
-  const turn: AutoMovieMotionHumanAuditContinuity.IResult =
+  const turn: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(
       motionAuditPoints(
         2 / 24,
@@ -118,7 +116,7 @@ export function test_motion_audit_continuity_reversal(): void {
       turn.reversal.where === "rightHand",
   );
 
-  const line: AutoMovieMotionHumanAuditContinuity.IResult =
+  const line: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(
       motionAuditPoints(
         1,
@@ -135,7 +133,7 @@ export function test_motion_audit_continuity_reversal(): void {
     line.reversal.value === 0 && line.reversal.where === "none",
   );
 
-  const both: AutoMovieMotionHumanAuditContinuity.IResult = lifted(
+  const both: IAutoMovieMotionHumanAuditContinuity.IResult = lifted(
     spike(0.08),
     spike(0.02),
   );
@@ -150,7 +148,7 @@ export function test_motion_audit_continuity_reversal(): void {
   const coarse = (
     elbow: (seconds: number) => number,
     hand: (seconds: number) => number,
-  ): AutoMovieMotionHumanAuditContinuity.IResult =>
+  ): IAutoMovieMotionHumanAuditContinuity.IResult =>
     AutoMovieMotionHumanAuditContinuity.measure(
       motionAuditPoints(
         1,
@@ -166,7 +164,7 @@ export function test_motion_audit_continuity_reversal(): void {
       6,
     );
   const rub = (t: number): number => 0.0475 * Math.sin(4 * Math.PI * t);
-  const rubbed: AutoMovieMotionHumanAuditContinuity.IResult = coarse(
+  const rubbed: IAutoMovieMotionHumanAuditContinuity.IResult = coarse(
     (): number => 0,
     rub,
   );
@@ -174,7 +172,7 @@ export function test_motion_audit_continuity_reversal(): void {
     "a 2 Hz rub of 47.5 mm read at 6 a second turns by its frame's share",
     rubbed.reversal.value <= 0.0475 * (1 - Math.cos(Math.PI / 6)) + 1e-9,
   );
-  const floored: AutoMovieMotionHumanAuditContinuity.IResult =
+  const floored: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(
       motionAuditPoints(
         1,
@@ -194,7 +192,7 @@ export function test_motion_audit_continuity_reversal(): void {
     "with the verdict's 50 mm as the floor, the rub's turns over it are still read on the frame",
     floored.reversal.value <= 0.05,
   );
-  const spiked: AutoMovieMotionHumanAuditContinuity.IResult = coarse(
+  const spiked: IAutoMovieMotionHumanAuditContinuity.IResult = coarse(
     (t: number): number => (Math.abs(t - 0.5) < half ? 0.08 : 0),
     (): number => 0,
   );

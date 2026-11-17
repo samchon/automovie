@@ -1,6 +1,7 @@
+import type { IAutoMovieComposition, IAutoMovieMotionHumanProp } from "@automovie/interface";
 import * as archetypes from "@automovie/archetypes";
-import type { AutoMovieComposition } from "@automovie/engine";
-import type { IHumanProp } from "@automovie/motions";
+
+
 import * as motions from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import ts from "typescript";
@@ -156,7 +157,7 @@ export function test_website_scene_chain(): void {
 /** What the shown code leaves for the test to read. */
 interface IShown {
   /** The joined chain. */
-  scene: { node: AutoMovieComposition };
+  scene: { node: IAutoMovieComposition };
 
   /** The laws it registers; empty when it lists none. */
   laws: unknown[];
@@ -173,7 +174,7 @@ interface IShown {
     }[];
     composition: unknown;
     forces?: IPlaygroundComposition["forces"];
-    props?: IHumanProp[];
+    props?: IAutoMovieMotionHumanProp[];
     laws?: unknown[];
   };
 }
@@ -213,24 +214,24 @@ function input(
     findings.push(`${id}: the laws are given where the playground gives none`);
 
   // The props, against those the playground builds.
-  const expected: IHumanProp[] | undefined = PlaygroundObjects.props(
+  const expected: IAutoMovieMotionHumanProp[] | undefined = PlaygroundObjects.props(
     composition.objects ?? [],
   );
   if ((given.props === undefined) !== (expected === undefined)) {
     findings.push(`${id}: the props are given where the playground gives none`);
     return findings;
   }
-  const made: IHumanProp[] = given.props ?? [];
-  const wanted: IHumanProp[] = expected ?? [];
+  const made: IAutoMovieMotionHumanProp[] = given.props ?? [];
+  const wanted: IAutoMovieMotionHumanProp[] = expected ?? [];
   if (
-    JSON.stringify(made.map((p: IHumanProp): string => p.subject)) !==
-    JSON.stringify(wanted.map((p: IHumanProp): string => p.subject))
+    JSON.stringify(made.map((p: IAutoMovieMotionHumanProp): string => p.subject)) !==
+    JSON.stringify(wanted.map((p: IAutoMovieMotionHumanProp): string => p.subject))
   ) {
     findings.push(`${id}: the props' subjects differ`);
     return findings;
   }
-  wanted.forEach((want: IHumanProp, i: number): void => {
-    const prop: IHumanProp = made[i]!;
+  wanted.forEach((want: IAutoMovieMotionHumanProp, i: number): void => {
+    const prop: IAutoMovieMotionHumanProp = made[i]!;
     if (JSON.stringify(prop.worn) !== JSON.stringify(want.worn))
       findings.push(`${id}: ${want.subject} is worn otherwise`);
     const near: (a: number, b: number, tolerance: number) => boolean = (
@@ -238,8 +239,8 @@ function input(
       b: number,
       tolerance: number,
     ): boolean => Math.abs(a - b) <= tolerance;
-    const p: IHumanProp.IFrame = prop.frame;
-    const q: IHumanProp.IFrame = want.frame;
+    const p: IAutoMovieMotionHumanProp.IFrame = prop.frame;
+    const q: IAutoMovieMotionHumanProp.IFrame = want.frame;
     if (
       !near(p.position.x, q.position.x, 1e-6) ||
       !near(p.position.y, q.position.y, 1e-6) ||

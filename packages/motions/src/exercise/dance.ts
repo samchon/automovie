@@ -1,26 +1,16 @@
-import { Vector3, type resolveAutoMovieSchedule } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDance, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieResolveSchedule, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
@@ -67,18 +57,15 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace dance {
   /** The action's name. */
-  export const name: HumanActionName = "dance";
+  export const name: AutoMovieMotionHumanActionName = "dance";
 
   /** Cancel table: any beat ends a step. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["anytime", "smooth"],
       dance: ["anytime", "smooth"],
       walk: ["anytime", "smooth"],
     });
-
-  /** The steps. */
-  export type Kind = "bounce" | "sway" | "stepTouch" | "boxStep";
 
   /** A foot's offset from its stance over the floor, metres: `x` to the body's left, `z` forward. */
   interface IOffset {
@@ -96,40 +83,6 @@ export namespace dance {
   export const BOUNCE: number = 0.01;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The step, the tempo and the number of beats.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is a number, not audio.
-   */
-  export interface IParams {
-    /** The step. */
-    kind: Kind;
-
-    /** Beats per minute; `BPM` when absent. */
-    bpm?: number & tags.ExclusiveMinimum<0> & HumanUnit<"beats/min">;
-
-    /** How many beats; 8 when absent. */
-    beats?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /**
-     * A cue track to lock the beats to (#3340, #3378): beat `k` falls on the
-     * track's `k`-th instant named `event` (`beat` when absent) at or after the
-     * action's start, and the tempo is the mean interval of those instants,
-     * so `bpm` is not read. The track is the performance's input, never
-     * audio. Unlocked, the beats follow `bpm` from one period after the start.
-     */
-    lock?: { of: string; event?: string };
-
-    /** The foot that steps first; `right` when absent. */
-    side?: "left" | "right";
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /**
    * Plan a dance step.
    *
    * @param context The action's context.
@@ -145,16 +98,16 @@ export namespace dance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the beat list and the stance.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDance.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanDance.IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.beats ?? 8;
     HumanBound.above("bpm", bpm, 0, "beats per minute");
     HumanBound.whole("beats", beats);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     // The beats: the locked track's instants from the start, at their mean
     // interval, or the tempo's from one period after the start.
@@ -164,13 +117,13 @@ export namespace dance {
         : context
             .cue(p.lock.of)
             .filter(
-              (c: resolveAutoMovieSchedule.ICue): boolean =>
+              (c: IAutoMovieResolveSchedule.ICue): boolean =>
                 c.name === (p.lock!.event ?? "beat") &&
                 c.seconds >= context.start - 1e-9,
             )
             .slice(0, beats)
             .map(
-              (c: resolveAutoMovieSchedule.ICue): number =>
+              (c: IAutoMovieResolveSchedule.ICue): number =>
                 c.seconds - context.start,
             );
     if (locked !== null && locked.length < Math.min(2, beats))
@@ -190,15 +143,15 @@ export namespace dance {
           : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
     const lead: number = locked === null ? period : locked[0]!;
     const beatAt = (k: number): number => lead + (k - 1) * period;
-    const instants: AutoMovieMotionClock.IInstant[] = [];
+    const instants: IAutoMovieMotionClock.IInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       duration,
       [...instants, { name: "relax", seconds: beatAt(beats) }],
     );
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const leftward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 1, y: 0, z: 0 },
@@ -207,7 +160,7 @@ export namespace dance {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const stance: Record<"left" | "right", HumanFoot.IPlacement> = {
+    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -226,13 +179,13 @@ export namespace dance {
       channels: ["root"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
 
     switch (p.kind) {
       case "bounce": {
@@ -344,9 +297,9 @@ export namespace dance {
         const placed = (
           foot: "left" | "right",
           s: number,
-        ): HumanFoot.IPlacement => {
+        ): IAutoMovieMotionHumanFoot.IPlacement => {
           const l = lateral(foot, s);
-          const shift = (o: IOffset): HumanFoot.IPlacement => ({
+          const shift = (o: IOffset): IAutoMovieMotionHumanFoot.IPlacement => ({
             ankle: Vector3.add(
               stance[foot].ankle,
               Vector3.add(
@@ -382,7 +335,7 @@ export namespace dance {
             body,
             from: 0,
             to: duration,
-            angles: (): AutoMovieMotionHumanLean.IAngles => ({
+            angles: (): IAutoMovieMotionHumanLean.IAngles => ({
               pitch: 0,
               roll: 0,
             }),
@@ -416,7 +369,7 @@ export namespace dance {
               side: foot,
               from: 0,
               to: duration,
-              placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
+              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
                 placed(foot, s),
               planted: (s: number): boolean => planted(foot, s),
             }),

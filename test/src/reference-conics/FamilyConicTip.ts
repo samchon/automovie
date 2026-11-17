@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieViewLoft } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
@@ -16,19 +17,19 @@ namespace FamilyConicTip {
   /** Loft one family with tips and report it. */
   export async function main(): Promise<void> {
     const [name, top, bottom]: string[] = process.argv.slice(2);
-    const member: AutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: AutoMovieHumanF1.IMember): boolean => m.family.name === name);
+    const member: IAutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === name);
     if (member === undefined) throw new Error("no family named " + name);
     const from: number = member.family.knots[0]!;
     const to: number = member.family.knots.at(-1)!;
     // `--bare` drops the reliefs, to see the wall alone; `--from=<station>` shows only the layers past a station.
     const bare: boolean = process.argv.includes("--bare");
     const least: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--from="))?.slice(7) ?? "-Infinity");
-    const family: AutoMovieHumanConicLoft.IFamily = top === "=" ? { ...member.family, ...(bare ? { reliefs: [] } : {}) } : { ...member.family, tips: [bottom === undefined ? null : { from, tip: from - Number(bottom) }, top === undefined || top === "-" ? null : { from: to, tip: to + Number(top) }] };
+    const family: IAutoMovieHumanConicLoft.IFamily = top === "=" ? { ...member.family, ...(bare ? { reliefs: [] } : {}) } : { ...member.family, tips: [bottom === undefined ? null : { from, tip: from - Number(bottom) }, top === undefined || top === "-" ? null : { from: to, tip: to + Number(top) }] };
 
     // `--family=<file>` reads a stored family instead; `--probe` lists where the section model itself or the engine's reading between the
     // part's stations loses a chain, a tenth of a millimetre at a time.
     const stored: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--family="))?.slice(9);
-    if (stored !== undefined) Object.assign(family, JSON.parse(await fs.readFile(stored, "utf8")) as AutoMovieHumanConicLoft.IFamily, bare ? { reliefs: [] } : {});
+    if (stored !== undefined) Object.assign(family, JSON.parse(await fs.readFile(stored, "utf8")) as IAutoMovieHumanConicLoft.IFamily, bare ? { reliefs: [] } : {});
     if (process.argv.includes("--probe")) {
       const read: (s: number) => number[] = AutoMovieHumanConicLoft.reader(family);
       const a: number = family.knots[0]!;
@@ -46,10 +47,10 @@ namespace FamilyConicTip {
       return;
     }
     const count: number = Math.ceil((to - from) / 2) + 1;
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
     process.stdout.write(JSON.stringify({ family: name, tips: family.tips, diagnostics: loft.diagnostics, lofted: loft.chain !== null }).slice(0, 3000) + "\n");
     if (loft.chain === null) return;
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
     const layers: number[] = chain.layers.map((layer: { y: number }): number => layer.y).filter((y: number): boolean => y >= least);
     process.stdout.write(JSON.stringify({ layers: layers.length, first: layers.slice(0, 6), last: layers.slice(-8), pole: (chain as { pole?: unknown }).pole ?? null }) + "\n");
     const phases: number = 96;

@@ -1,6 +1,7 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieLoftChain } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 
 /**
@@ -44,10 +45,10 @@ namespace FamilyConicTurns {
   export async function main(): Promise<void> {
     const part: string = process.argv.slice(2).find((a: string): boolean => !a.startsWith("--")) ?? "trunk";
     const source: string = argument("family") ?? "stored";
-    const family: AutoMovieHumanConicLoft.IFamily =
+    const family: IAutoMovieHumanConicLoft.IFamily =
       source === "stored"
-        ? (Object.values(AutoMovieHumanF1.BODY) as AutoMovieHumanConicLoft.IFamily[]).find((candidate: AutoMovieHumanConicLoft.IFamily): boolean => candidate.name === part)!
-        : (JSON.parse(await fs.readFile(path.join(source, part + ".family.json"), "utf8")) as AutoMovieHumanConicLoft.IFamily);
+        ? (Object.values(AutoMovieHumanF1.BODY) as IAutoMovieHumanConicLoft.IFamily[]).find((candidate: IAutoMovieHumanConicLoft.IFamily): boolean => candidate.name === part)!
+        : (JSON.parse(await fs.readFile(path.join(source, part + ".family.json"), "utf8")) as IAutoMovieHumanConicLoft.IFamily);
     if (family === undefined) throw new Error("no family " + part);
     const [s0, s1, t0, t1] = (argument("box") ?? "0,0,0,0").split(",").map(Number) as [number, number, number, number];
     const nets: string[] = (argument("nets") ?? "").split(",").filter((name: string): boolean => name.length > 0);

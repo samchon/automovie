@@ -1,17 +1,9 @@
-import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart, IAutoMovieHumanFootSource, IAutoMovieHumanSiteControls } from "@automovie/interface";
 
-import type { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
 
-/** Original native local position and its phase derivatives. */
-type Phase = ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.phase>>;
 
-/** Available total-order-two derivatives of that identical local field. */
-type Jet = ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>>;
+import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+
 
 /**
  * A retained original view and its full native section owner, before lofting.
@@ -26,51 +18,19 @@ type Jet = ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>>;
  */
 export namespace AutoMovieHumanFootSource {
 
-  /** Call-owned scalar/fullness preparation; the original axis remains authoritative. */
-  export interface ISource {
+  
 
-    /** Shared identity/frame metadata; a direct control owner retains no completed parent. Legacy complete adapters may carry the actual whole part. */
-    part: Pick<IAutoMovieViewPart, "name" | "axis">;
+  
 
-    /** Actual native coefficients when prepared directly; absent for a region whose full parent is unrequested. */
-    field?: AutoMovieLoftViewSource.ISource;
-
-    /** Explicitly complete a regional owner's actual original, retaining its real failure; absent on direct controls. */
-    complete?(): IComplete;
-
-    /** Non-generating name when this owner also has a bounded regional capability. */
-    name?: string;
-
-    /** Identical axis shared by the retained interval and every full coupled result. */
-    axis?: IAutoMovieViewPart["axis"];
-
-    /** Explicit retained interval; reading it does not claim full-parent completion. */
-    region?: IRegion;
-  }
-
-  /** Explicit complete-part adapter; direct regional/control consumers use only ISource. */
-  export interface IComplete extends ISource {
-
-    /** Actual completed original, obtained only by prepare or the explicit full resolver. */
-    part: IAutoMovieViewPart;
-
-    /** Actual native coefficients of that explicitly requested complete original. */
-    field: AutoMovieLoftViewSource.ISource;
-  }
-
-  /** Bounded region with a real, explicit full-original completion capability. */
-  export interface IRegional extends ISource {
-    /** Complete and admit the actual coupled original, preserving its original failure. */
-    complete(): IComplete;
-  }
+  
 
   /**
    * Consume original local scalars and their anatomical frame directly.
    * The shared coefficients, phase functions and physical2 availability are
    * the same definition the foot later publishes; no full parent is needed.
    */
-  export function fromControls(prepared: AutoMovieHumanSiteControls.IOutput): ISource {
-    const controls: AutoMovieHumanSiteControls.IControls | null = prepared.controls;
+  export function fromControls(prepared: IAutoMovieHumanSiteControls.IOutput): IAutoMovieHumanFootSource.ISource {
+    const controls: IAutoMovieHumanSiteControls.IControls | null = prepared.controls;
     if (controls === null)
       throw new Error("A foot contact needs admitted original controls: " + JSON.stringify(prepared.diagnostics));
     return {
@@ -81,41 +41,9 @@ export namespace AutoMovieHumanFootSource {
     };
   }
 
-  /** The unchanged part of a generating family, without a substitute whole-parent declaration. */
-  export interface IRegion {
+  
 
-    /** Name of the actual owning production family. */
-
-    name: string;
-
-    /** Same original axis retained by the full family. */
-
-    axis: IAutoMovieViewPart["axis"];
-
-    /** Closed physical station interval, calibration mm. */
-
-    domain: readonly [
-      number,
-      number,
-    ];
-
-    /** Actual value and separately available physical2 within this interval. */ at(
-      station: number,
-    ): IStation;
-  }
-
-  /** One regular station's value capability and separately qualified physical derivatives. */
-  export interface IStation {
-
-    /** Original local phase function, in mm and radians. */
-    phase: (phi: number) => Phase;
-
-    /** Original physical-station total2, or explicit absence. */
-    jet: ((phi: number) => Jet) | null;
-
-    /** The original reason physical derivatives are unavailable. */
-    unavailable: string | null;
-  }
+  
 
   /**
    * Prepare the actual direct source once; generic girth and failed sources remain failures.
@@ -128,8 +56,8 @@ export namespace AutoMovieHumanFootSource {
    * @evidence contracts/performance.md#reuse-equivalent-work Returns the preparation for all contacts in this definition.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The calling definition owns the finite result and releases it with that definition.
    */
-  export function prepare(part: IAutoMovieViewPart): IComplete {
-    const prepared: AutoMovieLoftViewSource.IResult | null =
+  export function prepare(part: IAutoMovieViewPart): IAutoMovieHumanFootSource.IComplete {
+    const prepared: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(part);
     if (prepared === null)
       throw new Error(`${part.name}: direct original fullness is unavailable`);
@@ -149,14 +77,14 @@ export namespace AutoMovieHumanFootSource {
    * @evidence contracts/performance.md#reuse-equivalent-work Both closures retain the same prepared original station inputs.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns station closures; no query cache persists.
    */
-  export function at(owner: ISource, station: number): IStation {
+  export function at(owner: IAutoMovieHumanFootSource.ISource, station: number): IAutoMovieHumanFootSource.IStation {
     if (owner.region !== undefined) return owner.region.at(station);
     if (owner.field === undefined)
       throw new Error("A direct original contact has no prepared native field");
-    const values: AutoMovieLoftViewRead.IValues | string =
+    const values: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(owner.field, station);
     if (typeof values === "string") throw new Error(values);
-    const jets: AutoMovieLoftViewRead.IJets | string =
+    const jets: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftViewRead.jets(owner.field, station);
     return {
       phase: AutoMovieLoftSectionNative.phase(values),
@@ -178,17 +106,17 @@ export namespace AutoMovieHumanFootSource {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one regional reference and at most one latest full preparation; replacement drops the old full record.
    */
   export function fromRegion(
-    region: IRegion,
-    resolve: () => IAutoMovieViewPart,
-  ): IRegional {
-    let retained: IComplete | undefined;
-    const full: () => IComplete = (): IComplete => {
+    region: IAutoMovieHumanFootSource.IRegion,
+    resolve: IAutoMovieHumanFootSource.FromRegionResolve,
+  ): IAutoMovieHumanFootSource.IRegional {
+    let retained: IAutoMovieHumanFootSource.IComplete | undefined;
+    const full: () => IAutoMovieHumanFootSource.IComplete = (): IAutoMovieHumanFootSource.IComplete => {
       const part: IAutoMovieViewPart = resolve();
       if (retained === undefined || retained.part !== part)
         retained = prepare(part);
       return retained;
     };
-    const owner: IRegional = {
+    const owner: IAutoMovieHumanFootSource.IRegional = {
       name: region.name,
       axis: region.axis,
       region,

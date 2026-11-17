@@ -1,3 +1,4 @@
+import type { IAutoMovieMark, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeFrame,
   ArchetypeMarks,
@@ -5,12 +6,8 @@ import {
   createSeat,
   createStorage,
 } from "@automovie/archetypes";
-import { type IAutoMovieMark, Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/predicates";

@@ -1,19 +1,13 @@
+import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Vector3,
   physicalShapeSegmentDistance,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { HumanSkill } from "../../skill/HumanSkill";
 import { StrikingBody } from "../../striking/StrikingBody";
@@ -45,8 +39,8 @@ export namespace VariationStrikes {
    * @returns The verdicts, and the region's radius with the two dispersions, metres.
    */
   export function read(
-    body: IHumanBody,
-    struck: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
+    struck: IAutoMovieMotionHumanBody,
   ): {
     verdicts: IMotionCaptureCase.IVerdict[];
     metrics: { radius: number; wide: number; narrow: number };
@@ -119,14 +113,14 @@ interface IStruck {
 }
 
 /** The target of the varied punch. */
-const ABDOMEN: AutoMovieMotionTarget = {
+const ABDOMEN: IAutoMovieMotionTarget = {
   kind: "person",
   subject: "b",
   region: "abdomen",
 };
 
 /** The partner's standing guard. */
-function waits(seconds: number): HumanChain {
+function waits(seconds: number): IAutoMovieMotionHumanChain {
   return HumanChain.subject("b").guard({
     seconds,
     facing: { kind: "person", subject: "a", region: "face" },
@@ -134,7 +128,7 @@ function waits(seconds: number): HumanChain {
 }
 
 /** The striker's guard before a punch. */
-function ready(seconds: number = 0.8): HumanChain {
+function ready(seconds: number = 0.8): IAutoMovieMotionHumanChain {
   return HumanChain.subject("a").guard({
     seconds,
     facing: { kind: "person", subject: "b", region: "face" },
@@ -142,7 +136,7 @@ function ready(seconds: number = 0.8): HumanChain {
 }
 
 /** The distance between the two, a jab's range of the striker. */
-function range(body: IHumanBody): number {
+function range(body: IAutoMovieMotionHumanBody): number {
   return (
     strikingScenarios.JAB_RANGE * StrikingLimb.length(body, "leftHand", false)
   );
@@ -155,12 +149,12 @@ function range(body: IHumanBody): number {
  * compares the two on a performed punch).
  */
 function aimed(
-  struck: IHumanBody,
+  struck: IAutoMovieMotionHumanBody,
   anchor: string,
   index: number,
   proficiency: number,
-): resolveAutoMovieHumanoidSurfaces.ITangent {
-  const skill: HumanSkill.ISkill = HumanSkill.resolve(
+): IAutoMovieHumanoidSurfaces.ITangent {
+  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
     { level: "trained" },
     "variation",
   );
@@ -187,11 +181,11 @@ function aimed(
  * performed punch is checked against it in `defended`.
  */
 function strikes(
-  body: IHumanBody,
-  struck: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
+  struck: IAutoMovieMotionHumanBody,
   proficiency: number,
 ): IStruck[] {
-  const performance: HumanPerformance = VariationSeries.perform(
+  const performance: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
     body,
     ready().with(waits(0.8)),
     { body: struck, gap: range(body) },
@@ -209,7 +203,7 @@ function strikes(
   };
   const out: IStruck[] = [];
   for (let i: number = 0; i < VariationSeries.REPEATS; i++) {
-    const tangent: resolveAutoMovieHumanoidSurfaces.ITangent = aimed(
+    const tangent: IAutoMovieHumanoidSurfaces.ITangent = aimed(
       struck,
       "punch",
       i,
@@ -229,7 +223,7 @@ function strikes(
           physicalShapeSegmentDistance(pose, shape, point, point),
         );
     // At rest, where the region's radius is defined.
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
       resolveAutoMovieHumanoidSurfaces.offset(
         struck.skeleton,
         struck.profile,
@@ -267,8 +261,8 @@ function strikes(
  * declared.
  */
 function defended(
-  body: IHumanBody,
-  struck: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
+  struck: IAutoMovieMotionHumanBody,
 ): IMotionCaptureCase.IVerdict[] {
   const varied = {
     technique: "straight",
@@ -278,21 +272,21 @@ function defended(
   const read = (
     manner: boolean,
   ): {
-    carried: resolveAutoMovieHumanoidSurfaces.ITangent | undefined;
+    carried: IAutoMovieHumanoidSurfaces.ITangent | undefined;
     audit: IAutoMovieVector3;
     point: IAutoMovieVector3;
   } => {
-    const standing: HumanPerformance = VariationSeries.perform(
+    const standing: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
       body,
       ready(2)
         .punch(manner ? varied : { technique: "straight", at: ABDOMEN })
         .with(waits(4)),
       { body: struck, gap: range(body) },
     );
-    const punch: HumanSegment.ISegment = standing
+    const punch: IAutoMovieMotionHumanSegment.ISegment = standing
       .segments("a")
-      .find((g: HumanSegment.ISegment): boolean => g.name === "punch")!;
-    const record: StrikingRecord.IRecord | undefined = StrikingRecord.of(
+      .find((g: IAutoMovieMotionHumanSegment.ISegment): boolean => g.name === "punch")!;
+    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined = StrikingRecord.of(
       punch.plan,
     );
     if (record === undefined || punch.plan.contact === undefined)
@@ -310,13 +304,13 @@ function defended(
   };
   const plain = read(false);
   const moved = read(true);
-  const expected: resolveAutoMovieHumanoidSurfaces.ITangent = aimed(
+  const expected: IAutoMovieHumanoidSurfaces.ITangent = aimed(
     struck,
     "punch",
     0,
     0,
   );
-  const carried: resolveAutoMovieHumanoidSurfaces.ITangent | undefined =
+  const carried: IAutoMovieHumanoidSurfaces.ITangent | undefined =
     moved.carried;
   const apart: number = Vector3.length(
     Vector3.subtract(
@@ -324,7 +318,7 @@ function defended(
       Vector3.subtract(moved.point, plain.point),
     ),
   );
-  const covered: HumanPerformance = VariationSeries.perform(
+  const covered: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
     body,
     ready()
       .punch(varied, "body")
@@ -356,7 +350,7 @@ function defended(
       "b",
       covered
         .segments("b")
-        .find((g: HumanSegment.ISegment): boolean => g.name === "defend")!,
+        .find((g: IAutoMovieMotionHumanSegment.ISegment): boolean => g.name === "defend")!,
     ),
   ];
 }

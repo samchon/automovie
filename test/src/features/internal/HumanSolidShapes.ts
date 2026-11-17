@@ -1,9 +1,7 @@
-import type {
-  AutoMovieSolidVector,
-  IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieSolidSurface } from "@automovie/interface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * Closed-form solid surfaces for the solid operators' tests: a cylinder, a

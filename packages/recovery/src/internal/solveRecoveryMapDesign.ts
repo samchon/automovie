@@ -1,8 +1,9 @@
+import type { IAutoMovieRecoveryMapDesignFactor, IAutoMovieRecoveryMapDesignSolutionOperation } from "@automovie/interface";
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapDesignFactor } from "../structures/internal/IAutoMovieRecoveryMapDesignFactor";
-import type { IAutoMovieRecoveryMapDesignFit } from "../structures/internal/IAutoMovieRecoveryMapDesignFit";
+
+
+
 import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 
 /**
@@ -19,12 +20,12 @@ import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only an owned step and scalar diagnostics return; call-local factors expire with no mutable global cache or external resource.
  */
 export function solveRecoveryMapDesign(
-  design: readonly (readonly number[])[],
-  right: readonly number[],
-  minimumRatio: number,
-  damping: number,
-  budget: IAutoMovieRecoveryCameraMapBudget,
-): IAutoMovieRecoveryMapDesignFit {
+  design: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[0],
+  right: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[1],
+  minimumRatio: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[2],
+  damping: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[3],
+  budget: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[4],
+): ReturnType<IAutoMovieRecoveryMapDesignSolutionOperation.Operation> {
   if (!(damping >= 0) || !Number.isFinite(damping))
     throw new Error(
       "camera-map: inadmissible local design dimensions or damping",
@@ -45,8 +46,7 @@ export function solveRecoveryMapDesign(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
-    orthogonalityTolerance: 1e-12,
-  };
+    orthogonalityTolerance: 1e-12 };
   let gradient: number = 0;
   for (let column: number = 0; column < width; column++)
     gradient = Math.max(

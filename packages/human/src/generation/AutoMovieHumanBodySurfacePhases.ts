@@ -1,12 +1,13 @@
-import {
-  AutoMovieLoftChain,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodySurfacePhases, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
+
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
+
 
 const { circular, forward } = AutoMovieHumanBodySurfaceRead;
 
@@ -17,7 +18,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
    * events it parents, so every arc of those events falls on vertices.
    */
   export function ownPhases(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
   ): number[] {
     const uniform: number[] = Array.from(
@@ -62,7 +63,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
    * instead of leaving cells there as wide as the ring's spacing.
    */
   export function webPhases(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     spacing: number,
   ): number[] {
@@ -121,7 +122,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
    * then made to increase along the ring order, which the zipper requires.
    */
   export function inheritedPhases(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     station: number,
     ring: readonly number[],
@@ -239,7 +240,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
   export function arcVertices(
     ring: readonly number[],
     phases: readonly number[],
-    arc: [number, number],
+    arc: IAutoMovieHumanBodySurfacePhases.ArcVerticesArc,
   ): number[] {
     const [from, to]: [number, number] = arc;
 

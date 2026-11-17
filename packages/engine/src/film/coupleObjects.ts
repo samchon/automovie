@@ -1,23 +1,9 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieBone,
-  IAutoMovieClip,
-  IAutoMovieConstraintViolation,
-  IAutoMovieInteractionEvent,
-  IAutoMovieJointAxes,
-  IAutoMovieMotion,
-  IAutoMovieScene,
-  IAutoMovieSceneNode,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { type IAutoMovieRestFrame, type IAutoMovieStagedSet, type IAutoMovieAttachJob, type IAutoMovieCoupleObjects, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieBone, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieJointAxes, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+
+
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAttachJob } from "./IAttachJob";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
 import { handoffEvents } from "./handoffEvents";
@@ -79,42 +65,10 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
-export function coupleObjects(props: {
-  /** Validated `attachTo` jobs of this shot. */
-  attachments: readonly IAttachJob[];
-
-  /** Staged persistent mounts; an `attachTo` for the same child replaces one. */
-  mounts: readonly IAutoMovieStagedSet.IMount[];
-
-  /** The staged scene, whose nodes hold every parent's placement. */
-  scene: IAutoMovieScene;
-
-  /** Compiled pose motions by node id. */
-  motions: Record<string, IAutoMovieMotion>;
-
-  /** A node's rig, or null when it has none. */
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-
-  /** A node's clinical-axis remap; absent, `HUMANOID_JOINT_AXES` applies. */
-  jointAxes?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-
-  /** A node's clinical rest-frame remap, as the renderer poses it. */
-  restFrames?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-
-  /** The shot's length in seconds. */
-  duration: number;
-}): {
-  clips: IAutoMovieClip[];
-  events: IAutoMovieInteractionEvent[];
-  violations: IAutoMovieConstraintViolation[];
-} {
-  const out: ViolationCollector = new ViolationCollector();
+export function coupleObjects(props: IAutoMovieCoupleObjects.IProps): IAutoMovieCoupleObjects.IResult {
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const claimed: Set<string> = new Set(
-    props.attachments.flatMap((job: IAttachJob): string[] =>
+    props.attachments.flatMap((job: IAutoMovieAttachJob): string[] =>
       childrenOf(job.action),
     ),
   );
@@ -205,10 +159,10 @@ export function coupleObjects(props: {
       clips.push(clip);
     },
   };
-  const jobsByChild: Map<string, IAttachJob[]> = new Map();
+  const jobsByChild: Map<string, IAutoMovieAttachJob[]> = new Map();
   for (const job of props.attachments)
     for (const child of childrenOf(job.action)) {
-      const list: IAttachJob[] = jobsByChild.get(child) ?? [];
+      const list: IAutoMovieAttachJob[] = jobsByChild.get(child) ?? [];
       list.push(job);
       jobsByChild.set(child, list);
     }
@@ -223,7 +177,7 @@ export function coupleObjects(props: {
   const events: IAutoMovieInteractionEvent[] = [];
   for (const child of order) {
     if (cyclic.has(child)) continue; // unresolvable; the violation stands
-    const jobs: IAttachJob[] | undefined = jobsByChild.get(child);
+    const jobs: IAutoMovieAttachJob[] | undefined = jobsByChild.get(child);
     if (jobs !== undefined) bakeAttachFollows(child, jobs, context, events);
     else bakeMountFollow(mountByChild.get(child)!, context, out);
   }
@@ -235,14 +189,14 @@ export function coupleObjects(props: {
  */
 function bakeAttachFollows(
   child: string,
-  jobs: readonly IAttachJob[],
+  jobs: readonly IAutoMovieAttachJob[],
   context: ICoupleContext,
   events: IAutoMovieInteractionEvent[],
 ): void {
-  const ordered: IAttachJob[] = [...jobs].sort(
-    (a: IAttachJob, b: IAttachJob): number => a.action.start - b.action.start,
+  const ordered: IAutoMovieAttachJob[] = [...jobs].sort(
+    (a: IAutoMovieAttachJob, b: IAutoMovieAttachJob): number => a.action.start - b.action.start,
   );
-  ordered.forEach((job: IAttachJob, occurrence: number): void => {
+  ordered.forEach((job: IAutoMovieAttachJob, occurrence: number): void => {
     const parent: string = job.action.parent;
     const end: number =
       job.action.duration === "auto"
@@ -280,7 +234,7 @@ function bakeAttachFollows(
 function bakeMountFollow(
   mount: IAutoMovieStagedSet.IMount,
   context: ICoupleContext,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const parent: string = mount.binding.parent;
   const parentRig: IAutoMovieSkeleton | null = context.skeleton(parent);

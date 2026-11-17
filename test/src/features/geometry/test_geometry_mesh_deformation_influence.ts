@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieMeshDeformationInfluence,
-  createAutoMovieMeshDeformer,
-} from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieMeshPhysicalVertices,
-  type IAutoMovieMeshSkin,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMeshDeformationInfluence, IAutoMovieMesh, IAutoMovieMeshPhysicalVertices, IAutoMovieMeshSkin, IAutoMovieVector3 } from "@automovie/interface";
+import { createAutoMovieMeshDeformer } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";

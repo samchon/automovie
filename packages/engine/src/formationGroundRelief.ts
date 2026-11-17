@@ -1,9 +1,7 @@
-import {
-  IAutoMovieVector3,
-  IAutoMovieWorldSurface,
-} from "@automovie/interface";
+import { type IAutoMovieGroundQueryPoint, type IAutoMovieFormationGrounding, type IAutoMovieFormationGroundRelief, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
 
-import { IAutoMovieFormationGrounding } from "./IAutoMovieFormationGrounding";
+
+
 import { worldGroundHeight } from "./worldGroundHeight";
 
 /**
@@ -35,10 +33,8 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module-level `WeakMap` holds one boxed height per live formation record object and releases it when the record is collected, so the retained population is bounded by the records the caller still holds.
  */
 export const formationGroundRelief = (
-  formation: IAutoMovieFormationGrounding & {
-    anchor: IAutoMovieVector3;
-  },
-  point: { x: number; z: number },
+  formation: IAutoMovieFormationGroundRelief.IFormation,
+  point: IAutoMovieGroundQueryPoint,
 ): number => {
   const surfaces: readonly IAutoMovieWorldSurface[] | undefined =
     formation.ground;

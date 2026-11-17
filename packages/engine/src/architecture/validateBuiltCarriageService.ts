@@ -1,16 +1,7 @@
-import {
-  IAutoMovieBuiltConnector,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMovieBuiltSpace,
-  IAutoMovieCarriageValue,
-  IAutoMovieConnectorCarriage,
-  IAutoMovieConnectorState,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMovieCarriageValue, IAutoMovieConnectorCarriage, IAutoMovieConnectorState, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Matrix4 } from "../math/Matrix4";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { builtEnvironmentContainsPoint } from "./builtEnvironmentContainsPoint";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
@@ -46,11 +37,11 @@ import { builtSpaceSubtree } from "./builtSpaceSubtree";
 export const validateBuiltCarriageService: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const bounded: (spaceId: string) => boolean = (spaceId: string): boolean => {
     const included: Set<string> = builtSpaceSubtree(

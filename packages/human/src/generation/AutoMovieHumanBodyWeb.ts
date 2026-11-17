@@ -1,12 +1,14 @@
+import type { IAutoMovieHumanWebColumns, IAutoMovieHumanWebCrests, IAutoMovieHumanWebInput, IAutoMovieHumanWebResult, IAutoMovieHumanWebSurface } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanWebColumns } from "./web/AutoMovieHumanWebColumns";
 import { AutoMovieHumanWebCrest } from "./web/AutoMovieHumanWebCrest";
 import { AutoMovieHumanWebMesh } from "./web/AutoMovieHumanWebMesh";
 import { AutoMovieHumanWebSurface } from "./web/AutoMovieHumanWebSurface";
-import type { IAutoMovieHumanWebColumns } from "./web/IAutoMovieHumanWebColumns";
-import type { IAutoMovieHumanWebCrests } from "./web/IAutoMovieHumanWebCrests";
-import type { IAutoMovieHumanWebInput } from "./web/IAutoMovieHumanWebInput";
-import type { IAutoMovieHumanWebResult } from "./web/IAutoMovieHumanWebResult";
-import type { IAutoMovieHumanWebSurface } from "./web/IAutoMovieHumanWebSurface";
+
 
 /**
  * The skin between a parent's ring and children that start apart from it: the
@@ -55,21 +57,18 @@ import type { IAutoMovieHumanWebSurface } from "./web/IAutoMovieHumanWebSurface"
  * edges of 4 mm across a 2.5 mm saddle.
  */
 export namespace AutoMovieHumanBodyWeb {
-  /** One child's share of the parent's ring. */
-  export type IShare = IAutoMovieHumanWebInput.IShare;
+  
 
-  /** What a web needs from the surface being built. */
-  export type IInput = IAutoMovieHumanWebInput;
+  
 
-  /** A built web. */
-  export type IResult = IAutoMovieHumanWebResult;
+  
 
   /**
    * Build the skin from the parent's ring to its children's sections: the
    * webs the ring parts at, every child's columns, the surface's laws, then
    * the mesh.
    */
-  export function build(input: IInput): IResult {
+  export function build(input: IAutoMovieHumanWebInput): IAutoMovieHumanWebResult {
     const crests: IAutoMovieHumanWebCrests = AutoMovieHumanWebCrest.of(input);
     const columns: IAutoMovieHumanWebColumns = AutoMovieHumanWebColumns.of(input, crests);
     const surface: IAutoMovieHumanWebSurface = AutoMovieHumanWebSurface.of(columns.rows, columns.crestRow);

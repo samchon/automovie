@@ -1,11 +1,6 @@
-import {
-  AutoMovieConstructionViews,
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieConstructionView } from "@automovie/interface";
+import { AutoMovieConstructionViews, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -58,10 +53,10 @@ export function test_construction_source_jets(): void {
       ),
       range: { minimum: 0, maximum: scale },
     };
-    const curve: AutoMovieViewOutline.IOutline = prepare(raw);
+    const curve: IAutoMovieViewOutline.IOutline = prepare(raw);
     for (let i: number = 0; i <= 64; i++) {
       const t: number = i / 64;
-      const actual: AutoMovieViewOutline.IReading = read(curve, 4 * scale * t);
+      const actual: IAutoMovieViewOutline.IReading = read(curve, 4 * scale * t);
       near(`authored value ${scale}/${t}`, actual.value, scale * f(t), scale);
       near(
         `authored first ${scale}/${t}`,
@@ -86,7 +81,7 @@ export function test_construction_source_jets(): void {
     }
     for (const delta of [-1e-7, 0, 1e-7]) {
       const t: number = 0.5 + delta;
-      const actual: AutoMovieViewOutline.IReading = read(curve, 4 * scale * t);
+      const actual: IAutoMovieViewOutline.IReading = read(curve, 4 * scale * t);
       near("shared maximum first", actual.stationJet?.[0] ?? NaN, f1(t) / 4);
       near(
         "shared maximum second",
@@ -130,9 +125,9 @@ export function test_construction_source_jets(): void {
       order: 32,
       samples: 16,
     };
-    const sources: AutoMovieViewCurves.IResult =
+    const sources: IAutoMovieViewCurves.IResult =
       AutoMovieViewCurves.create(part);
-    const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     if (
       sources.curves.length !== 4 ||
       sources.diagnostics.length !== 0 ||
@@ -149,7 +144,7 @@ export function test_construction_source_jets(): void {
         (2 + f(section.station / (4 * scale))) * scale,
         scale,
       );
-    const point: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
+    const point: IAutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
       sources.curves[0]!,
       part.axis,
       1.3 * scale,
@@ -165,7 +160,7 @@ export function test_construction_source_jets(): void {
   }
   const polynomial: (t: number) => number = (t: number): number =>
     t ** 5 / 5 - t ** 4 / 2 + (1.3 * t ** 3) / 3 - 0.15 * t * t + 0.0189 * t;
-  const four: AutoMovieViewOutline.IOutline = prepare({
+  const four: IAutoMovieViewOutline.IOutline = prepare({
     knots: [
       { site: "a", station: 0, value: 0, jet: { first: 0.0189, second: -0.3 } },
       {
@@ -184,7 +179,7 @@ export function test_construction_source_jets(): void {
   );
   for (const t of [0.2, 0.5, 0.8])
     near("quintic closed form", read(four, t).value, polynomial(t));
-  const repeated: AutoMovieViewOutline.IOutline = prepare({
+  const repeated: IAutoMovieViewOutline.IOutline = prepare({
     knots: [
       {
         site: "a",
@@ -205,14 +200,14 @@ export function test_construction_source_jets(): void {
     read(repeated, 0.25).value,
     (0.25 - 0.5) ** 3,
   );
-  const extension: AutoMovieViewOutline.IReading = read(repeated, -1);
+  const extension: IAutoMovieViewOutline.IReading = read(repeated, -1);
   near("authored tangent extension value", extension.value, -0.125 - 0.75);
   near(
     "authored tangent extension second",
     extension.stationJet?.[1] ?? NaN,
     0,
   );
-  const nullable: AutoMovieViewOutline.IOutline = prepare({
+  const nullable: IAutoMovieViewOutline.IOutline = prepare({
     knots: [1, 2, 0].map(
       (value: number, station: number): IAutoMovieViewPart.IKnot => ({
         site: `null.${station}`,
@@ -238,7 +233,7 @@ export function test_construction_source_jets(): void {
     read(nullable, t).stationJet?.[1] ?? NaN,
     -4.5 * t,
   );
-  const filtered: AutoMovieViewOutline.IOutline = prepare({
+  const filtered: IAutoMovieViewOutline.IOutline = prepare({
     knots: [1, 0.01, 0.01].map(
       (value: number, station: number): IAutoMovieViewPart.IKnot => ({
         site: `ray.${station}`,
@@ -270,7 +265,7 @@ export function test_construction_source_jets(): void {
     0.0675,
   );
   for (const top of [false, true]) {
-    const root: AutoMovieViewOutline.IOutline = prepare(
+    const root: IAutoMovieViewOutline.IOutline = prepare(
       {
         knots: [
           {
@@ -314,11 +309,11 @@ export function test_construction_source_jets(): void {
       }),
     ),
   };
-  const unconstrained: AutoMovieViewOutline.IOutline = prepare(sole, {
+  const unconstrained: IAutoMovieViewOutline.IOutline = prepare(sole, {
     bottom: 0,
     top: 100,
   });
-  const bounded: AutoMovieViewOutline.IOutline = prepare(
+  const bounded: IAutoMovieViewOutline.IOutline = prepare(
     { ...sole, range: { minimum: -5, maximum: 0 } },
     { bottom: 0, top: 100 },
   );
@@ -326,7 +321,7 @@ export function test_construction_source_jets(): void {
   for (let i: number = 0; i <= 512; i++) {
     const s: number = (100 * i) / 512;
     naturalMinimum = Math.min(naturalMinimum, read(unconstrained, s).value);
-    const actual: AutoMovieViewOutline.IReading = read(bounded, s);
+    const actual: IAutoMovieViewOutline.IReading = read(bounded, s);
     if (
       !(
         actual.value >= -5 - 1e-12 &&
@@ -360,7 +355,7 @@ export function test_construction_source_jets(): void {
     read(prepare(hullOnly), 0.5).value,
     1,
   );
-  const refused: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const refused: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       ...hullOnly,
       range: { minimum: 0, maximum: 1 },
@@ -496,9 +491,9 @@ export function test_construction_source_jets(): void {
 /** Prepare a synthetic source through the real admission seam, preserving any explicit diagnostic as a test failure. */
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
-  ends: AutoMovieViewOutline.IEnds = {},
-): AutoMovieViewOutline.IOutline {
-  const result: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  ends: IAutoMovieViewOutline.IEnds = {},
+): IAutoMovieViewOutline.IOutline {
+  const result: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create(outline, ends);
   if ("detail" in result) throw new Error(result.detail);
   return result;
@@ -506,10 +501,10 @@ function prepare(
 
 /** Read the shared original source value and its explicitly qualified analytic station jets. */
 function read(
-  outline: AutoMovieViewOutline.IOutline,
+  outline: IAutoMovieViewOutline.IOutline,
   station: number,
-): AutoMovieViewOutline.IReading {
-  const result: AutoMovieViewOutline.IReading | string =
+): IAutoMovieViewOutline.IReading {
+  const result: IAutoMovieViewOutline.IReading | string =
     AutoMovieViewOutline.at(outline, station);
   if (typeof result === "string") throw new Error(result);
   return result;

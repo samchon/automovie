@@ -104,7 +104,7 @@ export * from "./buildPlantingObject.js";
 export * from "./subjectViewpoint/index.js";
 export * from "./inspection/index.js";
 export * from "./IAutoMovieFilmBeautyLayer.js";
-export * from "./AutoMovieFilmBeautyComposition.js";
+export type { IAutoMovieFilmBeautyComposition } from "@automovie/interface";
 export * from "./resolveAutoMovieFilmBeautyComposition.js";
 export * from "./renderFadeToBlackFrame.js";
 export * from "./disposeFadeToBlack.js";

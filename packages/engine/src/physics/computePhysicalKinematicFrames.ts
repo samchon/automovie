@@ -1,7 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
 import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
 import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
@@ -19,14 +16,14 @@ import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
  */
 export async function computePhysicalKinematicFrames(
-  input: Simulation.IInput,
-  cache: Cache,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  cache: IAutoMoviePhysicsCache,
   signal?: AbortSignal,
   progress?: (completed: number, total: number) => void,
 ): Promise<void> {
   const count: number = Math.round(input.duration * input.rate);
-  const profiles: Record<string, P> = Object.fromEntries(
-    input.bodies.map((body: Simulation.IBody): [string, P] => [
+  const profiles: Record<string, IAutoMoviePhysicalProfile> = Object.fromEntries(
+    input.bodies.map((body: IAutoMoviePhysicalSimulationInput.IBody): [string, IAutoMoviePhysicalProfile] => [
       body.id,
       body.profile,
     ]),
@@ -40,12 +37,12 @@ export async function computePhysicalKinematicFrames(
         kind: "authored",
       });
   const geometry:
-    | Awaited<ReturnType<typeof preparePhysicalGeometry>>
+    | Awaited<Promise<IAutoMoviePreparePhysicalGeometry.IQueries>>
     | undefined = input.bodies.some(
-    (body: Simulation.IBody): boolean =>
+    (body: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
       !!body.selfAvoidance ||
       body.targets.some(
-        (target: Simulation.ITarget): boolean =>
+        (target: IAutoMoviePhysicalSimulationInput.ITarget): boolean =>
           !!target.bindings?.length || !!target.pointBounds?.length,
       ),
   )
@@ -53,7 +50,7 @@ export async function computePhysicalKinematicFrames(
     : undefined;
   for (let step: number = 0; step <= count; step++) {
     signal?.throwIfAborted();
-    const frame: Cache.IFrame = createPhysicalKinematicFrame(input, step);
+    const frame: IAutoMoviePhysicsCache.IFrame = createPhysicalKinematicFrame(input, step);
     cache.frames.push(
       geometry
         ? bindPhysicalKinematicFrame(

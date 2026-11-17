@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryContourResumeInput } from "@automovie/recovery";
+import type { IAutoMovieRecoveryContourResumeInput } from "@automovie/interface";
+
 
 /** Invalid saved bindings and target policies for selective-resume refusal.
  *

@@ -1,3 +1,10 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanFootBones, IAutoMovieHumanFootFrame, IAutoMovieHumanFootHeads, IAutoMovieHumanFootPrior, IAutoMovieHumanFootToeLines } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -6,7 +13,6 @@ import { AutoMovieHumanFootColumn } from "./AutoMovieHumanFootColumn";
 import { AutoMovieHumanFootToeJoints } from "./AutoMovieHumanFootToeJoints";
 import { AutoMovieHumanFootToeLines } from "./AutoMovieHumanFootToeLines";
 
-type Vec3 = G.Vec3;
 
 /**
  * The foot's anatomical centres from its three dimensions, before any skin:
@@ -18,41 +24,11 @@ type Vec3 = G.Vec3;
  * frame; the right foot's centres are its reflection.
  */
 export namespace AutoMovieHumanFootBones {
-  /** A foot's dimensions in calibration millimetres. */
-  export type IDimensions = AutoMovieHumanFootFrame.IDimensions;
+  
 
-  /** One side's centres, reflected for the side. */
-  export interface IBones {
-    /** Ankle centre, at the lateral malleolus height. */
-    ankle: Vec3;
+  
 
-    /** Lateral and medial malleoli. */
-    malleoli: { lateral: Vec3; medial: Vec3 };
-
-    /** Metatarsal head centres, hallux first. */
-    heads: Vec3[];
-
-    /** Mean of the metatarsal heads. */
-    ball: Vec3;
-
-    /**
-     * Each toe's joints from its metatarsal head to its tip, hallux first: the
-     * hallux's MTP, IP and tip, a lesser toe's MTP, PIP, DIP and tip.
-     */
-    toes: Vec3[][];
-  }
-
-  /** A foot's centres and the frame they stand in. */
-  export interface ICentres {
-    /** The foot's frame. */
-    frame: AutoMovieHumanFootFrame.IFrame;
-
-    /** Toe lines: head centre and apex, left frame. */
-    lines: AutoMovieHumanFootToeLines.ILine[];
-
-    /** Centres, reflected for the side. */
-    bones: IBones;
-  }
+  
 
   /**
    * A foot's centres.
@@ -60,12 +36,12 @@ export namespace AutoMovieHumanFootBones {
    * @param d Dimensions in calibration millimetres.
    * @param sign 1 for the left foot, -1 for the right's reflected centres.
    */
-  export function of(d: IDimensions, sign: 1 | -1): ICentres {
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
-    const frame: AutoMovieHumanFootFrame.IFrame = AutoMovieHumanFootFrame.of(d);
-    const heads: AutoMovieHumanFootHeads.IHeads = AutoMovieHumanFootHeads.of(frame);
-    const lines: AutoMovieHumanFootToeLines.ILine[] = AutoMovieHumanFootToeLines.of(frame, heads.heads);
-    const sided = (p: Vec3): Vec3 => G.sided(p, sign);
+  export function of(d: IAutoMovieHumanFootFrame.IDimensions, sign: 1 | -1): IAutoMovieHumanFootBones.ICentres {
+    const prior: IAutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+    const frame: IAutoMovieHumanFootFrame.IFrame = AutoMovieHumanFootFrame.of(d);
+    const heads: IAutoMovieHumanFootHeads.IHeads = AutoMovieHumanFootHeads.of(frame);
+    const lines: IAutoMovieHumanFootToeLines.ILine[] = AutoMovieHumanFootToeLines.of(frame, heads.heads);
+    const sided = (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => G.sided(p, sign);
 
     return {
       frame,
@@ -78,7 +54,7 @@ export namespace AutoMovieHumanFootBones {
         },
         heads: heads.heads.map(sided),
         ball: sided(heads.ball),
-        toes: AutoMovieHumanFootToeJoints.of(lines).map((joints: Vec3[]): Vec3[] => joints.map(sided)),
+        toes: AutoMovieHumanFootToeJoints.of(lines).map((joints: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple[] => joints.map(sided)),
       },
     };
   }

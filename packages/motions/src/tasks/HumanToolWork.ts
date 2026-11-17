@@ -1,13 +1,8 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanToolWork, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 
 /**
  * Where a held tool works: the work point a hammer, a saw or a screwdriver
@@ -28,8 +23,6 @@ import type { IHumanProp } from "../perform/IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The vessel's depth and width are its own contacts; no pot is typed.
  */
 export namespace HumanToolWork {
-  /** A kind of work. */
-  export type Kind = "hammer" | "saw" | "stir" | "screwdriver";
 
   /** Where a tool works. */
   export interface IWork {
@@ -57,10 +50,10 @@ export namespace HumanToolWork {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "aim" | "body" | "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body" | "prop" | "start">,
     work: {
-      kind: Kind;
-      on: AutoMovieMotionTarget;
+      kind: IAutoMovieMotionHumanToolWork.Kind;
+      on: IAutoMovieMotionTarget;
       forward: IAutoMovieVector3;
       length: number;
     },
@@ -77,7 +70,7 @@ export namespace HumanToolWork {
         fix: 'aim the stir at a vessel\'s inside, { kind: "prop", subject, point: "inside" }, as createVessel declares it',
       });
     const subject: string = work.on.subject;
-    const read: IHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const declared = (id: string): IAutoMovieAffordance => {
@@ -108,7 +101,7 @@ export namespace HumanToolWork {
         reason: `${subject}'s inside declares no width to stir in`,
         fix: "give the vessel's inside its width, as createVessel does",
       });
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
     const world = (a: IAutoMovieAffordance): IAutoMovieVector3 =>
       Vector3.add(
         frame.position,

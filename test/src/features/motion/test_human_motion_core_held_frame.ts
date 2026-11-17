@@ -1,23 +1,8 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type { IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanHeld,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanEntryState,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { AutoMovieMotionHumanHeld, HumanChain, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -54,7 +39,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_held_frame(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const read: {
       lip?: { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
       left?: unknown;
@@ -69,11 +54,11 @@ export function test_human_motion_core_held_frame(): void {
       }
       return null;
     };
-    const reader: IHumanActionLaw<never> = {
+    const reader: IAutoMovieMotionHumanActionLaw<never> = {
       name: "reader",
       interrupts: {},
-      plan: (context: IHumanActionContext<never>): IHumanActionPlan => {
-        const held: AutoMovieMotionHumanHeld.IHeld =
+      plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
+        const held: IAutoMovieMotionHumanHeld.IHeld =
           AutoMovieMotionHumanHeld.of(context, "right", "glass");
         read.lip = AutoMovieMotionHumanHeld.point(held, "lip");
         read.left = refused((): unknown =>
@@ -107,8 +92,8 @@ export function test_human_motion_core_held_frame(): void {
           contacts: [
             ...context.entry.supports.map(
               (
-                support: IHumanEntryState.ISupport,
-              ): IHumanActionPlan["contacts"][number] => ({
+                support: IAutoMovieMotionHumanEntryState.ISupport,
+              ): IAutoMovieMotionHumanActionPlan["contacts"][number] => ({
                 ...support,
                 from: 0,
                 to: 1,
@@ -117,12 +102,12 @@ export function test_human_motion_core_held_frame(): void {
             AutoMovieMotionHumanHeld.grip(held),
           ],
           holds: [AutoMovieMotionHumanHeld.hold(context, held)],
-          posture: (): ReturnType<IHumanActionPlan["posture"]> =>
+          posture: (): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> =>
             context.entry.posture,
         };
       },
     };
-    const glass: IHumanProp = HumanObject.prop(
+    const glass: IAutoMovieMotionHumanProp = HumanObject.prop(
       "glass",
       createDrinkware({ kind: "glass" }),
       {
@@ -134,7 +119,7 @@ export function test_human_motion_core_held_frame(): void {
         yaw: 0,
       },
     );
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "held",
@@ -182,7 +167,7 @@ export function test_human_motion_core_held_frame(): void {
         hand.worldRotation,
         lip.point,
       );
-      const shown: IHumanProp.IFrame = film.prop("glass", t);
+      const shown: IAutoMovieMotionHumanProp.IFrame = film.prop("glass", t);
       const there: IAutoMovieVector3 = Quaternion.rotateVector(
         shown.rotation,
         local,

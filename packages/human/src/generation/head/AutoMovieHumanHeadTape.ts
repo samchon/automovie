@@ -1,17 +1,17 @@
-import { AutoMovieIllinois, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadTape, IAutoMovieHumanHeadTapeBrow, IAutoMovieHumanHeadTapeSource } from "@automovie/interface";
 
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
+
+
+import { AutoMovieIllinois } from "@automovie/engine";
+
+
 import { AutoMovieHumanHeadTapeBrow } from "./AutoMovieHumanHeadTapeBrow";
 import { AutoMovieHumanHeadTapeSource } from "./AutoMovieHumanHeadTapeSource";
 
-/** A world sagittal point, calibration mm; side tilt is excluded. */
-type P2 = readonly [number, number];
-
-/** One actual factory member, retaining the input plan and original part. */
-type Member = { plan: IAutoMovieHumanHeadLayout; part: IAutoMovieViewPart };
 
 /** One accepted trial and its numerical course maximum. */
-type Trial = Member & { power: number; course: AutoMovieHumanHeadTape.ICourse };
+type Trial = IAutoMovieHumanHeadTape.Member & { power: number; course: IAutoMovieHumanHeadTape.ICourse };
 
 /**
  * Close the public tape on a numerically maximizing actual source course.
@@ -31,57 +31,9 @@ type Trial = Member & { power: number; course: AutoMovieHumanHeadTape.ICourse };
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains only its current scalar bracket, selected trial and numerical witness; temporary sources/courses are call-owned and there is no global cache.
  */
 export namespace AutoMovieHumanHeadTape {
-  /**
-   * Actual course witness and bounded numerical search diagnostics.
-   *
-   * @evidence contracts/common.md#principled-implementation The length belongs to the specified original plane/source intersection, not a section template.
-   * @evidence contracts/common.md#clear-and-simple-design Plane, metric and numerical search diagnostics have separate fields.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolution and K/2K difference are observations, not error or global-maximum certificates.
-   * @evidence contracts/common.md#meaningful-documentation Length/difference are mm; normalized coordinates describe the admitted plane search only.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no search.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The factory owns original-source reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains fixed-size witness data and bounded failure descriptions.
-   */
-  export interface ICourse {
-    /** Actual original-source plane. */
-    plane: AutoMovieHumanHeadTapeSource.IPlane;
-    /** Numerically integrated actual world course, mm. */
-    lengthMm: number;
-    /** Shared quadrature K/2K difference, mm, not a bound. */
-    differenceMm: number;
-    /** Normalized front/back search coordinates. */
-    coordinates: [number, number];
-    /** Last normalized search step, not an optimality bound. */
-    resolution: number;
-    /** Number of attempted planes, including explicit inadmissible members. */
-    evaluations: number;
-    /** Count of explicitly excluded crown-pole candidates; source/callback/calculation errors propagate. */
-    unavailable: number;
-  }
+  
 
-  /**
-   * Selected source family member and the public-input closure witness.
-   *
-   * @evidence contracts/common.md#principled-implementation Preserves the actual source that produced the measured course and its independent tape target.
-   * @evidence contracts/common.md#clear-and-simple-design Original part, its plan and selected family control remain one result.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The result claims no loft, merge, skin or independent clinical validation.
-   * @evidence contracts/common.md#meaningful-documentation All lengths use calibration mm; the power is a representational source-family control.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no solve.
-   * @evidence contracts/performance.md#reuse-equivalent-work Production borrows this exact original part.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the selected plan, original source closures and witness.
-   */
-  export interface IResult {
-    /** Actual closed plan, preserving the independent public dimensions. */
-    plan: IAutoMovieHumanHeadLayout;
-    /** Identical original source used by the selected numerical witness. */
-    part: IAutoMovieViewPart;
-    /** Retained diagonal-transfer control chosen by the scalar solve. */
-    power: number;
-    /** Actual numerically maximizing source course. */
-    course: ICourse;
-    /** Public target, mm. */
-    targetMm: number;
-  }
+  
 
   /**
    * Close the retained1.6..6 cranial diagonal-transfer family on its actual tape.
@@ -109,14 +61,14 @@ export namespace AutoMovieHumanHeadTape {
    */
   export function close(
     plan: IAutoMovieHumanHeadLayout,
-    factory: (power: number) => Member,
-    attachments: readonly P2[],
-  ): IResult {
+    factory: IAutoMovieHumanHeadTape.CloseFactory,
+    attachments: readonly IAutoMovieHumanHeadTape.P2[],
+  ): IAutoMovieHumanHeadTape.IResult {
     if (
       !(Number.isFinite(plan.tape) && plan.tape > 0) ||
       attachments.length === 0 ||
       attachments.some(
-        (point: P2): boolean =>
+        (point: IAutoMovieHumanHeadTape.P2): boolean =>
           !point.every(Number.isFinite) || point[1] > plan.nasion,
       )
     )
@@ -130,9 +82,9 @@ export namespace AutoMovieHumanHeadTape {
     // maximum differ from the tracked one (a different local maximum became
     // the largest), the closure is solved again with the complete search on
     // every member, which is the former procedure.
-    const continued: IResult | null = solve(plan, factory, attachments, allowance, "continued");
+    const continued: IAutoMovieHumanHeadTape.IResult | null = solve(plan, factory, attachments, allowance, "continued");
     if (continued !== null) return continued;
-    const complete: IResult | null = solve(plan, factory, attachments, allowance, "complete");
+    const complete: IAutoMovieHumanHeadTape.IResult | null = solve(plan, factory, attachments, allowance, "complete");
     if (complete === null)
       throw new Error("Actual head tape complete-search closure did not certify its own final member");
     return complete;
@@ -156,18 +108,18 @@ export namespace AutoMovieHumanHeadTape {
    */
   function solve(
     plan: IAutoMovieHumanHeadLayout,
-    factory: (power: number) => Member,
-    attachments: readonly P2[],
+    factory: (power: number) => IAutoMovieHumanHeadTape.Member,
+    attachments: readonly IAutoMovieHumanHeadTape.P2[],
     allowance: number,
-    mode: AutoMovieHumanHeadTapeBrow.Mode,
-  ): IResult | null {
+    mode: IAutoMovieHumanHeadTapeBrow.Mode,
+  ): IAutoMovieHumanHeadTape.IResult | null {
     const trials: Map<number, Trial> = new Map();
     let best: Trial | null = null;
     const trial: (power: number) => Trial = (power: number): Trial => {
       const previous: Trial | undefined = trials.get(power);
       if (previous !== undefined) return previous;
-      const member: Member = factory(power);
-      const reader: AutoMovieHumanHeadTapeSource.IReader =
+      const member: IAutoMovieHumanHeadTape.Member = factory(power);
+      const reader: IAutoMovieHumanHeadTapeSource.IReader =
         AutoMovieHumanHeadTapeSource.of(member.part);
       const current: Trial = {
         ...member,
@@ -217,7 +169,7 @@ export namespace AutoMovieHumanHeadTape {
 
     // The published course is the complete search's maximum on the selected
     // member, whatever search tracked it during the closure.
-    const certified: ICourse =
+    const certified: IAutoMovieHumanHeadTape.ICourse =
       mode === "complete"
         ? selected.course
         : AutoMovieHumanHeadTapeBrow.maximum(
@@ -250,11 +202,11 @@ export namespace AutoMovieHumanHeadTape {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The call retains only its best witness, source reader and scalar counters; no evaluated-plane or geometry cache survives.
    */
   export function maximum(
-    reader: AutoMovieHumanHeadTapeSource.IReader,
-    region: readonly [number, number, number],
-    attachments: readonly P2[],
-    seed?: readonly [number, number],
-  ): ICourse {
+    reader: IAutoMovieHumanHeadTapeSource.IReader,
+    region: IAutoMovieHumanHeadTape.MaximumRegion,
+    attachments: readonly IAutoMovieHumanHeadTape.P2[],
+    seed?: IAutoMovieHumanHeadTape.MaximumSeed,
+  ): IAutoMovieHumanHeadTape.ICourse {
     const [first, brow, crown]: readonly [number, number, number] = region;
     if (
       !(
@@ -269,13 +221,13 @@ export namespace AutoMovieHumanHeadTape {
       );
     let evaluations: number = 0;
     let unavailable: number = 0;
-    let best: ICourse | null = null;
-    const coarse: ICourse[] = [];
-    const measuredPlanes: Map<string, ICourse | null> = new Map();
-    const evaluate: (u: number, v: number) => ICourse | null = (
+    let best: IAutoMovieHumanHeadTape.ICourse | null = null;
+    const coarse: IAutoMovieHumanHeadTape.ICourse[] = [];
+    const measuredPlanes: Map<string, IAutoMovieHumanHeadTape.ICourse | null> = new Map();
+    const evaluate: (u: number, v: number) => IAutoMovieHumanHeadTape.ICourse | null = (
       u: number,
       v: number,
-    ): ICourse | null => {
+    ): IAutoMovieHumanHeadTape.ICourse | null => {
       if (u < 0 || u > 1 || v < 0 || v > 1) return null;
       const key: string = `${u},${v}`;
       if (measuredPlanes.has(key)) return measuredPlanes.get(key)!;
@@ -290,17 +242,17 @@ export namespace AutoMovieHumanHeadTape {
       }
       const front: number = brow + u * (crown - brow);
       const back: number = first + v * (front - first);
-      const plane: AutoMovieHumanHeadTapeSource.IPlane =
+      const plane: IAutoMovieHumanHeadTapeSource.IPlane =
         AutoMovieHumanHeadTapeSource.plane(reader, front, back);
       if (
         attachments.some(
-          (point: P2): boolean => plane.a + plane.b * point[0] < point[1],
+          (point: IAutoMovieHumanHeadTape.P2): boolean => plane.a + plane.b * point[0] < point[1],
         )
       )
         return null;
       const measured: ReturnType<typeof AutoMovieHumanHeadTapeSource.measure> =
         AutoMovieHumanHeadTapeSource.measure(reader, plane, 2);
-      const course: ICourse = {
+      const course: IAutoMovieHumanHeadTape.ICourse = {
         plane,
         ...measured,
         coordinates: [u, v],
@@ -313,7 +265,7 @@ export namespace AutoMovieHumanHeadTape {
     };
     for (const u of [0, 0.5, 1])
       for (const v of [0, 0.5, 1]) {
-        const candidate: ICourse | null = evaluate(u, v);
+        const candidate: IAutoMovieHumanHeadTape.ICourse | null = evaluate(u, v);
         if (candidate !== null) coarse.push(candidate);
         if (
           candidate !== null &&
@@ -322,7 +274,7 @@ export namespace AutoMovieHumanHeadTape {
           best = candidate;
       }
     if (seed !== undefined) {
-      const candidate: ICourse | null = evaluate(seed[0], seed[1]);
+      const candidate: IAutoMovieHumanHeadTape.ICourse | null = evaluate(seed[0], seed[1]);
       if (
         candidate !== null &&
         (best === null || candidate.lengthMm > best.lengthMm)
@@ -333,16 +285,16 @@ export namespace AutoMovieHumanHeadTape {
       throw new Error(
         "No admitted original head tape plane in the anatomical source region",
       );
-    const starts: ICourse[] = [best];
+    const starts: IAutoMovieHumanHeadTape.ICourse[] = [best];
     for (const v of [0, 0.5, 1]) {
-      const column: ICourse | undefined = coarse
-        .filter((course: ICourse): boolean => course.coordinates[1] === v)
-        .sort((a: ICourse, b: ICourse): number => b.lengthMm - a.lengthMm)[0];
+      const column: IAutoMovieHumanHeadTape.ICourse | undefined = coarse
+        .filter((course: IAutoMovieHumanHeadTape.ICourse): boolean => course.coordinates[1] === v)
+        .sort((a: IAutoMovieHumanHeadTape.ICourse, b: IAutoMovieHumanHeadTape.ICourse): number => b.lengthMm - a.lengthMm)[0];
       if (column !== undefined && !starts.includes(column)) starts.push(column);
     }
-    const maxima: ICourse[] = starts.map(refine);
-    maxima.sort((a: ICourse, b: ICourse): number => b.lengthMm - a.lengthMm);
-    const selected: ICourse = maxima[0]!;
+    const maxima: IAutoMovieHumanHeadTape.ICourse[] = starts.map(refine);
+    maxima.sort((a: IAutoMovieHumanHeadTape.ICourse, b: IAutoMovieHumanHeadTape.ICourse): number => b.lengthMm - a.lengthMm);
+    const selected: IAutoMovieHumanHeadTape.ICourse = maxima[0]!;
     const step: number = selected.resolution;
     const upperBoundary: boolean = selected.coordinates[0] >= 1 - 2 * step;
     const lowerBoundary: boolean = selected.coordinates[1] <= 2 * step;
@@ -353,10 +305,10 @@ export namespace AutoMovieHumanHeadTape {
     return { ...selected, evaluations, unavailable };
 
     /** Refine one admitted basin; no producer failure is classified as an unavailable candidate. */
-    function refine(initial: ICourse): ICourse {
-      const simplex: ICourse[] = [initial];
+    function refine(initial: IAutoMovieHumanHeadTape.ICourse): IAutoMovieHumanHeadTape.ICourse {
+      const simplex: IAutoMovieHumanHeadTape.ICourse[] = [initial];
       for (const component of [0, 1] as const) {
-        let vertex: ICourse | null = null;
+        let vertex: IAutoMovieHumanHeadTape.ICourse | null = null;
         for (const direction of [1, -1]) {
           const point: [number, number] = [...initial.coordinates];
           point[component] += direction / 8;
@@ -372,13 +324,13 @@ export namespace AutoMovieHumanHeadTape {
       let step: number = Infinity;
       while (evaluations < 512) {
         simplex.sort(
-          (a: ICourse, b: ICourse): number => b.lengthMm - a.lengthMm,
+          (a: IAutoMovieHumanHeadTape.ICourse, b: IAutoMovieHumanHeadTape.ICourse): number => b.lengthMm - a.lengthMm,
         );
-        const leader: ICourse = simplex[0]!;
+        const leader: IAutoMovieHumanHeadTape.ICourse = simplex[0]!;
         step = Math.max(
           ...simplex
             .slice(1)
-            .map((vertex: ICourse): number =>
+            .map((vertex: IAutoMovieHumanHeadTape.ICourse): number =>
               Math.hypot(
                 vertex.coordinates[0] - leader.coordinates[0],
                 vertex.coordinates[1] - leader.coordinates[1],
@@ -386,21 +338,21 @@ export namespace AutoMovieHumanHeadTape {
             ),
         );
         if (step <= 1e-7) break;
-        const worst: ICourse = simplex[2]!;
+        const worst: IAutoMovieHumanHeadTape.ICourse = simplex[2]!;
         const centre: [number, number] = leader.coordinates.map(
           (value: number, index: number): number =>
             (value + simplex[1]!.coordinates[index]!) / 2,
         ) as [number, number];
-        const moved: (factor: number) => ICourse | null = (
+        const moved: (factor: number) => IAutoMovieHumanHeadTape.ICourse | null = (
           factor: number,
-        ): ICourse | null =>
+        ): IAutoMovieHumanHeadTape.ICourse | null =>
           evaluate(
             centre[0] + factor * (centre[0] - worst.coordinates[0]),
             centre[1] + factor * (centre[1] - worst.coordinates[1]),
           );
-        const reflected: ICourse | null = moved(1);
+        const reflected: IAutoMovieHumanHeadTape.ICourse | null = moved(1);
         if (reflected !== null && reflected.lengthMm > leader.lengthMm) {
-          const expanded: ICourse | null = moved(2);
+          const expanded: IAutoMovieHumanHeadTape.ICourse | null = moved(2);
           simplex[2] =
             expanded !== null && expanded.lengthMm > reflected.lengthMm
               ? expanded
@@ -413,7 +365,7 @@ export namespace AutoMovieHumanHeadTape {
         else {
           const outside: boolean =
             reflected !== null && reflected.lengthMm > worst.lengthMm;
-          const contracted: ICourse | null = moved(outside ? 0.5 : -0.5);
+          const contracted: IAutoMovieHumanHeadTape.ICourse | null = moved(outside ? 0.5 : -0.5);
           if (
             contracted !== null &&
             contracted.lengthMm >
@@ -422,8 +374,8 @@ export namespace AutoMovieHumanHeadTape {
             simplex[2] = contracted;
           else
             for (let index: number = 1; index < 3; index++) {
-              const vertex: ICourse = simplex[index]!;
-              const shrunk: ICourse | null = evaluate(
+              const vertex: IAutoMovieHumanHeadTape.ICourse = simplex[index]!;
+              const shrunk: IAutoMovieHumanHeadTape.ICourse | null = evaluate(
                 (leader.coordinates[0] + vertex.coordinates[0]) / 2,
                 (leader.coordinates[1] + vertex.coordinates[1]) / 2,
               );
@@ -435,8 +387,8 @@ export namespace AutoMovieHumanHeadTape {
             }
         }
       }
-      simplex.sort((a: ICourse, b: ICourse): number => b.lengthMm - a.lengthMm);
-      const selected: ICourse = simplex[0]!;
+      simplex.sort((a: IAutoMovieHumanHeadTape.ICourse, b: IAutoMovieHumanHeadTape.ICourse): number => b.lengthMm - a.lengthMm);
+      const selected: IAutoMovieHumanHeadTape.ICourse = simplex[0]!;
       const exhausted: boolean = !(step <= 1e-7);
       if (exhausted)
         throw new Error(

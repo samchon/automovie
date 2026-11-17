@@ -1,10 +1,6 @@
-import {
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActorContext, type IAutoMovieResumeActorSynthesisRuntime, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
+
 
 const resumeActorContext: (
   context: IAutoMovieActorContext,
@@ -44,26 +40,11 @@ export const resumeActorSynthesisRuntime: (
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   placements: ReadonlyMap<string, IAutoMovieVector3>,
   previous: IAutoMovieBeatEndState | null | undefined,
-) => {
-  /** Call-local resumed actor lookup; nested poses, rigs and unchanged contexts are borrowed. */ contexts: Map<
-    string,
-    IAutoMovieActorContext
-  >;
-  /** Call-local staged-id lookup with known prior actor translations substituted; values are borrowed. */ nodes: Map<
-    string,
-    IAutoMovieVector3
-  >;
-} = (
+) => IAutoMovieResumeActorSynthesisRuntime.IResult = (
   contexts: ReadonlyMap<string, IAutoMovieActorContext>,
   placements: ReadonlyMap<string, IAutoMovieVector3>,
   previous: IAutoMovieBeatEndState | null | undefined,
-): {
-  /** Call-local resumed actor lookup; nested poses, rigs and unchanged contexts are borrowed. */
-  contexts: Map<string, IAutoMovieActorContext>;
-
-  /** Call-local staged-id lookup with known prior actor translations substituted; values are borrowed. */
-  nodes: Map<string, IAutoMovieVector3>;
-} => {
+): IAutoMovieResumeActorSynthesisRuntime.IResult => {
   if (previous === null || previous === undefined)
     return {
       contexts: new Map(contexts),

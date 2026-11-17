@@ -1,19 +1,9 @@
+import type { IAutoMovieFormationBlock, IAutoMovieFormationDesign, IAutoMovieMotionEvent, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPopulation, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieFormationBlock,
-  IAutoMovieFormationDesign,
-  IAutoMovieMotionEvent,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanPerformance } from "../perform/HumanPerformance";
-import type { HumanSegment } from "../perform/HumanSegment";
-import type { HumanEnsemble } from "./HumanEnsemble";
 import { HumanFormation } from "./HumanFormation";
-import type { IHumanFormation } from "./IHumanFormation";
 
 /**
  * Background members handed to the instanced population layer: their
@@ -36,20 +26,6 @@ import type { IHumanFormation } from "./IHumanFormation";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No generic gait stands in for the template's poses.
  */
 export namespace HumanPopulation {
-  /** A template's cycle, the record the render's pose take reads. */
-  export interface ICycle {
-    /** The take's name. */
-    gait: string;
-
-    /** Seconds of one cycle: from a heel strike to the same foot's next. */
-    periodSeconds: number;
-
-    /** Metres the template's root travels in one cycle. */
-    strideMeters: number;
-
-    /** The template's canonical poses at phases `i / poses.length`, moved to stand at the origin facing +Z with the travel taken out. */
-    poses: IAutoMoviePose[];
-  }
 
   /**
    * An ensemble's formation as one formation design: its blocks as the
@@ -64,12 +40,12 @@ export namespace HumanPopulation {
    * @throws {HumanRefusal} When the ensemble has no formation or no population member.
    */
   export function design(
-    ensemble: HumanEnsemble.IEnsemble,
-    props: { id: string; model: string; seconds?: number },
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    props: IAutoMovieMotionHumanPopulation.IDesignProps,
   ): IAutoMovieFormationDesign {
-    const formation: IHumanFormation | undefined = ensemble.input.formation;
+    const formation: IAutoMovieMotionHumanFormation | undefined = ensemble.input.formation;
     const population: number = ensemble.members.filter(
-      (m: HumanEnsemble.IMember): boolean => m.detail === "population",
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "population",
     ).length;
     if (formation === undefined || population === 0)
       throw new HumanRefusal({
@@ -90,7 +66,7 @@ export namespace HumanPopulation {
       count: HumanFormation.count(formation),
       layout: formation.blocks[0]!.layout,
       blocks: formation.blocks.map(
-        (block: IHumanFormation.IBlock): IAutoMovieFormationBlock => ({
+        (block: IAutoMovieMotionHumanFormation.IBlock): IAutoMovieFormationBlock => ({
           layout: block.layout,
           count: block.count,
           ...(block.offset === undefined ? {} : { offset: block.offset }),
@@ -104,9 +80,9 @@ export namespace HumanPopulation {
       capabilities: [],
       heroOverrides: ensemble.members
         .filter(
-          (m: HumanEnsemble.IMember): boolean => m.detail !== "population",
+          (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail !== "population",
         )
-        .map((m: HumanEnsemble.IMember): { slot: number; actor: string } => ({
+        .map((m: IAutoMovieMotionHumanEnsemble.IMember): { slot: number; actor: string } => ({
           slot: m.index,
           actor: m.subject,
         })),
@@ -124,15 +100,15 @@ export namespace HumanPopulation {
    * @throws {HumanRefusal} When no stepping action of the template holds a whole stride from `from`.
    */
   export function cycle(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     template: string,
     from: number,
     samples: number,
-  ): ICycle {
-    const segment: HumanSegment.ISegment | undefined = performance
+  ): IAutoMovieMotionHumanPopulation.ICycle {
+    const segment: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
       .segments(template)
       .find(
-        (s: HumanSegment.ISegment): boolean =>
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
           s.entryTime <= from && from < s.end,
       );
     const strikes: { seconds: number; side: string }[] = (

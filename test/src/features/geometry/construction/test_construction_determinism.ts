@@ -1,7 +1,5 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import type { IAutoMovieConstructionRealization } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -27,17 +25,17 @@ export function test_construction_determinism(): void {
   const failures: string[] = [];
   const realize: (
     k: number,
-  ) => AutoMovieConstructionRealization.IRealization = (
+  ) => IAutoMovieConstructionRealization.IRealization = (
     k: number,
-  ): AutoMovieConstructionRealization.IRealization =>
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction(
       { name: "made", root: ConstructionShapes.assembly(k, "left") },
       { chord: 1e-4 * k },
     );
 
   // 1. The same tree twice.
-  const one: AutoMovieConstructionRealization.IRealization = realize(1);
-  const two: AutoMovieConstructionRealization.IRealization = realize(1);
+  const one: IAutoMovieConstructionRealization.IRealization = realize(1);
+  const two: IAutoMovieConstructionRealization.IRealization = realize(1);
   for (const [name, a, b] of [
     ["positions", one.mesh.positions, two.mesh.positions],
     ["indices", one.mesh.indices, two.mesh.indices],
@@ -50,12 +48,12 @@ export function test_construction_determinism(): void {
     );
 
   // 2. A thousand times smaller.
-  const small: AutoMovieConstructionRealization.IRealization = realize(0.001);
+  const small: IAutoMovieConstructionRealization.IRealization = realize(0.001);
   for (const [label, result] of [
     ["one", one],
     ["two", two],
     ["small", small],
-  ] as [string, AutoMovieConstructionRealization.IRealization][]) {
+  ] as [string, IAutoMovieConstructionRealization.IRealization][]) {
     for (const diagnostic of result.diagnostics)
       if (diagnostic.contract === "face triangulation")
         failures.push(
@@ -127,7 +125,7 @@ export function test_construction_determinism(): void {
 
 /** Record existing index/point/chart data at the first mismatch without inferring a face from a vertex's evaluator. */
 function indexContext(
-  result: AutoMovieConstructionRealization.IRealization,
+  result: IAutoMovieConstructionRealization.IRealization,
   triangle: number,
 ): string {
   const vertices: number[] = result.mesh.indices.slice(
@@ -150,8 +148,8 @@ function indexContext(
 }
 
 /** Retain existing public boundary and output chart data without another surface evaluation or inferred face ownership. */
-function sourceRecords(result: AutoMovieConstructionRealization.IRealization): {
-  body: AutoMovieConstructionRealization.IRealization["body"];
+function sourceRecords(result: IAutoMovieConstructionRealization.IRealization): {
+  body: IAutoMovieConstructionRealization.IRealization["body"];
   owners: string[];
   coordinates: number[];
 } {
@@ -180,8 +178,8 @@ interface CoordinateOrdering {
 
 /** Compare exact equality-group ordering using only the already returned owner/chart arrays. */
 function coordinateOrdering(
-  left: AutoMovieConstructionRealization.IRealization,
-  right: AutoMovieConstructionRealization.IRealization,
+  left: IAutoMovieConstructionRealization.IRealization,
+  right: IAutoMovieConstructionRealization.IRealization,
 ): CoordinateOrdering[] {
   const result: CoordinateOrdering[] = [];
   for (const owner of left.mesh.owners)
@@ -195,7 +193,7 @@ function coordinateOrdering(
           ids.push(id);
       const ranks: Map<number, number>[] = [left, right].map(
         (
-          current: AutoMovieConstructionRealization.IRealization,
+          current: IAutoMovieConstructionRealization.IRealization,
         ): Map<number, number> => {
           const values: number[] = [
             ...new Set(

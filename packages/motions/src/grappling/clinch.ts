@@ -1,13 +1,7 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClinch, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
@@ -16,12 +10,6 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -56,57 +44,15 @@ import { poseBones } from "../posture/poseBones";
  */
 export namespace clinch {
   /** The action's name. */
-  export const name: HumanActionName = "clinch";
+  export const name: AutoMovieMotionHumanActionName = "clinch";
 
   /** Cancel table: a clinch goes into a knee or lets go at any time. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     knee: [
       { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
     ],
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
-
-  /** A clinch grip. */
-  export type Grip = "plum" | "collarSleeve";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation The partner, a closed grip, a hand and a hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   */
-  export interface IParams {
-    /** The partner gripped. */
-    partner: string;
-
-    /** The grip; `plum` when absent. */
-    grip?: Grip;
-
-    /** The collar hand of `collarSleeve`; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** Seconds the grip is held; 2 when absent. */
-    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /**
-     * A throw's entry (tsukuri, #3439): through the reach the body lowers,
-     * its knees bending over the planted feet, until its own `fulcrum`
-     * region stands at the height of the partner's `on` region, the contact
-     * the throw turns the partner over; none when absent.
-     */
-    under?: {
-      /** This body's region the partner turns over. */
-      fulcrum: AutoMovieHumanoidRegion;
-
-      /** The partner's region that lies on it. */
-      on: AutoMovieHumanoidRegion;
-    };
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** How far each plum hand lies from the nape's middle, a share of the partner's half shoulder width (provisional). */
   export const SPREAD: number = 0.35;
@@ -120,18 +66,15 @@ export namespace clinch {
    * @returns The region and offset by hand.
    */
   export function regions(
-    grip: Grip,
-    collar: HumanHand.Side,
-  ): Record<
-    HumanHand.Side,
-    { region: AutoMovieHumanoidRegion; across: number }
-  > {
+    grip: IAutoMovieMotionHumanClinch.Grip,
+    collar: IAutoMovieMotionHumanHand.Side,
+  ): IAutoMovieMotionHumanClinch.IRegionsResult {
     if (grip === "plum")
       return {
         left: { region: "nape", across: -SPREAD },
         right: { region: "nape", across: SPREAD },
       };
-    const sleeve: HumanHand.Side = collar === "right" ? "left" : "right";
+    const sleeve: IAutoMovieMotionHumanHand.Side = collar === "right" ? "left" : "right";
     return {
       [collar]: {
         region: collar === "right" ? "neckLeft" : "neckRight",
@@ -142,7 +85,7 @@ export namespace clinch {
         across: 0,
       },
     } as Record<
-      HumanHand.Side,
+      IAutoMovieMotionHumanHand.Side,
       { region: AutoMovieHumanoidRegion; across: number }
     >;
   }
@@ -158,11 +101,11 @@ export namespace clinch {
    * @returns The point and outward normal, world.
    */
   export function place(
-    body: IHumanBody,
-    bones: ReturnType<IHumanActionContext.IPerformer["bones"]>,
+    body: IAutoMovieMotionHumanBody,
+    bones: ReturnType<IAutoMovieMotionHumanActionContext.IPerformer["bones"]>,
     region: AutoMovieHumanoidRegion,
     across: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanClinch.IPlaceResult {
     const frame = body.surfaces.regions[region];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       frame,
@@ -191,23 +134,23 @@ export namespace clinch {
    * @throws {HumanRefusal} When the hold is negative.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClinch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const grip: Grip = context.params.grip ?? "plum";
+    const grip: IAutoMovieMotionHumanClinch.Grip = context.params.grip ?? "plum";
     const table = regions(grip, context.params.hand ?? "right");
-    const partner: IHumanActionContext.IPerformer = context.performer(
+    const partner: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
       context.params.partner,
     );
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: AutoMovieMotionHumanTiming.PAUSES.brief,
@@ -220,12 +163,12 @@ export namespace clinch {
     const duration: number = clock.duration;
     // The body stands under the clinch, its sway signed in the gripping
     // hand's frame, so a left clinch mirrors a right one (`stand.plan`).
-    const base: IHumanActionPlan = stand.plan(
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: duration } },
       context.params.hand ?? "right",
     );
     const bones = poseBones(body, context.entry.pose);
-    const arm = (side: HumanHand.Side) =>
+    const arm = (side: IAutoMovieMotionHumanHand.Side) =>
       AutoMovieMotionHumanArm.visit({
         body,
         clock,
@@ -248,7 +191,7 @@ export namespace clinch {
             region: table[side].region,
           },
         },
-        target: (posture: IHumanPosture, seconds: number) => {
+        target: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
           const at = place(
             partner.body,
             partner.bones(context.start + seconds),
@@ -262,30 +205,30 @@ export namespace clinch {
           });
         },
       });
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "stroke",
       primitives: [arm("left"), arm("right")],
     });
-    const under: IParams["under"] = context.params.under;
+    const under: IAutoMovieMotionHumanClinch.IParams["under"] = context.params.under;
     if (under === undefined) return composed;
 
     // The entry: the fulcrum's height over the partner's region's, read on
     // both placed trunks at the start, taken off the root through the reach.
     const height = (
-      who: IHumanBody,
-      posture: IHumanPosture,
+      who: IAutoMovieMotionHumanBody,
+      posture: IAutoMovieMotionHumanPosture,
       region: AutoMovieHumanoidRegion,
     ): number => {
-      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         who.surfaces.regions[region];
       return resolveAutoMovieHumanoidSurfaces.place(
         frame,
         HumanTrunk.resolve(who, posture).get(frame.bone)!,
       ).point.y;
     };
-    const theirs: IHumanPosture | undefined = partner.posture?.(context.start);
+    const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(context.start);
     const drop: number =
       theirs === undefined
         ? 0
@@ -296,8 +239,8 @@ export namespace clinch {
           );
     return {
       ...composed,
-      posture: (seconds: number): IHumanPosture => {
-        const posture: IHumanPosture = composed.posture(seconds);
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+        const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds);
         const lowered: number =
           drop * clock.progress(AutoMovieMotionClock.START, "ready", seconds);
         return {

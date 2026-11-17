@@ -1,12 +1,6 @@
-import {
-  type IAutoMovieGrammarDiagnostic,
-  type IAutoMovieGrammarShotObservation,
-  classifyGrammarShotSize,
-} from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieGrammarDiagnostic, IAutoMovieGrammarShotObservation, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { classifyGrammarShotSize } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";

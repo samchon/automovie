@@ -1,11 +1,5 @@
-import {
-  AutoMovieAnalysisDomain,
-  IAutoMovieAnalysisOutcome,
-  IAutoMovieAnalysisRun,
-  IAutoMovieAnalysisSolver,
-  IAutoMovieConstraintViolation,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieSealAnalysisRun, type IAutoMovieViolationCollector, IAutoMovieAnalysisRun, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
+
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -36,39 +30,7 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The run digest is computed once and the contents are checked once; the former second hash, which the public validator would spend recomputing a digest this call just wrote from the same draft, is not paid.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector is call-local; the caller owns the returned run, retaining header strings, the borrowed solver/outcome objects and the settings/run digest strings. No source settings text or validation session is retained by this function.
  */
-export const sealAutoMovieAnalysisRun: (props: {
-  id: string;
-  domain: AutoMovieAnalysisDomain;
-  subject: string;
-  inputRevision: string;
-  solver: IAutoMovieAnalysisSolver;
-  settings: string;
-  outcome: IAutoMovieAnalysisOutcome;
-}) => IAutoMovieAnalysisRun = (props: {
-  /** Stable run identity; non-blank. */
-  id: string;
-
-  /** Domain the run answers for. */
-  domain: AutoMovieAnalysisDomain;
-
-  /** Open subject label; non-blank. */
-  subject: string;
-
-  /** Design revision read; non-blank. */
-  inputRevision: string;
-
-  /** Solver identity, kept by reference in the sealed run. */
-  solver: IAutoMovieAnalysisSolver;
-
-  /**
-   * Canonical text of every setting that changes the result; the run stores
-   * only its digest.
-   */
-  settings: string;
-
-  /** Honest outcome, kept by reference in the sealed run. */
-  outcome: IAutoMovieAnalysisOutcome;
-}): IAutoMovieAnalysisRun => {
+export const sealAutoMovieAnalysisRun: (props: IAutoMovieSealAnalysisRun.IProps) => IAutoMovieAnalysisRun = (props: IAutoMovieSealAnalysisRun.IProps): IAutoMovieAnalysisRun => {
   const draft: Omit<IAutoMovieAnalysisRun, "digest"> = {
     version: 1,
     protocol: "automovie.analysis-run.v1",
@@ -80,7 +42,7 @@ export const sealAutoMovieAnalysisRun: (props: {
     settings: autoMovieRenderDigest(props.settings),
     outcome: props.outcome,
   };
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   validateAutoMovieAnalysisRunContents(draft, out);
   const validated: IAutoMovieValidation = out.toValidation();
   if (validated.success === false) {

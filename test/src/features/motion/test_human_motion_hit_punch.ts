@@ -1,18 +1,11 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieComposition,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type {
-  IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanStrike,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance, HumanStrike } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,9 +38,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_hit_punch(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const reach: number = body.measure.upperArm + body.measure.forearm;
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "hit-punch",

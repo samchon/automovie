@@ -1,9 +1,6 @@
-import { IAutoMovieForgedCast, forgeCast } from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieConstraintViolation,
-} from "@automovie/interface";
+import { type IAutoMovieForgedCast, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieConstraintViolation } from "@automovie/interface";
+import { forgeCast } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";

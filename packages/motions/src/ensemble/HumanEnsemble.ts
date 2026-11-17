@@ -1,17 +1,12 @@
-import { AutoMovieComposition, type IAutoMovieRandom } from "@automovie/engine";
+import type { IAutoMovieComposition, IAutoMovieMotionHumanAttribute, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChainCore, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformer, IAutoMovieRandom } from "@automovie/interface";
+
+import { AutoMovieComposition } from "@automovie/engine";
 
 import { HumanChain } from "../HumanChain";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanChainCore } from "../chain/HumanChainCore";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPerformer } from "../perform/IHumanPerformer";
-import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
-import type { HumanFormation } from "./HumanFormation";
-import type { IHumanEnsemble } from "./IHumanEnsemble";
-import type { IHumanFormation } from "./IHumanFormation";
 import { instance } from "./instance";
 
 /**
@@ -33,64 +28,6 @@ import { instance } from "./instance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member has a law of its own.
  */
 export namespace HumanEnsemble {
-  /** A resolved ensemble. */
-  export interface IEnsemble {
-    /** The input it was resolved from. */
-    input: IHumanEnsemble;
-
-    /** Its members, in index order. */
-    members: readonly IMember[];
-  }
-
-  /** One resolved member. */
-  export interface IMember {
-    /** Its index, from 0. */
-    index: number;
-
-    /** Its subject id, `${ensemble}.${index}`. */
-    subject: string;
-
-    /** Its role, or null. */
-    role: string | null;
-
-    /** Its body, drawn from the pool. */
-    body: IHumanBody;
-
-    /** Its body's index in the pool. */
-    pool: number;
-
-    /** Its attributes, each in [0, 1]; an attribute the group does not state is absent. */
-    attributes: Readonly<Partial<Record<HumanAttribute.Name, number>>>;
-
-    /** Its proficiency: the drawn `p`, with discipline on the axes it replaces. */
-    proficiency: IAutoMovieProficiency;
-
-    /** Its starting place. */
-    place: IHumanEnsemble.IPlace;
-
-    /** Its slot in the formation's own frame, or null without a formation. */
-    slot: HumanFormation.ILocal | null;
-
-    /** How much of it is performed. */
-    detail: IHumanEnsemble.Detail;
-
-    /**
-     * A prop of its own, `${subject}.${name}`: its musket, its horse.
-     *
-     * @param name The prop's name within the member.
-     * @returns The prop's subject id.
-     */
-    prop(name: string): string;
-  }
-
-  /** A sub-ensemble that walks together. */
-  export interface IGroup {
-    /** Its index, from 0. */
-    index: number;
-
-    /** Its members' indices, consecutive. */
-    members: readonly number[];
-  }
 
   /**
    * Resolve an ensemble's members.
@@ -101,9 +38,9 @@ export namespace HumanEnsemble {
    * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
    */
   export function of(
-    input: IHumanEnsemble,
-    read?: HumanFormation.Reader,
-  ): IEnsemble {
+    input: IAutoMovieMotionHumanEnsemble,
+    read?: IAutoMovieMotionHumanFormation.Reader,
+  ): IAutoMovieMotionHumanEnsemble.IEnsemble {
     return HumanEnsembleMembers.resolve(input, read);
   }
 
@@ -115,11 +52,11 @@ export namespace HumanEnsemble {
    * @param ensemble The ensemble.
    * @returns The performers.
    */
-  export function performers(ensemble: IEnsemble): IHumanPerformer[] {
+  export function performers(ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble): IAutoMovieMotionHumanPerformer[] {
     return ensemble.members
-      .filter((m: IMember): boolean => m.detail !== "population")
+      .filter((m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail !== "population")
       .map(
-        (m: IMember): IHumanPerformer => ({
+        (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanPerformer => ({
           subject: m.subject,
           body: m.body,
           at: m.place.at,
@@ -136,7 +73,7 @@ export namespace HumanEnsemble {
    * @param ensemble The ensemble.
    * @returns The members.
    */
-  export function members(ensemble: IEnsemble): readonly IMember[] {
+  export function members(ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble): readonly IAutoMovieMotionHumanEnsemble.IMember[] {
     return ensemble.members;
   }
 
@@ -156,24 +93,24 @@ export namespace HumanEnsemble {
    * @throws {HumanRefusal} When an instanced member has no template, or no span is given.
    */
   export function chains(
-    ensemble: IEnsemble,
-    build: (member: IMember, chain: HumanChain) => HumanChainCore,
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    build: (member: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChainCore,
     seconds?: number,
-  ): AutoMovieComposition {
-    const full: IMember[] = ensemble.members.filter(
-      (m: IMember): boolean => m.detail === "full",
+  ): IAutoMovieComposition {
+    const full: IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members.filter(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "full",
     );
-    const instanced: IMember[] = ensemble.members.filter(
-      (m: IMember): boolean => m.detail === "instanced",
+    const instanced: IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members.filter(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "instanced",
     );
     return AutoMovieComposition.parallel(
       ...full.map(
-        (m: IMember): AutoMovieComposition =>
+        (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition =>
           build(m, HumanChain.subject(m.subject)).node,
       ),
-      ...instanced.map((m: IMember): AutoMovieComposition => {
-        const template: IMember | undefined = full.find(
-          (f: IMember): boolean =>
+      ...instanced.map((m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition => {
+        const template: IAutoMovieMotionHumanEnsemble.IMember | undefined = full.find(
+          (f: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
             f.pool === m.pool && (f.slot?.block ?? 0) === (m.slot?.block ?? 0),
         );
         if (template === undefined || seconds === undefined)
@@ -227,12 +164,12 @@ export namespace HumanEnsemble {
    * @throws {Error} When neither a formation nor the ensemble's is given.
    */
   export function station(
-    ensemble: IEnsemble,
-    member: IMember,
-    formation?: IHumanFormation,
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    member: IAutoMovieMotionHumanEnsemble.IMember,
+    formation?: IAutoMovieMotionHumanFormation,
     until?: number,
-  ): IHumanFormation.IStation {
-    const kept: IHumanFormation | undefined = formation ?? ensemble.input.formation;
+  ): IAutoMovieMotionHumanFormation.IStation {
+    const kept: IAutoMovieMotionHumanFormation | undefined = formation ?? ensemble.input.formation;
     if (kept === undefined) throw new Error(`${member.subject} keeps no formation`);
     return {
       formation: kept,
@@ -269,14 +206,14 @@ export namespace HumanEnsemble {
    * @throws {HumanRefusal} When fewer members are admitted than asked.
    */
   export function pick(
-    ensemble: IEnsemble,
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
     count: number,
     name: string,
-    among?: (member: IMember) => boolean,
-    weighted?: HumanAttribute.Name,
+    among?: (member: IAutoMovieMotionHumanEnsemble.IMember) => boolean,
+    weighted?: IAutoMovieMotionHumanAttribute.Name,
   ): number[] {
-    const admitted: IMember[] = ensemble.members.filter(
-      (m: IMember): boolean => among?.(m) ?? true,
+    const admitted: IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members.filter(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => among?.(m) ?? true,
     );
     if (!(Number.isInteger(count) && count >= 0 && count <= admitted.length))
       throw new HumanRefusal({
@@ -293,7 +230,7 @@ export namespace HumanEnsemble {
         fix: "ask no more members than may take the outcome",
       });
     return admitted
-      .map((m: IMember): { index: number; key: number } => {
+      .map((m: IAutoMovieMotionHumanEnsemble.IMember): { index: number; key: number } => {
         const u: number = Math.max(
           1e-12,
           HumanAttribute.stream(
@@ -331,7 +268,7 @@ export namespace HumanEnsemble {
    * @returns A whole number in [0, 2^32).
    */
   export function seed(
-    ensemble: IEnsemble,
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
     index: number,
     name: string,
   ): number {
@@ -357,9 +294,9 @@ export namespace HumanEnsemble {
    * @throws {HumanRefusal} When the share lies outside [0, 1] or a size is below 2.
    */
   export function groups(
-    ensemble: IEnsemble,
-    spec: { share: number; sizes: readonly number[] },
-  ): IGroup[] {
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    spec: IAutoMovieMotionHumanEnsemble.IGroupsSpec,
+  ): IAutoMovieMotionHumanEnsemble.IGroup[] {
     if (
       !(spec.share >= 0 && spec.share <= 1) ||
       spec.sizes.length === 0 ||
@@ -377,7 +314,7 @@ export namespace HumanEnsemble {
       spec.sizes.reduce((a: number, b: number): number => a + b, 0) /
       spec.sizes.length;
     const start: number = spec.share / (mean - spec.share * (mean - 1));
-    const out: IGroup[] = [];
+    const out: IAutoMovieMotionHumanEnsemble.IGroup[] = [];
     const n: number = ensemble.members.length;
     for (let i: number = 0; i < n; ) {
       const random: IAutoMovieRandom = HumanAttribute.stream(

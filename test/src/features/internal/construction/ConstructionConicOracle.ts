@@ -1,8 +1,5 @@
-import type {
-  AutoMovieConicHermite,
-  AutoMoviePolarSector,
-  AutoMovieViewSection,
-} from "@automovie/engine";
+import type { IAutoMovieConicHermite, IAutoMoviePolarSector, IAutoMovieViewSection } from "@automovie/interface";
+
 
 /**
  * Independent implicit conics and Taylor arithmetic for source-section tests.
@@ -16,7 +13,7 @@ export namespace ConstructionConicOracle {
     a: number,
     b: number,
     phi: number,
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     const c: number = Math.cos(phi);
     const s: number = Math.sin(phi);
     const f: number = (c / a) ** 2 + (s / b) ** 2;
@@ -49,7 +46,7 @@ export namespace ConstructionConicOracle {
     b: number,
     r: number,
     point: [number, number],
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     const rho: number = Math.hypot(...point);
     const c: number = point[0] / rho;
     const s: number = point[1] / rho;
@@ -81,8 +78,8 @@ export namespace ConstructionConicOracle {
   export function compare(
     failures: string[],
     label: string,
-    actual: AutoMoviePolarSector.Jet,
-    expected: AutoMoviePolarSector.Jet,
+    actual: IAutoMoviePolarSector.Jet,
+    expected: IAutoMoviePolarSector.Jet,
     scale: number,
     tolerance: number,
   ): void {
@@ -265,7 +262,7 @@ export namespace ConstructionConicOracle {
    * verifies evaluation of the supplied controls through power-series division.
    */
   export function rational(
-    patch: AutoMovieConicHermite.IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     t: number,
   ): [number, number, number, number, number, number] {
     const [x, y]: [number[], number[]] = coefficients(patch, t);
@@ -274,7 +271,7 @@ export namespace ConstructionConicOracle {
 
   /** Cartesian Taylor coefficients through degree four, sharing one independent power-series division. */
   function coefficients(
-    patch: AutoMovieConicHermite.IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     t: number,
   ): [number[], number[]] {
     const powers: readonly (readonly number[])[] = [
@@ -333,7 +330,7 @@ export namespace ConstructionConicOracle {
    * fixed-h observer's missing scale; an endpoint value is not a supremum
    * bound on a finite interval or a new tolerance for that observer.
    */
-  export function fourth(patch: AutoMovieConicHermite.IPatch): number {
+  export function fourth(patch: IAutoMovieConicHermite.IPatch): number {
     const [x, y]: [number[], number[]] = coefficients(patch, 0);
     if (x[1] !== 0 || y[0] !== 0) return NaN;
     const a: number = x[0]!;
@@ -368,7 +365,7 @@ export namespace ConstructionConicOracle {
       [3, 2],
       [2, 3],
     ]) {
-      const patch: AutoMovieConicHermite.IPatch = {
+      const patch: IAutoMovieConicHermite.IPatch = {
         extent: a!,
         deficit: a!,
         height: b!,
@@ -415,20 +412,20 @@ export namespace ConstructionConicOracle {
    * limits instead use the original input endpoint law above.
    */
   export function limits(
-    section: AutoMovieViewSection.ISection,
-  ): [AutoMoviePolarSector.Jet, AutoMoviePolarSector.Jet][] {
+    section: IAutoMovieViewSection.ISection,
+  ): [IAutoMoviePolarSector.Jet, IAutoMoviePolarSector.Jet][] {
     return section.conics.quarters.map(
       (
         _: unknown,
         g: number,
-      ): [AutoMoviePolarSector.Jet, AutoMoviePolarSector.Jet] => {
-        const one: (q: number, reverse: boolean) => AutoMoviePolarSector.Jet = (
+      ): [IAutoMoviePolarSector.Jet, IAutoMoviePolarSector.Jet] => {
+        const one: (q: number, reverse: boolean) => IAutoMoviePolarSector.Jet = (
           q: number,
           reverse: boolean,
-        ): AutoMoviePolarSector.Jet => {
+        ): IAutoMoviePolarSector.Jet => {
           const arc: (typeof section.conics.quarters)[number] =
             section.conics.quarters[q]!;
-          const patch: AutoMovieConicHermite.IPatch | null = reverse
+          const patch: IAutoMovieConicHermite.IPatch | null = reverse
             ? arc.end
             : arc.start;
           const e: number = section.box.extents[g]!;

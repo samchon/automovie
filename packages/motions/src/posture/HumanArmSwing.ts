@@ -1,19 +1,11 @@
-import {
-  type IAutoMovieResolvedBone,
-  bracketedBisection,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone } from "@automovie/interface";
+
+import { bracketedBisection } from "@automovie/engine";
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
@@ -71,7 +63,7 @@ export namespace HumanArmSwing {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the audit's limit and the body's measure.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function precision(body: IHumanBody): number {
+  export function precision(body: IAutoMovieMotionHumanBody): number {
     const lever: number =
       body.measure.upperArm + body.measure.forearm + body.measure.hand;
     return (AutoMovieMotionHumanAudit.LIMITS.jump / lever) * (180 / Math.PI);
@@ -99,12 +91,12 @@ export namespace HumanArmSwing {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance rooms are kept per live body in a `WeakMap`.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
     for (const side of sides) {
       if (posture.limbs[`${side}Arm`] !== undefined) continue;
       const read = (
@@ -115,7 +107,7 @@ export namespace HumanArmSwing {
         );
         return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
       };
-      const arm: HumanArmClearance.IArm = {
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = {
         upper: read(`${side}UpperArm`),
         lower: read(`${side}LowerArm`),
         hand: read(`${side}Hand`),
@@ -124,8 +116,8 @@ export namespace HumanArmSwing {
       // The least added abduction that keeps the arm's room within its
       // stance baseline, by bisection: the least moves continuously as the
       // swing does, where a local search could jump between frames.
-      const baseline: HumanArmClearance.IBaseline = stance(body, side);
-      const out = (a: number): HumanArmClearance.IArm => ({
+      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(body, side);
+      const out = (a: number): IAutoMovieMotionHumanArmClearance.IArm => ({
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
       });
@@ -142,7 +134,7 @@ export namespace HumanArmSwing {
         : short(SPAN)
           ? SPAN
           : bracketedBisection(short, 0, SPAN, precision(body));
-      const clear: HumanArmClearance.IArm = out(added);
+      const clear: IAutoMovieMotionHumanArmClearance.IArm = out(added);
       joints[`${side}UpperArm`] = clear.upper;
       pose = HumanArmClearance.posed(pose, side, clear);
     }
@@ -179,15 +171,15 @@ export namespace HumanArmSwing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing per call.
    */
   export function carriage(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     times: readonly number[],
-    posture: (seconds: number) => IHumanPosture,
+    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
   ): Record<"left" | "right", number> {
     const out: Record<"left" | "right", number> = { left: 0, right: 0 };
     for (const seconds of times) {
-      const at: IHumanPosture = posture(seconds);
-      const cleared: IHumanPosture = of(body, at, sides);
+      const at: IAutoMovieMotionHumanPosture = posture(seconds);
+      const cleared: IAutoMovieMotionHumanPosture = of(body, at, sides);
       for (const side of sides)
         out[side] = Math.max(
           out[side],
@@ -215,10 +207,10 @@ export namespace HumanArmSwing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function carry(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     carried: Readonly<Record<"left" | "right", number>>,
-  ): IHumanPosture {
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
     for (const side of ["left", "right"] as const) {
       const upper: readonly [number, number, number] | undefined =
         joints[`${side}UpperArm`];
@@ -235,13 +227,13 @@ export namespace HumanArmSwing {
 
   /** Each reading of an arm's room in the body's quiet stance, degrees, solved once per body and arm. */
   function stance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-  ): HumanArmClearance.IBaseline {
+  ): IAutoMovieMotionHumanArmClearance.IBaseline {
     const known: Partial<
-      Record<"left" | "right", HumanArmClearance.IBaseline>
+      Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>
     > = STANCE.get(body) ?? {};
-    const have: HumanArmClearance.IBaseline | undefined = known[side];
+    const have: IAutoMovieMotionHumanArmClearance.IBaseline | undefined = known[side];
     if (have !== undefined) return have;
     const pose: IAutoMoviePose = resolveHumanPosture(
       body,
@@ -251,7 +243,7 @@ export namespace HumanArmSwing {
       body,
       pose,
     );
-    const value: HumanArmClearance.IBaseline = {
+    const value: IAutoMovieMotionHumanArmClearance.IBaseline = {
       forearm: HumanArmClearance.overshoot(
         body,
         HumanArmClearance.obstacles(body, bones, [
@@ -271,7 +263,7 @@ export namespace HumanArmSwing {
 
   /** The stance rooms already solved, per live body. */
   const STANCE: WeakMap<
-    IHumanBody,
-    Partial<Record<"left" | "right", HumanArmClearance.IBaseline>>
+    IAutoMovieMotionHumanBody,
+    Partial<Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>>
   > = new WeakMap();
 }

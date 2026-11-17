@@ -1,5 +1,5 @@
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import { linearColorToSrgbHex } from "../math/linearColorToSrgbHex";
-import { ViolationCollector } from "./ViolationCollector";
 import { isRecord } from "./isRecord";
 
 /** The optional display label uses exactly three eight-bit sRGB channels. */
@@ -25,7 +25,7 @@ const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;
 export function validateColor(
   color: unknown,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void {
   if (!isRecord(color)) {
     collector.push("type", path, "color must be a JSON object", color);

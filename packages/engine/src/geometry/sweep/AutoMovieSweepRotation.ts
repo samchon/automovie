@@ -1,3 +1,4 @@
+import type { IAutoMovieSweepRotation } from "@automovie/interface";
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "../../math/constants/QUATERNION_NLERP_DOT_THRESHOLD";
 
 /**
@@ -32,7 +33,7 @@ export namespace AutoMovieSweepRotation {
     ai: number,
     b: ArrayLike<number>,
     bi: number,
-    out: { [index: number]: number },
+    out: IAutoMovieSweepRotation.IMultiplyOut,
     oi: number,
   ): void => {
     const ax: number = a[ai]!;
@@ -61,7 +62,7 @@ export namespace AutoMovieSweepRotation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const normalize = (
-    q: { [index: number]: number },
+    q: IAutoMovieSweepRotation.INormalizeQ,
     i: number,
   ): void => {
     const size: number = Math.hypot(q[i]!, q[i + 1]!, q[i + 2]!, q[i + 3]!);
@@ -89,7 +90,7 @@ export namespace AutoMovieSweepRotation {
   export const conjugate = (
     q: ArrayLike<number>,
     i: number,
-    out: { [index: number]: number },
+    out: IAutoMovieSweepRotation.IConjugateOut,
     oi: number,
   ): void => {
     const x: number = q[i]!;
@@ -117,7 +118,7 @@ export namespace AutoMovieSweepRotation {
     xi: number,
     yi: number,
     zi: number,
-    out: { [index: number]: number },
+    out: IAutoMovieSweepRotation.IFromBasisOut,
     oi: number,
   ): void => {
     const m00: number = m[xi]!;
@@ -174,7 +175,7 @@ export namespace AutoMovieSweepRotation {
     qi: number,
     v: ArrayLike<number>,
     vi: number,
-    out: { [index: number]: number },
+    out: IAutoMovieSweepRotation.IRotateOut,
     oi: number,
   ): void => {
     const qx: number = q[qi]!;
@@ -209,7 +210,7 @@ export namespace AutoMovieSweepRotation {
     b: ArrayLike<number>,
     bi: number,
     t: number,
-    out: { [index: number]: number },
+    out: IAutoMovieSweepRotation.ISlerpOut,
     oi: number,
   ): void => {
     const ax: number = a[ai]!;

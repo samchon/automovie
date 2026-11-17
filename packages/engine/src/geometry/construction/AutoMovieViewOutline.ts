@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieViewPart, IAutoMovieConstructionOutlineParameter, IAutoMovieNaturalSpline, IAutoMovieViewHermite, IAutoMovieViewOutline } from "@automovie/interface";
 
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
@@ -6,7 +6,6 @@ import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewOutlineRead } from "./AutoMovieViewOutlineRead";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { distanceAutoMovieViewOutline } from "./distanceAutoMovieViewOutline";
 import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
 
@@ -21,105 +20,6 @@ import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewOutline {
-  /**
-   * Closing stations in millimetres; absent ends remain open.
-   *
-   * @evidence contracts/development/design.md#principled-representation Names the two possible endpoints of the published pole parameter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Optional bottom and top numbers represent open, single-pole and two-pole sources.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing means open; admission checks each declared endpoint instead of substituting one.
-   * @evidence contracts/development/common.md#meaningful-documentation States station units and absent-end meaning.
-   */
-  export interface IEnds {
-    /** Bottom closing station, when present. */
-    bottom?: number;
-
-    /** Top closing station, when present. */
-    top?: number;
-  }
-
-  /**
-   * An admitted source curve, independent of any emitted section.
-   *
-   * @evidence contracts/development/design.md#principled-representation Stores the original named knots and the natural spline in their admitted station or pole parameter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record retains source identity, span, closure and prepared scalar spline.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No surviving section, fitted points or mesh observations replace the input knots.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish station domain and spline parameter and identify copied inputs.
-   */
-  export interface IOutline {
-    /** Named source knots, copied at admission. */
-    knots: readonly IAutoMovieViewPart.IKnot[];
-
-    /** First and last source knot stations, millimetres. */
-    domain: readonly [number, number];
-
-    /** Closing stations, copied at admission. */
-    ends: Readonly<IEnds>;
-
-    /** Admitted scalar interpolation parameter; its endpoints need not have zero values unless ends separately closes the part. */
-    parameter: AutoMovieConstructionOutlineParameter | undefined;
-
-    /** Natural spline in the admitted parameter. */
-    spline: AutoMovieNaturalSpline.ISpline;
-
-    /** Optional explicitly requested shared-jet/range quintic preparation; absent keeps the original natural cubic unchanged. */
-    hermite?: AutoMovieViewHermite.ICurve;
-  }
-
-  /**
-   * A source premise that failed before a spline could be prepared.
-   *
-   * @evidence contracts/development/design.md#principled-representation Retains the existing outline or pole-knot construction contract and its input failure.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A contract and detail suffice without an exception or substitute curve.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed source remains failed and named.
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the contract discriminator and original input detail.
-   */
-  export interface IFailure {
-    /** Existing construction diagnostic contract. */
-    contract: "outline" | "pole knot" | "pole parameter";
-
-    /** The original premise and its input numbers. */
-    detail: string;
-  }
-
-  /**
-   * A finite source value and its explicitly qualified derivatives.
-   *
-   * @evidence contracts/development/design.md#principled-representation Separates finite position from the station change of parameter, whose derivatives can be singular or exceed binary64 at a pole.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One scalar reading carries both jet units and their availability status.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No finite jet is invented for a singular endpoint and no finite point is hidden for an unrepresentable station derivative.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state scalar units, parameter/station derivatives, absence status and tangent extension location.
-   */
-  export interface IReading {
-    /** Requested station, millimetres. */
-    station: number;
-
-    /** Station itself by default, otherwise the selected root/angle parameter. */
-    parameter: number;
-
-    /** Source scalar, with the outline's own units. */
-    value: number;
-
-    /** First and second derivatives in the spline parameter, including at a pole. */
-    parameterJet: readonly [number, number];
-
-    /** First and second derivatives in station, absent at a singular parameter endpoint or when their magnitude cannot be represented finitely. */
-    stationJet: readonly [number, number] | null;
-
-    /** Why the station jet is present or absent; a finite source point is not discarded for an unrepresentable derivative. */
-    stationJetStatus:
-      | "regular"
-      | "singular-pole"
-      | "singular-parameter"
-      | "nonfinite";
-
-    /** Knot-span location, parameter-tangent extension, radial closing pole, or a nonclosing singular parameter endpoint. */
-    location:
-      | "interior"
-      | "endpoint"
-      | "extension"
-      | "pole"
-      | "parameter-endpoint";
-  }
 
   /**
    * Prepare the original knots, returning a named premise failure rather than a replacement curve.
@@ -134,8 +34,8 @@ export namespace AutoMovieViewOutline {
    */
   export function create(
     outline: IAutoMovieViewPart.IOutline,
-    ends: Readonly<IEnds> = {},
-  ): IOutline | IFailure {
+    ends: Readonly<IAutoMovieViewOutline.IEnds> = {},
+  ): IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure {
     const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map(
       (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
         ...k,
@@ -192,7 +92,7 @@ export namespace AutoMovieViewOutline {
         contract: "pole knot",
         detail: "the top pole does not stand above the bottom pole",
       };
-    const inferred: AutoMovieConstructionOutlineParameter | undefined =
+    const inferred: IAutoMovieConstructionOutlineParameter | undefined =
       ends.bottom !== undefined && ends.top !== undefined
         ? { type: "angle", bottom: ends.bottom, top: ends.top }
         : ends.bottom !== undefined
@@ -200,7 +100,7 @@ export namespace AutoMovieViewOutline {
           : ends.top !== undefined
             ? { type: "root", end: "top", pole: ends.top }
             : undefined;
-    const chosen: AutoMovieConstructionOutlineParameter | undefined | string =
+    const chosen: IAutoMovieConstructionOutlineParameter | undefined | string =
       AutoMovieViewParameter.prepare(outline.parameter ?? inferred);
     if (typeof chosen === "string")
       return { contract: "outline", detail: chosen };
@@ -237,7 +137,7 @@ export namespace AutoMovieViewOutline {
         detail:
           "source parameters do not increase by finite intervals through the source knots",
       };
-    const spline: AutoMovieNaturalSpline.ISpline =
+    const spline: IAutoMovieNaturalSpline.ISpline =
       AutoMovieNaturalSpline.create(
         parameters,
         knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
@@ -266,7 +166,7 @@ export namespace AutoMovieViewOutline {
     const requested: boolean =
       outline.range !== undefined ||
       knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);
-    const hermite: AutoMovieViewHermite.ICurve | string | undefined = requested
+    const hermite: IAutoMovieViewHermite.ICurve | string | undefined = requested
       ? AutoMovieViewHermite.create(spline, knots, outline.range)
       : undefined;
     if (typeof hermite === "string")
@@ -292,7 +192,7 @@ export namespace AutoMovieViewOutline {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads one prepared source once; callers can retain this derived sample list while the source stays unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Natural spans return at most two roots; requested quintics can retain near-zero partition candidates, bounded by fifteen observations per span. No list is cached globally.
    */
-  export function criticalStations(outline: IOutline): number[] {
+  export function criticalStations(outline: IAutoMovieViewOutline.IOutline): number[] {
     if (outline.hermite !== undefined)
       return AutoMovieViewHermite.critical(outline.hermite)
         .map((x: number): number =>
@@ -348,7 +248,7 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only caller-owned station candidates or a failure string; retains no new state.
    */
   export function supportStations(
-    outline: IOutline,
+    outline: IAutoMovieViewOutline.IOutline,
     slope: number,
     valueScale: number = 1,
     domain: readonly [number, number] = outline.domain,
@@ -368,7 +268,7 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns an invocation-owned station list or failure string and retains no new state.
    */
   export function distanceStations(
-    outline: IOutline,
+    outline: IAutoMovieViewOutline.IOutline,
     targetStation: number,
     targetValue: number,
     domain: readonly [number, number],
@@ -392,7 +292,7 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the admitted spline and shared parameter/value helpers; changing knots requires a new preparation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and returns a scalar or failure string.
    */
-  export function value(outline: IOutline, station: number): number | string {
+  export function value(outline: IAutoMovieViewOutline.IOutline, station: number): number | string {
     return AutoMovieViewOutlineRead.value(outline, station);
   }
 
@@ -407,7 +307,7 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Natural value and derivatives share a selected interval; all readers retain the original curvature/parameter preparation without a mutable query cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fixed-size reading and jets, retaining no previous query.
    */
-  export function at(outline: IOutline, station: number): IReading | string {
+  export function at(outline: IAutoMovieViewOutline.IOutline, station: number): IAutoMovieViewOutline.IReading | string {
     return AutoMovieViewOutlineRead.at(outline, station);
   }
 
@@ -437,9 +337,9 @@ export namespace AutoMovieViewOutline {
       throw new Error(
         "outline unit conversion needs finite factors and a positive station scale",
       );
-    const p: AutoMovieConstructionOutlineParameter | undefined =
+    const p: IAutoMovieConstructionOutlineParameter | undefined =
       outline.parameter;
-    const converted: AutoMovieConstructionOutlineParameter | undefined =
+    const converted: IAutoMovieConstructionOutlineParameter | undefined =
       p === undefined
         ? undefined
         : p.type === "root"

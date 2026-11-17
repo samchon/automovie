@@ -1,5 +1,6 @@
-import type { IAutoMovieInstanceSetPlacement } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type { IAutoMovieInstanceSetPlacement, IAutoMovieQuaternion } from "@automovie/interface";
+
+
 
 import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacement";
 

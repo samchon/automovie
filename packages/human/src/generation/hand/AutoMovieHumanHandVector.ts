@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanHandVector } from "@automovie/interface";
+
+
 /**
  * The small vector and curve mathematics the hand's pieces share: three-vectors
  * as plain arrays, smooth steps, a rounded maximum and the taut-tape perimeter
@@ -5,51 +8,50 @@
  * a private copy.
  */
 export namespace AutoMovieHumanHandVector {
-  /** A point or direction. */
-  export type Vec3 = [number, number, number];
+  
 
   /** A whole turn, radians. */
   export const TWO_PI: number = 2 * Math.PI;
 
   /** Difference. */
-  export function sub(a: Vec3, b: Vec3): Vec3 {
+  export function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** Sum. */
-  export function plus(a: Vec3, b: Vec3): Vec3 {
+  export function plus(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Scalar multiple. */
-  export function scale(a: Vec3, s: number): Vec3 {
+  export function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
   /** Dot product. */
-  export function dot(a: Vec3, b: Vec3): number {
+  export function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
   /** Euclidean length. */
-  export function norm(a: Vec3): number {
+  export function norm(a: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0], a[1], a[2]);
   }
 
   /** Unit vector; zero stays zero. */
-  export function unit(a: Vec3): Vec3 {
+  export function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const l: number = norm(a) || 1;
     return [a[0] / l, a[1] / l, a[2] / l];
   }
 
   /** The part of a vector across a unit heading, as a unit vector. */
-  export function across(v: Vec3, t: Vec3): Vec3 {
+  export function across(v: AutoMovieVector3Tuple, t: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const k: number = dot(v, t);
     return unit([v[0] - k * t[0], v[1] - k * t[1], v[2] - k * t[2]]);
   }
 
   /** Cross product. */
-  export function cross(a: Vec3, b: Vec3): Vec3 {
+  export function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -58,8 +60,8 @@ export namespace AutoMovieHumanHandVector {
   }
 
   /** Mean of one coordinate of a ring of points. */
-  export function mean(ring: Vec3[], c: number): number {
-    return ring.reduce((s: number, p: Vec3): number => s + p[c]!, 0) / ring.length;
+  export function mean(ring: AutoMovieVector3Tuple[], c: number): number {
+    return ring.reduce((s: number, p: AutoMovieVector3Tuple): number => s + p[c]!, 0) / ring.length;
   }
 
   /** Smoothstep clamped to [0, 1]: no slope at either end. */
@@ -89,7 +91,7 @@ export namespace AutoMovieHumanHandVector {
    * chain): a taut tape drawn round the section, the way a tape measure reads
    * a girth.
    */
-  export function hull(points: readonly [number, number][]): number {
+  export function hull(points: IAutoMovieHumanHandVector.HullPoints): number {
     const p: [number, number][] = [...points].sort(
       (u: [number, number], v: [number, number]): number => u[0] - v[0] || u[1] - v[1],
     );

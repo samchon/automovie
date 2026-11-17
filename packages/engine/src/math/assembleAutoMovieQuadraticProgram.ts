@@ -1,8 +1,7 @@
+import type { IAutoMovieQuadraticRow, IAutoMovieSolveQuadraticProgram } from "@automovie/interface";
+
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
-import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
-import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
  * Admits a sparse-row quadratic program and lays its constraint matrix out in
@@ -29,8 +28,17 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns its arrays to the caller and keeps no reference; the cursor array is released when the call returns.
  */
 export function assembleAutoMovieQuadraticProgram(
-  input: Parameters<typeof solveAutoMovieQuadraticProgram>[0],
-): Parameters<typeof solveAutoMovieQuadraticKernel>[0] {
+  input: ([IAutoMovieSolveQuadraticProgram.IInput])[0],
+): [{
+  diagonal: readonly number[];
+  linear: readonly number[];
+  columns: readonly number[];
+  rowIndices: readonly number[];
+  values: readonly number[];
+  lower: readonly number[];
+  upper: readonly number[];
+  initial?: readonly number[];
+}][0] {
   admitAutoMovieQuadraticProgram(input);
   const variables: number = input.diagonal.length;
   const count: number = input.rows.length;

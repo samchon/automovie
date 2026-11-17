@@ -1,13 +1,9 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { aimRotation } from "../kinematics/aimRotation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { projectileDragFlight } from "./projectileDragFlight";
 
 const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;

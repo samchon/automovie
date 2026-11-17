@@ -1,6 +1,9 @@
+import type { IAutoMovieInspectionTrail } from "@automovie/interface";
+
+
 import * as THREE from "three";
 
-import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail.js";
+
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 

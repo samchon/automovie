@@ -1,3 +1,4 @@
+import type { IAutoMovieInterpolateMonotone } from "@automovie/interface";
 import { AutoMovieMonotone } from "./AutoMovieMonotone";
 
 /**
@@ -39,15 +40,7 @@ import { AutoMovieMonotone } from "./AutoMovieMonotone";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The returned closure is the reuse: callers build it once per profile and evaluate it many times.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains copies of the knots, values and slopes, O(n), released with the closure.
  */
-export const interpolateAutoMovieMonotone: (props: {
-  knots: readonly number[];
-  values: readonly number[];
-  period?: number;
-}) => (x: number) => number = (props: {
-  knots: readonly number[];
-  values: readonly number[];
-  period?: number;
-}): ((x: number) => number) => {
+export const interpolateAutoMovieMonotone: (props: IAutoMovieInterpolateMonotone.IProps) => (x: number) => number = (props: IAutoMovieInterpolateMonotone.IProps): ((x: number) => number) => {
   const n: number = props.knots.length;
   if (n === 0)
     throw new Error("monotone interpolation needs at least one knot");

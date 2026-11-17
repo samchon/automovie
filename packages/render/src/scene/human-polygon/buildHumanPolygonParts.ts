@@ -1,8 +1,11 @@
+import type { IAutoMovieHumanSkeleton, IAutoMovieVector3, IAutoMovieResolveHumanoidRingModules } from "@automovie/interface";
+
+
+
 import { resolveAutoMovieHumanoidRingModules } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import * as THREE from "three";
 
-import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 
 /**
@@ -20,10 +23,10 @@ import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary vectors and sections transfer to assembly; the caller owns every emitted mesh, diagnostic and material and receives the actual head objects and bounds.
  */
 export function buildHumanPolygonParts(
-  output: AutoMovieHumanPolygon.IInput,
-  boneAt: (name: string) => AutoMovieHumanPolygon.IBone,
+  output: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+  boneAt: (name: string) => IAutoMovieHumanSkeleton.IBone,
   add: (
-    bone: AutoMovieHumanPolygon.IBone,
+    bone: IAutoMovieHumanSkeleton.IBone,
     rings: buildHumanPolygonModule.ISection[],
     axis: THREE.Vector3,
     breadth?: THREE.Vector3,
@@ -38,7 +41,7 @@ export function buildHumanPolygonParts(
       boneAt(module.bone),
       module.rings.map(
         (
-          ring: resolveAutoMovieHumanoidRingModules.IRing,
+          ring: IAutoMovieResolveHumanoidRingModules.IRing,
         ): buildHumanPolygonModule.ISection => ({
           centre: three(ring.centre),
           depth: ring.depth,

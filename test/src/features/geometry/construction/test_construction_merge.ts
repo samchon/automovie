@@ -1,13 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type AutoMovieSolidIntersection,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionJoin,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidIntersection, IAutoMovieSolidSurface, IAutoMovieConstructionJoin } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -36,7 +29,7 @@ export function test_construction_merge(): void {
   const R: number = 0.03;
   const r: number = 0.015;
   const w: number = 0.006;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "beam",
     {
       origin: { x: -0.1, y: 0, z: 0 },
@@ -46,7 +39,7 @@ export function test_construction_merge(): void {
     R,
     0.2,
   );
-  const part: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const part: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "post",
     {
       origin: { x: 0, y: 0, z: 0 },
@@ -62,11 +55,11 @@ export function test_construction_merge(): void {
     (wider: number): ((p: V3) => number) =>
     (p: V3): number =>
       Math.hypot(p[1], p[2]) - (R + wider);
-  const seam: (j: AutoMovieConstructionRealization.IJoin) => V3[] = (
-    j: AutoMovieConstructionRealization.IJoin,
+  const seam: (j: IAutoMovieConstructionRealization.IJoin) => V3[] = (
+    j: IAutoMovieConstructionRealization.IJoin,
   ): V3[] =>
     j.join.curve.points.map(
-      (q: AutoMovieSolidIntersection.IPoint): V3 => [
+      (q: IAutoMovieSolidIntersection.IPoint): V3 => [
         q.point[0] / 1000,
         q.point[1] / 1000,
         q.point[2] / 1000,
@@ -87,11 +80,11 @@ export function test_construction_merge(): void {
     },
     { part: { type: "chord", value: w }, host: { type: "chord", value: w } },
   ) as IAutoMovieConstructionJoin;
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
-  const joined: AutoMovieConstructionRealization.IJoin = ConstructionRead.join(
+  const joined: IAutoMovieConstructionRealization.IJoin = ConstructionRead.join(
     real,
     "blend.post",
   );
@@ -175,7 +168,7 @@ export function test_construction_merge(): void {
       to: 1,
     },
   };
-  const found: AutoMovieConstructionRealization.IRealization =
+  const found: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction(
       { name: "made", root: searched },
       { chord: 1e-4 },

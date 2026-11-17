@@ -1,18 +1,7 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanRise,
-  HumanFoot,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRise, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+
+import { AutoMovieMotionHumanRise, HumanFoot, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -64,11 +53,11 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
   const sides = ["left", "right"] as const;
 
   {
-    const body: IHumanBody = motionHumanBody(name);
-    const bones = (posture: IHumanPosture): Bones =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
     for (const yaw of [0, 90] as const) {
-      const standing: IHumanPosture = stand.posture(
+      const standing: IAutoMovieMotionHumanPosture = stand.posture(
         body,
         { x: 0.2, y: 0, z: -0.1 },
         yaw,
@@ -77,7 +66,7 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
       const along = (v: IAutoMovieVector3): number => (yaw === 90 ? v.x : v.z);
       const across = (v: IAutoMovieVector3): number => (yaw === 90 ? v.z : v.x);
       // The feet as the standing body has them, toes turned out.
-      const stance: AutoMovieMotionHumanRise.Stance = {
+      const stance: IAutoMovieMotionHumanRise.Stance = {
         left: {
           ankle: standing.limbs.leftLeg!.point,
           rotation: standing.limbs.leftLeg!.rotation!,
@@ -115,7 +104,7 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
         let last: number = stance[side].ankle.y;
         for (const degrees of [0, 10, 20, 35] as const) {
           const cell: string = `${name}: the ${side} foot raised ${degrees} at a heading of ${yaw}`;
-          const raised: HumanFoot.IPlacement = AutoMovieMotionHumanRise.foot(
+          const raised: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanRise.foot(
             body,
             side,
             stance[side],
@@ -161,7 +150,7 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
       // 2. The root's lift, and 3. the legs.
       for (const degrees of [0, 10, 20, 35] as const) {
         const cell: string = `${name}: a rise of ${degrees} at a heading of ${yaw}`;
-        const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
+        const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
           left: AutoMovieMotionHumanRise.foot(
             body,
             "left",
@@ -231,11 +220,11 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
             [["rightLeg"], 0.5, 2],
           ],
         );
-        const risen: IHumanPosture = legs.reduce(
+        const risen: IAutoMovieMotionHumanPosture = legs.reduce(
           (
-            posture: IHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             leg: IAutoMovieMotionHumanPrimitive,
-          ): IHumanPosture => leg.write(posture, 1.25),
+          ): IAutoMovieMotionHumanPosture => leg.write(posture, 1.25),
           {
             ...standing,
             root: {

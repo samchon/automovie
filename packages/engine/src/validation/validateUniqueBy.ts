@@ -1,4 +1,5 @@
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import { type IAutoMovieValidateUniqueBy, IAutoMovieConstraintViolation } from "@automovie/interface";
+
 
 import { pushViolation } from "./pushViolation";
 
@@ -14,11 +15,11 @@ import { pushViolation } from "./pushViolation";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The set releases after validation; only caller-owned diagnostics remain.
  */
 export const validateUniqueBy: (
-  entries: { id: unknown; path: string }[],
+  entries: IAutoMovieValidateUniqueBy.IEntries,
   label: string,
   violations: IAutoMovieConstraintViolation[],
 ) => void = (
-  entries: { id: unknown; path: string }[],
+  entries: IAutoMovieValidateUniqueBy.IEntries,
   label: string,
   violations: IAutoMovieConstraintViolation[],
 ): void => {

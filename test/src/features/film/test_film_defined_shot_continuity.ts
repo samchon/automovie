@@ -1,28 +1,6 @@
-import {
-  IAutoMovieActorContext,
-  Quaternion,
-  Vector3,
-  compileDefinedShot,
-  defineShot,
-  makeActorSynthesizer,
-  resolveBeatEnd,
-  resolvePose,
-  sampleMotion,
-} from "@automovie/engine";
-import {
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndFootPlant,
-  IAutoMovieDefinedShotContract,
-  IAutoMovieGait,
-  IAutoMovieMotion,
-  IAutoMovieSceneNode,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieStageActor,
-  IAutoMovieStageCamera,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActorContext, IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieDefinedShotContract, IAutoMovieGait, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieShotProgram, IAutoMovieSkeleton, IAutoMovieStageActor, IAutoMovieStageCamera, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, compileDefinedShot, defineShot, makeActorSynthesizer, resolveBeatEnd, resolvePose, sampleMotion } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCompileWalkInput } from "../internal/IFilmCompileWalkInput";

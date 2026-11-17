@@ -1,10 +1,11 @@
-import { AutoMovieGeometryQuery } from "@automovie/interface";
+import type { IAutoMovieGeometryQuery } from "@automovie/interface";
+
 
 import { geometrySelectorTestAsk as ask } from "./geometrySelectorTestAsk";
 
 /** Read measurement values and refuse an unexpected result kind. */
 export const geometrySelectorTestValues = (
-  request: AutoMovieGeometryQuery,
+  request: IAutoMovieGeometryQuery,
 ): Record<string, number | string | boolean> => {
   const result = ask(request);
   if (result.kind !== "measurement")

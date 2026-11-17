@@ -1,17 +1,6 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  IAutoMovieActionSynthesizer,
-  IAutoMovieActorContext,
-  makeActorSynthesizer,
-  resolvePose,
-  sampleMotion,
-} from "@automovie/engine";
-import {
-  IAutoMovieMotion,
-  IAutoMovieReachAction,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActionSynthesizer, type IAutoMovieActorContext, IAutoMovieMotion, IAutoMovieReachAction, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, makeActorSynthesizer, resolvePose, sampleMotion } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton, makePose } from "../internal/fixtures";

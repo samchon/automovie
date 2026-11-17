@@ -1,5 +1,6 @@
-import { type IAutoMovieSurfaceNetwork } from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSurfaceNetwork, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 /** Segments of every rectangle side and loop arc by tier. */
 const ARC: IAutoMovieSurfaceNetwork.ICounts = {

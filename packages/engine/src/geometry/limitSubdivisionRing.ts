@@ -1,4 +1,4 @@
-import { ISubdivisionRing } from "./ISubdivisionRing";
+import type { IAutoMovieLimitSubdivisionRing, IAutoMovieSubdivisionRing } from "@automovie/interface";
 import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
 
 /**
@@ -52,9 +52,9 @@ import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns small arrays sized by the valence and retains nothing.
  */
 export const limitSubdivisionRing = (
-  ring: ISubdivisionRing,
+  ring: IAutoMovieSubdivisionRing,
   vertex: number,
-): { position: number[]; normals: number[][]; sectors: number[] } => {
+): IAutoMovieLimitSubdivisionRing.IResult => {
   const edgeCount: number = ring.sharpness.length;
   const faceCount: number = ring.diagonals.length / 3;
   const sharp: number[] = [];
@@ -142,10 +142,10 @@ export const limitSubdivisionRing = (
  * The smooth limit position and an unnormalized normal of a ring, by the masks
  * of Halstead, Kass and DeRose (1993).
  */
-const smoothLimit: (ring: ISubdivisionRing) => {
+const smoothLimit: (ring: IAutoMovieSubdivisionRing) => {
   position: number[];
   normal: number[];
-} = (ring: ISubdivisionRing): { position: number[]; normal: number[] } => {
+} = (ring: IAutoMovieSubdivisionRing): { position: number[]; normal: number[] } => {
   const n: number = ring.sharpness.length;
   const position: number[] = ring.centre.map((x: number): number => n * n * x);
   const along: number[] = [0, 0, 0];
@@ -190,11 +190,11 @@ const point: (packed: readonly number[], i: number) => number[] = (
  * one face, and Biermann, Levin and Zorin's mask for more.
  */
 const crossTangent: (
-  ring: ISubdivisionRing,
+  ring: IAutoMovieSubdivisionRing,
   lead: number,
   trail: number,
 ) => number[] = (
-  ring: ISubdivisionRing,
+  ring: IAutoMovieSubdivisionRing,
   lead: number,
   trail: number,
 ): number[] => {
@@ -235,11 +235,11 @@ const crossTangent: (
  * to edge `trail`, a vector on the outward side of that sector.
  */
 const winding: (
-  ring: ISubdivisionRing,
+  ring: IAutoMovieSubdivisionRing,
   lead: number,
   trail: number,
 ) => number[] = (
-  ring: ISubdivisionRing,
+  ring: IAutoMovieSubdivisionRing,
   lead: number,
   trail: number,
 ): number[] => {
@@ -276,14 +276,14 @@ const oriented: (
  * the crease rules read only the crease.
  */
 const side: (
-  ring: ISubdivisionRing,
+  ring: IAutoMovieSubdivisionRing,
   lead: number,
   trail: number,
-) => ISubdivisionRing = (
-  ring: ISubdivisionRing,
+) => IAutoMovieSubdivisionRing = (
+  ring: IAutoMovieSubdivisionRing,
   lead: number,
   trail: number,
-): ISubdivisionRing => {
+): IAutoMovieSubdivisionRing => {
   const edges: number[] = [];
   const diagonals: number[] = [];
   const sharpness: number[] = [];

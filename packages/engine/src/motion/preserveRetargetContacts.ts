@@ -1,22 +1,11 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMoviePlantChain, type IAutoMovieRestFrame, type IAutoMovieRetargetContactProps, type IAutoMovieRetargetHandContact, type IAutoMoviePreserveRetargetContacts, type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { reachableBoneNames } from "../kinematics/reachableBoneNames";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
-import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
-import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { contactMask } from "./contactMask";
 import { fitChainToTarget } from "./fitChainToTarget";
@@ -49,75 +38,16 @@ interface IAutoMovieContactWindow {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Source and target topology are reused for all frames, source FK maps serve every contact chain, and each frame's target FK is refreshed only after an accepted pose correction.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary source maps/pins and corrected keyframes scale with F and admitted chains; the returned clip owns its new keyframe array, unchanged records may be shared, collector warnings belong to the caller, and no resource handles persist.
  */
-export const preserveRetargetContacts: (props: {
-  /** Rig the clip was authored on. */ source: IAutoMovieSkeleton;
-  /** Rig the clip now plays on. */ target: IAutoMovieSkeleton;
-  /** The authored clip, read for source-space contact detection. */ sourceMotion: IAutoMovieMotion;
-  /** The root-scaled clip this pass corrects. */ retargeted: IAutoMovieMotion;
-  /** Root translation multiplier the contacts are mapped through. */ rootScale: number;
-  /** Lowest world Y of the source rest pose; the default ground plane. */ sourceFloor: number;
-  /** Source clinical axes. */ sourceJointAxes: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  >;
-  /** Source clinical rest frames. */ sourceRestFrames: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  >;
-  /** Target clinical axes. */ targetJointAxes: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  >;
-  /** Target clinical rest frames. */ targetRestFrames: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  >;
-  /** Caller policy; omitted means humanoid legs and no hand contact. */ contacts:
-    | IAutoMovieRetargetContactProps
-    | undefined;
-  /** Sink the residual-slide warnings are reported on. */ collector: ViolationCollector;
-}) => IAutoMovieMotion = (props: {
-  /** Rig the clip was authored on. */
-  source: IAutoMovieSkeleton;
-
-  /** Rig the clip now plays on. */
-  target: IAutoMovieSkeleton;
-
-  /** The authored clip, read for source-space contact detection. */
-  sourceMotion: IAutoMovieMotion;
-
-  /** The root-scaled clip this pass corrects. */
-  retargeted: IAutoMovieMotion;
-
-  /** Root translation multiplier the contacts are mapped through. */
-  rootScale: number;
-
-  /** Lowest world Y of the source rest pose; the default ground plane. */
-  sourceFloor: number;
-
-  /** Source clinical axes. */
-  sourceJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Source clinical rest frames. */
-  sourceRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /** Target clinical axes. */
-  targetJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Target clinical rest frames. */
-  targetRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /** Caller policy; omitted means humanoid legs and no hand contact. */
-  contacts: IAutoMovieRetargetContactProps | undefined;
-
-  /** Sink the residual-slide warnings are reported on. */
-  collector: ViolationCollector;
-}): IAutoMovieMotion => {
+export const preserveRetargetContacts: (props: IAutoMoviePreserveRetargetContacts.IProps) => IAutoMovieMotion = (props: IAutoMoviePreserveRetargetContacts.IProps): IAutoMovieMotion => {
   const contacts: IAutoMovieRetargetContactProps = props.contacts ?? {};
-  const groundAt: ReturnType<typeof groundFunction> = groundFunction(
+  const groundAt: ((x: number, z: number) => number) = groundFunction(
     contacts.groundY ?? props.sourceFloor,
   );
   const tolerance: number = contacts.tolerance ?? DEFAULT_TOLERANCE;
 
-  const sourceTopology: ReturnType<typeof indexSkeletonTopology> =
+  const sourceTopology: IAutoMovieSkeletonTopology =
     indexSkeletonTopology(props.source);
-  const targetTopology: ReturnType<typeof indexSkeletonTopology> =
+  const targetTopology: IAutoMovieSkeletonTopology =
     indexSkeletonTopology(props.target);
   const sourceBones: ReadonlySet<AutoMovieHumanoidBone> = reachableBoneNames(
     props.source,
@@ -157,9 +87,9 @@ export const preserveRetargetContacts: (props: {
   if (windows.length === 0) return props.retargeted;
 
   const frames: IAutoMovieKeyframe[] = props.retargeted.keyframes;
-  const sourceResolved: ReturnType<typeof resolveBoneMap>[] =
+  const sourceResolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] =
     props.sourceMotion.keyframes.map(
-      (kf: IAutoMovieKeyframe): ReturnType<typeof resolveBoneMap> =>
+      (kf: IAutoMovieKeyframe): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
         resolveBoneMap(
           props.source,
           kf.pose,
@@ -258,7 +188,7 @@ const correctFrame: (props: {
   pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
   chains: ReadonlyMap<AutoMovieHumanoidBone, IAutoMoviePlantChain>;
   /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
-  topology: ReturnType<typeof indexSkeletonTopology>;
+  topology: IAutoMovieSkeletonTopology;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
@@ -271,7 +201,7 @@ const correctFrame: (props: {
 
   /** Rig whose unchanged topology and ROM constrain correction. */
   skeleton: IAutoMovieSkeleton;
-  topology: ReturnType<typeof indexSkeletonTopology>;
+  topology: IAutoMovieSkeletonTopology;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
@@ -279,9 +209,9 @@ const correctFrame: (props: {
 }): IAutoMovieKeyframe => {
   if (props.pins.size === 0) return props.keyframe;
 
-  const resolve: (pose: IAutoMoviePose) => ReturnType<typeof resolveBoneMap> = (
+  const resolve: (pose: IAutoMoviePose) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
     pose: IAutoMoviePose,
-  ): ReturnType<typeof resolveBoneMap> =>
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     resolveBoneMap(
       props.skeleton,
       pose,

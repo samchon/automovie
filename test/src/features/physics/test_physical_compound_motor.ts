@@ -1,10 +1,11 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   AutoMoviePhysicalSimulation as Simulation,
   measurePhysicalJointLimits,
   projectPhysicalTargets,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -89,7 +90,7 @@ export async function test_physical_compound_motor(): Promise<void> {
       segments: [parent, child],
       joints: [joint],
     };
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "mechanism",
       profile,
       DURATION,
@@ -121,11 +122,11 @@ export async function test_physical_compound_motor(): Promise<void> {
         target.segments,
       ).targets;
     }
-    const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], DURATION);
     input.substeps = 32;
     input.iterations = 64;
     input.internalIterations = 16;
-    const run: Simulation = await Simulation.compute(input);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     let maximum: number = 0;
     for (const frame of run.cache.frames)
       for (const coordinate of measurePhysicalJointLimits(

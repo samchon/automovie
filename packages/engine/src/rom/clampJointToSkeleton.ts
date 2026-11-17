@@ -1,9 +1,5 @@
-import {
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { type IAutoMovieSwingTwistRange, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieSkeleton } from "@automovie/interface";
+
 
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRom } from "./clampJointRom";
@@ -64,7 +60,7 @@ export namespace clampJointToSkeleton {
 
     // A joint gated by swing and twist is read in the frame this skeleton
     // resolves for its bone, the frame its angles are written in.
-    const rig: swingTwistRange.IJoint | undefined = swingTwistRange.of(
+    const rig: IAutoMovieSwingTwistRange.IJoint | undefined = swingTwistRange.of(
       bone,
       skeleton,
     );

@@ -1,8 +1,10 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryFeatureChartCuts } from "@automovie/interface";
 
-import type { RecoveryFeatureChartCuts } from "./RecoveryFeatureChartCuts";
 
-type Input = Parameters<typeof RecoveryFeatureChartCuts>[0];
+
+
+
+type Input = Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0];
 
 type Row = { a: number; b: number; face: number };
 type Topology = {
@@ -13,7 +15,7 @@ type Topology = {
   faceComponent: Int32Array;
   cycles: number[][];
   areas: number[];
-  normals: C.Vector[];
+  normals: Readonly<AutoMovieVector3Tuple>[];
 };
 type Feature = Input["featureEdges"][number];
 /**

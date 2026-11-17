@@ -1,4 +1,5 @@
-import { IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
+import { type IAutoMovieInstancePrototypeChoices, IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
+
 
 /**
  * The prototype table one instance set draws its members from.
@@ -25,10 +26,7 @@ export const instancePrototypeChoices = <
     IAutoMovieCompiledInstancePrototype,
     "id" | "model" | "weight"
   >,
->(instanceSet: {
-  model: string;
-  prototypes?: readonly Choice[];
-}): readonly (
+>(instanceSet: IAutoMovieInstancePrototypeChoices.IInstanceSet<Choice>): readonly (
   | Choice
   | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
 )[] =>

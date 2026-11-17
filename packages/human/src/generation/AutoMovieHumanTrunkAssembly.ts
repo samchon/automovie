@@ -1,5 +1,8 @@
+import type { IAutoMovieHumanSeamKnot, IAutoMovieHumanTrunkAssembly } from "@automovie/interface";
+
+
 import { AutoMovieHumanSeamKnot } from "../lofting/AutoMovieHumanSeamKnot";
-import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
+
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 
 /**
@@ -15,20 +18,9 @@ import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
  * guides are their own mirror and appear once.
  */
 export namespace AutoMovieHumanTrunkAssembly {
-  /** A guide of the left side. */
-  export interface IGuide {
-    /** Knot of the 256-control section. */
-    knot: number;
+  
 
-    /** The guide's jet in the section plane `[x, z]`, by arclength. */
-    jet: IAutoMovieHumanSeam.IArcJet;
-
-    /** Parameter speed at the guide, mm per radian of phase. */
-    speed: number;
-  }
-
-  /** A sector's jet at a phase: point, first and second derivatives per radian. */
-  export type Sector = (t: number) => [number[], number[], number[]];
+  
 
   /**
    * The ring's controls, `[x_0 .. x_255, z_0 .. z_255]`.
@@ -37,16 +29,16 @@ export namespace AutoMovieHumanTrunkAssembly {
    * @param sectors The left side's sectors: sector j lies between guide j and guide j + 1.
    * @returns The section's coefficients in the chain's spline layout.
    */
-  export function controls(guides: readonly IGuide[], sectors: readonly Sector[]): number[] {
+  export function controls(guides: readonly IAutoMovieHumanTrunkAssembly.IGuide[], sectors: readonly IAutoMovieHumanTrunkAssembly.Sector[]): number[] {
     const order: number = AutoMovieHumanTrunkQuadrant.ORDER;
     const n: number = guides.length;
     if (sectors.length !== n - 1) throw new Error(`A ring of ${n} left guides needs ${n - 1} sectors, not ${sectors.length}`);
 
-    const all: AutoMovieHumanSeamKnot.IGuide[] = [];
-    const between: AutoMovieHumanSeamKnot.ISector[] = [];
+    const all: IAutoMovieHumanSeamKnot.IGuide[] = [];
+    const between: IAutoMovieHumanSeamKnot.ISector[] = [];
 
     // The left side, front midline to back midline.
-    guides.forEach((g: IGuide, j: number): void => {
+    guides.forEach((g: IAutoMovieHumanTrunkAssembly.IGuide, j: number): void => {
       all.push({ knot: g.knot, jet: g.jet, speed: g.speed });
       if (j < n - 1) between.push({ name: `left sector ${j}`, jet: sectors[j]! });
     });
@@ -71,7 +63,7 @@ export namespace AutoMovieHumanTrunkAssembly {
    * @param left The left sector.
    * @returns The right sector.
    */
-  function mirror(left: Sector): Sector {
+  function mirror(left: IAutoMovieHumanTrunkAssembly.Sector): IAutoMovieHumanTrunkAssembly.Sector {
     return (t: number): [number[], number[], number[]] => {
       const [p, d1, d2]: [number[], number[], number[]] = left(2 * Math.PI - t);
 

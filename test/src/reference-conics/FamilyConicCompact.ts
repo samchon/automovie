@@ -1,7 +1,8 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieLoftRelief } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
-import { type AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Placement } from "@automovie/human";
+import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieHumanF1, AutoMovieHumanF1Placement } from "@automovie/human";
 
 /**
  * The exact redundancy of f1's relief nets taken out of its modules (issue #3197, stage B1), with no height changed: a net that is its
@@ -26,7 +27,7 @@ import { type AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Placeme
  * that replaces it before a file is written.
  */
 namespace FamilyConicCompact {
-  type Family = AutoMovieHumanConicLoft.IFamily;
+  type Family = IAutoMovieHumanConicLoft.IFamily;
 
   /**
    * How far a window's middle phase may stand from 0 or pi, radians: the windows are stored to four decimals, so a window written about

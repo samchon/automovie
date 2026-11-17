@@ -1,19 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  physicalShapeBounds,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanColliders,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
+import { physicalShapeBounds } from "@automovie/engine";
+
+import { HumanChain, HumanColliders, HumanPerformance, HumanRefusal, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,14 +46,14 @@ export function test_human_motion_floor_get_up(): void {
   const STEP: number = 1 / 120;
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stood: number = poseBones(
       body,
       resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
     ).get("hips")!.worldPosition.y;
     const perform = (composition: {
-      node: HumanPerformance.IInput["composition"];
-    }): HumanPerformance =>
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    }): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "get-up",
         performers: [
@@ -91,9 +79,9 @@ export function test_human_motion_floor_get_up(): void {
     // 1 to 4. A rise read through.
     const rise = (
       label: string,
-      composition: { node: HumanPerformance.IInput["composition"] },
+      composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
     ): void => {
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = perform(composition);
       } catch (error) {
@@ -103,7 +91,7 @@ export function test_human_motion_floor_get_up(): void {
         );
         return;
       }
-      const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
       let fastest: { speed: number; bone: string; seconds: number } = {
         speed: 0,
         bone: "none",

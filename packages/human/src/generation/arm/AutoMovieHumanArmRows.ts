@@ -1,5 +1,6 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
-import type { AutoMovieHumanArmStation } from "./AutoMovieHumanArmStation";
+import type { AutoMovieHumanArmStation, IAutoMovieHumanArmPiece } from "@automovie/interface";
+
+
 
 /**
  * A span's shape row at a landmark station, from one table of the columns

@@ -1,8 +1,7 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
+
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { WorkoutKind } from "./WorkoutKind";
 
 /**
  * The feet of a workout that stands: a foot the kind never moves is held by
@@ -38,29 +37,29 @@ export namespace WorkoutFeet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The keeper closes over the entry's feet.
    */
   export function keep(
-    context: Pick<IHumanActionContext, "body" | "entry">,
-    kind: WorkoutKind,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    kind: IAutoMovieMotionHumanWorkoutKind,
     yaw: number,
-  ): (placed: IHumanPosture) => IHumanPosture {
+  ): (placed: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
     const bearing = (
-      how: WorkoutKind.ISupport["kind"],
+      how: IAutoMovieMotionHumanWorkoutKind.ISupport["kind"],
     ): readonly ("left" | "right")[] =>
       kind.anchor !== "stance"
         ? []
         : (["left", "right"] as const).filter(
             (side: "left" | "right"): boolean =>
               kind.supports.some(
-                (support: WorkoutKind.ISupport): boolean =>
+                (support: IAutoMovieMotionHumanWorkoutKind.ISupport): boolean =>
                   support.part === `${side}Foot` && support.kind === how,
               ),
           );
     const planted: readonly ("left" | "right")[] =
       kind.strides === true ? [] : bearing("plant");
     const pivots: readonly ("left" | "right")[] = bearing("pivot");
-    return (placed: IHumanPosture): IHumanPosture => {
-      const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
+    return (placed: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...placed.limbs };
       for (const side of [...planted, ...pivots]) {
-        const stance: HumanFoot.IPlacement = {
+        const stance: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: context.entry.feet[side].ankle,
           rotation: context.entry.feet[side].rotation,
         };

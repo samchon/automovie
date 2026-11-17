@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * A part attached at a known port of a host face: a closed port curve on the host's chart, an ellipse about a published centre, is cut out of the host, and a band spans from that curve to the part's ring at `rail` (an arm on its armscye, a branch on a stem's side). The parent owns the port loop and the region inside it; the part keeps its stations beyond the rail.
@@ -20,7 +20,7 @@ export interface IAutoMovieConstructionPort {
   name: string;
 
   /** The solid whose face carries the port. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The host face the port curve lies on: a view part's name in the host's subtree. */
   hostFace: string;
@@ -32,7 +32,7 @@ export interface IAutoMovieConstructionPort {
   band: string;
 
   /** The attached part's subtree. */
-  part: AutoMovieConstructionNode;
+  part: IAutoMovieConstructionNode;
 
   /** The part face the band reaches: a view part's name in the part's subtree. */
   partFace: string;
@@ -82,6 +82,14 @@ export interface IAutoMovieConstructionPort {
   rows: number;
 }
 
+/**
+ * Closed port-loop geometry and optional cross-band profiles.
+ *
+ * @evidence contracts/development/design.md#principled-representation The loop separates metre station from radian phase; cross profiles use dimensionless span shares and metre depths.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Port realization uses these records to place its loop and shape the interior band while preserving its rails.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored loop and profile parameters carry no fitted geometry or hidden subject-specific rule.
+ * @evidence contracts/development/common.md#meaningful-documentation Closed port-loop geometry and optional cross-band profiles. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMovieConstructionPort {
   /**
    * One cross profile of a port's band: a depth along the band's own inward normal over a window of its loop clock.

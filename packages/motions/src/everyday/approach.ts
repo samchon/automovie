@@ -1,22 +1,12 @@
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieBodyMeasure,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieMotionHumanActionName, IAutoMovieBodyMeasure, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanApproach, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEffort, IAutoMovieMotionHumanPosture, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkClear } from "../actions/walkClear";
 import { walkDelayed } from "../actions/walkDelayed";
 import { walkFollowed } from "../actions/walkFollowed";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanEffort } from "./HumanEffort";
 import { HumanProxemics } from "./HumanProxemics";
 import { HumanTrunk } from "./HumanTrunk";
@@ -79,63 +69,13 @@ import { HumanTrunk } from "./HumanTrunk";
  */
 export namespace approach {
   /** The action's name. */
-  export const name: HumanActionName = "approach";
+  export const name: AutoMovieMotionHumanActionName = "approach";
 
   /** Cancel table: an approach is a walk and is cut as one. */
-  export const interrupts: IHumanActionLaw["interrupts"] = walk.interrupts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = walk.interrupts;
 
   /** What it yields to an overlay: the walk's own. */
-  export const yields: IHumanActionLaw["yields"] = walk.yields;
-
-  /**
-   * Parameters of an approach: what to walk up to, the gap to stop at, the
-   * side to stop on, the pace, the movement quality, the manner and the people
-   * to walk round. Every field but the target is optional with the default its doc
-   * names.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, frame and the default an absent value takes.
-   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union; the gap is a named proxemic band or metres; the side is a closed union in the person's own frame; invalid metres and a side on a non-person target are refused at plan time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the band, pace, manner and Effort types are imported from their owners (HumanProxemics, walk, HumanEffort).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names one scene or body; `side` and `avoid` combine freely, and the one meaningless combination, a side of a prop or point, is refused rather than encoded.
-   */
-  export interface IParams {
-    /** What to approach. */
-    target: AutoMovieMotionTarget;
-
-    /** The gap: a named band or metres; `personal` when absent. */
-    at?: HumanProxemics.Band | number;
-
-    /**
-     * Where around a person target to stop, in that person's own frame:
-     * `front`, `left`, `right` or `behind`; along the line from the start
-     * when absent (and always for a prop or point).
-     */
-    side?: "front" | "left" | "right" | "behind";
-
-    /** The pace; `normal` when absent. */
-    pace?: walk.IParams["pace"];
-
-    /** Movement quality: steps, arm swing and elbow width of the walk. */
-    effort?: HumanEffort.IEffort;
-
-    /** How the walk there is performed (`walk.IParams.manner`); neutral when absent. */
-    manner?: walk.IParams["manner"];
-
-    /** People to walk round on the way, by subject id. */
-    avoid?: string[];
-
-    /**
-     * Whether a person target is followed where they go: the stop is taken
-     * at the place they come to rest, read from their placed actions, and
-     * the walk begins late enough to arrive just after them. The person is
-     * then composed before this performer, or the read is refused. With
-     * `pace` the walk instead matches the person's speed on the way
-     * (`walkFollowed`), so the gap holds while they walk, and closes to
-     * the stop once they have stopped. Absent, the target is read once,
-     * where it is when the approach begins.
-     */
-    track?: boolean | "pace";
-  }
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
   /** Lateral clearance a walker keeps from a person it passes, metres (provisional; Gerin-Lajoie, Richards and McFadyen 2005). */
   export const CLEARANCE: number = 0.5;
@@ -158,10 +98,10 @@ export namespace approach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned walk plan, whose closures hold this instance's inputs and are released with the performance; the first plan is dropped when a corrected one replaces it.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const target: AutoMovieMotionTarget = context.params.target;
-    const aimed: IAim = context.aim(target, context.start);
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanApproach.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const target: IAutoMovieMotionTarget = context.params.target;
+    const aimed: IAutoMovieMotionHumanApproach.IAim = context.aim(target, context.start);
     if (context.params.track === undefined || context.params.track === false)
       return to(context, aimed);
     if (target.kind !== "person")
@@ -174,14 +114,14 @@ export namespace approach {
       });
 
     // Where and when the person comes to rest: their placed root is read ahead in half seconds over the horizon, and the last instant it moved is kept.
-    const leader: IHumanActionContext.IPerformer = context.performer(
+    const leader: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
       target.subject,
     );
-    const began: IHumanActionContext.IRoot = leader.root(context.start);
+    const began: IAutoMovieMotionHumanActionContext.IRoot = leader.root(context.start);
     let rests: number = context.start;
-    let last: IHumanActionContext.IRoot = began;
+    let last: IAutoMovieMotionHumanActionContext.IRoot = began;
     for (let ahead: number = 0.5; ahead <= HORIZON; ahead += 0.5) {
-      const next: IHumanActionContext.IRoot = leader.root(
+      const next: IAutoMovieMotionHumanActionContext.IRoot = leader.root(
         context.start + ahead,
       );
       if (
@@ -196,7 +136,7 @@ export namespace approach {
     }
 
     // The target as it will be then: carried and turned with the person's root.
-    const there: IAim = {
+    const there: IAutoMovieMotionHumanApproach.IAim = {
       point: {
         x: aimed.point.x + last.position.x - began.position.x,
         y: aimed.point.y,
@@ -240,7 +180,7 @@ export namespace approach {
           .map((p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: 0 }));
 
     // The walk there, begun late enough to arrive `LAG` after the person has stopped, so it never gets ahead of them on their own line.
-    const walked: IHumanActionPlan = to(context, there, path);
+    const walked: IAutoMovieMotionHumanActionPlan = to(context, there, path);
     if (context.params.track === "pace")
       return walkFollowed(
         walked,
@@ -264,24 +204,15 @@ export namespace approach {
   /** How long after a tracked person has stopped a walk that waited for them arrives, seconds: a follower's visual-motor delay, the mean optimal delay between a leader's and a follower's acceleration (420 ms; Rio, Rhea and Warren 2014, J Vis 14(2):4). */
   export const LAG: number = 0.42;
 
-  /** A target's world point and outward unit normal. */
-  export interface IAim {
-    /** The point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The outward unit normal; a person's sternum's is their front. */
-    normal: IAutoMovieVector3;
-  }
-
   /** Plan the walk to the stop place of a target given where it is: the stop, the waypoints, the walk and its one arrival correction. */
   function to(
-    context: IHumanActionContext<IParams>,
-    aimed: IAim,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanApproach.IParams>,
+    aimed: IAutoMovieMotionHumanApproach.IAim,
     path: readonly IAutoMovieVector3[] = [],
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const p: IParams = context.params;
-    const target: AutoMovieMotionTarget = p.target;
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const p: IAutoMovieMotionHumanApproach.IParams = context.params;
+    const target: IAutoMovieMotionTarget = p.target;
     const point: IAutoMovieVector3 = aimed.point;
     const other: IAutoMovieBodyMeasure =
       target.kind === "person"
@@ -373,8 +304,8 @@ export namespace approach {
       if (waypoint !== undefined) via.push(waypoint);
     }
 
-    const mods: HumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
-    const walkTo = (at: IAutoMovieVector3): IHumanActionPlan =>
+    const mods: IAutoMovieMotionHumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
+    const walkTo = (at: IAutoMovieVector3): IAutoMovieMotionHumanActionPlan =>
       walk.plan({
         ...context,
         params: {
@@ -398,7 +329,7 @@ export namespace approach {
     // gap's error once (the walk's arrival posture, with its lean and its
     // closing step, places the chest a few centimetres off the standing
     // estimate).
-    const first: IHumanActionPlan = walkTo(stop.at);
+    const first: IAutoMovieMotionHumanActionPlan = walkTo(stop.at);
     const arrived: IAutoMovieVector3 = HumanTrunk.region(
       body,
       first.posture(first.duration),
@@ -475,8 +406,8 @@ export namespace approach {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Called once per plan; nothing is cached, since it depends only on the body and is cheap.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chest(body: IHumanBody): number {
-    const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  export function chest(body: IAutoMovieMotionHumanBody): number {
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const sternum: IAutoMovieVector3 = HumanTrunk.region(
       body,
       posture,

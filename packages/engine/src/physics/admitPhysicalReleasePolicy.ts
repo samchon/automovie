@@ -1,7 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 /**
  * Contact withdrawal names actual other-body geometry and a finite local-time window.
  *
@@ -14,19 +11,19 @@ import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysi
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalReleasePolicy(
-  input: Simulation.IInput,
-  body: Simulation.IBody,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   if (body.releaseOnContact === undefined) return;
-  const policy: NonNullable<Simulation.IBody["releaseOnContact"]> =
+  const policy: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["releaseOnContact"]> =
     body.releaseOnContact;
   if (!policy || typeof policy !== "object")
     throw new Error(`${body.id}: invalid contact-triggered release policy`);
-  const other: Simulation.IBody | undefined = input.bodies.find(
-    (candidate: Simulation.IBody): boolean => candidate.id === policy.otherBody,
+  const other: IAutoMoviePhysicalSimulationInput.IBody | undefined = input.bodies.find(
+    (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean => candidate.id === policy.otherBody,
   );
-  const validShapes: (profile: P, selected: readonly string[]) => boolean = (
-    profile: P,
+  const validShapes: (profile: IAutoMoviePhysicalProfile, selected: readonly string[]) => boolean = (
+    profile: IAutoMoviePhysicalProfile,
     selected: readonly string[],
   ): boolean =>
     Array.isArray(selected) &&
@@ -35,8 +32,8 @@ export function admitPhysicalReleasePolicy(
     Array.from(selected).every(
       (id: string): boolean =>
         typeof id === "string" &&
-        profile.segments.some((segment: P.ISegment): boolean =>
-          segment.shapes.some((shape: P.IShape): boolean => shape.id === id),
+        profile.segments.some((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          segment.shapes.some((shape: IAutoMoviePhysicalProfile.IShape): boolean => shape.id === id),
         ),
     );
   if (

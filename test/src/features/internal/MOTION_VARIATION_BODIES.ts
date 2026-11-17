@@ -1,11 +1,12 @@
-import type { IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+
 
 /**
  * Three stubs of the measures a named place reads, metres: an average body
  * 1.7 m tall, a small one 1.5 m tall with narrow shoulders and a tall one 1.9
  * m tall with broad shoulders and long arms. Only `measure` is present.
  */
-export const MOTION_VARIATION_BODIES: readonly IHumanBody[] = [
+export const MOTION_VARIATION_BODIES: readonly IAutoMovieMotionHumanBody[] = [
   {
     stature: 1.7,
     upperArm: 0.3,
@@ -45,4 +46,4 @@ export const MOTION_VARIATION_BODIES: readonly IHumanBody[] = [
     chestHeight: 1.4,
     neckHeight: 1.66,
   },
-].map((measure): IHumanBody => ({ measure }) as unknown as IHumanBody);
+].map((measure): IAutoMovieMotionHumanBody => ({ measure }) as unknown as IAutoMovieMotionHumanBody);

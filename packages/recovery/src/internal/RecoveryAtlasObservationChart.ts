@@ -1,19 +1,16 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAnnularChartPreparation, IAutoMovieRecoveryAtlasObservationChart, IAutoMovieRecoveryAtlasObservationState, IAutoMovieRecoveryChartBoundaryChordsRefinementOperation, IAutoMovieRecoveryDiskChart, IAutoMovieRecoveryMultiBoundaryChart } from "@automovie/interface";
+
+
+
+
 
 import { RecoveryAnnularChart } from "./RecoveryAnnularChart";
-import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
+
 import { RecoveryDiskChart } from "./RecoveryDiskChart";
 import { RecoveryMultiBoundaryChart } from "./RecoveryMultiBoundaryChart";
 import { refineRecoveryChartBoundaryChords } from "./refineRecoveryChartBoundaryChords";
-
-type Input = RecoveryAtlasObservationTypes["Input"];
 type Run = { side: "before" | "after" | "physical"; nodes: string[] };
-type Prepared = RecoveryAtlasObservationTypes["Prepared"];
-type Pending = RecoveryAtlasObservationTypes["Pending"];
-
-type Component = RecoveryAtlasObservationTypes["Component"];
-
-type Inventory = RecoveryAtlasObservationTypes["Inventory"];
+type Prepared = IAutoMovieRecoveryAtlasObservationState["Prepared"];
 /**
  * Prepare an annular, natural-side or general disk chart without changing its declared correspondence.
  *
@@ -25,48 +22,26 @@ type Inventory = RecoveryAtlasObservationTypes["Inventory"];
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing component vertices and identity arrays feed the pending chart; outcomes remain shared with the ledger.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only prepared private chart data transfers to the batch; temporary chart construction stays call-local.
  */
-export function RecoveryAtlasObservationChart(context: {
-  occurrences: Map<
-    string,
-    RecoveryAtlasObservationTypes["Observed"]["occurrences"][number]
-  >;
-  input: Input;
-  name: string;
-  positions: C.Vector[];
-  triangles: [number, number, number][];
-  vertexIds: string[];
-  slots: Map<string, number>;
-  component: Component;
-  interval: number;
-  beforeMm: number;
-  afterMm: number;
-  pending: Pending[];
-  inventory: Inventory[];
-  outcomes: object[];
-  annular: boolean;
-  generalDisk: boolean;
-  ordered: { side: "before" | "after" | "physical"; nodes: string[] }[];
-}): void {
+export function RecoveryAtlasObservationChart(context: Parameters<IAutoMovieRecoveryAtlasObservationChart.Operation>[0]): ReturnType<IAutoMovieRecoveryAtlasObservationChart.Operation> {
   let {
     positions,
-    triangles,
-  }: {
+    triangles }: {
     occurrences: Map<
       string,
-      RecoveryAtlasObservationTypes["Observed"]["occurrences"][number]
+      IAutoMovieRecoveryAtlasObservationState["Observed"]["occurrences"][number]
     >;
-    input: Input;
+    input: IAutoMovieRecoveryAtlasObservationState["Input"];
     name: string;
-    positions: C.Vector[];
+    positions: Readonly<AutoMovieVector3Tuple>[];
     triangles: [number, number, number][];
     vertexIds: string[];
     slots: Map<string, number>;
-    component: Component;
+    component: IAutoMovieRecoveryAtlasObservationState["Component"];
     interval: number;
     beforeMm: number;
     afterMm: number;
-    pending: Pending[];
-    inventory: Inventory[];
+    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
     outcomes: object[];
     annular: boolean;
     generalDisk: boolean;
@@ -87,24 +62,23 @@ export function RecoveryAtlasObservationChart(context: {
     outcomes,
     annular,
     generalDisk,
-    ordered,
-  }: {
+    ordered }: {
     occurrences: Map<
       string,
-      RecoveryAtlasObservationTypes["Observed"]["occurrences"][number]
+      IAutoMovieRecoveryAtlasObservationState["Observed"]["occurrences"][number]
     >;
-    input: Input;
+    input: IAutoMovieRecoveryAtlasObservationState["Input"];
     name: string;
-    positions: C.Vector[];
+    positions: Readonly<AutoMovieVector3Tuple>[];
     triangles: [number, number, number][];
     vertexIds: string[];
     slots: Map<string, number>;
-    component: Component;
+    component: IAutoMovieRecoveryAtlasObservationState["Component"];
     interval: number;
     beforeMm: number;
     afterMm: number;
-    pending: Pending[];
-    inventory: Inventory[];
+    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
     outcomes: object[];
     annular: boolean;
     generalDisk: boolean;
@@ -144,8 +118,7 @@ export function RecoveryAtlasObservationChart(context: {
             );
           return {
             side: labels.has("before") ? "before" : "after",
-            nodes: cycle.nodes.map((id: string): number => slots.get(id)!),
-          };
+            nodes: cycle.nodes.map((id: string): number => slots.get(id)!) };
         },
       );
     const before: (typeof cycles)[number] | undefined = cycles.find(
@@ -158,13 +131,12 @@ export function RecoveryAtlasObservationChart(context: {
       throw new Error(
         "An annulus must join distinct lower and upper cut cycles",
       );
-    const cut: ReturnType<typeof RecoveryAnnularChart> = RecoveryAnnularChart({
+    const cut: ReturnType<IAutoMovieRecoveryAnnularChartPreparation.Operation> = RecoveryAnnularChart({
       verticesMm: positions,
       triangles,
       vertexKeys: keys,
       before: before.nodes,
-      after: after.nodes,
-    });
+      after: after.nodes });
     positions = cut.verticesMm;
     triangles = cut.triangles;
     keys = cut.vertexKeys;
@@ -178,7 +150,7 @@ export function RecoveryAtlasObservationChart(context: {
       duplicatedFanVertices: number = 0,
       sourceAreaDifferenceMm2: number = 0;
     if (component.cycles.length > 1) {
-      const cut: ReturnType<typeof RecoveryMultiBoundaryChart> =
+      const cut: ReturnType<IAutoMovieRecoveryMultiBoundaryChart.Operation> =
         RecoveryMultiBoundaryChart({
           verticesMm: positions,
           triangles,
@@ -186,8 +158,7 @@ export function RecoveryAtlasObservationChart(context: {
           cycles: component.cycles.map(
             (cycle: (typeof component.cycles)[number]): number[] =>
               cycle.nodes.map((id: string): number => slots.get(id)!),
-          ),
-        });
+          ) });
       positions = cut.verticesMm;
       triangles = cut.triangles;
       keys = cut.vertexKeys;
@@ -196,16 +167,15 @@ export function RecoveryAtlasObservationChart(context: {
       duplicatedFanVertices = cut.duplicatedFanVertices;
       sourceAreaDifferenceMm2 = cut.sourceAreaDifferenceMm2;
     }
-    const disk: ReturnType<typeof RecoveryDiskChart> = RecoveryDiskChart({
+    const disk: ReturnType<IAutoMovieRecoveryDiskChart.Operation> = RecoveryDiskChart({
       verticesMm: positions,
       triangles,
       vertexKeys: keys,
       boundaryCycle,
-      cornerDegrees: input.cornerDegrees,
-    });
+      cornerDegrees: input.cornerDegrees });
     sides = disk.sides;
     insertions = disk.insertedBoundaryVertices;
-    const refined: ReturnType<typeof refineRecoveryChartBoundaryChords> =
+    const refined: ReturnType<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation> =
       refineRecoveryChartBoundaryChords(disk);
     positions = refined.verticesMm;
     triangles = refined.triangles;
@@ -217,8 +187,7 @@ export function RecoveryAtlasObservationChart(context: {
       subdividedFixedSideChords: refined.subdividedChords,
       perimeterMm: disk.cornerRule.perimeterMm,
       anchorTurningDegrees: disk.cornerRule.anchorTurningDegrees,
-      sourceAreaDifferenceMm2,
-    };
+      sourceAreaDifferenceMm2 };
   } else
     sides = ordered.map((run: Run, i: number): number[] =>
       (i < 2 ? run.nodes : [...run.nodes].reverse()).map(
@@ -235,14 +204,12 @@ export function RecoveryAtlasObservationChart(context: {
         (sum: number, side: number[]): number => sum + side.length,
         0,
       ),
-      feature: false,
-    });
+      feature: false });
     outcomes.push({
       component: component.id,
       chart: null,
       sourceFaces: component.faces,
-      reason: "inventory-only-candidate-not-fitted",
-    });
+      reason: "inventory-only-candidate-not-fitted" });
     return;
   }
   pending.push({
@@ -252,8 +219,7 @@ export function RecoveryAtlasObservationChart(context: {
       triangles,
       physicalKeys: keys,
       sides,
-      insertions,
-    },
+      insertions },
     interval,
     beforeMm,
     afterMm,
@@ -272,11 +238,8 @@ export function RecoveryAtlasObservationChart(context: {
         ? {
             observedEdges: seam.path.length - 1,
             physicalLengthMm: seam.lengthMm,
-            privateAddressesPublished: false,
-          }
-        : null,
-    },
+            privateAddressesPublished: false }
+        : null },
     externalBoundaryAuthorityQualified: !generalDisk,
-    outcomes,
-  });
+    outcomes });
 }

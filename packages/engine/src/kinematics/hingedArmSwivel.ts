@@ -1,9 +1,9 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieHingedArmSwivel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { aimRotation } from "./aimRotation";
 
 /**
@@ -52,53 +52,6 @@ export namespace hingedArmSwivel {
   export const RESOLUTION: number = 2 * STEP * GOLDEN ** REFINEMENTS;
 
   /**
-   * A hinged chain toward a target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame.
-   * @evidence contracts/development/design.md#principled-representation The chain's rest geometry, its root's frame and the target, as `hingedArmArticulation` takes them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieChainBone`.
-   */
-  export interface IChain {
-    /** Chain-root bone (the shoulder or the hip) resolved under the rig's rest FK. */
-    upper: IAutoMovieChainBone;
-
-    /** Mid bone's rest offset from the chain root, in the root's bone frame. */
-    midOffset: IAutoMovieVector3;
-
-    /** Mid bone's rest rotation relative to the chain root. */
-    midRest: IAutoMovieQuaternion;
-
-    /** Effector's rest offset from the mid joint, in the mid bone's frame. */
-    endOffset: IAutoMovieVector3;
-
-    /** The mid joint's flexion axis in the mid bone's frame; any length. */
-    hinge: IAutoMovieVector3;
-
-    /** World target the effector should land on. */
-    target: IAutoMovieVector3;
-
-    /** The mid joint's legal rotation about `hinge`, radians, `min <= max` and no wider than a full turn; every hinge angle is legal when absent. */
-    range?: { min: number; max: number };
-  }
-
-  /**
-   * One bend branch after the hinge's range.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation A hinge angle and how far short of the target it stops.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IStop {
-    /** The hinge angle, radians, inside the range when one is given. */
-    theta: number;
-
-    /** Metres between the chain's span at `theta` and the target distance; `0` for a branch that reaches the distance inside the range. */
-    shortfall: number;
-  }
-
-  /**
    * The chain's bend branches toward its target: the two hinge angles whose
    * span is the target's distance, `phase + acos` first, or the fully
    * extended or folded one outside the span, each stopped at the nearer limit
@@ -115,7 +68,7 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function branches(chain: IChain): IStop[] | null {
+  export function branches(chain: IAutoMovieHingedArmSwivel.IChain): IAutoMovieHingedArmSwivel.IStop[] | null {
     const root: IAutoMovieVector3 = chain.upper.worldPosition;
     if (
       Vector3.length(chain.midOffset) < 1e-6 ||
@@ -174,7 +127,7 @@ export namespace hingedArmSwivel {
     // A hinge angle outside the joint's own range stops at the nearer limit,
     // so the effector rests on the legal shell along the line to the target.
     const range: { min: number; max: number } | undefined = chain.range;
-    return thetas.map((theta: number): IStop => {
+    return thetas.map((theta: number): IAutoMovieHingedArmSwivel.IStop => {
       if (range === undefined)
         return { theta, shortfall: outside ? short(theta) : 0 };
       const centre: number = (range.min + range.max) / 2;
@@ -207,12 +160,9 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the branch's mid rotation, line and aim in the returned function only.
    */
   export function pose(
-    chain: IChain,
+    chain: IAutoMovieHingedArmSwivel.IChain,
     theta: number,
-  ): (swivel: number) => {
-    upper: IAutoMovieQuaternion;
-    lower: IAutoMovieQuaternion;
-  } {
+  ): IAutoMovieHingedArmSwivel.IPoseResult {
     const { lower, line, aim } = aimed(chain, theta);
     return (swivel: number) => ({
       upper: Quaternion.multiply(aim, Quaternion.fromAxisAngle(line, swivel)),
@@ -238,7 +188,7 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(
-    chain: IChain,
+    chain: IAutoMovieHingedArmSwivel.IChain,
     upper: IAutoMovieQuaternion,
     theta: number,
   ): number {
@@ -258,7 +208,7 @@ export namespace hingedArmSwivel {
 
   /** The mid rotation, the root-to-effector line in the root's frame and the aim at a hinge angle. */
   function aimed(
-    chain: IChain,
+    chain: IAutoMovieHingedArmSwivel.IChain,
     theta: number,
   ): {
     lower: IAutoMovieQuaternion;

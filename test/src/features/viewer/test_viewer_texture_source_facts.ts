@@ -1,3 +1,4 @@
+import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
@@ -172,7 +173,7 @@ export async function test_viewer_texture_source_facts(): Promise<void> {
           [THREE.LinearFilter, "linear"],
         ] as const) {
           texture.magFilter = magFilter;
-          const fact: import("@automovie/engine").IAutoMovieRenderTextureSource =
+          const fact: IAutoMovieRenderTextureSource =
             readAutoMovieTextureSource("image", texture);
           TestValidator.equals(
             "every inherited sampler field retains its own authored value",
@@ -274,7 +275,7 @@ export async function test_viewer_texture_source_facts(): Promise<void> {
     TestValidator.predicate(
       "invalid decoded extent",
       throwsError(
-        (): import("@automovie/engine").IAutoMovieRenderTextureSource =>
+        (): IAutoMovieRenderTextureSource =>
           readAutoMovieTextureSource("image", texture),
         "image",
       ),

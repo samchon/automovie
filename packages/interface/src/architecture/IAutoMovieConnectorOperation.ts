@@ -1,5 +1,5 @@
-import { IAutoMovieConnectorCarriage } from "./IAutoMovieConnectorCarriage";
-import { IAutoMovieConnectorState } from "./IAutoMovieConnectorState";
+import type { IAutoMovieConnectorCarriage } from "./IAutoMovieConnectorCarriage";
+import type { IAutoMovieConnectorState } from "./IAutoMovieConnectorState";
 
 /**
  * The moving part of a lift, escalator, moving walk, or turning gate.

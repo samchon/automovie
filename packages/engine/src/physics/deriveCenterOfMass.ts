@@ -1,8 +1,5 @@
-import {
-  IAutoMovieModel,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMoviePhysicalProfile, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -41,7 +38,7 @@ export const deriveCenterOfMass: (
 ): IAutoMovieVector3 | null => {
   let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const bones: ReturnType<typeof physicalModelRestTransforms> =
+  const bones: Map<string, IAutoMoviePhysicalProfile.ITransform> =
     physicalModelRestTransforms(model);
   for (const part of model.parts) {
     if (part.geometry.type !== "primitive") continue;

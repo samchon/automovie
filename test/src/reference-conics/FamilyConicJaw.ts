@@ -1,3 +1,4 @@
+import type { IAutoMovieMeshExtract } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieMeshExtract as M } from "@automovie/engine";
@@ -74,7 +75,7 @@ namespace FamilyConicJaw {
   function cut(mesh: R.ISource["all"], centres: [V3, V3], up: V3, inside: V3): { world: V3; turn: number; convex: boolean; down: number; lateral: number }[] {
     const frame = AutoMovieHumanConicLoft.axis({ centres, halves: [], up }).at(Math.hypot(centres[1][0] - centres[0][0], centres[1][1] - centres[0][1], centres[1][2] - centres[0][2]) / 2);
     const n: V3 = [frame.v[1]! * frame.u[2]! - frame.v[2]! * frame.u[1]!, frame.v[2]! * frame.u[0]! - frame.v[0]! * frame.u[2]!, frame.v[0]! * frame.u[1]! - frame.v[1]! * frame.u[0]!];
-    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V3, axes: [n, [...frame.u] as V3, [...frame.v] as V3] }, [0], 0, 0.5, 0)[0]!;
+    const section: IAutoMovieMeshExtract.ISection = M.outline(mesh, { origin: [...frame.origin] as V3, axes: [n, [...frame.u] as V3, [...frame.v] as V3] }, [0], 0, 0.5, 0)[0]!;
     const world = (p: C.P): V3 => [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!) as V3;
     const distance = (a: V3, b: V3): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
     const out: { world: V3; turn: number; convex: boolean; down: number; lateral: number }[] = [];

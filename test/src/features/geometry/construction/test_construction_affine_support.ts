@@ -1,8 +1,9 @@
+import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewOutline } from "@automovie/interface";
 import {
   AutoMovieViewOutline,
   rootsAutoMovieViewSinPolynomial,
 } from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+
 
 /**
  * Fixed-chart affine-origin support candidates preserve the original scalar and its pole parameter.
@@ -23,13 +24,13 @@ export function test_construction_affine_support(): void {
   const failures: string[] = [];
   for (const length of [0.001, 1, 1000]) {
     const source:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       {
         knots: [0, 0.5, 1].map(
           (
             fraction: number,
-          ): AutoMovieViewOutline.IOutline["knots"][number] => ({
+          ): IAutoMovieViewOutline.IOutline["knots"][number] => ({
             site: `closed ${fraction}`,
             station: length * Math.sin((fraction * Math.PI) / 2) ** 2,
             value: length * fraction * (1 - fraction) * Math.PI ** 2,
@@ -96,7 +97,7 @@ export function test_construction_affine_support(): void {
         station / 2,
         ...source.knots
           .map(
-            (k: AutoMovieViewOutline.IOutline["knots"][number]): number =>
+            (k: IAutoMovieViewOutline.IOutline["knots"][number]): number =>
               k.station,
           )
           .filter(
@@ -117,14 +118,14 @@ export function test_construction_affine_support(): void {
     if (JSON.stringify(source.knots) !== before)
       failures.push("support changed its prepared input");
 
-    const angle: AutoMovieConstructionOutlineParameter = {
+    const angle: IAutoMovieConstructionOutlineParameter = {
       type: "angle",
       bottom: 0,
       top: length,
     };
     const linear:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
       parameter: angle,
       knots: [
         { site: "linear start", station: 0, value: 0 },
@@ -152,14 +153,14 @@ export function test_construction_affine_support(): void {
   const first: (x: number) => number = (x: number): number =>
     -1 + (x * x) / 2 - x ** 4 / 24;
   const second: (x: number) => number = (x: number): number => x - x ** 3 / 6;
-  const quintic: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const quintic: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       parameter: { type: "angle", bottom: 0, top: 2 },
       knots: [-middle, middle].map(
         (
           x: number,
           i: number,
-        ): AutoMovieViewOutline.IOutline["knots"][number] => ({
+        ): IAutoMovieViewOutline.IOutline["knots"][number] => ({
           site: `quintic ${i}`,
           station: 2 * i,
           value: primitive(x),
@@ -179,11 +180,11 @@ export function test_construction_affine_support(): void {
 
   for (const end of ["bottom", "top"] as const) {
     const source:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
       parameter: { type: "root", end, pole: end === "bottom" ? 0 : 4 },
       knots: [0, 1, 4].map(
-        (s: number): AutoMovieViewOutline.IOutline["knots"][number] => {
+        (s: number): IAutoMovieViewOutline.IOutline["knots"][number] => {
           const x: number = end === "bottom" ? Math.sqrt(s) : -Math.sqrt(4 - s);
           return {
             site: `root ${s}`,
@@ -214,8 +215,8 @@ export function test_construction_affine_support(): void {
     }
   }
   const identity:
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
     knots: [
       { site: "identity start", station: 0, value: 0 },
       { site: "identity end", station: 2, value: 2 },
@@ -260,7 +261,7 @@ export function test_construction_affine_support(): void {
     )
       failures.push("nonfinite affine coefficient accepted");
   }
-  const cubic: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const cubic: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         { site: "cubic start", station: 0, value: 0 },

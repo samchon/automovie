@@ -1,23 +1,8 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  minimumJerk,
-  type resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeatedReach, IAutoMovieMotionMeeting, IAutoMovieResolveMutualGoal, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanPrehension } from "./HumanPrehension";
@@ -57,15 +42,15 @@ export namespace handshakeMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The kind closes over its props only.
    */
   export function kind(props: {
-    side: HumanHand.Side;
+    side: IAutoMovieMotionHumanHand.Side;
     pump: number;
     shake: number;
     arm: (
-      body: IHumanBody,
+      body: IAutoMovieMotionHumanBody,
       shoulder: IAutoMovieVector3,
-    ) => resolveAutoMovieMutualGoal.ISide;
-  }): AutoMovieMotionMeeting.IKind {
-    const shoulder = (role: AutoMovieMotionMeeting.IRole): IAutoMovieVector3 =>
+    ) => IAutoMovieResolveMutualGoal.ISide;
+  }): IAutoMovieMotionMeeting.IKind {
+    const shoulder = (role: IAutoMovieMotionMeeting.IRole): IAutoMovieVector3 =>
       role.bones.get(`${props.side}UpperArm`)!.worldPosition;
     return {
       name: `handshake-${props.side}`,
@@ -75,7 +60,7 @@ export namespace handshakeMeeting {
         along: AutoMovieMotionHumanTarget.DEFAULTS.ahead,
       },
       place: (
-        roles: readonly AutoMovieMotionMeeting.IRole[],
+        roles: readonly IAutoMovieMotionMeeting.IRole[],
       ): Record<string, IAutoMovieVector3> => {
         const met: handshakeOffer.IMeeting = HumanSeatedReach.goal<
           handshakeOffer.ISide,
@@ -95,8 +80,8 @@ export namespace handshakeMeeting {
         return { meet: met.point, along: Vector3.add(met.point, met.fingers) };
       },
       timing: (
-        role: AutoMovieMotionMeeting.IRole,
-      ): AutoMovieMotionMeeting.ITiming => {
+        role: IAutoMovieMotionMeeting.IRole,
+      ): IAutoMovieMotionMeeting.ITiming => {
         const reach: number = HumanPrehension.nominal(
           props.arm(role.body, shoulder(role)).reach,
           0,
@@ -120,7 +105,7 @@ export namespace handshakeMeeting {
     meeting: handshakeOffer.IMeeting;
 
     /** The trunk's forward lean, a share of its seated joints' rooms (`HumanSeatedReach.need`); none standing. */
-    lean: { share: number; joints: HumanSeatedReach.IJoint[] };
+    lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[] };
   }
 
   /**
@@ -141,15 +126,15 @@ export namespace handshakeMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure reading.
    */
   export function read(
-    context: IHumanActionContext<{ partner: string }>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<{ partner: string }>,
+    side: IAutoMovieMotionHumanHand.Side,
     phases: { pump: number; shake: number },
     arm: (
-      body: IHumanBody,
+      body: IAutoMovieMotionHumanBody,
       shoulder: IAutoMovieVector3,
-    ) => resolveAutoMovieMutualGoal.ISide,
+    ) => IAutoMovieResolveMutualGoal.ISide,
   ): IRead {
-    const shared: AutoMovieMotionMeeting.IMeeting = context.meeting(
+    const shared: IAutoMovieMotionMeeting.IMeeting = context.meeting(
       kind({ side, pump: phases.pump, shake: phases.shake, arm }),
       ROLE,
       { role: ROLE, subject: context.params.partner },
@@ -185,7 +170,7 @@ export namespace handshakeMeeting {
           posture: context.entry.posture,
           bones,
           seated: context.entry.supports.some(
-            (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
           ),
         },
         shoulder,
@@ -214,16 +199,16 @@ export namespace handshakeMeeting {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the joints and four numbers.
    */
   export function leaned(
-    body: IHumanBody,
-    base: IHumanActionPlan,
+    body: IAutoMovieMotionHumanBody,
+    base: IAutoMovieMotionHumanActionPlan,
     lean: IRead["lean"],
     phases: { reach: number; shake: number; back: number },
-  ): IHumanActionPlan {
+  ): IAutoMovieMotionHumanActionPlan {
     if (lean.share === 0) return base;
     const { reach, shake, back } = phases;
     return {
       ...base,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(reach + shake + back, Math.max(0, seconds));
         const w: number =
           t < reach

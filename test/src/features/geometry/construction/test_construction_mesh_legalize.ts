@@ -1,8 +1,5 @@
-import {
-  AutoMovieSolidMesh,
-  type IAutoMovieSolidSurface,
-  incircleAutoMovieSolidChart,
-} from "@automovie/engine";
+import type { IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
+import { AutoMovieSolidMesh, incircleAutoMovieSolidChart } from "@automovie/engine";
 
 /** One chart point. */
 type Chart = [number, number];
@@ -22,7 +19,7 @@ interface Case {
   phases: number[];
 
   /** Trim loops and their chart points. */
-  loops: { kind: AutoMovieSolidMesh.ILoop["kind"]; points: Chart[] }[];
+  loops: { kind: IAutoMovieSolidMesh.ILoop["kind"]; points: Chart[] }[];
 
   /** Chart area of the kept region, from elementary polygon areas. */
   area: number;
@@ -313,7 +310,7 @@ function curled(failures: string[]): void {
     }),
   };
   const grid: number[] = [0, 1, 2, 3, 4];
-  const made: AutoMovieSolidMesh.IMesh | string = build({ name: "curled plane", surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
+  const made: IAutoMovieSolidMesh.IMesh | string = build({ name: "curled plane", surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
   if (typeof made === "string") {
     failures.push(`curled plane: ${made}`);
     return;
@@ -352,7 +349,7 @@ function mirrored(failures: string[]): void {
   };
   const grid: number[] = [0, 1, 2, 3, 4];
   const triangles = (surface: IAutoMovieSolidSurface, flip: boolean): Set<string> | string => {
-    const made: AutoMovieSolidMesh.IMesh | string = build({ name: surface.name, surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
+    const made: IAutoMovieSolidMesh.IMesh | string = build({ name: surface.name, surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
     if (typeof made === "string") return made;
     const out: Set<string> = new Set();
     for (let t: number = 0; t < made.indices.length; t += 3)
@@ -382,13 +379,13 @@ function inspect(input: Case, failures: string[]): void {
   const report = (finding: string): void => {
     failures.push(`${input.name}: ${finding}`);
   };
-  const first: AutoMovieSolidMesh.IMesh | string = build(input);
-  const second: AutoMovieSolidMesh.IMesh | string = build(input);
+  const first: IAutoMovieSolidMesh.IMesh | string = build(input);
+  const second: IAutoMovieSolidMesh.IMesh | string = build(input);
   if (typeof first === "string") return report(first);
   if (typeof second === "string") return report(`repeat: ${second}`);
   if (JSON.stringify(first.indices) !== JSON.stringify(second.indices))
     report("a second identical face emitted different indices");
-  const mesh: AutoMovieSolidMesh.IMesh = first;
+  const mesh: IAutoMovieSolidMesh.IMesh = first;
   const period: number | undefined = input.surface.period;
   const chart = (id: number): Chart => [
     mesh.coordinates[3 * id + 1]!,
@@ -525,11 +522,11 @@ function inspect(input: Case, failures: string[]): void {
 }
 
 /** One face on a fresh mesh, or the thrown planning refusal. */
-function build(input: Case): AutoMovieSolidMesh.IMesh | string {
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+function build(input: Case): IAutoMovieSolidMesh.IMesh | string {
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const owner: number = AutoMovieSolidMesh.owner(mesh, input.surface);
-  const made: AutoMovieSolidMesh.ILoop[] = input.loops.map(
-    (loop: Case["loops"][number]): AutoMovieSolidMesh.ILoop => ({
+  const made: IAutoMovieSolidMesh.ILoop[] = input.loops.map(
+    (loop: Case["loops"][number]): IAutoMovieSolidMesh.ILoop => ({
       kind: loop.kind,
       chart: loop.points,
       vertices: loop.points.map(([u, v]: Chart): number =>

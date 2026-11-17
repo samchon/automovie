@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMovieDerivePhysicalActuators, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -22,15 +20,10 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function derivePhysicalActuators(
-  segments: readonly P.ISegment[],
-  joints: readonly P.IJoint[],
-  options: {
-    frequency: number;
-    dampingRatio: number;
-    torquePerKg: number;
-    passiveRate?: number;
-  },
-): P.IJoint[] {
+  segments: readonly IAutoMoviePhysicalProfile.ISegment[],
+  joints: readonly IAutoMoviePhysicalProfile.IJoint[],
+  options: IAutoMovieDerivePhysicalActuators.IOptions,
+): IAutoMoviePhysicalProfile.IJoint[] {
   if (
     ![options.frequency, options.torquePerKg].every(
       (value: number): boolean => Number.isFinite(value) && value > 0,
@@ -41,8 +34,8 @@ export function derivePhysicalActuators(
     (options.passiveRate ?? 0) < 0
   )
     throw new Error("Invalid physical actuator assumptions");
-  return joints.map((joint: (typeof joints)[number]): P.IJoint => {
-    const child: P.ISegment = segments.find(
+  return joints.map((joint: (typeof joints)[number]): IAutoMoviePhysicalProfile.IJoint => {
+    const child: IAutoMoviePhysicalProfile.ISegment = segments.find(
       (segment: (typeof segments)[number]): boolean =>
         segment.bone === joint.child,
     )!;
@@ -53,7 +46,7 @@ export function derivePhysicalActuators(
         joint.childFrame.position,
       ),
     );
-    const rotation: P.ITransform["rotation"] = Quaternion.multiply(
+    const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
       child.neutral.rotation,
       joint.childFrame.rotation,
     );
@@ -61,16 +54,16 @@ export function derivePhysicalActuators(
     for (let count: number = 0; count < segments.length; count++)
       for (const link of joints)
         if (descendants.has(link.parent)) descendants.add(link.child);
-    const load: P.ISegment[] = segments.filter(
+    const load: IAutoMoviePhysicalProfile.ISegment[] = segments.filter(
       (segment: (typeof segments)[number]): boolean =>
         descendants.has(segment.bone),
     );
     const mass: number = load.reduce(
-      (sum: number, segment: P.ISegment): number => sum + segment.mass,
+      (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number => sum + segment.mass,
       0,
     );
     const reference: number = load.reduce(
-      (sum: number, segment: P.ISegment): number => {
+      (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number => {
         const displacement: IAutoMovieVector3 = Vector3.subtract(
           Vector3.add(
             segment.neutral.position,
@@ -91,7 +84,7 @@ export function derivePhysicalActuators(
     );
     return {
       ...joint,
-      axes: joint.axes.map((axis: (typeof joint.axes)[number]): P.IAxis => {
+      axes: joint.axes.map((axis: (typeof joint.axes)[number]): IAutoMoviePhysicalProfile.IAxis => {
         const unit: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
         unit[axis.axis] = 1;
         const direction: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -99,7 +92,7 @@ export function derivePhysicalActuators(
           unit,
         );
         const inertia: number = load.reduce(
-          (sum: number, segment: P.ISegment): number => {
+          (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number => {
             const principal: IAutoMovieVector3 = Quaternion.rotateVector(
               Quaternion.inverse(
                 Quaternion.multiply(

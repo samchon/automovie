@@ -1,7 +1,4 @@
-import type {
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieContactReceipt as Receipt,
-} from "@automovie/interface";
+import type { IAutoMovieContactReceipt, IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeBounds, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
 import RAPIER from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -25,24 +22,24 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 1 call per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
  */
-export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry.IQueries> {
+export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysicalGeometry.IQueries> {
   await RAPIER.init();
   return {
     contact: (
-      a: preparePhysicalGeometry.ICollider,
-      b: preparePhysicalGeometry.ICollider,
+      a: IAutoMoviePreparePhysicalGeometry.ICollider,
+      b: IAutoMoviePreparePhysicalGeometry.ICollider,
       seconds: number,
       prediction: number = 0,
-    ): Receipt | null => {
+    ): IAutoMovieContactReceipt | null => {
       if (
         !Number.isFinite(seconds) ||
         !Number.isFinite(prediction) ||
         prediction < 0
       )
         throw new Error("Invalid physical contact query time or prediction");
-      const boundsA: ReturnType<typeof physicalShapeBounds> =
+      const boundsA: IAutoMoviePhysicalShapeBounds.IResult =
         physicalShapeBounds(a.pose, a.shape);
-      const boundsB: ReturnType<typeof physicalShapeBounds> =
+      const boundsB: IAutoMoviePhysicalShapeBounds.IResult =
         physicalShapeBounds(b.pose, b.shape);
       // Keep a conservative single-precision transform margin before skipping
       // a native query; near-contact truth remains entirely native.
@@ -67,8 +64,8 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
         )
       )
         return null;
-      const first: P.ITransform = place(a.pose, a.shape.transform);
-      const second: P.ITransform = place(b.pose, b.shape.transform);
+      const first: IAutoMoviePhysicalProfile.ITransform = place(a.pose, a.shape.transform);
+      const second: IAutoMoviePhysicalProfile.ITransform = place(b.pose, b.shape.transform);
       const search: number = prediction + rounding;
       if (!isPhysicalNativeNumber(search))
         throw new Error("Derived native contact prediction exceeds f32 range");
@@ -112,14 +109,14 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
         compression: Math.max(0, -measured.distance),
       };
     },
-    minimumY: (collider: preparePhysicalGeometry.ICollider): number => {
+    minimumY: (collider: IAutoMoviePreparePhysicalGeometry.ICollider): number => {
       return physicalShapeBounds(collider.pose, collider.shape).min.y;
     },
     project: (
-      collider: preparePhysicalGeometry.ICollider,
-      point: P.ITransform["position"],
-    ): P.ITransform["position"] => {
-      const pose: P.ITransform = place(collider.pose, collider.shape.transform);
+      collider: IAutoMoviePreparePhysicalGeometry.ICollider,
+      point: IAutoMoviePhysicalProfile.ITransform["position"],
+    ): IAutoMoviePhysicalProfile.ITransform["position"] => {
+      const pose: IAutoMoviePhysicalProfile.ITransform = place(collider.pose, collider.shape.transform);
       return {
         ...physicalNativeVector(
           physicalNativeShape(collider.shape).projectPoint(
@@ -134,44 +131,9 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
   };
 }
 
-/**
- * Narrow-phase inputs and the no-dynamics query surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Narrow-phase inputs and the no-dynamics query surface) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Narrow-phase inputs and the no-dynamics query surface: companion namespace of 2 members (`ICollider`, `IQueries`); units and frames named in its text: local, world, seconds. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `preparePhysicalGeometry` in packages/engine/src/physics/preparePhysicalGeometry.ts; its surface is the 2 members listed and the text shows 28 other files naming it, mostly packages/engine (12), test (11), movies (5), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace preparePhysicalGeometry {
-  /** One collider in its current body placement. */
-  export interface ICollider {
-    /** Scene body id. */ body: string;
-    /** Physical segment id. */ bone: string;
-    /** Profile-local collider. */ shape: P.IShape;
-    /** Current world bone placement. */ pose: P.ITransform;
-  }
-  /** Reusable initialized query entry; it owns no physics world. */
-  export interface IQueries {
-    /** Null when farther apart than prediction; positive separation is never contact. */
-    contact: (
-      a: ICollider,
-      b: ICollider,
-      seconds: number,
-      prediction?: number,
-    ) => Receipt | null;
-    /** Exact lowest world Y for supported sphere, capsule and box shapes. */
-    minimumY: (collider: ICollider) => number;
-    /** Exact closest surface point, including from inside the declared collider. */
-    project: (
-      collider: ICollider,
-      point: P.ITransform["position"],
-    ) => P.ITransform["position"];
-  }
-}
-
 /** Compose bone and local shape transforms in the same world frame. */
-function place(parent: P.ITransform, local: P.ITransform): P.ITransform {
-  const result: P.ITransform = {
+function place(parent: IAutoMoviePhysicalProfile.ITransform, local: IAutoMoviePhysicalProfile.ITransform): IAutoMoviePhysicalProfile.ITransform {
+  const result: IAutoMoviePhysicalProfile.ITransform = {
     position: Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, local.position),

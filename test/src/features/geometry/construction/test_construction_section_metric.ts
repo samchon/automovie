@@ -1,3 +1,4 @@
+import type { IAutoMovieViewSection } from "@automovie/interface";
 import {
   AutoMovieViewSection,
   AutoMovieViewSectionConic,
@@ -50,13 +51,13 @@ export function test_construction_section_metric(): void {
 
   // These invalid requests must preserve the original retained-endpoint
   // protocol after target-specific preparation declined to provide a solve.
-  const box: AutoMovieViewSection.IBox = { extents: [3, 5, 3, 5] };
-  const reach: AutoMovieViewSection.IRange | null =
+  const box: IAutoMovieViewSection.IBox = { extents: [3, 5, 3, 5] };
+  const reach: IAutoMovieViewSection.IRange | null =
     AutoMovieViewSection.range(box);
   if (reach === null)
     throw new Error("The unchanged metric fixture has no native reach");
   for (const target of [NaN, -Infinity, Infinity]) {
-    const actual: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+    const actual: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
       "nonfinite target",
       box,
       target,
@@ -75,7 +76,7 @@ export function test_construction_section_metric(): void {
       );
   }
   for (const unit of [0.001, 1, 1000]) {
-    const ellipse: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const ellipse: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
       { extents: [3 * unit, 5 * unit, 3 * unit, 5 * unit] },
       [rho, rho, rho, rho],
     );
@@ -105,7 +106,7 @@ export function test_construction_section_metric(): void {
     // Circle circumference is an independent target for the actual shoulder
     // solver; each changed physical scale owns a new numeric source family.
     const target: number = 14 * Math.PI * unit;
-    const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+    const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
       "independent circle",
       { extents: [7 * unit, 7 * unit, 7 * unit, 7 * unit] },
       target,
@@ -121,7 +122,7 @@ export function test_construction_section_metric(): void {
         "circle girth solve",
       );
   }
-  const circle: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+  const circle: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
     { extents: [7, 7, 7, 7] },
     [rho, rho, rho, rho],
   );
@@ -145,7 +146,7 @@ export function test_construction_section_metric(): void {
     failures,
     "elementary ellipse",
   );
-  const source: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+  const source: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
     { extents: [20, 9, 18, 11] },
     [0.3, 0.56, 0.4, 0.63],
   );
@@ -224,7 +225,7 @@ export function test_construction_section_metric(): void {
 
 /** Existing polar derivative consumer, with exact original G2 support boundaries retained. */
 function reference(
-  source: AutoMovieViewSection.ISection,
+  source: IAutoMovieViewSection.ISection,
   scale: readonly [number, number],
   slope?: number,
 ): Measurement {
@@ -232,7 +233,7 @@ function reference(
     0,
     2 * Math.PI,
     ...source.knots.map(
-      (k: AutoMovieViewSection.ISection["knots"][number]): number => k.angle,
+      (k: IAutoMovieViewSection.ISection["knots"][number]): number => k.angle,
     ),
   ]);
   for (const [q, arc] of source.conics.quarters.entries()) {
@@ -297,7 +298,7 @@ function converged(
 
 /** Invalid linear maps and original source failures never become finite successful lengths. */
 function refused(
-  source: AutoMovieViewSection.ISection,
+  source: IAutoMovieViewSection.ISection,
   failures: string[],
 ): void {
   const maps: readonly (readonly number[])[] = [
@@ -322,7 +323,7 @@ function refused(
       );
   }
   const rho: number = AutoMovieViewSection.ELLIPSE;
-  const tiny: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+  const tiny: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
     { extents: [0.1, 0.1, 0.1, 0.1] },
     [rho, rho, rho, rho],
   );
@@ -334,14 +335,14 @@ function refused(
     failures.push(
       "A metric whose whole coordinate scale underflows returned success.",
     );
-  const invalid: AutoMovieViewSection.ISection = {
+  const invalid: IAutoMovieViewSection.ISection = {
     ...source,
     conics: { ...source.conics, failure: "original source failure" },
   };
   if (Number.isFinite(AutoMovieViewSection.length(invalid, [1, 1])))
     failures.push("Metric length masked the original source failure.");
   const marker: Error = new Error("actual original source getter");
-  const foreign: AutoMovieViewSection.ISection = {
+  const foreign: IAutoMovieViewSection.ISection = {
     ...source,
     conics: {
       ...source.conics,

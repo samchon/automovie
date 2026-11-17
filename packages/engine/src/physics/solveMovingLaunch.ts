@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieBallisticSolution, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "./AutoMovieGravity";
-import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
 const finiteVector: (v: IAutoMovieVector3) => boolean = (

@@ -1,10 +1,5 @@
-import {
-  IAutoMoviePlantingBudget,
-  IAutoMoviePlantingCluster,
-  IAutoMoviePlantingDomain,
-  IAutoMoviePlantingFoliage,
-  IAutoMoviePlantingStructure,
-} from "@automovie/interface";
+import { type IAutoMoviePlantingBudgetInput, IAutoMoviePlantingBudget, IAutoMoviePlantingFoliage, IAutoMoviePlantingStructure } from "@automovie/interface";
+
 
 /** Measure a planting recipe's complete-tree branch/leaf upper counts and optional requested member products without deriving geometry. Callers admit bounded depth first; numeric products can overflow for unsupported huge ungated values.
  *
@@ -16,13 +11,7 @@ import {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One level/maximum-reach recurrence supplies both branch and leaf bounds; cheap scalar reports are recomputed for changed recipe/cluster values rather than cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fixed fresh scalar report transfers to the caller; no tree, placement array or recipe handle is retained.
  */
-export const plantingBudget: (props: {
-  domain: IAutoMoviePlantingDomain;
-  cluster?: IAutoMoviePlantingCluster | undefined;
-}) => IAutoMoviePlantingBudget = (props: {
-  domain: IAutoMoviePlantingDomain;
-  cluster?: IAutoMoviePlantingCluster;
-}): IAutoMoviePlantingBudget => {
+export const plantingBudget: (props: IAutoMoviePlantingBudgetInput) => IAutoMoviePlantingBudget = (props: IAutoMoviePlantingBudgetInput): IAutoMoviePlantingBudget => {
   const { domain }: typeof props = props;
   const structure: IAutoMoviePlantingStructure = domain.structure;
   const foliage: IAutoMoviePlantingFoliage | null = domain.foliage;

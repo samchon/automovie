@@ -1,11 +1,12 @@
+import type { AutoMovieRecoveryCurveData, AutoMovieRecoveryCurveFormat, IAutoMoviePolylineFit, IAutoMovieRecoveryObservationOptions, IAutoMoviePolylineFitInput, IAutoMovieRecoveryResult } from "@automovie/interface";
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
 import { RecoveryBezierFit } from "../internal/RecoveryBezierFit";
-import type { IAutoMovieRecoveryCurveFit } from "../structures/curve/IAutoMovieRecoveryCurveFit";
-import type { IAutoMovieRecoveryPolylineInput } from "../structures/curve/IAutoMovieRecoveryPolylineInput";
-import type { IAutoMovieRecoveryObservationOptions } from "../structures/operation/IAutoMovieRecoveryObservationOptions";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
+
+
+
+
 
 /**
  * Fit one caller-ordered polyline through the shared tangent-constrained cubic solver.
@@ -25,28 +26,40 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
 export function observeAutoMovieRecoveryPolyline<
   Format extends AutoMovieRecoveryCurveFormat,
 >(
-  input: IAutoMovieRecoveryPolylineInput,
+  input: IAutoMoviePolylineFitInput,
   options: Pick<
     IAutoMovieRecoveryObservationOptions<Format>,
-    "curveFormat" | "signal" | "onProgress"
+    "curveFormat" | "cancelled" | "onProgress"
   >,
 ): IAutoMovieRecoveryResult<
-  AutoMovieRecoveryCurveData<IAutoMovieRecoveryCurveFit, Format>
+  AutoMovieRecoveryCurveData<IAutoMoviePolylineFit, Format>
 > {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "ordered-polyline-v1";
+  let cancellationRequested: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error("Cancellation callback must return a boolean synchronously");
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
+  try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+
   if (!options)
     return {
       operator,
       status: "refused",
-      diagnostics: ["An explicit coefficient basis is required"],
-    };
-  if (options.signal?.aborted)
+      diagnostics: ["An explicit coefficient basis is required"] };
+  if (cancelled())
     return {
       operator,
       status: "cancelled",
-      diagnostics: ["Cancelled before fitting"],
-    };
+      diagnostics: ["Cancelled before fitting"] };
   if (
     !input ||
     typeof input.name !== "string" ||
@@ -63,47 +76,41 @@ export function observeAutoMovieRecoveryPolyline<
       status: "refused",
       diagnostics: [
         "A named ordered physical polyline, declared closure/corners and supported coefficient basis are required",
-      ],
-    };
-  try {
+      ] };
+  
     options.onProgress?.("polyline-fit", 0, 1);
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before fitting"],
-      };
-    const fit: IAutoMovieRecoveryCurveFit = RecoveryBezierFit.fit(input);
+        diagnostics: ["Cancelled before fitting"] };
+    const fit: IAutoMoviePolylineFit = RecoveryBezierFit.fit(input);
     const value: AutoMovieRecoveryCurveData<
-      IAutoMovieRecoveryCurveFit,
+      IAutoMoviePolylineFit,
       Format
     > = convertAutoMovieRecoveryCurves(fit, options.curveFormat);
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before coefficient return"],
-      };
+        diagnostics: ["Cancelled before coefficient return"] };
     options.onProgress?.("polyline-fit", 1, 1);
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before coefficient return"],
-      };
+        diagnostics: ["Cancelled before coefficient return"] };
     return {
       operator,
       status: fit.toleranceMet ? "complete" : "partial",
       value,
       diagnostics: fit.toleranceMet
         ? []
-        : ["The requested finite-polyline tolerance remains unresolved"],
-    };
+        : ["The requested finite-polyline tolerance remains unresolved"] };
   } catch (error) {
     return {
       operator,
-      status: options.signal?.aborted ? "cancelled" : "failed",
-      diagnostics: [error instanceof Error ? error.message : String(error)],
-    };
+      status: cancellationRequested ? "cancelled" : "failed",
+      diagnostics: [error instanceof Error ? error.message : String(error)] };
   }
 }

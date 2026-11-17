@@ -1,13 +1,12 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRacket, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { HumanFoot } from "../../posture/HumanFoot";
-import type { racket } from "../../sport/racket";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -50,7 +49,7 @@ export function racketCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
@@ -60,9 +59,9 @@ export function racketCases(
       "readyPosition",
       "splitStep",
       "golfAddress",
-    ] as racket.Kind[]) {
+    ] as IAutoMovieMotionHumanRacket.Kind[]) {
       const name: string = `racket-${kind}${suffix}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "racket",

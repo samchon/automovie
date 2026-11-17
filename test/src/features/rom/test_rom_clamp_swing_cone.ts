@@ -1,12 +1,10 @@
+import { type IAutoMovieViolationCollector, IAutoMovieJointConstraint, type IAutoMovieJointPose } from "@automovie/interface";
 import {
   ViolationCollector,
   clampJointRom,
   validateJointRom,
 } from "@automovie/engine";
-import {
-  IAutoMovieJointConstraint,
-  type IAutoMovieJointPose,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/joint";
@@ -24,7 +22,7 @@ const CONE: IAutoMovieJointConstraint = {
 const passesCone: (j: ReturnType<typeof joint>) => boolean = (
   j: ReturnType<typeof joint>,
 ): boolean => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({ joint: j, constraint: CONE, path: "$input", collector });
   return collector.items.length === 0;
 };
@@ -158,7 +156,7 @@ export function test_rom_clamp_swing_cone(): void {
     "a neutral-excluding box keeps its own min after the cone pull",
     offset.flexion! >= 10 - 1e-9,
   );
-  const offsetItems: ViolationCollector = new ViolationCollector();
+  const offsetItems: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: offset,
     constraint: OFFSET_CONE,
@@ -207,7 +205,7 @@ export function test_rom_clamp_swing_cone(): void {
     "a max<0 box keeps its own max after the cone pull",
     negative.abduction! <= -10 + 1e-9,
   );
-  const negativeItems: ViolationCollector = new ViolationCollector();
+  const negativeItems: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: negative,
     constraint: NEGATIVE_CONE,

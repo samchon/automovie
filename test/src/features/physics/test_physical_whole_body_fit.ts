@@ -1,3 +1,4 @@
+import type { IAutoMovieFitPhysicalWholeBodyTarget, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -5,10 +6,7 @@ import {
   measurePhysicalJointLimits,
   rerootPhysicalProfile,
 } from "@automovie/engine";
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
@@ -77,7 +75,7 @@ export function test_physical_whole_body_fit(): void {
     approach?: NonNullable<
       Parameters<typeof fitPhysicalWholeBodyTarget>[0]["goal"]["approach"]
     >,
-  ): fitPhysicalWholeBodyTarget.IResult =>
+  ): IAutoMovieFitPhysicalWholeBodyTarget.IResult =>
     fitPhysicalWholeBodyTarget({
       profile,
       targets: neutral,
@@ -98,11 +96,11 @@ export function test_physical_whole_body_fit(): void {
       iterations: 64,
       tolerance: 1e-4,
     });
-  const legOnly: fitPhysicalWholeBodyTarget.IResult = fit([
+  const legOnly: IAutoMovieFitPhysicalWholeBodyTarget.IResult = fit([
     "rightUpperLeg",
     "rightLowerLeg",
   ]);
-  const whole: fitPhysicalWholeBodyTarget.IResult = fit([
+  const whole: IAutoMovieFitPhysicalWholeBodyTarget.IResult = fit([
     "leftLowerLeg",
     "leftUpperLeg",
     "spine",
@@ -125,7 +123,7 @@ export function test_physical_whole_body_fit(): void {
     y: 0.5,
     z: -1,
   });
-  const approached: fitPhysicalWholeBodyTarget.IResult = fit(
+  const approached: IAutoMovieFitPhysicalWholeBodyTarget.IResult = fit(
     ["leftLowerLeg", "leftUpperLeg", "spine", "rightUpperLeg", "rightLowerLeg"],
     { localDirection: { x: 0, y: -1, z: 0 }, direction, weight: 0.02 },
   );

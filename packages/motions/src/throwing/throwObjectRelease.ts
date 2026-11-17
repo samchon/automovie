@@ -1,15 +1,10 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanThrowObjectForm, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { throwObjectForm } from "./throwObjectForm";
@@ -44,10 +39,10 @@ export namespace throwObjectRelease {
    * @returns The joints with the chest and the spine written.
    */
   export function trunk(
-    joints: IHumanPosture["joints"],
+    joints: IAutoMovieMotionHumanPosture["joints"],
     twist: number,
     tilt: number,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     return HumanTrunk.incline(
       {
         ...joints,
@@ -62,16 +57,16 @@ export namespace throwObjectRelease {
   /** What the release place is read from. */
   export interface IProps {
     /** The thrower. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The throwing hand. */
-    side: HumanHand.Side;
+    side: IAutoMovieMotionHumanHand.Side;
 
     /** The style. */
-    style: throwObjectForm.Style;
+    style: IAutoMovieMotionHumanThrowObjectForm.Style;
 
     /** The standing posture the places are read on. */
-    standing: IHumanPosture;
+    standing: IAutoMovieMotionHumanPosture;
 
     /** The hand's world rotation at release. */
     held: IAutoMovieQuaternion;
@@ -85,8 +80,8 @@ export namespace throwObjectRelease {
    */
   export function point(props: IProps): IAutoMovieVector3 {
     const { body, side, style, standing } = props;
-    const m: IHumanBody["measure"] = body.measure;
-    const frame: HumanFrame.IFrame = {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
       origin: standing.root,
       yaw: standing.yaw,
     };

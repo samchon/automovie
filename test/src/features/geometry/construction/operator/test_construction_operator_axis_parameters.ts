@@ -1,15 +1,12 @@
-import {
-  type AutoMovieViewAxis,
-  AutoMovieViewParallelAxis,
-  AutoMovieViewParameter,
-} from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewAxis, IAutoMovieViewParallelAxis } from "@automovie/interface";
+import { AutoMovieViewParallelAxis, AutoMovieViewParameter } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
 /** One actual axis value and two selected-coordinate derivatives. */
-type Jet = NonNullable<ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>>;
+type Jet = NonNullable<ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>>;
 
 /** A source component triple. */
 type Vec3 = [number, number, number];
@@ -59,17 +56,17 @@ export function test_construction_operator_axis_parameters(): void {
         failures.push(`${label}[${k}]: ${actual[k]}, expected ${expected[k]}`);
   };
   for (const scale of [1, 1000]) {
-    const angle: AutoMovieConstructionOutlineParameter = {
+    const angle: IAutoMovieConstructionOutlineParameter = {
       type: "angle",
       bottom: 0,
       top: 4 * scale,
     };
-    const bottom: AutoMovieConstructionOutlineParameter = {
+    const bottom: IAutoMovieConstructionOutlineParameter = {
       type: "root",
       pole: 0,
       end: "bottom",
     };
-    const top: AutoMovieConstructionOutlineParameter = {
+    const top: IAutoMovieConstructionOutlineParameter = {
       type: "root",
       pole: 4 * scale,
       end: "top",
@@ -164,7 +161,7 @@ export function test_construction_operator_axis_parameters(): void {
       ),
       null,
     );
-    const origin: AutoMovieViewParallelAxis.IOrigin = {
+    const origin: IAutoMovieViewParallelAxis.IOrigin = {
       x: {
         knots: [
           { site: "start", station: 0, value: 10 * scale },
@@ -187,7 +184,7 @@ export function test_construction_operator_axis_parameters(): void {
         ],
       },
     };
-    const axis: AutoMovieViewAxis.IAxis | string =
+    const axis: IAutoMovieViewAxis.IAxis | string =
       AutoMovieViewParallelAxis.create(origin, [1, 0, 0], [0, 0, 1]);
     if (typeof axis === "string") {
       failures.push(axis);

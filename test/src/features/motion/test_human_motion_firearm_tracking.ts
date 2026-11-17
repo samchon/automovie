@@ -1,13 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanWeaponFirearm,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance, HumanSignature, HumanWeaponFirearm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,7 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bound's source, why one pair suffices and the 2 scenarios.
  */
 export function test_human_motion_firearm_tracking(): void {
-  const bodies: Record<"a" | "b", IHumanBody> = {
+  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
@@ -61,7 +55,7 @@ export function test_human_motion_firearm_tracking(): void {
     seconds: number,
     walks: boolean = true,
   ): number => {
-    const film: HumanPerformance = new HumanPerformance({
+    const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "tracking",
       laws: [HumanWeaponFirearm.present],
       performers: [
@@ -99,12 +93,12 @@ export function test_human_motion_firearm_tracking(): void {
           }),
       ).node,
     });
-    const held: HumanSegment.ISegment | undefined = film
+    const held: IAutoMovieMotionHumanSegment.ISegment | undefined = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "presentFirearm");
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "presentFirearm");
     if (held === undefined || seconds < held.start || seconds > held.end)
       throw new Error(`the presentation does not cover ${seconds} s`);
-    const aimer: HumanSignature.IReader = HumanSignature.of(
+    const aimer: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       bodies.a,

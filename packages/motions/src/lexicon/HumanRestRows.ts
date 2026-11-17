@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { rest } from "../everyday/rest";
 import { HumanActionRow } from "../law/HumanActionRow";
 
@@ -13,56 +15,56 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanRestRows {
   /** `rest` with both hands at `side`. */
-  export const restSide = HumanActionRow.of("restSide", rest, {
+  export const restSide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restSide"]> = HumanActionRow.of("restSide", rest, {
     left: "side",
     right: "side",
   });
 
   /** `rest` with both hands at `pocket`. */
-  export const restPocket = HumanActionRow.of("restPocket", rest, {
+  export const restPocket: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restPocket"]> = HumanActionRow.of("restPocket", rest, {
     left: "pocket",
     right: "pocket",
   });
 
   /** `rest` with both hands at `hip`. */
-  export const restHip = HumanActionRow.of("restHip", rest, {
+  export const restHip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restHip"]> = HumanActionRow.of("restHip", rest, {
     left: "hip",
     right: "hip",
   });
 
   /** `rest` with both hands at `crossed`. */
-  export const restCrossed = HumanActionRow.of("restCrossed", rest, {
+  export const restCrossed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restCrossed"]> = HumanActionRow.of("restCrossed", rest, {
     left: "crossed",
     right: "crossed",
   });
 
   /** `rest` with both hands at `claspedFront`. */
-  export const restClaspedFront = HumanActionRow.of("restClaspedFront", rest, {
+  export const restClaspedFront: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restClaspedFront"]> = HumanActionRow.of("restClaspedFront", rest, {
     left: "claspedFront",
     right: "claspedFront",
   });
 
   /** `rest` with both hands at `claspedBehind`. */
-  export const restClaspedBehind = HumanActionRow.of(
+  export const restClaspedBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restClaspedBehind"]> = HumanActionRow.of(
     "restClaspedBehind",
     rest,
     { left: "claspedBehind", right: "claspedBehind" },
   );
 
   /** `rest` with both hands at `behindHead`. */
-  export const restBehindHead = HumanActionRow.of("restBehindHead", rest, {
+  export const restBehindHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restBehindHead"]> = HumanActionRow.of("restBehindHead", rest, {
     left: "behindHead",
     right: "behindHead",
   });
 
   /** `rest` with both hands at `chinRest`. */
-  export const restChinRest = HumanActionRow.of("restChinRest", rest, {
+  export const restChinRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restChinRest"]> = HumanActionRow.of("restChinRest", rest, {
     left: "chinRest",
     right: "chinRest",
   });
 
   /** `rest` with both hands at `elbowSupport`. */
-  export const restElbowSupport = HumanActionRow.of("restElbowSupport", rest, {
+  export const restElbowSupport: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperRest"]["restElbowSupport"]> = HumanActionRow.of("restElbowSupport", rest, {
     left: "elbowSupport",
     right: "elbowSupport",
   });

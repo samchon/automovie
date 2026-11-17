@@ -1,10 +1,11 @@
+import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditContinuity,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every joint centre of a displayed motion travels a continuous,
@@ -48,18 +49,6 @@ export namespace AutoMovieMotionHumanAuditContinuity {
   /** The samples a second a reversal is read at, whatever the grid: a reversal is an out-and-back within two intervals of `1 / REVERSAL` seconds, a frame of film. */
   export const REVERSAL: number = 24;
 
-  /** The three readings of {@link measure}. */
-  export interface IResult {
-    /** The largest displacement left at full resolution, metres. */
-    jump: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The largest out-and-back within two grid intervals, metres. */
-    reversal: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The fastest joint centre over a grid interval, metres per second. */
-    speed: IAutoMovieMotionHumanAuditMeasure;
-  }
-
   /**
    * Read a person's continuity over the whole motion.
    *
@@ -76,16 +65,12 @@ export namespace AutoMovieMotionHumanAuditContinuity {
     rate: number = 24,
     limit: number = 0.005,
     floor: number = 0,
-  ): IResult {
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+  ): IAutoMovieMotionHumanAuditContinuity.IResult {
+    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     const frames: IPoints[] = times.map(
       (t: number): IPoints => points(motion, subject, t),
     );
-    const result: IResult = {
+    const result: IAutoMovieMotionHumanAuditContinuity.IResult = {
       jump: { value: 0, seconds: 0, where: "none" },
       reversal: { value: 0, seconds: 0, where: "none" },
       speed: { value: 0, seconds: 0, where: "none" },

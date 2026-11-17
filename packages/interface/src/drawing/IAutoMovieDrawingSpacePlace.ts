@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingScheduleBox } from "./IAutoMovieDrawingScheduleBox";
+import type { IAutoMovieDrawingScheduleBox } from "./IAutoMovieDrawingScheduleBox";
 
 /**
  * Where a space is, and what the design already declares about it.

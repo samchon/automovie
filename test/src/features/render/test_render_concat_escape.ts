@@ -1,13 +1,6 @@
-import {
-  IAutoMovieRenderSpec,
-  IAutoMovieSequence,
-  IAutoMovieShot,
-} from "@automovie/interface";
-import {
-  IAutoMovieRenderChunkPlan,
-  planChunkedSequenceRender,
-  planSequenceRender,
-} from "@automovie/render";
+import { type IAutoMovieRenderChunkPlan, IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+
+import { planChunkedSequenceRender, planSequenceRender } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 const shot: IAutoMovieShot = {

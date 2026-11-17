@@ -1,12 +1,10 @@
+import type { IAutoMovieLoftChain, IAutoMovieViewPart, IAutoMovieLoftCapSource, IAutoMovieLoftSectionSource } from "@automovie/interface";
+
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** A retained original closed end, with legacy absence still permitted. */
 type Pole = NonNullable<IAutoMovieLoftChain["pole"]>;
-/** Immutable original chain and its explicit end ownership. */
-type Chain = IAutoMovieLoftChain;
 
 /**
  * Explicit ownership of original cap intervals beyond principal positive rows.
@@ -17,33 +15,6 @@ type Chain = IAutoMovieLoftChain;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftCapSource {
-  /**
-   * Immutable source capability for one actual retained closed end.
-   *
-   * @evidence contracts/development/design.md#principled-representation Stores actual generating ownership separately from principal projection data and physical-jet availability.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface End station, adjacent station and independent bindings define precisely the retained interval.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Value copies preserve numeric bindings; callable axes must be retained or rebuilt, never restored from JSON as a hidden registration.
-   * @evidence contracts/development/common.md#meaningful-documentation Coordinates are physical station mm, point is world mm, and callback dependencies must remain immutable for reader lifetime.
-   */
-  export interface ISource {
-    /** Original closed station in mm. */
-    station: number;
-
-    /** Unchanged nearest principal row, in mm. */
-    adjacent: number;
-
-    /** Actual original axis; value-only axes remain value-only. */
-    axis: IAutoMovieViewPart["axis"];
-
-    /** Independent original world pole value. */
-    point: [number, number, number];
-
-    /** Exact numeric boundary snapshot; changed producers must re-express it. */
-    boundary: string;
-
-    /** Exact plain scalar snapshot, independent of its retained source record. */
-    scalar: string;
-  }
 
   /**
    * Retain original cap ownership after all principal-row preparation.
@@ -59,9 +30,9 @@ export namespace AutoMovieLoftCapSource {
   export function retain(
     chain: IAutoMovieLoftChain,
     axis: IAutoMovieViewPart["axis"],
-  ): Chain {
+  ): IAutoMovieLoftChain {
     if (chain.nativeSource === undefined) return chain;
-    const copy: Chain = { ...chain };
+    const copy: IAutoMovieLoftChain = { ...chain };
     for (const key of ["pole", "opposite"] as const) {
       const pole: Pole | undefined = chain[key];
       if (pole === undefined) continue;
@@ -96,7 +67,7 @@ export namespace AutoMovieLoftCapSource {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure cold validation retains no result and does not change geometry by access history.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a fresh pair escapes; no chain is retained globally.
    */
-  export function bounds(chain: Chain): [number, number] {
+  export function bounds(chain: IAutoMovieLoftChain): [number, number] {
     const out: [number, number] = [
       chain.layers[0]!.y,
       chain.layers[chain.layers.length - 1]!.y,
@@ -120,7 +91,7 @@ export namespace AutoMovieLoftCapSource {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This selector owns no cross-call cache; Point and Jet retain their existing station plans.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable record or null, with no retained query state.
    */
-  export function at(chain: Chain, station: number): ISource | null {
+  export function at(chain: IAutoMovieLoftChain, station: number): IAutoMovieLoftCapSource.ISource | null {
     if (!Number.isFinite(station))
       throw new Error("A loft station must be finite.");
     const first: number = chain.layers[0]!.y;
@@ -129,7 +100,7 @@ export namespace AutoMovieLoftCapSource {
     for (const pole of [chain.pole, chain.opposite]) {
       if (pole?.source === undefined) continue;
       validate(chain, pole);
-      const source: ISource = pole.source;
+      const source: IAutoMovieLoftCapSource.ISource = pole.source;
       if (
         station < Math.min(source.station, source.adjacent) ||
         station > Math.max(source.station, source.adjacent)
@@ -161,7 +132,7 @@ function binding(layer: IAutoMovieLoftChain.ILayer): string {
 /** What a cap source was last checked against: the chain, its end layer and the pole's point, by identity and value. */
 interface IChecked {
   /** The chain the source was checked on. */
-  chain: Chain;
+  chain: IAutoMovieLoftChain;
 
   /** That chain's end layer at the time. */
   layer: IAutoMovieLoftChain.ILayer;
@@ -171,7 +142,7 @@ interface IChecked {
 }
 
 /** The last passed check of each cap source, released with it. */
-const CHECKED: WeakMap<AutoMovieLoftCapSource.ISource, IChecked> = new WeakMap();
+const CHECKED: WeakMap<IAutoMovieLoftCapSource.ISource, IChecked> = new WeakMap();
 
 /**
  * Reject stale ownership before any actual geometry callback is evaluated.
@@ -180,8 +151,8 @@ const CHECKED: WeakMap<AutoMovieLoftCapSource.ISource, IChecked> = new WeakMap()
  * outside the principal rows, a sixth of a capped body's realization. Chains, layers and sources are immutable while they are read, so a
  * source that passed against the same chain, end layer and pole objects is not serialised again; any of them replaced is checked in full.
  */
-function validate(chain: Chain, pole: Pole): void {
-  const source: AutoMovieLoftCapSource.ISource = pole.source!;
+function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
+  const source: IAutoMovieLoftCapSource.ISource = pole.source!;
   const end: IAutoMovieLoftChain.ILayer | undefined = chain.layers[pole.end === "bottom" ? 0 : chain.layers.length - 1];
   if (source !== null && typeof source === "object") {
     const passed: IChecked | undefined = CHECKED.get(source);
@@ -192,8 +163,8 @@ function validate(chain: Chain, pole: Pole): void {
 }
 
 /** The full check of a cap source against its chain's end. */
-function check(chain: Chain, pole: Pole): void {
-  const source: AutoMovieLoftCapSource.ISource = pole.source!;
+function check(chain: IAutoMovieLoftChain, pole: Pole): void {
+  const source: IAutoMovieLoftCapSource.ISource = pole.source!;
   if (
     source === null ||
     typeof source !== "object" ||
@@ -206,7 +177,7 @@ function check(chain: Chain, pole: Pole): void {
     );
   const index: number = pole.end === "bottom" ? 0 : chain.layers.length - 1;
   const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
-  const native: ReturnType<typeof AutoMovieLoftSectionSource.validate> =
+  const native: (IAutoMovieLoftSectionSource.ISource | null) =
     AutoMovieLoftSectionSource.validate(chain, index, index);
   AutoMovieLoftFrameSource.validate(layer);
   if (

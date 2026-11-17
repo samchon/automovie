@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieCurve64 as C,
-  type IAutoMovieContourLoft64 as L,
-  tessellateAutoMovieContourLoft64,
-} from "@automovie/engine";
+import type { IAutoMovieContourLoft64, IAutoMovieCurve64 } from "@automovie/interface";
+import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -26,7 +23,7 @@ export function assertContourLoftBoundaryCompletion(
   const { sections, input, mergeAligned, mergeInserted }: typeof context =
     context;
 
-  const coneSections: L.ISection[] = [
+  const coneSections: IAutoMovieContourLoft64.ISection[] = [
     { coordinateMm: 0, loops: [] },
     {
       coordinateMm: 2,
@@ -35,8 +32,8 @@ export function assertContourLoftBoundaryCompletion(
     { coordinateMm: 4, loops: [] },
   ];
 
-  const extrema: L.IEvent[] = ["minimum", "maximum"].map(
-    (kind: string, i: number): L.IEvent => ({
+  const extrema: IAutoMovieContourLoft64.IEvent[] = ["minimum", "maximum"].map(
+    (kind: string, i: number): IAutoMovieContourLoft64.IEvent => ({
       name: kind,
       kind: kind as "minimum" | "maximum",
       coordinateMm: 1 + 2 * i,
@@ -49,7 +46,7 @@ export function assertContourLoftBoundaryCompletion(
     }),
   );
 
-  const cones: L.IResult = tessellateAutoMovieContourLoft64({
+  const cones: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
     sections: coneSections,
     events: extrema,
     chordToleranceMm: 0.25,
@@ -60,7 +57,7 @@ export function assertContourLoftBoundaryCompletion(
     cones.unresolved.length === 0 &&
       cones.primitiveRanges?.length === 2 &&
       cones.primitiveRanges.every(
-        (range: NonNullable<L.IResult["primitiveRanges"]>[number]): boolean =>
+        (range: NonNullable<IAutoMovieContourLoft64.IResult["primitiveRanges"]>[number]): boolean =>
           range.kind === "cap",
       ) &&
       [...edges(cones).values()].every(
@@ -69,7 +66,7 @@ export function assertContourLoftBoundaryCompletion(
       ),
   );
 
-  const unmatched: L.IResult = tessellateAutoMovieContourLoft64({
+  const unmatched: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
     sections: coneSections,
     events: [],
     chordToleranceMm: 0.25,
@@ -83,7 +80,7 @@ export function assertContourLoftBoundaryCompletion(
   // Different rectangle depths force a strict interior closest slit. The linear
   // trace has position fraction 3t²-2t³, so chord fraction is not its source phase.
   for (const winding of [1, -1] as const) {
-    const mergeSections: L.ISection[] = [
+    const mergeSections: IAutoMovieContourLoft64.ISection[] = [
       {
         coordinateMm: 0,
         loops: [
@@ -96,7 +93,7 @@ export function assertContourLoftBoundaryCompletion(
         loops: [{ curve: O.curve("merged", rectangle(2, 0, 4, 3)), winding }],
       },
     ];
-    const merge: L.IResult = tessellateAutoMovieContourLoft64({
+    const merge: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
       sections: mergeSections,
       intervals: [
         {
@@ -126,14 +123,14 @@ export function assertContourLoftBoundaryCompletion(
       merge.construction
         .slice(0, 2)
         .some(
-          (ring: L.IResult["construction"][number]): boolean =>
+          (ring: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
             ring.points.length > 4,
         ),
     );
     mergeAligned.push(aligned(merge, mergeSections));
   }
 
-  const empty: L.IResult = tessellateAutoMovieContourLoft64({
+  const empty: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
     sections: [],
     events: [],
     intervals: [],
@@ -152,7 +149,7 @@ export function assertContourLoftBoundaryCompletion(
     TestValidator.predicate(
       "nonpositive or nonfinite tolerance refuses",
       throwsError(
-        (): L.IResult =>
+        (): IAutoMovieContourLoft64.IResult =>
           tessellateAutoMovieContourLoft64({
             ...input,
             chordToleranceMm: tolerance,
@@ -164,7 +161,7 @@ export function assertContourLoftBoundaryCompletion(
   TestValidator.predicate(
     "nonincreasing section addresses refuse",
     throwsError(
-      (): L.IResult =>
+      (): IAutoMovieContourLoft64.IResult =>
         tessellateAutoMovieContourLoft64({
           ...input,
           sections: [...sections].reverse(),
@@ -173,12 +170,12 @@ export function assertContourLoftBoundaryCompletion(
     ),
   );
 
-  const original: C.Cubic = sections[0].loops[0].curve;
+  const original: IAutoMovieCurve64.Cubic = sections[0].loops[0].curve;
 
-  const disconnected: C.Cubic = {
+  const disconnected: IAutoMovieCurve64.Cubic = {
     ...original,
     spans: original.spans.map(
-      (span: C.Span, i: number): C.Span =>
+      (span: IAutoMovieCurve64.Span, i: number): IAutoMovieCurve64.Span =>
         i === 0
           ? [
               [span[0][0] + 1, span[0][1], span[0][2]],
@@ -190,7 +187,7 @@ export function assertContourLoftBoundaryCompletion(
     ),
   };
 
-  const failed: L.IResult = tessellateAutoMovieContourLoft64({
+  const failed: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
     ...input,
     sections: [
       { ...sections[0], loops: [{ curve: disconnected, winding: 1 }] },

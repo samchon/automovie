@@ -1,9 +1,6 @@
-import {
-  type IAutoMovieMeshCrossing,
-  type IAutoMovieMeshCrossingQuery,
-  createAutoMovieMeshCrossingQuery,
-} from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMeshCrossing, IAutoMovieMeshCrossingQuery, IAutoMovieMesh } from "@automovie/interface";
+import { createAutoMovieMeshCrossingQuery } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";

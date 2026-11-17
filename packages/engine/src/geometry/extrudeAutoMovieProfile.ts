@@ -1,7 +1,8 @@
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieProfilePoint, type IAutoMovieExtrudeProfile, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { convexHull2D } from "../math/convexHull2D";
-import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 import { positive } from "./positive";
@@ -35,13 +36,7 @@ import { positive } from "./positive";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one mesh from its own profile; a caller placing the same prism repeatedly can keep the returned mesh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new position, index and normal arrays sized by the corner count; the hull and its lifted points are released on return.
  */
-export const extrudeAutoMovieProfile = (props: {
-  /** Strictly convex outline in local XY metres. */
-  profile: readonly IAutoMovieProfilePoint[];
-
-  /** Positive extrusion depth along local Z, in metres. */
-  depth: number;
-}): IAutoMovieMesh => {
+export const extrudeAutoMovieProfile = (props: IAutoMovieExtrudeProfile.IProps): IAutoMovieMesh => {
   positive(props.depth, "extrusion depth");
   const profile: IAutoMovieProfilePoint[] = profileHull(props.profile);
   const half: number = props.depth / 2;

@@ -1,11 +1,5 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMeasure,
-  IAutoMovieBone,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, IAutoMovieBodyMeasure, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
@@ -45,7 +39,7 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
  */
 export function measureAutoMovieHumanoidBody(
   skeleton: IAutoMovieSkeleton,
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
 ): IAutoMovieBodyMeasure {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of skeleton.bones as IAutoMovieBone[])
@@ -69,9 +63,9 @@ export function measureAutoMovieHumanoidBody(
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
   ): number => Vector3.length(Vector3.subtract(at(a), at(b)));
-  const segment = (name: AutoMovieHumanoidBone): P.ISegment => {
-    const s: P.ISegment | undefined = profile.segments.find(
-      (x: P.ISegment): boolean => x.bone === name,
+  const segment = (name: AutoMovieHumanoidBone): IAutoMoviePhysicalProfile.ISegment => {
+    const s: IAutoMoviePhysicalProfile.ISegment | undefined = profile.segments.find(
+      (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === name,
     );
     if (s === undefined) throw new Error(`The humanoid profile lacks ${name}`);
     return s;
@@ -79,7 +73,7 @@ export function measureAutoMovieHumanoidBody(
   const bounds = (
     name: AutoMovieHumanoidBone,
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-    const s: P.ISegment = segment(name);
+    const s: IAutoMoviePhysicalProfile.ISegment = segment(name);
     const out: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = {
       min: { x: Infinity, y: Infinity, z: Infinity },
       max: { x: -Infinity, y: -Infinity, z: -Infinity },
@@ -96,7 +90,7 @@ export function measureAutoMovieHumanoidBody(
   };
   const radius = (name: AutoMovieHumanoidBone): number =>
     Math.max(
-      ...segment(name).shapes.map((shape: P.IShape): number => {
+      ...segment(name).shapes.map((shape: IAutoMoviePhysicalProfile.IShape): number => {
         if (shape.kind === "box")
           return Math.min(
             shape.halfExtents.x,
@@ -108,11 +102,11 @@ export function measureAutoMovieHumanoidBody(
         if (shape.kind === "hull") {
           // Half the hull's least width: the narrowest slab between a face
           // plane and the vertex farthest behind it.
-          const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
           return (
             Math.min(
               ...hull.faces.map(
-                (face: physicalHullFaces.IFace): number =>
+                (face: IAutoMoviePhysicalHullFaces.IFace): number =>
                   face.offset -
                   Math.min(
                     ...hull.vertices.map((vertex: IAutoMovieVector3): number =>
@@ -128,9 +122,9 @@ export function measureAutoMovieHumanoidBody(
       }),
     );
   const top: number = Math.max(
-    ...profile.segments.flatMap((s: P.ISegment): number[] =>
+    ...profile.segments.flatMap((s: IAutoMoviePhysicalProfile.ISegment): number[] =>
       s.shapes.map(
-        (shape: P.IShape): number =>
+        (shape: IAutoMoviePhysicalProfile.IShape): number =>
           physicalShapeBounds(s.neutral, shape).max.y,
       ),
     ),
@@ -149,7 +143,7 @@ export function measureAutoMovieHumanoidBody(
       bone(side, "Hand"),
       ...profile.segments
         .map(
-          (x: P.ISegment): AutoMovieHumanoidBone =>
+          (x: IAutoMoviePhysicalProfile.ISegment): AutoMovieHumanoidBone =>
             x.bone as AutoMovieHumanoidBone,
         )
         .filter(
@@ -180,7 +174,7 @@ export function measureAutoMovieHumanoidBody(
     );
     if (
       !profile.segments.some(
-        (x: P.ISegment): boolean => x.bone === bone(side, "Toes"),
+        (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === bone(side, "Toes"),
       )
     )
       return rear;

@@ -1,4 +1,5 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieCanonicalBoundaryPhase64, IAutoMovieTessellateParametricAtlas64, IAutoMovieMesh } from "@automovie/interface";
+
 
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
@@ -28,45 +29,7 @@ import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each declared physical sample has one cached position, while analytic normals and UVs retain chart ownership. All incidence is registered before any chart emits.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most maxVertices render vertices and 4096 charts with at most 128 steps per axis are admitted. Maps, lattice samples and callback references are call-local; only mesh, counts and diagnostics escape.
  */
-export function tessellateAutoMovieParametricAtlas64(props: {
-  domain: string;
-  maxVertices: number;
-  patches: readonly {
-    id: string;
-    stepsU: number;
-    stepsV: number;
-    evaluate: (
-      u: number,
-      v: number,
-    ) => { point: M.V; du: M.V; dv: M.V; normalLimit?: M.V };
-    edges: readonly {
-      authority: string;
-      start: number;
-      end: number;
-      /** Local unit coordinate to this authority's canonical phase; paired with localize. */
-      parameterize?: (local: number) => ReturnType<typeof Q.phase>;
-      /** Inverse on the directed restriction; finite schedule checks are not a continuous certificate. */
-      localize?: (phase: ReturnType<typeof Q.phase>) => number;
-      sample: (phase: ReturnType<typeof Q.phase>) => {
-        key: string;
-        point: M.V;
-      };
-    }[];
-  }[];
-}): {
-  mesh: IAutoMovieMesh;
-  diagnostics: string[];
-  retainedPatches: string[];
-  counts: {
-    patches: number;
-    omittedPatches: number;
-    vertices: number;
-    triangles: number;
-    singularNormals: number;
-    limitingNormals: number;
-    zeroAreaTriangles: number;
-  };
-} {
+export function tessellateAutoMovieParametricAtlas64(props: IAutoMovieTessellateParametricAtlas64.IProps): IAutoMovieTessellateParametricAtlas64.IResult {
   if (
     !props.domain.trim() ||
     !Number.isSafeInteger(props.maxVertices) ||
@@ -77,9 +40,9 @@ export function tessellateAutoMovieParametricAtlas64(props: {
       "A bounded parametric atlas and topology domain are required",
     );
   type Patch = (typeof props.patches)[number];
-  type Phase = ReturnType<typeof Q.phase>;
+  type Phase = IAutoMovieCanonicalBoundaryPhase64;
   type UV = [number, number];
-  type BoundarySample = { key: string; point: M.V };
+  type BoundarySample = { key: string; point: AutoMovieVector3Tuple };
   const requests: Map<string, Map<string, Phase>> = new Map();
   const originalLocals: Map<
     Patch["edges"][number],
@@ -150,7 +113,7 @@ export function tessellateAutoMovieParametricAtlas64(props: {
     skin: null,
     physicalVertices: { sources: [], vertices: [] },
   };
-  const physical: Map<string, { id: number; point: M.V }> = new Map();
+  const physical: Map<string, { id: number; point: AutoMovieVector3Tuple }> = new Map();
   const counts: {
     patches: number;
     omittedPatches: number;
@@ -180,7 +143,7 @@ export function tessellateAutoMovieParametricAtlas64(props: {
       ],
     ),
   );
-  const canonical: Map<string, M.V> = new Map();
+  const canonical: Map<string, AutoMovieVector3Tuple> = new Map();
   const conflicts: Set<string> = new Set();
   const incidents: Map<string, Set<string>> = new Map();
   const rejected: Map<string, string[]> = new Map();
@@ -216,7 +179,7 @@ export function tessellateAutoMovieParametricAtlas64(props: {
                     !sample.point.every(Number.isFinite)
                   )
                     throw new Error("Nonfinite or unnamed canonical point");
-                  const previous: M.V | undefined = canonical.get(sample.key);
+                  const previous: AutoMovieVector3Tuple | undefined = canonical.get(sample.key);
                   if (previous === undefined)
                     canonical.set(sample.key, M.clone(sample.point));
                   else if (
@@ -351,21 +314,21 @@ export function tessellateAutoMovieParametricAtlas64(props: {
       const firstTriangle: number = counts.triangles;
       for (let index: number = 0; index < triangles.length; index += 3) {
         const ids: number[] = triangles.slice(index, index + 3);
-        const p: M.V[] = ids.map(
-          (id: number): M.V => mesh.positions.slice(3 * id, 3 * id + 3) as M.V,
+        const p: AutoMovieVector3Tuple[] = ids.map(
+          (id: number): AutoMovieVector3Tuple => mesh.positions.slice(3 * id, 3 * id + 3) as AutoMovieVector3Tuple,
         );
-        const a: M.V = M.sub(p[1]!, p[0]!),
-          b: M.V = M.sub(p[2]!, p[0]!);
+        const a: AutoMovieVector3Tuple = M.sub(p[1]!, p[0]!),
+          b: AutoMovieVector3Tuple = M.sub(p[2]!, p[0]!);
         const scaleA: number = Math.max(...a.map(Math.abs)),
           scaleB: number = Math.max(...b.map(Math.abs));
-        const aa: M.V =
+        const aa: AutoMovieVector3Tuple =
           scaleA === 0
             ? [0, 0, 0]
-            : (a.map((value: number): number => value / scaleA) as M.V);
-        const bb: M.V =
+            : (a.map((value: number): number => value / scaleA) as AutoMovieVector3Tuple);
+        const bb: AutoMovieVector3Tuple =
           scaleB === 0
             ? [0, 0, 0]
-            : (b.map((value: number): number => value / scaleB) as M.V);
+            : (b.map((value: number): number => value / scaleB) as AutoMovieVector3Tuple);
         const area: number = Math.hypot(
           aa[1] * bb[2] - aa[2] * bb[1],
           aa[2] * bb[0] - aa[0] * bb[2],
@@ -391,7 +354,7 @@ export function tessellateAutoMovieParametricAtlas64(props: {
         const previous: number | undefined = local.get(localKey);
         if (previous !== undefined) return previous;
         const jet: ReturnType<Patch["evaluate"]> = patch.evaluate(u, v);
-        let point: M.V = jet.point;
+        let point: AutoMovieVector3Tuple = jet.point;
         let key: string = `${patch.id}:interior:${localKey}`;
         const side: number =
           v === 0 ? 0 : u === 1 ? 1 : v === 1 ? 2 : u === 0 ? 3 : -1;
@@ -410,13 +373,13 @@ export function tessellateAutoMovieParametricAtlas64(props: {
         }
         if (![...point, ...jet.du, ...jet.dv].every(Number.isFinite))
           throw new Error("Nonfinite analytic chart value");
-        const held: { id: number; point: M.V } | undefined = physical.get(key);
+        const held: { id: number; point: AutoMovieVector3Tuple } | undefined = physical.get(key);
         if (
           held !== undefined &&
           held.point.some((q: number, k: number): boolean => q !== point[k])
         )
           throw new Error(`Inconsistent canonical point ${key}`);
-        const source: { id: number; point: M.V } = held ?? {
+        const source: { id: number; point: AutoMovieVector3Tuple } = held ?? {
           id: physical.size,
           point: M.clone(point),
         };
@@ -429,15 +392,15 @@ export function tessellateAutoMovieParametricAtlas64(props: {
         }
         const scaleU: number = Math.max(...jet.du.map(Math.abs)),
           scaleV: number = Math.max(...jet.dv.map(Math.abs));
-        const du: M.V =
+        const du: AutoMovieVector3Tuple =
           scaleU === 0
             ? [0, 0, 0]
-            : (jet.du.map((value: number): number => value / scaleU) as M.V);
-        const dv: M.V =
+            : (jet.du.map((value: number): number => value / scaleU) as AutoMovieVector3Tuple);
+        const dv: AutoMovieVector3Tuple =
           scaleV === 0
             ? [0, 0, 0]
-            : (jet.dv.map((value: number): number => value / scaleV) as M.V);
-        const normal: M.V = [
+            : (jet.dv.map((value: number): number => value / scaleV) as AutoMovieVector3Tuple);
+        const normal: AutoMovieVector3Tuple = [
           du[1] * dv[2] - du[2] * dv[1],
           du[2] * dv[0] - du[0] * dv[2],
           du[0] * dv[1] - du[1] * dv[0],

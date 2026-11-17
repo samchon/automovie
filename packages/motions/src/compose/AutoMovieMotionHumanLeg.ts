@@ -1,13 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanLeg, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
@@ -27,73 +22,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement` and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanLeg {
-  /**
-   * A leg side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two sides a leg is on.
-   * @evidence contracts/development/design.md#principled-representation The body's bilateral symmetry as a closed union, the form the rig's bone names take.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, used by every function here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
-   */
-  export type Side = HumanHand.Side;
-
-  /**
-   * A foot's placement as a frame of the action.
-   *
-   * @param posture The posture so far at this second.
-   * @param seconds Seconds since the action's start.
-   * @returns The placement, world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each argument is, when the function is called and the result's frame.
-   * @evidence contracts/development/design.md#principled-representation A foot that follows something (a swing path, a pivot about its ball) is a function of the posture so far and the time, evaluated when the row is written.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by `place`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed placement is the constant function, so there is no second form for it.
-   */
-  export type Frame = (
-    posture: IHumanPosture,
-    seconds: number,
-  ) => HumanFoot.IPlacement;
-
-  /**
-   * One leg's movement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its unit.
-   * @evidence contracts/development/design.md#principled-representation The span the leg is written over, where the foot is at each second and whether it bears then.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `place`; `plant` and `step` fill them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bearing is a function of seconds, so a foot that lands inside the span needs no second primitive.
-   */
-  export interface IPlace {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The leg. */
-    side: Side;
-
-    /** Seconds since the action's start from which the leg is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the leg is written. */
-    to: number;
-
-    /** Where the foot is. */
-    placement: Frame;
-
-    /**
-     * Whether the foot bears on the floor.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns `true` while it is planted.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and what the boolean means.
-     * @evidence contracts/development/implementation.md#principled-implementation Bearing is a pure function of the seconds, so a foot that lands or leaves inside the span needs no second primitive.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `place`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The member answers a boolean and no share of bearing, so a foot is either planted or free; the reader applies no tolerance of its own to it.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    planted(seconds: number): boolean;
-  }
 
   /**
    * A foot on its way from one placement to another: the ankle on the
@@ -116,11 +44,11 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function arc(
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
     progress: number,
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     const s: number = Math.min(1, Math.max(0, progress));
     const ankle: IAutoMovieVector3 = Vector3.lerp(from.ankle, to.ankle, s);
     return {
@@ -148,12 +76,12 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function goal(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    side: Side,
-    placement: HumanFoot.IPlacement,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    side: IAutoMovieMotionHumanHand.Side,
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieMotionHumanPosture.IGoal {
     return {
       point: placement.ankle,
       rotation: placement.rotation,
@@ -183,13 +111,13 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `goal`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function place(props: IPlace): IAutoMovieMotionHumanPrimitive {
+  export function place(props: IAutoMovieMotionHumanLeg.IPlace): IAutoMovieMotionHumanPrimitive {
     const limb: "leftLeg" | "rightLeg" = `${props.side}Leg`;
     return {
       channels: [limb],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         limbs: {
           ...posture.limbs,
@@ -224,18 +152,18 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function plant(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock.IClock,
+    side: IAutoMovieMotionHumanHand.Side,
     window: readonly [string, string],
-    at: HumanFoot.IPlacement,
+    at: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieMotionHumanPrimitive {
     return place({
       body,
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      placement: (): HumanFoot.IPlacement => at,
+      placement: (): IAutoMovieMotionHumanFoot.IPlacement => at,
       planted: (): boolean => true,
     });
   }
@@ -263,12 +191,12 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function step(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock.IClock,
+    side: IAutoMovieMotionHumanHand.Side,
     window: readonly [string, string],
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
     clearance: number,
   ): IAutoMovieMotionHumanPrimitive {
     return place({
@@ -276,7 +204,7 @@ export namespace AutoMovieMotionHumanLeg {
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
+      placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
         arc(from, to, clearance, clock.progress(window[0], window[1], seconds)),
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,

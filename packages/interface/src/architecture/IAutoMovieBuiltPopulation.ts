@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieInstanceSetDesign } from "../production/IAutoMovieInstanceSetDesign";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieInstanceSetDesign } from "../production/IAutoMovieInstanceSetDesign";
 
 /**
  * One compact population of repeated members standing in one logical space.

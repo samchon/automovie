@@ -1,6 +1,7 @@
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieViewLoft, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieConstructionNode, IAutoMovieHumanF1, IAutoMovieLoftFrame, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+
 
 /**
  * The declaration of f1's sewn body, against the anatomy it declares.
@@ -21,9 +22,9 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  */
 export function test_human_f1_construction(): void {
   const failures: string[] = [];
-  const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
-  const nodes: AutoMovieConstructionNode[] = [];
-  const walk = (node: AutoMovieConstructionNode): void => {
+  const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
+  const nodes: IAutoMovieConstructionNode[] = [];
+  const walk = (node: IAutoMovieConstructionNode): void => {
     nodes.push(node);
     if (node.type === "join" || node.type === "port" || node.type === "continue") {
       walk(node.host);
@@ -34,7 +35,7 @@ export function test_human_f1_construction(): void {
     }
   };
   walk(declared.root);
-  const count = (type: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === type).length;
+  const count = (type: string): number => nodes.filter((node: IAutoMovieConstructionNode): boolean => node.type === type).length;
 
   // 1. The body's parts.
   for (const [type, expected] of [["split", 5], ["port", 5], ["continue", 2], ["join", 14], ["source", 42]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
@@ -46,11 +47,11 @@ export function test_human_f1_construction(): void {
       if (part === undefined || part.name !== node.name) failures.push(`source leaf ${node.name} has ${part === undefined ? "no part" : "the part " + part.name}`);
     }
   if (declared.sources.size !== 42) failures.push(`${declared.sources.size} source parts, expected 42`);
-  const kinds = (kind: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === "join" && node.kind === kind).length;
+  const kinds = (kind: string): number => nodes.filter((node: IAutoMovieConstructionNode): boolean => node.type === "join" && node.kind === kind).length;
   if (kinds("merge") !== 8 || kinds("diff") !== 6) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 8 and 6`);
 
   // 3. Both sides; the nose stands on the median plane and has no twin.
-  const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" || node.type === "continue" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
+  const faces: string[] = nodes.flatMap((node: IAutoMovieConstructionNode): string[] => (node.type === "port" || node.type === "continue" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
   for (const face of faces.filter((name: string): boolean => !name.endsWith(".mirror"))) if (!faces.includes(face + ".mirror")) failures.push(`${face} has no twin`);
   if (faces.filter((name: string): boolean => name.endsWith(".mirror")).length !== faces.length / 2) failures.push(`${faces.length} operator faces are not half twins`);
   for (const [name, loop] of [["armscye", AutoMovieHumanF1.armscye], ["mammary", AutoMovieHumanF1.mammary]] as const) {
@@ -63,7 +64,7 @@ export function test_human_f1_construction(): void {
   }
 
   if (AutoMovieHumanF1.armscye(1).sense !== 1 || AutoMovieHumanF1.armscye(-1).sense !== -1) failures.push("the armscye loops do not run as reflections of each other");
-  const shapes: number[][] = nodes.flatMap((node: AutoMovieConstructionNode): number[][] => (node.type === "port" && node.name.startsWith("armscye.") ? [node.loop.shape ?? []] : []));
+  const shapes: number[][] = nodes.flatMap((node: IAutoMovieConstructionNode): number[][] => (node.type === "port" && node.name.startsWith("armscye.") ? [node.loop.shape ?? []] : []));
   if (shapes.length !== 2 || shapes[0]!.length !== 192 || shapes[0]!.some((share: number, k: number): boolean => !(share > 0.5 && share < 2) || Math.abs(share - shapes[1]![k]!) > 1e-9)) failures.push(`the armscye loops' shapes are not 192 shares near one, alike on both sides: ${JSON.stringify(shapes).slice(0, 300)}`);
   if (Math.max(...shapes[0]!) - Math.min(...shapes[0]!) < 0.02) failures.push("the armscye loop's shape is the plain ellipse, not the arm's ring");
 
@@ -80,22 +81,22 @@ export function test_human_f1_construction(): void {
       if (node.hostFace !== "arm" + side || node.hostEnd !== "top" || node.partFace !== "hand" + side || node.partEnd !== "bottom") failures.push(`${node.name} continues ${node.hostFace} at its ${node.hostEnd} end into ${node.partFace} at its ${node.partEnd} end`);
     } else if (node.type === "join" && node.kind === "diff") {
       const side: string = node.seed.partFace.endsWith(".mirror") ? ".mirror" : "";
-      const under: AutoMovieConstructionNode[] = [];
-      const collect = (inner: AutoMovieConstructionNode): void => {
+      const under: IAutoMovieConstructionNode[] = [];
+      const collect = (inner: IAutoMovieConstructionNode): void => {
         under.push(inner);
         if (inner.type === "join" || inner.type === "port" || inner.type === "split") collect(inner.host);
       };
       collect(node.host);
-      const attached: boolean = under.some((inner: AutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk");
+      const attached: boolean = under.some((inner: IAutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk");
       if (node.name.startsWith("cut.concha")) {
-        if (node.seed.hostFace !== "trunk" || !under.some((inner: AutoMovieConstructionNode): boolean => inner.name === "root.plate" + side)) failures.push(`${node.name} is not cut from the head after its own ear's plate is merged`);
+        if (node.seed.hostFace !== "trunk" || !under.some((inner: IAutoMovieConstructionNode): boolean => inner.name === "root.plate" + side)) failures.push(`${node.name} is not cut from the head after its own ear's plate is merged`);
       } else if (node.name.startsWith("cut.axilla") || node.name.startsWith("cut.vault")) {
-        if (node.seed.hostFace !== "band.arm" + side || !under.some((inner: AutoMovieConstructionNode): boolean => inner.name === "armscye.arm" + side)) failures.push(`${node.name} is not cut from its own arm's band after that arm's port`);
+        if (node.seed.hostFace !== "band.arm" + side || !under.some((inner: IAutoMovieConstructionNode): boolean => inner.name === "armscye.arm" + side)) failures.push(`${node.name} is not cut from its own arm's band after that arm's port`);
       } else if (node.seed.hostFace !== "nose" || !attached) failures.push(`${node.name} is not cut from the head at the nose`);
     } else if (node.type === "join") {
       const side: string = node.seed.partFace.endsWith(".mirror") ? ".mirror" : "";
-      const under: AutoMovieConstructionNode[] = [];
-      const collect = (inner: AutoMovieConstructionNode): void => {
+      const under: IAutoMovieConstructionNode[] = [];
+      const collect = (inner: IAutoMovieConstructionNode): void => {
         under.push(inner);
         if (inner.type === "join") {
           collect(inner.host);
@@ -104,13 +105,13 @@ export function test_human_f1_construction(): void {
       };
       if (node.name.startsWith("root.plate")) {
         // The ear's plate alone, onto the head.
-        const hostUnder: AutoMovieConstructionNode[] = [];
-        const hosts = (inner: AutoMovieConstructionNode): void => {
+        const hostUnder: IAutoMovieConstructionNode[] = [];
+        const hosts = (inner: IAutoMovieConstructionNode): void => {
           hostUnder.push(inner);
           if (inner.type === "join" || inner.type === "port" || inner.type === "split") hosts(inner.host);
         };
         hosts(node.host);
-        if (node.seed.hostFace !== "trunk" || !hostUnder.some((inner: AutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk") || node.part.type !== "source" || node.part.name !== "plate" + side) failures.push(`${node.name} is not its own side's plate merged onto the head`);
+        if (node.seed.hostFace !== "trunk" || !hostUnder.some((inner: IAutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk") || node.part.type !== "source" || node.part.name !== "plate" + side) failures.push(`${node.name} is not its own side's plate merged onto the head`);
         continue;
       }
       if (node.name.startsWith("ridge.")) {
@@ -122,7 +123,7 @@ export function test_human_f1_construction(): void {
       }
       if (!(node.name.startsWith("ridge.") ? ["plate" + side] : ["hand" + side, "leg" + side]).includes(node.seed.hostFace)) failures.push(`${node.name} is merged onto ${node.seed.hostFace}`);
       collect(node.host);
-      if (under.some((inner: AutoMovieConstructionNode): boolean => inner.type !== "join" && inner.type !== "source") || under.some((inner: AutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk")) failures.push(`${node.name}'s host holds more than its own part and the parts merged on it`);
+      if (under.some((inner: IAutoMovieConstructionNode): boolean => inner.type !== "join" && inner.type !== "source") || under.some((inner: IAutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk")) failures.push(`${node.name}'s host holds more than its own part and the parts merged on it`);
     }
 
   // 5. Ports on the trunk.
@@ -145,7 +146,7 @@ export function test_human_f1_construction(): void {
     const stations: number[] = part.stations.filter((s: number): boolean => s >= AutoMovieHumanF1.BODY[name].knots[0]! && s <= end);
     let worst: [number, number] = [0, 0];
     for (let i: number = 1; i < stations.length; ++i) {
-      const [a, b]: AutoMovieLoftFrame.IFrame[] = [part.axis.at(stations[i - 1]!), part.axis.at(stations[i]!)];
+      const [a, b]: IAutoMovieLoftFrame.IFrame[] = [part.axis.at(stations[i - 1]!), part.axis.at(stations[i]!)];
       for (let j: number = 0; j < 96; ++j) {
         const p: number[] = AutoMovieLoftChain.point(chain, stations[i - 1]!, (2 * Math.PI * j) / 96);
         const r: number[] = [0, 1, 2].map((k: number): number => p[k]! - a.origin[k]);

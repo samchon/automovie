@@ -1,3 +1,6 @@
+import type { IAutoMovieAudioMixCue, IAutoMovieAudioMixInput, IAutoMovieAudioMixResult } from "@automovie/interface";
+
+
 /**
  * Sum mono audio sources into one stereo soundtrack, sample-accurately and
  * deterministically.
@@ -23,16 +26,7 @@
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 11 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function mixAutoMovieAudioPcm(input: {
-  /** Output samples per second; a positive safe integer. */ sampleRate: number;
-  /** Output length in samples; a positive safe integer. */ frames: number;
-  /** Normalized mono sources by id, at the output rate. */ sources: Readonly<
-    Record<string, Float32Array>
-  >;
-  /** The cues. */ cues: readonly mixAutoMovieAudioPcm.ICue[];
-  /** Linear gain applied to every cue; 1 by default. */ master?: number;
-  /** Edge fade length, seconds; 0.004 by default. */ fadeSeconds?: number;
-}): { left: Float32Array; right: Float32Array; peak: number } {
+export function mixAutoMovieAudioPcm(input: IAutoMovieAudioMixInput): IAutoMovieAudioMixResult {
   const rate: number = input.sampleRate;
   if (
     !Number.isSafeInteger(rate) ||
@@ -47,7 +41,7 @@ export function mixAutoMovieAudioPcm(input: {
     throw new Error("Invalid audio mix master gain or fade");
   const left: Float32Array = new Float32Array(input.frames);
   const right: Float32Array = new Float32Array(input.frames);
-  input.cues.forEach((cue: mixAutoMovieAudioPcm.ICue, index: number): void => {
+  input.cues.forEach((cue: IAutoMovieAudioMixCue, index: number): void => {
     const source: Float32Array | undefined = input.sources[cue.asset];
     if (source === undefined || source.length === 0)
       throw new Error(`Audio cue ${index} names no source: ${cue.asset}`);
@@ -101,37 +95,4 @@ export function mixAutoMovieAudioPcm(input: {
   if (!Number.isFinite(peak) || peak > 1)
     throw new Error(`The audio mix clips at peak ${peak}`);
   return { left, right, peak };
-}
-/**
- * Companion types of {@link mixAutoMovieAudioPcm}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 1 member (`ICue`); units and frames named in its text: seconds. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `mixAutoMovieAudioPcm` in packages/render/src/audio/mixAutoMovieAudioPcm.ts; its surface is the 1 member listed and the text shows 4 other files naming it, mostly packages/render (2), packages/viewer (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace mixAutoMovieAudioPcm {
-  /** One placed source excerpt. */
-  export interface ICue {
-    /** Source id. */
-    asset: string;
-
-    /** Output onset, seconds; nonnegative. */
-    seconds: number;
-
-    /** Linear gain; nonnegative. */
-    gain: number;
-
-    /** Equal-power pan in [-1, 1]; 0 by default. */
-    pan?: number;
-
-    /** Source offset, seconds; 0 by default. */
-    offsetSeconds?: number;
-
-    /** Output duration, seconds; the rest of the source by default. */
-    durationSeconds?: number;
-
-    /** Source samples per output sample; 1 by default. */
-    rate?: number;
-  }
 }

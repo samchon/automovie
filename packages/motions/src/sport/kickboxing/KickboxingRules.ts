@@ -1,11 +1,4 @@
-import type {
-  IAutoMovieSchedule,
-  checkAutoMovieLegality,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidRegion, IAutoMovieCheckLegality, IAutoMovieMotionTarget, IAutoMovieSchedule } from "@automovie/interface";
 
 /**
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
@@ -84,7 +77,7 @@ export namespace KickboxingRules {
       capability !== "knee"
     )
       return null;
-    const p = params as { at?: AutoMovieMotionTarget; technique?: string };
+    const p = params as { at?: IAutoMovieMotionTarget; technique?: string };
     if (p.at?.kind !== "person") return null;
     if (FOUL_REGIONS.has(p.at.region))
       return `a strike at the ${p.at.region} is a foul`;
@@ -98,7 +91,7 @@ export namespace KickboxingRules {
   }
 
   /** The rules. */
-  export const rules: readonly checkAutoMovieLegality.IRule[] = Object.freeze([
+  export const rules: readonly IAutoMovieCheckLegality.IRule[] = Object.freeze([
     {
       id: "single-clinch-knee",
       check: (
@@ -146,7 +139,7 @@ export namespace KickboxingRules {
           entry.intent.capability !== "knee"
         )
           return null;
-        const at = (params(entry) as { at?: AutoMovieMotionTarget }).at;
+        const at = (params(entry) as { at?: IAutoMovieMotionTarget }).at;
         if (at?.kind !== "person") return null;
         const down: IAutoMovieSchedule.IEntry | undefined =
           schedule.entries.find((other: IAutoMovieSchedule.IEntry): boolean => {

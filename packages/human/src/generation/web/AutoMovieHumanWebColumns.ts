@@ -1,17 +1,22 @@
-import { type AutoMovieLoftFrame, type IAutoMovieLoftChain, AutoMovieLoftChain } from "@automovie/engine";
-import type { IAutoMovieHumanSeam } from "../../lofting/IAutoMovieHumanSeam";
-import type { IAutoMovieHumanWeb } from "./IAutoMovieHumanWeb";
-import type { IAutoMovieHumanWebBranch } from "./IAutoMovieHumanWebBranch";
-import type { IAutoMovieHumanWebChild } from "./IAutoMovieHumanWebChild";
-import type { IAutoMovieHumanWebColumn } from "./IAutoMovieHumanWebColumn";
-import type { IAutoMovieHumanWebColumns } from "./IAutoMovieHumanWebColumns";
-import type { IAutoMovieHumanWebCrests } from "./IAutoMovieHumanWebCrests";
-import type { IAutoMovieHumanWebInput } from "./IAutoMovieHumanWebInput";
+import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, AutoMovieVector3Tuple, IAutoMovieArcLengthJet, IAutoMovieHumanWeb, IAutoMovieHumanWebBranch, IAutoMovieHumanWebChild, IAutoMovieHumanWebColumn, IAutoMovieHumanWebColumns, IAutoMovieHumanWebCrests, IAutoMovieHumanWebInput } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
+
+
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, plus: add, scale, dot, norm, unit, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { sampled, leaving, H }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
 
@@ -73,8 +78,8 @@ export namespace AutoMovieHumanWebColumns {
       const into = (t: number): Vec3 => unit(sub(inChild(t), onChild(t)));
       // The child's station curve at a phase, entering it from its end ring.
       const deepChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(child, sc + (down ? -2 * H : 2 * H));
-      const childJet = (t: number): IAutoMovieHumanSeam.IArcJet => leaving(onChild(t), inChild(t), deepChild(t), 1);
-      const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(child, sc);
+      const childJet = (t: number): IAutoMovieArcLengthJet => leaving(onChild(t), inChild(t), deepChild(t), 1);
+      const f: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(child, sc);
       const O: Vec3 = AutoMovieLoftChain.axis(child, sc);
       const angle = (p: Vec3): number => Math.atan2(dot(sub(p, O), f.v), dot(sub(p, O), f.u));
 
@@ -190,7 +195,7 @@ export namespace AutoMovieHumanWebColumns {
           const fromBefore: boolean = s <= total - s;
           const web: IAutoMovieHumanWeb = fromBefore ? before : after;
           const pinch: number = fromBefore ? arc[0]! : arc[arc.length - 1]!;
-          const jet: IAutoMovieHumanSeam.IArcJet = parentJet(tau);
+          const jet: IAutoMovieArcLengthJet = parentJet(tau);
 
           return {
             kind: "plain",

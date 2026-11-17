@@ -1,3 +1,4 @@
+import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple } from "@automovie/interface";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
 /**
@@ -12,66 +13,6 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieBernsteinAlgebra64 {
-  /**
-   * Three-component coefficient values; positions and derivative fields retain the units owned by their enclosing chart.
-   *
-   * @evidence contracts/development/design.md#principled-representation A fixed three-component mutable coefficient value.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   */
-  export type Vec = V.V;
-
-  /**
-   * Ordered Bernstein vector coefficients, with degree equal to length minus one.
-   *
-   * @evidence contracts/development/design.md#principled-representation An ordered vector Bernstein coefficient array whose degree is length minus one.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   */
-  export type Poly = Vec[];
-
-  /**
-   * Tensor coefficient rows used only to derive curve courses and first variations.
-   *
-   * @evidence contracts/development/design.md#principled-representation An outer-parameter array of corresponding vector Bernstein rows.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   */
-  export type Grid = Poly[];
-
-  /**
-   * A rational vector field N/Q; the denominator must remain positive on the evaluated chart.
-   *
-   * @evidence contracts/development/design.md#principled-representation A vector homogeneous numerator and scalar denominator sharing one local quotient parameter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   */
-  export interface RecordV {
-    /** Homogeneous vector numerator coefficients. */
-    numerator: Poly;
-
-    /** Scalar denominator coefficients in the same parameter. */
-    denominator: number[];
-  }
-  /**
-   * A rational scalar transition N/Q in the same local parameter as its numerator.
-   *
-   * @evidence contracts/development/design.md#principled-representation A scalar numerator and denominator sharing one local quotient parameter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   */
-  export interface RecordS {
-    /** Homogeneous scalar numerator coefficients. */
-    numerator: number[];
-
-    /** Scalar denominator coefficients in the same parameter. */
-    denominator: number[];
-  }
   /**
    * Return a binomial coefficient for integer indices 0<=k<=n; callers own finite representability of the multiplicative factors.
    *
@@ -139,14 +80,14 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each reduction row supplies the complete next level in the same evaluation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned vector belongs to the local cloned/evaluated net, with no input alias.
    */
-  export function value(c: readonly Vec[], t: number): Vec {
+  export function value(c: readonly AutoMovieVector3Tuple[], t: number): AutoMovieVector3Tuple {
     if (t === 0) return V.clone(c[0]!);
     if (t === 1) return V.clone(c.at(-1)!);
-    let row: Vec[] = c.map(V.clone);
+    let row: AutoMovieVector3Tuple[] = c.map(V.clone);
     while (row.length > 1)
       row = row
         .slice(0, -1)
-        .map((a: Vec, i: number): Vec => V.mix(a, row[i + 1]!, t));
+        .map((a: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => V.mix(a, row[i + 1]!, t));
     return row[0]!;
   }
   /**
@@ -160,11 +101,11 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Derivative coefficients can be reused by quotient and grid callers without finite differences.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only newly allocated derivative triples escape.
    */
-  export function tangent(c: readonly Vec[], scale: number = 1): Poly {
+  export function tangent(c: readonly AutoMovieVector3Tuple[], scale: number = 1): AutoMovieBernsteinPolynomial64 {
     return c
       .slice(1)
       .map(
-        (p: Vec, i: number): Vec =>
+        (p: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple =>
           V.scale(V.sub(p, c[i]!), (c.length - 1) * scale),
       );
   }
@@ -230,16 +171,16 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The elevated coordinate columns are each computed once for the returned net.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Output triples are independent of input controls and temporary columns expire.
    */
-  export function elevate(c: readonly Vec[], degree: number): Poly {
+  export function elevate(c: readonly AutoMovieVector3Tuple[], degree: number): AutoMovieBernsteinPolynomial64 {
     const axes: number[][] = [0, 1, 2].map((k: number): number[] =>
       elevateScalar(
-        c.map((p: Vec): number => p[k]!),
+        c.map((p: AutoMovieVector3Tuple): number => p[k]!),
         degree,
       ),
     );
     return axes[0]!.map(
-      (_: number, i: number): Vec =>
-        axes.map((a: number[]): number => a[i]!) as Vec,
+      (_: number, i: number): AutoMovieVector3Tuple =>
+        axes.map((a: number[]): number => a[i]!) as AutoMovieVector3Tuple,
     );
   }
   /**
@@ -283,16 +224,16 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A scalar numerator is reused as the operand of each coordinate product within this call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new vector net does not retain either operand.
    */
-  export function productV(a: readonly number[], b: readonly Vec[]): Poly {
+  export function productV(a: readonly number[], b: readonly AutoMovieVector3Tuple[]): AutoMovieBernsteinPolynomial64 {
     const axes: number[][] = [0, 1, 2].map((k: number): number[] =>
       product(
         a,
-        b.map((p: Vec): number => p[k]!),
+        b.map((p: AutoMovieVector3Tuple): number => p[k]!),
       ),
     );
     return axes[0]!.map(
-      (_: number, i: number): Vec =>
-        axes.map((p: number[]): number => p[i]!) as Vec,
+      (_: number, i: number): AutoMovieVector3Tuple =>
+        axes.map((p: number[]): number => p[i]!) as AutoMovieVector3Tuple,
     );
   }
   /**
@@ -307,14 +248,14 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only independent summed triples escape; elevated operands are local.
    */
   export function add(
-    a: readonly Vec[],
-    b: readonly Vec[],
+    a: readonly AutoMovieVector3Tuple[],
+    b: readonly AutoMovieVector3Tuple[],
     factor: number = 1,
-  ): Poly {
+  ): AutoMovieBernsteinPolynomial64 {
     const degree: number = Math.max(a.length, b.length) - 1,
-      x: Poly = elevate(a, degree),
-      y: Poly = elevate(b, degree);
-    return x.map((p: Vec, i: number): Vec => V.add(p, V.scale(y[i]!, factor)));
+      x: AutoMovieBernsteinPolynomial64 = elevate(a, degree),
+      y: AutoMovieBernsteinPolynomial64 = elevate(b, degree);
+    return x.map((p: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => V.add(p, V.scale(y[i]!, factor)));
   }
   /**
    * Elevate to a common degree, then add the scaled scalar polynomial.
@@ -348,7 +289,7 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The current factor is applied directly without retaining previous products.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A new vector net owns the scaled controls.
    */
-  export function scale(a: readonly Vec[], factor: number): Poly {
-    return a.map((p: Vec): Vec => V.scale(p, factor));
+  export function scale(a: readonly AutoMovieVector3Tuple[], factor: number): AutoMovieBernsteinPolynomial64 {
+    return a.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => V.scale(p, factor));
   }
 }

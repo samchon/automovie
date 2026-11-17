@@ -1,10 +1,12 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootPrior, IAutoMovieHumanFootWebLine } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanFootCrestForefoot } from "./AutoMovieHumanFootCrestForefoot";
 import { AutoMovieHumanFootLateralForefoot } from "./AutoMovieHumanFootLateralForefoot";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
-import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 
-type Vec3 = G.Vec3;
 
 /**
  * The line of the toes' webs and the fan of section planes that starts on it.
@@ -20,46 +22,14 @@ type Vec3 = G.Vec3;
  * themselves are `AutoMovieHumanFootFan`.
  */
 export namespace AutoMovieHumanFootWebLine {
-  /** What the web line reads besides the frame. */
-  export interface IInput {
-    /** The foot's frame. */
-    frame: AutoMovieHumanFootFrame.IFrame;
+  
 
-    /** The forefoot crest's height over the floor at a place along the foot, foot lengths. */
-    depth: (a: number) => number;
-  }
-
-  /** The fan's axes, levers and stations. */
-  export interface IWebLine {
-    /** The shared point: on the vertical yaw axis and the horizontal turn axis. */
-    origin: Vec3;
-
-    /** Horizontal, across the foot toward its lateral side: the turn axis. */
-    lateral: Vec3;
-
-    /** Horizontal, along the foot toward the heel. */
-    back: Vec3;
-
-    /** The web ring's yaw from the square plane, radians. */
-    yaw: number;
-
-    /** Station at the square plane. */
-    square: number;
-
-    /** Station per radian of the yaw fan. */
-    yawLever: number;
-
-    /** Station per radian of the turn fan. */
-    turnLever: number;
-
-    /** Station at the ankle ring. */
-    end: number;
-  }
+  
 
   /** The web line of a foot. */
-  export function of(input: IInput): IWebLine {
-    const frame: AutoMovieHumanFootFrame.IFrame = input.frame;
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+  export function of(input: IAutoMovieHumanFootWebLine.IInput): IAutoMovieHumanFootWebLine.IWebLine {
+    const frame: IAutoMovieHumanFootFrame.IFrame = input.frame;
+    const prior: IAutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
 
     // Each cleft in the foot's own plan (along, across), mm, moved back by
     // half the forefoot's own height at the cleft: the web's margin radius.
@@ -85,9 +55,9 @@ export namespace AutoMovieHumanFootWebLine {
     // The yaw axis stands PIVOT breadths beyond the lateral border, on that line.
     const c: number = Math.cos(prior.yaw);
     const s: number = Math.sin(prior.yaw);
-    const plan = (along: number, across: number): Vec3 => [along * c - across * s, 0, along * s + across * c];
+    const plan = (along: number, across: number): AutoMovieVector3Tuple => [along * c - across * s, 0, along * s + across * c];
     const reach: number = (1 - prior.ankle[1] + PIVOT) * frame.B;
-    const o: Vec3 = plan(my + slope * (reach - mx), reach);
+    const o: AutoMovieVector3Tuple = plan(my + slope * (reach - mx), reach);
     const yaw: number = Math.atan(-slope);
     const square: number = yaw * reach;
 

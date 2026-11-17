@@ -1,19 +1,24 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanApertureSpan, IAutoMovieHumanBodyApertures, IAutoMovieHumanBodyCalibration, IAutoMovieHumanConstructionPath, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
+
+
+
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanApertureSeam } from "./AutoMovieHumanApertureSeam";
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
-import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
+
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceLoft } from "./AutoMovieHumanBodySurfaceLoft";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
+
 
 const { chain, interval } = AutoMovieHumanBodySurfaceRead;
-type IPoint = AutoMovieHumanApertureSpan.IPoint;
+type IPoint = IAutoMovieHumanApertureSpan.IPoint;
 
 /**
  * An opening closed from its trim (`AutoMovieHumanApertureSpan`): the rim's
@@ -38,9 +43,9 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    * @param events The calibration's events, which name the rings chains share.
    */
   export function open(
-    context: IContext,
-    prepared: AutoMovieHumanBodyApertures.IPrepared,
-    span: AutoMovieHumanApertureSpan.ISpan,
+    context: IAutoMovieHumanSurfaceContext,
+    prepared: IAutoMovieHumanBodyApertures.IPrepared,
+    span: IAutoMovieHumanApertureSpan.ISpan,
     events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
   ): IAutoMovieHumanConstructionPath[] {
     // A slit's rim is drawn on its chains as the line it closes on.
@@ -143,7 +148,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    * past a child's inherited end the parent.
    */
   function beyond(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
     name: string,
     end: "bottom" | "top",
@@ -182,7 +187,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    * own chain and chart point.
    */
   function spanEdge(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     key: string,
     rim: readonly [number, number][],
     flat: (p: readonly number[]) => [number, number],

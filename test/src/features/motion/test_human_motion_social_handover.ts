@@ -1,21 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanMutual,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanSocial,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
+import { HumanChain, HumanMutual, HumanObject, HumanPerformance, HumanSignature, HumanSocial } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,15 +45,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
     ["m-average", "f-small"],
     ["f-small", "m-average"],
   ] as const) {
-    const bodies: Record<"a" | "b", IHumanBody> = {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(first),
       b: motionHumanBody(second),
     };
     const label: string = `${first} with ${second}`;
 
     // Before a performer's right shoulder; b faces a, so b's right is +X.
-    const before = (who: "a" | "b"): HumanObject.Placement => {
-      const m: IHumanBody["measure"] = bodies[who].measure;
+    const before = (who: "a" | "b"): IAutoMovieMotionHumanObject.Placement => {
+      const m: IAutoMovieMotionHumanBody["measure"] = bodies[who].measure;
       const ahead: number = 0.6 * (m.upperArm + m.forearm);
       return {
         at: {
@@ -78,9 +65,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
       };
     };
     const perform = (
-      props: IHumanProp[],
-      composition: { node: HumanPerformance.IInput["composition"] },
-    ): HumanPerformance =>
+      props: IAutoMovieMotionHumanProp[],
+      composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "social",
         laws: [HumanSocial.fistBump],
@@ -94,13 +81,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
         })),
         composition: composition.node,
       });
-    const instant = (segment: HumanSegment.ISegment, event: string): number =>
+    const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
       segment.start +
       (segment.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) *
         segment.plan.duration;
     const axis = (
-      performance: HumanPerformance,
+      performance: IAutoMovieMotionHumanPerformance,
       prop: string,
       seconds: number,
     ): IAutoMovieVector3 =>
@@ -112,7 +99,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
     // How far a prop moves in a right hand's frame between two seconds.
     const drift = (
-      performance: HumanPerformance,
+      performance: IAutoMovieMotionHumanPerformance,
       who: string,
       prop: string,
       from: number,
@@ -142,7 +129,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
     // 1. The mug changes hands upright.
     try {
-      const passed: HumanPerformance = perform(
+      const passed: IAutoMovieMotionHumanPerformance = perform(
         [HumanObject.prop("mug", mug, before("a"))],
         HumanChain.mutual(
           HumanMutual.handOver,
@@ -157,7 +144,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
           { prop: "mug", handle: "body" },
         ),
       );
-      const give: HumanSegment.ISegment = passed.segments("a")[1]!;
+      const give: IAutoMovieMotionHumanSegment.ISegment = passed.segments("a")[1]!;
       const grip: number = instant(passed.segments("a")[0]!, "gripClosed");
       const offered: number = instant(give, "offered");
       const release: number = instant(give, "release");

@@ -1,12 +1,5 @@
-import {
-  IAutoMovieBuiltPopulation,
-  IAutoMovieConstraintViolation,
-  IAutoMovieExplicitInstanceTransform,
-  IAutoMovieInstanceSetDesign,
-  IAutoMovieQuaternion,
-  IAutoMovieSubjectBox,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieBuiltPopulation, IAutoMovieConstraintViolation, IAutoMovieExplicitInstanceTransform, IAutoMovieInstanceSetDesign, IAutoMovieQuaternion, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -56,7 +49,7 @@ export const builtInstanceSetPlacementBounds: (
     throw new Error(
       `instance set "${set.id}" is placed along world route "${layout.route}", which a built environment carries no field to resolve`,
     );
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateBuiltPopulation({ set, prototypeBounds }, "$input", collector);
   const first: IAutoMovieConstraintViolation | undefined = collector.items[0];
   if (first !== undefined)

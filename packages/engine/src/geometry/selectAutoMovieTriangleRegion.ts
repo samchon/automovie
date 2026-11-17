@@ -1,3 +1,4 @@
+import type { IAutoMovieSelectTriangleRegion } from "@automovie/interface";
 /** One directed use of an undirected edge by a source triangle. */
 interface IEdgeUse {
   triangle: number;
@@ -33,10 +34,7 @@ interface IEdgeUse {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call answers one mesh and boundary; the portrait builder calls it once per loop, so there is no repeated work to share.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the edge map, per-triangle edge keys, barrier set and work queue are sized by T and released on return, and only the selected ordinal array is returned.
  */
-export function selectAutoMovieTriangleRegion(props: {
-  indices: readonly number[];
-  boundary: readonly number[];
-}): number[] {
+export function selectAutoMovieTriangleRegion(props: IAutoMovieSelectTriangleRegion.IProps): number[] {
   const { indices, boundary }: typeof props = props;
   const invalidIndex: (index: number) => boolean = (index: number): boolean =>
     !Number.isInteger(index) || index < 0;

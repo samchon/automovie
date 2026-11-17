@@ -1,10 +1,6 @@
-import {
-  type IAutoMovieFilmEffectClock,
-  IAutoMovieShotEffectFilmInterval,
-  productionFilmFrameForShotTime,
-  projectProductionShotEffectFilmIntervals,
-} from "@automovie/engine";
-import { IAutoMovieFilmTimelineSegment } from "@automovie/interface";
+import { type IAutoMovieFilmEffectClock, type IAutoMovieShotEffectFilmInterval, IAutoMovieFilmTimelineSegment } from "@automovie/interface";
+import { productionFilmFrameForShotTime, projectProductionShotEffectFilmIntervals } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectRefusal } from "./filmEffectRuntimeFixtures";

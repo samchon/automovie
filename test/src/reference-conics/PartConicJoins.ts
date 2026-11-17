@@ -1,3 +1,4 @@
+import type { IAutoMovieViewOutline } from "@automovie/interface";
 import { AutoMovieViewOutline as O } from "@automovie/engine";
 import type { PartConicFields as F } from "./PartConicFields";
 import type { PartConicTypes as T } from "./PartConicTypes";
@@ -10,7 +11,7 @@ export namespace PartConicJoins {
     const summary = { available: result.loft.surface !== null, samples: 0, approachRadians: [1e-5, 1e-7], maximumNormalJumpDegrees: 0, maximumPhaseDerivativeRelativeJump: 0, maximumBoundaryStationResidual: 0, errors: [] as string[] };
     const surface = result.loft.surface;
     if (surface === null) return summary;
-    const fields: O.IOutline[] = result.coefficients.fields.map((knots): O.IOutline => { const prepared = O.create({ knots }); if ("contract" in prepared) throw new Error(prepared.detail); return prepared; });
+    const fields: IAutoMovieViewOutline.IOutline[] = result.coefficients.fields.map((knots): IAutoMovieViewOutline.IOutline => { const prepared = O.create({ knots }); if ("contract" in prepared) throw new Error(prepared.detail); return prepared; });
     const contacts: [number, number][] = [[0, 4], [5, 2], [1, 6], [7, 3]];
     if (result.coefficients.piecesPerQuarter === 2) for (let q: number = 0; q < 4; ++q) contacts.push([12 + 4 * q, 13 + 4 * q]);
     for (const row of part.rows) for (const contact of contacts) {

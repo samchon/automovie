@@ -1,6 +1,10 @@
-import { AutoMovieNaturalSpline, type AutoMoviePolarSector } from "@automovie/engine";
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
-import type { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
+import type { IAutoMovieNaturalSpline, IAutoMoviePolarSector, IAutoMovieHumanArmGuides, IAutoMovieHumanArmPiece, IAutoMovieHumanArmTube } from "@automovie/interface";
+
+
+
+
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+
 
 /**
  * The arm's four guides and four sectors as functions of the walk: the spans'
@@ -22,7 +26,7 @@ export namespace AutoMovieHumanArmGuides {
    *
    * @param pieces The spans, proximal to distal.
    */
-  export function shape(pieces: readonly IAutoMovieHumanArmPiece[]): (s: number) => AutoMovieHumanArmTube.IShape {
+  export function shape(pieces: readonly IAutoMovieHumanArmPiece[]): IAutoMovieHumanArmGuides.ShapeResult {
     const rows: IAutoMovieHumanArmPiece.IRow[] = [];
 
     for (const piece of pieces)
@@ -34,9 +38,9 @@ export namespace AutoMovieHumanArmGuides {
       }
 
     const xs: number[] = rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.s);
-    const splines: AutoMovieNaturalSpline.ISpline[] = Array.from(
+    const splines: IAutoMovieNaturalSpline.ISpline[] = Array.from(
       { length: CHANNELS },
-      (_: unknown, k: number): AutoMovieNaturalSpline.ISpline =>
+      (_: unknown, k: number): IAutoMovieNaturalSpline.ISpline =>
         AutoMovieNaturalSpline.create(
           xs,
           rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.channels[k]!),
@@ -45,13 +49,13 @@ export namespace AutoMovieHumanArmGuides {
     const lo: number = xs[0]!;
     const hi: number = xs[xs.length - 1]!;
 
-    return (s: number): AutoMovieHumanArmTube.IShape => {
+    return (s: number): IAutoMovieHumanArmTube.IShape => {
       const at: number = Math.min(hi, Math.max(lo, s));
-      const v: number[] = splines.map((sp: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(sp, at));
+      const v: number[] = splines.map((sp: IAutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(sp, at));
 
       return {
         guides: ANGLES.map(
-          (angle: number, j: number): AutoMoviePolarSector.IGuide => ({
+          (angle: number, j: number): IAutoMoviePolarSector.IGuide => ({
             angle,
             value: v[3 * j]!,
             slope: v[3 * j + 1]!,

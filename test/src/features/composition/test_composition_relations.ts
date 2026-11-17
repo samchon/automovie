@@ -1,3 +1,4 @@
+import type { IAutoMovieResolveFraming, IAutoMovieResolveRelationalGoal, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -5,10 +6,7 @@ import {
   resolveAutoMovieRelationalGoal,
   resolveAutoMovieZone,
 } from "@automovie/engine";
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
@@ -40,7 +38,7 @@ export function test_composition_relations(): void {
     );
   const body = (
     offset: (seconds: number) => IAutoMovieVector3,
-  ): resolveAutoMovieRelationalGoal.IBody => ({
+  ): IAutoMovieResolveRelationalGoal.IBody => ({
     profile,
     pose: (seconds: number) => neutral(offset(seconds)),
     regions: { head: { bone: "head", localPoint: { x: 0, y: 0.1, z: 0 } } },
@@ -60,7 +58,7 @@ export function test_composition_relations(): void {
       "rightHand",
     ],
   });
-  const bodies: Record<string, resolveAutoMovieRelationalGoal.IBody> = {
+  const bodies: Record<string, IAutoMovieResolveRelationalGoal.IBody> = {
     a: body(() => ({ x: 0, y: 0, z: 0 })),
     b: body((seconds: number) => ({
       x: -0.9,
@@ -71,7 +69,7 @@ export function test_composition_relations(): void {
   const reach = (
     lock: "freeze" | "track",
     seconds: number,
-  ): resolveAutoMovieRelationalGoal.IResult =>
+  ): IAutoMovieResolveRelationalGoal.IResult =>
     resolveAutoMovieRelationalGoal({
       performer: "a",
       goal: {
@@ -84,7 +82,7 @@ export function test_composition_relations(): void {
       seconds,
     });
   const hand = (
-    result: resolveAutoMovieRelationalGoal.IResult,
+    result: IAutoMovieResolveRelationalGoal.IResult,
   ): IAutoMovieVector3 => {
     const pose: P.ITransform = result.targets.rightHand!;
     return Vector3.add(
@@ -112,7 +110,7 @@ export function test_composition_relations(): void {
   );
 
   // Framing two unit spheres 2 m apart: radius 2, fill 0.5, fov 60 degrees.
-  const camera: resolveAutoMovieFraming.ICamera = resolveAutoMovieFraming(
+  const camera: IAutoMovieResolveFraming.ICamera = resolveAutoMovieFraming(
     {
       subjects: ["a", "b"],
       fill: 0.5,

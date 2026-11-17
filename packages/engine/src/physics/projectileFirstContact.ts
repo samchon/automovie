@@ -1,14 +1,10 @@
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMoviePhysicalShapeNearest, IAutoMovieProjectileFirstContact, IAutoMovieResolveContactEvents, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieContactEvents";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieHit } from "./IAutoMovieHit";
-import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
@@ -60,9 +56,9 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  */
 export function projectileFirstContact(
   projectile: IAutoMovieProjectile,
-  colliders: readonly projectileFirstContact.ICollider[],
-  span: { from: number; to: number },
-  options: projectileFirstContact.IOptions,
+  colliders: readonly IAutoMovieProjectileFirstContact.ICollider[],
+  span: IAutoMovieProjectileFirstContact.ISpan,
+  options: IAutoMovieProjectileFirstContact.IOptions,
 ): IAutoMovieHit | null {
   if (
     !(
@@ -90,7 +86,7 @@ export function projectileFirstContact(
 
   // The resolver's weapon needs an owner no collider is named after.
   const ids: ReadonlySet<string> = new Set(
-    colliders.map((c: projectileFirstContact.ICollider): string => c.id),
+    colliders.map((c: IAutoMovieProjectileFirstContact.ICollider): string => c.id),
   );
   let owner: string = "projectile";
   while (ids.has(owner)) owner = `${owner}'`;
@@ -126,7 +122,7 @@ export function projectileFirstContact(
     const state: IAutoMovieProjectileState = projectileAt(projectile, seconds);
     return [state.position, tail(state) ?? state.position];
   };
-  const events: resolveAutoMovieContactEvents.IEvent[] =
+  const events: IAutoMovieResolveContactEvents.IEvent[] =
     resolveAutoMovieContactEvents({
       weapons: [
         {
@@ -145,9 +141,9 @@ export function projectileFirstContact(
       ],
       bodies: colliders.map(
         (
-          c: projectileFirstContact.ICollider,
-        ): resolveAutoMovieContactEvents.IBody => {
-          const departure: projectileFirstContact.ICollider["departure"] =
+          c: IAutoMovieProjectileFirstContact.ICollider,
+        ): IAutoMovieResolveContactEvents.IBody => {
+          const departure: IAutoMovieProjectileFirstContact.ICollider["departure"] =
             c.departure;
           return {
             id: c.id,
@@ -162,8 +158,8 @@ export function projectileFirstContact(
               ? {}
               : {
                   departure: (
-                    contact: resolveAutoMovieContactEvents.IInitialContact,
-                  ): resolveAutoMovieContactEvents.Departure | undefined =>
+                    contact: IAutoMovieResolveContactEvents.IInitialContact,
+                  ): IAutoMovieResolveContactEvents.Departure | undefined =>
                     departure.call(c, projectile, options, contact),
                 }),
           };
@@ -173,13 +169,13 @@ export function projectileFirstContact(
       to: span.to,
       step,
     });
-  const first: resolveAutoMovieContactEvents.IEvent | undefined = events[0];
+  const first: IAutoMovieResolveContactEvents.IEvent | undefined = events[0];
   if (first === undefined) return null;
-  const collider: projectileFirstContact.ICollider = colliders.find(
-    (c: projectileFirstContact.ICollider): boolean => c.id === first.against,
+  const collider: IAutoMovieProjectileFirstContact.ICollider = colliders.find(
+    (c: IAutoMovieProjectileFirstContact.ICollider): boolean => c.id === first.against,
   )!;
   const [a, b] = segment(first.seconds);
-  const near: projectileFirstContact.INearest = collider.nearest(
+  const near: IAutoMovieProjectileFirstContact.INearest = collider.nearest(
     a,
     b,
     first.seconds,
@@ -201,68 +197,6 @@ export function projectileFirstContact(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A person's colliders are the caller's reading, never a shape the engine guesses.
  */
 export namespace projectileFirstContact {
-  /** Where a segment comes nearest a collider. */
-  export interface INearest {
-    /** Signed distance, metres; negative when the segment enters. */
-    distance: number;
-
-    /** The nearest point of the collider's surface, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The collider's outward unit normal there. */
-    normal: IAutoMovieVector3;
-  }
-
-  /** Something a flight may meet. */
-  export interface ICollider {
-    /** Unique id among the colliders. */
-    id: string;
-
-    /**
-     * Certify departure of an explicitly resolved initial episode using this
-     * collider's physical model. Unknown motion returns undefined and retains
-     * ordinary overlap reporting; a witness is checked by the shared resolver.
-     */
-    departure?(
-      projectile: IAutoMovieProjectile,
-      options: IOptions,
-      contact: resolveAutoMovieContactEvents.IInitialContact,
-    ): resolveAutoMovieContactEvents.Departure | undefined;
-
-    /**
-     * Where a world segment comes nearest it at a second; a point when both
-     * ends coincide.
-     *
-     * @param a One end, world metres.
-     * @param b The other end, world metres.
-     * @param seconds Seconds since the flight's launch.
-     * @returns The reading.
-     */
-    nearest(
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      seconds: number,
-    ): INearest;
-  }
-
-  /** The projectile's size and the thinnest collider the search must see. */
-  export interface IOptions {
-    /**
-     * Collider whose initial contact was already resolved by a continuation.
-     * Only a physical departure certificate may defer this pair; absent or
-     * unknown, initial overlap/touch is still reported. Other colliders and
-     * this collider's later entry remain in the same sweep.
-     */
-    departing?: string;
-    /** The projectile's radius, metres; 0 for a point. */
-    radius: number;
-
-    /** A capsule's other end in the body's own frame from the flight's point, metres; a sphere when absent. Needs an attitude. */
-    tail?: IAutoMovieVector3;
-
-    /** The thinnest collider the search must not step over, metres; positive. */
-    thickness: number;
-  }
 
   /**
    * A fixed plane, solid on the side its normal points away from: the ground.
@@ -276,17 +210,17 @@ export namespace projectileFirstContact {
     id: string,
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
-  ): ICollider {
+  ): IAutoMovieProjectileFirstContact.ICollider {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     return {
       id,
       departure: (
         projectile: IAutoMovieProjectile,
-        options: IOptions,
-        contact: resolveAutoMovieContactEvents.IInitialContact,
-      ): resolveAutoMovieContactEvents.Departure | undefined =>
+        options: IAutoMovieProjectileFirstContact.IOptions,
+        contact: IAutoMovieResolveContactEvents.IInitialContact,
+      ): IAutoMovieResolveContactEvents.Departure | undefined =>
         projectilePlaneDeparture(id, n, projectile, options, contact),
-      nearest: (a: IAutoMovieVector3, b: IAutoMovieVector3): INearest => {
+      nearest: (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieProjectileFirstContact.INearest => {
         const da: number = Vector3.dot(Vector3.subtract(a, point), n);
         const db: number = Vector3.dot(Vector3.subtract(b, point), n);
         const low: IAutoMovieVector3 = da <= db ? a : b;
@@ -313,15 +247,15 @@ export namespace projectileFirstContact {
     id: string,
     shape: IAutoMoviePhysicalProfile.IShape,
     pose: (seconds: number) => IAutoMoviePhysicalProfile.ITransform,
-  ): ICollider {
+  ): IAutoMovieProjectileFirstContact.ICollider {
     return {
       id,
       nearest: (
         a: IAutoMovieVector3,
         b: IAutoMovieVector3,
         seconds: number,
-      ): INearest => {
-        const near: physicalShapeNearest.IResult = physicalShapeNearest(
+      ): IAutoMovieProjectileFirstContact.INearest => {
+        const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
           pose(seconds),
           shape,
           a,

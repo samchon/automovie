@@ -1,3 +1,4 @@
+import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import { measureAutoMovieRenderTextureTarget } from "@automovie/engine";
 import {
   type IAutoMovieShadowTextureHost,
@@ -65,7 +66,7 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     "all three PCF kinds require one map",
     pcf.map(
       (
-        row: import("@automovie/engine").IAutoMovieRenderTextureTarget,
+        row: IAutoMovieRenderTextureTarget,
       ): string[] => [row.shadow!.light, row.shadow!.role],
     ),
     [
@@ -74,10 +75,10 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
       ["point", "map"],
     ],
   );
-  const cube: import("@automovie/engine").IAutoMovieRenderTextureTarget =
+  const cube: IAutoMovieRenderTextureTarget =
     pcf.find(
       (
-        row: import("@automovie/engine").IAutoMovieRenderTextureTarget,
+        row: IAutoMovieRenderTextureTarget,
       ): boolean => row.shadow!.light === "point",
     )!;
   TestValidator.equals(
@@ -107,7 +108,7 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     "atlas extents clamp viewports before multiplying",
     atlas.map(
       (
-        row: import("@automovie/engine").IAutoMovieRenderTextureTarget,
+        row: IAutoMovieRenderTextureTarget,
       ): (
         | number
         | boolean
@@ -184,7 +185,7 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     "hidden noncasting cube facts remain actual",
     mixed.find(
       (
-        row: import("@automovie/engine").IAutoMovieRenderTextureTarget,
+        row: IAutoMovieRenderTextureTarget,
       ): boolean => row.shadow!.light === "point",
     )!.faces,
     6,

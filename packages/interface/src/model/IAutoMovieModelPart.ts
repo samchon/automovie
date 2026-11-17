@@ -1,6 +1,6 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import { IAutoMovieGeometry } from "./IAutoMovieGeometry";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieGeometry } from "./IAutoMovieGeometry";
 
 /**
  * One piece of a model: a chunk of geometry, the material on it, and how it attaches to the rig.

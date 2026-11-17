@@ -1,20 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeCourse, createHorse, rideHorse } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanCue,
-  HumanEnsemble,
-  HumanFormation,
-  HumanObject,
-  HumanPerformance,
-  HumanRide,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanFormation,
-  type IHumanPerformer,
-  type IHumanProp,
-  seated,
-} from "@automovie/motions";
+
+import { HumanCue, HumanEnsemble, HumanFormation, HumanObject, HumanPerformance, HumanRide } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -60,11 +47,11 @@ export function test_human_motion_scene_squadron(): void {
   const findings: string[] = [];
   // The horses set off once every rider has sat down (the sit takes 5 s for these bodies, checked in scenario 4).
   const WAIT: number = 6;
-  const pool: IHumanBody[] = [
+  const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("m-tall"),
   ];
-  const formation: IHumanFormation = HumanFormation.of({
+  const formation: IAutoMovieMotionHumanFormation = HumanFormation.of({
     blocks: [
       {
         layout: {
@@ -78,7 +65,7 @@ export function test_human_motion_scene_squadron(): void {
     ],
     frame: { kind: "fixed", at: { x: 0, y: 0, z: 0 }, heading: 0 },
   });
-  const squadron: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  const squadron: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
     id: "sq",
     seed: "squadron",
     count: 6,
@@ -101,18 +88,18 @@ export function test_human_motion_scene_squadron(): void {
   });
   const build = (): {
     rides: ReturnType<typeof rideHorse>[];
-    performance: HumanPerformance;
+    performance: IAutoMovieMotionHumanPerformance;
   } => {
     const rides: ReturnType<typeof rideHorse>[] = squadron.members.map(
-      (m: HumanEnsemble.IMember) =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember) =>
         rideHorse(
           createHorse({}, HumanEnsemble.seed(squadron, m.index, "horse")),
           course(HumanFormation.slot(formation, m.index, 0).at),
         ),
     );
-    const props: IHumanProp[] = squadron.members.map(
-      (m: HumanEnsemble.IMember, i: number): IHumanProp => {
-        const placed = (seconds: number): IHumanProp.IFrame => {
+    const props: IAutoMovieMotionHumanProp[] = squadron.members.map(
+      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): IAutoMovieMotionHumanProp => {
+        const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
           const sample: ReturnType<ReturnType<typeof rideHorse>["at"]> =
             rides[i]!.at(seconds);
           return {
@@ -134,7 +121,7 @@ export function test_human_motion_scene_squadron(): void {
     > = Object.fromEntries(
       squadron.members.map(
         (
-          m: HumanEnsemble.IMember,
+          m: IAutoMovieMotionHumanEnsemble.IMember,
           i: number,
         ): [string, ReturnType<typeof HumanCue.instants>] => [
           `${m.prop("horse")}.diagonal`,
@@ -142,14 +129,14 @@ export function test_human_motion_scene_squadron(): void {
         ],
       ),
     );
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "squadron",
       laws: [HumanRide.ride],
       props,
       cues,
       performers: HumanEnsemble.performers(squadron).map(
-        (p: IHumanPerformer, i: number): IHumanPerformer => {
-          const seat: seated.ISeat = HumanObject.seat(
+        (p: IAutoMovieMotionHumanPerformer, i: number): IAutoMovieMotionHumanPerformer => {
+          const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
             rides[i]!.at(0).archetype,
             props[i]!.frame,
             "seat",
@@ -168,9 +155,9 @@ export function test_human_motion_scene_squadron(): void {
       ),
       composition: HumanEnsemble.chains(
         squadron,
-        (m: HumanEnsemble.IMember, chain: HumanChain) => {
+        (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) => {
           const horse: string = m.prop("horse");
-          const seat: seated.ISeat = HumanObject.seat(
+          const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
             rides[m.index]!.at(0).archetype,
             props[m.index]!.frame,
             "seat",
@@ -259,9 +246,9 @@ export function test_human_motion_scene_squadron(): void {
 
   // 4. Posting at the trot: on the saddle at each of the horse's diagonal footfalls.
   for (const m of squadron.members) {
-    const ride: HumanSegment.ISegment | undefined = performance
+    const ride: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
       .segments(m.subject)
-      .find((s: HumanSegment.ISegment): boolean => s.name === "ride");
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "ride");
     if (ride === undefined) {
       findings.push(`${m.subject} does not ride`);
       continue;
@@ -273,7 +260,7 @@ export function test_human_motion_scene_squadron(): void {
     for (const cue of HumanCue.instants(rides[m.index]!, ["rightForeOn"])) {
       const seconds: number = cue.seconds;
       if (seconds < changes[m.index]! || seconds > ride.end) continue;
-      const seat: seated.ISeat = HumanObject.seat(
+      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
         rides[m.index]!.at(0).archetype,
         performance.prop(m.prop("horse"), seconds),
         "seat",
@@ -300,7 +287,7 @@ export function test_human_motion_scene_squadron(): void {
   }
 
   // 5. Seeds.
-  const grown: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  const grown: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
     id: "sq",
     seed: "squadron",
     count: 7,
@@ -323,7 +310,7 @@ export function test_human_motion_scene_squadron(): void {
   // 6. Replay.
   const again: {
     rides: ReturnType<typeof rideHorse>[];
-    performance: HumanPerformance;
+    performance: IAutoMovieMotionHumanPerformance;
   } = build();
   for (let t: number = WAIT; t <= end; t += 1)
     if (

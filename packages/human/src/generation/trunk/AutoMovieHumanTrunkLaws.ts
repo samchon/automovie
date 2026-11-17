@@ -1,9 +1,14 @@
+import type { IAutoMovieHumanBackProfile, IAutoMovieHumanBodyMeasures, IAutoMovieHumanReferenceOutlineTypes, IAutoMovieHumanTrunkLaws, IAutoMovieHumanTrunkViewLaws } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanBackProfile } from "../AutoMovieHumanBackProfile";
 import { AutoMovieHumanChestWall } from "../AutoMovieHumanChestWall";
 import { AutoMovieHumanLumbarSection } from "../AutoMovieHumanLumbarSection";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
+
 
 /**
  * The trunk's laws bound for a person (#3047), in calibration millimetres:
@@ -30,20 +35,7 @@ import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
  * perineum's, and the sites above the chest (their half breadths and fronts).
  */
 export namespace AutoMovieHumanTrunkLaws {
-  /** The values still owed by laws, calibration mm. */
-  export interface IPending {
-    /** One shared chest/bust-apex height; retained course-placement proxy, calibration mm. */
-    chest: number;
-
-    /** Cervicale's forward place in the body frame. */
-    cervicale: number;
-
-    /** The perineum's forward place. */
-    perineum: number;
-
-    /** The sites above the chest (`AutoMovieHumanTrunkViews.ILaws.upper`). */
-    upper: AutoMovieHumanTrunkViews.ILaws["upper"];
-  }
+  
 
   /**
    * The trunk's laws for a person.
@@ -58,9 +50,9 @@ export namespace AutoMovieHumanTrunkLaws {
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
     crotch: number,
-    pending: IPending,
-  ): AutoMovieHumanTrunkViews.ILaws {
-    const profile: AutoMovieHumanBackProfile.IProfile =
+    pending: IAutoMovieHumanTrunkLaws.IPending,
+  ): IAutoMovieHumanTrunkViewLaws.ILaws {
+    const profile: IAutoMovieHumanBackProfile.IProfile =
       AutoMovieHumanBackProfile.of(measures);
     const top: number = measures.cervicaleHeight * scale;
     const stature: number = measures.stature * scale;
@@ -69,7 +61,7 @@ export namespace AutoMovieHumanTrunkLaws {
     const scaled = (b: {
       breadth: number;
       depth: number;
-    }): AutoMovieHumanTrunkViews.IBox => ({
+    }): IAutoMovieHumanTrunkViewLaws.IBox => ({
       breadth: b.breadth * scale,
       depth: b.depth * scale,
     });
@@ -77,7 +69,7 @@ export namespace AutoMovieHumanTrunkLaws {
       chest: pending.chest,
       backStations: T.TRUNK.rows.map(
         (
-          row: AutoMovieHumanReferenceOutlines.IRow,
+          row: IAutoMovieHumanReferenceOutlineTypes.IRow,
         ): { site: string; y: number } => ({
           site: `back.shape.${row.share}`,
           y: crotch + row.share * (top - crotch),
@@ -88,9 +80,9 @@ export namespace AutoMovieHumanTrunkLaws {
         (y >= top
           ? profile.at(y / scale)[0] * scale
           : T.at(T.TRUNK, "back", (y - crotch) / (top - crotch)) * stature),
-      lumbar: (girth: number): AutoMovieHumanTrunkViews.IBox =>
+      lumbar: (girth: number): IAutoMovieHumanTrunkViewLaws.IBox =>
         scaled(AutoMovieHumanLumbarSection.box(measures, girth / scale)),
-      chestWall: (girth: number): AutoMovieHumanTrunkViews.IBox =>
+      chestWall: (girth: number): IAutoMovieHumanTrunkViewLaws.IBox =>
         scaled(AutoMovieHumanChestWall.box(measures, girth / scale)),
       perineum: pending.perineum,
       upper: pending.upper,

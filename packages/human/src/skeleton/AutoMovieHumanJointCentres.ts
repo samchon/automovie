@@ -1,10 +1,10 @@
-import {
-  AutoMovieLoftChain,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanJointCentres, IAutoMovieHumanSkeletonLaw } from "@automovie/interface";
 
-import type { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
+
 
 /**
  * The stickman skeleton of a generated body: the bind skeleton the body was
@@ -15,11 +15,7 @@ import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHum
  * in `docs/anatomy/joint-range.md`.
  */
 export namespace AutoMovieHumanJointCentres {
-  /** One joint: a bone's origin, parent, segment direction and girth. */
-  export interface IJoint extends AutoMovieHumanSkeletonLaw.IBone {
-    /** Skin girth radius of the segment leaving this joint, mm: perimeter / 2pi at its middle. */
-    radius: number;
-  }
+  
 
   /**
    * Every joint of the stickman skeleton.
@@ -29,8 +25,8 @@ export namespace AutoMovieHumanJointCentres {
    */
   export function derive(
     calibration: IAutoMovieHumanBodyCalibration,
-  ): IJoint[] {
-    const skeleton: AutoMovieHumanSkeletonLaw.IBone[] | undefined =
+  ): IAutoMovieHumanJointCentres.IJoint[] {
+    const skeleton: IAutoMovieHumanSkeletonLaw.IBone[] | undefined =
       calibration.skeleton;
     if (skeleton === undefined)
       throw new Error("The calibration carries no skeleton");
@@ -60,17 +56,17 @@ export namespace AutoMovieHumanJointCentres {
         throw new Error(`Stickman skeleton needs the ${name} chain`);
       return host;
     };
-    const byBone = new Map<string, AutoMovieHumanSkeletonLaw.IBone>(
+    const byBone = new Map<string, IAutoMovieHumanSkeletonLaw.IBone>(
       skeleton.map(
         (
-          b: AutoMovieHumanSkeletonLaw.IBone,
-        ): [string, AutoMovieHumanSkeletonLaw.IBone] => [b.bone, b],
+          b: IAutoMovieHumanSkeletonLaw.IBone,
+        ): [string, IAutoMovieHumanSkeletonLaw.IBone] => [b.bone, b],
       ),
     );
     // A bone's segment middle: its joint and its leaf tip, or the joint and
     // the point it points to.
     const middleOf = (bone: string): [number, number, number] => {
-      const b: AutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
+      const b: IAutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
       const end: [number, number, number] = b.tip ?? b.toward;
       return [
         (b.position[0] + end[0]) / 2,
@@ -92,7 +88,7 @@ export namespace AutoMovieHumanJointCentres {
       (c: IAutoMovieLoftChain): boolean => c.name === "head.mass",
     );
     const segment = (bone: string): number => {
-      const b: AutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
+      const b: IAutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
       const end: [number, number, number] = b.tip ?? b.toward;
       return (
         Math.hypot(
@@ -184,7 +180,7 @@ export namespace AutoMovieHumanJointCentres {
       throw new Error(`Stickman skeleton has no girth rule for ${bone}`);
     };
     return skeleton.map(
-      (b: AutoMovieHumanSkeletonLaw.IBone): IJoint => ({
+      (b: IAutoMovieHumanSkeletonLaw.IBone): IAutoMovieHumanJointCentres.IJoint => ({
         ...b,
         radius: radius(b.bone),
       }),

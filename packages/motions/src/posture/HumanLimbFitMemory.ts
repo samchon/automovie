@@ -1,15 +1,9 @@
-import type {
-  IAutoMovieSeededChainFit,
-  IAutoMovieSwivelNear,
-} from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLimbFitFrame, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The memory of limb fits (`HumanLimbFit.fit`): each body's fits kept by
@@ -100,10 +94,10 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last `FIT_MEMORY` fits, least recently read dropped first, in a weak map that lets them go with the body.
    */
   export function remembered(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: IAutoMovieMotionHumanPosture.Limb,
+    goal: IAutoMovieMotionHumanPosture.IGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
@@ -127,13 +121,13 @@ export namespace HumanLimbFitMemory {
     // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
     // fit; handed back with the caller's root and the seed as it is.
-    const frame: HumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(
+    const frame: IAutoMovieMotionHumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(
       pose,
       goal,
     );
     const own: IAutoMoviePose =
       frame === null ? pose : HumanLimbFitFrame.pose(frame, pose);
-    const aim: IHumanPosture.IGoal =
+    const aim: IAutoMovieMotionHumanPosture.IGoal =
       frame === null ? goal : HumanLimbFitFrame.goal(frame, goal);
     const away: IAutoMovieVector3 | undefined =
       frame === null || rival === undefined
@@ -163,7 +157,7 @@ export namespace HumanLimbFitMemory {
 
   /** The limb fits remembered, by body. */
   const FITS: WeakMap<
-    IHumanBody,
+    IAutoMovieMotionHumanBody,
     Map<string, IAutoMovieSeededChainFit>
   > = new WeakMap();
 

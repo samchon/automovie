@@ -1,8 +1,6 @@
-import type { IAutoMovieHumanParameters } from "@automovie/human";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import type { IAutoMovieHumanParameters, IAutoMoviePhysicalProfile, IAutoMovieSkeleton } from "@automovie/interface";
+
+
 import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";

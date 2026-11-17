@@ -1,5 +1,13 @@
+import type { IAutoMovieLoftChain, IAutoMovieHumanApertureSpan, IAutoMovieHumanBodyApertures, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodySurface, IAutoMovieHumanConstructionPath, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
+
+
+
+
+
+
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieLoftChain } from "@automovie/engine";
+
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
@@ -10,9 +18,7 @@ import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpe
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
+
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
 const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
@@ -34,42 +40,7 @@ const { domed } = AutoMovieHumanBodySurfacePoles;
  * Triangle groups are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
-  /** Generated skin in millimetres, registered frame. */
-  export interface IOutput {
-    /**
-     * Skin buffers, triangles counter-clockwise from outside. Triangle groups
-     * are named `<chain>/<k>`: the interval between principal layers k and
-     * k+1 of that chain, which the sections `<chain>/<k>` and
-     * `<chain>/<k+1>` shape.
-     */
-    mesh: AutoMovieHumanLoftMesh.IContext;
-
-    /** Flat unit vertex normals of the whole skin. */
-    normals: number[];
-
-    /**
-     * Loft coordinates of every vertex, flat `[chain, station, phase, ...]`:
-     * the index of the chain in the calibration that evaluated it, the
-     * station (height or tilted-frame station, mm) and the phase (radians).
-     * A pole apex has phase NaN; a vertex the aperture cut or the lid tuck
-     * derived from others has all three NaN.
-     *
-     * These are the skin's own surface parameters. The rig and every
-     * attachment bind to them instead of to vertex or triangle numbers, which
-     * change with every parameter set, so a bound point can be evaluated
-     * again on another body or pose by the chain functions.
-     */
-    coordinates: number[];
-
-    /** Aperture paths sampled by the actual skin generation, in millimetres. */
-    construction: IAutoMovieHumanConstructionPath[];
-
-    /**
-     * The rim of every opening closed from its trim loop, by name: the loop's
-     * points on its base chain in loop order, mm.
-     */
-    rims: Map<string, [number, number, number][]>;
-  }
+  
 
   /** Chord tolerance of the station bisection in mm. */
   const TOLERANCE: number = 0.5;
@@ -81,9 +52,9 @@ export namespace AutoMovieHumanBodySurface {
    */
   export function generate(
     calibration: IAutoMovieHumanBodyCalibration,
-    details: [[number, number, number], [number, number, number]][] = [],
-  ): IOutput {
-    const context: IContext = {
+    details: IAutoMovieHumanBodySurface.GenerateDetails = [],
+  ): IAutoMovieHumanBodySurface.IOutput {
+    const context: IAutoMovieHumanSurfaceContext = {
       mesh: AutoMovieHumanLoftMesh.create(),
       chains: new Map(
         calibration.chains.map(
@@ -138,9 +109,9 @@ export namespace AutoMovieHumanBodySurface {
     // (`AutoMovieHumanApertureSpan`); an eye's along its lid band's outer
     // edge, one rim point per lid sample, which the lid band's columns start
     // from. The openings stay listed for the rows refined near them.
-    const spans: [AutoMovieHumanBodyApertures.IPrepared, AutoMovieHumanApertureSpan.ISpan][] = [];
+    const spans: [IAutoMovieHumanBodyApertures.IPrepared, IAutoMovieHumanApertureSpan.ISpan][] = [];
     for (const opening of context.apertures) {
-      const span: AutoMovieHumanApertureSpan.ISpan | string = AutoMovieHumanApertureSpan.of(
+      const span: IAutoMovieHumanApertureSpan.ISpan | string = AutoMovieHumanApertureSpan.of(
         opening,
         opening.aperture.base !== undefined && context.chains.has(opening.aperture.base)
           ? [chain(context, opening.aperture.base)]

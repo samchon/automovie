@@ -1,4 +1,4 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
+import type { IAutoMovieMotionHumanAttribute, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSkill, IAutoMovieRandom } from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
@@ -28,8 +28,6 @@ import { HumanSkill } from "./HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The reaction's parameters stay the orienting law's: no second copy.
  */
 export namespace HumanResponse {
-  /** What a latency is drawn as. */
-  export type Latency = "reaction" | { mean: number; spread: number };
 
   /**
    * The shortest latency a reaction is given, seconds: a start within 0.1 s
@@ -60,12 +58,12 @@ export namespace HumanResponse {
    * @returns Seconds after the cue.
    */
   export function latency(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill.ISkill,
     random: IAutoMovieRandom,
-    latency: Latency,
+    latency: IAutoMovieMotionHumanResponse.Latency,
     warned: boolean,
     attributes:
-      | Readonly<Partial<Record<HumanAttribute.Name, number>>>
+      | Readonly<Partial<Record<IAutoMovieMotionHumanAttribute.Name, number>>>
       | undefined,
   ): number {
     if (latency !== "reaction")

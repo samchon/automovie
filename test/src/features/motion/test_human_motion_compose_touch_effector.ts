@@ -1,14 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTouchEffector, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  type IHumanBody,
-  type IHumanPosture,
-} from "@automovie/motions";
+
+import { AutoMovieMotionHumanTouchEffector } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,7 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States what an effector is and lists the 7 scenarios with their numbers.
  */
 export function test_human_motion_compose_touch_effector(): void {
-  type IEffector = AutoMovieMotionHumanTouchEffector.IEffector;
+  type IEffector = IAutoMovieMotionHumanTouchEffector.IEffector;
   const E = AutoMovieMotionHumanTouchEffector;
   const near = (a: number, b: number, tolerance: number = 1e-9): boolean =>
     Math.abs(a - b) <= tolerance;
@@ -105,7 +98,7 @@ export function test_human_motion_compose_touch_effector(): void {
     "f-small",
     "m-large",
   ] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const hand: number = body.measure.hand;
     for (const side of ["left", "right"] as const) {
       const label: string = `${name} ${side}`;
@@ -209,7 +202,7 @@ export function test_human_motion_compose_touch_effector(): void {
           { x: 1, y: 0, z: 0 },
         ],
       ] as const) {
-        const goal: IHumanPosture.IGoal = E.goal(
+        const goal: IAutoMovieMotionHumanPosture.IGoal = E.goal(
           body,
           side,
           cup,

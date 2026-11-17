@@ -1,3 +1,4 @@
+import { type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieCameraClearanceEnvelope, IAutoMovieCameraClearanceReport, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieShotProgram, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ViolationCollector,
   compileCameraClearanceReports,
@@ -7,19 +8,7 @@ import {
   performShot,
   stageScene,
 } from "@automovie/engine";
-import {
-  IAutoMovieCamera,
-  IAutoMovieCameraClearanceEnvelope,
-  IAutoMovieCameraClearanceReport,
-  IAutoMovieClip,
-  IAutoMovieConstraintViolation,
-  IAutoMovieModel,
-  IAutoMovieSceneNode,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCameraClearanceAdapterOverrides } from "../internal/IFilmCameraClearanceAdapterOverrides";
@@ -213,7 +202,7 @@ export function test_film_camera_clearance(): void {
   ) => IFilmCameraClearanceAdapterResult = (
     over: IFilmCameraClearanceAdapterOverrides = {},
   ): IFilmCameraClearanceAdapterResult => {
-    const out: ViolationCollector = new ViolationCollector();
+    const out: IAutoMovieViolationCollector = new ViolationCollector();
     const reports: ReturnType<typeof compileCameraClearanceReports> =
       compileCameraClearanceReports({
         ...baseAdapterProps,

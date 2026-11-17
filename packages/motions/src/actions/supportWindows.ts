@@ -1,9 +1,8 @@
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanSupport, IAutoMovieMotionTarget } from "@automovie/interface";
 
-import type { HumanSupport } from "../law/HumanSupport";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { support } from "./support";
+
+import { HumanContactWindow } from "../law/HumanContactWindow";
+
 import { supportContact } from "./supportContact";
 
 /**
@@ -48,38 +47,38 @@ export namespace supportWindows {
    */
   export function of(
     context: Pick<
-      IHumanActionContext<support.IParams>,
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
       "subject" | "entry" | "params"
     >,
-    stances: readonly HumanSupport.IStance[],
+    stances: readonly IAutoMovieMotionHumanSupport.IStance[],
     keys: readonly IKey[],
     duration: number,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     // Each contact bears from the key that places it to the key after the
     // last stance that holds it, and to the end where the last stance holds
     // it.
-    const contacts: IHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     const opened: Map<string, number> = new Map();
-    const kinds: Map<string, HumanSupport.IContact["kind"]> = new Map(
+    const kinds: Map<string, IAutoMovieMotionHumanSupport.IContact["kind"]> = new Map(
       stances.flatMap(
-        (st: HumanSupport.IStance): [string, HumanSupport.IContact["kind"]][] =>
+        (st: IAutoMovieMotionHumanSupport.IStance): [string, IAutoMovieMotionHumanSupport.IContact["kind"]][] =>
           st.contacts.map(
             (
-              c: HumanSupport.IContact,
-            ): [string, HumanSupport.IContact["kind"]] => [
+              c: IAutoMovieMotionHumanSupport.IContact,
+            ): [string, IAutoMovieMotionHumanSupport.IContact["kind"]] => [
               supportContact.id(c),
               c.kind,
             ],
           ),
       ),
     );
-    const frames: Map<string, IHumanContactWindow.Support> = new Map(
-      stances.flatMap((stance: HumanSupport.IStance) =>
+    const frames: Map<string, IAutoMovieMotionHumanContactWindow.Support> = new Map(
+      stances.flatMap((stance: IAutoMovieMotionHumanSupport.IStance) =>
         stance.contacts.map(
-          (c: HumanSupport.IContact): [string, IHumanContactWindow.Support] => {
-            const target: AutoMovieMotionTarget | undefined =
+          (c: IAutoMovieMotionHumanSupport.IContact): [string, IAutoMovieMotionHumanContactWindow.Support] => {
+            const target: IAutoMovieMotionTarget | undefined =
               c.target === "on" ? context.params.on : c.target;
-            const frame: IHumanContactWindow.Support =
+            const frame: IAutoMovieMotionHumanContactWindow.Support =
               target?.kind === "prop"
                 ? { kind: "prop", subject: target.subject }
                 : target?.kind === "person"
@@ -100,10 +99,10 @@ export namespace supportWindows {
       const from: number = opened.get(key)!;
       opened.delete(key);
       const [named] = key.split("|") as [string];
-      const window: string = supportContact.window(named as HumanSupport.Part);
-      const part: IHumanContactWindow["part"] | undefined =
-        IHumanContactWindow.PARTS.find(
-          (p: IHumanContactWindow["part"]): boolean => p === window,
+      const window: string = supportContact.window(named as IAutoMovieMotionHumanSupport.Part);
+      const part: IAutoMovieMotionHumanContactWindow["part"] | undefined =
+        HumanContactWindow.PARTS.find(
+          (p: IAutoMovieMotionHumanContactWindow["part"]): boolean => p === window,
         );
       if (part === undefined) return;
       contacts.push({
@@ -123,7 +122,7 @@ export namespace supportWindows {
     };
     const keyAt = (name: string): IKey | undefined =>
       keys.find((k: IKey): boolean => k.name === name);
-    stances.forEach((stance: HumanSupport.IStance, i: number): void => {
+    stances.forEach((stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
       const held: IKey = keyAt(stance.event ?? `stance${i}`)!;
       const placed: IKey = keyAt(`bear${i}`) ?? held;
       // A part the body already rests on as it enters bears from the start.
@@ -138,7 +137,7 @@ export namespace supportWindows {
               ? 0
               : placed.seconds,
           );
-      const next: HumanSupport.IStance | undefined = stances[i + 1];
+      const next: IAutoMovieMotionHumanSupport.IStance | undefined = stances[i + 1];
       if (next === undefined) return;
       // A stepping limb lets go as the step lifts it; any other contact the
       // next stance lacks once the next stance's new contacts bear.
@@ -146,14 +145,14 @@ export namespace supportWindows {
       const lifted: number = (keyAt(`lift${i + 1}`) ?? held).seconds;
       for (const c of stance.contacts)
         if (
-          !next.contacts.some((n: HumanSupport.IContact): boolean =>
+          !next.contacts.some((n: IAutoMovieMotionHumanSupport.IContact): boolean =>
             supportContact.same(n, c),
           )
         )
           close(
             supportContact.id(c),
             next.contacts.some(
-              (n: HumanSupport.IContact): boolean =>
+              (n: IAutoMovieMotionHumanSupport.IContact): boolean =>
                 supportContact.limb(n.part) === supportContact.limb(c.part),
             )
               ? lifted

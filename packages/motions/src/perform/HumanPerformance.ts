@@ -1,24 +1,5 @@
-import {
-  type AutoMovieComposition,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSchedule,
-  checkAutoMovieLegality,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieInteractionEvent, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieSchedule, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { HumanBlast } from "./HumanBlast";
-import type { HumanForce } from "./HumanForce";
-import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
@@ -27,9 +8,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
-import { HumanSegment } from "./HumanSegment";
-import type { IHumanPerformer } from "./IHumanPerformer";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A performance of people and props: their chained actions placed on the
@@ -69,17 +47,17 @@ export class HumanPerformance {
   public readonly duration: number;
 
   /** The people, as the performance was given them. */
-  public readonly performers: readonly IHumanPerformer[];
+  public readonly performers: readonly IAutoMovieMotionHumanPerformer[];
 
   /** Everything the performance resolved, which its readers share. */
-  private readonly resolved: HumanPerformanceState;
+  private readonly resolved: IAutoMovieMotionHumanPerformanceState;
 
   /**
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
    */
-  public constructor(input: HumanPerformance.IInput) {
+  public constructor(input: IAutoMovieMotionHumanPerformance.IInput) {
     this.resolved = HumanPerformanceState.of(input);
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
@@ -105,7 +83,7 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  public posture(subject: string, seconds: number): IHumanPosture {
+  public posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture {
     return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
@@ -143,7 +121,7 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns Its frame.
    */
-  public prop(subject: string, seconds: number): IHumanProp.IFrame {
+  public prop(subject: string, seconds: number): IAutoMovieMotionHumanProp.IFrame {
     return HumanPerformanceRead.prop(this.resolved, subject, seconds);
   }
 
@@ -159,7 +137,7 @@ export class HumanPerformance {
    * @returns Travel by articulation id, in each articulation's own unit.
    */
   public state(subject: string, seconds: number): Record<string, number> {
-    const prop: IHumanProp | undefined = this.resolved.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined = this.resolved.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...this.resolved.props.keys(),
@@ -175,7 +153,7 @@ export class HumanPerformance {
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
    */
-  public flights(subject: string): readonly HumanPropFlight.IFlight[] {
+  public flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     return HumanPropFlight.flights(this.resolved, subject);
   }
 
@@ -241,7 +219,7 @@ export class HumanPerformance {
    * @returns The film second.
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
-  public instant(at: IHumanLayer.Instant): number {
+  public instant(at: IAutoMovieMotionHumanLayer.Instant): number {
     return HumanPerformanceLayers.instant(this.resolved, at);
   }
 
@@ -251,7 +229,7 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The segments.
    */
-  public segments(subject: string): readonly HumanSegment.ISegment[] {
+  public segments(subject: string): readonly IAutoMovieMotionHumanSegment.ISegment[] {
     return HumanPerformanceRead.segments(this.resolved, subject);
   }
 
@@ -262,7 +240,7 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The overlays.
    */
-  public overlays(subject: string): readonly HumanSegment.IOverlay[] {
+  public overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 
@@ -275,94 +253,10 @@ export class HumanPerformance {
    * @returns The aim.
    */
   public aim(
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     seconds: number,
-    frame: HumanPerformanceAim.IFrame,
+    frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
-  }
-}
-
-/**
- * Companion types of {@link HumanPerformance}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation A seed text, performers, props and an engine composition.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a chain hands the performance.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine composition.
- */
-export namespace HumanPerformance {
-  /** Construction input. */
-  export interface IInput {
-    /** The chain seed every draw starts from. */
-    seed: string;
-
-    /** The people. */
-    performers: IHumanPerformer[];
-
-    /** The props actions aim at. */
-    props?: IHumanProp[];
-
-    /** What everyone does. */
-    composition: AutoMovieComposition;
-
-    /**
-     * The production's legality rules, such as `KickboxingRules.rules`,
-     * checked against the placed schedule with the engine's
-     * `checkAutoMovieLegality`; any violation refuses the performance with
-     * every broken rule in the message. None when absent.
-     */
-    rules?: readonly checkAutoMovieLegality.IRule[];
-
-    /**
-     * Laws of the production's own, performed like the vocabulary's under
-     * the names they carry: an act the vocabulary lacks, written on the same
-     * kernel (a clock, a base and part primitives), or a row of an existing
-     * law with some of its parameters fixed. A name the vocabulary already
-     * has, or one given twice, refuses the performance. A registered law
-     * draws from streams keyed by its own name, so registering it changes no
-     * other action's draws. `HumanChain.extend` gives its typed method.
-     */
-    laws?: readonly IHumanActionLaw<never>[];
-
-    /**
-     * Additive layers per subject, applied in order over the person's
-     * actions: each for the whole film, or scheduled in a window between two
-     * instants (`IHumanLayer.IScheduled`).
-     */
-    layers?: Readonly<
-      Record<string, readonly (IHumanLayer | IHumanLayer.IScheduled)[]>
-    >;
-
-    /**
-     * Tracks of named instants that belong to no action, by track name: a
-     * dialogue's line starts and accents, a score's beats (`HumanCue` builds
-     * both). An action is synced to one (`HumanChain.sync`) and cut on one
-     * (`until`) as on another action's events; a track's name is used like
-     * an anchor, so no action may be anchored under it.
-     */
-    cues?: Readonly<Record<string, readonly resolveAutoMovieSchedule.ICue[]>>;
-
-    /**
-     * Forces on the performers (#3429): impulses at an instant and forces
-     * sustained over a span, read by the reactions the composition places
-     * (`IHumanActionContext.forces`). A force starts no action. None when
-     * absent.
-     */
-    forces?: readonly HumanForce.IForce[];
-
-    /**
-     * What stands in the performers' way: the scene's walls and solid
-     * objects with their openings (`HumanObstacle`). A law that moves a body
-     * across the floor reads them through its context and refuses a path
-     * through a solid; none when absent, and then every path is free.
-     */
-    obstacles?: readonly HumanObstacle.IObstacle[];
-
-    /**
-     * Blasts in the scene: each gives a hit to every person within its
-     * radius at its instant (`HumanBlast`, `hits`). None when absent.
-     */
-    blasts?: readonly HumanBlast.IBlast[];
   }
 }

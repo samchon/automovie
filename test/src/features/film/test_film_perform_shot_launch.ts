@@ -1,26 +1,6 @@
-import {
-  IAutoMovieActionSynthesizer,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-  performShot,
-  sampleClip,
-  stageScene,
-} from "@automovie/engine";
-import {
-  AutoMovieInteractionEventKind,
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieClip,
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotion,
-  IAutoMovieScript,
-  IAutoMovieShotPerformance,
-  IAutoMovieSkeleton,
-  IAutoMovieStage,
-  IAutoMovieTrack,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActionSynthesizer, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, AutoMovieInteractionEventKind, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieScript, IAutoMovieShotPerformance, IAutoMovieSkeleton, IAutoMovieStage, IAutoMovieTrack, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { performShot, sampleClip, stageScene } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { FilmLaunchPerformer } from "../internal/FilmLaunchPerformer";

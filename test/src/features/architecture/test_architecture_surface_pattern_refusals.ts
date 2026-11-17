@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieSurfacePattern,
-  type IAutoMovieSurfacePatternResult,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import type { IAutoMovieSurfacePattern, IAutoMovieSurfacePatternResult } from "@automovie/interface";
+import { generateAutoMovieSurfacePattern } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertPatternGeneratedModuleRefusals } from "../internal/assertPatternGeneratedModuleRefusals";

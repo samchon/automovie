@@ -1,6 +1,9 @@
+import type { AutoMovieVector2Tuple, IAutoMovieArcLengthJet, IAutoMovieHumanFootArc } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
-import type { IAutoMovieHumanSeam } from "../../lofting/IAutoMovieHumanSeam";
-import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+
 
 /**
  * The foot's section arcs between junctions (the junctions' curvature channel
@@ -14,32 +17,11 @@ import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeomet
  * copied jets.
  */
 export namespace AutoMovieHumanFootArc {
-  /** A junction's jet in a section's plane. */
-  export interface IJet {
-    /** Place, `[across, up]` mm. */
-    point: G.Vec2;
+  
 
-    /** Unit tangent in the sense the ring runs. */
-    tangent: G.Vec2;
+  
 
-    /** Curvature toward the inside, 1/mm. */
-    curvature: number;
-  }
-
-  /** A body section's piece: its name and the two junctions it runs between, in ring order. */
-  export interface IPiece<Junction extends string> {
-    /** The piece's name. */
-    name: string;
-
-    /** The junction it leaves. */
-    from: Junction;
-
-    /** The junction it reaches. */
-    to: Junction;
-  }
-
-  /** A junction of a body section, at its guide. */
-  export type BodyJunction = "crest" | "lateral" | "contactLateral" | "contactMedial" | "medial";
+  
 
   /**
    * The body section's five pieces in ring order, each the quintic of its two
@@ -60,7 +42,7 @@ export namespace AutoMovieHumanFootArc {
    * - dorsalMedial: from the medial border over the dorsum's medial slope (the
    *   first ray's dorsum and the arch's flank) to the crest.
    */
-  export const BODY: readonly IPiece<BodyJunction>[] = [
+  export const BODY: readonly IAutoMovieHumanFootArc.IPiece<IAutoMovieHumanFootArc.BodyJunction>[] = [
     { name: "dorsalLateral", from: "crest", to: "lateral" },
     { name: "lateralPlantar", from: "lateral", to: "contactLateral" },
     { name: "sole", from: "contactLateral", to: "contactMedial" },
@@ -68,8 +50,7 @@ export namespace AutoMovieHumanFootArc {
     { name: "dorsalMedial", from: "medial", to: "crest" },
   ];
 
-  /** A junction of a toe's section: the dorsal, lateral side, plantar and medial side points. */
-  export type ToeJunction = "dorsal" | "lateral" | "plantar" | "medial";
+  
 
   /**
    * A toe section's four pieces in ring order from the dorsal point toward the
@@ -77,7 +58,7 @@ export namespace AutoMovieHumanFootArc {
    * side's medial piece. The halves meet G2 at the side points, the section's
    * tightest turn.
    */
-  export const TOE: readonly IPiece<ToeJunction>[] = [
+  export const TOE: readonly IAutoMovieHumanFootArc.IPiece<IAutoMovieHumanFootArc.ToeJunction>[] = [
     { name: "dorsalLateral", from: "dorsal", to: "lateral" },
     { name: "plantarLateral", from: "lateral", to: "plantar" },
     { name: "plantarMedial", from: "plantar", to: "medial" },
@@ -93,11 +74,11 @@ export namespace AutoMovieHumanFootArc {
    * @returns Each piece's points, in the pieces' order.
    */
   export function pieces<Junction extends string>(
-    pieces: readonly IPiece<Junction>[],
-    jets: Readonly<Record<Junction, IJet>>,
+    pieces: readonly IAutoMovieHumanFootArc.IPiece<Junction>[],
+    jets: Readonly<Record<Junction, IAutoMovieHumanFootArc.IJet>>,
     count: number,
-  ): G.Vec2[][] {
-    return pieces.map((p: IPiece<Junction>): G.Vec2[] => quintic(jets[p.from], jets[p.to], count));
+  ): AutoMovieVector2Tuple[][] {
+    return pieces.map((p: IAutoMovieHumanFootArc.IPiece<Junction>): AutoMovieVector2Tuple[] => quintic(jets[p.from], jets[p.to], count));
   }
 
   /**
@@ -106,12 +87,12 @@ export namespace AutoMovieHumanFootArc {
    * vectors times its square. The speed is the quarter ellipse's arc on the
    * ends' extents along their tangents, `pi / 4 (a + b)`.
    */
-  export function quintic(j0: IJet, j1: IJet, count: number): G.Vec2[] {
-    const d: G.Vec2 = [j1.point[0] - j0.point[0], j1.point[1] - j0.point[1]];
+  export function quintic(j0: IAutoMovieHumanFootArc.IJet, j1: IAutoMovieHumanFootArc.IJet, count: number): AutoMovieVector2Tuple[] {
+    const d: AutoMovieVector2Tuple = [j1.point[0] - j0.point[0], j1.point[1] - j0.point[1]];
     const speed: number =
       (Math.PI / 4) *
       (Math.abs(d[0] * j0.tangent[0] + d[1] * j0.tangent[1]) + Math.abs(d[0] * j1.tangent[0] + d[1] * j1.tangent[1]));
-    const arcJet = (j: IJet): IAutoMovieHumanSeam.IArcJet => ({
+    const arcJet = (j: IAutoMovieHumanFootArc.IJet): IAutoMovieArcLengthJet => ({
       point: [...j.point],
       tangent: [...j.tangent],
       curvature: [j.curvature * j.tangent[1], -j.curvature * j.tangent[0]],
@@ -122,7 +103,7 @@ export namespace AutoMovieHumanFootArc {
     const a0: number[] = first[2];
     const v1: number[] = last[1];
     const a1: number[] = last[2];
-    return Array.from({ length: count + 1 }, (_: unknown, i: number): G.Vec2 => {
+    return Array.from({ length: count + 1 }, (_: unknown, i: number): AutoMovieVector2Tuple => {
       const s: number = i / count;
       const s2: number = s * s;
       const s3: number = s2 * s;
@@ -137,7 +118,7 @@ export namespace AutoMovieHumanFootArc {
       return [0, 1].map(
         (c: number): number =>
           h0 * j0.point[c]! + h1 * v0[c]! + h2 * a0[c]! + h3 * a1[c]! + h4 * v1[c]! + h5 * j1.point[c]!,
-      ) as G.Vec2;
+      ) as AutoMovieVector2Tuple;
     });
   }
 }

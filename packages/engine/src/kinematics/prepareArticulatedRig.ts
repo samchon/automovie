@@ -1,15 +1,8 @@
-import type {
-  IAutoMovieAngleRange,
-  IAutoMovieArticulatedRig,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import type { IAutoMovieArticulatedRigReader, IAutoMovieAngleRange, IAutoMovieArticulatedRig, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieTransform } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IArticulatedRigReader } from "./IArticulatedRigReader";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
@@ -47,7 +40,7 @@ interface IPrepared<Bone extends string> {
  */
 export function prepareArticulatedRig<Bone extends string>(
   rig: IAutoMovieArticulatedRig<Bone>,
-): IArticulatedRigReader<Bone> {
+): IAutoMovieArticulatedRigReader<Bone> {
   if (
     typeof rig.id !== "string" ||
     rig.id.length === 0 ||

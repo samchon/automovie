@@ -1,10 +1,6 @@
-import { IAutoMovieRenderSpec } from "@automovie/interface";
-import {
-  IAutoMovieRenderAdapters,
-  IAutoMovieRenderAndSeeRequest,
-  IAutoMovieRenderAndSeeResult,
-  renderAndSee,
-} from "@automovie/render";
+import { type IAutoMovieRenderAdapters, type IAutoMovieRenderAndSeeRequest, type IAutoMovieRenderAndSeeResult, IAutoMovieRenderSpec } from "@automovie/interface";
+
+import { renderAndSee } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

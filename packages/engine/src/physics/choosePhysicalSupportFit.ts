@@ -1,5 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMovieChoosePhysicalSupportFit, IAutoMoviePhysicalProfile } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 
@@ -26,17 +25,10 @@ import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
  */
 export function choosePhysicalSupportFit<
   Fit extends {
-    targets: Readonly<Record<string, P.ITransform>>;
+    targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
     residuals: Readonly<Record<string, number>>;
   },
->(input: {
-  /** Nonempty candidates in tie-break order. */ candidates: readonly Fit[];
-  /** The fit's own metre residual tolerance. */ tolerance: number;
-  /** Completed fitted placements at the replan boundary, if any. */ reference?: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Joints whose rotations measure continuity. */ joints: readonly P.IJoint[];
-}): Fit {
+>(input: IAutoMovieChoosePhysicalSupportFit.IInput<Fit>): Fit {
   if (!input.candidates.length)
     throw new Error("Missing physical support fit candidates");
   const scored: { fit: Fit; error: number; distance: number }[] =
@@ -46,7 +38,7 @@ export function choosePhysicalSupportFit<
         error: Math.max(0, ...Object.values(fit.residuals)),
         distance: input.reference
           ? input.joints.reduce(
-              (sum: number, joint: P.IJoint): number =>
+              (sum: number, joint: IAutoMoviePhysicalProfile.IJoint): number =>
                 sum + angle(fit.targets, input.reference!, joint) ** 2,
               0,
             )
@@ -74,11 +66,11 @@ export function choosePhysicalSupportFit<
 
 /** Geodesic angle between one joint's relative rotations in two pose records. */
 function angle(
-  first: Readonly<Record<string, P.ITransform>>,
-  second: Readonly<Record<string, P.ITransform>>,
-  joint: P.IJoint,
+  first: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  second: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  joint: IAutoMoviePhysicalProfile.IJoint,
 ): number {
-  const difference: P.ITransform["rotation"] = Quaternion.multiply(
+  const difference: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
     physicalJointRelativeRotation(first, joint),
     Quaternion.inverse(physicalJointRelativeRotation(second, joint)),
   );

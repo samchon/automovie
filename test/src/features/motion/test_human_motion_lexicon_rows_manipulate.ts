@@ -1,14 +1,7 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanProp,
-  typeText,
-} from "@automovie/motions";
+
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, typeText } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,10 +29,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_lexicon_rows_manipulate(): void {
   const complaints: string[] = [];
-  const rows: readonly IHumanActionLaw<never>[] =
+  const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] =
     HUMAN_LEXICON.manipulate ?? [];
   const names: string[] = rows.map(
-    (r: IHumanActionLaw<never>): string => r.name,
+    (r: IAutoMovieMotionHumanActionLaw<never>): string => r.name,
   );
   const expected: string[] = [
     "manipulate",
@@ -63,14 +56,14 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
       `the family holds ${names.join(", ")}, ${expected.join(", ")} expected`,
     );
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const m: IHumanBody["measure"] = body.measure;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const at: IAutoMovieVector3 = {
       x: 0,
       y: m.shoulderHeight - m.upperArm,
       z: body.rest.get("rightUpperArm")!.z + 0.8 * m.forearm,
     };
-    const keyboard: IHumanProp = {
+    const keyboard: IAutoMovieMotionHumanProp = {
       subject: "keyboard",
       frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
       points: {},
@@ -90,7 +83,7 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
         },
       ],
     };
-    const pad: IHumanProp = {
+    const pad: IAutoMovieMotionHumanProp = {
       subject: "pad",
       frame: {
         position: Vector3.add(at, { x: 0, y: -0.05, z: 0 }),
@@ -121,7 +114,7 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
     ];
     for (const [row, params] of staged)
       try {
-        const performance: HumanPerformance = new HumanPerformance({
+        const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "rows",
           laws: [...rows],
           props: [keyboard, pad],

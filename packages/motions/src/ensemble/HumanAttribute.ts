@@ -1,11 +1,8 @@
-import {
-  type IAutoMovieRandom,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-} from "@automovie/engine";
+import type { IAutoMovieMotionHumanAttribute, IAutoMovieMotionHumanAttributeEffects, IAutoMovieRandom } from "@automovie/interface";
+
+import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
 
 /**
  * A group member's attributes: the named qualities a group's distribution
@@ -26,23 +23,9 @@ import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No ordinal counter is consumed: each draw has its own key.
  */
 export namespace HumanAttribute {
-  /** The attribute names. */
-  export type Name = "discipline" | "fatigue" | "morale";
 
   /** Every attribute name, as data. */
-  export const NAMES: readonly Name[] = ["discipline", "fatigue", "morale"];
-
-  /** A group's distribution of one quantity on [0, 1]. */
-  export interface IDistribution {
-    /** The mean, in [0, 1]. */
-    mean: number;
-
-    /** The standard deviation, at least 0; 0 gives every member the mean. */
-    spread: number;
-
-    /** Normal (the default) or uniform with that mean and standard deviation; either is clipped to [0, 1]. */
-    shape?: "normal" | "uniform";
-  }
+  export const NAMES: readonly IAutoMovieMotionHumanAttribute.Name[] = ["discipline", "fatigue", "morale"];
 
   /**
    * The stream of one member's quantity: keyed by the chain seed, the
@@ -98,7 +81,7 @@ export namespace HumanAttribute {
     ensemble: string,
     index: number,
     name: string,
-    distribution: IDistribution,
+    distribution: IAutoMovieMotionHumanAttribute.IDistribution,
   ): number {
     const { mean, spread } = distribution;
     if (!(mean >= 0 && mean <= 1))
@@ -136,7 +119,7 @@ export namespace HumanAttribute {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function effect(
-    effect: IHumanAttributeEffects.IEffect,
+    effect: IAutoMovieMotionHumanAttributeEffects.IEffect,
     value: number | undefined,
     neutral: number,
   ): number {

@@ -1,4 +1,4 @@
-import { ISubdivisionRing } from "./ISubdivisionRing";
+import type { IAutoMovieSubdivisionRing, IAutoMovieSubdivisionRingEigenbasis } from "@automovie/interface";
 import { stepSubdivisionRing } from "./stepSubdivisionRing";
 
 /**
@@ -33,15 +33,15 @@ import { stepSubdivisionRing } from "./stepSubdivisionRing";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one `d` by `d` matrix and three length-`d` vectors, released on return.
  */
 export const subdivisionRingEigenbasis = (
-  ring: ISubdivisionRing,
-): { limit: number[]; tangents: number[][] } => {
+  ring: IAutoMovieSubdivisionRing,
+): IAutoMovieSubdivisionRingEigenbasis.IResult => {
   const points: number[] = [...ring.centre, ...ring.edges, ...ring.diagonals];
   const size: number = points.length / 3;
   const matrix: number[][] = [];
   for (let j: number = 0; j < size; ++j) {
     const unit: number[] = new Array<number>(size * 3).fill(0);
     unit[j * 3] = 1;
-    const refined: ISubdivisionRing = stepSubdivisionRing({
+    const refined: IAutoMovieSubdivisionRing = stepSubdivisionRing({
       centre: unit.slice(0, 3),
       edges: unit.slice(3, 3 + ring.edges.length),
       diagonals: unit.slice(3 + ring.edges.length),

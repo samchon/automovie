@@ -1,18 +1,11 @@
-import {
-  type AutoMovieConicArc,
-  AutoMovieConicArcField,
-  AutoMovieConicFieldJet,
-  AutoMovieConicHermite,
-  AutoMovieConicHermiteField,
-  type AutoMovieViewConic,
-  AutoMovieViewSectionField,
-} from "@automovie/engine";
+import type { IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
+import { AutoMovieConicArcField, AutoMovieConicFieldJet, AutoMovieConicHermite, AutoMovieConicHermiteField, AutoMovieViewSectionField } from "@automovie/engine";
 
 /** Actual regular-station scalar tuple. */
-type Scalar = AutoMovieViewSectionField.IStationJet;
+type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /** Prepared numeric/source field, without a callback or registration identity. */
-type Prepared = AutoMovieViewSectionField.IPrepared;
+type Prepared = IAutoMovieViewSectionField.IPrepared;
 
 /** The main question supplies the unchanged independent component comparator. */
 type Compare = (
@@ -27,14 +20,14 @@ export namespace ConstructionConicFieldBoundary {
   /** A same-geometry descriptor is plain data, and malformed required fields retain the named Failure protocol. */
   export function malformed(
     at: Prepared,
-    ray: AutoMovieViewConic.IRay,
+    ray: IAutoMovieViewConic.IRay,
     failures: string[],
   ): void {
     for (const field of ["radial", "point", "tangent", "position"] as const) {
-      const broken: AutoMovieViewConic.IRay = {
+      const broken: IAutoMovieViewConic.IRay = {
         ...ray,
         [field]: null,
-      } as unknown as AutoMovieViewConic.IRay;
+      } as unknown as IAutoMovieViewConic.IRay;
       const result: ReturnType<typeof AutoMovieViewSectionField.readRay> =
         AutoMovieViewSectionField.readRay(at, broken);
       if (!("kind" in result) || !result.detail.includes("descriptor"))
@@ -66,14 +59,14 @@ export namespace ConstructionConicFieldBoundary {
         `tie guide ${s}`,
       );
       if (s === 0) continue;
-      const patch: AutoMovieConicHermite.IPatch | null =
+      const patch: IAutoMovieConicHermite.IPatch | null =
         s < 0 ? at.geometry.quarters[0]!.start : at.geometry.quarters[3]!.end;
       if (patch === null)
         throw new Error(
           `Owner-switch source ${s} has no expected short support`,
         );
       const phi: number = (s < 0 ? 1 : -1) * 0.37 * patch.angle;
-      const value: AutoMovieViewSectionField.IRadialJet = radial(at, phi);
+      const value: IAutoMovieViewSectionField.IRadialJet = radial(at, phi);
       observations.push({
         s,
         phi,
@@ -106,16 +99,16 @@ export namespace ConstructionConicFieldBoundary {
     let count: number = 0;
     for (let q: number = 0; q < 4; q++)
       for (const end of [false, true]) {
-        const arc: AutoMovieViewConic.IQuarter<AutoMovieConicFieldJet.IJet> =
+        const arc: IAutoMovieViewConic.IQuarter<IAutoMovieConicFieldJet.IJet> =
           at.source.quarters[q]!;
-        const numeric: AutoMovieViewConic.IQuarter = at.geometry.quarters[q]!;
-        const patch: AutoMovieConicHermite.IPatch<AutoMovieConicFieldJet.IJet> | null =
+        const numeric: IAutoMovieViewConic.IQuarter = at.geometry.quarters[q]!;
+        const patch: IAutoMovieConicHermite.IPatch<IAutoMovieConicFieldJet.IJet> | null =
           end ? arc.end : arc.start;
-        const primal: AutoMovieConicHermite.IPatch | null = end
+        const primal: IAutoMovieConicHermite.IPatch | null = end
           ? numeric.end
           : numeric.start;
         if (patch === null || primal === null) continue;
-        const selected: AutoMovieConicArc.IRay | null =
+        const selected: IAutoMovieConicArc.IRay | null =
           AutoMovieConicHermite.locate(primal, primal.angle);
         if (
           selected === null ||
@@ -123,7 +116,7 @@ export namespace ConstructionConicFieldBoundary {
           selected.clock !== null
         )
           throw new Error("Moving boundary has no explicit final endpoint");
-        const ray: AutoMovieConicArc.IRay = end
+        const ray: IAutoMovieConicArc.IRay = end
           ? {
               ...selected,
               reverse: true,
@@ -137,15 +130,15 @@ export namespace ConstructionConicFieldBoundary {
             }
           : selected;
         const cubic:
-          | AutoMovieConicArcField.IReading
-          | AutoMovieConicArcField.IFailure = AutoMovieConicHermiteField.read(
+          | IAutoMovieConicArcField.IReading
+          | IAutoMovieConicArcField.IFailure = AutoMovieConicHermiteField.read(
           patch,
           ray,
         );
         if (cubic.kind === "failure") throw new Error(cubic.detail);
-        const a: AutoMovieConicFieldJet.IJet = arc.extents[end ? 1 : 0];
-        const b: AutoMovieConicFieldJet.IJet = arc.extents[end ? 0 : 1];
-        const raw: AutoMovieConicArcField.IGeometry<AutoMovieConicFieldJet.IJet> =
+        const a: IAutoMovieConicFieldJet.IJet = arc.extents[end ? 1 : 0];
+        const b: IAutoMovieConicFieldJet.IJet = arc.extents[end ? 0 : 1];
+        const raw: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet> =
           AutoMovieConicArcField.evaluate(
             AutoMovieConicFieldJet.AD,
             a,
@@ -157,7 +150,7 @@ export namespace ConstructionConicFieldBoundary {
             patch.native,
           );
         for (let i: number = 0; i < 2; i++) {
-          const expectedPoint: AutoMovieConicFieldJet.IJet =
+          const expectedPoint: IAutoMovieConicFieldJet.IJet =
             raw.point[end ? 1 - i : i]!;
           const expectedTangent: readonly number[] = raw.tangent[
             end ? 1 - i : i
@@ -186,7 +179,7 @@ function prepared(
   extents: readonly Scalar[],
   shoulders: readonly Scalar[],
 ): Prepared {
-  const value: Prepared | AutoMovieConicArcField.IFailure =
+  const value: Prepared | IAutoMovieConicArcField.IFailure =
     AutoMovieViewSectionField.prepare(extents, shoulders);
   if (value.kind === "failure") throw new Error(value.detail);
   return value;
@@ -196,7 +189,7 @@ function prepared(
 function radial(
   at: Prepared,
   phi: number,
-): AutoMovieViewSectionField.IRadialJet {
+): IAutoMovieViewSectionField.IRadialJet {
   const value: ReturnType<typeof AutoMovieViewSectionField.read> =
     AutoMovieViewSectionField.read(at, phi);
   if ("kind" in value) throw new Error(value.detail);

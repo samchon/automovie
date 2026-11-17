@@ -1,14 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  type IHumanBody,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 /**
  * The displayed bones of a body in the quiet stance every performer starts
@@ -23,7 +16,7 @@ import {
  * @returns The displayed bones.
  */
 export function motionHumanStance(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   at: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   yaw: number = 0,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {

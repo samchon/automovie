@@ -1,10 +1,5 @@
-import {
-  HumanBase,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
+import { HumanBase, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,11 +29,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_base_transitions(): void {
   const complaints: string[] = [];
   const declared = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     name: string,
     params: Record<string, unknown>,
-  ): HumanBase | undefined => {
-    const performance: HumanPerformance = new HumanPerformance({
+  ): IAutoMovieMotionHumanBase | undefined => {
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "base",
       performers: [
         {
@@ -57,8 +52,8 @@ export function test_human_motion_core_base_transitions(): void {
   const expect = (
     body: string,
     label: string,
-    got: HumanBase | undefined,
-    kind: HumanBase.Kind,
+    got: IAutoMovieMotionHumanBase | undefined,
+    kind: IAutoMovieMotionHumanBase.Kind,
   ): void => {
     if (got === undefined)
       complaints.push(`${body} ${label}: no base declared, ${kind} expected`);
@@ -68,7 +63,7 @@ export function test_human_motion_core_base_transitions(): void {
       complaints.push(`${body} ${label}: ${got.kind} is not a base kind`);
   };
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const depth of ["partial", "full"] as const)
       for (const heels of ["flat", "up"] as const) {
         if (depth === "full" && heels === "flat") {

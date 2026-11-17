@@ -1,3 +1,4 @@
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import { swivelArcs } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,7 +28,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios with their inputs and bounds.
  */
 export function test_kinematics_swivel_arcs(): void {
-  const value = (f: swivelArcs.ISinusoid, degrees: number): number =>
+  const value = (f: IAutoMovieSwivelArcs.ISinusoid, degrees: number): number =>
     f.a +
     f.b * Math.cos((degrees * Math.PI) / 180) +
     f.c * Math.sin((degrees * Math.PI) / 180);
@@ -39,8 +40,8 @@ export function test_kinematics_swivel_arcs(): void {
     return seed / 2147483648 - 0.5;
   };
   for (let k: number = 0; k < 50; k++) {
-    const f: swivelArcs.ISinusoid = { a: random(), b: random(), c: random() };
-    const fit: swivelArcs.ISinusoid = swivelArcs.fitted(
+    const f: IAutoMovieSwivelArcs.ISinusoid = { a: random(), b: random(), c: random() };
+    const fit: IAutoMovieSwivelArcs.ISinusoid = swivelArcs.fitted(
       value(f, 0),
       value(f, 90),
       value(f, 180),
@@ -53,8 +54,8 @@ export function test_kinematics_swivel_arcs(): void {
   }
 
   // 2. The arc above a margin.
-  const f: swivelArcs.ISinusoid = { a: 0.2, b: 0.6, c: -0.8 };
-  const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(f, 0.5);
+  const f: IAutoMovieSwivelArcs.ISinusoid = { a: 0.2, b: 0.6, c: -0.8 };
+  const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(f, 0.5);
   TestValidator.predicate(
     "above finds an arc",
     typeof arc === "object" && arc !== null,
@@ -84,7 +85,7 @@ export function test_kinematics_swivel_arcs(): void {
   );
 
   // 3. The union and its readings.
-  const merged: swivelArcs.IArc[] | "all" = swivelArcs.union([
+  const merged: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union([
     { from: 350, to: 370 },
     { from: 5, to: 20 },
     { from: 100, to: 110 },
@@ -93,7 +94,7 @@ export function test_kinematics_swivel_arcs(): void {
     "the arcs across 0 merge",
     merged !== "all" &&
       merged.some(
-        (a: swivelArcs.IArc): boolean =>
+        (a: IAutoMovieSwivelArcs.IArc): boolean =>
           nclose(a.from, -10) && nclose(a.to, 20),
       ),
   );
@@ -115,7 +116,7 @@ export function test_kinematics_swivel_arcs(): void {
     nclose(swivelArcs.nearest(merged, 12) ?? Number.NaN, 20) &&
       nclose(swivelArcs.nearest(merged, 101) ?? Number.NaN, 100),
   );
-  const full: swivelArcs.IArc[] | "all" = swivelArcs.union([
+  const full: IAutoMovieSwivelArcs.IArc[] | "all" = swivelArcs.union([
     { from: 0, to: 200 },
     { from: 180, to: 370 },
   ]);

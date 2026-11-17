@@ -1,6 +1,4 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanLayer } from "../law/IHumanLayer";
+import type { IAutoMovieMotionHumanBlast } from "@automovie/interface";
 
 /**
  * A blast: a point and an instant from which an impulse reaches every
@@ -22,23 +20,6 @@ import type { IHumanLayer } from "../law/IHumanLayer";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No charge is named: the impulse and radius are the author's.
  */
 export namespace HumanBlast {
-  /** A blast. */
-  export interface IBlast {
-    /** Its id, unique among the blasts; the hit's `object`. */
-    id: string;
-
-    /** Its centre, world metres. */
-    point: IAutoMovieVector3;
-
-    /** Film second it bursts, or a named instant of an action or a cue track. */
-    at: IHumanLayer.Instant;
-
-    /** How far it reaches, metres; positive. */
-    radius: number;
-
-    /** The impulse it delivers one metre from its centre, newton seconds; positive. */
-    impulse: number;
-  }
 
   /** The reference distance the impulse is stated at, metres. */
   export const REFERENCE: number = 1;
@@ -52,7 +33,7 @@ export namespace HumanBlast {
    * @param distance Metres from its centre.
    * @returns Newton seconds.
    */
-  export function impulse(blast: IBlast, distance: number): number {
+  export function impulse(blast: IAutoMovieMotionHumanBlast.IBlast, distance: number): number {
     const d: number = Math.max(REFERENCE, distance);
     return blast.impulse * (REFERENCE / d) ** 2;
   }

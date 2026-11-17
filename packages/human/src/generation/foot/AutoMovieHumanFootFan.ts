@@ -1,8 +1,10 @@
-import type { AutoMovieLoftFrame } from "@automovie/engine";
-import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
-import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
+import type { IAutoMovieLoftFrame, AutoMovieVector3Tuple, IAutoMovieHumanFootWebLine } from "@automovie/interface";
 
-type Vec3 = G.Vec3;
+
+
+
+import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+
 
 /**
  * The body's section planes from the web line: the yaw fan, the turn fan and
@@ -25,7 +27,7 @@ type Vec3 = G.Vec3;
  */
 export namespace AutoMovieHumanFootFan {
   /** The plane at a station. */
-  export function plane(line: AutoMovieHumanFootWebLine.IWebLine, station: number): AutoMovieLoftFrame.IFrame {
+  export function plane(line: IAutoMovieHumanFootWebLine.IWebLine, station: number): IAutoMovieLoftFrame.IFrame {
     const turn: { phi: number; theta: number } = angles(line, station);
     const phi: number = turn.phi;
     const theta: number = turn.theta;
@@ -33,8 +35,8 @@ export namespace AutoMovieHumanFootFan {
     const s: number = Math.sin(phi);
 
     // The turn about the lateral axis, then the yaw about the vertical.
-    const lateral: Vec3 = G.plus(G.scale(line.lateral, c), G.scale(line.back, s));
-    const back: Vec3 = G.sub(G.scale(line.back, c), G.scale(line.lateral, s));
+    const lateral: AutoMovieVector3Tuple = G.plus(G.scale(line.lateral, c), G.scale(line.back, s));
+    const back: AutoMovieVector3Tuple = G.sub(G.scale(line.back, c), G.scale(line.lateral, s));
 
     return {
       origin: line.origin,
@@ -44,8 +46,8 @@ export namespace AutoMovieHumanFootFan {
   }
 
   /** The station of the plane through a point. */
-  export function station(line: AutoMovieHumanFootWebLine.IWebLine, p: Vec3): number {
-    const r: Vec3 = G.sub(p, line.origin);
+  export function station(line: IAutoMovieHumanFootWebLine.IWebLine, p: AutoMovieVector3Tuple): number {
+    const r: AutoMovieVector3Tuple = G.sub(p, line.origin);
     const b: number = G.dot(r, line.back);
 
     // Outside the window the planes are the switch's, read directly.
@@ -58,7 +60,7 @@ export namespace AutoMovieHumanFootFan {
 
     // Inside it, the side of the plane a point is on changes once.
     const side = (s: number): number => {
-      const f: AutoMovieLoftFrame.IFrame = plane(line, s);
+      const f: IAutoMovieLoftFrame.IFrame = plane(line, s);
       return G.dot(r, G.cross(f.u, f.v));
     };
     let lo: number = line.square - w;
@@ -74,7 +76,7 @@ export namespace AutoMovieHumanFootFan {
   }
 
   /** The yaw and turn angles at a station. */
-  function angles(line: AutoMovieHumanFootWebLine.IWebLine, station: number): { phi: number; theta: number } {
+  function angles(line: IAutoMovieHumanFootWebLine.IWebLine, station: number): { phi: number; theta: number } {
     const w: number = window(line);
 
     // The integral of the smoothstep's share over the window up to here.
@@ -90,7 +92,7 @@ export namespace AutoMovieHumanFootFan {
   }
 
   /** Half the hand-over window: {@link HANDOVER} of the yaw fan's stations. */
-  function window(line: AutoMovieHumanFootWebLine.IWebLine): number {
+  function window(line: IAutoMovieHumanFootWebLine.IWebLine): number {
     return HANDOVER * line.square;
   }
 }

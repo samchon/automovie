@@ -1,4 +1,4 @@
-import type { IAutoMovieDecodedProductionAudioAsset } from "./IAutoMovieDecodedProductionAudioAsset";
+import type { IAutoMovieDecodedProductionAudioAsset } from "@automovie/interface";
 
 /**
  * Decode one complete supported RIFF/WAVE file into finite mono samples at a requested rate.
@@ -24,25 +24,11 @@ import type { IAutoMovieDecodedProductionAudioAsset } from "./IAutoMovieDecodedP
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The decoder is a pure function of one call's bytes and rate and coordinates no work across requests; any caching of decoded assets would belong to its caller.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns source-frame mono storage and, on resampling, rate-ratio-sized output storage; no product memory budget bounds a requested allocation. Temporary buffers become collectable on return/throw, the returned buffer transfers to its caller, and no raw bytes, handles or tasks are retained.
  */
-export const decodeProductionAudioAsset: (props: {
-  /** Diagnostic identity only; the decoder opens no file. */
-  path: string;
-
-  /** Complete resident RIFF/WAVE bytes, borrowed without mutation. */
-  bytes: Uint8Array;
-
-  /** Positive safe-integer output samples per second. */
-  sampleRate: number;
-}) => IAutoMovieDecodedProductionAudioAsset = (props: {
-  /** Diagnostic identity only; the decoder opens no file. */
-  path: string;
-
-  /** Complete resident RIFF/WAVE bytes, borrowed without mutation. */
-  bytes: Uint8Array;
-
-  /** Positive safe-integer output samples per second. */
-  sampleRate: number;
-}): IAutoMovieDecodedProductionAudioAsset => {
+export const decodeProductionAudioAsset: (
+  props: IAutoMovieDecodedProductionAudioAsset.IProps,
+) => IAutoMovieDecodedProductionAudioAsset = (
+  props: IAutoMovieDecodedProductionAudioAsset.IProps,
+): IAutoMovieDecodedProductionAudioAsset => {
   if (Number.isSafeInteger(props.sampleRate) === false || props.sampleRate <= 0)
     fail(
       props.path,

@@ -1,6 +1,5 @@
-import type { IAutoMovieContactReceipt } from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMovieContactReceipt } from "@automovie/interface";
 
-import type { AutoMoviePhysicalSimulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
@@ -16,7 +15,7 @@ import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function isPhysicalPairExcluded(
-  input: AutoMoviePhysicalSimulation.IInput,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   first: number,
   second: number,

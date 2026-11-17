@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createExerciseBike,
   createExerciseMat,
@@ -9,22 +10,8 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanSportCarry,
-  HumanSportWorkout,
-  type IHumanBody,
-  type IHumanProp,
-  StrikingRoll,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportCarry, HumanSportWorkout, StrikingRoll } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -92,9 +79,9 @@ export function test_archetype_gym_used(): void {
   ];
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: HumanPerformance.IInput["performers"][number] = {
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] = {
       subject: "a",
       body,
       at: { x: 0, y: 0, z: 0 },
@@ -102,13 +89,13 @@ export function test_archetype_gym_used(): void {
       proficiency: { level: "trained" },
     };
     const when = (
-      film: HumanPerformance,
+      film: IAutoMovieMotionHumanPerformance,
       row: string,
       event: string,
     ): number => {
-      const found: HumanSegment.ISegment = film
+      const found: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -119,12 +106,12 @@ export function test_archetype_gym_used(): void {
 
     // 1 to 3. Seated and lying on the machines and the mat.
     try {
-      let chain: HumanChain = HumanChain.subject("a").stand({ seconds: 0.3 });
+      let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({ seconds: 0.3 });
       for (const [row, , prop, affordance] of supports)
         chain = chain
           .registered(row, { reps: 1, on: { prop, affordance } })
           .stand({ seconds: 0.3 });
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "gym",
         laws: [
           HumanSportWorkout.rowing,
@@ -139,7 +126,7 @@ export function test_archetype_gym_used(): void {
         ],
         composition: chain.node,
       });
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         body,
@@ -169,7 +156,7 @@ export function test_archetype_gym_used(): void {
     // 4. The sled push.
     try {
       const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0.6 };
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "sled",
         laws: [HumanSportCarry.sledPush],
         performers: [performer],
@@ -180,7 +167,7 @@ export function test_archetype_gym_used(): void {
           .node,
       });
       const end: number = film.duration;
-      const frame: IHumanProp.IFrame = film.prop("sled", end);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("sled", end);
       const gripped: number = when(film, "sledPush", "gripped");
       const offs: string[] = [];
       let off: number = 0;
@@ -188,14 +175,14 @@ export function test_archetype_gym_used(): void {
         // The handle against its fist, the grip socket closed on it.
         let worst: number = 0;
         for (let s: number = gripped + 0.05; s <= end; s += 0.25) {
-          const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+          const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
             body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
           const fist: IAutoMovieVector3 =
             resolveAutoMovieHumanoidSurfaces.place(
               socket,
               film.bones("a", s).get(socket.bone)!,
             ).point;
-          const placed: IHumanProp.IFrame = film.prop("sled", s);
+          const placed: IAutoMovieMotionHumanProp.IFrame = film.prop("sled", s);
           const handle: IAutoMovieAffordance = sled.affordance(side);
           const middle: IAutoMovieVector3 = Vector3.add(
             placed.position,

@@ -1,4 +1,8 @@
-import { AutoMovieSplineCurve, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanTrunkSection, IAutoMovieHumanTrunkTapes } from "@automovie/interface";
+
+
+
+import { AutoMovieSplineCurve, AutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 
@@ -21,10 +25,10 @@ export namespace AutoMovieHumanTrunkTapes {
    * height moving them along their axes.
    */
   export function points(
-    s: AutoMovieHumanTrunkQuadrant.ISection,
+    s: IAutoMovieHumanTrunkSection,
     reliefs: readonly IAutoMovieLoftRelief[],
     count: number = PHASES,
-  ): [number, number][] {
+  ): IAutoMovieHumanTrunkTapes.PointsResult {
     const c: number[] = AutoMovieHumanTrunkRing.controls(s);
     return Array.from({ length: count }, (_: unknown, i: number): [number, number] => {
       const t: number = (2 * Math.PI * i) / count;
@@ -41,7 +45,7 @@ export namespace AutoMovieHumanTrunkTapes {
   }
 
   /** Hull perimeter of planar points. */
-  export function hull(points: readonly [number, number][]): number {
+  export function hull(points: IAutoMovieHumanTrunkTapes.HullPoints): number {
     const sorted: [number, number][] = [...points].sort((a, b): number => a[0] - b[0] || a[1] - b[1]);
     const cross = (o: [number, number], a: [number, number], b: [number, number]): number =>
       (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
@@ -71,7 +75,7 @@ export namespace AutoMovieHumanTrunkTapes {
    * @param girth The tape read at a trial half width.
    * @param guess A half width to start from, mm.
    */
-  export function solve(tape: number, girth: (width: number) => number, guess: number): number {
+  export function solve(tape: number, girth: IAutoMovieHumanTrunkTapes.SolveGirth, guess: number): number {
     let low: number = 0.3 * guess;
     let high: number = 2.5 * guess;
     for (let k: number = 0; k < STEPS; k++) {

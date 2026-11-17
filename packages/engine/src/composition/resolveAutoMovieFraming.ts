@@ -1,6 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieFramingGoal, IAutoMovieResolveFraming, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieFramingGoal } from "./IAutoMovieFramingGoal";
+
 
 /**
  * A camera pose meeting a framing goal from the subjects' actual bounding
@@ -26,7 +26,7 @@ export function resolveAutoMovieFraming(
   state: Readonly<
     Record<string, { center: IAutoMovieVector3; radius: number }>
   >,
-): resolveAutoMovieFraming.ICamera {
+): IAutoMovieResolveFraming.ICamera {
   if (
     goal.subjects.length === 0 ||
     !(goal.fill > 0 && goal.fill <= 1) ||
@@ -85,28 +85,4 @@ export function resolveAutoMovieFraming(
     fieldOfView: goal.fieldOfView,
     radius,
   };
-}
-/**
- * Companion types of {@link resolveAutoMovieFraming}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 1 member (`ICamera`); units and frames named in its text: world, metres, radians. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `resolveAutoMovieFraming` in packages/engine/src/composition/resolveAutoMovieFraming.ts; its surface is the 1 member listed and the text shows 4 other files naming it, mostly packages/engine (2), movies (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace resolveAutoMovieFraming {
-  /** A resolved camera. */
-  export interface ICamera {
-    /** Camera position, world metres. */
-    position: IAutoMovieVector3;
-
-    /** Look-at target, world metres. */
-    target: IAutoMovieVector3;
-
-    /** Vertical field of view, radians. */
-    fieldOfView: number;
-
-    /** Radius of the framed bounding sphere, metres. */
-    radius: number;
-  }
 }

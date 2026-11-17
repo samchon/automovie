@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { physicalShapeNearest } from "./physicalShapeNearest";
 
@@ -33,8 +31,8 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
 export function physicalShapeSegmentDistance(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMoviePhysicalProfile.ITransform,
+  shape: IAutoMoviePhysicalProfile.IShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper?: readonly [number, number],

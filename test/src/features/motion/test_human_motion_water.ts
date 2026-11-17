@@ -1,16 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  integrateMotionTrajectory,
-  resolvePose,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import { HumanWater, type IHumanBody } from "@automovie/motions";
+import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWater, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, resolvePose } from "@automovie/engine";
+
+import { HumanWater } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -47,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_water(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const findings: string[] = [];
-  const prone = (body: IHumanBody): Bones => {
+  const prone = (body: IAutoMovieMotionHumanBody): Bones => {
     const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       90,
@@ -86,10 +77,10 @@ export function test_human_motion_water(): void {
       ),
     );
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const fresh: HumanWater.IWater = { surface: 0 };
+  const fresh: IAutoMovieMotionHumanWater.IWater = { surface: 0 };
 
   for (const name of ["f-small", "m-large", "f-tall", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones: Bones = prone(body);
     const mass: number = body.profile.mass;
 
@@ -98,7 +89,7 @@ export function test_human_motion_water(): void {
     // A profile without lung air may displace less than its mass: then the
     // truthful verdict is that it sinks, wholly under it displaces less
     // than it weighs, and its glide is read wholly under the plane.
-    const whole: HumanWater.ISum = HumanWater.sum(
+    const whole: IAutoMovieMotionHumanWater.ISum = HumanWater.sum(
       body,
       lowered(bones, -10 * body.measure.stature),
       still,
@@ -110,7 +101,7 @@ export function test_human_motion_water(): void {
           `${name}: reported sinking though its ${(whole.volume * 1000).toFixed(1)} kg of displacement exceeds ${mass} kg`,
         );
     } else {
-      const floated: HumanWater.ISum = HumanWater.sum(
+      const floated: IAutoMovieMotionHumanWater.ISum = HumanWater.sum(
         body,
         lowered(bones, dy),
         still,
@@ -160,7 +151,7 @@ export function test_human_motion_water(): void {
     const k: number =
       -Vector3.dot(HumanWater.sum(body, afloat, along, fresh).drag, along) /
       mass;
-    const glide: integrateMotionTrajectory.ITrajectory = HumanWater.glide(
+    const glide: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanWater.glide(
       body,
       afloat,
       along,

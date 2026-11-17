@@ -1,4 +1,4 @@
-import { ViolationCollector } from "./ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import { finiteMinimum } from "./finiteMinimum";
 import { isRecord } from "./isRecord";
 
@@ -19,11 +19,11 @@ const MAXIMUM_OVERLAYS: number = 4;
 export const validateMaterialOverlays: (
   overlays: unknown,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   overlays: unknown,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (overlays === undefined) return;
   if (!Array.isArray(overlays)) {

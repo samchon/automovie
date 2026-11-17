@@ -1,5 +1,8 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
-import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import type { IAutoMovieHumanArmSpanEnd, IAutoMovieHumanArmBones, IAutoMovieHumanArmPiece } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 
 /**
@@ -43,7 +46,7 @@ export namespace AutoMovieHumanDeltoidSpan {
    * @param inputs The fixed inputs.
    */
   export function insertion(inputs: IAutoMovieHumanArmPiece.IInputs): number {
-    const bones: AutoMovieHumanArmBones.IBones = inputs.bones;
+    const bones: IAutoMovieHumanArmBones.IBones = inputs.bones;
     const distance: number = (bones.humerus - bones.acromionProjection) / 2;
 
     return inputs.axis.upper(distance);
@@ -55,7 +58,7 @@ export namespace AutoMovieHumanDeltoidSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } {
+  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmSpanEnd {
     const s: number = insertion(inputs);
 
     return { row: AutoMovieHumanArmRows.row("u0.45", s), knot: [s, inputs.tapes.bicep] };

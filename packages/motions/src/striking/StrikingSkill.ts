@@ -1,4 +1,4 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
+import type { IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingSkill, IAutoMovieRandom } from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
 
@@ -110,7 +110,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function punchPeak(skill: HumanSkill.ISkill): number {
+  export function punchPeak(skill: IAutoMovieMotionHumanSkill.ISkill): number {
     return HumanSkill.quantity(
       skill,
       "speed",
@@ -133,7 +133,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function strike(skill: HumanSkill.ISkill): number {
+  export function strike(skill: IAutoMovieMotionHumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "speed", 1.06, 1);
   }
 
@@ -151,7 +151,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function recovery(skill: HumanSkill.ISkill): number {
+  export function recovery(skill: IAutoMovieMotionHumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "recovery", 1.4, 1);
   }
 
@@ -173,7 +173,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function amplitude(skill: HumanSkill.ISkill): number {
+  export function amplitude(skill: IAutoMovieMotionHumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "power", 0.6, 1);
   }
 
@@ -194,7 +194,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lag(skill: HumanSkill.ISkill): number {
+  export function lag(skill: IAutoMovieMotionHumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "sequencing", 0.03, 0.12);
   }
 
@@ -219,32 +219,13 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reaction(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill.ISkill,
     random: IAutoMovieRandom,
     index: number,
   ): number {
     const draw: number = HumanSkill.reaction(reactionLaw(skill), random, index);
     const [low, high] = reactionBand(skill);
     return Math.min(high, Math.max(low, draw));
-  }
-
-  /**
-   * The ex-Gaussian parameters of a reaction time, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member names its part of the distribution; all are seconds.
-   * @evidence contracts/development/design.md#principled-representation The three ex-Gaussian parameters in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the draw and the band read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IReaction {
-    /** Mean of the normal part. */
-    mu: number;
-
-    /** Standard deviation of the normal part. */
-    sigma: number;
-
-    /** Mean of the exponential part. */
-    tau: number;
   }
 
   /**
@@ -261,7 +242,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function reactionLaw(skill: HumanSkill.ISkill): IReaction {
+  export function reactionLaw(skill: IAutoMovieMotionHumanSkill.ISkill): IAutoMovieMotionHumanStrikingSkill.IReaction {
     return {
       mu: HumanSkill.quantity(skill, "reaction", 0.335, 0.29),
       sigma: HumanSkill.quantity(skill, "reaction", 0.06, 0.04),
@@ -287,9 +268,9 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reactionBand(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill.ISkill,
   ): readonly [number, number] {
-    const r: IReaction = reactionLaw(skill);
+    const r: IAutoMovieMotionHumanStrikingSkill.IReaction = reactionLaw(skill);
     return [
       r.mu - 2.326 * r.sigma,
       r.mu + 2.326 * r.sigma + r.tau * Math.log(100),
@@ -316,7 +297,7 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function anticipation(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill.ISkill,
   ): readonly [number, number] {
     return [
       HumanSkill.quantity(skill, "anticipation", 0, 0.08),
@@ -342,24 +323,8 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function defence(skill: HumanSkill.ISkill): number {
+  export function defence(skill: IAutoMovieMotionHumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "speed", 0.3, 0.2);
-  }
-
-  /**
-   * A guard drop after a strike.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and the meaning of zero.
-   * @evidence contracts/development/design.md#principled-representation A depth in metres and a duration in seconds, zero for no drop.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the punch's return reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IGuardDrop {
-    /** How far the non-striking or returning glove sags below its guard, metres; 0 when it does not drop. */
-    depth: number;
-
-    /** How long the drop lasts after the strike's contact, seconds. */
-    seconds: number;
   }
 
   /**
@@ -383,10 +348,10 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guardDrop(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill.ISkill,
     random: IAutoMovieRandom,
     index: number,
-  ): IGuardDrop {
+  ): IAutoMovieMotionHumanStrikingSkill.IGuardDrop {
     const probability: number = HumanSkill.quantity(skill, "guard", 0.6, 0.1);
     if (random.float(index) >= probability) return { depth: 0, seconds: 0 };
     const low: number = HumanSkill.quantity(skill, "guard", 0.08, 0.01);

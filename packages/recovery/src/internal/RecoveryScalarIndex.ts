@@ -1,13 +1,15 @@
+import type { IAutoMovieRecoveryScalarIndex } from "@automovie/interface";
 /**
  * Immutable face-height interval queries for one admitted observation mesh.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Queries document equality conventions, face order and the caller's immutable mesh lifetime.
- * @evidence contracts/development/design.md#principled-representation Represents Immutable face-height interval queries for one admitted observation mesh: companion namespace of 1 member (`create`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryScalarIndex` in packages/recovery/src/internal/RecoveryScalarIndex.ts; its surface is the 1 member listed and the text shows 8 other files naming it, mostly packages/recovery (8), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation Immutable per-face scalar intervals support inclusive plane queries and strict open-slab overlap queries in the same physical chart.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared runtime closure owns copied intervals and tree bounds for one extraction; interface owns its query signatures.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The index returns original face candidates in ascending order and does not imply geometric intersection, topology qualification or a cross-input cache.
  */
 export namespace RecoveryScalarIndex {
-  /**
+ 
+ /**
    * Prepare height intervals once; the caller keeps source arrays unchanged until queries finish.
    * Results contain original face IDs in ascending order. Plane queries include both endpoints;
    * slab queries require positive overlap with the open interval, retaining internal components.
@@ -21,12 +23,9 @@ export namespace RecoveryScalarIndex {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The extraction call owns O(T) interval/tree arrays and each query's O(A+log T) result/stack. These become unreachable after extraction; original source positions and topology never escape through query results.
    */
   export function create(
-    triangles: readonly (readonly [number, number, number])[],
-    heights: readonly number[],
-  ): {
-    cut: (level: number) => readonly number[];
-    slab: (before: number, after: number) => readonly number[];
-  } {
+    triangles: Parameters<IAutoMovieRecoveryScalarIndex.Create>[0],
+    heights: Parameters<IAutoMovieRecoveryScalarIndex.Create>[1],
+  ): ReturnType<IAutoMovieRecoveryScalarIndex.Create> {
     if (!heights.length || !heights.every(Number.isFinite))
       throw new Error("Finite scalar heights are required");
     const minimum: Float64Array = new Float64Array(triangles.length);
@@ -103,7 +102,6 @@ export namespace RecoveryScalarIndex {
     return {
       cut: (level: number): readonly number[] => query(level, level, false),
       slab: (before: number, after: number): readonly number[] =>
-        query(before, after, true),
-    };
+        query(before, after, true) };
   }
 }

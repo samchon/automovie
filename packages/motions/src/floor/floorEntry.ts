@@ -1,16 +1,9 @@
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
@@ -34,7 +27,7 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  */
 export namespace floorEntry {
   /** The bases a floor law starts from: standing by its own way down, kneeling and crouched by a blend from the displayed entry. */
-  export const BASES: readonly HumanBase.Kind[] = [
+  export const BASES: readonly IAutoMovieMotionHumanBase.Kind[] = [
     "standing",
     "kneeling",
     "crouched",
@@ -58,10 +51,10 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function standing(
-    context: Pick<IHumanActionContext, "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
     action: string,
   ): boolean {
-    const kind: HumanBase.Kind = context.entry.base.kind;
+    const kind: IAutoMovieMotionHumanBase.Kind = context.entry.base.kind;
     if (kind === "standing") return true;
     if (BASES.includes(kind)) return false;
     throw new HumanRefusal({
@@ -84,10 +77,10 @@ export namespace floorEntry {
    */
   export interface IStart {
     /** The standing posture the law measures from: the stance it stands in, or one over the entry when it does not stand. */
-    standing: IHumanPosture;
+    standing: IAutoMovieMotionHumanPosture;
 
     /** The displayed entry the way down blends from; null when the body enters standing, since the law's own way down starts there. */
-    entered: IHumanPosture | null;
+    entered: IAutoMovieMotionHumanPosture | null;
   }
 
   /**
@@ -111,10 +104,10 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function start(
-    context: Pick<IHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     action: string,
     over: "hips" | "feet",
-    stood: () => IHumanPosture,
+    stood: () => IAutoMovieMotionHumanPosture,
   ): IStart {
     return standing(context, action)
       ? { standing: stood(), entered: null }
@@ -146,14 +139,14 @@ export namespace floorEntry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one posture for the plan's life.
    */
   export function down(
-    body: IHumanBody,
-    entered: IHumanPosture | null,
+    body: IAutoMovieMotionHumanBody,
+    entered: IAutoMovieMotionHumanPosture | null,
     at: number,
     weight: (seconds: number) => number,
-    posture: (base: IHumanPosture, seconds: number) => IHumanPosture,
-  ): (base: IHumanPosture, seconds: number) => IHumanPosture {
-    let arrived: IHumanPosture | undefined;
-    return (base: IHumanPosture, seconds: number): IHumanPosture => {
+    posture: (base: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanPosture,
+  ): (base: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanPosture {
+    let arrived: IAutoMovieMotionHumanPosture | undefined;
+    return (base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
       const w: number = weight(seconds);
       if (entered === null || w >= 1) return posture(base, seconds);
       arrived ??= GymnasticsFlight.frozen(body, posture(base, at));
@@ -180,9 +173,9 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reference(
-    context: Pick<IHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     over: "hips" | "feet",
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const at: IAutoMovieVector3 =
       over === "hips"
         ? hips(context.body, displayed(context))
@@ -217,17 +210,17 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function displayed(
-    context: Pick<IHumanActionContext, "entry">,
-  ): IHumanPosture {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+  ): IAutoMovieMotionHumanPosture {
     const pose: IAutoMoviePose = context.entry.pose;
-    const joints: IHumanPosture["joints"] = {};
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const joint of pose.joints)
       joints[joint.bone] = [
         joint.flexion ?? 0,
         joint.abduction ?? 0,
         joint.twist ?? 0,
       ];
-    const posture: IHumanPosture = context.entry.posture;
+    const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
     return {
       ...(pose.root === undefined || pose.root === null
         ? {
@@ -270,26 +263,26 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(
-    body: IHumanBody,
-    from: IHumanPosture,
-    to: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
     weight: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (weight <= 0) return from;
     if (weight >= 1) return to;
     const lerp = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = blended(
+    const joints: IAutoMovieMotionHumanPosture["joints"] = blended(
       from.joints,
       to.joints,
       weight,
     );
     const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-    const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
+    const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
       yaw: from.yaw + turn * weight,
       pitch: lerp(from.pitch, to.pitch),
       roll: lerp(from.roll, to.roll),
     };
-    const carried: IHumanPosture = {
+    const carried: IAutoMovieMotionHumanPosture = {
       ...heading,
       root: Vector3.subtract(
         Vector3.lerp(hips(body, from), hips(body, to), weight),
@@ -305,7 +298,7 @@ export namespace floorEntry {
     // The floor is a constraint on the way: angles blended between two
     // postures that rest on the floor can dip a limb under it, so the body
     // is raised by whatever sinks deeper than the two ends themselves do.
-    const sunk = (posture: IHumanPosture): number =>
+    const sunk = (posture: IAutoMovieMotionHumanPosture): number =>
       Math.max(0, knockdown.rest(body, posture) - posture.root.y);
     const rise: number = Math.max(
       0,
@@ -335,12 +328,12 @@ export namespace floorEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blended(
-    from: IHumanPosture["joints"],
-    to: IHumanPosture["joints"],
+    from: IAutoMovieMotionHumanPosture["joints"],
+    to: IAutoMovieMotionHumanPosture["joints"],
     weight: number,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     const lerp = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = {};
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of new Set([
       ...Object.keys(from),
       ...Object.keys(to),
@@ -353,7 +346,7 @@ export namespace floorEntry {
   }
 
   /** Where a posture's hips joint is: its root plus the hips' rest place turned by its heading. */
-  function hips(body: IHumanBody, posture: IHumanPosture): IAutoMovieVector3 {
+  function hips(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,
       Quaternion.rotateVector(

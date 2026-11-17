@@ -1,10 +1,5 @@
-import {
-  AUTO_MOVIE_CAPTURE_PLAN_KEYS,
-  AUTO_MOVIE_INSPECTION_KEYS,
-  type IAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import { AUTO_MOVIE_CAPTURE_PLAN_KEYS, AUTO_MOVIE_INSPECTION_KEYS, parseAutoMovieCapturePlanRequest, readAutoMovieCaptureArguments } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** A value for every key that differs from its absent value, with the keys it needs beside it. */

@@ -1,3 +1,6 @@
+import type { IAutoMovieAssertCaptureClockExpected, IAutoMovieAssertCaptureClockHost } from "@automovie/interface";
+
+
 /**
  * Refuse a capture page that is not ready or does not expose the commissioned
  * clock, before any sound is prepared or pixel captured: the page must be
@@ -16,13 +19,8 @@
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
 export function assertAutoMovieCaptureClock(
-  host: {
-    ready: boolean;
-    durationSeconds: number;
-    fps: number;
-    frameCount: number;
-  },
-  expected: { durationSeconds: number; fps: number },
+  host: IAutoMovieAssertCaptureClockHost,
+  expected: IAutoMovieAssertCaptureClockExpected,
 ): void {
   if (
     host.ready !== true ||

@@ -1,5 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -29,7 +30,7 @@ export function motionPunchSignature(
   name: motionHumanBody.Name,
   rows: readonly string[],
 ): void {
-  const partner: IHumanBody = motionHumanBody("m-average");
+  const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   for (const row of rows) {
     const cell: string = `punch ${row} ${name}`;
     const s: M.IStaged = M.stage("punch", row, name);

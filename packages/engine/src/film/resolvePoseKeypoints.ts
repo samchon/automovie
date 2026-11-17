@@ -1,19 +1,8 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieCamera,
-  IAutoMovieDeliveryCrop,
-  IAutoMoviePose,
-  IAutoMoviePoseKeypoint,
-  IAutoMovieShot,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, type IAutoMovieResolvedCamera, type IAutoMovieResolvePoseKeypoints, AutoMovieHumanoidBone, IAutoMoviePoseKeypoint, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+
 import { resolvePose } from "../kinematics/resolvePose";
 import { Matrix4 } from "../math/Matrix4";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { DEFAULT_KEYPOINT_BONES } from "./constants/DEFAULT_KEYPOINT_BONES";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
@@ -37,34 +26,7 @@ const DEFAULT_ASPECT: number = 16 / 9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Projects one actor at one instant per call; the keypoint plan calls it per performing actor per frame, and the inputs carry no identity to key a cache on.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The bone index and node matrix are released on return; the returned keypoints are fresh records owned by the caller.
  */
-export function resolvePoseKeypoints(props: {
-  /** The actor's pose at this instant. */
-  pose: IAutoMoviePose;
-
-  /** The actor's skeleton. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** The actor's staged scene-node placement, in world space. */
-  node: { transform: IAutoMovieTransform };
-
-  /** The live camera. */
-  camera: IAutoMovieCamera;
-
-  /** The camera's move; omit or pass `null` for a static camera. */
-  cameraMotion?: IAutoMovieShot["cameraMotion"];
-
-  /** Shot-local seconds to sample the camera at. Defaults to 0. */
-  time?: number;
-
-  /** Render aspect (width / height). Defaults to 16 / 9. */
-  aspect?: number;
-
-  /** Normalized delivery crop the keypoints are expressed in. */
-  crop?: IAutoMovieDeliveryCrop;
-
-  /** Joints to emit. Defaults to the OpenPose body set. */
-  joints?: readonly AutoMovieHumanoidBone[];
-}): IAutoMoviePoseKeypoint[] {
+export function resolvePoseKeypoints(props: IAutoMovieResolvePoseKeypoints.IProps): IAutoMoviePoseKeypoint[] {
   const rigByBone: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
     resolvePose(props.pose, props.skeleton).map(
       (

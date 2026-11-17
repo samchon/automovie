@@ -1,4 +1,5 @@
-import { type AutoMovieSolidMeshConstraints, type AutoMovieSolidMeshIncidence, probeAutoMovieSolidMesh } from "@automovie/engine";
+import type { IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence } from "@automovie/interface";
+import { probeAutoMovieSolidMesh } from "@automovie/engine";
 
 /** One chart point. */
 type Chart = [number, number];
@@ -38,14 +39,14 @@ export function test_construction_mesh_probe(): void {
   ] as const) {
     const vertices: Map<number, Chart> = new Map();
     square.forEach((p: Chart, k: number): void => void vertices.set(k, p));
-    const edges: AutoMovieSolidMeshConstraints.ISegment[] = square.map((_: Chart, k: number): AutoMovieSolidMeshConstraints.ISegment => ({ a: k, b: (k + 1) % 4, turn: 0 }));
+    const edges: IAutoMovieSolidMeshConstraints.ISegment[] = square.map((_: Chart, k: number): IAutoMovieSolidMeshConstraints.ISegment => ({ a: k, b: (k + 1) % 4, turn: 0 }));
     for (const segment of extra) {
       const a: number = vertices.size;
       vertices.set(a, segment[0]!);
       vertices.set(a + 1, segment[1]!);
       edges.push({ a, b: a + 1, turn: 0 });
     }
-    const walk: AutoMovieSolidMeshIncidence.IWalk = { vertices: [0, 1, 2, 3], lifts: [0, 0, 0, 0], winding: 0 };
+    const walk: IAutoMovieSolidMeshIncidence.IWalk = { vertices: [0, 1, 2, 3], lifts: [0, 0, 0, 0], winding: 0 };
     const probe: readonly [number, number] | string = probeAutoMovieSolidMesh(vertices, edges, walk, undefined);
     if (typeof probe === "string") {
       failures.push(`${name}: refused: ${probe}`);

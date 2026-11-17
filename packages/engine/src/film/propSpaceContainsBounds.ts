@@ -1,9 +1,5 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltSpace,
-  IAutoMoviePropBox,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMoviePropSpaceContainsBounds, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
@@ -30,11 +26,7 @@ import { requireBuiltSpace } from "../architecture/requireBuiltSpace";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The validated root, the subtree and its space list are resolved once per call and shared by all eight corner tests.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The subtree set and space list are dropped on return and nothing is retained.
  */
-export function propSpaceContainsBounds(props: {
-  environment: IAutoMovieBuiltEnvironment;
-  space: string;
-  bounds: IAutoMoviePropBox;
-}): boolean {
+export function propSpaceContainsBounds(props: IAutoMoviePropSpaceContainsBounds.IProps): boolean {
   requireBuiltSpace(props.environment, props.space);
   const included: Set<string> = builtSpaceSubtree(
     props.environment.spaces,

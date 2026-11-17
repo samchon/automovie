@@ -1,3 +1,5 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanToolWork, IAutoMovieMotionHumanUseTool, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Quaternion,
   Transform,
@@ -5,18 +7,8 @@ import {
   quaternionFromAutoMovieBasis,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
-import type { IHumanProp } from "../../perform/IHumanProp";
-import type { useTool } from "../../tasks/useTool";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -52,7 +44,7 @@ export function toolCases(
   for (const id of bodies) {
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    const tools: [useTool.Kind, IAutoMovieVector3][] = [
+    const tools: [IAutoMovieMotionHumanToolWork.Kind, IAutoMovieVector3][] = [
       ["hammer", { x: -0.2, y: 0.85, z: 0.5 }],
       ["saw", { x: -0.2, y: 0.85, z: 0.5 }],
       ["stir", { x: -0.15, y: 0.95, z: 0.4 }],
@@ -61,10 +53,10 @@ export function toolCases(
     const bench: number =
       who.body.measure.shoulderHeight - who.body.measure.upperArm - 0.15;
     for (const [tool, point] of tools) {
-      const props: IHumanProp[] = [held(tool, { x: -0.2, y: bench, z: 0.3 })];
+      const props: IAutoMovieMotionHumanProp[] = [held(tool, { x: -0.2, y: bench, z: 0.3 })];
       if (tool === "stir")
         props.push(pot({ x: point.x, y: point.y - 0.1, z: point.z }));
-      const params: useTool.IParams = {
+      const params: IAutoMovieMotionHumanUseTool.IParams = {
         tool,
         prop: "tool",
         on:
@@ -72,7 +64,7 @@ export function toolCases(
             ? { kind: "prop", subject: "pot", point: "inside" }
             : { kind: "point", at: point, frame: "world" },
       };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
+      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
         "tool",
         [{ subject: "a", body: who.body }],
         HumanChain.subject("a")
@@ -89,17 +81,17 @@ export function toolCases(
           .act("useTool", params),
         props,
       );
-      const plan: useTool.IPlan = performance
+      const plan: IAutoMovieMotionHumanUseTool.IPlan = performance
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === "useTool")!
-        .plan as useTool.IPlan;
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "useTool")!
+        .plan as IAutoMovieMotionHumanUseTool.IPlan;
       const at: IAutoMovieVector3 = plan.tool.on;
       const tip = (t: number): IAutoMovieVector3 => {
-        const bones: ReturnType<HumanPerformance["bones"]> = performance.bones(
+        const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = performance.bones(
           "a",
           t,
         );
-        const frame: IHumanBody["surfaces"]["sockets"]["gripRight"] =
+        const frame: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripRight"] =
           who.body.surfaces.sockets.gripRight;
         const grip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
           frame,
@@ -187,7 +179,7 @@ function contact(
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function held(kind: useTool.Kind, at: IAutoMovieVector3): IHumanProp {
+function held(kind: IAutoMovieMotionHumanToolWork.Kind, at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   const y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
@@ -248,7 +240,7 @@ function held(kind: useTool.Kind, at: IAutoMovieVector3): IHumanProp {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function pot(at: IAutoMovieVector3): IHumanProp {
+function pot(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   return {

@@ -1,33 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionEvent,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanPosture,
-  mixHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain, HumanPerformance, mixHumanPosture, poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A whole-body rotation on the posture, blended as a rotation (#3423):
- * `IHumanPosture.rotation`, resolved by `resolveHumanPosture` and mixed by
+ * `HumanPosture.rotation`, resolved by `resolveHumanPosture` and mixed by
  * `mixHumanPosture`.
  *
  * The postures stand with both arms reaching forward to world goals at
@@ -66,13 +48,13 @@ export function test_human_motion_core_rotation(): void {
   const DEG: number = 180 / Math.PI;
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const chest: number = body.measure.chestHeight;
-    const reach = (side: "left" | "right"): IHumanPosture.IGoal => ({
+    const reach = (side: "left" | "right"): IAutoMovieMotionHumanPosture.IGoal => ({
       point: { x: side === "left" ? 0.15 : -0.15, y: chest, z: 0.35 },
       bend: { x: side === "left" ? 0.5 : -0.5, y: chest - 0.3, z: 0 },
     });
-    const free: IHumanPosture = {
+    const free: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
       pitch: 0,
@@ -80,7 +62,7 @@ export function test_human_motion_core_rotation(): void {
       joints: {},
       limbs: { leftArm: reach("left"), rightArm: reach("right") },
     };
-    const attached: IHumanPosture = {
+    const attached: IAutoMovieMotionHumanPosture = {
       ...free,
       limbs: {
         rightArm: reach("right"),
@@ -137,11 +119,11 @@ export function test_human_motion_core_rotation(): void {
     }
 
     // 2. Mixing is a slerp.
-    const a: IHumanPosture.IRotation = { about, turn: turns[0]! };
-    const b: IHumanPosture.IRotation = { about, turn: turns[2]! };
+    const a: IAutoMovieMotionHumanPosture.IRotation = { about, turn: turns[0]! };
+    const b: IAutoMovieMotionHumanPosture.IRotation = { about, turn: turns[2]! };
     const whole: number = Quaternion.angle(a.turn, b.turn);
     for (const w of [0.25, 0.5, 0.75]) {
-      const mixed: IHumanPosture = mixHumanPosture(
+      const mixed: IAutoMovieMotionHumanPosture = mixHumanPosture(
         { ...free, rotation: a },
         { ...free, rotation: b },
         w,
@@ -152,7 +134,7 @@ export function test_human_motion_core_rotation(): void {
           `${name}: at ${w} the mix turns ${angle * DEG} degrees of ${whole * DEG}`,
         );
     }
-    const one: IHumanPosture = mixHumanPosture(
+    const one: IAutoMovieMotionHumanPosture = mixHumanPosture(
       free,
       { ...free, rotation: b },
       0.5,
@@ -202,7 +184,7 @@ export function test_human_motion_core_rotation(): void {
       );
 
     // 4. A planted world goal cannot turn.
-    const planted: IHumanPosture = {
+    const planted: IAutoMovieMotionHumanPosture = {
       ...free,
       limbs: {
         leftLeg: {
@@ -227,9 +209,9 @@ export function test_human_motion_core_rotation(): void {
   // 5. The crawl rolls on the root: its pelvis keeps the stroke's own joint,
   // and each breath clears the mouth over the plane by the law's 2 cm.
   {
-    const body: IHumanBody = motionHumanBody("m-average");
+    const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const water: number = 1;
-    const p: HumanPerformance = new HumanPerformance({
+    const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "rotation-crawl",
       performers: [
         {
@@ -244,13 +226,13 @@ export function test_human_motion_core_rotation(): void {
         .stand({ seconds: 0.5 })
         .swim({ kind: "frontCrawl", cycles: 2, water }).node,
     });
-    const s: HumanSegment.ISegment = p.segments("a")[1]!;
+    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
     for (const e of s.plan.events.filter((x: IAutoMovieMotionEvent): boolean =>
       x.name.startsWith("breath"),
     )) {
       const t: number = s.start + e.share * s.plan.duration;
       const bones: Bones = p.bones("a", t);
-      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions.mouth;
       const mouth: number = resolveAutoMovieHumanoidSurfaces.place(
         frame,

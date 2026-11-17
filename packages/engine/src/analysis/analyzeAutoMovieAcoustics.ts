@@ -1,17 +1,8 @@
-import {
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisMetricGap,
-  IAutoMovieAnalysisRun,
-  IAutoMovieAnalysisSample,
-  IAutoMovieAnalysisWarning,
-} from "@automovie/interface";
+import { type IAutoMovieAcousticPartition, type IAutoMovieAcousticReceiver, type IAutoMovieAcousticRequest, type IAutoMovieAcousticSource, type IAutoMovieAcousticSurface, type IAutoMovieAnalyzeAcoustics, IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning } from "@automovie/interface";
+
+
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieAcousticPartition } from "./IAutoMovieAcousticPartition";
-import { IAutoMovieAcousticReceiver } from "./IAutoMovieAcousticReceiver";
-import { IAutoMovieAcousticRequest } from "./IAutoMovieAcousticRequest";
-import { IAutoMovieAcousticSource } from "./IAutoMovieAcousticSource";
-import { IAutoMovieAcousticSurface } from "./IAutoMovieAcousticSurface";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
@@ -66,12 +57,7 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one study the absorption area and room constant serve the reverberation, room-constant and level metrics, the summed source power serves every receiver's diffuse term, and the receiver levels serve the mean, the maximum and the samples; nothing is shared across studies.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates per-call arrays of S powers and R direct terms and levels, bounded by the receiver limit and the declared sources, and keeps none of them after returning the sealed run, which owns its samples.
  */
-export const analyzeAutoMovieAcoustics: (props: {
-  request: IAutoMovieAcousticRequest;
-}) => IAutoMovieAnalysisRun = (props: {
-  /** Study to solve; validated in full before any arithmetic. */
-  request: IAutoMovieAcousticRequest;
-}): IAutoMovieAnalysisRun => {
+export const analyzeAutoMovieAcoustics: (props: IAutoMovieAnalyzeAcoustics.IProps) => IAutoMovieAnalysisRun = (props: IAutoMovieAnalyzeAcoustics.IProps): IAutoMovieAnalysisRun => {
   const request: IAutoMovieAcousticRequest = props.request;
   validateAcousticRequest(request);
   const powers: number[] = request.sources.map(

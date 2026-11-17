@@ -1,12 +1,8 @@
-import {
-  IAutoMovieBeatEndState,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieContinuityTolerances, type IAutoMovieResolveBeatProps, type IAutoMovieValidateFilmContinuity, type IAutoMovieViolationCollector, IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
 
-import { IResolveBeatProps } from "../film/IResolveBeatProps";
+
 import { resolveBeatEnd } from "../film/resolveBeatEnd";
 import { resolveBeatOpening } from "../film/resolveBeatOpening";
-import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
 import { ViolationCollector } from "./ViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";
@@ -22,21 +18,8 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Middle beat rows supply their opening to the incoming cut and their end to the outgoing cut; first-opening and last-end states are still resolved but unused. No snapshot is cached across mutable film inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Resolution inputs are borrowed; snapshots/maps release after validation while diagnostics transfer to the caller.
  */
-export const validateFilmContinuity: (props: {
-  beats: readonly IResolveBeatProps[];
-  positionTolerance?: number;
-  facingToleranceDeg?: number;
-}) => IAutoMovieValidation = (props: {
-  /** The film's beats, in playback order. */
-  beats: readonly IResolveBeatProps[];
-
-  /** World-space position drift tolerated (metres); defaults to 0.05. */
-  positionTolerance?: number;
-
-  /** Facing drift tolerated (degrees); defaults to 5. */
-  facingToleranceDeg?: number;
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateFilmContinuity: (props: IAutoMovieValidateFilmContinuity.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateFilmContinuity.IProps): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(
       props.positionTolerance,
@@ -52,7 +35,7 @@ export const validateFilmContinuity: (props: {
     opening: IAutoMovieBeatEndState;
   }[] = props.beats.map(
     (
-      beat: IResolveBeatProps,
+      beat: IAutoMovieResolveBeatProps,
     ): { end: IAutoMovieBeatEndState; opening: IAutoMovieBeatEndState } => ({
       end: resolveBeatEnd(beat),
       opening: resolveBeatOpening(beat),

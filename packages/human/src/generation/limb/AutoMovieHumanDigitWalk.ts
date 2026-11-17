@@ -1,14 +1,16 @@
-import type {
-  AutoMovieSolidVector,
-  IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanDigitWalk, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
 
-import type { AutoMovieHumanHandAttachment } from "../hand/AutoMovieHumanHandAttachment";
+
+
+
+
+
+
+
 import { AutoMovieHumanBendArc } from "./AutoMovieHumanBendArc";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * A digit (a finger, the thumb, a toe) as one walk over its phalanges
@@ -32,56 +34,9 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * own reach assessment. Radius and arclength are different quantities.
  */
 export namespace AutoMovieHumanDigitWalk {
-  /** A digit's laws at one site. */
-  export interface ISiteLaw {
-    /** Whole breadth across the digit, mm. */
-    breadth: number;
+  
 
-    /** Whole depth from the dorsal to the palmar or plantar skin, mm. */
-    depth: number;
-
-    /** The dorsal share of the depth above the bone's axis, in `(0, 1)`. */
-    dorsal: number;
-
-    /** The sourced conic shoulder of the section there. */
-    shoulder: number;
-    /** Actual parent-derived quarter fullness in this digit's engine material frame. */
-    shoulders?: [number, number, number, number];
-    /** Available quarter jets in the same normalized source clock; a held parent section declares its constant pullback explicitly. */
-    shoulderJets?: IAutoMovieViewPart.IQuarters<
-      IAutoMovieViewPart.IKnot["jet"]
-    >;
-    /** Optional original edge jets in the digit's normalized source parameter. */
-    jets?: AutoMovieHumanSiteViewPart.ISite["jets"];
-  }
-
-  /** What a digit is built from. */
-  export interface IInput {
-    /** Chain name, such as `finger.left.index` or `toe.left.1`. */
-    name: string;
-
-    /** The joint centres from the base (the knuckle, inside the host) to the distal phalanx's end: base, then each interphalangeal joint, then the end, at least three. */
-    centres: Vec3[];
-
-    /** The dorsal direction on the first phalanx. */
-    dorsal: Vec3;
-
-    /** The pulp's reach past the distal phalanx's end to the tip, mm. */
-    tip: number;
-    /** Optional closed-span scalar bounds in this digit's material chart. */
-    ranges?: AutoMovieHumanSiteViewPart.IInput["ranges"];
-
-    /** The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`. */
-    law(site: string): ISiteLaw;
-
-    /** Control points and ring phases of each section, a multiple of 4. */
-    order: number;
-
-    /** Widest spacing between layers, mm. */
-    gap: number;
-    /** Whole actual parent owner and declared local contact/material transfer. */
-    attachment?: AutoMovieHumanHandAttachment.IConnection;
-  }
+  
 
   /**
    * Build and loft the digit.
@@ -89,22 +44,22 @@ export namespace AutoMovieHumanDigitWalk {
    * @param input The centres, the laws and the tip.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
+  export function create(input: IAutoMovieHumanDigitWalk.IInput): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
   /** Prepare the identical original digit, without constructing its raw loft. */
   export function define(
-    input: IInput,
-  ): AutoMovieHumanSiteViewPart.IDefinition {
+    input: IAutoMovieHumanDigitWalk.IInput,
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
     const bones: number = input.centres.length - 1;
     const quarters: Map<string, [number, number, number, number]> = new Map();
     const quarterJets: Map<
       string,
-      NonNullable<ISiteLaw["shoulderJets"]>
+      NonNullable<IAutoMovieHumanDigitWalk.ISiteLaw["shoulderJets"]>
     > = new Map();
-    const box: (law: ISiteLaw) => [number, number, number, number] = (
-      law: ISiteLaw,
+    const box: (law: IAutoMovieHumanDigitWalk.ISiteLaw) => [number, number, number, number] = (
+      law: IAutoMovieHumanDigitWalk.ISiteLaw,
     ): [number, number, number, number] => [
       law.depth * law.dorsal,
       law.breadth / 2,
@@ -115,13 +70,13 @@ export namespace AutoMovieHumanDigitWalk {
       name: string,
       bone: number,
       share: number,
-      law: ISiteLaw,
-    ) => AutoMovieHumanWalkPart.ISite = (
+      law: IAutoMovieHumanDigitWalk.ISiteLaw,
+    ) => IAutoMovieHumanWalkPart.ISite = (
       name: string,
       bone: number,
       share: number,
-      law: ISiteLaw,
-    ): AutoMovieHumanWalkPart.ISite => {
+      law: IAutoMovieHumanDigitWalk.ISiteLaw,
+    ): IAutoMovieHumanWalkPart.ISite => {
       if (law.shoulders !== undefined) quarters.set(name, law.shoulders);
       if (law.shoulderJets !== undefined)
         quarterJets.set(name, law.shoulderJets);
@@ -142,7 +97,7 @@ export namespace AutoMovieHumanDigitWalk {
 
     // An attached hand digit consumes the actual parent-derived positive
     // base section; its first shaft keeps the independent measured law.
-    const sites: AutoMovieHumanWalkPart.ISite[] = [];
+    const sites: IAutoMovieHumanWalkPart.ISite[] = [];
     if (input.attachment !== undefined)
       sites.push(site("base", 0, 0, input.law("base")));
     for (let b: number = 0; b < bones; b++) {
@@ -173,7 +128,7 @@ export namespace AutoMovieHumanDigitWalk {
         ),
       }),
     );
-    const prepared: AutoMovieHumanWalkPart.ISource | string =
+    const prepared: IAutoMovieHumanWalkPart.ISource | string =
       AutoMovieHumanWalkPart.source({
         name: input.name,
         centres: input.centres,
@@ -203,12 +158,12 @@ export namespace AutoMovieHumanDigitWalk {
           },
         ],
       };
-    const definition: AutoMovieHumanSiteViewPart.IInput = prepared.input;
+    const definition: IAutoMovieHumanSiteViewPart.IInput = prepared.input;
     if (quarters.size > 0) {
       const departures: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline> =
         [0, 1, 2, 3].map((q: number): IAutoMovieViewPart.IOutline => {
           const knots: IAutoMovieViewPart.IKnot[] = definition.sites.map(
-            (s: AutoMovieHumanSiteViewPart.ISite): IAutoMovieViewPart.IKnot => {
+            (s: IAutoMovieHumanSiteViewPart.ISite): IAutoMovieViewPart.IKnot => {
               if (!("shoulder" in s.fullness))
                 throw new Error(
                   "A hand contact requires sourced quarter fullness",
@@ -242,7 +197,7 @@ export namespace AutoMovieHumanDigitWalk {
               };
             },
           );
-          const pole: AutoMovieHumanSiteViewPart.IInput["pole"] =
+          const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] =
             definition.pole;
           if (pole !== undefined && pole.end !== "top")
             knots.unshift({
@@ -264,7 +219,7 @@ export namespace AutoMovieHumanDigitWalk {
   }
 
   /** The farthest corner of the named joint's signed section box bounds every native conic point there. Both measured breadth and asymmetric dorsal/palmar depths contribute, avoiding the half-depth focal-radius equality at the joint centre. This does not bound the varying section or curvature throughout the turn. */
-  function bendRadius(law: ISiteLaw): number {
+  function bendRadius(law: IAutoMovieHumanDigitWalk.ISiteLaw): number {
     return Math.hypot(
       Math.max(law.depth * law.dorsal, law.depth * (1 - law.dorsal)),
       law.breadth / 2,
@@ -272,12 +227,12 @@ export namespace AutoMovieHumanDigitWalk {
   }
 
   /** The attachment's supported skin root lies on the original first bone's proximal extension. Its displacement does not move the measured midpoint between the unchanged joint and first distal joint. Map that datum into the new root-to-first-joint share; standalone callers retain one half. Units cancel, and the source adapter still owns the physical station. */
-  function firstShaftShare(input: IInput): number {
+  function firstShaftShare(input: IAutoMovieHumanDigitWalk.IInput): number {
     if (input.attachment === undefined) return 0.5;
-    const root: Vec3 = input.centres[0]!;
-    const joint: Vec3 = input.attachment.joint;
-    const first: Vec3 = input.centres[1]!;
-    const length: (a: Vec3, b: Vec3) => number = (a: Vec3, b: Vec3): number =>
+    const root: AutoMovieVector3Tuple = input.centres[0]!;
+    const joint: AutoMovieVector3Tuple = input.attachment.joint;
+    const first: AutoMovieVector3Tuple = input.centres[1]!;
+    const length: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
       Math.hypot(
         ...a.map((value: number, axis: number): number => value - b[axis]!),
       );

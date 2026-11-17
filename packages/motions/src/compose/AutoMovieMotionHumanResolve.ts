@@ -1,11 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanResolve, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -30,91 +25,6 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value comes from the owner a law reads it from, so the table cannot disagree with a performance.
  */
 export namespace AutoMovieMotionHumanResolve {
-  /**
-   * A place on a body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
-   * @evidence contracts/development/design.md#principled-representation The share record beside the point it is on this body.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; returned by `place`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the place owner's record.
-   */
-  export interface IPlace {
-    /** The share record. */
-    shares: AutoMovieMotionHumanTarget.IDefault;
-
-    /** The point in the performer's floor frame, metres. */
-    metres: IAutoMovieVector3;
-  }
-
-  /**
-   * A displacement in the units a place and a nudge are written in.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation One share per axis, each of the measure its axis is read against.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members; returned by `shares`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The nudge is given in its own unit, so it is not converted by hand.
-   */
-  export interface IShift {
-    /** Forward, in arm lengths: a difference of `range`. */
-    forward: number;
-
-    /** Upward, in statures: a difference of `height`. */
-    up: number;
-
-    /** To the performer's left, in half shoulder widths: a difference of `lateral`. */
-    left: number;
-
-    /** The same displacement as a nudge of the left hand, in arm lengths. */
-    nudge: Required<AutoMovieMotionHumanTargetGrid.INudge>;
-  }
-
-  /**
-   * An elbow hint on a body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and origin.
-   * @evidence contracts/development/design.md#principled-representation The preset's shares beside the offset from the shoulder they are on this body.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; returned by `bend`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the bend owner's record.
-   */
-  export interface IBend {
-    /** The shares, the extra outward share included. */
-    shares: AutoMovieMotionHumanBend.IShares;
-
-    /** The offset from the shoulder's rest place, metres: `x` outward, `y` up, `z` forward. */
-    metres: IAutoMovieVector3;
-  }
-
-  /**
-   * An amount on a joint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The share of the motion's limit beside the signed degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; returned by `amount`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both are read from the range owner.
-   */
-  export interface IAmount {
-    /** The share of the motion's limit. */
-    share: number;
-
-    /** Signed clinical degrees. */
-    degrees: number;
-  }
-
-  /**
-   * A named body of a table.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its role.
-   * @evidence contracts/development/design.md#principled-representation The column's label and the measure the column is computed from.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; read by `table`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the measure is asked for, so a capture body and a test stub both fit.
-   */
-  export interface IBody {
-    /** The column's label. */
-    name: string;
-
-    /** The body. */
-    body: Pick<IHumanBody, "measure">;
-  }
 
   /**
    * A place on a body, in shares and in metres.
@@ -134,12 +44,12 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
-    body: Pick<IHumanBody, "measure">,
-    side: HumanHand.Side,
-    place: AutoMovieMotionHumanTargetGrid.Place,
-  ): IPlace {
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    side: IAutoMovieMotionHumanHand.Side,
+    place: IAutoMovieMotionHumanTargetGrid.Place,
+  ): IAutoMovieMotionHumanResolve.IPlace {
     const m = body.measure;
-    const shares: AutoMovieMotionHumanTarget.IDefault =
+    const shares: IAutoMovieMotionHumanTarget.IDefault =
       AutoMovieMotionHumanTargetGrid.place(body, side, place);
     return {
       shares,
@@ -167,9 +77,9 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function shares(
-    body: Pick<IHumanBody, "measure">,
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
     metres: IAutoMovieVector3,
-  ): IShift {
+  ): IAutoMovieMotionHumanResolve.IShift {
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     return {
@@ -201,15 +111,15 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bend(
-    body: Pick<IHumanBody, "measure">,
-    preset: AutoMovieMotionHumanBend.Arm | AutoMovieMotionHumanBend.IShares,
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    preset: IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares,
     out: number = 0,
-  ): IBend {
-    const base: AutoMovieMotionHumanBend.IShares =
+  ): IAutoMovieMotionHumanResolve.IBend {
+    const base: IAutoMovieMotionHumanBend.IShares =
       typeof preset === "string"
         ? AutoMovieMotionHumanBend.ARM[preset]
         : preset;
-    const shares: AutoMovieMotionHumanBend.IShares = {
+    const shares: IAutoMovieMotionHumanBend.IShares = {
       ...base,
       out: base.out + out,
     };
@@ -243,9 +153,9 @@ export namespace AutoMovieMotionHumanResolve {
    */
   export function amount(
     bone: AutoMovieHumanoidBone,
-    motion: AutoMovieMotionHumanRange.Motion,
-    amount: AutoMovieMotionHumanRange.Amount,
-  ): IAmount {
+    motion: IAutoMovieMotionHumanRange.Motion,
+    amount: IAutoMovieMotionHumanRange.Amount,
+  ): IAutoMovieMotionHumanResolve.IAmount {
     const degrees: number = AutoMovieMotionHumanRange.degrees(
       bone,
       motion,
@@ -273,25 +183,25 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates every cell to `place`, `bend`, the place owner's tables and the range owner.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function table(bodies: readonly IBody[]): string {
+  export function table(bodies: readonly IAutoMovieMotionHumanResolve.IBody[]): string {
     const lines: string[] = [];
     const row = (
       label: string,
-      cell: (body: Pick<IHumanBody, "measure">) => string,
+      cell: (body: Pick<IAutoMovieMotionHumanBody, "measure">) => string,
     ): void => {
       lines.push(
-        [label, ...bodies.map((b: IBody): string => cell(b.body))].join("\t"),
+        [label, ...bodies.map((b: IAutoMovieMotionHumanResolve.IBody): string => cell(b.body))].join("\t"),
       );
     };
     const f = (value: number): string => value.toFixed(3);
     const point = (v: IAutoMovieVector3): string =>
       `${f(v.x)},${f(v.y)},${f(v.z)}`;
     lines.push(
-      ["name", ...bodies.map((b: IBody): string => b.name)].join("\t"),
+      ["name", ...bodies.map((b: IAutoMovieMotionHumanResolve.IBody): string => b.name)].join("\t"),
     );
     for (const name of Object.keys(
       AutoMovieMotionHumanTarget.DEFAULTS,
-    ) as AutoMovieMotionHumanTarget.Name[])
+    ) as IAutoMovieMotionHumanTarget.Name[])
       row(`place ${name} (x,y,z m)`, (body): string =>
         point(place(body, "left", name).metres),
       );
@@ -302,7 +212,7 @@ export namespace AutoMovieMotionHumanResolve {
       });
     for (const name of Object.keys(
       AutoMovieMotionHumanTargetGrid.LATERALS,
-    ) as AutoMovieMotionHumanTargetGrid.Lateral[])
+    ) as IAutoMovieMotionHumanTargetGrid.Lateral[])
       row(
         `lateral ${name} (share / m)`,
         (body): string =>
@@ -313,7 +223,7 @@ export namespace AutoMovieMotionHumanResolve {
       );
     for (const name of Object.keys(
       AutoMovieMotionHumanTargetGrid.DISTANCES,
-    ) as AutoMovieMotionHumanTargetGrid.Distance[])
+    ) as IAutoMovieMotionHumanTargetGrid.Distance[])
       row(
         `distance ${name} (share / m)`,
         (body): string =>
@@ -324,14 +234,14 @@ export namespace AutoMovieMotionHumanResolve {
       );
     for (const name of Object.keys(
       AutoMovieMotionHumanBend.ARM,
-    ) as AutoMovieMotionHumanBend.Arm[])
+    ) as IAutoMovieMotionHumanBend.Arm[])
       row(`bend ${name} (out,up,forward m)`, (body): string =>
         point(bend(body, name).metres),
       );
 
-    const levels: AutoMovieMotionHumanRange.Level[] = Object.keys(
+    const levels: IAutoMovieMotionHumanRange.Level[] = Object.keys(
       AutoMovieMotionHumanRange.LEVELS,
-    ) as AutoMovieMotionHumanRange.Level[];
+    ) as IAutoMovieMotionHumanRange.Level[];
     lines.push("");
     lines.push(["level (degrees)", ...levels].join("\t"));
     for (const bone of BONES)
@@ -340,7 +250,7 @@ export namespace AutoMovieMotionHumanResolve {
         lines.push(
           [
             `${bone} ${motion}`,
-            ...levels.map((level: AutoMovieMotionHumanRange.Level): string =>
+            ...levels.map((level: IAutoMovieMotionHumanRange.Level): string =>
               AutoMovieMotionHumanRange.degrees(bone, motion, level).toFixed(2),
             ),
           ].join("\t"),
@@ -371,31 +281,31 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the solver's per-body cache is the solver's own.
    */
   export function swivel(
-    bodies: readonly { name: string; body: IHumanBody }[],
+    bodies: IAutoMovieMotionHumanResolve.ISwivelBodies,
   ): string {
-    const places: [string, AutoMovieMotionHumanTargetGrid.Place][] = [
+    const places: [string, IAutoMovieMotionHumanTargetGrid.Place][] = [
       ...(
         Object.keys(
           AutoMovieMotionHumanTarget.DEFAULTS,
-        ) as AutoMovieMotionHumanTarget.Name[]
-      ).map((name): [string, AutoMovieMotionHumanTargetGrid.Place] => [
+        ) as IAutoMovieMotionHumanTarget.Name[]
+      ).map((name): [string, IAutoMovieMotionHumanTargetGrid.Place] => [
         name,
         name,
       ]),
       ...SWIVEL_GRIDS.map(
-        (grid): [string, AutoMovieMotionHumanTargetGrid.Place] => [
+        (grid): [string, IAutoMovieMotionHumanTargetGrid.Place] => [
           `${grid.height} ${grid.lateral} ${grid.distance}`,
           grid,
         ],
       ),
     ];
     const cell = (
-      body: IHumanBody,
-      place: AutoMovieMotionHumanTargetGrid.Place,
+      body: IAutoMovieMotionHumanBody,
+      place: IAutoMovieMotionHumanTargetGrid.Place,
     ): string => {
       const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
       const shoulder: IAutoMovieVector3 = body.rest.get("leftUpperArm")!;
-      const props: AutoMovieMotionHumanBend.ISolve = {
+      const props: IAutoMovieMotionHumanBend.ISolve = {
         body,
         posture,
         side: "left",
@@ -455,7 +365,7 @@ export namespace AutoMovieMotionHumanResolve {
 }
 
 /** The grid places the swivel table lists beside the named ones: the places of `stopPalm`, `wave` and `raiseHand`, and a hand at the hip. */
-const SWIVEL_GRIDS: readonly AutoMovieMotionHumanTargetGrid.IGrid[] = [
+const SWIVEL_GRIDS: readonly IAutoMovieMotionHumanTargetGrid.IGrid[] = [
   { height: "shoulder", lateral: "inside", distance: "far" },
   { height: "eye", lateral: "outside", distance: "near" },
   { height: "overhead", lateral: "shoulder", distance: "close" },
@@ -480,7 +390,7 @@ const BONES: readonly AutoMovieHumanoidBone[] = [
 ];
 
 /** The motions the table lists, in the order of the range owner's union. */
-const MOTIONS: readonly AutoMovieMotionHumanRange.Motion[] = [
+const MOTIONS: readonly IAutoMovieMotionHumanRange.Motion[] = [
   "flexion",
   "extension",
   "abduction",

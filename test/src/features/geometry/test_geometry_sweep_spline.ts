@@ -1,10 +1,5 @@
-import {
-  type IAutoMovieSweep,
-  type IAutoMovieSweepSurface,
-  compileAutoMovieSweep,
-  interpolateAutoMovieMonotone,
-  interpolateAutoMovieSpline,
-} from "@automovie/engine";
+import type { IAutoMovieSweep, IAutoMovieSweepSurface } from "@automovie/interface";
+import { compileAutoMovieSweep, interpolateAutoMovieMonotone, interpolateAutoMovieSpline } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

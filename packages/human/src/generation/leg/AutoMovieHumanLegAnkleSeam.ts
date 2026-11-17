@@ -1,10 +1,13 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
-import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
-import type { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
+import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLegAnkleSeam } from "@automovie/interface";
 
-type Vec3 = AutoMovieHumanLegVector.Vec3;
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
+
+import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
+
 
 /**
  * The seam at the ankle: the foot owns the ring the leg starts from, and the
@@ -23,7 +26,7 @@ export namespace AutoMovieHumanLegAnkleSeam {
    * @param side The leg's side.
    * @returns The ring at the leg's phases, one point per phase.
    */
-  export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): Vec3[] {
+  export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): AutoMovieVector3Tuple[] {
     const foot: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`)!;
     return AutoMovieLoftChain.ring(foot, foot.layers[foot.layers.length - 1]!.y, AutoMovieHumanLegSampling.PHASES);
   }
@@ -36,7 +39,7 @@ export namespace AutoMovieHumanLegAnkleSeam {
    * @param centre The law's own centre at the ring.
    * @param radii The law's radii at the leg's phases.
    */
-  export function residual(ring: readonly [number, number][], centre: readonly [number, number], radii: readonly number[]): number[] {
+  export function residual(ring: IAutoMovieHumanLegAnkleSeam.ResidualRing, centre: IAutoMovieHumanLegAnkleSeam.ResidualCentre, radii: readonly number[]): number[] {
     return AutoMovieHumanLegSampling.PHASES.map(
       (t: number, j: number): number => AutoMovieHumanPolarSection.radius(ring, centre, t) - radii[j]!,
     );
@@ -52,9 +55,9 @@ export namespace AutoMovieHumanLegAnkleSeam {
    * @param level Height of the plane.
    */
   export function lift(
-    ring: readonly [number, number][],
-    centre: readonly [number, number],
-    world: readonly Vec3[],
+    ring: IAutoMovieHumanLegAnkleSeam.LiftRing,
+    centre: IAutoMovieHumanLegAnkleSeam.LiftCentre,
+    world: readonly AutoMovieVector3Tuple[],
     level: number,
   ): number[] {
     return AutoMovieHumanLegSampling.PHASES.map((t: number): number => {

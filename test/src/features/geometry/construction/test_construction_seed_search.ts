@@ -1,18 +1,12 @@
-import {
-  AutoMovieConstructionSeeds,
-  type AutoMovieSolidIntersection,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionSeed,
-  IAutoMovieConstructionSearchSeed,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionSeed, IAutoMovieSolidIntersection, IAutoMovieSolidSurface, IAutoMovieConstructionSearchSeed } from "@automovie/interface";
+import { AutoMovieConstructionSeeds } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
 /** A returned meeting, without a trace or a Human figure. */
-type Seed = AutoMovieSolidIntersection.IInput["seed"];
+type Seed = IAutoMovieSolidIntersection.IInput["seed"];
 
 /** Invocation-local counts observe only callbacks authored by this test. */
 interface Reads {
@@ -125,7 +119,7 @@ export function test_construction_seed_search(): void {
   const pointReads: Reads = { host: 0, part: 0 };
   const pointPart: IAutoMovieSolidSurface = tube(1, 0, 1, "cycle", pointReads);
   const pointHost: IAutoMovieSolidSurface = plane(1, 0, pointReads);
-  const point: AutoMovieConstructionSeed = {
+  const point: IAutoMovieConstructionSeed = {
     type: "point",
     partFace: pointPart.name,
     hostFace: pointHost.name,

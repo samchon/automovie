@@ -1,8 +1,12 @@
+import type { IAutoMovieLoftRelief, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkReliefNet } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanSeamCarve } from "../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The merge of a feature into the trunk: a relief window over the trunk's
@@ -27,26 +31,9 @@ export namespace AutoMovieHumanTrunkReliefNet {
   /** Controls across each direction of a trunk window. */
   export const COUNT: number = 15;
 
-  /**
-   * The chart's base surface: the body point at a station and a phase, with
-   * the stations its windows stay within, the chart's two shared ends.
-   */
-  export type Base = ((station: number, phase: number) => AutoMovieHumanTrunkFeatureFrame.V3) & {
-    /** The lowest and highest station a window may reach, mm. */
-    bounds?: [number, number];
-  };
+  
 
-  /** Where the feature lies on the chart. */
-  export interface IWindow {
-    /** The footprint's station range, mm. */
-    stations: [number, number];
-
-    /** The footprint's phase range, radians, increasing. */
-    phases: [number, number];
-
-    /** The apex's place in the footprint as fractions of each range. */
-    apex: [number, number];
-  }
+  
 
   /**
    * A relief window from a feature.
@@ -60,8 +47,8 @@ export namespace AutoMovieHumanTrunkReliefNet {
   export function fromFeature(
     name: string,
     feature: IAutoMovieHumanTrunkFeature,
-    window: IWindow,
-    base: Base,
+    window: IAutoMovieHumanTrunkReliefNet.IWindow,
+    base: IAutoMovieHumanTrunkReliefNet.Base,
   ): IAutoMovieLoftRelief {
     const n: number = COUNT;
     const grow: number = 2 / (n - 7);

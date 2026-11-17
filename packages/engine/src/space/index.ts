@@ -1,9 +1,4 @@
-export * from "./AutoMovieRingPlacement";
-export * from "./IAutoMovieFootprint";
-export * from "./IAutoMovieFootprintRing";
-export * from "./IAutoMovieHeightSurface";
-export * from "./IAutoMoviePreparedSpace";
-export * from "./IAutoMoviePreparedSurface";
+
 export * from "./affordanceSupportContacts";
 export * from "./constants";
 export * from "./footprintArea";

@@ -1,29 +1,26 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolvePose,
-  rotationBetween,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieHumanBodyMeasures, IAutoMovieHumanBodySources, IAutoMovieHumanCanonicalBody, IAutoMovieHumanCanonicalSolids, IAutoMovieHumanParameters, IAutoMovieHumanSkeleton, IAutoMovieHumanSkeletonLaw, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
+
+
+
+
+
+
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, resolvePose, rotationBetween } from "@automovie/engine";
+
+
+
+
+
 
 import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyMeasures } from "../generation/IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+
+
 import { AutoMovieHumanCanonicalProfile as Profile } from "./AutoMovieHumanCanonicalProfile";
-import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
+
 
 /**
  * A Human's polygon man on the engine's canonical humanoid rig, so a motion
@@ -44,50 +41,11 @@ import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
  * the polygon man by the rig's angles alone.
  */
 export namespace AutoMovieHumanCanonicalBody {
-  /** A Human on the canonical rig. */
-  export interface IBody {
-    /** The canonical rig at its T-pose rest; consumers read it with `HUMANOID_JOINT_AXES` and `HUMANOID_REST_FRAME`. */
-    skeleton: IAutoMovieSkeleton;
+  
 
-    /** The polygon man's contact and mass profile on the rig's bones, segment frames at the rest. */
-    profile: IAutoMoviePhysicalProfile;
+  
 
-    /** Every Human joint at the rest, canonical frame, parent before child, with its carrier. */
-    joints: IJoint[];
-  }
-
-  /** One Human joint on the canonical rig. */
-  export interface IJoint {
-    /** Human joint id, including joints the humanoid vocabulary lacks. */
-    bone: string;
-
-    /** Parent Human joint, or null at the root. */
-    parent: string | null;
-
-    /** The rig bone that carries this joint rigidly. */
-    carrier: AutoMovieHumanoidBone;
-
-    /** Rest joint centre, canonical metres. */
-    position: [number, number, number];
-
-    /** Rest tip of a leaf segment, canonical metres; null when children end it. */
-    tip: [number, number, number] | null;
-
-    /** Girth radius of the segment leaving the joint, metres. */
-    radius: number;
-  }
-
-  /** One Human joint's placement under a canonical pose. */
-  export interface IPlacement {
-    /** Human joint id. */
-    bone: string;
-
-    /** World joint centre, canonical metres. */
-    position: IAutoMovieVector3;
-
-    /** Rotation from the T-pose rest. */
-    rotation: IAutoMovieQuaternion;
-  }
+  
 
   /**
    * Prepare a Human's polygon man on the canonical rig from its parameters,
@@ -126,11 +84,11 @@ export namespace AutoMovieHumanCanonicalBody {
    */
   export function prepare(
     params: IAutoMovieHumanParameters,
-    options: { mass: number; id: string },
-  ): IBody {
-    const original: AutoMovieHumanBodyLaw.IOriginal =
+    options: IAutoMovieHumanCanonicalBody.IPrepareOptions,
+  ): IAutoMovieHumanCanonicalBody.IBody {
+    const original: IAutoMovieHumanBodySources.IOriginal =
       AutoMovieHumanBodyLaw.prepareSources(params);
-    const anatomy: AutoMovieHumanSkeletonLaw.IOutput =
+    const anatomy: IAutoMovieHumanSkeletonLaw.IOutput =
       AutoMovieHumanSkeletonLaw.complete(
         original.bodyAnatomy(),
         original.headSource(),
@@ -186,7 +144,7 @@ export namespace AutoMovieHumanCanonicalBody {
    * @param pose A canonical pose of its skeleton.
    * @returns Placements in the order of `body.joints`.
    */
-  export function place(body: IBody, pose: IAutoMoviePose): IPlacement[] {
+  export function place(body: IAutoMovieHumanCanonicalBody.IBody, pose: IAutoMoviePose): IAutoMovieHumanCanonicalBody.IPlacement[] {
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       new Map(
         resolvePose(
@@ -211,7 +169,7 @@ export namespace AutoMovieHumanCanonicalBody {
           bone.rest.translation,
         ),
       );
-    return body.joints.map((joint: IJoint): IPlacement => {
+    return body.joints.map((joint: IAutoMovieHumanCanonicalBody.IJoint): IAutoMovieHumanCanonicalBody.IPlacement => {
       const r: IAutoMovieResolvedBone = resolved.get(joint.carrier)!;
       return {
         bone: joint.bone,
@@ -240,16 +198,16 @@ export namespace AutoMovieHumanCanonicalBody {
    * @returns Rest bones and placements in Human's frame.
    */
   export function display(
-    body: IBody,
+    body: IAutoMovieHumanCanonicalBody.IBody,
     pose?: IAutoMoviePose,
-  ): Pick<AutoMovieHumanSkeleton.IOutput, "bones" | "posed"> {
+  ): Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> {
     const flip = (p: readonly number[]): [number, number, number] => [
       p[2]!,
       p[1]!,
       p[0]!,
     ];
-    const bones: AutoMovieHumanSkeleton.IBone[] = body.joints.map(
-      (j: IJoint): AutoMovieHumanSkeleton.IBone => ({
+    const bones: IAutoMovieHumanSkeleton.IBone[] = body.joints.map(
+      (j: IAutoMovieHumanCanonicalBody.IJoint): IAutoMovieHumanSkeleton.IBone => ({
         bone: j.bone,
         parent: j.parent,
         position: flip(j.position),
@@ -257,19 +215,19 @@ export namespace AutoMovieHumanCanonicalBody {
         radius: j.radius,
       }),
     );
-    const posed: AutoMovieHumanSkeleton.IPlacement[] =
+    const posed: IAutoMovieHumanSkeleton.IPlacement[] =
       pose === undefined
         ? bones.map(
             (
-              b: AutoMovieHumanSkeleton.IBone,
-            ): AutoMovieHumanSkeleton.IPlacement => ({
+              b: IAutoMovieHumanSkeleton.IBone,
+            ): IAutoMovieHumanSkeleton.IPlacement => ({
               bone: b.bone,
               position: [...b.position],
               rotation: [0, 0, 0, 1],
             }),
           )
         : place(body, pose).map(
-            (p: IPlacement): AutoMovieHumanSkeleton.IPlacement => {
+            (p: IAutoMovieHumanCanonicalBody.IPlacement): IAutoMovieHumanSkeleton.IPlacement => {
               const q: IAutoMovieQuaternion = reflectRotation(p.rotation);
               return {
                 bone: p.bone,
@@ -300,7 +258,7 @@ interface IBind {
 function canonical(
   bind: readonly IBind[],
   options: { mass: number; id: string },
-): AutoMovieHumanCanonicalBody.IBody {
+): IAutoMovieHumanCanonicalBody.IBody {
   const children: Map<string, string[]> = new Map();
   for (const bone of bind)
     if (bone.parent !== null)
@@ -513,7 +471,7 @@ function canonical(
     skeleton: { id: options.id, bones },
     profile: Profile.build(
       new Map(
-        bind.map((bone: IBind): [string, Profile.IJoint] => [
+        bind.map((bone: IBind): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
           bone.bone,
           {
             parent: bone.parent,
@@ -527,7 +485,7 @@ function canonical(
       options.mass,
       options.id,
     ),
-    joints: bind.map((bone: IBind): AutoMovieHumanCanonicalBody.IJoint => {
+    joints: bind.map((bone: IBind): IAutoMovieHumanCanonicalBody.IJoint => {
       const p: IAutoMovieVector3 = position.get(bone.bone)!;
       const end: IAutoMovieVector3 | null = tip.get(bone.bone)!;
       return {

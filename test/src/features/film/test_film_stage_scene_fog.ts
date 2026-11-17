@@ -1,9 +1,6 @@
-import { IAutoMovieStagedSet, stageScene } from "@automovie/engine";
-import {
-  AutoMovieViolationKind,
-  IAutoMovieConstraintViolation,
-  IAutoMovieFog,
-} from "@automovie/interface";
+import { type IAutoMovieStagedSet, AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieFog } from "@automovie/interface";
+import { stageScene } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";

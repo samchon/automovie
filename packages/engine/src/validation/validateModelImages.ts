@@ -1,5 +1,5 @@
-import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
-import { ViolationCollector } from "./ViolationCollector";
+import type { IAutoMovieTextureImageFacts, IAutoMovieViolationCollector } from "@automovie/interface";
+
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { isRecord } from "./isRecord";
@@ -32,11 +32,11 @@ const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
 export const validateModelImages: (
   images: unknown,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   images: unknown,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (images === undefined) return;
   if (!Array.isArray(images)) {

@@ -1,11 +1,7 @@
-import {
-  IAutoMovieBoundaryFace,
-  IAutoMoviePlanarPoint,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieDrawingTriangle, IAutoMovieBoundaryFace, IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieBoundaryFacePoint } from "./autoMovieBoundaryFacePoint";
 import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
 

@@ -1,4 +1,5 @@
-import type { IAutoMovieSectionPlane } from "@automovie/engine";
+import type { IAutoMovieSectionPlane } from "@automovie/interface";
+
 import * as THREE from "three";
 
 import type { IApplyAutoMovieSectionPlanesProps } from "./IApplyAutoMovieSectionPlanesProps.js";

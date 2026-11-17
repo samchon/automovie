@@ -1,13 +1,18 @@
-import {
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { IAutoMovieViewPart, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadEyeOpening, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadLipContact, IAutoMovieHumanHeadPrior } from "@automovie/interface";
+
+
+
+
+
+
+
+import { AutoMovieViewSection } from "@automovie/engine";
+
 
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
+
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
@@ -40,60 +45,7 @@ import { AutoMovieHumanHeadNosePart } from "./AutoMovieHumanHeadNosePart";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned views and metadata. This namespace holds only scalar constants and functions, with no retained figure, cache or handle.
  */
 export namespace AutoMovieHumanHeadFeatures {
-  /**
-   * One original part and the metadata its tree join consumes.
-   *
-   * @evidence contracts/common.md#principled-implementation Keeps actual geometry, cumulative tree parent, original material owner/contact and independent world-mm placement seed with the authored join search.
-   * @evidence contracts/common.md#clear-and-simple-design One record serves Composer and HeadTree for both top-level and nested features.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A seed/search is an authored join request, not proof of a host crossing or successful blend.
-   * @evidence contracts/common.md#meaningful-documentation Fields state units, borrowed original-view identity, defaults and the distinction between search metadata and geometry.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A data contract runs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data contract coordinates no execution.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data contract acquires no runtime resources; the containing composition owns its records.
-   */
-  export interface IFeature {
-    /** The part's views. */
-    part: IAutoMovieViewPart;
-
-    /** Already-authoritative declaration when a downstream course reads this actual part; Composer must preserve it without another conversion. */
-    view?: IAutoMovieConstructionView;
-
-    /** Added to the head mass, or cut from it. */
-    join: "merge" | "diff";
-
-    /** Original anatomical or conventional placement anchor, world mm, independent of a derived material contact. */
-    seed: [number, number, number];
-
-    /** Actual cap contact station, mm; other feature families retain their declared station convention. */
-    contact: number;
-
-    /** The part's own size the blend width follows: its height and its least half extent, mm. */
-    size: [number, number];
-
-    /** The part it joins: `head.mass`, or another part's chain name. */
-    parent: string;
-
-    /** Actual original material source, independently of the cumulative tree parent. */
-    material?: IAutoMovieViewPart;
-
-    /** Same complete native contact used by a cap's embedding; its placement seed remains separate. */
-    attachment?: AutoMovieHumanHeadDome.IHost;
-
-    /**
-     * Whether the part lies along its parent, long and thin (a lip, a lid, a
-     * groove), so its curve with the parent crosses the half planes about one
-     * centre twice and is traced by its own arclength.
-     */
-    elongated?: boolean;
-
-    /**
-     * Where the engine searches the part's station line for its meeting
-     * with the parent (`IAutoMovieConstructionSearchSeed`): the phase and the
-     * shares of the station range walked; absent, phase 0 from the base
-     * (share 0) to the apex (share 1), which a dome crosses its parent on.
-     */
-    search?: { phase: number; from: number; to: number };
-  }
+  
 
   /**
    * Existing nominal inward embedding allowance, calibration mm.
@@ -126,23 +78,16 @@ export namespace AutoMovieHumanHeadFeatures {
   export function of(
     plan: IAutoMovieHumanHeadLayout,
     mass: IAutoMovieViewPart,
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): IFeature[] {
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
     return prepare(plan, mass, attempts).read();
   }
 
-  /** Explicit top-level regional requests share their actual numeric contact owner. */
-  export interface IPrepared {
-    /** Actual constructor keys in original production order, without building geometry. */
-    readonly names: readonly string[];
-
-    /** Request only these top-level originals; absence requests the complete top-level set. */
-    read(names?: readonly string[]): IFeature[];
-  }
+  
 
   /** One factory's actual return or original thrown value, owned by this preparation. */
   type IAttempt =
-    | { kind: "returned"; parts: IFeature[] }
+    | { kind: "returned"; parts: IAutoMovieHumanHeadFeatures.IFeature[] }
     | { kind: "threw"; error: unknown };
 
   /** Names of these same five factory slots; no parent input or geometry is required. */
@@ -154,20 +99,20 @@ export namespace AutoMovieHumanHeadFeatures {
   export function prepare(
     plan: IAutoMovieHumanHeadLayout,
     mass: IAutoMovieViewPart,
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): IPrepared {
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IPrepared {
     const k: number = plan.scale;
-    let contact: AutoMovieHumanHeadLipPart.IContact | undefined;
+    let contact: IAutoMovieHumanHeadLipContact.IContact | undefined;
 
     /** The paired lips borrow this same actual original contact at explicit demand. */
-    const lipContact: () => AutoMovieHumanHeadLipPart.IContact =
-      (): AutoMovieHumanHeadLipPart.IContact => {
+    const lipContact: () => IAutoMovieHumanHeadLipContact.IContact =
+      (): IAutoMovieHumanHeadLipContact.IContact => {
         contact ??= AutoMovieHumanHeadLipPart.contact(mass, plan.stomion);
         return contact;
       };
 
     /** Only this requested source reads the original mass's nasal fall. */
-    const nose: () => IFeature[] = (): IFeature[] => {
+    const nose: () => IAutoMovieHumanHeadFeatures.IFeature[] = (): IAutoMovieHumanHeadFeatures.IFeature[] => {
       // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
       // the inset and twice the face's sagitta under its half width behind the
       // profile, so its sides lie inside the face where the face turns back.
@@ -196,9 +141,9 @@ export namespace AutoMovieHumanHeadFeatures {
     };
 
     /** Each lip keeps its original source and shares only its contact preparation. */
-    const lip: (upper: boolean) => IFeature[] = (
+    const lip: (upper: boolean) => IAutoMovieHumanHeadFeatures.IFeature[] = (
       upper: boolean,
-    ): IFeature[] => {
+    ): IAutoMovieHumanHeadFeatures.IFeature[] => {
       return [
         {
           part: AutoMovieHumanHeadLipPart.of(plan, upper, mass, lipContact()),
@@ -219,12 +164,12 @@ export namespace AutoMovieHumanHeadFeatures {
       side: "left" | "right",
       sign: 1 | -1,
       eye: IAutoMovieHumanHeadEyeOpening,
-    ) => IFeature[] = (
+    ) => IAutoMovieHumanHeadFeatures.IFeature[] = (
       side: "left" | "right",
       sign: 1 | -1,
       eye: IAutoMovieHumanHeadEyeOpening,
-    ): IFeature[] => {
-      const face: AutoMovieHumanHeadPrior.IFace =
+    ): IAutoMovieHumanHeadFeatures.IFeature[] => {
+      const face: IAutoMovieHumanHeadPrior.IFace =
         AutoMovieHumanHeadPrior.PRIOR.face;
       const z: number = sign * eye.place;
       const front: number = AutoMovieHumanHeadMassPart.frontAt(
@@ -256,15 +201,15 @@ export namespace AutoMovieHumanHeadFeatures {
         attempts,
       );
     };
-    const builders: readonly (() => IFeature[])[] = [
+    const builders: readonly (() => IAutoMovieHumanHeadFeatures.IFeature[])[] = [
       nose,
-      (): IFeature[] => lip(true),
-      (): IFeature[] => lip(false),
-      (): IFeature[] => orbit("left", 1, plan.left),
-      (): IFeature[] => orbit("right", -1, plan.right),
+      (): IAutoMovieHumanHeadFeatures.IFeature[] => lip(true),
+      (): IAutoMovieHumanHeadFeatures.IFeature[] => lip(false),
+      (): IAutoMovieHumanHeadFeatures.IFeature[] => orbit("left", 1, plan.left),
+      (): IAutoMovieHumanHeadFeatures.IFeature[] => orbit("right", -1, plan.right),
     ];
-    const factories: ReadonlyMap<string, () => IFeature[]> = new Map(
-      names().map((name: string, i: number): [string, () => IFeature[]] => [
+    const factories: ReadonlyMap<string, () => IAutoMovieHumanHeadFeatures.IFeature[]> = new Map(
+      names().map((name: string, i: number): [string, () => IAutoMovieHumanHeadFeatures.IFeature[]] => [
         name,
         builders[i]!,
       ]),
@@ -272,11 +217,11 @@ export namespace AutoMovieHumanHeadFeatures {
     const retained: Map<string, IAttempt> = new Map();
     return {
       names: [...factories.keys()],
-      read(names?: readonly string[]): IFeature[] {
+      read(names?: readonly string[]): IAutoMovieHumanHeadFeatures.IFeature[] {
         const wanted: Set<string> | null =
           names === undefined ? null : new Set(names);
         return [...factories].flatMap(
-          ([name, make]: [string, () => IFeature[]]): IFeature[] => {
+          ([name, make]: [string, () => IAutoMovieHumanHeadFeatures.IFeature[]]): IAutoMovieHumanHeadFeatures.IFeature[] => {
             if (wanted !== null && !wanted.has(name)) return [];
             const previous: IAttempt | undefined = retained.get(name);
             if (previous !== undefined) {
@@ -284,7 +229,7 @@ export namespace AutoMovieHumanHeadFeatures {
               return previous.parts;
             }
             try {
-              const parts: IFeature[] = make();
+              const parts: IAutoMovieHumanHeadFeatures.IFeature[] = make();
               retained.set(name, { kind: "returned", parts });
               return parts;
             } catch (error: unknown) {
@@ -309,10 +254,10 @@ export namespace AutoMovieHumanHeadFeatures {
     profile: number,
     seed: [number, number, number],
     host?: IAutoMovieViewPart,
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): IFeature[] {
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
-    const source: AutoMovieHumanHeadDome.IPart | null =
+    const source: IAutoMovieHumanHeadDome.IPart | null =
       AutoMovieHumanHeadDome.attempt(
         {
           name,

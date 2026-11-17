@@ -1,18 +1,10 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieAffordance, IAutoMovieBodyContact, IAutoMovieBodyDrag, IAutoMovieMaterial, IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Vector3,
   rotationBetween,
   srgbHexToLinearColor,
 } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieAffordance,
-  IAutoMovieBodyContact,
-  IAutoMovieBodyDrag,
-  IAutoMovieMaterial,
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 import { Archetype } from "./Archetype";
 import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
@@ -402,7 +394,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   /** Record one primitive part with its material and density. */
   #add(
     id: string,
-    shape: AutoMoviePrimitiveShape,
+    shape: IAutoMoviePrimitiveShape,
     at: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
     options: ArchetypeBuilder.IOptions | undefined,

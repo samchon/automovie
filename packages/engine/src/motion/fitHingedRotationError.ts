@@ -1,19 +1,11 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedJointAngles, IAutoMovieRestFrame, IAutoMovieFitChainToTargetProps, IAutoMoviePreparedChainPlant, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
 
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
+
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
-import type { prepareChainPlant } from "./prepareChainPlant";
 import { solveDistalTwist } from "./solveDistalTwist";
 
 /**
@@ -44,8 +36,8 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function fitHingedRotationError(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
   axes: IAutoMovieJointAxes,
   rotation: IAutoMovieQuaternion,
 ): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number {

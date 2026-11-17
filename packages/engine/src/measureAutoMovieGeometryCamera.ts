@@ -1,11 +1,6 @@
-import {
-  AutoMovieGeometryQuery,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieGeometryResult,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieGeometryActorReader, type IAutoMovieGeometryQuery, type IAutoMovieProjectToNdc, type IAutoMovieResolvedCamera, IAutoMovieCompiledShotSource, IAutoMovieGeometryResult, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
+
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { projectToNdc } from "./film/projectToNdc";
 import { resolveCameraAt } from "./film/resolveCameraAt";
@@ -23,9 +18,9 @@ import { resolveCameraAt } from "./film/resolveCameraAt";
  */
 export function measureAutoMovieGeometryCamera(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "camera" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "camera" }>,
 ): IAutoMovieGeometryResult {
-  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+  const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
   const shots: ReadonlyMap<string, IAutoMovieCompiledShotSource> =
     props.compiled;
@@ -76,7 +71,7 @@ export function measureAutoMovieGeometryCamera(
       "Camera measurement requires current production frame format. Restore production design and compile.",
     );
 
-  const resolvedCamera: ReturnType<typeof resolveCameraAt> = resolveCameraAt(
+  const resolvedCamera: IAutoMovieResolvedCamera = resolveCameraAt(
     camera.transform,
     compiled.shot.cameraMotion,
     camera.id,
@@ -92,9 +87,9 @@ export function measureAutoMovieGeometryCamera(
   const crop: typeof props.design.production.frameFormat.crop =
     props.design.production.frameFormat.crop;
 
-  const samples: { projection: ReturnType<typeof projectToNdc> }[] =
+  const samples: { projection: IAutoMovieProjectToNdc.IResult }[] =
     request.subjects.flatMap(
-      (subject: string): { projection: ReturnType<typeof projectToNdc> }[] => {
+      (subject: string): { projection: IAutoMovieProjectToNdc.IResult }[] => {
         const node:
           | IAutoMovieCompiledShotSource["scene"]["nodes"][number]
           | undefined = compiled.scene.nodes.find(
@@ -108,7 +103,7 @@ export function measureAutoMovieGeometryCamera(
           subject,
           request.time,
         );
-        const projection: ReturnType<typeof projectToNdc> = projectToNdc(
+        const projection: IAutoMovieProjectToNdc.IResult = projectToNdc(
           resolvedCamera,
           point,
           halfY,

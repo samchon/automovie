@@ -1,6 +1,7 @@
+import type { IAutoMovieLoftRelief } from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 

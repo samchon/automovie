@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
+import type { AutoMovieHumanSex as AutoMovieHumanSexType, IAutoMovieHumanFacePlan, IAutoMovieHumanHeadIdentity } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanHeadArcs } from "./AutoMovieHumanHeadArcs";
 
@@ -31,7 +35,7 @@ import { AutoMovieHumanHeadArcs } from "./AutoMovieHumanHeadArcs";
  */
 export namespace AutoMovieHumanFacePlan {
   /** 3D Facial Norms' means, women and men, mm: cranial base width, middle facial depth, maximum facial width. */
-  export const NORMS: readonly [{ readonly tt: number; readonly tsn: number; readonly zy: number }, { readonly tt: number; readonly tsn: number; readonly zy: number }] = [
+  export const NORMS: IAutoMovieHumanFacePlan.Norms = [
     { tt: 139.0, tsn: 123.5, zy: 129.8 },
     { tt: 147.9, tsn: 132.8, zy: 137.6 },
   ];
@@ -43,7 +47,7 @@ export namespace AutoMovieHumanFacePlan {
    * @param sex The person's sex.
    * @returns The super-ellipse exponent, 1.05 to 12.
    */
-  export function exponent(head: IAutoMovieHumanHeadIdentity, sex: AutoMovieHumanSex): number {
+  export function exponent(head: IAutoMovieHumanHeadIdentity, sex: AutoMovieHumanSexType): number {
     const norm: { readonly tt: number; readonly tsn: number; readonly zy: number } = NORMS[sex === AutoMovieHumanSex.Female ? 0 : 1];
     const scale: number = head.faceWidth / norm.zy;
     const a: number = (scale * norm.tt) / 2;

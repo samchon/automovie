@@ -1,20 +1,6 @@
-import {
-  type AutoMovieSurfacePatternGenerator,
-  type IAutoMoviePatternFacet,
-  type IAutoMoviePatternFinding,
-  type IAutoMoviePatternInstancing,
-  type IAutoMoviePatternPlacement,
-  type IAutoMoviePatternPoint,
-  type IAutoMovieSurfacePatternResult,
-  type IAutoMovieSurfacePatternZone,
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
-import type {
-  IAutoMovieExplicitInstanceTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieSurfacePatternGenerator, IAutoMoviePatternFacet, IAutoMoviePatternFinding, IAutoMoviePatternInstancing, IAutoMoviePatternPlacement, IAutoMoviePatternPoint, IAutoMovieSurfacePatternResult, IAutoMovieSurfacePatternZone, IAutoMovieExplicitInstanceTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, autoMoviePatternInstanceTransforms, generateAutoMovieSurfacePattern } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { pattern, rectangle, zone } from "../internal/patternFixtures";

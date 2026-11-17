@@ -1,16 +1,12 @@
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionContinuation,
-} from "@automovie/interface";
+import type { IAutoMovieLoftChain, IAutoMovieConstructionNode, IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieConstructionContinuation } from "@automovie/interface";
+
+
 
 import { AutoMovieConstructionBridgeRealize } from "./AutoMovieConstructionBridgeRealize";
 import { AutoMovieConstructionContinuation } from "./AutoMovieConstructionContinuation";
 import { AutoMovieConstructionRing } from "./AutoMovieConstructionRing";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * Retain a continuation only while both actual open ends survive its subtree.
@@ -39,9 +35,9 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  */
 export function AutoMovieConstructionContinuationRealize(
   node: IAutoMovieConstructionContinuation,
-  body: AutoMovieSolidBody.IBody,
-  state: AutoMovieConstructionState.IState,
-  walk: (node: AutoMovieConstructionNode) => void,
+  body: IAutoMovieSolidBody.IBody,
+  state: IAutoMovieConstructionState.IState,
+  walk: (node: IAutoMovieConstructionNode) => void,
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   // Two ends whose sections cannot share one ring are joined by a band (`IAutoMovieConstructionContinuation.band`).
@@ -64,11 +60,11 @@ export function AutoMovieConstructionContinuationRealize(
       "shared end",
       `the host face's ${node.hostEnd} end is already cut away by a join or a trim`,
     );
-  const snapshot: AutoMovieConstructionState.ISnapshot =
+  const snapshot: IAutoMovieConstructionState.ISnapshot =
     AutoMovieConstructionState.snap(body, state);
-  const previous: AutoMovieConstructionState.IOverride | undefined =
+  const previous: IAutoMovieConstructionState.IOverride | undefined =
     state.overrides.get(node.partFace);
-  const override: AutoMovieConstructionState.IOverride = {
+  const override: IAutoMovieConstructionState.IOverride = {
     apply: (chain: IAutoMovieLoftChain): IAutoMovieLoftChain | string => {
       // Both ends of one leaf can belong to enclosing continuation nodes.
       // Preserve their endpoint transformations and their distinct outcomes.
@@ -134,12 +130,12 @@ export function AutoMovieConstructionContinuationRealize(
 
 /** Both a trimmed end and an existing shared end have consumed that boundary. */
 function cut(
-  body: AutoMovieSolidBody.IBody,
+  body: IAutoMovieSolidBody.IBody,
   index: number,
   kind: "start" | "end",
 ): boolean {
   return body.faces[index]!.cycles.some(
-    (cycle: AutoMovieSolidCycle.ICycle): boolean => cycle.kind === kind,
+    (cycle: IAutoMovieSolidCycle.ICycle): boolean => cycle.kind === kind,
   );
 }
 

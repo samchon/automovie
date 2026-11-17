@@ -1,4 +1,8 @@
-import { type IAutoMovieLoftRelief, AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftRelief, IAutoMovieHumanFootBody, IAutoMovieHumanLimbFrame } from "@automovie/interface";
+
+
+
+import { AutoMovieSeamStation } from "@automovie/engine";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
 import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
@@ -14,18 +18,18 @@ import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
 export namespace AutoMovieHumanFootBodyChain {
   /** The body's chain for a side. */
   export function of(
-    body: AutoMovieHumanFootBody.IBody,
+    body: IAutoMovieHumanFootBody.IBody,
     name: string,
     sign: 1 | -1,
     reliefs: IAutoMovieLoftRelief[],
   ): IAutoMovieLoftChain {
     const order: number = AutoMovieHumanFootBody.ORDER;
     const last: number = body.stations.length - 1;
-    const sided = (station: number): AutoMovieHumanLimbFrame.ISample =>
+    const sided = (station: number): IAutoMovieHumanLimbFrame.ISample =>
       AutoMovieHumanFootReflection.sample(body.sample(station), sign);
     const layers: IAutoMovieLoftChain.ILayer[] = body.stations.map(
       (station: number, j: number): IAutoMovieLoftChain.ILayer => {
-        const here: AutoMovieHumanLimbFrame.ISample = sided(station);
+        const here: IAutoMovieHumanLimbFrame.ISample = sided(station);
         const lo: number = j === 0 ? station : station - STEP;
         const hi: number = j === last ? station : station + STEP;
         const h: Controls = AutoMovieHumanLimbFrame.controls(here, order);

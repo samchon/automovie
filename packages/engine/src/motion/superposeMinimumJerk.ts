@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMinimumJerk, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { minimumJerk } from "./minimumJerk";
 
@@ -32,16 +33,16 @@ import { minimumJerk } from "./minimumJerk";
  */
 export function superposeMinimumJerk(
   origin: IAutoMovieVector3,
-  units: readonly superposeMinimumJerk.IUnit[],
+  units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],
   seconds: number,
-): superposeMinimumJerk.IState {
+): IAutoMovieSuperposeMinimumJerk.IState {
   const position: IAutoMovieVector3 = { ...origin };
   const velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const acceleration: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const unit of units) {
     if (!(unit.duration > 0))
       throw new Error("A minimum-jerk unit's duration is positive");
-    const p: minimumJerk.IProfile = minimumJerk(
+    const p: IAutoMovieMinimumJerk.IProfile = minimumJerk(
       (seconds - unit.start) / unit.duration,
     );
     for (const k of ["x", "y", "z"] as const) {
@@ -52,38 +53,4 @@ export function superposeMinimumJerk(
     }
   }
   return { position, velocity, acceleration };
-}
-
-/**
- * Companion types of {@link superposeMinimumJerk}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit.
- * @evidence contracts/development/design.md#principled-representation A unit is a displacement and a time window; the state is position, velocity and acceleration in SI units.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What callers build and read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
- */
-export namespace superposeMinimumJerk {
-  /** One unit. */
-  export interface IUnit {
-    /** Displacement the unit adds, metres. */
-    displacement: IAutoMovieVector3;
-
-    /** Start, seconds. */
-    start: number;
-
-    /** Duration, seconds; positive. */
-    duration: number;
-  }
-
-  /** The moved point at an instant. */
-  export interface IState {
-    /** Position, metres. */
-    position: IAutoMovieVector3;
-
-    /** Velocity, metres per second. */
-    velocity: IAutoMovieVector3;
-
-    /** Acceleration, metres per second squared. */
-    acceleration: IAutoMovieVector3;
-  }
 }

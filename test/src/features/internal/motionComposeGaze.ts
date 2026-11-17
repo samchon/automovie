@@ -1,19 +1,7 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanGaze,
-  HumanGaze,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanGaze, HumanGaze, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -65,7 +53,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const RAD: number = Math.PI / 180;
   const all: motionComplaints.IGatherer = motionComplaints();
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -88,10 +76,10 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
   const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
   {
-    const body: IHumanBody = motionHumanBody(name);
-    const bones = (posture: IHumanPosture): Bones =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
-    const standing: IHumanPosture = stand.posture(
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0, y: 0, z: 0 },
       0,
@@ -155,9 +143,9 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
       );
     const look = (
       target: IAutoMovieVector3,
-      recruit: AutoMovieMotionHumanGaze.Recruit,
+      recruit: IAutoMovieMotionHumanGaze.HeadRecruit,
       weight: number,
-    ): IHumanPosture =>
+    ): IAutoMovieMotionHumanPosture =>
       AutoMovieMotionHumanGaze.look({
         body,
         recruit,
@@ -166,7 +154,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
         target: (): IAutoMovieVector3 => target,
         weight: (): number => weight,
       }).write(standing, 1);
-    const untouched = (posture: IHumanPosture, pose: Bones): boolean =>
+    const untouched = (posture: IAutoMovieMotionHumanPosture, pose: Bones): boolean =>
       JSON.stringify(posture.limbs) === JSON.stringify(standing.limbs) &&
       turned(pose, "chest") <= 1e-3 &&
       turned(pose, "spine") <= 1e-3 &&
@@ -186,7 +174,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
       const target: IAutoMovieVector3 = place(yaw, pitch);
       const near: boolean =
         Math.abs(yaw) <= HumanGaze.EYES && Math.abs(pitch) <= HumanGaze.EYES;
-      const joined: IHumanPosture = look(target, "head", 1);
+      const joined: IAutoMovieMotionHumanPosture = look(target, "head", 1);
       const pose: Bones = bones(joined);
       const head: number = turned(pose, "head");
       all.check(
@@ -205,7 +193,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
         `${cell} with the head turns no trunk and moves no limb`,
         untouched(joined, pose),
       );
-      const alone: IHumanPosture = look(target, "eyes", 1);
+      const alone: IAutoMovieMotionHumanPosture = look(target, "eyes", 1);
       const eyed: Bones = bones(alone);
       const reachable: boolean = Math.abs(yaw) <= 44 && Math.abs(pitch) <= 29;
       all.check(
@@ -220,7 +208,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
 
     // 3. A target behind the shoulder.
     const behind: IAutoMovieVector3 = place(150, 0);
-    const short: IHumanPosture = look(behind, "head", 1);
+    const short: IAutoMovieMotionHumanPosture = look(behind, "head", 1);
     const shortPose: Bones = bones(short);
     all.check(
       `${name}: a look behind the shoulder stays short by ${miss(shortPose, behind).toFixed(1)} degrees with the head turned ${swung(shortPose).toFixed(1)} to the side`,
@@ -245,13 +233,13 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
     );
 
     // 5. The span, the target's arguments and the glance.
-    const asked: [IHumanPosture, number][] = [];
+    const asked: [IAutoMovieMotionHumanPosture, number][] = [];
     const seen: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanGaze.look({
       body,
       recruit: "head",
       from: 0.5,
       to: 2,
-      target: (posture: IHumanPosture, seconds: number): IAutoMovieVector3 => {
+      target: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieVector3 => {
         asked.push([posture, seconds]);
         return far;
       },
@@ -264,7 +252,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
         JSON.stringify([["head"], 0.5, 2]) &&
         asked.length >= 1 &&
         asked.every(
-          ([posture, seconds]: [IHumanPosture, number]): boolean =>
+          ([posture, seconds]: [IAutoMovieMotionHumanPosture, number]): boolean =>
             posture === standing && seconds === 1.5,
         ),
     );

@@ -1,14 +1,8 @@
-import {
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieDrawingFrame,
-  IAutoMovieDrawingPoint,
-  IAutoMovieDrawingRegion,
-  IAutoMovieModel,
-} from "@automovie/interface";
+import { type IAutoMovieDrawingDesignIndex, type IAutoMovieSectionDrawingSpaces, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieDrawingPoint, IAutoMovieDrawingRegion, IAutoMovieModel } from "@automovie/interface";
+
+
 
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
 import { autoMovieDrawingCellSection } from "./autoMovieDrawingCellSection";
 import { autoMovieDrawingPolygonArea } from "./autoMovieDrawingPolygonArea";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
@@ -43,17 +37,7 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every cell of a space shares that space's one finish from the table, and element and model lookups come from the design index rather than scans.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The finish table and material sets live for the call and are released on return; they are bounded by the space count and the distinct materials per space, and only the returned regions and ids, owned by the caller, survive.
  */
-export const sectionAutoMovieDrawingSpaces = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  frame: IAutoMovieDrawingFrame;
-  design: IAutoMovieDrawingDesignIndex;
-  spaces: ReadonlySet<string> | null;
-}): {
-  regions: IAutoMovieDrawingRegion[];
-  faceted: string[];
-  shelled: number;
-  unbounded: number;
-} => {
+export const sectionAutoMovieDrawingSpaces = (props: IAutoMovieSectionDrawingSpaces.IProps): IAutoMovieSectionDrawingSpaces.IResult => {
   const { environment, frame, design, spaces } = props;
   const finishes: Map<string, string | null> = spaceFinishes(
     environment,

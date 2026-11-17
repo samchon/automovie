@@ -1,14 +1,11 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeFrame,
   QuadrupedBody,
   type rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 /**
  * Readers of a horse's ride the gait specs share: its landings and its hooves in the world.
@@ -47,7 +44,7 @@ export namespace archetypeHorseRide {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === QuadrupedBody.BONES[limb][3],
     )!;
-    const shape: AutoMoviePrimitiveShape | null =
+    const shape: IAutoMoviePrimitiveShape | null =
       part.geometry.type === "primitive" ? part.geometry.shape : null;
     const half: number =
       shape !== null && (shape.type === "cylinder" || shape.type === "capsule")

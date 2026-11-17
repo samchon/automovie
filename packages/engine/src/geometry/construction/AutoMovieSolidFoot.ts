@@ -1,8 +1,7 @@
+import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidFoot } from "@automovie/interface";
+
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-
-type Vec3 = AutoMovieSolidVector.Vec3;
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
@@ -24,27 +23,6 @@ const { dot, norm, sub } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidFoot {
-  /**
-   * A locally accepted stationary foot and its world separation from the target.
-   *
-   * @evidence contracts/development/design.md#principled-representation Chart parameters identify the surface point whose two normalized tangential residuals passed the local solve's criterion.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two chart scalars, the evaluated world point and distance expose the result without duplicating a surface.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Acceptance certifies finite owned-chart membership and local stationarity, not a global minimum, a positive-definite Hessian or constrained boundary optimum.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes chart coordinates from mm world point/distance and labels the result as local.
-   */
-  export interface IFoot {
-    /** Chart parameters. */
-    u: number;
-
-    /** Chart parameters. */
-    v: number;
-
-    /** The surface point there, mm. */
-    point: Vec3;
-
-    /** Distance from the world point, mm. */
-    distance: number;
-  }
 
   /** Newton steps before the search gives up. */
   export const STEPS: number = 60;
@@ -70,10 +48,10 @@ export namespace AutoMovieSolidFoot {
    */
   export function of(
     surface: IAutoMovieSolidSurface,
-    q: Readonly<Vec3>,
+    q: Readonly<AutoMovieVector3Tuple>,
     guess: readonly [number, number],
     tolerance: number,
-  ): IFoot | null {
+  ): IAutoMovieSolidFoot.IFoot | null {
     let u: number = guess[0];
     let v: number = guess[1];
 
@@ -84,7 +62,7 @@ export namespace AutoMovieSolidFoot {
         v,
       );
       if (j === null) return null;
-      const r: Vec3 = sub(j.p, q);
+      const r: AutoMovieVector3Tuple = sub(j.p, q);
       const lu: number = norm(j.u);
       const lv: number = norm(j.v);
       if (!(lu > 0 && lv > 0)) return null;

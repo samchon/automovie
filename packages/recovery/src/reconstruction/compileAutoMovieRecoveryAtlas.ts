@@ -1,10 +1,8 @@
+import { type IAutoMovieRecoveryAtlasCompilation, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieModel } from "@automovie/interface";
 import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
-import {
-  type IAutoMovieBicubicAtlasGeometry,
-  type IAutoMovieModel,
-} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryAtlasCompilation } from "../structures/domain/IAutoMovieRecoveryAtlasCompilation";
+
+
 
 /**
  * Compile one public coefficient authority into its recipe and generated-mesh models.
@@ -32,8 +30,7 @@ export function compileAutoMovieRecoveryAtlas(
     skeleton: null,
     body: null,
     materials: [],
-    asset: null,
-  };
+    asset: null };
   return {
     recipeModel: {
       ...base,
@@ -44,10 +41,8 @@ export function compileAutoMovieRecoveryAtlas(
           geometry,
           material: null,
           attachedBone: null,
-          transform: null,
-        },
-      ],
-    },
+          transform: null },
+      ] },
     compiledModel: {
       ...base,
       parts: generated.mesh.indices!.length
@@ -58,17 +53,13 @@ export function compileAutoMovieRecoveryAtlas(
               geometry: { type: "mesh", mesh: generated.mesh },
               material: null,
               attachedBone: null,
-              transform: null,
-            },
+              transform: null },
           ]
-        : [],
-    },
+        : [] },
     realization: {
       complete: generated.complete,
       approximationQualified: generated.approximationQualified,
       diagnostics: generated.diagnostics,
-      counts: generated.counts,
-    },
-    primitiveRanges: generated.primitiveRanges,
-  };
+      counts: generated.counts },
+    primitiveRanges: generated.primitiveRanges };
 }

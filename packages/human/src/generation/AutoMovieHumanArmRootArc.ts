@@ -1,8 +1,14 @@
-import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
-import type { IAutoMovieHumanArmRootArc } from "./IAutoMovieHumanArmRootArc";
+import type { IAutoMovieArcLengthJet, IAutoMovieHumanArmRootArc, IAutoMovieHumanDeltoidCap, IAutoMovieHumanTrunkAssembly, IAutoMovieHumanTrunkQuadrant, IAutoMovieHumanTrunkSection } from "@automovie/interface";
+
+
+
+
+
+
+
 import { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
-import type { AutoMovieHumanTrunkAssembly } from "./AutoMovieHumanTrunkAssembly";
+
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
@@ -51,17 +57,17 @@ export namespace AutoMovieHumanArmRootArc {
    * @returns The arc.
    */
   export function create(
-    s: AutoMovieHumanTrunkQuadrant.ISection,
-    oval: AutoMovieHumanArmRootOval.IOval,
+    s: IAutoMovieHumanTrunkSection,
+    oval: IAutoMovieHumanDeltoidCap.IOval,
     extreme: number,
     torso: number,
   ): IAutoMovieHumanArmRootArc {
     const own: number = s.posterior ?? AutoMovieHumanTrunkGuides.SHARE.posteriorAxillary;
     const anterior: number = torso * s.anterior + (1 - torso) * share(s, "front", oval.x + CROSS * oval.rx);
     const posterior: number = torso * own + (1 - torso) * share(s, "back", oval.x - CROSS * oval.rx);
-    const A: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuides.jet("anteriorAxillary", { ...s, anterior });
-    const P: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuides.jet("posteriorAxillary", { ...s, posterior });
-    const L: IAutoMovieHumanSeam.IArcJet = {
+    const A: IAutoMovieArcLengthJet = AutoMovieHumanTrunkGuides.jet("anteriorAxillary", { ...s, anterior });
+    const P: IAutoMovieArcLengthJet = AutoMovieHumanTrunkGuides.jet("posteriorAxillary", { ...s, posterior });
+    const L: IAutoMovieArcLengthJet = {
       point: [oval.x, extreme],
       tangent: [-1, 0],
       curvature: [0, -AutoMovieHumanArmRootOval.curvature(oval)],
@@ -81,9 +87,9 @@ export namespace AutoMovieHumanArmRootArc {
       torso,
       guides: [A, L, P],
       rates: [lengthFront / spanFront, lengthBack / spanBack],
-      front: (speeds: readonly [number, number]): AutoMovieHumanTrunkAssembly.Sector =>
+      front: (speeds: readonly [number, number]): IAutoMovieHumanTrunkAssembly.Sector =>
         sector(A, L, AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary, AutoMovieHumanTrunkGuides.KNOT.midAxillary, speeds),
-      back: (speeds: readonly [number, number]): AutoMovieHumanTrunkAssembly.Sector =>
+      back: (speeds: readonly [number, number]): IAutoMovieHumanTrunkAssembly.Sector =>
         sector(L, P, AutoMovieHumanTrunkGuides.KNOT.midAxillary, AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary, speeds),
     };
   }
@@ -97,7 +103,7 @@ export namespace AutoMovieHumanArmRootArc {
    * @param x Forward place, mm.
    * @returns The lateral share.
    */
-  function share(s: AutoMovieHumanTrunkQuadrant.ISection, side: AutoMovieHumanTrunkQuadrant.Side, x: number): number {
+  function share(s: IAutoMovieHumanTrunkSection, side: IAutoMovieHumanTrunkQuadrant.Side, x: number): number {
     const xi: number = Math.min(
       1,
       Math.max(0, side === "front" ? (x - s.middle) / (s.front - s.middle) : (s.middle - x) / (s.middle - s.back)),
@@ -129,12 +135,12 @@ export namespace AutoMovieHumanArmRootArc {
    * @returns The sector as a function of phase.
    */
   function sector(
-    a: IAutoMovieHumanSeam.IArcJet,
-    b: IAutoMovieHumanSeam.IArcJet,
+    a: IAutoMovieArcLengthJet,
+    b: IAutoMovieArcLengthJet,
     k0: number,
     k1: number,
     speeds: readonly [number, number],
-  ): AutoMovieHumanTrunkAssembly.Sector {
+  ): IAutoMovieHumanTrunkAssembly.Sector {
     return (t: number): [number[], number[], number[]] =>
       AutoMovieHumanTrunkQuadrant.sector(
         a,

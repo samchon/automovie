@@ -1,17 +1,8 @@
-import {
-  type AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieSweep, type IAutoMovieSweepFrame, type IAutoMovieSweepSpine, type IAutoMovieSweepSurface, type IAutoMoviePoseSweep, type AutoMovieHumanoidBone, IAutoMovieQuaternion, type IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone";
+
 import { Quaternion } from "../../math/Quaternion";
 import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
-import { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
@@ -63,19 +54,7 @@ import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call poses one sweep; the bone motion lookup caches each bone's rotation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the compiled surfaces used for frames and volume are released on return.
  */
-export const poseAutoMovieSweep: (props: {
-  sweep: IAutoMovieSweep;
-  binding: IAutoMovieSweepBinding;
-  rest: readonly IAutoMovieResolvedBone[];
-  posed: readonly IAutoMovieResolvedBone[];
-  preserveVolume?: boolean;
-}) => IAutoMovieSweep = (props: {
-  sweep: IAutoMovieSweep;
-  binding: IAutoMovieSweepBinding;
-  rest: readonly IAutoMovieResolvedBone[];
-  posed: readonly IAutoMovieResolvedBone[];
-  preserveVolume?: boolean;
-}): IAutoMovieSweep => {
+export const poseAutoMovieSweep: (props: IAutoMoviePoseSweep.IProps) => IAutoMovieSweep = (props: IAutoMoviePoseSweep.IProps): IAutoMovieSweep => {
   const { sweep, binding }: typeof props = props;
   if (binding.points.length !== sweep.spine.points.length)
     throw new Error("sweep binding needs one bone per spine point");

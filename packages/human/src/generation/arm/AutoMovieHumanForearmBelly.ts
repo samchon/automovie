@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
+import type { IAutoMovieHumanArmSpanEnd, IAutoMovieHumanArmPiece } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 import { AutoMovieHumanElbowSpan } from "./AutoMovieHumanElbowSpan";
 
@@ -41,7 +44,7 @@ export namespace AutoMovieHumanForearmBelly {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } {
+  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmSpanEnd {
     const s: number = inputs.axis.fore(JUNCTION * inputs.stylion);
     const { forearm, wrist } = inputs.tapes;
 

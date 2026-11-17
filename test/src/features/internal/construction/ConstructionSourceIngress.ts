@@ -1,10 +1,6 @@
-import type {
-  AutoMovieLoftFrame,
-  AutoMovieLoftJet,
-  AutoMovieViewAxis,
-  IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieViewAxis, IAutoMovieViewPart } from "@automovie/interface";
+
+
 
 import { ConstructionConicFieldOracle } from "./ConstructionConicFieldOracle";
 
@@ -33,12 +29,12 @@ export namespace ConstructionSourceIngress {
     const b: IAutoMovieViewPart.IOutline = variableFullness
       ? a
       : outline(3, amplitude / 4, 1);
-    const axis: AutoMovieViewAxis.IAxis = {
-      at: (s: number): AutoMovieLoftFrame.IFrame =>
+    const axis: IAutoMovieViewAxis.IAxis = {
+      at: (s: number): IAutoMovieLoftFrame.IFrame =>
         frame([amplitude * Math.sin((Math.PI * s) / 5), s, 0], true),
       jet: (
         s: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
+        parameter?: IAutoMovieConstructionOutlineParameter,
       ): AxisJet | null => {
         if (parameter !== undefined) return null;
         const k: number = Math.PI / 5;
@@ -69,14 +65,14 @@ export namespace ConstructionSourceIngress {
       order: 16,
       samples: 16,
     };
-    const childAxis: AutoMovieViewAxis.IAxis = {
-      at: (s: number): AutoMovieLoftFrame.IFrame => {
-        const f: AutoMovieLoftFrame.IFrame = parent.axis.at(s);
+    const childAxis: IAutoMovieViewAxis.IAxis = {
+      at: (s: number): IAutoMovieLoftFrame.IFrame => {
+        const f: IAutoMovieLoftFrame.IFrame = parent.axis.at(s);
         return { ...f, origin: [f.origin[0] + 0.25 * (s / 40) ** 5, s, 0] };
       },
       jet: (
         s: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
+        parameter?: IAutoMovieConstructionOutlineParameter,
       ): AxisJet | null => {
         const j: AxisJet | null = parent.axis.jet!(s, parameter);
         if (j === null) return null;
@@ -99,7 +95,7 @@ export namespace ConstructionSourceIngress {
     amplitude: number,
     s: number,
     variableFullness: boolean,
-  ): AutoMovieLoftJet.IJet {
+  ): IAutoMovieLoftJet.IJet {
     const q: number = s / 40;
     const k: number = Math.PI / 5;
     const f: number = amplitude * Math.sin(k * s) + 0.25 * q ** 5;
@@ -165,7 +161,7 @@ function outline(
 }
 
 /** Exact fixed-basis frame value or a derivative with constant axes differentiated. */
-function frame(origin: Vec3, value: boolean): AutoMovieLoftFrame.IFrame {
+function frame(origin: Vec3, value: boolean): IAutoMovieLoftFrame.IFrame {
   return {
     origin,
     u: value ? [1, 0, 0] : [0, 0, 0],

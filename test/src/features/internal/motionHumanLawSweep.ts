@@ -1,18 +1,7 @@
-import type { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAudit,
-  AutoMovieMotionHumanAuditContact,
-  AutoMovieMotionHumanAuditDifference,
-  AutoMovieMotionHumanAuditPartner,
-  AutoMovieMotionHumanAuditRange,
-  AutoMovieMotionHumanAuditSpin,
-  AutoMovieMotionHumanAuditTiming,
-  HumanChain,
-  type IAutoMovieMotionHumanAuditMeasure,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import type { IAutoMovieComposition, IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditContact, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieMotionHumanAudit, AutoMovieMotionHumanAuditContact, AutoMovieMotionHumanAuditDifference, AutoMovieMotionHumanAuditPartner, AutoMovieMotionHumanAuditRange, AutoMovieMotionHumanAuditSpin, AutoMovieMotionHumanAuditTiming } from "@automovie/motions";
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { MotionHumanSweepChain } from "./MotionHumanSweepChain";
@@ -58,7 +47,7 @@ export namespace motionHumanLawSweep {
     subject: string;
 
     /** Their body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** Their floor point. */
     at: IAutoMovieVector3;
@@ -73,17 +62,17 @@ export namespace motionHumanLawSweep {
     people: IPerson[];
 
     /** What they do. */
-    composition: AutoMovieComposition;
+    composition: IAutoMovieComposition;
 
     /** The props. */
-    props: IHumanProp[];
+    props: IAutoMovieMotionHumanProp[];
   }
 
   /** The value a row sets for a parameter; undefined when the row leaves it. */
   export type Pick = (param: string) => string | undefined;
 
   /** The scene of a row, for subject `a`'s body and a partner's. */
-  export type Stage = (pick: Pick, a: IHumanBody, b: IHumanBody) => IScene;
+  export type Stage = (pick: Pick, a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody) => IScene;
 
   /** The reading of one cell. */
   export interface ICell {
@@ -174,9 +163,9 @@ export namespace motionHumanLawSweep {
 
   /** One person at the origin facing +Z. */
   export function solo(
-    a: IHumanBody,
-    acts: HumanChain,
-    props: IHumanProp[] = [],
+    a: IAutoMovieMotionHumanBody,
+    acts: IAutoMovieMotionHumanChain,
+    props: IAutoMovieMotionHumanProp[] = [],
   ): IScene {
     return {
       people: [{ subject: "a", body: a, at: { x: 0, y: 0, z: 0 }, yaw: 0 }],
@@ -187,11 +176,11 @@ export namespace motionHumanLawSweep {
 
   /** `a` at the origin facing +Z and `b` a gap ahead, facing back or away. */
   export function duo(
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
     gap: number,
-    composition: AutoMovieComposition | [HumanChain, HumanChain],
-    props: IHumanProp[] = [],
+    composition: IAutoMovieComposition | [IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChain],
+    props: IAutoMovieMotionHumanProp[] = [],
     facing: boolean = true,
   ): IScene {
     return {
@@ -320,7 +309,7 @@ export namespace motionHumanLawSweep {
           film.performance.segments(who),
         ))
           say(who, `timing ${fault}`);
-        const report: AutoMovieMotionHumanAudit.IReport =
+        const report: IAutoMovieMotionHumanAudit.IReport =
           AutoMovieMotionHumanAudit.run(film, who, one.body, {
             limits: airborne
               ? { floor: null, slip: null, lift: null, balance: null }
@@ -329,7 +318,7 @@ export namespace motionHumanLawSweep {
         for (const finding of report.findings)
           measured(who, finding.check, finding, finding.limit);
         if (!airborne) {
-          const contact: AutoMovieMotionHumanAuditContact.IResult =
+          const contact: IAutoMovieMotionHumanAuditContact.IResult =
             AutoMovieMotionHumanAuditContact.measure(film, who, one.body);
           for (const check of ["skate", "loose", "afloat"] as const)
             measured(

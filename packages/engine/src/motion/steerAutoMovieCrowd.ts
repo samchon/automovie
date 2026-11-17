@@ -1,7 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieCrowdAgent, IAutoMovieIntegrateMotionTrajectory, IAutoMovieSolveHalfPlaneProgram, IAutoMovieSteerCrowd, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
-import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
 
@@ -27,8 +28,8 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the trajectory's knots, 4 N numbers per step, for as long as the caller keeps the courses.
  */
 export function steerAutoMovieCrowd(
-  props: steerAutoMovieCrowd.IProps,
-): steerAutoMovieCrowd.IResult {
+  props: IAutoMovieSteerCrowd.IProps,
+): IAutoMovieSteerCrowd.IResult {
   const tau: number = props.law?.relaxation ?? steerAutoMovieCrowd.RELAXATION;
   const t0: number = props.law?.horizon ?? steerAutoMovieCrowd.HORIZON;
   const h: number = props.step ?? integrateMotionTrajectory.STEP;
@@ -68,7 +69,7 @@ export function steerAutoMovieCrowd(
   const f = (
     t: number,
     x: readonly number[],
-  ): integrateMotionTrajectory.IRate => {
+  ): IAutoMovieIntegrateMotionTrajectory.IRate => {
     const dx: number[] = new Array<number>(4 * n).fill(0);
     const placed: IAutoMovieVector3[][] = obstacles.map(
       (o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3[] =>
@@ -182,7 +183,7 @@ export function steerAutoMovieCrowd(
       // A position moves at the velocity nearest the agent's own that keeps it clear of every other agent for the horizon, taking its share of each avoidance, and no faster than its maximum (ORCA's linear program, the hard guarantee under the anticipatory force).
       const top: number =
         agent.maximum ?? steerAutoMovieCrowd.MAXIMUM * agent.speed;
-      const lines: solveAutoMovieHalfPlaneProgram.ILine[] = [];
+      const lines: IAutoMovieSolveHalfPlaneProgram.ILine[] = [];
       for (let j: number = 0; j < n; ++j)
         if (j !== k)
           lines.push(
@@ -206,7 +207,7 @@ export function steerAutoMovieCrowd(
                     steerAutoMovieCrowd.MAXIMUM * agents[order[j]!]!.speed),
             ),
           );
-      const moved: solveAutoMovieHalfPlaneProgram.IPoint =
+      const moved: IAutoMovieSolveHalfPlaneProgram.IPoint =
         solveAutoMovieHalfPlaneProgram(lines, top, { x: vx, y: vz }).point;
       dx[4 * k] = moved.x;
       dx[4 * k + 1] = moved.y;
@@ -217,9 +218,9 @@ export function steerAutoMovieCrowd(
   };
   const x0: number[] = [];
   for (const i of order) x0.push(agents[i]!.at.x, agents[i]!.at.z, 0, 0);
-  const trajectory: integrateMotionTrajectory.ITrajectory =
+  const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
-      f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate =>
+      f: (t: number, x: readonly number[]): IAutoMovieIntegrateMotionTrajectory.IRate =>
         f(t, x),
       x0,
       t0: props.from,
@@ -348,34 +349,4 @@ export namespace steerAutoMovieCrowd {
 
   /** The maximum speed over the desired one when an agent gives none (Helbing and Molnar 1995: 1.3). */
   export const MAXIMUM: number = 1.3;
-
-  /** What a pass is planned from. */
-  export interface IProps {
-    /** The agents. */
-    agents: readonly IAutoMovieCrowdAgent[];
-
-    /** What they steer round; none when absent. */
-    obstacles?: readonly IAutoMovieCrowdAgent.IObstacle[];
-
-    /** The first film second. */
-    from: number;
-
-    /** The last film second, after `from`. */
-    to: number;
-
-    /** The integrator's step, seconds; `integrateMotionTrajectory.STEP` when absent. */
-    step?: number;
-
-    /** The law's relaxation time and horizon, seconds; `RELAXATION` and `HORIZON` when absent. */
-    law?: { relaxation: number; horizon: number };
-  }
-
-  /** A planned pass. */
-  export interface IResult {
-    /** Each agent's course, in the order given. */
-    courses: readonly IAutoMovieCrowdAgent.ICourse[];
-
-    /** Every overlap that lasted longer than one step, by the second it began. */
-    contacts: readonly IAutoMovieCrowdAgent.IContact[];
-  }
 }

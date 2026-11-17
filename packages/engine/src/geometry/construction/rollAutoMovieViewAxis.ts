@@ -1,9 +1,4 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
-
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
-import type { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
+import type { AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewAxisJet, IAutoMovieViewOutline } from "@automovie/interface";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
@@ -28,11 +23,11 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
  * @returns Rotated axis or the named station/target/source admission failure.
  */
 export function rollAutoMovieViewAxis(
-  base: AutoMovieViewAxis.IAxis,
+  base: IAutoMovieViewAxis.IAxis,
   from: number,
   to: number,
-  up: AutoMovieSolidVector.Vec3,
-): AutoMovieViewAxis.IAxis | string {
+  up: AutoMovieVector3Tuple,
+): IAutoMovieViewAxis.IAxis | string {
   if (
     !Number.isFinite(from) ||
     !Number.isFinite(to) ||
@@ -44,10 +39,10 @@ export function rollAutoMovieViewAxis(
     return "material roll target is not a finite three-component direction";
   const scale: number = Math.max(...up.map(Math.abs));
   if (!(scale > 0)) return "material roll target is zero";
-  const target: AutoMovieSolidVector.Vec3 = up.map(
+  const target: AutoMovieVector3Tuple = up.map(
     (value: number): number => value / scale,
-  ) as AutoMovieSolidVector.Vec3;
-  const end: AutoMovieLoftFrame.IFrame = base.at(to);
+  ) as AutoMovieVector3Tuple;
+  const end: IAutoMovieLoftFrame.IFrame = base.at(to);
   if (
     end.u.length !== 3 ||
     end.v.length !== 3 ||
@@ -69,7 +64,7 @@ export function rollAutoMovieViewAxis(
   const measured: number = Math.atan2(sine, cosine);
   const angle: number = measured === -Math.PI ? Math.PI : measured;
   if (angle === 0) return base;
-  const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
         {
@@ -90,10 +85,10 @@ export function rollAutoMovieViewAxis(
     return `material roll ${source.contract}: ${source.detail}`;
 
   /** Preserve the base origin/normal plane while reading the prepared rotation at a finite station. */
-  const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+  const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
     station: number,
-  ): AutoMovieLoftFrame.IFrame => {
-    const frame: AutoMovieLoftFrame.IFrame = base.at(station);
+  ): IAutoMovieLoftFrame.IFrame => {
+    const frame: IAutoMovieLoftFrame.IFrame = base.at(station);
     if (station <= from) return frame;
     const rotation: number | string =
       station >= to ? angle : AutoMovieViewOutline.value(source, station);
@@ -105,10 +100,10 @@ export function rollAutoMovieViewAxis(
       origin: frame.origin,
       u: frame.u.map(
         (value: number, i: number): number => c * value + s * frame.v[i]!,
-      ) as AutoMovieSolidVector.Vec3,
+      ) as AutoMovieVector3Tuple,
       v: frame.v.map(
         (value: number, i: number): number => c * value - s * frame.u[i]!,
-      ) as AutoMovieSolidVector.Vec3,
+      ) as AutoMovieVector3Tuple,
     };
   };
   return {
@@ -118,14 +113,14 @@ export function rollAutoMovieViewAxis(
       : {
           jet: (
             station: number,
-            parameter?: AutoMovieConstructionOutlineParameter,
-          ): AutoMovieViewAxisJet.IJet | null => {
-            const frame: AutoMovieViewAxisJet.IJet | null = base.jet!(
+            parameter?: IAutoMovieConstructionOutlineParameter,
+          ): IAutoMovieViewAxisJet.IJet | null => {
+            const frame: IAutoMovieViewAxisJet.IJet | null = base.jet!(
               station,
               parameter,
             );
             if (frame === null) return null;
-            const reading: AutoMovieViewOutline.IReading | string =
+            const reading: IAutoMovieViewOutline.IReading | string =
               AutoMovieViewOutline.at(
                 source,
                 Math.min(to, Math.max(from, station)),
@@ -148,7 +143,7 @@ export function rollAutoMovieViewAxis(
               station <= from ? 0 : station >= to ? angle : reading.value;
             const c: number = Math.cos(rotation);
             const s: number = Math.sin(rotation);
-            const value: AutoMovieLoftFrame.IFrame =
+            const value: IAutoMovieLoftFrame.IFrame =
               station <= from
                 ? frame.value
                 : {
@@ -156,18 +151,18 @@ export function rollAutoMovieViewAxis(
                     u: frame.value.u.map(
                       (component: number, k: number): number =>
                         c * component + s * frame.value.v[k]!,
-                    ) as AutoMovieSolidVector.Vec3,
+                    ) as AutoMovieVector3Tuple,
                     v: frame.value.v.map(
                       (component: number, k: number): number =>
                         c * component - s * frame.value.u[k]!,
-                    ) as AutoMovieSolidVector.Vec3,
+                    ) as AutoMovieVector3Tuple,
                   };
-            const first: AutoMovieLoftFrame.IFrame = {
+            const first: IAutoMovieLoftFrame.IFrame = {
               origin: [...frame.first.origin],
               u: [0, 0, 0],
               v: [0, 0, 0],
             };
-            const second: AutoMovieLoftFrame.IFrame = {
+            const second: IAutoMovieLoftFrame.IFrame = {
               origin: [...frame.second.origin],
               u: [0, 0, 0],
               v: [0, 0, 0],

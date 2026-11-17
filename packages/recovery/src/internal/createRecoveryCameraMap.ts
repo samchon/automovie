@@ -1,15 +1,13 @@
+import type { IAutoMovieRecoveryCameraEstimateCreationOperation, IAutoMovieRecoveryCameraMapCreationOperation, IAutoMovieRecoveryCameraMapEstimate, IAutoMovieRecoveryCameraMapRefinementOperation, IAutoMovieRecoveryCameraPointTriangulationOperation, IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryResectionConsensusFittingOperation, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-import type {
-  IAutoMovieRecoveryCameraMapInput,
-  IAutoMovieRecoveryCameraPairInput,
-} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryCameraMapEstimate } from "../structures/image/IAutoMovieRecoveryCameraMapEstimate";
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
+
+
+
+
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
-import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
+
 import { fitRecoveryResectionConsensus } from "./fitRecoveryResectionConsensus";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
@@ -31,13 +29,13 @@ import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only bounded owned JSON evidence returns. Feature descriptors, transient candidate poses, numerical factors and callbacks expire without image retention, global cache or external resource.
  */
 export function createRecoveryCameraMap(
-  input: IAutoMovieRecoveryCameraMapInput,
-  features: readonly ReturnType<typeof extractRecoveryImageFeatures>[],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
-  pairs: Parameters<typeof linkRecoveryCameraTracks>[1],
-  descriptorComparisons: number,
-  checkpoint: (phase: string, completed: number, total: number) => void,
-): IAutoMovieRecoveryCameraMapEstimate {
+  input: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[0],
+  features: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[1],
+  charts: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[2],
+  pairs: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[3],
+  descriptorComparisons: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[4],
+  checkpoint: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[5],
+): ReturnType<IAutoMovieRecoveryCameraMapCreationOperation.Operation> {
   const seedInput: IAutoMovieRecoveryCameraPairInput = {
     schema: "automovie-recovery-camera-pair-v1",
     objectId: input.objectId,
@@ -45,9 +43,8 @@ export function createRecoveryCameraMap(
     cohort: input.cohort,
     views: input.views.slice(0, 2),
     policy: input.seedPolicy,
-    budget: input.seedBudget,
-  };
-  const seed: ReturnType<typeof createRecoveryCameraEstimate> =
+    budget: input.seedBudget };
+  const seed: ReturnType<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation> =
     createRecoveryCameraEstimate(
       seedInput,
       features.slice(0, 2),
@@ -55,7 +52,7 @@ export function createRecoveryCameraMap(
       [charts[0]!, charts[1]!],
       checkpoint,
     );
-  const linked: ReturnType<typeof linkRecoveryCameraTracks> =
+  const linked: ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation> =
     linkRecoveryCameraTracks(features, pairs, input.budget);
   const third: (typeof input.views)[number] = input.views[2]!;
   const result: IAutoMovieRecoveryCameraMapEstimate = {
@@ -75,9 +72,7 @@ export function createRecoveryCameraMap(
         camera: {
           ...third.camera,
           focalPx: [...third.camera.focalPx],
-          principalPointPx: [...third.camera.principalPointPx],
-        },
-      },
+          principalPointPx: [...third.camera.principalPointPx] } },
     ],
     seed,
     policy: { ...input.policy },
@@ -103,8 +98,7 @@ export function createRecoveryCameraMap(
     resection: null,
     joint: null,
     maximumReprojectionErrorPx: null,
-    minimumPointParallaxDegrees: null,
-  };
+    minimumPointParallaxDegrees: null };
   if (seed.pose === null) {
     result.untriangulatedTracks = linked.tracks.length;
     result.refusalReasons.push("seed-refused");
@@ -113,12 +107,10 @@ export function createRecoveryCameraMap(
   result.status = "seed-only";
   const firstPose: IAutoMovieRecoveryMapPose = {
     rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    translation: [0, 0, 0],
-  };
+    translation: [0, 0, 0] };
   const seedPose: IAutoMovieRecoveryMapPose = {
     rotation: seed.pose.rotation.slice(),
-    translation: [...seed.pose.translation],
-  };
+    translation: [...seed.pose.translation] };
   result.poses = [firstPose, seedPose, null];
   const support: Set<string> = new Set(
     seed.matches
@@ -155,7 +147,7 @@ export function createRecoveryCameraMap(
       result.untriangulatedTracks++;
       continue;
     }
-    const triangulated: ReturnType<typeof triangulateRecoveryCameraPoint> =
+    const triangulated: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> =
       triangulateRecoveryCameraPoint(
         first.pixel,
         second.pixel,
@@ -198,10 +190,8 @@ export function createRecoveryCameraMap(
       observations: [first, second].map(
         (observation: typeof first): NonNullable<typeof first> => ({
           ...observation!,
-          pixel: [...observation!.pixel],
-        }),
-      ),
-    });
+          pixel: [...observation!.pixel] }),
+      ) });
     const target: (typeof track.observations)[number] | undefined =
       track.observations.find(
         (observation: (typeof track.observations)[number]): boolean =>
@@ -211,14 +201,13 @@ export function createRecoveryCameraMap(
       candidates.push({
         landmark,
         pixel: [...target.pixel],
-        featureIndex: target.featureIndex,
-      });
+        featureIndex: target.featureIndex });
   }
   if (candidates.length < input.policy.minimumResectionInliers) {
     result.refusalReasons.push("insufficient-existing-map-observations");
     return result;
   }
-  const resection: ReturnType<typeof fitRecoveryResectionConsensus> =
+  const resection: ReturnType<IAutoMovieRecoveryResectionConsensusFittingOperation.Operation> =
     fitRecoveryResectionConsensus(
       candidates.map(
         (candidate: (typeof candidates)[number]): [number, number, number] =>
@@ -244,8 +233,7 @@ export function createRecoveryCameraMap(
     finalRefits: resection.finalRefits,
     stable: resection.stable,
     converged: resection.refinement?.converged ?? null,
-    refusalReasons: resection.refusalReasons.slice(),
-  };
+    refusalReasons: resection.refusalReasons.slice() };
   if (resection.pose === null) {
     result.refusalReasons.push(...resection.refusalReasons);
     return result;
@@ -261,20 +249,17 @@ export function createRecoveryCameraMap(
           observation: (typeof landmark.observations)[number],
         ): typeof observation => ({
           ...observation,
-          pixel: [...observation.pixel],
-        }),
-      ),
-    }),
+          pixel: [...observation.pixel] }),
+      ) }),
   );
   for (const index of resection.indices) {
     const candidate: (typeof candidates)[number] = candidates[index]!;
     joined[candidate.landmark]!.observations.push({
       viewIndex: 2,
       featureIndex: candidate.featureIndex,
-      pixel: [...candidate.pixel],
-    });
+      pixel: [...candidate.pixel] });
   }
-  let joint: ReturnType<typeof refineRecoveryCameraMap>;
+  let joint: ReturnType<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>;
   try {
     joint = refineRecoveryCameraMap(
       [firstPose, seedPose, resection.pose],
@@ -307,7 +292,7 @@ export function createRecoveryCameraMap(
     minimumAngle: number = Infinity;
   for (const landmark of joint.landmarks) {
     for (const observation of landmark.observations) {
-      const projected: ReturnType<typeof projectRecoveryMapPoint> =
+      const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
         projectRecoveryMapPoint(
           joint.poses[observation.viewIndex]!,
           landmark.point,

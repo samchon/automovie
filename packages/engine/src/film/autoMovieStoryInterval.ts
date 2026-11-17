@@ -1,4 +1,5 @@
-import { IAutoMovieShotStoryTime } from "@automovie/interface";
+import { type IAutoMovieStoryInterval, IAutoMovieShotStoryTime } from "@automovie/interface";
+
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
@@ -25,8 +26,8 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
  */
 export const autoMovieStoryInterval = (
   pin: IAutoMovieShotStoryTime,
-  window: { readonly from: number; readonly to: number },
-): { from: number; to: number } => ({
+  window: IAutoMovieStoryInterval.IWindow,
+): IAutoMovieStoryInterval.IResult => ({
   from: autoMovieStoryTime(pin, window.from),
   to: autoMovieStoryTime(pin, window.to),
 });

@@ -1,16 +1,6 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
-import {
-  HumanChain,
-  HumanCue,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanEntryState,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolveSchedule } from "@automovie/interface";
+
+import { HumanChain, HumanCue, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -38,31 +28,31 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the test law and the 2 scenarios.
  */
 export function test_human_motion_core_schedule_entry_align(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const marker: IHumanActionLaw<never> = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const marker: IAutoMovieMotionHumanActionLaw<never> = {
     name: "marker",
     interrupts: {
       marker: [{ window: [0, 1], kind: "inertialize", entry: 0.5, blend: 0.1 }],
-    } as IHumanActionLaw["interrupts"],
-    plan: (context: IHumanActionContext<never>): IHumanActionPlan => ({
+    } as IAutoMovieMotionHumanActionLaw["interrupts"],
+    plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => ({
       duration: 1,
       events: [{ name: "mark", share: 0.75 }],
       contacts: context.entry.supports.map(
         (
-          support: IHumanEntryState.ISupport,
-        ): IHumanActionPlan["contacts"][number] => ({
+          support: IAutoMovieMotionHumanEntryState.ISupport,
+        ): IAutoMovieMotionHumanActionPlan["contacts"][number] => ({
           ...support,
           from: 0,
           to: 1,
         }),
       ),
-      posture: (): IHumanPosture => context.entry.posture,
+      posture: (): IAutoMovieMotionHumanPosture => context.entry.posture,
     }),
   };
-  const cues: { music: resolveAutoMovieSchedule.ICue[] } = {
+  const cues: { music: IAutoMovieResolveSchedule.ICue[] } = {
     music: HumanCue.beats({ bpm: 96, count: 8 }),
   };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "entry",
     laws: [marker],
     cues,
@@ -81,13 +71,13 @@ export function test_human_motion_core_schedule_entry_align(): void {
       .registered("marker")
       .sync({ of: "music", event: "beat", index: 2, align: "mark" }).node,
   });
-  const second: HumanSegment.ISegment = performance.segments("a")[2]!;
+  const second: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[2]!;
   const entered: number =
     (second.entryTime - second.start) / second.plan.duration;
   const mark: number =
     second.start +
     (second.plan.events.find(
-      (e: IHumanActionPlan["events"][number]): boolean => e.name === "mark",
+      (e: IAutoMovieMotionHumanActionPlan["events"][number]): boolean => e.name === "mark",
     )?.share ?? NaN) *
       second.plan.duration;
   TestValidator.predicate(

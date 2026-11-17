@@ -1,4 +1,6 @@
-﻿/**
+import type { IAutoMovieHumanTrunkRows } from "@automovie/interface";
+
+/**
  * The sampling rule of a trunk chain's layers: where its rows stand between
  * the chain's ends.
  *
@@ -49,7 +51,7 @@ export namespace AutoMovieHumanTrunkRows {
     from: number,
     to: number,
     marks: readonly number[],
-    spacing: (y: number) => number,
+    spacing: IAutoMovieHumanTrunkRows.StationsSpacing,
   ): number[] {
     const gap = (y: number): number => Math.min(MAX_GAP, spacing(y));
 

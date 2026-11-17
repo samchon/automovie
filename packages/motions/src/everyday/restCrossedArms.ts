@@ -1,17 +1,12 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
-import type { rest } from "./rest";
+
 
 /**
  * Both crossed-arms goals on upper arms set before the goals: each hangs
@@ -38,15 +33,15 @@ import type { rest } from "./rest";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restCrossedArms(
-  body: IHumanBody,
-  posture: IHumanPosture,
-): Record<HumanHand.Side, rest.IGoal> {
-  const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+): Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal> {
+  const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
   const turn = (local: IAutoMovieVector3): IAutoMovieVector3 =>
     HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, local);
   const bones = poseBones(body, resolveHumanPosture(body, posture));
   const length = (
-    side: HumanHand.Side,
+    side: IAutoMovieMotionHumanHand.Side,
     from: "UpperArm" | "LowerArm",
     to: "LowerArm" | "Hand",
   ): number =>
@@ -56,13 +51,13 @@ export function restCrossedArms(
         body.rest.get(`${side}${from}`)!,
       ),
     );
-  const shoulder = (side: HumanHand.Side): IAutoMovieVector3 =>
+  const shoulder = (side: IAutoMovieMotionHumanHand.Side): IAutoMovieVector3 =>
     HumanFrame.local(frame, bones.get(`${side}UpperArm`)!.worldPosition);
   const sternum: IAutoMovieVector3 = HumanFrame.local(
     frame,
     HumanTrunk.region(body, posture, "sternum").point,
   );
-  const elbowAt = (side: HumanHand.Side, inward: number): IAutoMovieVector3 => {
+  const elbowAt = (side: IAutoMovieMotionHumanHand.Side, inward: number): IAutoMovieVector3 => {
     const s: IAutoMovieVector3 = shoulder(side);
     const upper: number = length(side, "UpperArm", "LowerArm");
     const ahead: number = Math.min(
@@ -86,10 +81,10 @@ export function restCrossedArms(
     });
   };
   const goal = (
-    side: HumanHand.Side,
+    side: IAutoMovieMotionHumanHand.Side,
     inward: number,
-  ): { goal: rest.IGoal; excess: number } => {
-    const other: HumanHand.Side = side === "left" ? "right" : "left";
+  ): { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } => {
+    const other: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
     const from: IAutoMovieVector3 = HumanFrame.point(frame, shoulder(other));
     const axis: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(elbowAt(other, inward), from),

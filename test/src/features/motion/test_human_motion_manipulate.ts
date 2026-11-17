@@ -1,26 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Transform,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanHand,
-  HumanManipulate,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
-  manipulate,
-  typeText,
-} from "@automovie/motions";
+import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanManipulate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain, HumanManipulate, HumanPerformance, manipulate, typeText } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -32,7 +13,7 @@ const CONTACT: number = 0.002;
 const SKILLED: readonly [number, number] = [0.15, 0.2];
 
 /** A keyboard prop at a world point, its typist on its +Z side facing it (`createKeyboard`'s contacts). */
-const keyboard = (at: IAutoMovieVector3): IHumanProp => ({
+const keyboard = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "keyboard",
   frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
   points: {},
@@ -54,7 +35,7 @@ const keyboard = (at: IAutoMovieVector3): IHumanProp => ({
 });
 
 /** A keypad of three buttons 19.05 mm apart in a row, its +Y the buttons' outward normal. */
-const keypad = (at: IAutoMovieVector3): IHumanProp => ({
+const keypad = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "keypad",
   frame: { position: at, rotation: Quaternion.identity() },
   points: {},
@@ -71,8 +52,8 @@ const keypad = (at: IAutoMovieVector3): IHumanProp => ({
 });
 
 /** The touch-typing chart's digit for a letter, written from the standard home-row assignment. */
-const chart = (letter: string): [HumanHand.Side, string] => {
-  const rows: [string, HumanHand.Side, string][] = [
+const chart = (letter: string): [IAutoMovieMotionHumanHand.Side, string] => {
+  const rows: [string, IAutoMovieMotionHumanHand.Side, string][] = [
     ["qaz", "left", "little"],
     ["wsx", "left", "ring"],
     ["edc", "left", "middle"],
@@ -122,15 +103,15 @@ const chart = (letter: string): [HumanHand.Side, string] => {
  */
 export function test_human_motion_manipulate(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const m: IHumanBody["measure"] = body.measure;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   // A digit's tip on its displayed distal phalanx, as the fit placed it.
   const tipOf = (
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
+    side: IAutoMovieMotionHumanHand.Side,
     digit: string,
   ): IAutoMovieVector3 => {
-    const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+    const region: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[
         `${digit}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
       ];
@@ -145,11 +126,11 @@ export function test_human_motion_manipulate(): void {
     z: body.rest.get("rightUpperArm")!.z + 0.8 * m.forearm,
   };
   const perform = (
-    composition: HumanPerformance.IInput["composition"],
-    props: IHumanProp[],
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+    props: IAutoMovieMotionHumanProp[],
     seed: string = "manipulate",
     level: "novice" | "amateur" | "trained" | "elite" = "elite",
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed,
       laws: [
@@ -171,8 +152,8 @@ export function test_human_motion_manipulate(): void {
       composition,
     });
   const text: string = "the quick fox";
-  const presses = (p: HumanPerformance): number[] => {
-    const s: HumanSegment.ISegment = p.segments("a").at(-1)!;
+  const presses = (p: IAutoMovieMotionHumanPerformance): number[] => {
+    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a").at(-1)!;
     return s.plan.events
       .filter((e) => e.name.startsWith("press"))
       .map((e) => s.start + e.share * s.plan.duration);
@@ -180,7 +161,7 @@ export function test_human_motion_manipulate(): void {
 
   // 1, 2. Typing with the chart's digits.
   try {
-    const typed: HumanPerformance = perform(
+    const typed: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a").registered("type", { prop: "keyboard", text })
         .node,
       [keyboard(at)],
@@ -266,12 +247,12 @@ export function test_human_motion_manipulate(): void {
   // 5. The fingering keeps the wrist still on three adjacent buttons.
   const pad: IAutoMovieVector3 = { ...at, y: at.y - 0.05 };
   try {
-    const sequence: manipulate.IContact[] = [
+    const sequence: IAutoMovieMotionHumanManipulate.IContact[] = [
       { site: "key0" },
       { site: "key1" },
       { site: "key2" },
     ];
-    const pressed: HumanPerformance = perform(
+    const pressed: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a").registered("manipulate", {
         prop: "keypad",
         contacts: sequence,
@@ -310,7 +291,7 @@ export function test_human_motion_manipulate(): void {
 
   // 6. Dial with the forefinger.
   try {
-    const dialled: HumanPerformance = perform(
+    const dialled: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a").registered("dial", {
         prop: "keypad",
         contacts: [{ site: "key0" }, { site: "key2" }],
@@ -336,7 +317,7 @@ export function test_human_motion_manipulate(): void {
 
   // 8. Two-finger typing: the forefinger of the key's side.
   try {
-    const two: HumanPerformance = perform(
+    const two: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a").registered("typeTwoFinger", {
         prop: "keyboard",
         text: "hi",
@@ -368,7 +349,7 @@ export function test_human_motion_manipulate(): void {
   }
 
   // 7. Refusals.
-  const refused = (contacts: manipulate.IContact[], fragment: string): void => {
+  const refused = (contacts: IAutoMovieMotionHumanManipulate.IContact[], fragment: string): void => {
     try {
       perform(
         HumanChain.subject("a").registered("manipulate", {

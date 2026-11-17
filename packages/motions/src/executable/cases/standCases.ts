@@ -1,16 +1,8 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -49,17 +41,17 @@ export function standCases(
   label: string = "stand",
 ): IMotionCaptureCase[] {
   const men = names.map((name) => MotionBodies.population(name));
-  const bodies: IHumanBody[] = men.map((man) =>
+  const bodies: IAutoMovieMotionHumanBody[] = men.map((man) =>
     createHumanBody(man.body.skeleton, man.body.profile),
   );
-  let chain: HumanChain | undefined;
+  let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
-    const one: HumanChain = HumanChain.subject(`s${i}`).stand({ seconds: 2 });
+    const one: IAutoMovieMotionHumanChain = HumanChain.subject(`s${i}`).stand({ seconds: 2 });
     chain = chain === undefined ? one : chain.with(one);
   });
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "stand",
-    performers: bodies.map((body: IHumanBody, i: number) => ({
+    performers: bodies.map((body: IAutoMovieMotionHumanBody, i: number) => ({
       subject: `s${i}`,
       body,
       // A diagonal lane, so the bodies part in the front and the side views alike.
@@ -83,7 +75,7 @@ export function standCases(
   let leanOk: boolean = true;
   let floorOk: boolean = true;
   names.forEach((name, i: number): void => {
-    const body: IHumanBody = bodies[i]!;
+    const body: IAutoMovieMotionHumanBody = bodies[i]!;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       performance.bones(`s${i}`, end);
     const z = (bone: AutoMovieHumanoidBone): number =>

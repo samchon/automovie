@@ -1,19 +1,13 @@
+import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Quaternion,
   Vector3,
   physicalHullFaces,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMoviePhysicalProfile,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliderCorners } from "../posture/HumanColliderCorners";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
@@ -70,10 +64,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     related: boolean[][];
 
     /** The segments placed in the rest T-pose. */
-    rest: HumanColliders.IPlaced[];
+    rest: IAutoMovieMotionHumanColliders.IPlaced[];
 
     /** The segments placed in the quiet stance. */
-    stance: HumanColliders.IPlaced[];
+    stance: IAutoMovieMotionHumanColliders.IPlaced[];
 
     /** The reference depths of each ordered pair's probes, by pair index. */
     baseline: Map<number, Float64Array>;
@@ -120,7 +114,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in a `WeakMap` keyed by the body.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model per live body, released with it.
    */
-  export function model(body: IHumanBody): IModel {
+  export function model(body: IAutoMovieMotionHumanBody): IModel {
     const known: IModel | undefined = MODELS.get(body);
     if (known !== undefined) return known;
     const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
@@ -135,11 +129,11 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           bone.bone,
         ]);
     }
-    const rest: HumanColliders.IPlaced[] = HumanColliders.placed(
+    const rest: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
       body,
       poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
     );
-    const parts: IPart[] = rest.map((p: HumanColliders.IPlaced): IPart => {
+    const parts: IPart[] = rest.map((p: IAutoMovieMotionHumanColliders.IPlaced): IPart => {
       const probes: IAutoMovieVector3[] = [];
       for (const shape of p.shapes)
         for (const corner of HumanColliderCorners(shape))
@@ -208,7 +202,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           group(a.bone) === group(b.bone),
       ),
     );
-    const stance: HumanColliders.IPlaced[] = HumanColliders.placed(
+    const stance: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
       body,
       poseBones(
         body,
@@ -236,7 +230,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function centre(
-    p: HumanColliders.IPlaced,
+    p: IAutoMovieMotionHumanColliders.IPlaced,
     part: IPart,
   ): IAutoMovieVector3 {
     return Vector3.add(
@@ -263,8 +257,8 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    */
   export function depths(
     probes: readonly IAutoMovieVector3[],
-    a: HumanColliders.IPlaced,
-    b: HumanColliders.IPlaced,
+    a: IAutoMovieMotionHumanColliders.IPlaced,
+    b: IAutoMovieMotionHumanColliders.IPlaced,
   ): Float64Array {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
@@ -280,7 +274,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     // is outside the shape, which then adds no depth.
     const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
       (shape: IAutoMoviePhysicalProfile.IShape) => {
-        const ball: HumanColliders.IBall = HumanColliders.bound(shape);
+        const ball: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound(shape);
         return {
           centre: Vector3.add(
             shape.transform.position,
@@ -396,7 +390,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    */
   export function beyond(
     m: IModel,
-    placed: readonly HumanColliders.IPlaced[],
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     i: number,
     j: number,
   ): Float64Array {
@@ -428,7 +422,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    */
   export function excess(
     m: IModel,
-    placed: readonly HumanColliders.IPlaced[],
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     i: number,
     j: number,
   ): number {
@@ -439,7 +433,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
 }
 
 /** The models of live bodies. */
-const MODELS: WeakMap<IHumanBody, AutoMovieMotionHumanAuditTangleModel.IModel> =
+const MODELS: WeakMap<IAutoMovieMotionHumanBody, AutoMovieMotionHumanAuditTangleModel.IModel> =
   new WeakMap();
 
 /** The fingers' part of a bone name. */

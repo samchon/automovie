@@ -1,21 +1,5 @@
-import {
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltSpace,
-  IAutoMovieBuiltSurface,
-  IAutoMovieFluidDomain,
-  IAutoMoviePlantingArrangement,
-  IAutoMoviePlantingCluster,
-  IAutoMoviePlantingDomain,
-  IAutoMoviePlantingInstallation,
-  IAutoMoviePlantingIrrigation,
-  IAutoMoviePlantingPlacement,
-  IAutoMoviePlantingSupport,
-  IAutoMovieSoftBounds,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieValidatePlantingInstallations, type IAutoMovieViolationCollector, IAutoMovieBuiltBoundary, IAutoMovieBuiltElement, IAutoMovieBuiltSpace, IAutoMovieBuiltSurface, IAutoMovieFluidDomain, IAutoMoviePlantingArrangement, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMoviePlantingIrrigation, IAutoMoviePlantingPlacement, IAutoMoviePlantingSupport, IAutoMovieSoftBounds, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
@@ -53,22 +37,9 @@ const IRRIGATION_MEDIA: Set<string> = new Set([
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Maps share completed identity lookups and each installation derives one canopy for all its members; repeated installation recipe admission is not cached, and changed mutable inputs require a fresh pass.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local maps, arrangements and canopies leave scope after validation; only returned findings retain offending records/points, with no renderer, fluid solver or background work acquired.
  */
-export const validatePlantingInstallations: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  installations: IAutoMoviePlantingInstallation[];
-  clusters: IAutoMoviePlantingCluster[];
-  domains: IAutoMoviePlantingDomain[];
-  fluidDomains?: IAutoMovieFluidDomain[] | undefined;
-}) => IAutoMovieValidation = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  installations: IAutoMoviePlantingInstallation[];
-  clusters: IAutoMoviePlantingCluster[];
-  domains: IAutoMoviePlantingDomain[];
-  /** Fluid domains available for aquatic planting; empty when there are none. */
-  fluidDomains?: IAutoMovieFluidDomain[];
-}): IAutoMovieValidation => {
+export const validatePlantingInstallations: (props: IAutoMovieValidatePlantingInstallations.IProps) => IAutoMovieValidation = (props: IAutoMovieValidatePlantingInstallations.IProps): IAutoMovieValidation => {
   const { environment, installations, clusters, domains }: typeof props = props;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(
@@ -392,11 +363,11 @@ export const validatePlantingInstallations: (props: {
 
 /** Re-path one nested validation onto the address the binding knows it by. */
 const repath: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   validation: IAutoMovieValidation,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   validation: IAutoMovieValidation,
 ): void => {

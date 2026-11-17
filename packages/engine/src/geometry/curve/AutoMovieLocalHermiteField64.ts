@@ -1,8 +1,8 @@
+import type { AutoMovieBernsteinGrid64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieLocalHermiteField64 } from "@automovie/interface";
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 
@@ -19,75 +19,6 @@ import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalized
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLocalHermiteField64 {
-  /**
-   * Exact analytic cell; rows run along station t, columns along normalized phase u.
-   *
-   * @evidence contracts/development/design.md#principled-representation Four complete cubic rows retain the local tensor coefficients in millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Phase extent accompanies its coefficient grid.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sample or source topology substitutes for coefficients.
-   * @evidence contracts/development/common.md#meaningful-documentation States grid direction and units.
-   */
-  export type Cell = {
-    /** First normalized course phase. */
-    u0: number;
-    /** Last normalized course phase, strictly greater than u0. */
-    u1: number;
-    /** Millimetre bicubic coefficient rows, station first and course second. */
-    grid: B.Grid;
-  };
-
-  /**
-   * Millimetre position and full partials per normalized phase and physical station mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation Complete evaluated first derivatives retain their chart scale.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One jet supplies positions and analytic normals.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Partials are not unit tangent hints.
-   * @evidence contracts/development/common.md#meaningful-documentation States units of both independent parameters.
-   */
-  export type Jet = {
-    /** Source curve position in millimetres. */
-    position: B.Vec;
-    /** Derivative per normalized course phase, millimetres. */
-    coursePartial: B.Vec;
-    /** Derivative per physical station millimetre. */
-    stationPartial: B.Vec;
-  };
-
-  /**
-   * Admitted field closures. Inputs must stay immutable until the caller releases this
-   * object; only partitions and derivative weights are retained in addition to inputs.
-   *
-   * @evidence contracts/development/design.md#principled-representation Interval cells use at most four contributing courses and station jets use the same fixed derivative weights.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two operations expose analytic cells and authoritative station-edge jets.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shared boundaries are evaluated from the original course rather than adjacent rounded restrictions.
-   * @evidence contracts/development/common.md#meaningful-documentation States immutable lifetime and right-sided knot derivatives, with the final endpoint left-sided.
-   */
-  export type Prepared = {
-    /**
-     * Increasing local phase cells for one admitted physical station interval.
-     *
-     * @evidence contracts/development/implementation.md#principled-implementation Exact restrictions and fixed physical derivative weights construct bicubic cells from admitted courses.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One interval address returns caller-owned coefficient cells without observation or topology inference.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source face, sampled replacement curve or limiter changes the prepared field.
-     * @evidence contracts/development/common.md#meaningful-documentation The prepared owner states station indexing, millimetres, immutable course lifetime and unsupported geometric guarantees.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Work sorts the at-most-four incident course partitions and performs constant-degree restriction per resulting cell.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Admitted partitions and station derivative weights are reused by every interval call.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh cell arrays belong to the caller; no additional process-wide state is retained.
-     */
-    interval: (index: number) => Cell[];
-    /**
-     * Authoritative saved-course value and right-sided partials; u=1 uses the left span.
-     *
-     * @evidence contracts/development/implementation.md#principled-implementation The stored course evaluates position once while the same physical station stencil supplies its transverse derivative.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One normalized phase query returns a complete analytic jet from the prepared field.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unit tangent hints, source normals and coordinate-based neighbor matching do not supply derivatives.
-     * @evidence contracts/development/common.md#meaningful-documentation States one-sided knot convention, physical versus normalized derivatives and saved-curve authority.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Binary span lookup and constant-degree evaluation visit at most four incident course spans.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared partitions and physical derivative weights serve every station query.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned jet is newly owned and no query cache or source mesh is retained.
-     */
-    station: (index: number, u: number) => Jet;
-  };
 
   /**
    * Admit continuous open cubic courses and prepare linear physical derivative weights.
@@ -109,9 +40,9 @@ export namespace AutoMovieLocalHermiteField64 {
    */
   export function prepare(
     stations: readonly number[],
-    courses: readonly C.Cubic[],
+    courses: readonly IAutoMovieCurve64.Cubic[],
     interpolation: "quadratic" | "ruled" = "quadratic",
-  ): Prepared {
+  ): IAutoMovieLocalHermiteField64.Prepared {
     if (interpolation !== "quadratic" && interpolation !== "ruled")
       throw new Error(
         "An explicit supported station interpolation is required",
@@ -128,7 +59,7 @@ export namespace AutoMovieLocalHermiteField64 {
       throw new Error(
         "Increasing finite physical stations and corresponding courses required",
       );
-    const knots: number[][] = courses.map((course: C.Cubic): number[] => {
+    const knots: number[][] = courses.map((course: IAutoMovieCurve64.Cubic): number[] => {
       assertAutoMovieCurve64(course);
       if (
         course.type !== "cubicBezier" ||
@@ -198,16 +129,16 @@ export namespace AutoMovieLocalHermiteField64 {
       }
       return lo;
     };
-    const coefficients: (j: number, k: number) => B.Poly = (
+    const coefficients: (j: number, k: number) => AutoMovieBernsteinPolynomial64 = (
       j: number,
       k: number,
-    ): B.Poly =>
-      courses[j]!.spans[k]!.map((p: C.Vector): B.Vec => [p[0], p[1], p[2]]);
-    const combine: (j: number, values: Map<number, B.Poly>) => B.Poly = (
+    ): AutoMovieBernsteinPolynomial64 =>
+      courses[j]!.spans[k]!.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [p[0], p[1], p[2]]);
+    const combine: (j: number, values: Map<number, AutoMovieBernsteinPolynomial64>) => AutoMovieBernsteinPolynomial64 = (
       j: number,
-      values: Map<number, B.Poly>,
-    ): B.Poly => {
-      const out: B.Poly = Array.from({ length: 4 }, (): B.Vec => [0, 0, 0]);
+      values: Map<number, AutoMovieBernsteinPolynomial64>,
+    ): AutoMovieBernsteinPolynomial64 => {
+      const out: AutoMovieBernsteinPolynomial64 = Array.from({ length: 4 }, (): AutoMovieVector3Tuple => [0, 0, 0]);
       // Form secants before weighting so a common spatial translation cancels first.
       for (const { interval, factor } of stencils[j]!)
         for (let k: number = 0; k < 4; k++)
@@ -220,7 +151,7 @@ export namespace AutoMovieLocalHermiteField64 {
       return out;
     };
     return {
-      interval: (index: number): Cell[] => {
+      interval: (index: number): IAutoMovieLocalHermiteField64.Cell[] => {
         if (!Number.isInteger(index) || index < 0 || index >= count - 1)
           throw new Error("Station interval index outside field");
         const support: number[] =
@@ -241,9 +172,9 @@ export namespace AutoMovieLocalHermiteField64 {
         const partition: number[] = [
           ...new Set(support.flatMap((j: number): number[] => knots[j]!)),
         ].sort((a: number, b: number): number => a - b);
-        return partition.slice(0, -1).map((a: number, k: number): Cell => {
+        return partition.slice(0, -1).map((a: number, k: number): IAutoMovieLocalHermiteField64.Cell => {
           const b: number = partition[k + 1]!,
-            values: Map<number, B.Poly> = new Map();
+            values: Map<number, AutoMovieBernsteinPolynomial64> = new Map();
           for (const j of support) {
             const piece: number = locate(j, a),
               start: number = knots[j]![piece]!,
@@ -257,17 +188,17 @@ export namespace AutoMovieLocalHermiteField64 {
               ),
             );
           }
-          const first: B.Poly = values.get(index)!,
-            last: B.Poly = values.get(index + 1)!;
-          const grid: B.Grid =
+          const first: AutoMovieBernsteinPolynomial64 = values.get(index)!,
+            last: AutoMovieBernsteinPolynomial64 = values.get(index + 1)!;
+          const grid: AutoMovieBernsteinGrid64 =
             interpolation === "ruled"
               ? [
                   first,
                   first.map(
-                    (p: B.Vec, c: number): B.Vec => V.mix(p, last[c]!, 1 / 3),
+                    (p: AutoMovieVector3Tuple, c: number): AutoMovieVector3Tuple => V.mix(p, last[c]!, 1 / 3),
                   ),
                   first.map(
-                    (p: B.Vec, c: number): B.Vec => V.mix(p, last[c]!, 2 / 3),
+                    (p: AutoMovieVector3Tuple, c: number): AutoMovieVector3Tuple => V.mix(p, last[c]!, 2 / 3),
                   ),
                   last,
                 ]
@@ -279,15 +210,15 @@ export namespace AutoMovieLocalHermiteField64 {
                   h[index]!,
                 );
           if (
-            grid.some((row: B.Poly): boolean =>
-              row.some((p: B.Vec): boolean => !p.every(Number.isFinite)),
+            grid.some((row: AutoMovieBernsteinPolynomial64): boolean =>
+              row.some((p: AutoMovieVector3Tuple): boolean => !p.every(Number.isFinite)),
             )
           )
             throw new Error("Unresolved local Hermite coefficients");
           return { u0: a, u1: b, grid };
         });
       },
-      station: (index: number, u: number): Jet => {
+      station: (index: number, u: number): IAutoMovieLocalHermiteField64.Jet => {
         if (
           !Number.isInteger(index) ||
           index < 0 ||
@@ -297,18 +228,18 @@ export namespace AutoMovieLocalHermiteField64 {
           u > 1
         )
           throw new Error("Station jet outside admitted chart");
-        const point: (j: number) => B.Vec = (j: number): B.Vec => {
+        const point: (j: number) => AutoMovieVector3Tuple = (j: number): AutoMovieVector3Tuple => {
           const k: number = locate(j, u),
             width: number = knots[j]![k + 1]! - knots[j]![k]!;
           return B.value(coefficients(j, k), (u - knots[j]![k]!) / width);
         };
         const k: number = locate(index, u),
           width: number = knots[index]![k + 1]! - knots[index]![k]!,
-          stationPartial: B.Vec = [0, 0, 0];
+          stationPartial: AutoMovieVector3Tuple = [0, 0, 0];
         if (interpolation === "ruled") {
           const incident: number = Math.min(index, count - 2),
-            first: B.Vec = point(incident),
-            last: B.Vec = point(incident + 1);
+            first: AutoMovieVector3Tuple = point(incident),
+            last: AutoMovieVector3Tuple = point(incident + 1);
           for (let axis: number = 0; axis < 3; axis++)
             stationPartial[axis] = (last[axis]! - first[axis]!) / h[incident]!;
           return {
@@ -320,12 +251,12 @@ export namespace AutoMovieLocalHermiteField64 {
             stationPartial,
           };
         }
-        const evaluated: Map<number, B.Vec> = new Map();
+        const evaluated: Map<number, AutoMovieVector3Tuple> = new Map();
         for (const { interval, factor } of stencils[index]!) {
           for (const j of [interval, interval + 1])
             if (!evaluated.has(j)) evaluated.set(j, point(j));
-          const a: B.Vec = evaluated.get(interval)!,
-            b: B.Vec = evaluated.get(interval + 1)!;
+          const a: AutoMovieVector3Tuple = evaluated.get(interval)!,
+            b: AutoMovieVector3Tuple = evaluated.get(interval + 1)!;
           for (let axis: number = 0; axis < 3; axis++)
             stationPartial[axis]! +=
               factor * ((b[axis]! - a[axis]!) / h[interval]!);

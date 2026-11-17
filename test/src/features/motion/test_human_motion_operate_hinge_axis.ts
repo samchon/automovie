@@ -1,5 +1,6 @@
+import type { IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { operate, operateDrive } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,7 +32,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_human_motion_operate_hinge_axis(): void {
   const swing: number = 45;
   const radius: number = 0.08;
-  const mechanism: operate.Mechanism = {
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = {
     kind: "hinge",
     at: { kind: "point", frame: "world", at: { x: 0, y: 0, z: 0 } },
     swing,
@@ -45,7 +46,7 @@ export function test_human_motion_operate_hinge_axis(): void {
   const resolution: number = Number.EPSILON * radius * OPERATIONS;
 
   // 1-2. A cock's pin along +X through the origin, the handle above it.
-  const pin: operateDrive.IHinge = {
+  const pin: IAutoMovieMotionHumanOperateDrive.IHinge = {
     point: { x: 0, y: 0, z: 0 },
     axis: { x: 1, y: 0, z: 0 },
   };
@@ -93,8 +94,8 @@ export function test_human_motion_operate_hinge_axis(): void {
     point: { x: 0.8, y: 1.0, z: 0.05 },
     normal: { x: 0, y: 0, z: 1 },
   };
-  const line: operateDrive.IHinge = { point: { x: 0, y: 0.3, z: 0 } };
-  const upright: operateDrive.IHinge = {
+  const line: IAutoMovieMotionHumanOperateDrive.IHinge = { point: { x: 0, y: 0.3, z: 0 } };
+  const upright: IAutoMovieMotionHumanOperateDrive.IHinge = {
     point: { x: 0, y: 0.3, z: 0 },
     axis: { x: 0, y: 1, z: 0 },
   };

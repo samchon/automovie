@@ -1,14 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObstacle,
-  HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanStand, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanObstacle, HumanPerformance, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,7 +43,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_obstacles(): void {
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const north: HumanObstacle.IObstacle = HumanObstacle.wall(
+  const north: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.wall(
     "north",
     at(-2, 2),
     at(2, 2),
@@ -67,25 +59,25 @@ export function test_human_motion_core_obstacles(): void {
       },
     ],
   );
-  const far: HumanObstacle.IObstacle = HumanObstacle.wall(
+  const far: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.wall(
     "far",
     at(-2, 3),
     at(2, 3),
     0.2,
     2.5,
   );
-  const beam: HumanObstacle.IObstacle = {
+  const beam: IAutoMovieMotionHumanObstacle.IObstacle = {
     ...HumanObstacle.wall("beam", at(-2, -1), at(2, -1), 0.2, 1.8),
     bottom: 1.6,
   };
-  const scene: readonly HumanObstacle.IObstacle[] = [north, far, beam];
-  const body: HumanObstacle.INeed = { breadth: 0.45, height: 1.75 };
+  const scene: readonly IAutoMovieMotionHumanObstacle.IObstacle[] = [north, far, beam];
+  const body: IAutoMovieMotionHumanObstacle.INeed = { breadth: 0.45, height: 1.75 };
   const read = (
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
-    need: HumanObstacle.INeed = body,
+    need: IAutoMovieMotionHumanObstacle.INeed = body,
   ): unknown => {
-    const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
       scene,
       from,
       to,
@@ -141,7 +133,7 @@ export function test_human_motion_core_obstacles(): void {
   );
 
   // 7. An object's own opening.
-  const opening: HumanObstacle.IAperture | undefined = HumanObstacle.apertures(
+  const opening: IAutoMovieMotionHumanObstacle.IAperture | undefined = HumanObstacle.apertures(
     {
       affordances: [
         {
@@ -177,15 +169,15 @@ export function test_human_motion_core_obstacles(): void {
   );
 
   // 8. A law reads the scene from its context.
-  const man: IHumanBody = motionHumanBody("m-average");
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   let seen: readonly string[] = [];
-  const look: IHumanActionLaw<stand.IParams> = {
+  const look: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> = {
     ...stand,
     name: "survey",
-    plan: (context: IHumanActionContext<stand.IParams>): IHumanActionPlan => {
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>): IAutoMovieMotionHumanActionPlan => {
       seen = context
         .obstacles()
-        .map((obstacle: HumanObstacle.IObstacle): string => obstacle.subject);
+        .map((obstacle: IAutoMovieMotionHumanObstacle.IObstacle): string => obstacle.subject);
       return stand.plan(context);
     },
   };

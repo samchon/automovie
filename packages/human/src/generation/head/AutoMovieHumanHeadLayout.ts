@@ -1,9 +1,11 @@
+import type { IAutoMovieHumanHeadCompiled, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadLayout, IAutoMovieHumanNeckSource } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanHeadLandmarks } from "../AutoMovieHumanHeadLandmarks";
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-import type { IAutoMovieHumanHeadCompiled } from "../IAutoMovieHumanHeadCompiled";
-import type { IAutoMovieHumanHeadInputs } from "../IAutoMovieHumanHeadInputs";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import type { AutoMovieHumanNeckSource } from "../AutoMovieHumanNeckSource";
+
 
 /**
  * The head lane's anatomical layout from a pure neck generating record.
@@ -35,7 +37,7 @@ export namespace AutoMovieHumanHeadLayout {
    * @evidence contracts/performance.md#reuse-equivalent-work The same posterior point serves scale and nape placement, the mean centres the neck, and one plan serves the lane's parts and attachments.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Local coefficient arrays and compiled splines are released with the call; the returned plan retains only its own landmark and profile data.
    */
-  export function create(source: AutoMovieHumanNeckSource.IOutput, inputs: IAutoMovieHumanHeadInputs): IAutoMovieHumanHeadLayout {
+  export function create(source: IAutoMovieHumanNeckSource.IOutput, inputs: IAutoMovieHumanHeadInputs): IAutoMovieHumanHeadLayout {
     const compiled: IAutoMovieHumanHeadCompiled = AutoMovieHumanHeadLandmarks.compile();
     const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.layout(compiled, inputs, source.head, source.scale, AutoMovieHumanHeadLandmarks.NONE);
     plan.neck = { ...plan.neck, base: {

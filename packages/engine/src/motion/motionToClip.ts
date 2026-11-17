@@ -1,23 +1,12 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieTrack,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieMotionClipBridge, type IAutoMovieMotionToClip, type IAutoMovieNode, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../resolve/constants/MOTION_ROOT_NODE_ID";
 import { lowerSkeletonNodes } from "../resolve/lowerSkeletonNodes";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieMotionClipBridge } from "./IAutoMovieMotionClipBridge";
 import { sampleMotion } from "./sampleMotion";
 import { sampleTimes } from "./sampleTimes";
 
@@ -34,44 +23,7 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One sampleMotion pose and joint lookup map per bake time serve all bone tracks; root translation/rotation share the sampled poses, and track time arrays are independent outputs rather than a retained cross-clip cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns nodes, per-track time/value buffers and clip; sampled pose arrays are released after packaging, output grows with rate*duration and articulated bones, and no renderer/native handle is acquired.
  */
-export const motionToClip: (props: {
-  /** The humanoid motion to lower. */ motion: IAutoMovieMotion;
-  /** The rig the motion articulates; lowered to the returned nodes. */ skeleton: IAutoMovieSkeleton;
-  /** Optional per-bone clinical-axis remap, as {@link resolvePose} takes. */ jointAxes?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-  >;
-  /** Optional per-bone rest-frame remap, as {@link resolvePose} takes. */ restFrames?: Partial<
-    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-  >;
-  /** Bake samples per second. Defaults to `24`. */ sampleRate?: number;
-  /** Node-id prefix applied to every lowered node AND every clip channel ref (root and bones alike). Defaults to `""`: the bare single-actor naming. A multi-actor graph (see `sceneToNodes`) passes the placement prefix (e.g. `"figureA/"`) so each actor's channels drive its own subtree. */ nodePrefix?: string;
-}) => IAutoMovieMotionClipBridge = (props: {
-  /** The humanoid motion to lower. */
-  motion: IAutoMovieMotion;
-
-  /** The rig the motion articulates; lowered to the returned nodes. */
-  skeleton: IAutoMovieSkeleton;
-
-  /**
-   * Optional per-bone clinical-axis remap, as {@link resolvePose} takes; a
-   * bone's own declared axes take precedence.
-   */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional per-bone rest-frame remap, as {@link resolvePose} takes. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /** Bake samples per second. Defaults to `24`. */
-  sampleRate?: number;
-
-  /**
-   * Node-id prefix applied to every lowered node AND every clip channel ref
-   * (root and bones alike). Defaults to `""`: the bare single-actor naming. A
-   * multi-actor graph (see `sceneToNodes`) passes the placement prefix (e.g.
-   * `"figureA/"`) so each actor's channels drive its own subtree.
-   */
-  nodePrefix?: string;
-}): IAutoMovieMotionClipBridge => {
+export const motionToClip: (props: IAutoMovieMotionToClip.IProps) => IAutoMovieMotionClipBridge = (props: IAutoMovieMotionToClip.IProps): IAutoMovieMotionClipBridge => {
   const { motion, skeleton }: typeof props = props;
   const prefix: string = props.nodePrefix ?? "";
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
@@ -106,7 +58,7 @@ export const motionToClip: (props: {
     if (frame.pose.root !== null) hasRoot = true;
   }
 
-  const nodes: ReturnType<typeof lowerSkeletonNodes> = lowerSkeletonNodes({
+  const nodes: IAutoMovieNode[] = lowerSkeletonNodes({
     skeleton,
     prefix,
   });

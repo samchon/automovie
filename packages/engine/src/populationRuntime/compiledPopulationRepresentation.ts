@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieCompiledFormationLod,
-  IAutoMovieModel,
-  IAutoMovieModelLod,
-} from "@automovie/interface";
+import type { IAutoMovieCompiledPopulationRepresentation, IAutoMovieCompiledFormationLod, IAutoMovieModelLod } from "@automovie/interface";
+
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { compiledLodModelDigest } from "./compiledLodModelDigest";
@@ -33,30 +30,7 @@ import { compiledLodModelDigest } from "./compiledLodModelDigest";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Formation and instance compilers share this representation owner; tier digests are recomputed because model maps and measured radii can mutate.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fresh tier records and one radius transfer to the caller; no registry, measurement task or cache is retained.
  */
-export const compiledPopulationRepresentation: (props: {
-  /** Base model group the population prototype names. */ model: string;
-  /** Declared tiers that apply to this population, before the default. */ tiers: readonly IAutoMovieModelLod[];
-  /** Model groups keyed by the id populations and tiers name, for tier digests. */ models: ReadonlyMap<
-    string,
-    IAutoMovieModel
-  >;
-  /** Supplied root-centered radius estimate in metres keyed by model group id. */ projectionRadii: ReadonlyMap<
-    string,
-    number
-  >;
-}) => {
-  lod: IAutoMovieCompiledFormationLod[];
-  projectionRadius: number;
-} = (props: {
-  /** Base model group the population prototype names. */
-  model: string;
-  /** Declared tiers that apply to this population, before the default. */
-  tiers: readonly IAutoMovieModelLod[];
-  /** Model groups keyed by the id populations and tiers name, for tier digests. */
-  models: ReadonlyMap<string, IAutoMovieModel>;
-  /** Supplied root-centered radius estimate in metres keyed by model group id. */
-  projectionRadii: ReadonlyMap<string, number>;
-}): { lod: IAutoMovieCompiledFormationLod[]; projectionRadius: number } => {
+export const compiledPopulationRepresentation: (props: IAutoMovieCompiledPopulationRepresentation.IProps) => IAutoMovieCompiledPopulationRepresentation.IResult = (props: IAutoMovieCompiledPopulationRepresentation.IProps): IAutoMovieCompiledPopulationRepresentation.IResult => {
   const lod: IAutoMovieCompiledFormationLod[] = (
     props.tiers.length === 0
       ? [

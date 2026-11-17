@@ -1,14 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  HumanChain,
-  HumanPartner,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  touch,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPartner, HumanPerformance, HumanSignature, touch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -46,13 +38,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 4 scenarios with their bounds.
  */
 export function test_human_motion_partner_dance(): void {
-  const lead: IHumanBody = motionHumanBody("m-average");
-  const follow: IHumanBody = motionHumanBody("f-small");
+  const lead: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const follow: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
 
   // 1. It plans.
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "dance",
@@ -98,7 +90,7 @@ export function test_human_motion_partner_dance(): void {
     );
     return;
   }
-  const leading: HumanSegment.ISegment = performance.segments("a")[0]!;
+  const leading: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
   const readers = {
     a: HumanSignature.of(performance, "a", lead, 0),
     b: HumanSignature.of(performance, "b", follow, 0),
@@ -125,7 +117,7 @@ export function test_human_motion_partner_dance(): void {
     );
 
   // 4. The hold.
-  const held: HumanSegment.ISegment | undefined = performance.segments("b")[1];
+  const held: IAutoMovieMotionHumanSegment.ISegment | undefined = performance.segments("b")[1];
   if (held === undefined)
     complaints.push("the hold is not placed after the follow");
   else {

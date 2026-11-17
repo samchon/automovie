@@ -1,11 +1,6 @@
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
-import type { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
+import type { IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidMesh } from "@automovie/interface";
 import { AutoMovieSolidBodyMerge } from "./AutoMovieSolidBodyMerge";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * A solid built by merges and diffs, as trimmed faces that share their
@@ -35,124 +30,6 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBody {
-  /**
-   * One face.
-   *
-   * @evidence contracts/development/design.md#principled-representation A borrowed surface, tessellation grid and mutable trim cycles describe one body face with an optional cutter orientation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record keeps source geometry and current chart boundaries together while shared vertices remain in the body's mesh.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record validates neither grid order nor boundary correspondence, regularity or inclusive cycle ownership.
-   * @evidence contracts/development/common.md#meaningful-documentation Fields identify chart grids, cycle ownership and the optional inward cutter flag.
-   */
-  export interface IFace {
-    /** The surface. */
-    surface: IAutoMovieSolidSurface;
-
-    /** Grid stations of its tessellation, strictly increasing. */
-    stations: number[];
-
-    /** Grid phases of its tessellation, strictly increasing, one period's worth on a periodic face. */
-    phases: number[];
-
-    /** Its trim cycles. */
-    cycles: AutoMovieSolidCycle.ICycle[];
-
-    /** Original source atlas and stable body-index translation; immutable while this face is retained. */
-    sourceAtlas?: { atlas: IAutoMovieSolidAtlas; face: number; offset: number };
-
-    /** Shared source-chart tessellation boundaries; these do not trim the original analytic atlas. */
-    meshLoops?: AutoMovieSolidMesh.ILoop[];
-
-    /** Whether it is a diff's cutter, drawn facing into the cutter. */
-    inverted?: boolean;
-  }
-
-  /**
-   * The body.
-   *
-   * @evidence contracts/development/design.md#principled-representation Faces share one indexed mesh, while the original blend publications identify the surfaces later joins can use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One mutable aggregate holds assembly order and its published geometric records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type proves no manifoldness, closure or mutation safety; draw appends to the current buffers rather than resetting them.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish face, mesh and publication ownership.
-   */
-  export interface IBody {
-    /** Name in diagnostics. */
-    name: string;
-
-    /** Its faces. */
-    faces: IFace[];
-
-    /** The shared vertices (and, after {@link draw}, the triangles). */
-    mesh: AutoMovieSolidMesh.IMesh;
-
-    /** Every merge's published blend, in merge order. */
-    blends: AutoMovieSolidBlendChain.IBlend[];
-  }
-
-  /**
-   * A face to add, before it has cycles.
-   *
-   * @evidence contracts/development/design.md#principled-representation A surface and two chart grids describe a face before assembly supplies its cycles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the same surface/grid meanings as the eventual face without pretending it already owns trims.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite ordered grids and an appropriate source surface remain caller premises, not validated by the shape.
-   * @evidence contracts/development/common.md#meaningful-documentation States that grid coordinates belong to the source surface chart.
-   */
-  export interface IFaceInput {
-    /** The surface. */
-    surface: IAutoMovieSolidSurface;
-
-    /** Grid stations. */
-    stations: number[];
-
-    /** Grid phases. */
-    phases: number[];
-  }
-
-  /**
-   * One merge or diff onto the body.
-   *
-   * @evidence contracts/development/design.md#principled-representation One request names merge/diff, an existing or new part and the original join/publication grid inputs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Separates body face ownership from the join's surfaces by omitting part/host in the borrowed join request.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Valid indices, count/rows and callbacks remain caller/operator premises; the type adds no numeric fallback.
-   * @evidence contracts/development/common.md#meaningful-documentation States index versus descriptor input, column/row meaning and original callback ownership.
-   */
-  export interface IMerge {
-    /** The blend chain's name. */
-    name: string;
-
-    /** Merge or diff. */
-    kind: "merge" | "diff";
-
-    /** The part: a new face, or the index of a face already in the body (a part merged again at its other end). */
-    part: IFaceInput | number;
-
-    /** The join's seed, parameter, trace limits and widths. */
-    join: Omit<AutoMovieSolidJoin.IInput, "part" | "host">;
-
-    /** Columns of the published blend, a positive multiple of 4. */
-    count: number;
-
-    /** Grid stations of the blend face across its span, at least 1. */
-    rows: number;
-  }
-
-  /**
-   * A merge's outcome.
-   *
-   * @evidence contracts/development/design.md#principled-representation A nullable blend/join pair and ordered diagnostics report the original body operation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps failure information with the exact accepted join and publication without inferring success from empty diagnostics.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The shape does not turn a thrown callback into a returned rollback result or certify global geometry.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish nullable geometry from diagnostics.
-   */
-  export interface IMerged {
-    /** The published blend, or null when a premise broke. */
-    blend: AutoMovieSolidBlendChain.IBlend | null;
-
-    /** The join the blend spans, or null with the blend. */
-    join: AutoMovieSolidJoin.IJoin | null;
-
-    /** Every broken premise. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
 
   /**
    * A body of base faces, untrimmed.
@@ -169,10 +46,10 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Does not evaluate or rebuild surfaces; their existing objects remain the source identities.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned body owns its new containers and borrows original surface/grid data; no factory cache is retained.
    */
-  export function create(name: string, faces: IFaceInput[]): IBody {
+  export function create(name: string, faces: IAutoMovieSolidBody.IFaceInput[]): IAutoMovieSolidBody.IBody {
     return {
       name,
-      faces: faces.map((f: IFaceInput): IFace => ({ ...f, cycles: [] })),
+      faces: faces.map((f: IAutoMovieSolidBody.IFaceInput): IAutoMovieSolidBody.IFace => ({ ...f, cycles: [] })),
       mesh: AutoMovieSolidMesh.create(),
       blends: [],
     };
@@ -195,9 +72,9 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains captured cycles/maps and surfaces until dropping the atlas; the façade adds no cache.
    */
   export function atlas(
-    body: IBody,
+    body: IAutoMovieSolidBody.IBody,
     without: number = -1,
-  ): { atlas: IAutoMovieSolidAtlas; index: number[] } {
+  ): IAutoMovieSolidBody.IAtlasResult {
     return AutoMovieSolidBodyMerge.atlas(body, without);
   }
 
@@ -216,7 +93,7 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The helper preserves shared boundary indices and supplied trace reuse at their original owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful body data and returned join/blend references retain their original populations; no extra façade state survives.
    */
-  export function merge(body: IBody, input: IMerge): IMerged {
+  export function merge(body: IAutoMovieSolidBody.IBody, input: IAutoMovieSolidBody.IMerge): IAutoMovieSolidBody.IMerged {
     return AutoMovieSolidBodyMerge.merge(body, input);
   }
 
@@ -236,17 +113,17 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains appended geometry; temporary face work expires and returned open-cycle arrays belong to the caller.
    */
   export function draw(
-    body: IBody,
+    body: IAutoMovieSolidBody.IBody,
     onFailure?: (face: string, detail: string) => void,
-  ): AutoMovieSolidMesh.IOpen[][] {
-    return body.faces.map((f: IFace): AutoMovieSolidMesh.IOpen[] =>
+  ): IAutoMovieSolidMesh.IOpen[][] {
+    return body.faces.map((f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] =>
       AutoMovieSolidMesh.face(body.mesh, {
         surface: f.surface,
         stations: f.stations,
         phases: f.phases,
         domainLoops: f.meshLoops,
         loops: f.cycles.map(
-          (c: AutoMovieSolidCycle.ICycle): AutoMovieSolidMesh.ILoop => ({
+          (c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidMesh.ILoop => ({
             kind: c.kind,
             vertices: c.vertices,
             chart: c.chart,
@@ -259,55 +136,6 @@ export namespace AutoMovieSolidBody {
             : (detail: string): void => onFailure(f.surface.name, detail),
       }),
     );
-  }
-
-  /**
-   * A body as data, for a calibration (`IAutoMovieHumanBodyCalibration.bodies`):
-   * the shared boundary points, each named by the face that evaluates it and
-   * its chart point there, and each face by its chain's name with its trim
-   * cycles as indices into those points. The skin (`AutoMovieHumanBodySurfaceSolids`)
-   * makes one vertex per point, so the faces share their boundaries as the
-   * body does.
-   *
-   * @evidence contracts/development/design.md#principled-representation Renumbers shared cycle vertex indices into boundary point identities and names each evaluating chain/chart.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A serializable boundary projection omits surface callbacks and full interior tessellation buffers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves domain versus cut roles through serialization; carries inversion without proving closed topology, standalone source availability or repaired geometry.
-   * @evidence contracts/development/common.md#meaningful-documentation States chain/chart correspondence and that faces reference shared point identifiers.
-   */
-  export interface IPublished {
-    /** Name in diagnostics. */
-    name: string;
-
-    /** The shared boundary points: the chain that evaluates each, and its chart point there. */
-    points: { chain: string; chart: [number, number] }[];
-
-    /** The faces, each a chain of the calibration. */
-    faces: {
-      /** The chain's name: the face's surface name. */
-      chain: string;
-
-      /** Its trim cycles, as points. */
-      cycles: {
-        kind: AutoMovieSolidCycle.ICycle["kind"];
-        points: number[];
-        chart: [number, number][];
-      }[];
-
-      /** Original grid-side authorities, separate from actual cuts; absent in legacy publications. Same shared point IDs and this-face charts are retained. Mesh admission still requires actual domain sides and supported roles. */
-      domainLoops?: IPublished["faces"][number]["cycles"];
-
-      /** Sampling chart bounds published with domainLoops, distinct from original source ownership. Periodic phases are first/last unrepeated samples; their period remains the actual surface period. */
-      grid?: {
-        /** First/last regular sampling station, kernel mm. */
-        stations: [number, number];
-
-        /** First/last sampling phase in the source chart's actual units. */
-        phases: [number, number];
-      };
-
-      /** Whether it is a diff's cutter. */
-      inverted?: boolean;
-    }[];
   }
 
   /**
@@ -324,12 +152,12 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same mesh index reuses its earlier published identifier across all faces.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh boundary/face/chart arrays; the local index map and body reference are not retained by that projection.
    */
-  export function publish(body: IBody): IPublished {
+  export function publish(body: IAutoMovieSolidBody.IBody): IAutoMovieSolidBody.IPublished {
     /** Renumber each first-seen boundary vertex once. */
     const index: Map<number, number> = new Map();
 
     /** Detached shared-boundary point records for this publication. */
-    const points: IPublished["points"] = [];
+    const points: IAutoMovieSolidBody.IPublished["points"] = [];
 
     /** Read the original owner/chart coordinates when a boundary index first appears. */
     const point: (v: number) => number = (v: number): number => {
@@ -348,10 +176,10 @@ export namespace AutoMovieSolidBody {
     };
     /** Copy one boundary record while retaining the one shared point identity across either role. */
     const cycle: (
-      c: AutoMovieSolidMesh.ILoop,
-    ) => IPublished["faces"][number]["cycles"][number] = (
-      c: AutoMovieSolidMesh.ILoop,
-    ): IPublished["faces"][number]["cycles"][number] => ({
+      c: IAutoMovieSolidMesh.ILoop,
+    ) => IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number] = (
+      c: IAutoMovieSolidMesh.ILoop,
+    ): IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number] => ({
       kind: c.kind,
       points: c.vertices.map(point),
       chart: c.chart.map((p: [number, number]): [number, number] => [
@@ -362,10 +190,10 @@ export namespace AutoMovieSolidBody {
     return {
       name: body.name,
       points,
-      faces: body.faces.map((f: IFace): IPublished["faces"][number] => {
-        const domains: IPublished["faces"][number]["cycles"] | undefined =
+      faces: body.faces.map((f: IAutoMovieSolidBody.IFace): IAutoMovieSolidBody.IPublished["faces"][number] => {
+        const domains: IAutoMovieSolidBody.IPublished["faces"][number]["cycles"] | undefined =
           f.meshLoops?.map(cycle);
-        const grid: IPublished["faces"][number]["grid"] =
+        const grid: IAutoMovieSolidBody.IPublished["faces"][number]["grid"] =
           domains === undefined
             ? undefined
             : {
@@ -401,7 +229,7 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads current face cycles without introducing a stale query cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar without retaining the face or coordinates.
    */
-  export function kept(face: IFace, u: number, v: number): boolean {
+  export function kept(face: IAutoMovieSolidBody.IFace, u: number, v: number): boolean {
     return AutoMovieSolidBodyMerge.kept(face, u, v);
   }
 }

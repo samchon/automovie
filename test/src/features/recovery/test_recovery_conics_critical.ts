@@ -1,3 +1,4 @@
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import {
   AutoMovieRecoveryConicApproximation as C,
   approximateAutoMovieRecoveryConicsAhn as approximate,
@@ -25,29 +26,29 @@ import { nclose } from "../internal/nclose";
  */
 export function test_recovery_conics_critical(): void {
   const alpha: number = 1 / 3;
-  const controls: readonly [C.Point, C.Point, C.Point, C.Point] = [
+  const controls: readonly [IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point] = [
     [0, -1 / 27], [1 / 3, 2 / 27], [2 / 3, -4 / 27], [1, 8 / 27],
   ];
   const before: string = JSON.stringify(controls);
-  const critical: C.ICubicCriticalParameters = C.cubicCriticalParameters(controls);
+  const critical: IAutoMovieConicApproximation.ICubicCriticalParameters = C.cubicCriticalParameters(controls);
   TestValidator.equals("one regular inflection", critical.zeroCurvature.length, 1);
   TestValidator.predicate("nondyadic analytic root", nclose(critical.zeroCurvature[0]!, alpha, 1e-12));
   TestValidator.equals("regular cubic not stationary", critical.stationary.length, 0);
 
   /** Exact analytic source under an affine parameter chart; no endpoint offset is used. */
-  const source: (origin: number, width: number, height: number) => C.ICurve = (
+  const source: (origin: number, width: number, height: number) => IAutoMovieConicApproximation.ICurve = (
     origin: number,
     width: number,
     height: number,
-  ): C.ICurve => ({
+  ): IAutoMovieConicApproximation.ICurve => ({
     domain: [origin, origin + width],
     breaks: critical.zeroCurvature.map((u: number): number => origin + width * u),
     closed: false,
-    evaluate: (t: number): C.Point => {
+    evaluate: (t: number): IAutoMovieConicApproximation.Point => {
       const u: number = (t - origin) / width;
       return [u, height * (u - alpha) ** 3];
     },
-    derivative: (t: number, order: 1 | 2 | 3 | 4 | 5): C.Point => {
+    derivative: (t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point => {
       const u: number = (t - origin) / width;
       return order === 1 ? [1 / width, 3 * height * (u - alpha) ** 2 / width]
         : order === 2 ? [0, 6 * height * (u - alpha) / width ** 2]
@@ -55,11 +56,11 @@ export function test_recovery_conics_critical(): void {
     },
   });
   for (const [origin, width, height] of [[0, 1, 1], [7, 4, 1], [0, 1, 1e-10]] as const) {
-    const curve: C.ICurve = source(origin, width, height);
-    const beforeJet: C.Point = curve.derivative(curve.breaks[0]!, 2);
-    const fitted: C.IResult = approximate(curve, { toleranceMm: 0.001, maximumArcs: 128, maximumDepth: 12 });
+    const curve: IAutoMovieConicApproximation.ICurve = source(origin, width, height);
+    const beforeJet: IAutoMovieConicApproximation.Point = curve.derivative(curve.breaks[0]!, 2);
+    const fitted: IAutoMovieConicApproximation.IResult = approximate(curve, { toleranceMm: 0.001, maximumArcs: 128, maximumDepth: 12 });
     TestValidator.equals("preprocessed inflection complete", fitted.status, "complete");
-    TestValidator.predicate("finite positive conics", fitted.arcs.length >= 2 && fitted.arcs.every((arc: C.IArc): boolean => Number.isFinite(arc.weight) && arc.weight > 0));
+    TestValidator.predicate("finite positive conics", fitted.arcs.length >= 2 && fitted.arcs.every((arc: IAutoMovieConicApproximation.IArc): boolean => Number.isFinite(arc.weight) && arc.weight > 0));
     let previous: number = origin;
     for (const arc of fitted.arcs) {
       TestValidator.predicate("no missing source interval", nclose(arc.domain[0], previous, 0));
@@ -67,34 +68,34 @@ export function test_recovery_conics_critical(): void {
       previous = arc.domain[1];
     }
     TestValidator.predicate("covers full original domain", nclose(previous, origin + width, 0));
-    const afterJet: C.Point = curve.derivative(curve.breaks[0]!, 2);
+    const afterJet: IAutoMovieConicApproximation.Point = curve.derivative(curve.breaks[0]!, 2);
     TestValidator.predicate("source second jet unchanged", nclose(beforeJet[0], afterJet[0], 0) && nclose(beforeJet[1], afterJet[1], 0));
     TestValidator.equals("sampled fit not certified", fitted.certified, false);
   }
 
-  const arch: C.ICubicCriticalParameters = C.cubicCriticalParameters([
+  const arch: IAutoMovieConicApproximation.ICubicCriticalParameters = C.cubicCriticalParameters([
     [-2 / 3, 1 / 2], [-2 / 3, -1 / 6], [2 / 3, -1 / 6], [2 / 3, 1 / 2],
   ]);
   TestValidator.equals("arch regular curvature", arch.zeroCurvature.length, 0);
   TestValidator.predicate("arch affine extremum", arch.affineCritical.some((t: number): boolean => nclose(t, 0.5, 1e-12)));
-  const cusp: C.ICubicCriticalParameters = C.cubicCriticalParameters([
+  const cusp: IAutoMovieConicApproximation.ICubicCriticalParameters = C.cubicCriticalParameters([
     [-1 / 24, 1 / 8], [1 / 24, -1 / 24], [-1 / 24, -1 / 24], [1 / 24, 1 / 8],
   ]);
   TestValidator.predicate("double curvature root retained", cusp.zeroCurvature.some((t: number): boolean => nclose(t, 0.5, 1e-12)));
   TestValidator.predicate("stationary velocity root retained", cusp.stationary.some((t: number): boolean => nclose(t, 0.5, 1e-12)));
-  const line: C.ICubicCriticalParameters = C.cubicCriticalParameters([[0, 0], [1, 1], [2, 2], [3, 3]]);
+  const line: IAutoMovieConicApproximation.ICubicCriticalParameters = C.cubicCriticalParameters([[0, 0], [1, 1], [2, 2], [3, 3]]);
   TestValidator.equals("line curvature continuum", line.collinear, true);
   TestValidator.equals("line no isolated curvature roots", line.zeroCurvature.length, 0);
   TestValidator.equals("line no stationary source", line.stationary.length, 0);
-  const constant: C.ICubicCriticalParameters = C.cubicCriticalParameters([[2, 3], [2, 3], [2, 3], [2, 3]]);
+  const constant: IAutoMovieConicApproximation.ICubicCriticalParameters = C.cubicCriticalParameters([[2, 3], [2, 3], [2, 3], [2, 3]]);
   TestValidator.equals("constant no fabricated isolated roots", constant.breaks.length, 0);
   TestValidator.predicate("constant continuum explained", constant.diagnostics.some((s: string): boolean => s.includes("every parameter is stationary")));
 
   /** Map all four coefficients without changing parameterization. */
-  const transform: (point: C.Point, mode: number) => C.Point = (point: C.Point, mode: number): C.Point =>
+  const transform: (point: IAutoMovieConicApproximation.Point, mode: number) => IAutoMovieConicApproximation.Point = (point: IAutoMovieConicApproximation.Point, mode: number): IAutoMovieConicApproximation.Point =>
     mode === 0 ? [-point[1] + 2000, point[0] - 1000] : mode === 1 ? [5 * point[0], 5 * point[1]] : [point[0], -point[1]];
   for (const mode of [0, 1, 2]) {
-    const transformed: C.ICubicCriticalParameters = C.cubicCriticalParameters([
+    const transformed: IAutoMovieConicApproximation.ICubicCriticalParameters = C.cubicCriticalParameters([
       transform(controls[0], mode), transform(controls[1], mode), transform(controls[2], mode), transform(controls[3], mode),
     ]);
     TestValidator.predicate("critical root frame invariance", transformed.zeroCurvature.some((t: number): boolean => nclose(t, alpha, 1e-10)));

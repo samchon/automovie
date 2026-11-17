@@ -1,8 +1,4 @@
-export * from "./IAutoMovieDrawingDesignIndex";
-export * from "./IAutoMovieDrawingEdge";
-export * from "./IAutoMovieDrawingFeatureResolution";
-export * from "./IAutoMovieDrawingTriangle";
-export * from "./IAutoMovieOpeningArc";
+
 export * from "./autoMovieBoundaryFacePoint";
 export * from "./autoMovieBoundaryShellTriangles";
 export * from "./autoMovieDrawingCellSection";

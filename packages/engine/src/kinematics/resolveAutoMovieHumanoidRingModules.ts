@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieResolveHumanoidRingModules, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 
@@ -39,29 +40,29 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; the returned modules belong to the caller.
  */
 export function resolveAutoMovieHumanoidRingModules(
-  bones: readonly resolveAutoMovieHumanoidRingModules.IBone[],
-): resolveAutoMovieHumanoidRingModules.IModule[] {
-  const byName: Map<string, resolveAutoMovieHumanoidRingModules.IBone> =
+  bones: readonly IAutoMovieResolveHumanoidRingModules.IBone[],
+): IAutoMovieResolveHumanoidRingModules.IModule[] {
+  const byName: Map<string, IAutoMovieResolveHumanoidRingModules.IBone> =
     new Map();
-  const children: Map<string, resolveAutoMovieHumanoidRingModules.IBone[]> =
+  const children: Map<string, IAutoMovieResolveHumanoidRingModules.IBone[]> =
     new Map();
   for (const bone of bones) {
     byName.set(bone.bone, bone);
     if (bone.parent !== null)
       children.set(bone.parent, [...(children.get(bone.parent) ?? []), bone]);
   }
-  const boneAt = (name: string): resolveAutoMovieHumanoidRingModules.IBone => {
-    const bone: resolveAutoMovieHumanoidRingModules.IBone | undefined =
+  const boneAt = (name: string): IAutoMovieResolveHumanoidRingModules.IBone => {
+    const bone: IAutoMovieResolveHumanoidRingModules.IBone | undefined =
       byName.get(name);
     if (bone === undefined)
       throw new Error(`Missing ring module skeleton bone: ${name}`);
     return bone;
   };
   const at = (
-    bone: resolveAutoMovieHumanoidRingModules.IBone,
+    bone: IAutoMovieResolveHumanoidRingModules.IBone,
   ): IAutoMovieVector3 => vector(bone.position);
   const average = (
-    list: readonly resolveAutoMovieHumanoidRingModules.IBone[],
+    list: readonly IAutoMovieResolveHumanoidRingModules.IBone[],
   ): IAutoMovieVector3 => {
     if (list.length === 0)
       throw new Error("A ring module requires joint endpoints");
@@ -69,10 +70,10 @@ export function resolveAutoMovieHumanoidRingModules(
     for (const bone of list) centre = Vector3.add(centre, at(bone));
     return Vector3.scale(centre, 1 / list.length);
   };
-  const modules: resolveAutoMovieHumanoidRingModules.IModule[] = [];
+  const modules: IAutoMovieResolveHumanoidRingModules.IModule[] = [];
   const drawn: Set<string> = new Set();
   const add = (
-    bone: resolveAutoMovieHumanoidRingModules.IBone,
+    bone: IAutoMovieResolveHumanoidRingModules.IBone,
     sections: ISection[],
     axis: IAutoMovieVector3,
     breadth: IAutoMovieVector3 | null,
@@ -104,7 +105,7 @@ export function resolveAutoMovieHumanoidRingModules(
       breadth,
       pole,
       rings: sections.map(
-        (ring: ISection): resolveAutoMovieHumanoidRingModules.IRing => ({
+        (ring: ISection): IAutoMovieResolveHumanoidRingModules.IRing => ({
           ...ring,
           points: Array.from(
             { length: SIDES },
@@ -127,11 +128,11 @@ export function resolveAutoMovieHumanoidRingModules(
 
   // Shared horizontal boundaries keep the rest torso's adjoining modules
   // aligned.
-  const hips: resolveAutoMovieHumanoidRingModules.IBone = boneAt("hips");
-  const spine: resolveAutoMovieHumanoidRingModules.IBone = boneAt("spine");
-  const chest: resolveAutoMovieHumanoidRingModules.IBone = boneAt("chest");
-  const neck: resolveAutoMovieHumanoidRingModules.IBone = boneAt("neck");
-  const head: resolveAutoMovieHumanoidRingModules.IBone = boneAt("head");
+  const hips: IAutoMovieResolveHumanoidRingModules.IBone = boneAt("hips");
+  const spine: IAutoMovieResolveHumanoidRingModules.IBone = boneAt("spine");
+  const chest: IAutoMovieResolveHumanoidRingModules.IBone = boneAt("chest");
+  const neck: IAutoMovieResolveHumanoidRingModules.IBone = boneAt("neck");
+  const head: IAutoMovieResolveHumanoidRingModules.IBone = boneAt("head");
   const span = (left: string, right: string, floor: number): number =>
     Math.max(
       floor,
@@ -219,16 +220,16 @@ export function resolveAutoMovieHumanoidRingModules(
   add(neck, neckRings, UP, null, null);
 
   for (const side of ["left", "right"] as const) {
-    const hand: resolveAutoMovieHumanoidRingModules.IBone = boneAt(
+    const hand: IAutoMovieResolveHumanoidRingModules.IBone = boneAt(
       `${side}Hand`,
     );
-    const roots: resolveAutoMovieHumanoidRingModules.IBone[] = [
+    const roots: IAutoMovieResolveHumanoidRingModules.IBone[] = [
       "Index",
       "Middle",
       "Ring",
       "Little",
     ].map(
-      (digit: string): resolveAutoMovieHumanoidRingModules.IBone =>
+      (digit: string): IAutoMovieResolveHumanoidRingModules.IBone =>
         boneAt(`${side}${digit}Proximal`),
     );
     // The palm's axis aims at the mean of the finger roots and its end
@@ -241,7 +242,7 @@ export function resolveAutoMovieHumanoidRingModules(
       throw new Error(`The palm of ${hand.bone} has no length to its fingers`);
     const farthest: number = Math.max(
       ...roots.map(
-        (root: resolveAutoMovieHumanoidRingModules.IBone): number =>
+        (root: IAutoMovieResolveHumanoidRingModules.IBone): number =>
           Vector3.dot(Vector3.subtract(at(root), at(hand)), toward) / reach,
       ),
     );
@@ -270,19 +271,19 @@ export function resolveAutoMovieHumanoidRingModules(
       null,
     );
 
-    const subtalar: resolveAutoMovieHumanoidRingModules.IBone = boneAt(
+    const subtalar: IAutoMovieResolveHumanoidRingModules.IBone = boneAt(
       `${side}Subtalar`,
     );
-    const midfoot: resolveAutoMovieHumanoidRingModules.IBone = boneAt(
+    const midfoot: IAutoMovieResolveHumanoidRingModules.IBone = boneAt(
       `${side}Midfoot`,
     );
-    const toes: resolveAutoMovieHumanoidRingModules.IBone[] =
+    const toes: IAutoMovieResolveHumanoidRingModules.IBone[] =
       children.get(midfoot.bone) ?? [];
     const toeCentre: IAutoMovieVector3 = average(toes);
     const footWidth: number = Math.max(
       subtalar.radius,
       ...toes.map(
-        (toe: resolveAutoMovieHumanoidRingModules.IBone): number =>
+        (toe: IAutoMovieResolveHumanoidRingModules.IBone): number =>
           Math.abs(toe.position[2] - toeCentre.z) + toe.radius,
       ),
     );
@@ -318,10 +319,10 @@ export function resolveAutoMovieHumanoidRingModules(
       bone.bone === "atlas"
     )
       continue;
-    const next: resolveAutoMovieHumanoidRingModules.IBone | undefined = (
+    const next: IAutoMovieResolveHumanoidRingModules.IBone | undefined = (
       children.get(bone.bone) ?? []
     ).find(
-      (child: resolveAutoMovieHumanoidRingModules.IBone): boolean =>
+      (child: IAutoMovieResolveHumanoidRingModules.IBone): boolean =>
         child.bone !== "jaw" && !child.bone.endsWith("Eye"),
     );
     const end: readonly [number, number, number] | undefined =
@@ -355,7 +356,7 @@ export function resolveAutoMovieHumanoidRingModules(
 }
 
 /** A section before its points: centre and the two half dimensions. */
-type ISection = Omit<resolveAutoMovieHumanoidRingModules.IRing, "points">;
+type ISection = Omit<IAutoMovieResolveHumanoidRingModules.IRing, "points">;
 
 /** A position tuple as a vector. */
 const vector = (
@@ -390,45 +391,3 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /** The lateral axis of the Human frame, shared by both sides. */
 const LEFT: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-
-/**
- * The skeleton input and the module records.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the input joint and the two output records; each member states its frame, unit and meaning.
- * @evidence contracts/development/design.md#principled-representation A module is its ring stack with the frame that generated it and an optional closing pole; a ring keeps both its analytic form (centre, half dimensions) and its eight points, which the mesh and the hull read. The two nullable members name a real absence: no breadth axis, no pole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `resolveAutoMovieHumanoidRingModules`; the viewer's polygon drawing and the Human physical profile read every member.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast. `IBone` is the structural shape of a generated rest joint, declared here because the engine cannot import the viewer's or the Human's record.
- */
-export namespace resolveAutoMovieHumanoidRingModules {
-  /** One rest joint and the segment leaving it. */
-  export interface IBone {
-    /** Joint identity. */ bone: string;
-    /** Parent identity, or null at the root. */ parent: string | null;
-    /** Rest joint centre, Human frame metres. */ position: readonly [
-      number,
-      number,
-      number,
-    ];
-    /** Leaf segment endpoint, metres; null when a child ends the segment. */ tip:
-      | readonly [number, number, number]
-      | null;
-    /** Positive girth radius of the segment, metres. */ radius: number;
-  }
-
-  /** One section of a module. */
-  export interface IRing {
-    /** Centre, Human frame metres. */ centre: IAutoMovieVector3;
-    /** Half dimension along the module's first in-plane axis, metres. */ depth: number;
-    /** Half dimension along its second in-plane axis, metres. */ breadth: number;
-    /** The ring's points, counter clockwise about the module axis, Human frame metres. */ points: IAutoMovieVector3[];
-  }
-
-  /** One rigid module. */
-  export interface IModule {
-    /** The joint whose segment this module is. */ bone: string;
-    /** The direction the rings are stacked along; not a unit. */ axis: IAutoMovieVector3;
-    /** The direction of the rings' breadth, or null for the default frame whose depth axis is forward. */ breadth: IAutoMovieVector3 | null;
-    /** The stacked sections, first to last along the axis. */ rings: IRing[];
-    /** The point closing the last ring, or null for a flat end. */ pole: IAutoMovieVector3 | null;
-  }
-}

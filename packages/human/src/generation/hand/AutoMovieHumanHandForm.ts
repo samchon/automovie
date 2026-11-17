@@ -1,14 +1,18 @@
-import type { IAutoMovieHumanHandClear } from "./IAutoMovieHumanHandClear";
-import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanHandStarField } from "./IAutoMovieHumanHandStarField";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandClear, IAutoMovieHumanHandDigit, IAutoMovieHumanHandForm, IAutoMovieHumanHandStarField } from "@automovie/interface";
+
+
+
+
+
+
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandStar } from "./AutoMovieHumanHandStar";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanHandWeb } from "./AutoMovieHumanHandWeb";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, dot, norm, unit, smooth, softMax, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { star, starPoint, wholeSkin, palmSkin, knuckle, palmPoint }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
 const { digit, lineTangent }: typeof AutoMovieHumanHandDigitLaw = AutoMovieHumanHandDigitLaw;
@@ -48,7 +52,7 @@ export namespace AutoMovieHumanHandForm {
    * across the hand toward its back, the star's the other way.
    */
   export function omega(): number {
-    const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
+    const prior: IAutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
     const t: Vec3 = unit([
       prior.arm.lower[0]!,
       prior.arm.lower[1]!,
@@ -67,7 +71,7 @@ export namespace AutoMovieHumanHandForm {
 
   /** The hand. */
   function make(): IAutoMovieHumanHandForm {
-    const prior: AutoMovieHumanArmPrior.IHandPrior =
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
     const whole: IAutoMovieHumanHandStarField = star(prior.whole);
     const palm: IAutoMovieHumanHandStarField = star(prior.palm);
@@ -76,7 +80,7 @@ export namespace AutoMovieHumanHandForm {
 
     // The arm's last ring: the palm's star and the thenar's ellipse, which cross
     // at the branch's two ends. Each keeps its own skin outside the other.
-    const thenar: AutoMovieHumanArmPrior.IThenar = prior.thenar;
+    const thenar: IAutoMovieHumanArmPrior.IThenar = prior.thenar;
     const inside = (b: number, c: number): number =>
       ((b - thenar.b) / thenar.width) ** 2 + ((c - thenar.c) / thenar.depth) ** 2 - 1;
     const ends: number[] = [];
@@ -261,10 +265,10 @@ export namespace AutoMovieHumanHandForm {
       return (lo + hi) / 2;
     };
     const back: number[] = prior.webs.map(
-      (w: AutoMovieHumanArmPrior.IWeb): number => column(w.b, 0, Math.PI),
+      (w: IAutoMovieHumanArmPrior.IWeb): number => column(w.b, 0, Math.PI),
     );
     const front: number[] = prior.webs.map(
-      (w: AutoMovieHumanArmPrior.IWeb): number =>
+      (w: IAutoMovieHumanArmPrior.IWeb): number =>
         column(w.b, Math.PI, TWO_PI),
     );
     const arcs: [number, number][][] = [
@@ -281,7 +285,7 @@ export namespace AutoMovieHumanHandForm {
       [[back[2]!, front[2]!]],
     ];
     const digits: IAutoMovieHumanHandDigit[] = prior.digits.map(
-      (d: AutoMovieHumanArmPrior.IDigit, i: number): IAutoMovieHumanHandDigit =>
+      (d: IAutoMovieHumanArmPrior.IDigit, i: number): IAutoMovieHumanHandDigit =>
         i === 0
           ? digit(d, rootOf(d.order, arcs[0]!, armRing), {
               centre: [prior.branch, thenar.b, thenar.c],
@@ -321,7 +325,7 @@ export namespace AutoMovieHumanHandForm {
       unit(sub(fingerRing(t), palmPoint(palm, 1 - OUTWARD_STEP / toward, -t)));
     const thumbCrest: IAutoMovieHumanHandClear = crestOf(armRing, armOutward, palmar, dorsal);
     const crests: IAutoMovieHumanHandClear[] = prior.webs.map(
-      (_: AutoMovieHumanArmPrior.IWeb, i: number): IAutoMovieHumanHandClear =>
+      (_: IAutoMovieHumanArmPrior.IWeb, i: number): IAutoMovieHumanHandClear =>
         crestOf(fingerRing, palmOutward, back[i]!, front[i]!),
     );
     const webs: IAutoMovieHumanHandClear[][] = [[thumbCrest], [crests[0]!], [crests[0]!, crests[1]!], [crests[1]!, crests[2]!], [crests[2]!]];
@@ -333,7 +337,7 @@ export namespace AutoMovieHumanHandForm {
     // The palm from past the thumb's web to the finger roots, each section the
     // palm's own skin: every point to clear has the section's nearest point past
     // it along the hand.
-    const section: AutoMovieHumanArmPrior.ISection = prior.palmSection;
+    const section: IAutoMovieHumanArmPrior.ISection = prior.palmSection;
     const order: number = section.order;
     const ringOf = (d: number): Vec3[] =>
       Array.from({ length: order }, (_: unknown, m: number): Vec3 =>
@@ -378,7 +382,7 @@ export namespace AutoMovieHumanHandForm {
         {
           parent: "hand.{side}.1",
           splits: prior.digits.slice(1).map(
-            (d: AutoMovieHumanArmPrior.IDigit, i: number): IAutoMovieHumanHandForm.ISplit => ({
+            (d: IAutoMovieHumanArmPrior.IDigit, i: number): IAutoMovieHumanHandForm.ISplit => ({
               child: d.name,
               arcs: arcs[i + 1]!,
             }),

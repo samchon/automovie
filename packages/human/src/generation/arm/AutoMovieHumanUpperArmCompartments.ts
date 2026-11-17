@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
+import type { IAutoMovieHumanArmSpanEnd, IAutoMovieHumanArmPiece } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
 
@@ -46,7 +49,7 @@ export namespace AutoMovieHumanUpperArmCompartments {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } {
+  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmSpanEnd {
     const s: number = inputs.axis.upper((1 - SUPRACONDYLAR) * inputs.bones.humerus);
 
     return { row: AutoMovieHumanArmRows.row("ridge", s), knot: [s, SUPRACONDYLAR_GIRTH * inputs.tapes.elbow] };

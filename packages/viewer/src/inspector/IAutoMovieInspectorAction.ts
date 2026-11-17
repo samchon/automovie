@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieCapturePlanRequest,
-  IAutoMovieInspectionRequest,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionRequest } from "@automovie/interface";
+
 
 /**
  * One edit of the inspector's request, as a control dispatches it to `reduceAutoMovieInspectorState`.

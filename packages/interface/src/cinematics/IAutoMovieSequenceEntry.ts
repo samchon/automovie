@@ -1,5 +1,5 @@
-import { IAutoMovieTransition } from "./IAutoMovieTransition";
-import { IAutoMovieTrim } from "./IAutoMovieTrim";
+import type { IAutoMovieTransition } from "./IAutoMovieTransition";
+import type { IAutoMovieTrim } from "./IAutoMovieTrim";
 
 /**
  * One shot's placement in a sequence: the shot it plays, an optional trim, and

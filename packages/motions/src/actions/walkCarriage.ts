@@ -1,6 +1,6 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+
 import { HumanArmSwing } from "../posture/HumanArmSwing";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The arm carriage of a stepping take (`HumanArmSwing.carriage`), read over
@@ -32,10 +32,10 @@ export namespace walkCarriage {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     events: readonly { name: string; seconds: number }[],
     duration: number,
-    posture: (seconds: number) => IHumanPosture,
+    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
   ): Record<"left" | "right", number> {
     const left: number[] = events
       .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))

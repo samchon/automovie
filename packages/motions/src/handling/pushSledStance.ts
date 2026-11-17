@@ -1,16 +1,9 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion } from "@automovie/engine";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -80,15 +73,15 @@ export namespace pushSledStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function solved(
-    body: IHumanBody,
-    walk: IHumanActionPlan,
+    body: IAutoMovieMotionHumanBody,
+    walk: IAutoMovieMotionHumanActionPlan,
     settle: number,
-    feet: IHumanEntryState["feet"],
-    handles: Record<HumanHand.Side, HumanHand.IFrame>,
+    feet: IAutoMovieMotionHumanEntryState["feet"],
+    handles: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHand.IFrame>,
     lean: number,
     incline?: number,
   ): IStance {
-    const standing: IHumanPosture = walk.posture(settle);
+    const standing: IAutoMovieMotionHumanPosture = walk.posture(settle);
 
     // The floor under the entry's lower sole, and how far the walk raises
     // the body above where it takes the handles, read at the display rate.
@@ -96,7 +89,7 @@ export namespace pushSledStance {
     let rise: number = 0;
     for (let t: number = settle; t <= walk.duration; t += 1 / RATE)
       rise = Math.max(rise, walk.posture(t).root.y - standing.root.y);
-    const asked: Record<HumanHand.Side, IAutoMovieVector3> = {
+    const asked: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = {
       left: HumanHand.reach(body, "left", "grip", handles.left, "fist").point,
       right: HumanHand.reach(body, "right", "grip", handles.right, "fist")
         .point,
@@ -162,12 +155,12 @@ export namespace pushSledStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function floor(
-    body: IHumanBody,
-    feet: IHumanEntryState["feet"],
+    body: IAutoMovieMotionHumanBody,
+    feet: IAutoMovieMotionHumanEntryState["feet"],
   ): number {
     return Math.min(
       ...(["left", "right"] as const).map(
-        (foot: HumanHand.Side): number =>
+        (foot: IAutoMovieMotionHumanHand.Side): number =>
           feet[foot].ankle.y +
           Quaternion.rotateVector(
             feet[foot].rotation,

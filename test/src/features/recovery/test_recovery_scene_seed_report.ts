@@ -1,10 +1,6 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
-import {
-  type IAutoMovieRecoveryCameraSceneEstimate,
-  type IAutoMovieRecoveryMapJointFit,
-  type IAutoMovieRecoverySceneWork,
-  createRecoverySceneSeedReportObserver,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryCameraSceneEstimate, IAutoMovieRecoveryMapJointFit, IAutoMovieRecoverySceneWork, IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+
+import { createRecoverySceneSeedReportObserver } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**

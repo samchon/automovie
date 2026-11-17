@@ -1,8 +1,5 @@
-import {
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieModelPartPoints, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { autoMovieModelPartMatrices } from "./autoMovieModelPartMatrices";
 import { transformAutoMovieDrawingPoint } from "./drawing/transformAutoMovieDrawingPoint";
@@ -34,15 +31,9 @@ import { Matrix4 } from "./math/Matrix4";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Recomputed per call from the given model; the subject describer memoizes the result per model for one description pass, because the artifact is the caller's value.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolved pose and tessellations are released on return; the caller owns the returned map and list, each bounded by the model's vertex count and sharing the same point objects.
  */
-export const autoMovieModelPartPoints: (model: IAutoMovieModel) => {
-  parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]>;
-  all: IAutoMovieVector3[];
-} = (
+export const autoMovieModelPartPoints: (model: IAutoMovieModel) => IAutoMovieModelPartPoints.IResult = (
   model: IAutoMovieModel,
-): {
-  parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]>;
-  all: IAutoMovieVector3[];
-} => {
+): IAutoMovieModelPartPoints.IResult => {
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
     autoMovieModelPartMatrices(model);
   const parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]> = new Map();

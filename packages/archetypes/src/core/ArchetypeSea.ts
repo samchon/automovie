@@ -1,14 +1,6 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieRandom,
-  Quaternion,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-} from "@automovie/engine";
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieRandom, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieGravity, Quaternion, createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+
 
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";

@@ -1,12 +1,5 @@
-import {
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisOutcome,
-  IAutoMovieAnalysisRun,
-  IAutoMovieAnalysisSample,
-  IAutoMovieAnalysisWarning,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieAnalysisMetric, IAutoMovieAnalysisOutcome, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
@@ -44,10 +37,10 @@ import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
  */
 export const validateAutoMovieAnalysisRunContents: (
   run: Omit<IAutoMovieAnalysisRun, "digest">,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   run: Omit<IAutoMovieAnalysisRun, "digest">,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const root: string = "$input";
   if (run.version !== 1)
@@ -242,11 +235,11 @@ export const validateAutoMovieAnalysisRunContents: (
 const validateMetric: (
   metric: IAutoMovieAnalysisMetric,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   metric: IAutoMovieAnalysisMetric,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (metric.value === null) {
     if (metric.status !== "unsupported" && metric.status !== "not-run")

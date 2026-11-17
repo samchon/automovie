@@ -1,8 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionFill } from "@automovie/interface";
+import type { IAutoMovieConstructionRealization, IAutoMovieConstructionFill } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -23,16 +21,16 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  */
 export function test_construction_fill(): void {
   const failures: string[] = [];
-  const realize = (fills: IAutoMovieConstructionFill[]): AutoMovieConstructionRealization.IRealization =>
+  const realize = (fills: IAutoMovieConstructionFill[]): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made.fill", root: ConstructionShapes.assembly(1, "left"), fills }, { chord: 1e-4 });
-  const plain: AutoMovieConstructionRealization.IRealization = realize([]);
+  const plain: IAutoMovieConstructionRealization.IRealization = realize([]);
   const p: number[] = plain.mesh.positions;
   const v: number = Math.floor(p.length / 6);
   const point: [number, number, number] = [p[3 * v]!, p[3 * v + 1]!, p[3 * v + 2]!];
   const radius: number = 0.005;
 
   // 1. A fill on the skin.
-  const filled: AutoMovieConstructionRealization.IRealization = realize([{ point, radius }]);
+  const filled: IAutoMovieConstructionRealization.IRealization = realize([{ point, radius }]);
   if (filled.diagnostics.length !== 0) failures.push(`fill on the skin: diagnostics ${ConstructionRead.diagnostics(filled)}`);
   if (filled.mesh.indices.length !== plain.mesh.indices.length || filled.mesh.indices.some((x: number, k: number): boolean => x !== plain.mesh.indices[k])) failures.push("fill on the skin: the indices changed");
   let moved: number = 0;
@@ -46,7 +44,7 @@ export function test_construction_fill(): void {
   if (moved === 0) failures.push("fill on the skin: no vertex moved");
 
   // 2. A fill off the skin.
-  const off: AutoMovieConstructionRealization.IRealization = realize([{ point: [point[0] + 0.1, point[1], point[2]], radius }]);
+  const off: IAutoMovieConstructionRealization.IRealization = realize([{ point: [point[0] + 0.1, point[1], point[2]], radius }]);
   if (off.diagnostics.length !== 1 || off.diagnostics[0]!.contract !== "fill") failures.push(`fill off the skin: diagnostics ${ConstructionRead.diagnostics(off)}, expected one fill`);
   if (off.mesh.positions.some((x: number, k: number): boolean => x !== p[k])) failures.push("fill off the skin: the skin changed");
 

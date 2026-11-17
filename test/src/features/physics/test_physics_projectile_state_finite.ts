@@ -1,4 +1,5 @@
-import { IAutoMovieProjectile, projectileAt } from "@automovie/engine";
+import type { IAutoMovieProjectile } from "@automovie/interface";
+import { projectileAt } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

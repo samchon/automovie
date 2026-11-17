@@ -1,6 +1,5 @@
+import type { IAutoMovieCurve64, IAutoMovieCurveAssembly64, IAutoMovieCurveParentContext, IAutoMovieGenerateCurveAssembly64 } from "@automovie/interface";
 import { AutoMovieCurveParentContext } from "./AutoMovieCurveParentContext";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
-import type { IAutoMovieCurveAssembly64 as A } from "./IAutoMovieCurveAssembly64";
 
 /**
  * Construct caller-defined regions after their incoming boundary operators are published, retaining each concrete factory result. A thrown factory/publication failure aborts without returning a partial assembly; callback side effects remain the caller's responsibility.
@@ -16,23 +15,14 @@ import type { IAutoMovieCurveAssembly64 as A } from "./IAutoMovieCurveAssembly64
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each factory result and operator is reused by later dependents within this invocation; no graph result is cached across invocations.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pending entries are removed after success; completed maps/context transfer to the caller. On failure local maps become collectible, while externally retained callback effects are outside this function.
  */
-export function generateAutoMovieCurveAssembly64<T extends A.Result>(props: {
-  /** Parent-relative rigid frames, with every parent appearing before its child. */
-  frames: readonly C.Frame[];
-
-  /** Directed named boundaries whose owner and consumer must each have a factory. */
-  edges: readonly C.Edge[];
-
-  /** Region callbacks retaining their concrete generated result type. */
-  factories: readonly A.Factory<T>[];
-}): A.Output<T> {
-  const context: AutoMovieCurveParentContext = new AutoMovieCurveParentContext(
+export function generateAutoMovieCurveAssembly64<T extends IAutoMovieCurveAssembly64.Result>(props: IAutoMovieGenerateCurveAssembly64.IProps<T>): IAutoMovieCurveAssembly64.Output<T> {
+  const context: IAutoMovieCurveParentContext = new AutoMovieCurveParentContext(
     props.frames,
     props.edges,
   );
-  const pending: Map<string, A.Factory<T>> = new Map();
+  const pending: Map<string, IAutoMovieCurveAssembly64.Factory<T>> = new Map();
   const regions: Map<string, T> = new Map();
-  const operators: Map<string, C.Operator> = new Map();
+  const operators: Map<string, IAutoMovieCurve64.Operator> = new Map();
   for (const factory of props.factories) {
     if (!factory.region || pending.has(factory.region))
       throw new Error("Unique regional factories required");
@@ -44,27 +34,27 @@ export function generateAutoMovieCurveAssembly64<T extends A.Result>(props: {
   while (pending.size !== 0) {
     let progressed: boolean = false;
     for (const [name, factory] of pending) {
-      const incoming: readonly C.Edge[] = props.edges.filter(
-        (edge: C.Edge): boolean => edge.consumerRegion === name,
+      const incoming: readonly IAutoMovieCurve64.Edge[] = props.edges.filter(
+        (edge: IAutoMovieCurve64.Edge): boolean => edge.consumerRegion === name,
       );
-      if (!incoming.every((edge: C.Edge): boolean => operators.has(edge.id)))
+      if (!incoming.every((edge: IAutoMovieCurve64.Edge): boolean => operators.has(edge.id)))
         continue;
-      const upstream: Map<string, C.Boundary> = new Map();
+      const upstream: Map<string, IAutoMovieCurve64.Boundary> = new Map();
       for (const edge of incoming)
         upstream.set(
           edge.id,
           context.bind(name, edge.consumerBone, operators.get(edge.id)!),
         );
       const generated: T = factory.construct(context, upstream);
-      const outgoing: readonly C.Edge[] = props.edges.filter(
-        (edge: C.Edge): boolean => edge.ownerRegion === name,
+      const outgoing: readonly IAutoMovieCurve64.Edge[] = props.edges.filter(
+        (edge: IAutoMovieCurve64.Edge): boolean => edge.ownerRegion === name,
       );
       if (generated.boundaries.length !== outgoing.length)
         throw new Error(
           "A regional factory must publish every owned boundary exactly once",
         );
       for (const boundary of generated.boundaries) {
-        const operator: C.Operator = context.publish(
+        const operator: IAutoMovieCurve64.Operator = context.publish(
           name,
           boundary.bone,
           boundary.value,

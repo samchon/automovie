@@ -1,7 +1,5 @@
-import {
-  IAutoMovieCompiledFormation,
-  IAutoMovieModel,
-} from "@automovie/interface";
+import { type IAutoMovieFormationMemberExtent, IAutoMovieCompiledFormation, IAutoMovieModel } from "@automovie/interface";
+
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { computeModelRestExtentY } from "./computeModelRestExtentY";
@@ -26,7 +24,7 @@ import { MIN_MEASURED_SUBJECT_HEIGHT } from "./constants/MIN_MEASURED_SUBJECT_HE
 export function formationMemberExtent(
   formation: Pick<IAutoMovieCompiledFormation, "model">,
   models: readonly IAutoMovieModel[] | undefined,
-): { min: number; max: number } {
+): IAutoMovieFormationMemberExtent.IResult {
   const id: string = productionRuntimeModelId(formation.model);
   const model: IAutoMovieModel | undefined = (models ?? []).find(
     (candidate: IAutoMovieModel): boolean => candidate.id === id,

@@ -1,9 +1,5 @@
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+
 
 /**
  * The colliders of an archetype: one solid per primitive part, in the model's space, in the shape vocabulary the engine's contact queries read (`IAutoMoviePhysicalProfile.IShape`).
@@ -54,7 +50,7 @@ export namespace ArchetypeShapes {
           rotation: part.transform?.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
         },
       };
-      const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+      const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
       switch (shape.type) {
         case "box":
           shapes.push({

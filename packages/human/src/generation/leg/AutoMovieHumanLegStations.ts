@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanLegStations } from "@automovie/interface";
+
 /**
  * The leg's stations: where landmarks stand on the bones and where the chain's
  * layers stand between the two rings.
@@ -15,50 +17,13 @@
  * first row so the rows either side of the ring match.
  */
 export namespace AutoMovieHumanLegStations {
-  /** A joint's bend along the leg. */
-  export interface IBend {
-    /** Station of the joint, mm. */
-    at: number;
+  
 
-    /** Half of the bend's length, mm. */
-    half: number;
+  
 
-    /** The joint's whole range of motion on its flexion channel, radians. */
-    range: number;
-  }
+  
 
-  /** What the layers are spaced from. */
-  export interface IInput {
-    /** Station of the ankle ring, mm. */
-    bottom: number;
-
-    /** Station of the crotch ring, mm. */
-    top: number;
-
-    /** The joints' bends. */
-    bends: readonly IBend[];
-
-    /** The trunk's first row spacing above the crotch ring, mm. */
-    first: number;
-
-    /** The coarsest spacing a layer may have, mm: the rows' finest pitch. */
-    coarsest: number;
-  }
-
-  /** The two segments a landmark can be a share of. */
-  export type Segment = "thigh" | "shank";
-
-  /** The bones a landmark height is read on. */
-  export interface IBones {
-    /** Hip centre height, mm. */
-    hip: number;
-
-    /** Knee centre height, mm. */
-    knee: number;
-
-    /** Ankle centre height, mm. */
-    ankle: number;
-  }
+  
 
   /**
    * Skin depths either side of a joint over which its bend spreads, as the
@@ -93,7 +58,7 @@ export namespace AutoMovieHumanLegStations {
   export const DENSITY_STEP: number = 0.25;
 
   /** A joint's whole range of motion along its flexion channel, radians. */
-  export function range(channel: keyof typeof RANGES): number {
+  export function range(channel: IAutoMovieHumanLegStations.RangeChannel): number {
     const [low, high]: readonly [number, number] = RANGES[channel];
     return ((high - low) * Math.PI) / 180;
   }
@@ -107,7 +72,7 @@ export namespace AutoMovieHumanLegStations {
    * @param share Share of the bone's length; a share outside 0 to 1 extends it.
    * @returns Height of the point on the bone line, mm.
    */
-  export function heightAt(bones: IBones, segment: Segment, share: number): number {
+  export function heightAt(bones: IAutoMovieHumanLegStations.IBones, segment: IAutoMovieHumanLegStations.Segment, share: number): number {
     const from: number = segment === "thigh" ? bones.hip : bones.knee;
     const to: number = segment === "thigh" ? bones.knee : bones.ankle;
     return from + share * (to - from);
@@ -119,10 +84,10 @@ export namespace AutoMovieHumanLegStations {
    * @param input The rings, the bends and the spacing limits.
    * @returns Strictly increasing stations from the ankle ring to the crotch ring, both included.
    */
-  export function layers(input: IInput): number[] {
+  export function layers(input: IAutoMovieHumanLegStations.IInput): number[] {
     const bottom: number = input.bottom;
     const top: number = input.top;
-    const bends: readonly IBend[] = input.bends;
+    const bends: readonly IAutoMovieHumanLegStations.IBend[] = input.bends;
 
     // The density is the layers wanted per mm at a station: the larger of the
     // coarsest spacing's, each joint's (its range over the row turn, times the

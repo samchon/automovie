@@ -1,6 +1,9 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanLegAxis } from "@automovie/interface";
+
+
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-type Vec3 = AutoMovieHumanLegVector.Vec3;
+
 const { cross, dot, norm, normalize, plus, rotate, scale, sub, fifth } = AutoMovieHumanLegVector;
 
 /**
@@ -22,68 +25,13 @@ const { cross, dot, norm, normalize, plus, rotate, scale, sub, fifth } = AutoMov
  * so the planes must be vertical where they meet them.
  */
 export namespace AutoMovieHumanLegAxis {
-  /** A section plane, canonical, with its normal. */
-  export interface IFrame {
-    /** Origin, on the axis. */
-    origin: Vec3;
+  
 
-    /** In-plane axis, forward in the straight leg. */
-    u: Vec3;
+  
 
-    /** In-plane axis, lateral in the straight leg. */
-    v: Vec3;
+  
 
-    /** Normal, along the bone. */
-    n: Vec3;
-  }
-
-  /** The joints the axis passes through. */
-  export interface IJoints {
-    /** Hip centre. */
-    hip: Vec3;
-
-    /** Knee centre. */
-    knee: Vec3;
-
-    /** Ankle centre. */
-    ankle: Vec3;
-  }
-
-  /** One eased turn of the section normal about a fixed axis. */
-  export interface ITurn {
-    /** Station where the turn starts. */
-    from: number;
-
-    /** Length of the turn along the stations, mm. */
-    span: number;
-
-    /** Unit axis. */
-    axis: Vec3;
-
-    /** Total angle, radians. */
-    angle: number;
-  }
-
-  /** The leg's frames along its stations. */
-  export interface IFrames {
-    /** Station of the ankle ring. */
-    s0: number;
-
-    /** Station of the crotch ring. */
-    s1: number;
-
-    /** The three turns: ankle ring to shank, shank to thigh, thigh to the crotch ring. */
-    turns: ITurn[];
-
-    /** Residual twist about the vertical, radians. */
-    twist: number;
-
-    /** Knee centre. */
-    knee: Vec3;
-
-    /** Origins at whole millimetres of station, from `s0 - PAD`. */
-    origins: Vec3[];
-  }
+  
 
   /**
    * The frames: vertical at the ankle ring, square to the shank, turned to the
@@ -96,12 +44,12 @@ export namespace AutoMovieHumanLegAxis {
    * @param ankle Reach of the turn off the ankle ring.
    * @param crotch Reach of the turn onto the crotch ring.
    */
-  export function of(bones: IJoints, s0: number, s1: number, knee: number, ankle: number, crotch: number): IFrames {
-    const Y: Vec3 = [0, 1, 0];
-    const shank: Vec3 = normalize(sub(bones.knee, bones.ankle));
-    const thigh: Vec3 = normalize(sub(bones.hip, bones.knee));
-    const turn: (a: Vec3, b: Vec3, from: number, span: number) => ITurn = (a: Vec3, b: Vec3, from: number, span: number): ITurn => {
-      const axis: Vec3 = cross(a, b);
+  export function of(bones: IAutoMovieHumanLegAxis.IJoints, s0: number, s1: number, knee: number, ankle: number, crotch: number): IAutoMovieHumanLegAxis.IFrames {
+    const Y: AutoMovieVector3Tuple = [0, 1, 0];
+    const shank: AutoMovieVector3Tuple = normalize(sub(bones.knee, bones.ankle));
+    const thigh: AutoMovieVector3Tuple = normalize(sub(bones.hip, bones.knee));
+    const turn: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, from: number, span: number) => IAutoMovieHumanLegAxis.ITurn = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, from: number, span: number): IAutoMovieHumanLegAxis.ITurn => {
+      const axis: AutoMovieVector3Tuple = cross(a, b);
       const sine: number = norm(axis);
       return {
         from,
@@ -110,7 +58,7 @@ export namespace AutoMovieHumanLegAxis {
         angle: Math.atan2(sine, dot(a, b)),
       };
     };
-    const frames: IFrames = {
+    const frames: IAutoMovieHumanLegAxis.IFrames = {
       s0,
       s1,
       turns: [turn(Y, shank, s0, ankle), turn(shank, thigh, bones.knee[1] - knee, 2 * knee), turn(thigh, Y, s1 - crotch, crotch)],
@@ -120,25 +68,25 @@ export namespace AutoMovieHumanLegAxis {
     };
 
     // The three turns leave a twist about the vertical, which runs out evenly.
-    const end: Vec3 = rotated(frames, s1, [1, 0, 0], false);
+    const end: AutoMovieVector3Tuple = rotated(frames, s1, [1, 0, 0], false);
     frames.twist = Math.atan2(-end[2], end[0]);
 
     // The origin runs along the section normal, through the knee: integrate
     // the normal's slope (Simpson over a millimetre) from below the ankle ring.
-    const n: (s: number) => Vec3 = (s: number): Vec3 => {
-      const d: Vec3 = rotated(frames, s, Y, false);
+    const n: (s: number) => AutoMovieVector3Tuple = (s: number): AutoMovieVector3Tuple => {
+      const d: AutoMovieVector3Tuple = rotated(frames, s, Y, false);
       return scale(d, 1 / d[1]);
     };
     const count: number = Math.ceil(s1 - s0 + 2 * PAD);
-    const origins: Vec3[] = [[0, s0 - PAD, 0]];
+    const origins: AutoMovieVector3Tuple[] = [[0, s0 - PAD, 0]];
     for (let i: number = 0; i < count; i++) {
       const a: number = s0 - PAD + i;
-      const p: Vec3 = origins[i]!;
-      const q: Vec3 = plus(p, scale(plus(plus(n(a), scale(n(a + 0.5), 4)), n(a + 1)), 1 / 6));
+      const p: AutoMovieVector3Tuple = origins[i]!;
+      const q: AutoMovieVector3Tuple = plus(p, scale(plus(plus(n(a), scale(n(a + 0.5), 4)), n(a + 1)), 1 / 6));
       origins.push([q[0], a + 1, q[2]]);
     }
-    const anchor: Vec3 = interpolated(origins, n, s0 - PAD, bones.knee[1]);
-    frames.origins = origins.map((p: Vec3): Vec3 => [p[0] - anchor[0] + bones.knee[0], p[1], p[2] - anchor[2] + bones.knee[2]]);
+    const anchor: AutoMovieVector3Tuple = interpolated(origins, n, s0 - PAD, bones.knee[1]);
+    frames.origins = origins.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [p[0] - anchor[0] + bones.knee[0], p[1], p[2] - anchor[2] + bones.knee[2]]);
     return frames;
   }
 
@@ -150,8 +98,8 @@ export namespace AutoMovieHumanLegAxis {
    * @param x The vector in the straight frame.
    * @param twisted Whether the residual twist is applied.
    */
-  export function rotated(frames: IFrames, s: number, x: Vec3, twisted: boolean = true): Vec3 {
-    let out: Vec3 = twisted ? rotate(x, [0, 1, 0], -frames.twist * fifth((s - frames.s0) / (frames.s1 - frames.s0))) : x;
+  export function rotated(frames: IAutoMovieHumanLegAxis.IFrames, s: number, x: AutoMovieVector3Tuple, twisted: boolean = true): AutoMovieVector3Tuple {
+    let out: AutoMovieVector3Tuple = twisted ? rotate(x, [0, 1, 0], -frames.twist * fifth((s - frames.s0) / (frames.s1 - frames.s0))) : x;
     for (const t of frames.turns) out = rotate(out, t.axis, t.angle * fifth((s - t.from) / t.span));
     return out;
   }
@@ -164,29 +112,29 @@ export namespace AutoMovieHumanLegAxis {
    * @param first Station of the table's first value.
    * @param s Station read.
    */
-  export function interpolated(table: readonly Vec3[], rate: (s: number) => Vec3, first: number, s: number): Vec3 {
+  export function interpolated(table: readonly AutoMovieVector3Tuple[], rate: IAutoMovieHumanLegAxis.InterpolatedRate, first: number, s: number): AutoMovieVector3Tuple {
     const i: number = Math.max(0, Math.min(table.length - 2, Math.floor(s - first)));
     const f: number = s - first - i;
-    const a: Vec3 = table[i]!;
-    const b: Vec3 = table[i + 1]!;
-    const ma: Vec3 = rate(first + i);
-    const mb: Vec3 = rate(first + i + 1);
+    const a: AutoMovieVector3Tuple = table[i]!;
+    const b: AutoMovieVector3Tuple = table[i + 1]!;
+    const ma: AutoMovieVector3Tuple = rate(first + i);
+    const mb: AutoMovieVector3Tuple = rate(first + i + 1);
     return [0, 1, 2].map(
       (c: number): number =>
         (2 * f ** 3 - 3 * f ** 2 + 1) * a[c]! +
         (f ** 3 - 2 * f ** 2 + f) * ma[c]! +
         (3 * f ** 2 - 2 * f ** 3) * b[c]! +
         (f ** 3 - f ** 2) * mb[c]!,
-    ) as Vec3;
+    ) as AutoMovieVector3Tuple;
   }
 
   /** The frame at station s, canonical. */
-  export function frameAt(frames: IFrames, s: number): IFrame {
-    const n: Vec3 = rotated(frames, s, [0, 1, 0], false);
-    const origin: Vec3 = interpolated(
+  export function frameAt(frames: IAutoMovieHumanLegAxis.IFrames, s: number): IAutoMovieHumanLegAxis.IFrame {
+    const n: AutoMovieVector3Tuple = rotated(frames, s, [0, 1, 0], false);
+    const origin: AutoMovieVector3Tuple = interpolated(
       frames.origins,
-      (q: number): Vec3 => {
-        const d: Vec3 = rotated(frames, q, [0, 1, 0], false);
+      (q: number): AutoMovieVector3Tuple => {
+        const d: AutoMovieVector3Tuple = rotated(frames, q, [0, 1, 0], false);
         return scale(d, 1 / d[1]);
       },
       frames.s0 - PAD,
@@ -207,25 +155,25 @@ export namespace AutoMovieHumanLegAxis {
    * @param s Station.
    * @param side 0 for the central difference; 1 or -1 for the one-sided difference of second order toward that side, where nothing exists past a ring.
    */
-  export function frameRate(frames: IFrames, s: number, side: 1 | -1 | 0): IFrame {
-    const n: Vec3 = rotated(frames, s, [0, 1, 0], false);
-    const derive: (pick: (f: IFrame) => Vec3) => Vec3 = (pick: (f: IFrame) => Vec3): Vec3 => {
+  export function frameRate(frames: IAutoMovieHumanLegAxis.IFrames, s: number, side: 1 | -1 | 0): IAutoMovieHumanLegAxis.IFrame {
+    const n: AutoMovieVector3Tuple = rotated(frames, s, [0, 1, 0], false);
+    const derive: (pick: (f: IAutoMovieHumanLegAxis.IFrame) => AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (pick: (f: IAutoMovieHumanLegAxis.IFrame) => AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
       if (side === 0) {
-        const a: Vec3 = pick(frameAt(frames, s - FRAME_STEP));
-        const b: Vec3 = pick(frameAt(frames, s + FRAME_STEP));
+        const a: AutoMovieVector3Tuple = pick(frameAt(frames, s - FRAME_STEP));
+        const b: AutoMovieVector3Tuple = pick(frameAt(frames, s + FRAME_STEP));
         return scale(sub(b, a), 1 / (2 * FRAME_STEP));
       }
       const d: number = side * FRAME_STEP;
-      const p: Vec3 = pick(frameAt(frames, s));
-      const a: Vec3 = pick(frameAt(frames, s + d));
-      const b: Vec3 = pick(frameAt(frames, s + 2 * d));
-      return [0, 1, 2].map((c: number): number => (-3 * p[c]! + 4 * a[c]! - b[c]!) / (2 * d)) as Vec3;
+      const p: AutoMovieVector3Tuple = pick(frameAt(frames, s));
+      const a: AutoMovieVector3Tuple = pick(frameAt(frames, s + d));
+      const b: AutoMovieVector3Tuple = pick(frameAt(frames, s + 2 * d));
+      return [0, 1, 2].map((c: number): number => (-3 * p[c]! + 4 * a[c]! - b[c]!) / (2 * d)) as AutoMovieVector3Tuple;
     };
     return {
       origin: scale(n, 1 / n[1]),
-      u: derive((f: IFrame): Vec3 => f.u),
-      v: derive((f: IFrame): Vec3 => f.v),
-      n: derive((f: IFrame): Vec3 => f.n),
+      u: derive((f: IAutoMovieHumanLegAxis.IFrame): AutoMovieVector3Tuple => f.u),
+      v: derive((f: IAutoMovieHumanLegAxis.IFrame): AutoMovieVector3Tuple => f.v),
+      n: derive((f: IAutoMovieHumanLegAxis.IFrame): AutoMovieVector3Tuple => f.n),
     };
   }
 

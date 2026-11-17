@@ -1,8 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieProjectileDragFlight, IAutoMovieProjectileDragInterval, IAutoMovieResolveContactEvents, IAutoMovieProjectile, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieContactEvents";
+
 import { binary64SumProductsSign } from "../math/binary64SumProductsSign";
-import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import { projectileDragFlight } from "./projectileDragFlight";
 
 /**
@@ -23,12 +22,12 @@ import { projectileDragFlight } from "./projectileDragFlight";
 export function projectileDragDeparture(
   normal: IAutoMovieVector3,
   projectile: IAutoMovieProjectile,
-  contact: resolveAutoMovieContactEvents.IInitialContact,
-): resolveAutoMovieContactEvents.Departure | undefined {
-  const flight: projectileDragFlight.IFlight = projectileDragFlight(projectile);
+  contact: IAutoMovieResolveContactEvents.IInitialContact,
+): IAutoMovieResolveContactEvents.Departure | undefined {
+  const flight: IAutoMovieProjectileDragFlight.IFlight = projectileDragFlight(projectile);
   let current: number = contact.from;
   while (current < contact.to) {
-    const interval: projectileDragFlight.IInterval = flight.interval(current);
+    const interval: IAutoMovieProjectileDragInterval = flight.interval(current);
     const width: number = interval.to - interval.from;
     const end: number = Math.min(contact.to, interval.to);
     if (!(Number.isFinite(width) && width > 0 && end > current))

@@ -1,8 +1,6 @@
+import type { IAutoMovieViolationCollector, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector, toValidation, violation } from "@automovie/engine";
-import type {
-  IAutoMovieConstraintViolation,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, validationHasWarningCount } from "../internal/predicates";
@@ -27,7 +25,7 @@ import { nclose, validationHasWarningCount } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `warn` pushes a `"warning"`-severity violation; a warning-only collector).
  */
 export function test_validation_severity_envelope(): void {
-  const warnOnly: ViolationCollector = new ViolationCollector();
+  const warnOnly: IAutoMovieViolationCollector = new ViolationCollector();
   warnOnly.warn("physics", "$input.a", "would topple", 1);
   TestValidator.equals(
     "warn is warning severity",
@@ -40,7 +38,7 @@ export function test_validation_severity_envelope(): void {
     validationHasWarningCount("warning-only envelope", wv, 1),
   );
 
-  const mixed: ViolationCollector = new ViolationCollector();
+  const mixed: IAutoMovieViolationCollector = new ViolationCollector();
   mixed.warn("physics", "$input.b", "would topple", 1);
   mixed.push("type", "$input.c", "must be an id", null);
   const mv: IAutoMovieValidation = mixed.toValidation();
@@ -51,7 +49,7 @@ export function test_validation_severity_envelope(): void {
     2,
   );
 
-  const err: ViolationCollector = new ViolationCollector();
+  const err: IAutoMovieViolationCollector = new ViolationCollector();
   err.push("type", "$input.d", "must be an id", null);
   TestValidator.equals(
     "default push is error severity",

@@ -1,8 +1,9 @@
+import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalPlayback as Playback,
   AutoMoviePhysicalSimulation as Simulation,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -23,7 +24,7 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  */
 export async function test_physical_ownership_boundaries(): Promise<void> {
   for (const substeps of [3, 8, 32]) {
-    const ball: Simulation.IBody = PhysicalFixtures.body(
+    const ball: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "clock",
       PhysicalFixtures.sphere(),
       0.6,
@@ -33,9 +34,9 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
         (step >= 1 && step <= 24) || step >= 49 ? ["root"] : [];
       target.segments.root!.position.x = step / 120;
     }
-    const input: Simulation.IInput = PhysicalFixtures.input([ball], 0.6);
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([ball], 0.6);
     input.substeps = substeps;
-    const run: Simulation = await Simulation.compute(input);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     let previous: number = 0;
     for (const entry of run.cache.ownership) {
       TestValidator.predicate(
@@ -60,7 +61,7 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
       "dynamic",
     );
     const encoded: Uint8Array = await Playback.encode(run.cache, 1_000_000);
-    const replay: Playback = await Playback.decode(
+    const replay: IAutoMoviePhysicalPlayback = await Playback.decode(
       encoded,
       run.cache.identity,
       { maximumBytes: 1_000_000, maximumFrames: 73, maximumSegments: 1 },
@@ -71,7 +72,7 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
       JSON.stringify(run.cache.ownership),
     );
   }
-  const inherited: Simulation.IBody = pair(0.4);
+  const inherited: IAutoMoviePhysicalSimulationInput.IBody = pair(0.4);
   inherited.handoffLimits = {
     maximumLinearError: 0.005,
     maximumJointViolation: 0.01,
@@ -79,13 +80,13 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
   inherited.targets[0]!.segments.child!.position.x += 0.001;
   for (const [step, target] of inherited.targets.entries())
     target.dynamicSegments = step === 0 ? ["root", "child"] : [];
-  const inheritedInput: Simulation.IInput = PhysicalFixtures.input(
+  const inheritedInput: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
     [inherited],
     0.4,
   );
   inheritedInput.substeps = 8;
   inheritedInput.iterations = 32;
-  const returned: Simulation = await Simulation.compute(inheritedInput);
+  const returned: IAutoMoviePhysicalSimulation = await Simulation.compute(inheritedInput);
   const initial: (typeof returned.cache.frames)[number]["bodies"][string][string] =
     returned.cache.at(0).bodies[inherited.id]!.child!;
   const first: typeof initial = returned.cache.at(1 / 120).bodies[inherited.id]!
@@ -102,14 +103,14 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
       returned.cache.at(0.4).bodies[inherited.id]!.child!.position.x - 0.3,
     ) < 1e-6,
   );
-  const mixed: Simulation.IBody = pair(0.4);
+  const mixed: IAutoMoviePhysicalSimulationInput.IBody = pair(0.4);
   mixed.handoffLimits = {
     maximumLinearError: 0.005,
     maximumJointViolation: 0.01,
   };
   for (const [step, target] of mixed.targets.entries())
     target.dynamicSegments = step <= 12 ? ["root", "child"] : ["child"];
-  const mixedInput: Simulation.IInput = PhysicalFixtures.input([mixed], 0.4);
+  const mixedInput: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([mixed], 0.4);
   Object.assign(mixedInput, {
     substeps: 8,
     iterations: 32,
@@ -122,7 +123,7 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
     point: { x: 0, y: 2, z: 0 },
     impulse: { x: 2, y: 0, z: 0 },
   });
-  const attached: Simulation = await Simulation.compute(mixedInput);
+  const attached: IAutoMoviePhysicalSimulation = await Simulation.compute(mixedInput);
   TestValidator.equals(
     "parent returns while child remains dynamic",
     attached.cache.ownershipAt(mixed.id, "root", 0.2),
@@ -138,7 +139,7 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
     attached.cache.ownershipAt(mixed.id, "root", 0.4),
     "authored",
   );
-  const soft: Simulation.IBody = PhysicalFixtures.body(
+  const soft: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "soft",
     PhysicalFixtures.sphere(0.1, 0.1),
     0.3,
@@ -147,10 +148,10 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
     target.dynamicSegments = step === 0 ? ["root"] : [];
     target.segments.root!.position.y = 0.08;
   }
-  const softInput: Simulation.IInput = PhysicalFixtures.input([soft], 0.3);
+  const softInput: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([soft], 0.3);
   softInput.floor = 0;
   softInput.substeps = 8;
-  const compressed: Simulation = await Simulation.compute(softInput);
+  const compressed: IAutoMoviePhysicalSimulation = await Simulation.compute(softInput);
   TestValidator.equals(
     "material compression remains admissible during return",
     compressed.cache.ownershipAt(soft.id, "root", 0.3),
@@ -159,7 +160,7 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
 }
 
 /** Equal-mass bodies have a 0.3 m horizontal separation and one limited hinge. */
-function pair(duration: number): Simulation.IBody {
+function pair(duration: number): IAutoMoviePhysicalSimulationInput.IBody {
   const prototype: P.ISegment = PhysicalFixtures.sphere().segments[0]!;
   const root: P.ISegment = {
     ...structuredClone(prototype),
@@ -212,7 +213,7 @@ function pair(duration: number): Simulation.IBody {
       },
     ],
   };
-  const body: Simulation.IBody = PhysicalFixtures.body(
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "pair",
     profile,
     duration,

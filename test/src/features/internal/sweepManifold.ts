@@ -1,4 +1,5 @@
-import { type IAutoMovieSurfaceCage } from "@automovie/engine";
+import type { IAutoMovieSurfaceCage } from "@automovie/interface";
+
 
 function undirected(a: number, b: number): string {
   return a < b ? `${a},${b}` : `${b},${a}`;

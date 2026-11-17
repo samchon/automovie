@@ -1,12 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieObservation } from "@automovie/interface";
 import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 } from "./AutoMovieCurveMath64";
-import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
-
-/** Per-call work and qualification, independent of renderable geometry. */
-type Observation = Omit<
-  NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number],
-  "beforeMm" | "afterMm" | "group"
->;
 
 /**
  * Finds a fixed-seam periodic tiling and reports sheet qualification separately from displayable geometry.
@@ -26,15 +20,15 @@ type Observation = Omit<
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Grids expire after each solve, and the per-strip heap, paths and graph maps expire after success or failure; no global cache is retained.
  */
 export function tessellateAutoMovieContourStrip64(
-  rawA: AutoMovieCurveMath64.V[],
-  rawB: AutoMovieCurveMath64.V[],
+  rawA: AutoMovieVector3Tuple[],
+  rawB: AutoMovieVector3Tuple[],
   emit: (
-    a: AutoMovieCurveMath64.V,
-    b: AutoMovieCurveMath64.V,
-    c: AutoMovieCurveMath64.V,
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    c: AutoMovieVector3Tuple,
   ) => void,
-  identity?: (point: AutoMovieCurveMath64.V) => string | undefined,
-  observe?: (observation: Observation) => void,
+  identity?: (point: AutoMovieVector3Tuple) => string | undefined,
+  observe?: (observation: IAutoMovieObservation) => void,
   observeWork: boolean = false,
 ): void {
   const started: number | null = observeWork ? performance.now() : null;
@@ -46,17 +40,17 @@ export function tessellateAutoMovieContourStrip64(
     if (
       !AutoMovieContourLoftCurves64.hasArea(ring) ||
       ring.some(
-        (p: AutoMovieCurveMath64.V): boolean => !p.every(Number.isFinite),
+        (p: AutoMovieVector3Tuple): boolean => !p.every(Number.isFinite),
       )
     )
       throw new Error(
         "A contour strip needs two finite area-spanning boundaries",
       );
-  const a: AutoMovieCurveMath64.V[] =
+  const a: AutoMovieVector3Tuple[] =
     AutoMovieContourLoftCurves64.exterior(rawA);
   let offset: number = 0;
   let best: number = Infinity;
-  rawB.forEach((p: AutoMovieCurveMath64.V, i: number): void => {
+  rawB.forEach((p: AutoMovieVector3Tuple, i: number): void => {
     const d: number = Math.hypot(
       p[0] - a[0][0],
       p[1] - a[0][1],
@@ -67,7 +61,7 @@ export function tessellateAutoMovieContourStrip64(
       offset = i;
     }
   });
-  const b: AutoMovieCurveMath64.V[] = [
+  const b: AutoMovieVector3Tuple[] = [
     ...rawB.slice(offset),
     ...rawB.slice(0, offset),
   ];
@@ -75,12 +69,12 @@ export function tessellateAutoMovieContourStrip64(
   const m: number = b.length;
   const stride: number = m + 1;
   const area = (
-    p: AutoMovieCurveMath64.V,
-    q: AutoMovieCurveMath64.V,
-    r: AutoMovieCurveMath64.V,
+    p: AutoMovieVector3Tuple,
+    q: AutoMovieVector3Tuple,
+    r: AutoMovieVector3Tuple,
   ): number => {
-    const u: AutoMovieCurveMath64.V = AutoMovieCurveMath64.sub(q, p);
-    const v: AutoMovieCurveMath64.V = AutoMovieCurveMath64.sub(r, p);
+    const u: AutoMovieVector3Tuple = AutoMovieCurveMath64.sub(q, p);
+    const v: AutoMovieVector3Tuple = AutoMovieCurveMath64.sub(r, p);
     const value: number =
       Math.hypot(
         u[1] * v[2] - u[2] * v[1],
@@ -107,9 +101,9 @@ export function tessellateAutoMovieContourStrip64(
     }
   interface Path {
     tiles: [
-      AutoMovieCurveMath64.V,
-      AutoMovieCurveMath64.V,
-      AutoMovieCurveMath64.V,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
     ][];
     steps: number[];
     forbidden: Set<number>;
@@ -167,9 +161,9 @@ export function tessellateAutoMovieContourStrip64(
     const score: number = cost[(n * stride + m) * 4 + flags];
     if (!Number.isFinite(score)) return undefined;
     const tiles: [
-      AutoMovieCurveMath64.V,
-      AutoMovieCurveMath64.V,
-      AutoMovieCurveMath64.V,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
     ][] = [];
     const steps: number[] = [];
     while (i || j) {
@@ -189,16 +183,16 @@ export function tessellateAutoMovieContourStrip64(
     }
     return { tiles, steps, forbidden, score, serial: serial++ };
   };
-  const nodes: Map<string | AutoMovieCurveMath64.V, number> = new Map();
-  const representatives: Map<number, AutoMovieCurveMath64.V> = new Map();
-  const node = (p: AutoMovieCurveMath64.V): number => {
-    const key: string | AutoMovieCurveMath64.V | undefined =
+  const nodes: Map<string | AutoMovieVector3Tuple, number> = new Map();
+  const representatives: Map<number, AutoMovieVector3Tuple> = new Map();
+  const node = (p: AutoMovieVector3Tuple): number => {
+    const key: string | AutoMovieVector3Tuple | undefined =
       identity === undefined ? p : identity(p);
     if (key === undefined)
       throw new Error("A contour tile lacks its declared sheet identity");
     if (!nodes.has(key)) nodes.set(key, nodes.size);
     const id: number = nodes.get(key)!;
-    const previous: AutoMovieCurveMath64.V | undefined =
+    const previous: AutoMovieVector3Tuple | undefined =
       representatives.get(id);
     if (
       previous !== undefined &&
@@ -218,9 +212,9 @@ export function tessellateAutoMovieContourStrip64(
   for (const [ring, orientation] of [
     [a, 1],
     [b, -1],
-  ] as [AutoMovieCurveMath64.V[], number][])
-    ring.forEach((p: AutoMovieCurveMath64.V, k: number): void => {
-      const next: AutoMovieCurveMath64.V = ring[(k + 1) % ring.length];
+  ] as [AutoMovieVector3Tuple[], number][])
+    ring.forEach((p: AutoMovieVector3Tuple, k: number): void => {
+      const next: AutoMovieVector3Tuple = ring[(k + 1) % ring.length];
       const u: number = node(p),
         v: number = node(next);
       if (p.every((x: number, axis: number): boolean => x === next[axis]))

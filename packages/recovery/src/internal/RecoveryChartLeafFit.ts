@@ -1,10 +1,9 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieBernstein64 as S,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartAreaObservations, IAutoMovieRecoveryChartCollar, IAutoMovieRecoveryChartFit, IAutoMovieRecoveryChartLeafControls, IAutoMovieRecoveryChartLeafFit, IAutoMovieRecoveryChartRefinementClosure, IAutoMoviePolylineFit } from "@automovie/interface";
 
-import type { IRecoveryChartLeafFit } from "./IRecoveryChartLeafFit";
-import type { RecoveryBezierFit as F } from "./RecoveryBezierFit";
+import { AutoMovieBernstein64 as S } from "@automovie/engine";
+
+
+
 import { RecoveryChartAreaObservations as A } from "./RecoveryChartAreaObservations";
 import { RecoveryChartCollar as L } from "./RecoveryChartCollar";
 import { RecoveryChartFit as J } from "./RecoveryChartFit";
@@ -34,42 +33,39 @@ import { prepareRecoveryChartLeafBoundary } from "./prepareRecoveryChartLeafBoun
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most two bounded coefficient candidates and one attempt's private rows coexist. All source references and work maps expire on return; only coefficients, analytic edge relations and scalar diagnostics escape.
  */
 export function RecoveryChartLeafFit(
-  input: IRecoveryChartLeafFit.Input,
-): IRecoveryChartLeafFit.Result {
-  const splits: NonNullable<Parameters<typeof L>[0]["splits"]>[number][] = [],
+  input: Parameters<IAutoMovieRecoveryChartLeafFit.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartLeafFit.Operation> {
+  const splits: NonNullable<Parameters<IAutoMovieRecoveryChartCollar.Operation>[0]["splits"]>[number][] = [],
     residualsMm: number[] = [],
     areaRmsMm: (number | null)[] = [],
     attemptedPatches: number[] = [];
-  let previous: ReturnType<typeof RecoveryChartLeafFit> | undefined,
-    retainedEnclosureMm: J.Input["enclosureMm"] | undefined;
+  let previous: ReturnType<IAutoMovieRecoveryChartLeafFit.Operation> | undefined,
+    retainedEnclosureMm: IAutoMovieRecoveryChartFit.Input["enclosureMm"] | undefined;
   for (let round: number = 0; ; round++)
     try {
-      const layout: ReturnType<typeof L> = L({
+      const layout: ReturnType<IAutoMovieRecoveryChartCollar.Operation> = L({
         knots: input.knots,
         maxLeaves: input.maxPatches,
-        splits,
-      });
-      const registry: ReturnType<typeof K> = K({
+        splits });
+      const registry: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation> = K({
         leaves: layout.leaves,
-        maxControls: 16 * input.maxPatches,
-      });
+        maxControls: 16 * input.maxPatches });
       const patches: { id: string; controlIds: number[] }[] =
         registry.patches.map(
           (
-            patch: ReturnType<typeof K>["patches"][number],
+            patch: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["patches"][number],
           ): { id: string; controlIds: number[] } => ({
             id: `${input.name}.${patch.id}`,
-            controlIds: patch.controlIds,
-          }),
+            controlIds: patch.controlIds }),
         );
-      const controls: (C.Vector | null)[] = prepareRecoveryChartLeafBoundary(
+      const controls: (Readonly<AutoMovieVector3Tuple> | null)[] = prepareRecoveryChartLeafBoundary(
         input,
         registry,
       );
-      let initialControlsMm: C.Vector[] | undefined,
+      let initialControlsMm: Readonly<AutoMovieVector3Tuple>[] | undefined,
         prolongationDifferenceMm: number = 0;
       if (previous) {
-        const values: (C.Vector | null)[] = new Array(registry.controls).fill(
+        const values: (Readonly<AutoMovieVector3Tuple> | null)[] = new Array(registry.controls).fill(
           null,
         );
         for (let index: number = 0; index < layout.leaves.length; index++) {
@@ -123,8 +119,8 @@ export function RecoveryChartLeafFit(
             );
             for (let j: number = 0; j < 4; j++) {
               const id: number = patches[index]!.controlIds[4 * j + i]!,
-                point: C.Vector = column[j]!,
-                prior: C.Vector | null = values[id]!;
+                point: Readonly<AutoMovieVector3Tuple> = column[j]!,
+                prior: Readonly<AutoMovieVector3Tuple> | null = values[id]!;
               if (prior)
                 prolongationDifferenceMm = Math.max(
                   prolongationDifferenceMm,
@@ -139,8 +135,8 @@ export function RecoveryChartLeafFit(
           }
         }
         initialControlsMm = values.map(
-          (point: C.Vector | null, id: number): C.Vector => {
-            const value: C.Vector | null = controls[id] ?? point;
+          (point: Readonly<AutoMovieVector3Tuple> | null, id: number): Readonly<AutoMovieVector3Tuple> => {
+            const value: Readonly<AutoMovieVector3Tuple> | null = controls[id] ?? point;
             if (!value)
               throw new Error("A prolonged coefficient has no predecessor");
             return value;
@@ -151,7 +147,7 @@ export function RecoveryChartLeafFit(
         uv: readonly number[],
       ): number => {
         const found: number = layout.leaves.findIndex(
-          (leaf: ReturnType<typeof L>["leaves"][number]): boolean =>
+          (leaf: ReturnType<IAutoMovieRecoveryChartCollar.Operation>["leaves"][number]): boolean =>
             uv[0]! >= leaf.bounds[0] &&
             uv[0]! <= leaf.bounds[1] &&
             uv[1]! >= leaf.bounds[2] &&
@@ -163,14 +159,14 @@ export function RecoveryChartLeafFit(
           );
         return found;
       };
-      const observations: J.Input["observations"][number][] = [];
+      const observations: IAutoMovieRecoveryChartFit.Input["observations"][number][] = [];
       const add: (
         uv: readonly number[],
-        pointMm: C.Vector,
+        pointMm: Readonly<AutoMovieVector3Tuple>,
         weight: number,
       ) => void = (
         uv: readonly number[],
-        pointMm: C.Vector,
+        pointMm: Readonly<AutoMovieVector3Tuple>,
         weight: number,
       ): void => {
         const patch: number = locate(uv),
@@ -180,15 +176,14 @@ export function RecoveryChartLeafFit(
           u: (uv[0]! - r[0]!) / (r[1]! - r[0]!),
           v: (uv[1]! - r[2]!) / (r[3]! - r[2]!),
           pointMm,
-          weight,
-        });
+          weight });
       };
       const weights: Float64Array = new Float64Array(input.verticesMm.length);
       let sourceAreaMm2: number = 0;
       for (const t of input.triangles) {
-        const a: C.Vector = input.verticesMm[t[0]]!,
-          b: C.Vector = input.verticesMm[t[1]]!,
-          c: C.Vector = input.verticesMm[t[2]]!;
+        const a: Readonly<AutoMovieVector3Tuple> = input.verticesMm[t[0]]!,
+          b: Readonly<AutoMovieVector3Tuple> = input.verticesMm[t[1]]!,
+          c: Readonly<AutoMovieVector3Tuple> = input.verticesMm[t[2]]!;
         const x: number[] = b.map(
             (value: number, k: number): number => value - a[k]!,
           ),
@@ -222,28 +217,28 @@ export function RecoveryChartLeafFit(
           area,
         );
       }
-      input.verticesMm.forEach((point: C.Vector, id: number): void => {
+      input.verticesMm.forEach((point: Readonly<AutoMovieVector3Tuple>, id: number): void => {
         if (weights[id]! > 0) add(input.parameters[id]!, point, weights[id]!);
       });
-      const all: C.Vector[] = [
+      const all: Readonly<AutoMovieVector3Tuple>[] = [
         ...input.verticesMm,
-        ...controls.filter((p: C.Vector | null): p is C.Vector => p !== null),
+        ...controls.filter((p: Readonly<AutoMovieVector3Tuple> | null): p is Readonly<AutoMovieVector3Tuple> => p !== null),
       ];
-      const lower: C.Vector = [0, 1, 2].map((k: number): number =>
+      const lower: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map((k: number): number =>
         all.reduce(
-          (x: number, p: C.Vector): number => Math.min(x, p[k]!),
+          (x: number, p: Readonly<AutoMovieVector3Tuple>): number => Math.min(x, p[k]!),
           Infinity,
         ),
       ) as [number, number, number];
-      const upper: C.Vector = [0, 1, 2].map((k: number): number =>
+      const upper: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map((k: number): number =>
         all.reduce(
-          (x: number, p: C.Vector): number => Math.max(x, p[k]!),
+          (x: number, p: Readonly<AutoMovieVector3Tuple>): number => Math.max(x, p[k]!),
           -Infinity,
         ),
       ) as [number, number, number];
       // The initial problem owns the box; restricted boundary hulls cannot shrink it.
       retainedEnclosureMm ??= { lower, upper };
-      let area: ReturnType<typeof A> | undefined,
+      let area: ReturnType<IAutoMovieRecoveryChartAreaObservations.Operation> | undefined,
         reason: string | null = null;
       try {
         area = A({
@@ -254,25 +249,23 @@ export function RecoveryChartLeafFit(
           v: [0, 1],
           rectangles: layout.leaves.map(
             (
-              leaf: ReturnType<typeof L>["leaves"][number],
+              leaf: ReturnType<IAutoMovieRecoveryChartCollar.Operation>["leaves"][number],
             ): [number, number, number, number] => leaf.bounds,
           ),
           maxObservations: input.maxObservationRows,
-          physicalGradientLengthMm: input.physicalGradientLengthMm,
-        });
+          physicalGradientLengthMm: input.physicalGradientLengthMm });
       } catch (failure: unknown) {
         reason = failure instanceof Error ? failure.message : String(failure);
       }
-      const joint: J.Result = J.fit({
+      const joint: IAutoMovieRecoveryChartFit.Result = J.fit({
         controls,
         patches: patches.map(
           (
             patch: (typeof patches)[number],
             index: number,
-          ): J.Input["patches"][number] => ({
+          ): IAutoMovieRecoveryChartFit.Input["patches"][number] => ({
             ...patch,
-            parameterBounds: layout.leaves[index]!.bounds,
-          }),
+            parameterBounds: layout.leaves[index]!.bounds }),
         ),
         relations: registry.relations,
         relationBudget: { maxTerms: 256, maxDepth: 64 },
@@ -282,8 +275,7 @@ export function RecoveryChartLeafFit(
         enclosureMm: retainedEnclosureMm,
         toleranceMm: input.toleranceMm,
         gradientTolerance: 1e-10,
-        maxIterations: input.maxIterations,
-      });
+        maxIterations: input.maxIterations });
       if (previous)
         joint.diagnostics.push(
           `Previous field initialized by tensor de Casteljau restriction; maximum duplicate-owner binary64 differenceMm=${prolongationDifferenceMm}; initialization is not an exact-arithmetic certificate`,
@@ -297,13 +289,13 @@ export function RecoveryChartLeafFit(
       residualsMm.push(joint.maximumMm);
       areaRmsMm.push(area ? joint.rmsMm : null);
       attemptedPatches.push(patches.length);
-      const { controls: controlsMm, ...report }: J.Result = joint;
-      const candidate: ReturnType<typeof RecoveryChartLeafFit> = {
+      const { controls: controlsMm, ...report }: IAutoMovieRecoveryChartFit.Result = joint;
+      const candidate: ReturnType<IAutoMovieRecoveryChartLeafFit.Operation> = {
         controlsMm,
         patches,
         qualified:
           input.curves.every(
-            (curve: F.Result): boolean => curve.toleranceMet,
+            (curve: IAutoMoviePolylineFit): boolean => curve.toleranceMet,
           ) && joint.qualified,
         joint: report,
         leafLayout: {
@@ -311,13 +303,11 @@ export function RecoveryChartLeafFit(
           edges: registry.edges,
           bindings: registry.bindings.map(
             (
-              binding: ReturnType<typeof K>["bindings"][number],
-            ): ReturnType<typeof K>["bindings"][number] => ({
+              binding: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["bindings"][number],
+            ): ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["bindings"][number] => ({
               ...binding,
-              patch: `${input.name}.${binding.patch}`,
-            }),
-          ),
-        },
+              patch: `${input.name}.${binding.patch}` }),
+          ) },
         areaObservation: {
           qualified: area !== undefined,
           rows: area?.observations.length ?? observations.length,
@@ -326,8 +316,7 @@ export function RecoveryChartLeafFit(
           integratedAreaMm2: area?.integratedAreaMm2 ?? null,
           maximumRelativeAreaDiscrepancy:
             area?.maximumRelativeAreaDiscrepancy ?? null,
-          reason,
-        },
+          reason },
         refinement: {
           rounds: round,
           reason: joint.qualified
@@ -335,9 +324,7 @@ export function RecoveryChartLeafFit(
             : "collar-fit-unqualified",
           residualsMm: [...residualsMm],
           areaRmsMm: [...areaRmsMm],
-          attemptedPatches: [...attemptedPatches],
-        },
-      };
+          attemptedPatches: [...attemptedPatches] } };
       if (
         previous &&
         (!area ||
@@ -347,8 +334,7 @@ export function RecoveryChartLeafFit(
         previous.refinement = {
           ...candidate.refinement,
           reason:
-            "local-refinement-did-not-improve-declared-objective-without-area-regression",
-        };
+            "local-refinement-did-not-improve-declared-objective-without-area-regression" };
         return previous;
       }
       const deficient: boolean =
@@ -409,11 +395,10 @@ export function RecoveryChartLeafFit(
                 )
               )
                 continue;
-              const closed: ReturnType<typeof E> = E({
+              const closed: ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation> = E({
                 leaves: trial,
                 request: { leaf: leaf.id, axis, parameter: phase },
-                maxLeaves: input.maxPatches,
-              });
+                maxLeaves: input.maxPatches });
               trial = closed.leaves;
               additions.push(
                 ...closed.splits.map(
@@ -422,8 +407,7 @@ export function RecoveryChartLeafFit(
                   ): (typeof splits)[number] => ({
                     leaf: split.leaf,
                     axis: split.axis,
-                    parameter: split.parameter,
-                  }),
+                    parameter: split.parameter }),
                 ),
               );
             }
@@ -450,8 +434,7 @@ export function RecoveryChartLeafFit(
           "local-refinement-closure-or-budget-failed-prior-area-best-retained",
         residualsMm: [...residualsMm],
         areaRmsMm: [...areaRmsMm],
-        attemptedPatches: [...attemptedPatches],
-      };
+        attemptedPatches: [...attemptedPatches] };
       previous.joint.diagnostics.push(
         `Local refinement failed atomically: ${failure instanceof Error ? failure.message : String(failure)}`,
       );

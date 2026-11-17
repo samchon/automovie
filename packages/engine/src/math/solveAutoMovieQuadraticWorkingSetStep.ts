@@ -1,5 +1,5 @@
-import type { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import type { IAutoMovieQuadraticWorkingSetStep } from "./IAutoMovieQuadraticWorkingSetStep";
+import type { IAutoMovieQuadraticRow, IAutoMovieQuadraticWorkingSetStep, IAutoMovieQuadraticConstraintBasis } from "@automovie/interface";
+
 import { createAutoMovieQuadraticConstraintBasis } from "./createAutoMovieQuadraticConstraintBasis";
 
 /**
@@ -37,7 +37,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
   free: readonly boolean[],
   preceding: readonly number[],
 ): IAutoMovieQuadraticWorkingSetStep {
-  const basis: ReturnType<typeof createAutoMovieQuadraticConstraintBasis> =
+  const basis: IAutoMovieQuadraticConstraintBasis =
     createAutoMovieQuadraticConstraintBasis(
       rows,
       bounds,
@@ -166,9 +166,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
       retained.push(at);
       projectedFlatLinear.push(dot(column, flatLinear));
     }
-    const curvature: ReturnType<
-      typeof createAutoMovieQuadraticConstraintBasis
-    > = createAutoMovieQuadraticConstraintBasis(
+    const curvature: IAutoMovieQuadraticConstraintBasis = createAutoMovieQuadraticConstraintBasis(
       objectiveRows,
       objectiveRows.map((): number => 0),
       objectiveRows.map((): boolean => false),

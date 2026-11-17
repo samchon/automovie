@@ -1,17 +1,9 @@
-import {
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMovieMovablePanel,
-  IAutoMovieSubjectBox,
-  IAutoMovieTravelMotion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieOpeningSweep, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieMovablePanel, IAutoMovieSubjectBox, IAutoMovieTravelMotion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { unionSubjectBoxes } from "../film/unionSubjectBoxes";
 import { Matrix4 } from "../math/Matrix4";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieOpeningSweep } from "./IAutoMovieOpeningSweep";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtPointBounds } from "./builtPointBounds";
 import { AUTOMOVIE_FULL_TURN_EPSILON } from "./constants/AUTOMOVIE_FULL_TURN_EPSILON";

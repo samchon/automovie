@@ -1,6 +1,5 @@
-import type { IAutoMovieMotionGeometry } from "@automovie/interface";
+import type { IAutoMovieMotionAudit, IAutoMovieMotionGeometry } from "@automovie/interface";
 
-import type { AutoMovieMotionAudit as Audit } from "./AutoMovieMotionAudit";
 
 /**
  * Resolve the already admitted exclusive description; a physical profile structurally supplies the same collision and joint facts.
@@ -14,7 +13,7 @@ import type { AutoMovieMotionAudit as Audit } from "./AutoMovieMotionAudit";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function motionAuditGeometry(
-  body: Audit.IBody,
+  body: IAutoMovieMotionAudit.IBody,
 ): IAutoMovieMotionGeometry {
   if (body.profile !== undefined) return body.profile;
   return body.geometry!;

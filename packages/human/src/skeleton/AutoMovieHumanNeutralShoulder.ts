@@ -1,5 +1,9 @@
-import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
-import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanChainRings, IAutoMovieHumanNeutralBody, IAutoMovieHumanNeutralShoulder } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -18,17 +22,7 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * forward of it.
  */
 export namespace AutoMovieHumanNeutralShoulder {
-  /** One shoulder's neutral. */
-  export interface IOutput {
-    /** The upper arm's world turn from the bind. */
-    turn: Math3D.Quaternion;
-
-    /** The arm's unit direction at neutral, from the shoulder down. */
-    down: Math3D.Vector;
-
-    /** The resting abduction from the plumb line, degrees. */
-    resting: number;
-  }
+  
 
   /**
    * Derive one shoulder's neutral.
@@ -42,21 +36,21 @@ export namespace AutoMovieHumanNeutralShoulder {
     body: IAutoMovieHumanNeutralBody,
     rings: readonly IAutoMovieHumanChainRings[],
     side: "left" | "right",
-  ): IOutput {
+  ): IAutoMovieHumanNeutralShoulder.IOutput {
     const s: number = side === "left" ? 1 : -1;
     const angle: number = restingAngle(rings, body, side);
     const radians: number = (angle * Math.PI) / 180;
-    const down: Math3D.Vector = [0, -Math.cos(radians), s * Math.sin(radians)];
-    const upper: Math3D.Vector = body.direction(`${side}UpperArm`);
-    const fore: Math3D.Vector = body.direction(`${side}LowerArm`);
+    const down: AutoMovieVector3Tuple = [0, -Math.cos(radians), s * Math.sin(radians)];
+    const upper: AutoMovieVector3Tuple = body.direction(`${side}UpperArm`);
+    const fore: AutoMovieVector3Tuple = body.direction(`${side}LowerArm`);
 
     // The elbow's plane is the forearm's lean off the humerus. A bind arm
     // held straight has no such plane (the lean's length is zero and its
     // direction undefined), and then the upper arm keeps its bind twist: the
     // side carried is the body's forward direction, square to the humerus.
-    const lean: Math3D.Vector = Turn.perpendicular(fore, upper);
+    const lean: AutoMovieVector3Tuple = Turn.perpendicular(fore, upper);
     const bent: boolean = Math.hypot(...lean) > STRAIGHT;
-    const plane: Math3D.Vector = bent ? Math3D.unit(lean) : Math3D.unit(Turn.perpendicular(Turn.FORWARD, upper));
+    const plane: AutoMovieVector3Tuple = bent ? Math3D.unit(lean) : Math3D.unit(Turn.perpendicular(Turn.FORWARD, upper));
     return {
       turn: Turn.frame(upper, plane, down, bent ? Turn.FORWARD : plane),
       down,
@@ -91,10 +85,10 @@ export namespace AutoMovieHumanNeutralShoulder {
     side: "left" | "right",
   ): number {
     const s: number = side === "left" ? 1 : -1;
-    const at: (bone: string) => Math3D.Vector = (
+    const at: (bone: string) => AutoMovieVector3Tuple = (
       bone: string,
-    ): Math3D.Vector => body.byBone.get(`${side}${bone}`)!.position;
-    const shoulder: Math3D.Vector = at("UpperArm");
+    ): AutoMovieVector3Tuple => body.byBone.get(`${side}${bone}`)!.position;
+    const shoulder: AutoMovieVector3Tuple = at("UpperArm");
     const profile: IProfile = armProfile(rings, body, side);
     const fore: number = profile.to;
 
@@ -141,21 +135,21 @@ export namespace AutoMovieHumanNeutralShoulder {
     body: IAutoMovieHumanNeutralBody,
     side: "left" | "right",
   ): IProfile {
-    const at: (bone: string) => Math3D.Vector = (bone: string): Math3D.Vector => body.byBone.get(`${side}${bone}`)!.position;
-    const shoulder: Math3D.Vector = at("UpperArm");
-    const elbow: Math3D.Vector = at("LowerArm");
+    const at: (bone: string) => AutoMovieVector3Tuple = (bone: string): AutoMovieVector3Tuple => body.byBone.get(`${side}${bone}`)!.position;
+    const shoulder: AutoMovieVector3Tuple = at("UpperArm");
+    const elbow: AutoMovieVector3Tuple = at("LowerArm");
     const upper: number = Turn.length(shoulder, elbow);
     const arm: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `arm.${side}`);
     if (arm === undefined) {
       const radius: number = body.byBone.get(`${side}LowerArm`)!.radius;
       return { from: upper, to: upper + Turn.length(elbow, at("Hand")), radius: (): number => radius };
     }
-    const humerus: Math3D.Vector = Math3D.unit(Math3D.sub(elbow, shoulder));
-    const forearm: Math3D.Vector = Math3D.unit(Math3D.sub(at("Hand"), elbow));
+    const humerus: AutoMovieVector3Tuple = Math3D.unit(Math3D.sub(elbow, shoulder));
+    const forearm: AutoMovieVector3Tuple = Math3D.unit(Math3D.sub(at("Hand"), elbow));
 
     // Each skin point onto the straight arm: station and distance from the
     // nearer bone line within that bone's span.
-    const reading: (p: Math3D.Vector) => [number, number] = (p: Math3D.Vector): [number, number] => {
+    const reading: (p: AutoMovieVector3Tuple) => [number, number] = (p: AutoMovieVector3Tuple): [number, number] => {
       const a: number = Turn.dot(Math3D.sub(p, shoulder), humerus);
       const b: number = Turn.dot(Math3D.sub(p, elbow), forearm);
       const da: number = Turn.length(p, Math3D.add(shoulder, [humerus[0] * a, humerus[1] * a, humerus[2] * a]));
@@ -198,7 +192,7 @@ export namespace AutoMovieHumanNeutralShoulder {
     for (const chain of rings) {
       if (!hand.test(chain.chain)) continue;
       for (let k: number = 0; k < chain.points.length / 3; k++) {
-        const p: Math3D.Vector = [chain.points[3 * k]!, chain.points[3 * k + 1]!, chain.points[3 * k + 2]!];
+        const p: AutoMovieVector3Tuple = [chain.points[3 * k]!, chain.points[3 * k + 1]!, chain.points[3 * k + 2]!];
         const b: number = Turn.dot(Math3D.sub(p, elbow), forearm);
         const t: number = upper + b;
         const r: number = Turn.length(p, Math3D.add(elbow, [forearm[0] * b, forearm[1] * b, forearm[2] * b]));

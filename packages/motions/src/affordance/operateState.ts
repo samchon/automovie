@@ -1,7 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieMotionHumanOperateState, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { operate } from "./operate";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
 
@@ -29,11 +28,11 @@ export namespace operateState {
    * @returns The point and the normal, and the roll about the normal in degrees.
    */
   export function at(
-    mechanism: operate.Mechanism,
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-    hinge: operateDrive.IHinge | undefined,
+    mechanism: IAutoMovieMotionHumanOperate.Mechanism,
+    place: IAutoMovieMotionHumanOperateState.IAtPlace,
+    hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined,
     progress: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3; roll: number } {
+  ): IAutoMovieMotionHumanOperateState.IAtResult {
     const n: IAutoMovieVector3 = Vector3.normalize(place.normal);
     switch (mechanism.kind) {
       case "button":

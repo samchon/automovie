@@ -1,13 +1,13 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Vector3,
   convexHull2D,
   minimumJerk,
   pointInHull,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -32,10 +32,10 @@ import type { staggerRecover } from "./staggerRecover";
  */
 export class StaggerPendulum {
   /** The body. */
-  public readonly body: IHumanActionContext["body"];
+  public readonly body: IAutoMovieMotionHumanActionContext["body"];
 
   /** The posture the push meets. */
-  public readonly entry: IHumanActionContext["entry"];
+  public readonly entry: IAutoMovieMotionHumanActionContext["entry"];
 
   /** The push's horizontal unit direction, world. */
   public readonly push: IAutoMovieVector3;
@@ -59,7 +59,7 @@ export class StaggerPendulum {
   public readonly across: IAutoMovieVector3;
 
   /** The feet as the entry stands them. */
-  public readonly entered: Record<"left" | "right", HumanFoot.IPlacement>;
+  public readonly entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
   /** The narrowest the feet stand, ankle to ankle across the heading, side by side with their outlines touching. */
   public readonly width: number;
@@ -68,7 +68,7 @@ export class StaggerPendulum {
   public readonly length: number;
 
   /** The feet as the steps so far placed them. */
-  public feet: Record<"left" | "right", HumanFoot.IPlacement>;
+  public feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
   /** The spans so far: each start, its centre of pressure and the state it started from. */
   public phases: staggerRecover.IPhase[] = [];
@@ -94,8 +94,8 @@ export class StaggerPendulum {
    * @param speed The centre of mass's speed after the blow, m/s.
    */
   public constructor(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
   ) {

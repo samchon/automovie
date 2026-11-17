@@ -1,10 +1,8 @@
+import type { IAutoMovieRecoveryMapPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+
+
 
 /**
  * Apply an independent left SO3 and additive translation resection step.
@@ -33,8 +31,7 @@ export function stepRecoveryMapPose(
     const value: IAutoMovieVector3 = Quaternion.rotateVector(increment, {
       x: pose.rotation[column]!,
       y: pose.rotation[3 + column]!,
-      z: pose.rotation[6 + column]!,
-    });
+      z: pose.rotation[6 + column]! });
     rotation[column] = value.x;
     rotation[3 + column] = value.y;
     rotation[6 + column] = value.z;

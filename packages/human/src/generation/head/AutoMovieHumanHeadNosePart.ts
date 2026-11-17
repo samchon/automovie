@@ -1,6 +1,10 @@
-import { AutoMovieNaturalSpline, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieNaturalSpline, IAutoMovieViewPart, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadPrior } from "@automovie/interface";
+
+
+
+import { AutoMovieNaturalSpline, AutoMovieViewSection } from "@automovie/engine";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /**
@@ -50,9 +54,9 @@ export namespace AutoMovieHumanHeadNosePart {
    * @returns The part, chain name `nose`.
    */
   export function of(plan: IAutoMovieHumanHeadLayout, depth: number): IAutoMovieViewPart {
-    const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
+    const face: IAutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
     const knots: readonly number[] = face.profileKnots;
-    const dorsum: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(knots, face.dorsum);
+    const dorsum: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(knots, face.dorsum);
     const span: number = plan.nasion - plan.tip;
     const height: (v: number) => number = (v: number): number => plan.tip + v * span;
     const n: [number, number] = plan.landmarks.nasion;
@@ -139,7 +143,7 @@ export namespace AutoMovieHumanHeadNosePart {
     top: number,
     theta: (y: number) => number,
     angles: readonly number[],
-    face: AutoMovieHumanHeadPrior.IFace,
+    face: IAutoMovieHumanHeadPrior.IFace,
   ): (y: number) => number {
     const prn: [number, number] = plan.landmarks.pronasale;
     const n: [number, number] = plan.landmarks.nasion;

@@ -1,10 +1,8 @@
+import type { IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
+
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { crawl } from "../../floor/crawl";
-import type { lieDown } from "../../floor/lieDown";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -47,8 +45,8 @@ export function floorCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
 
     for (const position of ["supine", "prone", "lateralLeft"] as const) {
-      const params: lieDown.IParams = { position };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
+      const params: IAutoMovieMotionHumanLieDown.IParams = { position };
+      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
         "floor",
         [{ subject: "a", body: who.body }],
         HumanChain.subject("a").act("lieDown", params),
@@ -89,8 +87,8 @@ export function floorCases(
     }
 
     {
-      const params: crawl.IParams = { cycles: 3 };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
+      const params: IAutoMovieMotionHumanCrawl.IParams = { cycles: 3 };
+      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
         "floor",
         [{ subject: "a", body: who.body }],
         HumanChain.subject("a").act("crawl", params),

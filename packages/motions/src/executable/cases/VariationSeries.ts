@@ -1,8 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 
 /**
@@ -19,10 +17,10 @@ export namespace VariationSeries {
 
   /** One performer, trained, at the origin facing +Z, and an optional partner a gap ahead facing back. */
   export function perform(
-    body: IHumanBody,
-    chain: HumanChain,
-    partner?: { body: IHumanBody; gap: number },
-  ): HumanPerformance {
+    body: IAutoMovieMotionHumanBody,
+    chain: IAutoMovieMotionHumanChain,
+    partner?: { body: IAutoMovieMotionHumanBody; gap: number },
+  ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
       seed: "variation",
       performers: [

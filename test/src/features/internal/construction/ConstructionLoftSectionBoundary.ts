@@ -1,10 +1,5 @@
-import {
-  AutoMovieLoftSectionBoundary,
-  AutoMovieLoftSectionLegacy,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftSectionBoundary, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieLoftSectionBoundary, AutoMovieLoftSectionLegacy, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
 
 /** Physical station value/first/second, supplied independently of the implementation algebra. */
 type Scalar = readonly [number, number, number];
@@ -60,15 +55,15 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
     side: { positive: outline(1), negative: outline(-1) },
     fullness: { kind: "shoulder", shoulder: constant },
   };
-  const admitted: AutoMovieLoftViewSource.IResult | null =
+  const admitted: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
   if (admitted === null || admitted.source === null)
     throw new Error(
       `The cap fixture has no original scalar source: ${JSON.stringify(admitted?.diagnostics)}`,
     );
-  const source: AutoMovieLoftViewSource.ISource = admitted.source;
+  const source: IAutoMovieLoftViewSource.ISource = admitted.source;
   const station: number = h * (1 - y);
-  const reading: AutoMovieLoftViewRead.IJets | string =
+  const reading: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(source, station);
   if (typeof reading === "string") throw new Error(reading);
   const difference: number = Math.SQRT2 - 1 - 0.3;
@@ -87,7 +82,7 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
     failures.push(
       "The cap fixture no longer distinguishes the old rounded small weight.",
     );
-  const malformed: AutoMovieLoftViewSource.ISource = {
+  const malformed: IAutoMovieLoftViewSource.ISource = {
     ...source,
     caps: [
       { pole: 0, near: end, span: end },
@@ -104,14 +99,14 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
         "Overlapping present cap supports lost their named admission failure.",
       );
   }
-  const constantCap: AutoMovieLoftViewSource.ISource = {
+  const constantCap: IAutoMovieLoftViewSource.ISource = {
     ...malformed,
     caps: [
       { pole: 0, near: null, span: null },
       { pole: end, near: 0, span: end },
     ],
   };
-  const ellipse: AutoMovieLoftViewRead.IJets | string =
+  const ellipse: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(constantCap, h);
   if (typeof ellipse === "string") throw new Error(ellipse);
   check(
@@ -127,26 +122,26 @@ function bridge(failures: string[]): void {
   const inputs: (
     extent: number,
     shoulder: number,
-  ) => AutoMovieLoftViewRead.IJets = (
+  ) => IAutoMovieLoftViewRead.IJets = (
     extent: number,
     shoulder: number,
-  ): AutoMovieLoftViewRead.IJets => ({
+  ): IAutoMovieLoftViewRead.IJets => ({
     extents: Array.from({ length: 4 }, (): Scalar => [extent, 0, 0]),
     shoulders: Array.from({ length: 4 }, (): Scalar => [shoulder, 0, 0]),
   });
-  const a: AutoMovieLoftSectionBoundary.IEnd = {
+  const a: IAutoMovieLoftSectionBoundary.IEnd = {
     station: 2,
     inputs: inputs(2, 0.3),
   };
-  const b: AutoMovieLoftSectionBoundary.IEnd = {
+  const b: IAutoMovieLoftSectionBoundary.IEnd = {
     station: 5,
     inputs: inputs(5, 0.6),
   };
-  const made: AutoMovieLoftSectionBoundary.IBridge | string =
+  const made: IAutoMovieLoftSectionBoundary.IBridge | string =
     AutoMovieLoftSectionBoundary.create(a, b);
   if (typeof made === "string") throw new Error(made);
   for (const end of [a, b]) {
-    const value: AutoMovieLoftViewRead.IJets | string =
+    const value: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftSectionBoundary.read(made, end.station);
     if (JSON.stringify(value) !== JSON.stringify(end.inputs))
       failures.push(
@@ -162,7 +157,7 @@ function bridge(failures: string[]): void {
     const du: number = Math.log(0.6 / 0.4) - Math.log(0.3 / 0.7);
     const shoulder: number =
       1 / (1 + Math.exp(-(Math.log(0.3 / 0.7) + du * q)));
-    const result: AutoMovieLoftViewRead.IJets | string =
+    const result: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftSectionBoundary.read(made, 2 + 3 * u);
     if (typeof result === "string") throw new Error(result);
     check(
@@ -184,7 +179,7 @@ function bridge(failures: string[]): void {
       failures,
     );
   }
-  const tiny: AutoMovieLoftSectionBoundary.IBridge | string =
+  const tiny: IAutoMovieLoftSectionBoundary.IBridge | string =
     AutoMovieLoftSectionBoundary.create(
       { ...a, station: 0 },
       { ...b, station: 1e-200 },

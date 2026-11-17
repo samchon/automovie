@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieInstanceSetPlacement,
-  instanceSlot,
-} from "@automovie/engine";
-import type { IAutoMovieInstanceSlot } from "@automovie/interface";
+import type { IAutoMovieInstanceSetPlacement, IAutoMovieInstanceSlot } from "@automovie/interface";
+import { instanceSlot } from "@automovie/engine";
+
 
 /**
  * Regenerate the existing complete placement population through the actual member owner.

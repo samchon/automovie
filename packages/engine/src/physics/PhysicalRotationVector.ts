@@ -1,8 +1,4 @@
-import type {
-  IAutoMovieQuaternion as Q,
-  IAutoMovieVector3 as V,
-} from "@automovie/interface";
-
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 
 /**
@@ -25,7 +21,7 @@ export namespace PhysicalRotationVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
-  export function log(rotation: Q): V {
+  export function log(rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
     const norm: number = Math.hypot(rotation.x, rotation.y, rotation.z);
     const sign: number = rotation.w < 0 ? -1 : 1;
     const scale: number =
@@ -49,7 +45,7 @@ export namespace PhysicalRotationVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
-  export function exp(vector: V): Q {
+  export function exp(vector: IAutoMovieVector3): IAutoMovieQuaternion {
     const angle: number = Vector3.length(vector);
     const scale: number = angle > 1e-12 ? Math.sin(angle / 2) / angle : 0.5;
     return {
@@ -70,13 +66,13 @@ export namespace PhysicalRotationVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function derivative(vector: V, velocity: V): V {
+  export function derivative(vector: IAutoMovieVector3, velocity: IAutoMovieVector3): IAutoMovieVector3 {
     const angle: number = Vector3.length(vector);
     const factor: number =
       angle > 1e-5
         ? (1 - angle / (2 * Math.tan(angle / 2))) / (angle * angle)
         : 1 / 12 + (angle * angle) / 720;
-    const cross: V = Vector3.cross(vector, velocity);
+    const cross: IAutoMovieVector3 = Vector3.cross(vector, velocity);
     return Vector3.add(
       Vector3.subtract(velocity, Vector3.scale(cross, 0.5)),
       Vector3.scale(Vector3.cross(vector, cross), factor),
@@ -93,7 +89,7 @@ export namespace PhysicalRotationVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function velocity(vector: V, derivative: V): V {
+  export function velocity(vector: IAutoMovieVector3, derivative: IAutoMovieVector3): IAutoMovieVector3 {
     const angle: number = Vector3.length(vector);
     const first: number =
       angle > 1e-5
@@ -103,7 +99,7 @@ export namespace PhysicalRotationVector {
       angle > 1e-5
         ? (angle - Math.sin(angle)) / angle ** 3
         : 1 / 6 - (angle * angle) / 120;
-    const cross: V = Vector3.cross(vector, derivative);
+    const cross: IAutoMovieVector3 = Vector3.cross(vector, derivative);
     return Vector3.add(
       derivative,
       Vector3.add(

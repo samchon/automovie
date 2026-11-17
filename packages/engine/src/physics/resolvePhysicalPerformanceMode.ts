@@ -1,5 +1,4 @@
-import type { AutoMoviePerformanceMode } from "@automovie/interface";
-
+import type { IAutoMoviePerformanceMode } from "@automovie/interface";
 /**
  * Resolve an explicit scene policy and optional body override without content-name defaults.
  *
@@ -12,10 +11,10 @@ import type { AutoMoviePerformanceMode } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function resolvePhysicalPerformanceMode(
-  scene: AutoMoviePerformanceMode,
-  body?: AutoMoviePerformanceMode,
-): AutoMoviePerformanceMode {
-  const selected: AutoMoviePerformanceMode = body ?? scene;
+  scene: IAutoMoviePerformanceMode,
+  body?: IAutoMoviePerformanceMode,
+): IAutoMoviePerformanceMode {
+  const selected: IAutoMoviePerformanceMode = body ?? scene;
   if (
     !selected ||
     !["kinematic", "simulated", "exaggerated"].includes(selected.kind)

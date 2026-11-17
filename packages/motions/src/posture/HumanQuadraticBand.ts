@@ -1,4 +1,4 @@
-import type { HumanQuadraticProgram } from "./HumanQuadraticProgram";
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 /**
  * The linear algebra of `HumanQuadraticProgram`'s OSQP solve on a banded
@@ -71,7 +71,7 @@ export namespace HumanQuadraticBand {
    * @param problem The problem.
    * @returns The scaled problem.
    */
-  export function scaled(problem: HumanQuadraticProgram.IProblem): IScaled {
+  export function scaled(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem): IScaled {
     const n: number = problem.n;
     const band: number = problem.band;
     const rows = problem.rows;

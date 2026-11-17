@@ -1,13 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieModel,
-} from "@automovie/interface";
-import {
-  type IAutoMovieModelObject,
-  type IAutoMovieRigLocalTransform,
-  applyAutoMovieRigLocals,
-  buildModel,
-} from "@automovie/render";
+import type { IAutoMovieRigLocalTransform, AutoMovieHumanoidBone, IAutoMovieModel } from "@automovie/interface";
+
+import { type IAutoMovieModelObject, applyAutoMovieRigLocals, buildModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

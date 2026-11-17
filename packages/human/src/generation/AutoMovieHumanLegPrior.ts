@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanLegPrior } from "@automovie/interface";
+
 /**
  * Named constants of the leg construction, in leg fractions and leg lengths,
  * shared by every person and both sides.
@@ -8,114 +10,20 @@
  * fastest. Fitted by `test/src/executable/human-score/fitLegPrior.ts`.
  */
 export namespace AutoMovieHumanLegPrior {
-  /** The crotch's height as a line in four public inputs. */
-  export interface ICrotch {
-    /** World millimetres. */
-    offset: number;
+  
 
-    /** Millimetres per millimetre of stature. */
-    height: number;
+  
 
-    /** Millimetres per millimetre of inseam tape. */
-    inseam: number;
+  
 
-    /** Millimetres per millimetre of thigh tape. */
-    thigh: number;
+  
 
-    /** World millimetres per unit of the masculine-feminine control. */
-    sex: number;
-  }
+  
 
-  /**
-   * The crotch ring is tilted, so its horizontal projection is not a section:
-   * the last section of the law sits off that projection by a shared amount.
-   */
-  export interface IRing {
-    /** Section centre ahead of the ring's, in leg lengths. */
-    forward: number;
-
-    /** Section centre outside the ring's, in leg lengths. */
-    lateral: number;
-  }
-
-  /** Station of a tape measure and its ratio to the prior section's hull there. */
-  export interface ICourse {
-    /** Leg fraction of the tape. */
-    station: number;
-
-    /** Hull girth at the station per unit of the tape input. */
-    ratio: number;
-  }
-
-  /** The ankle centre ahead of the origin as a line, world millimetres. */
-  export interface IAnkle {
-    /** Constant. */
-    offset: number;
-
-    /** Per unit of the fat control. */
-    fat: number;
-
-    /** Per unit of the muscularity control. */
-    muscularity: number;
-  }
-
-  /** The axis's place off the midline per station: a constant and three inputs. */
-  export interface ILateral {
-    /** World millimetres. */
-    offset: readonly number[];
-
-    /** Millimetres per millimetre of leg length. */
-    leg: readonly number[];
-
-    /** Millimetres per millimetre of hip tape. */
-    hip: readonly number[];
-
-    /** World millimetres per unit of the masculine-feminine control. */
-    sex: readonly number[];
-  }
-
-  /** The prior's channels. */
-  export interface IPrior {
-    /** Height of the crotch. */
-    crotch: ICrotch;
-
-    /** The groin section against the crotch ring's projection. */
-    ring: IRing;
-
-    /** Forward place of the ankle centre. */
-    ankle: IAnkle;
-
-    /** Leg fractions of the channels, ankle first. */
-    stations: readonly number[];
-
-    /** Log of the equivalent radius in leg lengths. */
-    profile: readonly number[];
-
-    /** Section centre ahead of the ankle centre, in leg lengths. */
-    forward: readonly number[];
-
-    /** Section centre off the midline, as a line. */
-    lateral: ILateral;
-
-    /**
-     * Area-normalized radial shape of the left leg per station, as the
-     * Fourier series `[a0, a1, b1, a2, b2, ...]` of the polar angle from
-     * the front toward the outside.
-     */
-    shape: readonly (readonly number[])[];
-
-    /** Calf tape. */
-    calf: ICourse;
-
-    /** Knee tape. */
-    knee: ICourse;
-
-    /** Thigh tape. */
-    thigh: ICourse;
-  }
+  
 
   /** The law's constants. */
-  export const PRIOR: IPrior = {
+  export const PRIOR: IAutoMovieHumanLegPrior.IPrior = {
     crotch: { offset: 1.55245, height: 0.09106, inseam: 0.89836, thigh: -0.02214, sex: -5.73345 },
     ring: { forward: 0.01424, lateral: 0.00731 },
     ankle: { offset: 2.80246, fat: 3.1084, muscularity: 0.5333 },

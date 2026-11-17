@@ -1,10 +1,5 @@
-import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSurfaceConstruction,
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSurfaceRig,
-  rigAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import type { IAutoMovieResolvedBone, IAutoMovieSurfaceConstruction, IAutoMovieSurfaceNetwork, IAutoMovieSurfaceRig } from "@automovie/interface";
+import { rigAutoMovieSurfaceNetwork } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

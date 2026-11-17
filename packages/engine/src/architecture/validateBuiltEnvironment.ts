@@ -1,16 +1,5 @@
-import {
-  IAutoMovieBoundaryFace,
-  IAutoMovieBuiltConnector,
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltPopulation,
-  IAutoMovieBuiltSurface,
-  IAutoMovieConstraintViolation,
-  IAutoMovieModel,
-  IAutoMoviePlanarPoint,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieValidateBuiltEnvironment, type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieBuiltSurface, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMoviePlanarPoint, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendGraphCycles } from "../validation/appendGraphCycles";
@@ -71,14 +60,9 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Validates the supplied mutable record per call. Lowering and guarded consumers invoke it; low-level queries can instead require an already-valid record and do not all validate independently. No persistent validation cache is maintained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id sets, face and hull maps and the work-wide driven-element table are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateBuiltEnvironment: (props: {
-  /** Building record to validate. */ environment: IAutoMovieBuiltEnvironment;
-}) => IAutoMovieValidation = (props: {
-  /** Building record to validate. */
-  environment: IAutoMovieBuiltEnvironment;
-}): IAutoMovieValidation => {
+export const validateBuiltEnvironment: (props: IAutoMovieValidateBuiltEnvironment.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateBuiltEnvironment.IProps): IAutoMovieValidation => {
   const environment: IAutoMovieBuiltEnvironment = props.environment;
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   collector.nonEmpty(`${root}.id`, environment.id, "building id");
@@ -374,11 +358,11 @@ export const validateBuiltEnvironment: (props: {
  * `$input` path onto this record.
  */
 const appendNested: (
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   validation: IAutoMovieValidation,
   reroot: (path: string) => string,
 ) => void = (
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   validation: IAutoMovieValidation,
   reroot: (path: string) => string,
 ): void => {

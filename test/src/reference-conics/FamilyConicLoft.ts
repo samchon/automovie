@@ -1,4 +1,5 @@
-import { type AutoMovieViewAxis, type AutoMovieViewLoft as L, realizeAutoMovieConstruction } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieViewAxis, IAutoMovieViewLoft } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft as H } from "@automovie/human";
 
 /**
@@ -8,19 +9,19 @@ import { AutoMovieHumanConicLoft as H } from "@automovie/human";
  */
 export namespace FamilyConicLoft {
   /** A point or direction in absolute reference coordinates. */
-  export type V3 = H.V3;
+  export type V3 = AutoMovieVector3Tuple;
 
   /** The complete authored definition of one part. */
-  export type IStored = H.IFamily;
+  export type IStored = IAutoMovieHumanConicLoft.IFamily;
 
   /** The part's course as the engine reads it. */
-  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up" | "roll">) => AutoMovieViewAxis.IAxis = H.axis;
+  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up" | "roll">) => IAutoMovieViewAxis.IAxis = H.axis;
 
   /** The family's field vector at one station. */
   export const reader: (stored: IStored) => (s: number) => number[] = H.reader;
 
   /** Loft a stored family through the engine at the given stations. */
-  export const create: (stored: IStored, stations: number[]) => L.IResult = H.create;
+  export const create: (stored: IStored, stations: number[]) => IAutoMovieViewLoft.IResult = H.create;
 
   /**
    * The refusals of a stored family realized alone as a construction source, the path the figure is built by, over layers `layer` mm apart.

@@ -1,5 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain, type IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
 import { motionHumanBody } from "./motionHumanBody";
@@ -93,8 +94,8 @@ export namespace motionHumanMetamorphic {
         Object.entries(o).map(([k, v]: [string, unknown]) => [k, moved(v, k)]),
       );
     };
-    const a: IHumanBody = motionHumanBody("m-average");
-    const b: IHumanBody = motionHumanBody("f-small");
+    const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+    const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
     const at: number = row.indexOf("=");
     const pick = (p: string): string | undefined =>
       at >= 0 && p === row.slice(0, at) ? row.slice(at + 1) : undefined;
@@ -196,7 +197,7 @@ export namespace motionHumanMetamorphic {
    * @returns The findings.
    */
   export function tempo(law: string, params: object): string[] {
-    const body: IHumanBody = motionHumanBody("m-average");
+    const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const film = (pace: number): motionHumanLaw.IFilm =>
       motionHumanLaw.perform(
         "metamorphic",

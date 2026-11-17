@@ -1,6 +1,5 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieActorContext, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 
 /**
  * Lift known actors' placement points by their context eye height for lookAt targets, preserving the table's exact key set. Other staged nodes and cameras keep their borrowed placement points. Arm and locomotion targets use the unlifted table.

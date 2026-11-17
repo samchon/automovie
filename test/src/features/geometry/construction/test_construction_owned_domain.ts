@@ -1,20 +1,5 @@
-import {
-  AutoMovieConstructionContinuation,
-  type AutoMovieConstructionRealization,
-  AutoMovieConstructionSeeds,
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieSolidIntersection,
-  AutoMovieSolidMesh,
-  AutoMovieViewAxis,
-  AutoMovieViewLoft,
-  AutoMovieViewParameter,
-  AutoMovieViewSection,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieSolidIntersection, IAutoMovieSolidMesh, IAutoMovieSolidSurface, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieConstructionContinuation, AutoMovieConstructionSeeds, AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieSolidIntersection, AutoMovieSolidMesh, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewParameter, AutoMovieViewSection, realizeAutoMovieConstruction } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionOwnedAtlas } from "../../internal/construction/ConstructionOwnedAtlas";
@@ -38,7 +23,7 @@ import { nclose } from "../../internal/nclose";
 export function test_construction_owned_domain(): void {
   const failures: string[] = [];
   const original: IAutoMovieViewPart = cap();
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(original);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(original);
   if (result.chain === null || result.surface === null)
     throw new Error(JSON.stringify(result.diagnostics));
   const chain: IAutoMovieLoftChain = result.chain;
@@ -95,7 +80,7 @@ export function test_construction_owned_domain(): void {
     close(surface.point!(0, phi), [0, 0, 0], "actual collapsed tip", failures);
   if (!throws((): unknown => surface.jet(0, 0)))
     failures.push("Collapsed pole physical2 was fabricated.");
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
   const apex: number = AutoMovieSolidMesh.vertex(
     mesh,
@@ -169,7 +154,7 @@ export function test_construction_owned_domain(): void {
   if (!throws((): unknown => AutoMovieLoftChain.point(rewritten, 0.25, 0)))
     failures.push("A transformed cap silently retained old world authority.");
 
-  const realized: AutoMovieConstructionRealization.IRealization =
+  const realized: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction(
       {
         name: "owned-cap-tree",
@@ -247,7 +232,7 @@ export function test_construction_owned_domain(): void {
       };
     },
   };
-  const moving: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const moving: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     ...original,
     axis: shifted,
   });
@@ -262,7 +247,7 @@ export function test_construction_owned_domain(): void {
   );
   close(moved.u, [1.1875, 1, 0], "actual nonlinear cap axis first", failures);
   close(moved.uu, [-0.5, 0, 0], "actual nonlinear cap axis second", failures);
-  const valueOnly: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const valueOnly: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     ...original,
     axis: { at: horizontal.at },
   });
@@ -298,7 +283,7 @@ export function test_construction_owned_domain(): void {
     failures.push(
       `The owned-cap search lost its actual contact: ${JSON.stringify(searched)}`,
     );
-  const intersection: AutoMovieSolidIntersection.IResult =
+  const intersection: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part: { ...surface, period: 2 * Math.PI },
       host: cut,

@@ -1,3 +1,6 @@
+import type { IAutoMovieInspectionKindStyle } from "@automovie/interface";
+
+
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 
 /**
@@ -17,7 +20,7 @@ import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.j
  * | `trail/now` | `trail at the drawn second` | Dodger blue `1e90ff` |
  */
 export const AUTO_MOVIE_INSPECTION_KINDS: Readonly<
-  Record<string, { readonly label: string; readonly color: number }>
+  Record<string, Readonly<IAutoMovieInspectionKindStyle>>
 > = {
   edge: { label: "mesh edge", color: AUTO_MOVIE_INSPECTION_PALETTE.edge },
   "defect/open": {

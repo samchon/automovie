@@ -1,26 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieAffordance,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanWorn } from "../dressing/HumanWorn";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanGrasp } from "./HumanGrasp";
 
 /**
  * The key pose a grasp taken to wear a thing must also hold
@@ -45,7 +32,7 @@ export namespace HumanGraspWorn {
    * @returns The key, with its judge: the fitted hand's wear socket off the region, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the least hand error, then the least strain, read from the fit's own sweep; never placed by a share of the arm.
+   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is left to the body (`HumanPosture.IGoal.elbow`): the least hand error, then the least strain, read from the fit's own sweep; never placed by a share of the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's offset, the key of a turn, its fitted miss, one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The judge is the quantity `dress` judges, never a mix of degrees and millimetres.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each turn is fitted once, kept in a map, however often the search returns to it; a thing not round is fitted at its one turn.
@@ -53,19 +40,19 @@ export namespace HumanGraspWorn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map lives for the call.
    */
   export function key(props: {
-    context: Pick<IHumanActionContext, "body" | "entry" | "start">;
-    held: IHumanActionContext.IProp;
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "start">;
+    held: IAutoMovieMotionHumanActionContext.IProp;
     tip: IAutoMovieAffordance;
     at: AutoMovieHumanoidRegion;
     site: IAutoMovieVector3;
 
-    side: HumanHand.Side;
-    wrist: HumanHand.IWrist;
+    side: IAutoMovieMotionHumanHand.Side;
+    wrist: IAutoMovieMotionHumanHand.IWrist;
     round?: boolean;
-    clear?: (wrist: HumanHand.IWrist) => number;
-  }): HumanGrasp.IKey {
+    clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
+  }): IAutoMovieMotionHumanGrasp.IKey {
     const { context, held, tip, at, site } = props;
-    const world: IHumanProp.IFrame = held.frame(context.start);
+    const world: IAutoMovieMotionHumanProp.IFrame = held.frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
     );
@@ -87,8 +74,8 @@ export namespace HumanGraspWorn {
         props.wrist.point,
       ),
     );
-    const keyed = (degrees: number): HumanHand.IWrist => {
-      const worn: IHumanProp.IFrame = HumanWorn.frame(
+    const keyed = (degrees: number): IAutoMovieMotionHumanHand.IWrist => {
+      const worn: IAutoMovieMotionHumanProp.IFrame = HumanWorn.frame(
         context.body,
         context.entry.posture,
         held.prop,
@@ -106,7 +93,7 @@ export namespace HumanGraspWorn {
         rotation,
       };
     };
-    // A turn's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the
+    // A turn's elbow is left to the body (`HumanPosture.IGoal.elbow`): the
     // fit takes the least hand error, then the least strain, in its own
     // sweep; the hanging arm's place is only where no place is legal.
     const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -123,9 +110,9 @@ export namespace HumanGraspWorn {
     const missed = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
       if (known !== undefined) return known;
-      const wrist: HumanHand.IWrist = keyed(degrees);
-      const posture: IHumanPosture = context.entry.posture;
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      const wrist: IAutoMovieMotionHumanHand.IWrist = keyed(degrees);
+      const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       limbs[`${props.side}Arm`] = {
         point: wrist.point,
         rotation: wrist.rotation,
@@ -169,7 +156,7 @@ export namespace HumanGraspWorn {
       ],
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
-    const chosen: HumanHand.IWrist = keyed(turned);
+    const chosen: IAutoMovieMotionHumanHand.IWrist = keyed(turned);
     return {
       posture: context.entry.posture,
       wrist: chosen,

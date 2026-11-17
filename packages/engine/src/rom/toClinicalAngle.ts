@@ -1,5 +1,4 @@
-import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
-
+import type { IAutoMovieAxisFrame } from "@automovie/interface";
 const assertAxisFrame: (
   label: string,
   frame: IAutoMovieAxisFrame | undefined,

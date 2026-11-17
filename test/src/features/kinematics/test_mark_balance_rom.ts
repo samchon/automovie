@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieMark,
-  markAutoMovieBalance,
-  markAutoMovieRomOvershoot,
-} from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
+import { markAutoMovieBalance, markAutoMovieRomOvershoot } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**

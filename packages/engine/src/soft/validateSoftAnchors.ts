@@ -1,11 +1,6 @@
-import {
-  IAutoMovieSoftAnchor,
-  IAutoMovieSoftAnchorPose,
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftNamedState,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieSoftAnchor, IAutoMovieSoftAnchorPose, IAutoMovieSoftBodyDomain, IAutoMovieSoftNamedState } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
+
 import { SOFT_MAX_ANCHORS } from "./constants/SOFT_MAX_ANCHORS";
 import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
 import { validateSoftBounded as bounded } from "./validateSoftBounded";
@@ -35,12 +30,12 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The identity sets belong to the call; only the caller's collector is written.
  */
 export const validateSoftAnchors: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
   count: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   root: string,
   domain: IAutoMovieSoftBodyDomain,
   count: number,

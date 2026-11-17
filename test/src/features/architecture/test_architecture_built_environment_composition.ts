@@ -1,18 +1,6 @@
-import {
-  AutoMovieSubject,
-  AutoMovieSubjectGroup,
-  type IAutoMovieSubjectContribution,
-  lowerBuiltEnvironment,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltSpace,
-  IAutoMovieModel,
-  IAutoMovieShotBuildContext,
-  IAutoMovieSpace,
-  IAutoMovieStageSetPiece,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import type { IAutoMovieSubjectContribution, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieModel, IAutoMovieShotBuildContext, IAutoMovieSpace, IAutoMovieStageSetPiece, IAutoMovieTransform } from "@automovie/interface";
+import { AutoMovieSubject, AutoMovieSubjectGroup, lowerBuiltEnvironment } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";

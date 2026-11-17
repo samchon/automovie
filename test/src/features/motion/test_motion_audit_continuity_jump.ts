@@ -1,12 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditContinuity,
-  type IAutoMovieMotionHumanAuditMeasure,
-  type IAutoMovieMotionHumanAuditMotion,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditContinuity, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
@@ -67,7 +61,7 @@ export function test_motion_audit_continuity_jump(): void {
   const final: number =
     1 / (24 * 4 ** AutoMovieMotionHumanAuditContinuity.LEVELS);
 
-  const flip: AutoMovieMotionHumanAuditContinuity.IResult =
+  const flip: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(stepped(0.7031, 0.3), "a");
   TestValidator.predicate(
     "the jump is the step",
@@ -104,7 +98,7 @@ export function test_motion_audit_continuity_jump(): void {
     ) <= 1e-4,
   );
 
-  const both: AutoMovieMotionHumanAuditContinuity.IResult =
+  const both: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(stepped(0.7031, 0.3, 0.1), "a");
   TestValidator.predicate(
     "the worse of two stepping bones is reported",
@@ -112,14 +106,14 @@ export function test_motion_audit_continuity_jump(): void {
       both.jump.where === "rightLowerArm",
   );
 
-  const onFrame: AutoMovieMotionHumanAuditContinuity.IResult =
+  const onFrame: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(stepped(0.5, 0.3), "a");
   TestValidator.predicate(
     "a step on a frame is found",
     Math.abs(onFrame.jump.value - 0.3) <= 1e-4,
   );
 
-  const hidden: AutoMovieMotionHumanAuditContinuity.IResult =
+  const hidden: IAutoMovieMotionHumanAuditContinuity.IResult =
     AutoMovieMotionHumanAuditContinuity.measure(
       motionAuditPoints(
         1,

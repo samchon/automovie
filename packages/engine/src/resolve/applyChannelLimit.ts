@@ -1,7 +1,5 @@
-import { IAutoMovieChannelLimit } from "@automovie/interface";
+import { type IAutoMovieClampOutcome, type IAutoMovieClampViolation, IAutoMovieChannelLimit } from "@automovie/interface";
 
-import { IAutoMovieClampOutcome } from "./IAutoMovieClampOutcome";
-import { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
 import { channelKey } from "./channelKey";
 
 /**

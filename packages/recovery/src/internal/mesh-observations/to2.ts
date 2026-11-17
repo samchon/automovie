@@ -1,6 +1,7 @@
-import { Plane } from "./Plane";
-import { V2 } from "./V2";
-import { V3 } from "./V3";
+import type { AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMoviePlaneFrame } from "@automovie/interface";
+
+
+
 import { dot } from "./dot";
 import { sub } from "./sub";
 
@@ -15,10 +16,10 @@ import { sub } from "./sub";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one coordinate pair and retains no state.
  */
-export const to2: (plane: Plane, point: V3) => V2 = (
-  plane: Plane,
-  point: V3,
-): V2 => {
-  const relative: V3 = sub(point, plane.origin);
+export const to2: (plane: IAutoMoviePlaneFrame, point: AutoMovieVector3Tuple) => AutoMovieVector2Tuple = (
+  plane: IAutoMoviePlaneFrame,
+  point: AutoMovieVector3Tuple,
+): AutoMovieVector2Tuple => {
+  const relative: AutoMovieVector3Tuple = sub(point, plane.origin);
   return [dot(relative, plane.u), dot(relative, plane.v)];
 };

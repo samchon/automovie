@@ -1,3 +1,4 @@
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryConicApproximation";
 
 /**
@@ -38,42 +39,43 @@ import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryCon
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source callbacks and temporary arrays remain call-local; the returned coefficients contain no source samples, and no file, task or process is acquired.
  */
 export function approximateAutoMovieRecoveryConicsAhn(
-  curve: C.ICurve,
-  options: C.IOptions,
-): C.IResult {
+  curve: IAutoMovieConicApproximation.ICurve,
+  options: IAutoMovieConicApproximation.IOptions,
+): IAutoMovieConicApproximation.IResult {
   const method: string = "Ahn 2001 triangle construction / sampled radial-minimax adaptation";
   const diagnostics: string[] = C.validate(curve, options);
-  const arcs: C.IArc[] = [];
+  const arcs: IAutoMovieConicApproximation.IArc[] = [];
   let queries: number = 0;
   let unresolved: number = 0;
   const reasons: Map<string, number> = new Map();
 
-  /** Assemble evidence without retaining callback closures or observed samples. */
-  const result: (status: C.IResult["status"]) => C.IResult = (
-    status: C.IResult["status"],
-  ): C.IResult => ({
+ 
+ /** Assemble evidence without retaining callback closures or observed samples. */
+  const result: (status: IAutoMovieConicApproximation.IResult["status"]) => IAutoMovieConicApproximation.IResult = (
+    status: IAutoMovieConicApproximation.IResult["status"],
+  ): IAutoMovieConicApproximation.IResult => ({
     method,
     status,
     arcs: status === "refused" ? [] : arcs,
     diagnostics,
     maximumSampleErrorMm: status === "refused" ? 0 : arcs.reduce(
-      (maximum: number, arc: C.IArc): number => Math.max(maximum, arc.maximumSampleErrorMm),
+      (maximum: number, arc: IAutoMovieConicApproximation.IArc): number => Math.max(maximum, arc.maximumSampleErrorMm),
       0,
     ),
     certified: false,
-    queries,
-  });
+    queries });
   if (diagnostics.length !== 0) return result("refused");
   diagnostics.push("Numerical adaptation: Ahn's full characterization theorem/error function was unavailable; radial-correspondence samples do not certify Hausdorff distance or global minimality.");
 
-  /** Reject corrupt observations rather than creating substitute coordinates. */
-  const observe: (t: number, order?: 1 | 2 | 3, side?: "left" | "right") => C.Point = (
+ 
+ /** Reject corrupt observations rather than creating substitute coordinates. */
+  const observe: (t: number, order?: 1 | 2 | 3, side?: "left" | "right") => IAutoMovieConicApproximation.Point = (
     t: number,
     order?: 1 | 2 | 3,
     side?: "left" | "right",
-  ): C.Point => {
+  ): IAutoMovieConicApproximation.Point => {
     ++queries;
-    const p: C.Point = order === undefined ? curve.evaluate(t) : curve.derivative(t, order, side);
+    const p: IAutoMovieConicApproximation.Point = order === undefined ? curve.evaluate(t) : curve.derivative(t, order, side);
     if (p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
       throw new Error(`Nonfinite source ${order === undefined ? "point" : "derivative"} at parameter ${t}.`);
     // A source evaluator may reuse a scratch tuple. Snapshot the value now so
@@ -81,17 +83,20 @@ export function approximateAutoMovieRecoveryConicsAhn(
     return [p[0], p[1]];
   };
 
-  /** Source-minus-origin vectors keep determinants translation invariant. */
-  const minus: (a: C.Point, b: C.Point) => C.Point = (a: C.Point, b: C.Point): C.Point => [a[0] - b[0], a[1] - b[1]];
+ 
+ /** Source-minus-origin vectors keep determinants translation invariant. */
+  const minus: (a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point) => IAutoMovieConicApproximation.Point = (a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point => [a[0] - b[0], a[1] - b[1]];
 
-  /** A work item retains only source interval, subdivision depth and its cause. */
+ 
+ /** A work item retains only source interval, subdivision depth and its cause. */
   interface Interval {
     a: number;
     b: number;
     depth: number;
   }
 
-  /** A radial correspondence needs no nearest-point solve during weight search. */
+ 
+ /** A radial correspondence needs no nearest-point solve during weight search. */
   interface Radial {
     u: number;
     apex: number;
@@ -99,16 +104,17 @@ export function approximateAutoMovieRecoveryConicsAhn(
     idealWeight: number;
   }
 
-  /**
+ 
+ /**
    * Attempt one admissible triangle. Undefined requests source subdivision;
    * nonfinite observations throw and are reported at the operation boundary.
    */
-  const fit: (interval: Interval) => C.IArc | undefined = (
+  const fit: (interval: Interval) => IAutoMovieConicApproximation.IArc | undefined = (
     interval: Interval,
-  ): C.IArc | undefined => {
-    const points: C.Point[] = [];
-    const first: C.Point = observe(interval.a, 1, "right");
-    const last: C.Point = observe(interval.b, 1, "left");
+  ): IAutoMovieConicApproximation.IArc | undefined => {
+    const points: IAutoMovieConicApproximation.Point[] = [];
+    const first: IAutoMovieConicApproximation.Point = observe(interval.a, 1, "right");
+    const last: IAutoMovieConicApproximation.Point = observe(interval.b, 1, "left");
     const firstNorm: number = Math.hypot(...first);
     const lastNorm: number = Math.hypot(...last);
     if (firstNorm === 0 || lastNorm === 0) return undefined;
@@ -117,11 +123,11 @@ export function approximateAutoMovieRecoveryConicsAhn(
       const t: number = interval.a + (interval.b - interval.a) * (i / 32);
       points.push(observe(t));
       if (i % 4 === 0) {
-        const d1: C.Point = i === 0 ? first : i === 32 ? last : observe(t, 1);
-        const d2: C.Point = observe(t, 2, i === 0 ? "right" : i === 32 ? "left" : undefined);
+        const d1: IAutoMovieConicApproximation.Point = i === 0 ? first : i === 32 ? last : observe(t, 1);
+        const d2: IAutoMovieConicApproximation.Point = observe(t, 2, i === 0 ? "right" : i === 32 ? "left" : undefined);
         const turn: number = C.cross(d1, d2);
         const endpoint: boolean = i === 0 || i === 32;
-        const jerk: C.Point | undefined = endpoint ? observe(t, 3, i === 0 ? "right" : "left") : undefined;
+        const jerk: IAutoMovieConicApproximation.Point | undefined = endpoint ? observe(t, 3, i === 0 ? "right" : "left") : undefined;
 
         // A numerical critical root can leave a one-ulp parameter residual at
         // the endpoint. The jerk term bounds the resulting acceleration error,
@@ -136,9 +142,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
         }
       }
     }
-    const p0: C.Point = points[0]!;
-    const p2: C.Point = points[32]!;
-    const chord: C.Point = minus(p2, p0);
+    const p0: IAutoMovieConicApproximation.Point = points[0]!;
+    const p2: IAutoMovieConicApproximation.Point = points[32]!;
+    const chord: IAutoMovieConicApproximation.Point = minus(p2, p0);
     const chordSquared: number = chord[0] * chord[0] + chord[1] * chord[1];
     const length: number = Math.hypot(...chord);
     if (length === 0) return undefined;
@@ -158,12 +164,12 @@ export function approximateAutoMovieRecoveryConicsAhn(
     // budget ran out. The primitive's end tangents are the chord's: they
     // differ from the source's by its bend, which the tolerance bounds through
     // the samples' distance from the chord, not by an angle.
-    const straight: () => C.IArc | undefined = (): C.IArc | undefined => {
+    const straight: () => IAutoMovieConicApproximation.IArc | undefined = (): IAutoMovieConicApproximation.IArc | undefined => {
       if (first[0] * chord[0] + first[1] * chord[1] <= 0 || last[0] * chord[0] + last[1] * chord[1] <= 0) return undefined;
       let previous: number = -Infinity;
       let maximum: number = 0;
       for (const p of points) {
-        const offset: C.Point = minus(p, p0);
+        const offset: IAutoMovieConicApproximation.Point = minus(p, p0);
         const along: number = (offset[0] * chord[0] + offset[1] * chord[1]) / chordSquared;
         maximum = Math.max(maximum, Math.abs(C.cross(offset, chord)) / length);
         if (along < previous || along < 0 || along > 1 || maximum > options.toleranceMm) return undefined;
@@ -173,15 +179,14 @@ export function approximateAutoMovieRecoveryConicsAhn(
         domain: [interval.a, interval.b],
         controls: [p0, [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2], p2],
         weight: 1,
-        maximumSampleErrorMm: maximum,
-      };
+        maximumSampleErrorMm: maximum };
     };
 
     // Parallel tangents admit a line only when the entire sampled chart and
     // both forward endpoint tangents are collinear to binary64 roundoff, or
     // within the tolerance of its chord (`straight`).
     if (Math.abs(determinant) <= relativeRoundoff * firstNorm * lastNorm) {
-      const scale: number = Math.max(length, ...points.map((p: C.Point): number => C.distance(p, p0)));
+      const scale: number = Math.max(length, ...points.map((p: IAutoMovieConicApproximation.Point): number => C.distance(p, p0)));
       const allowance: number = relativeRoundoff * scale;
       if (
         first[0] * chord[0] + first[1] * chord[1] <= 0 ||
@@ -192,7 +197,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       let previous: number = -Infinity;
       let maximum: number = 0;
       for (const p of points) {
-        const offset: C.Point = minus(p, p0);
+        const offset: IAutoMovieConicApproximation.Point = minus(p, p0);
         const along: number = (offset[0] * chord[0] + offset[1] * chord[1]) / chordSquared;
         maximum = Math.max(maximum, Math.abs(C.cross(offset, chord)) / length);
         if (along < previous || along < 0 || along > 1 || maximum > allowance) return straight();
@@ -202,8 +207,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
         domain: [interval.a, interval.b],
         controls: [p0, [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2], p2],
         weight: 1,
-        maximumSampleErrorMm: maximum,
-      };
+        maximumSampleErrorMm: maximum };
     }
 
     // Endpoint tangents must meet forward from the start and backward from
@@ -211,15 +215,15 @@ export function approximateAutoMovieRecoveryConicsAhn(
     const startScale: number = C.cross(chord, last) / determinant;
     const endScale: number = C.cross(chord, first) / determinant;
     if (startScale <= 0 || endScale >= 0) return straight();
-    const p1: C.Point = [p0[0] + startScale * first[0], p0[1] + startScale * first[1]];
+    const p1: IAutoMovieConicApproximation.Point = [p0[0] + startScale * first[0], p0[1] + startScale * first[1]];
     if (!p1.every(Number.isFinite)) return straight();
-    const side: C.Point = minus(p1, p0);
+    const side: IAutoMovieConicApproximation.Point = minus(p1, p0);
     const area: number = C.cross(side, chord);
     if (area === 0 || !Number.isFinite(area)) return straight();
     const samples: Radial[] = [];
     let previousU: number = 0;
     for (let i: number = 1; i < 32; ++i) {
-      const offset: C.Point = minus(points[i]!, p0);
+      const offset: IAutoMovieConicApproximation.Point = minus(points[i]!, p0);
       const b1: number = C.cross(offset, chord) / area;
       const b2: number = C.cross(side, offset) / area;
       const b0: number = 1 - b1 - b2;
@@ -229,7 +233,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       const u: number = root2 / (root0 + root2);
       if (u <= previousU) return straight();
       previousU = u;
-      const base: C.Point = [
+      const base: IAutoMovieConicApproximation.Point = [
         (b0 * p0[0] + b2 * p2[0]) / (b0 + b2),
         (b0 * p0[1] + b2 * p2[1]) / (b0 + b2),
       ];
@@ -238,7 +242,8 @@ export function approximateAutoMovieRecoveryConicsAhn(
       samples.push({ u, apex: b1, scale: C.distance(p1, base), idealWeight });
     }
 
-    /** Signed distance along a fixed apex ray is monotone in positive weight. */
+ 
+   /** Signed distance along a fixed apex ray is monotone in positive weight. */
     const residual: (sample: Radial, weight: number) => number = (
       sample: Radial,
       weight: number,
@@ -273,8 +278,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       domain: [interval.a, interval.b],
       controls: [p0, p1, p2],
       weight,
-      maximumSampleErrorMm: maximum,
-    };
+      maximumSampleErrorMm: maximum };
   };
 
   const boundaries: number[] = [curve.domain[0], ...new Set(curve.breaks), curve.domain[1]].sort((a: number, b: number): number => a - b);
@@ -289,7 +293,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
   try {
     while (pending.length !== 0) {
       const interval: Interval = pending.pop()!;
-      const arc: C.IArc | undefined = fit(interval);
+      const arc: IAutoMovieConicApproximation.IArc | undefined = fit(interval);
       if (arc !== undefined && arc.maximumSampleErrorMm <= options.toleranceMm) {
         arcs.push(arc);
         continue;

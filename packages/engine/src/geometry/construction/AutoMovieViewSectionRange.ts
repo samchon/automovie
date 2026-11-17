@@ -1,8 +1,6 @@
+import type { IAutoMovieSource, IAutoMovieViewSection, IAutoMovieViewSectionRange } from "@automovie/interface";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
-
-/** Internal measured source without unused inspection decoration. */
-type Measured = ReturnType<typeof AutoMovieViewSectionConic.prepare>;
 
 /**
  * Existing finite native shoulder reach and its numerical source preparation.
@@ -18,51 +16,6 @@ export namespace AutoMovieViewSectionRange {
   export const TOLERANCE: number = 1e-6;
 
   /**
-   * One synchronous candidate's unchanged measured source and fault observation.
-   *
-   * @evidence contracts/development/design.md#principled-representation Carries actual native arclength and original finite/curvature/support admission for exactly one shoulder.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A source and nullable refusal remain distinct from target convergence.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A refused candidate remains refused and never supplies a successful residual.
-   * @evidence contracts/development/common.md#meaningful-documentation Source lengths use the supplied box unit; null means this finite source observation passed, not a continuous certificate.
-   */
-  export interface ITrial {
-    /** Actual native source before unused display observations. */
-    source: Measured;
-
-    /** Original candidate fault, or null after the existing admission. */
-    fault: string | null;
-  }
-
-  /**
-   * An accepted candidate or actual local bracket, with call-owned numeric trials for one target solve.
-   *
-   * @evidence contracts/development/design.md#principled-representation An ellipse candidate can be accepted only after its actual native fault and original target residual pass; otherwise a local interval exists only after two admitted source readings surround the target girth.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Without an accepted candidate, null range requests the unchanged complete-reach owner; at retains the selected actual candidate.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores only numeric native geometry, never public algebra callbacks, another input or fabricated successful data.
-   * @evidence contracts/development/common.md#meaningful-documentation Separates a measured residual-satisfying candidate, a target bracket and an unresolved request; neither candidate nor bracket supplies whole finite reach or anatomical acceptance.
-   */
-  export interface IFamily {
-    /** Actual local target bracket; null also permits a separately accepted original candidate. */
-    range: AutoMovieViewSection.IRange | null;
-
-    /** Actual ellipse candidate already within the unchanged native target tolerance, without another probe. */
-    accepted?: ITrial;
-
-    /**
-     * Same-shoulder actual source/admission; original preparation exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Same-shoulder actual source/admission; original preparation exceptions propagate.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Same-shoulder actual source/admission; original preparation exceptions propagate.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */
-    at(shoulder: number): ITrial;
-  }
-
-  /**
    * Accept the existing ellipse when its measured residual passes; otherwise try one interior shoulder before requesting distant reach endpoints.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Actual native arclength and finite/curvature/support observations admit each candidate; either the ellipse's original1e-6 residual passes directly or a measured target sign bracket permits Illinois without complete reach preparation.
@@ -74,23 +27,23 @@ export namespace AutoMovieViewSectionRange {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Numeric sources and diagnostics are released with the synchronous solve, without a global or cross-input cache.
    */
   export function nearby(
-    box: AutoMovieViewSection.IBox,
-    departures: AutoMovieViewSection.ISection["shoulders"],
+    box: IAutoMovieViewSection.IBox,
+    departures: IAutoMovieViewSection.ISection["shoulders"],
     girth: number,
-  ): IFamily {
-    const trials: Map<number, ITrial> = new Map();
+  ): IAutoMovieViewSectionRange.IFamily {
+    const trials: Map<number, IAutoMovieViewSectionRange.ITrial> = new Map();
 
     /** Public generic algebra callbacks never enter this numeric preparation. */
-    const at: IFamily["at"] = (shoulder: number): ITrial => {
-      const previous: ITrial | undefined = trials.get(shoulder);
+    const at: IAutoMovieViewSectionRange.IFamily["at"] = (shoulder: number): IAutoMovieViewSectionRange.ITrial => {
+      const previous: IAutoMovieViewSectionRange.ITrial | undefined = trials.get(shoulder);
       if (previous !== undefined) return previous;
-      const source: Measured = measure(
+      const source: IAutoMovieSource = measure(
         box,
         departures.map(
           (d: number): number => shoulder + d,
-        ) as AutoMovieViewSection.ISection["shoulders"],
+        ) as IAutoMovieViewSection.ISection["shoulders"],
       );
-      const result: ITrial = {
+      const result: IAutoMovieViewSectionRange.ITrial = {
         source,
         fault: AutoMovieViewSectionConic.fault(source),
       };
@@ -103,19 +56,19 @@ export namespace AutoMovieViewSectionRange {
       departures.every(
         (d: number): boolean => shoulder + d > 0 && shoulder + d < 1,
       );
-    let range: IFamily["range"] = null;
+    let range: IAutoMovieViewSectionRange.IFamily["range"] = null;
     const ellipse: number = AutoMovieViewSection.ELLIPSE;
     if (Number.isFinite(girth) && allowed(ellipse)) {
-      const anchor: ITrial = at(ellipse);
+      const anchor: IAutoMovieViewSectionRange.ITrial = at(ellipse);
       if (anchor.fault === null) {
         if (Math.abs(anchor.source.girth - girth) <= TOLERANCE)
           return { range: null, accepted: anchor, at };
         const probe: number =
           girth < anchor.source.girth ? ellipse / 2 : (ellipse + 1) / 2;
         if (allowed(probe)) {
-          const other: ITrial = at(probe);
-          const low: ITrial = probe < ellipse ? other : anchor;
-          const high: ITrial = probe < ellipse ? anchor : other;
+          const other: IAutoMovieViewSectionRange.ITrial = at(probe);
+          const low: IAutoMovieViewSectionRange.ITrial = probe < ellipse ? other : anchor;
+          const high: IAutoMovieViewSectionRange.ITrial = probe < ellipse ? anchor : other;
           if (
             other.fault === null &&
             low.source.girth <= girth &&
@@ -143,15 +96,15 @@ export namespace AutoMovieViewSectionRange {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary measured-source records are released; the caller owns four scalar bounds.
    */
   export function create(
-    box: AutoMovieViewSection.IBox,
-    departures: AutoMovieViewSection.ISection["shoulders"] = [0, 0, 0, 0],
-  ): AutoMovieViewSection.IRange | null {
-    const at: (r: number) => Measured | null = (r: number): Measured | null => {
-      const s: AutoMovieViewSection.ISection["shoulders"] = departures.map(
+    box: IAutoMovieViewSection.IBox,
+    departures: IAutoMovieViewSection.ISection["shoulders"] = [0, 0, 0, 0],
+  ): IAutoMovieViewSection.IRange | null {
+    const at: (r: number) => IAutoMovieSource | null = (r: number): IAutoMovieSource | null => {
+      const s: IAutoMovieViewSection.ISection["shoulders"] = departures.map(
         (d: number): number => r + d,
-      ) as AutoMovieViewSection.ISection["shoulders"];
+      ) as IAutoMovieViewSection.ISection["shoulders"];
       if (!s.every((x: number): boolean => x > 0 && x < 1)) return null;
-      const section: Measured = measure(box, s);
+      const section: IAutoMovieSource = measure(box, s);
       return AutoMovieViewSectionConic.fault(section) === null ? section : null;
     };
     if (at(AutoMovieViewSection.ELLIPSE) === null) return null;
@@ -159,7 +112,7 @@ export namespace AutoMovieViewSectionRange {
     // Scale the finite shoulder bracket's bisection count by the box's
     // perimeter. This is a numerical reach search, not a derivative or
     // girth-error certificate; solve checks its actual final residual.
-    const e: AutoMovieViewSection.ISection["shoulders"] = box.extents;
+    const e: IAutoMovieViewSection.ISection["shoulders"] = box.extents;
     const steps: number = Math.min(
       64,
       Math.max(
@@ -183,12 +136,12 @@ export namespace AutoMovieViewSectionRange {
     };
     const lo: number = edge(AutoMovieViewSection.ELLIPSE, 0);
     const hi: number = edge(AutoMovieViewSection.ELLIPSE, 1);
-    const shaped: (r: number) => Measured = (r: number): Measured =>
+    const shaped: (r: number) => IAutoMovieSource = (r: number): IAutoMovieSource =>
       measure(
         box,
         departures.map(
           (d: number): number => r + d,
-        ) as AutoMovieViewSection.ISection["shoulders"],
+        ) as IAutoMovieViewSection.ISection["shoulders"],
       );
     const girths: [number, number] = [shaped(lo).girth, shaped(hi).girth];
     return girths.every(Number.isFinite) && girths[0] < girths[1]
@@ -208,10 +161,10 @@ export namespace AutoMovieViewSectionRange {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned source; holds no cache or resource after return.
    */
   export function measure(
-    box: AutoMovieViewSection.IBox,
-    shoulders: AutoMovieViewSection.ISection["shoulders"],
-  ): Measured {
-    const value: Measured = AutoMovieViewSectionConic.prepare(box, shoulders);
+    box: IAutoMovieViewSection.IBox,
+    shoulders: IAutoMovieViewSection.ISection["shoulders"],
+  ): IAutoMovieSource {
+    const value: IAutoMovieSource = AutoMovieViewSectionConic.prepare(box, shoulders);
     value.girth = AutoMovieViewSectionConic.length(value);
     return value;
   }

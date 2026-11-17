@@ -1,4 +1,5 @@
-import type { AutoMovieMeshExtract as M } from "@automovie/engine";
+import type { IAutoMovieMeshExtract } from "@automovie/interface";
+
 import type { ConicPaperInput as C } from "./ConicPaperInput";
 
 /** World-registered input and coefficient evidence for the two guided section-family experiments. */
@@ -58,7 +59,7 @@ export namespace PartConicTypes {
     /** Both independent representative parts in their original absolute pose. */
     parts: Part[];
     /** Registered body triangles in millimetres with exact positional aliases identified. */
-    mesh: M.IMesh;
+    mesh: IAutoMovieMeshExtract.IMesh;
     /** Actual source identities consumed by this run. */
     identities: { path: string; bytes: number; sha256: string }[];
     /** Loading, registration, alias indexing and native-cut work, in milliseconds. */

@@ -1,8 +1,5 @@
-import {
-  IAutoMovieBodyCollisionResult,
-  IAutoMovieCollisionActor,
-  detectBodyCollision,
-} from "@automovie/engine";
+import type { IAutoMovieBodyCollisionResult, IAutoMovieCollisionActor } from "@automovie/interface";
+import { detectBodyCollision } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { staticActor } from "../internal/collision";

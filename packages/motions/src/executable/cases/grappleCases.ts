@@ -1,13 +1,9 @@
-import {
-  type AutoMovieComposition,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidSocket } from "@automovie/interface";
+import type { AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
+
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 
 import { HumanChain } from "../../HumanChain";
 import { clinch } from "../../grappling/clinch";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -43,14 +39,14 @@ export function grappleCases(
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const grip of ["plum", "collarSleeve"] as const) {
-      const composition: AutoMovieComposition = {
+      const composition: IAutoMovieComposition = {
         kind: "parallel",
         parts: [
           HumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
           HumanChain.subject("b").act("stand", { seconds: 4 }).node,
         ],
       };
-      const performance: HumanPerformance = FamilyCaseKit.perform(
+      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
         "grapple",
         [
           { subject: "a", body: who.body },

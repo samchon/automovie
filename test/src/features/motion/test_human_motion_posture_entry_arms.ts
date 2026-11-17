@@ -1,19 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditTangle,
-  HumanChain,
-  HumanEmblem,
-  HumanHabit,
-  HumanPerformance,
-  HumanStance,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  seated,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditTangle, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanSeated, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieMotionHumanAuditTangle, HumanChain, HumanEmblem, HumanHabit, HumanPerformance, HumanStance, seated } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -77,8 +65,8 @@ export function test_human_motion_posture_entry_arms(): void {
 
   // A performance with the rows the scenes use registered.
   const perform = (
-    people: readonly { subject: string; body: IHumanBody; z: number }[],
-    composition: HumanChain | HumanChain[],
+    people: readonly { subject: string; body: IAutoMovieMotionHumanBody; z: number }[],
+    composition: IAutoMovieMotionHumanChain | IAutoMovieMotionHumanChain[],
   ): motionHumanLaw.IFilm =>
     motionHumanLaw.film(
       new HumanPerformance({
@@ -99,7 +87,7 @@ export function test_human_motion_posture_entry_arms(): void {
         composition: Array.isArray(composition)
           ? {
               kind: "parallel",
-              parts: composition.map((c: HumanChain) => c.node),
+              parts: composition.map((c: IAutoMovieMotionHumanChain) => c.node),
             }
           : composition.node,
       }),
@@ -112,23 +100,23 @@ export function test_human_motion_posture_entry_arms(): void {
 
   // The deepest pair with an arm segment in it, at one instant.
   const deepest = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Bones,
-  ): AutoMovieMotionHumanAuditTangle.IPair | undefined =>
+  ): IAutoMovieMotionHumanAuditTangle.IPair | undefined =>
     AutoMovieMotionHumanAuditTangle.pose(body, bones)
       .filter(
-        (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+        (p: IAutoMovieMotionHumanAuditTangle.IPair): boolean =>
           ARM.test(p.a) || ARM.test(p.b),
       )
       .sort(
         (
-          x: AutoMovieMotionHumanAuditTangle.IPair,
-          y: AutoMovieMotionHumanAuditTangle.IPair,
+          x: IAutoMovieMotionHumanAuditTangle.IPair,
+          y: IAutoMovieMotionHumanAuditTangle.IPair,
         ): number => y.depth - x.depth,
       )[0];
   const clear = (
     cell: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: (seconds: number) => Bones,
     seconds: readonly number[],
   ): void => {
@@ -138,7 +126,7 @@ export function test_human_motion_posture_entry_arms(): void {
       what: "none",
     };
     for (const t of seconds) {
-      const pair: AutoMovieMotionHumanAuditTangle.IPair | undefined = deepest(
+      const pair: IAutoMovieMotionHumanAuditTangle.IPair | undefined = deepest(
         body,
         bones(t),
       );
@@ -164,7 +152,7 @@ export function test_human_motion_posture_entry_arms(): void {
   };
 
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. Sitting down: the held seated span and its end.
     const sit: M.IStaged = M.stage("sit", "default", name);
@@ -211,7 +199,7 @@ export function test_human_motion_posture_entry_arms(): void {
     // chair without them.
     const height: number = seated.popliteal(body);
     const aside: number = body.measure.chestBreadth / 2 + 0.08;
-    const bare: seated.ISeat = {
+    const bare: IAutoMovieMotionHumanSeated.ISeat = {
       at: { x: 0, y: height, z: -0.1 },
       yaw: 0,
       depth: 0.45,
@@ -247,7 +235,7 @@ export function test_human_motion_posture_entry_arms(): void {
     }
 
     // 4. Hands on the hips alone.
-    const hips = (subject: string): HumanChain =>
+    const hips = (subject: string): IAutoMovieMotionHumanChain =>
       HumanChain.subject(subject).registered("handsOnHips", { seconds: 1 });
     const alone: motionHumanLaw.IFilm | undefined = attempt(
       `handsOnHips ${name}`,
@@ -262,15 +250,15 @@ export function test_human_motion_posture_entry_arms(): void {
       );
 
     // 5 and 6. A low five after hands on the hips, then a thumbs-up.
-    const partner: IHumanBody = motionHumanBody("m-average");
+    const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     for (const variant of [
       { side: "right", label: "right" },
       { side: "left", label: "left" },
       { side: "right", label: "right, meeting from 4 s", from: 4 },
     ] as const) {
       const cell: string = `lowFive ${name} ${variant.label}`;
-      const five = (subject: string, other: string): HumanChain => {
-        const fived: HumanChain = hips(subject).act("highFive", {
+      const five = (subject: string, other: string): IAutoMovieMotionHumanChain => {
+        const fived: IAutoMovieMotionHumanChain = hips(subject).act("highFive", {
           partner: other,
           kind: "low",
           side: variant.side,

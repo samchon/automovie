@@ -1,23 +1,10 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Transform,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanDress, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Quaternion, Transform, Vector3, quaternionFromAutoMovieBasis, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
 import { dress } from "../../dressing/dress";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { HumanHand } from "../../posture/HumanHand";
 import { StrikingRoll } from "../../striking/StrikingRoll";
@@ -66,7 +53,7 @@ export function dressCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     const r: number = who.body.measure.headRadius;
     for (const item of ["hat", "glasses"] as const) {
-      const performance: HumanPerformance = FamilyCaseKit.perform(
+      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
         "dress",
         [{ subject: "a", body: who.body }],
         HumanChain.subject("a")
@@ -84,9 +71,9 @@ export function dressCases(
           .act("dress", { item, prop: "item", hand: "right" }),
         [wearable(item, { x: -0.2, y: who.body.measure.hipHeight, z: 0.35 })],
       );
-      const act: HumanSegment.ISegment = performance
+      const act: IAutoMovieMotionHumanSegment.ISegment = performance
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === "dress")!;
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "dress")!;
       const stroke: number =
         act.start +
         act.plan.events.find((e): boolean => e.name === "stroke")!.share *
@@ -134,7 +121,7 @@ export function dressCases(
       };
       const bones = performance.bones("a", stroke);
       const region = who.body.surfaces.regions[dress.WORN[item]];
-      const frame: IHumanProp.IFrame = performance.prop("item", stroke);
+      const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("item", stroke);
       const steadied: number = Vector3.length(
         Vector3.subtract(surface(bones, "left"), want(bones, "left")),
       );
@@ -218,7 +205,7 @@ export function dressCases(
 }
 
 /** The wear sockets of the two items, in their own frames, as `createWearable` declares them. */
-const WEAR: Readonly<Record<dress.Item, IAutoMovieAffordance["frame"]>> = {
+const WEAR: Readonly<Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordance["frame"]>> = {
   hat: Transform.of({ x: 0, y: 0.11, z: 0 }, quaternionFromAutoMovieBasis(
       { x: 0, y: 0, z: 1 },
       { x: 0, y: -1, z: 0 },
@@ -250,7 +237,7 @@ const WEAR: Readonly<Record<dress.Item, IAutoMovieAffordance["frame"]>> = {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function wearable(item: dress.Item, at: IAutoMovieVector3): IHumanProp {
+function wearable(item: IAutoMovieMotionHumanDress.Item, at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   const hat: boolean = item === "hat";
   const hold: IAutoMovieAffordance = {
     id: "hold",

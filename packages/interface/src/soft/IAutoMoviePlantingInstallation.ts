@@ -1,6 +1,6 @@
-import { AutoMoviePlantingInstallationKind } from "./AutoMoviePlantingInstallationKind";
-import { IAutoMoviePlantingIrrigation } from "./IAutoMoviePlantingIrrigation";
-import { IAutoMoviePlantingSupport } from "./IAutoMoviePlantingSupport";
+import type { AutoMoviePlantingInstallationKind } from "./AutoMoviePlantingInstallationKind";
+import type { IAutoMoviePlantingIrrigation } from "./IAutoMoviePlantingIrrigation";
+import type { IAutoMoviePlantingSupport } from "./IAutoMoviePlantingSupport";
 
 /**
  * The binding that makes an independent planting cluster a building's planting.

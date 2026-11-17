@@ -1,14 +1,5 @@
-import {
-  AutoMovieLoftAdmissionError,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-  AutoMovieSolidChain,
-  AutoMovieSolidMesh,
-  AutoMovieViewLoft,
-  AutoMovieViewSection,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftViewSource, IAutoMovieSolidMesh, IAutoMovieSolidSurface, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieLoftAdmissionError, AutoMovieLoftViewSource, AutoMovieLoftViewWorldJet, AutoMovieSolidChain, AutoMovieSolidMesh, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -40,9 +31,9 @@ type AxisJet = NonNullable<
 export function test_construction_source_world_jet(): void {
   const failures: string[] = [];
   const part: IAutoMovieViewPart = original();
-  const source: AutoMovieLoftViewSource.ISource = prepare(part);
+  const source: IAutoMovieLoftViewSource.ISource = prepare(part);
   const before: string = JSON.stringify(source);
-  const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+  const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (loft.chain === null)
     throw new Error(
       `Unexpected actual loft failure: ${JSON.stringify(loft.diagnostics)}`,
@@ -189,7 +180,7 @@ function unavailableGrid(failures: string[]): void {
   const numeric: Error = new AutoMovieLoftAdmissionError("owned missing axis2");
   const callback: Error = new Error("owned physical source callback");
   for (const error of [numeric, callback]) {
-    const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     const before: string = JSON.stringify(mesh);
     const details: string[] = [];
     const surface: IAutoMovieSolidSurface = {
@@ -345,8 +336,8 @@ function constant(value: number): IAutoMovieViewPart.IOutline {
 }
 
 /** Explicit admission protects valid-case failures from being mistaken for expected refusal. */
-function prepare(part: IAutoMovieViewPart): AutoMovieLoftViewSource.ISource {
-  const out: AutoMovieLoftViewSource.IResult | null =
+function prepare(part: IAutoMovieViewPart): IAutoMovieLoftViewSource.ISource {
+  const out: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
   if (out === null || out.source === null || out.diagnostics.length !== 0)
     throw new Error(`Unexpected source preparation: ${JSON.stringify(out)}`);
@@ -355,7 +346,7 @@ function prepare(part: IAutoMovieViewPart): AutoMovieLoftViewSource.ISource {
 
 /** Read a valid original field through the public world boundary. */
 function read(
-  source: AutoMovieLoftViewSource.ISource,
+  source: IAutoMovieLoftViewSource.ISource,
   axis: IAutoMovieViewPart["axis"],
   s: number,
   phi: number,

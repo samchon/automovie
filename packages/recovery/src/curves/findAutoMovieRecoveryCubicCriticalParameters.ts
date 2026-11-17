@@ -1,6 +1,7 @@
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { rootsAutoMovieViewPolynomial } from "@automovie/engine";
 
-import type { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryConicApproximation";
+
 
 /**
  * Locate isolated cubic regularity and affine-curvature candidates analytically.
@@ -30,25 +31,25 @@ import type { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecove
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All coefficients and root arrays are call-local; only scalar parameters and diagnostics transfer to the caller, with no retained source or external resource.
  */
 export function findAutoMovieRecoveryCubicCriticalParameters(
-  controls: readonly [C.Point, C.Point, C.Point, C.Point],
-): C.ICubicCriticalParameters {
+  controls: readonly [IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point],
+): IAutoMovieConicApproximation.ICubicCriticalParameters {
   if (controls.length !== 4)
     throw new RangeError("Cubic critical parameters require four finite planar Bernstein controls.");
   for (let i: number = 0; i < 4; ++i) {
-    const p: C.Point | undefined = controls[i];
+    const p: IAutoMovieConicApproximation.Point | undefined = controls[i];
     if (p === undefined || !Array.isArray(p) || p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
       throw new RangeError("Cubic critical parameters require four finite planar Bernstein controls.");
   }
-  const raw: C.Point[] = controls.slice(1).map((p: C.Point, i: number): C.Point => [p[0] - controls[i]![0], p[1] - controls[i]![1]]);
-  const scale: number = Math.max(...raw.flatMap((p: C.Point): number[] => [Math.abs(p[0]), Math.abs(p[1])]));
+  const raw: IAutoMovieConicApproximation.Point[] = controls.slice(1).map((p: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [p[0] - controls[i]![0], p[1] - controls[i]![1]]);
+  const scale: number = Math.max(...raw.flatMap((p: IAutoMovieConicApproximation.Point): number[] => [Math.abs(p[0]), Math.abs(p[1])]));
   if (!Number.isFinite(scale)) throw new RangeError("Source control differences exceed finite binary64 arithmetic.");
   if (scale === 0) return { breaks: [], zeroCurvature: [], affineCritical: [], stationary: [], collinear: true,
     diagnostics: ["Constant cubic: every parameter is stationary; no isolated critical parameters exist."] };
-  const edges: C.Point[] = raw.map((p: C.Point): C.Point => [p[0] / scale, p[1] / scale]);
-  const a: C.Point = [edges[2]![0] - 2 * edges[1]![0] + edges[0]![0], edges[2]![1] - 2 * edges[1]![1] + edges[0]![1]];
-  const b: C.Point = [3 * (edges[1]![0] - edges[0]![0]), 3 * (edges[1]![1] - edges[0]![1])];
-  const c: C.Point = [3 * edges[0]![0], 3 * edges[0]![1]];
-  const determinant: (x: C.Point, y: C.Point) => number = (x: C.Point, y: C.Point): number => x[0] * y[1] - x[1] * y[0];
+  const edges: IAutoMovieConicApproximation.Point[] = raw.map((p: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point => [p[0] / scale, p[1] / scale]);
+  const a: IAutoMovieConicApproximation.Point = [edges[2]![0] - 2 * edges[1]![0] + edges[0]![0], edges[2]![1] - 2 * edges[1]![1] + edges[0]![1]];
+  const b: IAutoMovieConicApproximation.Point = [3 * (edges[1]![0] - edges[0]![0]), 3 * (edges[1]![1] - edges[0]![1])];
+  const c: IAutoMovieConicApproximation.Point = [3 * edges[0]![0], 3 * edges[0]![1]];
+  const determinant: (x: IAutoMovieConicApproximation.Point, y: IAutoMovieConicApproximation.Point) => number = (x: IAutoMovieConicApproximation.Point, y: IAutoMovieConicApproximation.Point): number => x[0] * y[1] - x[1] * y[0];
   const d0: number = 2 * determinant(c, b);
   const e0: number = 6 * determinant(c, a);
   const f: number = 12 * determinant(b, a);

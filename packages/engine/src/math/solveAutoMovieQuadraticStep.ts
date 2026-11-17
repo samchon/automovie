@@ -1,19 +1,6 @@
-/*
- * Copyright 2022 University of Oxford Control Group
- * SPDX-License-Identifier: Apache-2.0
- *
- * Modified for AutoMovie: TypeScript specialization for diagonal PSD QPs
- * with zero/nonnegative cones and engine-owned numerical workspaces.
- * Adapted from Clarabel.rs 0.11.1, revision
- * 25540f559592068d0c8a80e46ded1b21760212a1.
- * Original source: src/solver/implementations/default/kktsystem.rs; src/solver/implementations/default/variables.rs; src/solver/core/cones/nonnegativecone.rs
- * License: ../../vendor/clarabel/licenses/clarabel-0.11.1/LICENSE.md
- */
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
-import { IAutoMovieQuadraticState } from "./IAutoMovieQuadraticState";
+import type { IAutoMovieQuadraticConicProgram, IAutoMovieQuadraticState, IAutoMovieCreateQuadraticFactor, IAutoMovieMeasureQuadraticState } from "@automovie/interface";
+
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
-import type { createAutoMovieQuadraticFactor } from "./createAutoMovieQuadraticFactor";
-import type { measureAutoMovieQuadraticState } from "./measureAutoMovieQuadraticState";
 
 /**
  * Compute an affine or combined homogeneous Newton direction using one already
@@ -39,8 +26,8 @@ import type { measureAutoMovieQuadraticState } from "./measureAutoMovieQuadratic
 export function solveAutoMovieQuadraticStep(
   data: IAutoMovieQuadraticConicProgram,
   state: IAutoMovieQuadraticState,
-  reading: ReturnType<typeof measureAutoMovieQuadraticState>,
-  factor: ReturnType<typeof createAutoMovieQuadraticFactor>,
+  reading: IAutoMovieMeasureQuadraticState.IResult,
+  factor: IAutoMovieCreateQuadraticFactor.IResult,
   constant: Float64Array,
   sigma: number,
   mu: number,

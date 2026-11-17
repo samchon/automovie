@@ -266,7 +266,7 @@ export function test_recovery_image_observation(): void {
   controller.abort();
   TestValidator.equals(
     "pre-aborted observation is cancelled",
-    observeAutoMovieRecoveryImages(input, { signal: controller.signal }).status,
+    observeAutoMovieRecoveryImages(input, { cancelled: (): boolean => controller.signal.aborted }).status,
     "cancelled",
   );
   TestValidator.equals(

@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanSeam } from "./IAutoMovieHumanSeam";
+import type { IAutoMovieArcLengthJet, IAutoMovieHumanSeam, IAutoMovieHumanSeamConstruction } from "@automovie/interface";
+
+
+
 
 /**
  * The shared joining mathematics of divided parts: how an owner publishes a
@@ -28,29 +31,9 @@ import type { IAutoMovieHumanSeam } from "./IAutoMovieHumanSeam";
  * Vectors are plain arrays of any dimension unless a function says 3.
  */
 export namespace AutoMovieHumanSeam {
-  /** Readings of one seam point: what the declared continuity is judged on. */
-  export interface IMeasure {
-    /** Distance between the two pieces' points, mm. */
-    gap: number;
+  
 
-    /** Angle between tangents (curves) or normals (surfaces), radians. */
-    angle: number;
-
-    /** Jump of the curvature vector (curves) or of the normal curvature across the seam (surfaces), 1/mm. */
-    curvature: number;
-  }
-
-  /** Largest readings a declared continuity accepts. */
-  export interface ITolerance {
-    /** Largest gap, mm. */
-    gap: number;
-
-    /** Largest angle, radians. */
-    angle: number;
-
-    /** Largest curvature jump, 1/mm. */
-    curvature: number;
-  }
+  
 
   /**
    * Unit tangent and curvature vector of a curve from its first and second
@@ -68,7 +51,7 @@ export namespace AutoMovieHumanSeam {
   export function arc(
     d1: readonly number[],
     d2: readonly number[],
-  ): [number[], number[]] {
+  ): IAutoMovieHumanSeamConstruction.ArcResult {
     const speed: number = Math.hypot(...d1) || 1;
     const T: number[] = scale(d1, 1 / speed);
     const along: number = dot(d2, T) / speed;
@@ -93,7 +76,7 @@ export namespace AutoMovieHumanSeam {
     point: readonly number[],
     d1: readonly number[],
     d2: readonly number[],
-  ): IAutoMovieHumanSeam.IArcJet {
+  ): IAutoMovieArcLengthJet {
     const [tangent, curvature] = arc(d1, d2);
     return { point: [...point], tangent, curvature };
   }
@@ -113,10 +96,10 @@ export namespace AutoMovieHumanSeam {
    * @returns `[q, q_v, q_vv]`.
    */
   export function adopt(
-    jet: IAutoMovieHumanSeam.IArcJet,
+    jet: IAutoMovieArcLengthJet,
     lambda: number,
     mu: number = 0,
-  ): [number[], number[], number[]] {
+  ): IAutoMovieHumanSeamConstruction.AdoptResult {
     // A negative speed would run the neighbour back into the owner.
     if (!(lambda >= 0))
       throw new Error(`A copied jet needs a speed of at least 0, not ${lambda}`);
@@ -147,7 +130,7 @@ export namespace AutoMovieHumanSeam {
     owner: IAutoMovieHumanSeam.ISurfaceJet,
     alpha: number,
     beta: number,
-  ): [number[], number[]] {
+  ): IAutoMovieHumanSeamConstruction.RibbonResult {
     if (!(alpha > 0))
       throw new Error(`A ribbon needs a positive cross share, not ${alpha}`);
     return [
@@ -183,10 +166,10 @@ export namespace AutoMovieHumanSeam {
    * @returns `w` in the same chart coordinates.
    */
   export function square(
-    metric: readonly [number, number, number],
-    cross: readonly [number, number],
-    along: readonly [number, number],
-  ): [number, number] {
+    metric: IAutoMovieHumanSeamConstruction.SquareMetric,
+    cross: IAutoMovieHumanSeamConstruction.SquareCross,
+    along: IAutoMovieHumanSeamConstruction.SquareAlong,
+  ): IAutoMovieHumanSeamConstruction.SquareResult {
     const [E, F, G] = metric;
     const inner = (a: readonly [number, number], b: readonly [number, number]): number =>
       E * a[0] * b[0] + F * (a[0] * b[1] + a[1] * b[0]) + G * a[1] * b[1];
@@ -226,9 +209,9 @@ export namespace AutoMovieHumanSeam {
    * vectors. Both jets run in the same direction through the point.
    */
   export function measureArc(
-    before: IAutoMovieHumanSeam.IArcJet,
-    after: IAutoMovieHumanSeam.IArcJet,
-  ): IMeasure {
+    before: IAutoMovieArcLengthJet,
+    after: IAutoMovieArcLengthJet,
+  ): IAutoMovieHumanSeamConstruction.IMeasure {
     return {
       gap: norm(sub(after.point, before.point)),
       angle: angle(before.tangent, after.tangent),
@@ -252,7 +235,7 @@ export namespace AutoMovieHumanSeam {
   export function measure(
     owner: IAutoMovieHumanSeam.ISurfaceJet,
     neighbour: IAutoMovieHumanSeam.ISurfaceJet,
-  ): IMeasure {
+  ): IAutoMovieHumanSeamConstruction.IMeasure {
     const n0: number[] = normalOf(owner);
     const n1: number[] = normalOf(neighbour);
     return {
@@ -268,9 +251,9 @@ export namespace AutoMovieHumanSeam {
    * well, G2 the curvature jump as well.
    */
   export function violations(
-    reading: IMeasure,
+    reading: IAutoMovieHumanSeamConstruction.IMeasure,
     continuity: IAutoMovieHumanSeam.Continuity,
-    tolerance: ITolerance,
+    tolerance: IAutoMovieHumanSeamConstruction.ITolerance,
   ): string[] {
     const out: string[] = [];
     if (reading.gap > tolerance.gap)
@@ -291,7 +274,7 @@ export namespace AutoMovieHumanSeam {
    *
    * @param scale Length of the piece, mm.
    */
-  export function exact(scale: number): ITolerance {
+  export function exact(scale: number): IAutoMovieHumanSeamConstruction.ITolerance {
     return { gap: 1e-9 * scale, angle: 1e-9, curvature: 1e-9 / scale };
   }
 

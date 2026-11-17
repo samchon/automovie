@@ -1,12 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionSplit,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieConstructionSplit } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -43,7 +37,7 @@ export function test_construction_split(): void {
   const clock: (k: number) => number = (k: number): number => (turn * k) / n;
   const R: number = 25 * Math.sqrt(1 - (30 / 80) ** 2);
 
-  const host: AutoMovieConstructionNode = ConstructionShapes.part(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.part(
     "trunk",
     ConstructionShapes.DOWN,
     ConstructionShapes.uniform(-0.06, 0.03, 13),
@@ -53,10 +47,10 @@ export function test_construction_split(): void {
     },
     "open",
   );
-  const leg: (name: string, y: number) => AutoMovieConstructionNode = (
+  const leg: (name: string, y: number) => IAutoMovieConstructionNode = (
     name: string,
     y: number,
-  ): AutoMovieConstructionNode =>
+  ): IAutoMovieConstructionNode =>
     ConstructionShapes.part(
       name,
       { ...ConstructionShapes.DOWN, origin: { x: 0, y, z: -0.03 } },
@@ -105,10 +99,10 @@ export function test_construction_split(): void {
     ],
   });
   const realize: (
-    root: AutoMovieConstructionNode,
-  ) => AutoMovieConstructionRealization.IRealization = (
-    root: AutoMovieConstructionNode,
-  ): AutoMovieConstructionRealization.IRealization =>
+    root: IAutoMovieConstructionNode,
+  ) => IAutoMovieConstructionRealization.IRealization = (
+    root: IAutoMovieConstructionNode,
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
   const sub: (a: readonly number[], b: readonly number[]) => V3 = (
     a: readonly number[],
@@ -131,7 +125,7 @@ export function test_construction_split(): void {
   ): V3 => scaled(j.uu, 1 / (len(j.u) * len(j.u)));
 
   // 1. The positive tree.
-  const real: AutoMovieConstructionRealization.IRealization = realize(
+  const real: IAutoMovieConstructionRealization.IRealization = realize(
     split({}),
   );
   if (real.diagnostics.length !== 0)
@@ -200,13 +194,13 @@ export function test_construction_split(): void {
     }
   }
   const rail: (
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     name: string,
     child: string,
     y: number,
     k: number,
   ) => { gap: number; turn: number; bend: number; chord: number } = (
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     name: string,
     child: string,
     y: number,
@@ -322,7 +316,7 @@ export function test_construction_split(): void {
     );
 
   // 7. Crease window on band a.
-  const creased: AutoMovieConstructionRealization.IRealization = realize(
+  const creased: IAutoMovieConstructionRealization.IRealization = realize(
     split({
       crease: { start: Math.PI / 4, end: Math.PI / 2, transition: Math.PI / 8 },
     }),
@@ -368,7 +362,7 @@ export function test_construction_split(): void {
         `a seam [pi, 0] was refused for another reason: ${String(error)}`,
       );
   }
-  const deep: AutoMovieConstructionRealization.IRealization = realize(
+  const deep: IAutoMovieConstructionRealization.IRealization = realize(
     split({ rail: 0.5 }),
   );
   const kept: string = deep.body.faces
@@ -384,7 +378,7 @@ export function test_construction_split(): void {
     failures.push(
       `a rail outside the child left ${kept} with ${deep.body.faces[0]?.cycles.length} host cycles and diagnostics ${ConstructionRead.diagnostics(deep)}`,
     );
-  const astray: AutoMovieConstructionRealization.IRealization = realize(
+  const astray: IAutoMovieConstructionRealization.IRealization = realize(
     split({ yb: 0.0105 }),
   );
   if (

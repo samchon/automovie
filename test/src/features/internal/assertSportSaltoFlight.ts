@@ -1,10 +1,7 @@
+import type { IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionEvent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { HumanPerformance, HumanSegment } from "@automovie/motions";
+
+
 
 /**
  * Read an admitted salto from its displayed root: its complete somersaults
@@ -24,12 +21,12 @@ import type { HumanPerformance, HumanSegment } from "@automovie/motions";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only diagnostic strings escape; no process or cache is owned here.
  */
 export function assertSportSaltoFlight(
-  performance: HumanPerformance,
+  performance: IAutoMovieMotionHumanPerformance,
   subject: string,
   turns: number,
 ): string[] {
   const findings: string[] = [];
-  const segment: HumanSegment.ISegment = performance.segments(subject).at(-1)!;
+  const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments(subject).at(-1)!;
   const at = (name: string): number =>
     segment.start +
     segment.plan.events.find(

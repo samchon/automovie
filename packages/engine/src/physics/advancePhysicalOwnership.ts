@@ -1,14 +1,9 @@
-import type {
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieVector3 as V,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalHandoff, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget, IAutoMovieVector3 } from "@automovie/interface";
 import RAPIER, { type RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import type { IAutoMoviePhysicalHandoff as Handoff } from "./IAutoMoviePhysicalHandoff";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
@@ -16,7 +11,6 @@ import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Switch native ownership at declared subtree boundaries. Activation retains
@@ -35,12 +29,12 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 23 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function advancePhysicalOwnership(input: {
-  /** Admitted provider and ownership duration. */ body: Simulation.IBody;
-  /** Current causal ownership selection. */ target: Simulation.ITarget;
+  /** Admitted provider and ownership duration. */ body: IAutoMoviePhysicalSimulationInput.IBody;
+  /** Current causal ownership selection. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Native handles and serialized transition state. */ bound: Bound;
   /** Authored or contact-fitted world goals, updated for returning subtrees. */ goals: Record<
     string,
-    ReturnType<typeof samplePhysicalTarget>
+    IAutoMovieSamplePhysicalTarget.IResult
   >;
   /** Exact next native tick; native f32 timesteps never establish event time. */ tick: number;
   /** Declared integer native ticks per second. */ nativeRate: number;
@@ -66,7 +60,7 @@ export function advancePhysicalOwnership(input: {
           ? []
           : (input.target.dynamicSegments ??
               input.body.profile.segments.map(
-                (segment: P.ISegment): string => segment.bone,
+                (segment: IAutoMoviePhysicalProfile.ISegment): string => segment.bone,
               )),
       ),
     };
@@ -77,11 +71,11 @@ export function advancePhysicalOwnership(input: {
   const segments: Map<string, RigidBody> = input.bound.segments.get(
     input.body.id,
   )!;
-  const transitions: Record<string, Handoff> =
+  const transitions: Record<string, IAutoMoviePhysicalHandoff> =
     input.bound.handoffs.get(input.body.id) ?? Object.create(null);
   input.bound.handoffs.set(input.body.id, transitions);
   const previous: Set<string> = input.bound.dynamic.get(input.body.id)!;
-  const ordered: readonly P.ISegment[] = input.bound.order.get(input.body.id)!;
+  const ordered: readonly IAutoMoviePhysicalProfile.ISegment[] = input.bound.order.get(input.body.id)!;
   input.bound.dynamic.set(input.body.id, selected);
   if (
     (selected === previous ||
@@ -95,12 +89,12 @@ export function advancePhysicalOwnership(input: {
   }
   const actual: Record<
     string,
-    ReturnType<typeof samplePhysicalTarget>
+    IAutoMovieSamplePhysicalTarget.IResult
   > = Object.fromEntries(
     [...segments].map(
       ([bone, rigid]: [string, RigidBody]): [
         string,
-        ReturnType<typeof samplePhysicalTarget>,
+        IAutoMovieSamplePhysicalTarget.IResult,
       ] => [
         bone,
         {
@@ -113,7 +107,7 @@ export function advancePhysicalOwnership(input: {
       ],
     ),
   );
-  const authored: Record<string, ReturnType<typeof samplePhysicalTarget>> = {
+  const authored: Record<string, IAutoMovieSamplePhysicalTarget.IResult> = {
     ...input.goals,
   };
   const entering: Set<string> = new Set();
@@ -130,11 +124,11 @@ export function advancePhysicalOwnership(input: {
     }
   const before: Record<
     string,
-    ReturnType<typeof samplePhysicalTarget>
+    IAutoMovieSamplePhysicalTarget.IResult
   > = Object.fromEntries(
     [...entering].map(
-      (bone: string): [string, ReturnType<typeof samplePhysicalTarget>] => {
-        const goal: ReturnType<typeof samplePhysicalTarget> = authored[bone]!;
+      (bone: string): [string, IAutoMovieSamplePhysicalTarget.IResult] => {
+        const goal: IAutoMovieSamplePhysicalTarget.IResult = authored[bone]!;
         return [
           bone,
           {
@@ -166,8 +160,8 @@ export function advancePhysicalOwnership(input: {
           actual[bone]!.velocity,
           actual[bone]!.angularVelocity,
         );
-        const velocity: V = rigid.linvel();
-        const angular: V = rigid.angvel();
+        const velocity: IAutoMovieVector3 = rigid.linvel();
+        const angular: IAutoMovieVector3 = rigid.angvel();
         rigid.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
         rigid.setLinvel(velocity, true);
         rigid.setAngvel(angular, true);
@@ -180,26 +174,26 @@ export function advancePhysicalOwnership(input: {
       }
       continue;
     }
-    const joint: P.IJoint | undefined = input.bound.jointByChild
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.bound.jointByChild
       .get(input.body.id)!
       .get(bone);
     const parent: string | undefined = joint?.parent;
     writable(bone);
     if (rigid.isDynamic()) {
-      const solved: ReturnType<typeof relative> = relative(
+      const solved: IAutoMovieSamplePhysicalTarget.IResult = relative(
         actual[bone]!,
         parent ? actual[parent]! : undefined,
       );
-      const intended: ReturnType<typeof relative> = relative(
+      const intended: IAutoMovieSamplePhysicalTarget.IResult = relative(
         before[bone]!,
         parent ? before[parent]! : undefined,
       );
-      const difference: P.ITransform["rotation"] = Quaternion.multiply(
+      const difference: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
         solved.pose.rotation,
         Quaternion.inverse(intended.pose.rotation),
       );
-      const rotation: V = Rotation.log(difference);
-      const position: V = joint
+      const rotation: IAutoMovieVector3 = Rotation.log(difference);
+      const position: IAutoMovieVector3 = joint
         ? Vector3.subtract(
             solved.pose.position,
             Vector3.subtract(
@@ -211,7 +205,7 @@ export function advancePhysicalOwnership(input: {
             ),
           )
         : Vector3.subtract(solved.pose.position, intended.pose.position);
-      const velocity: V = joint
+      const velocity: IAutoMovieVector3 = joint
         ? Vector3.add(
             solved.velocity,
             Vector3.cross(
@@ -246,7 +240,7 @@ export function advancePhysicalOwnership(input: {
       });
     }
     if (transitions[bone]?.completed) delete transitions[bone];
-    const transition: Handoff | undefined = transitions[bone];
+    const transition: IAutoMoviePhysicalHandoff | undefined = transitions[bone];
     if (transition) {
       const fraction: number = Math.min(
         1,
@@ -259,26 +253,26 @@ export function advancePhysicalOwnership(input: {
       const position: number = 2 * fraction ** 3 - 3 * fraction ** 2 + 1;
       const velocity: number =
         (fraction ** 3 - 2 * fraction ** 2 + fraction) * transition.duration;
-      const goal: ReturnType<typeof relative> = relative(
+      const goal: IAutoMovieSamplePhysicalTarget.IResult = relative(
         authored[bone]!,
         parent ? authored[parent]! : undefined,
       );
-      const parentPose: P.ITransform | undefined = parent
+      const parentPose: IAutoMoviePhysicalProfile.ITransform | undefined = parent
         ? input.goals[parent]!.pose
         : undefined;
-      const vector: V = Vector3.add(
+      const vector: IAutoMovieVector3 = Vector3.add(
         Vector3.scale(transition.rotation, position),
         Vector3.scale(transition.angularVelocity, velocity),
       );
-      const offset: P.ITransform["rotation"] = Rotation.exp(vector);
-      const rotation: P.ITransform["rotation"] = Quaternion.multiply(
+      const offset: IAutoMoviePhysicalProfile.ITransform["rotation"] = Rotation.exp(vector);
+      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
         offset,
         goal.pose.rotation,
       );
       const first: number =
         (6 * fraction ** 2 - 6 * fraction) / transition.duration;
       const second: number = 3 * fraction ** 2 - 4 * fraction + 1;
-      const localAngular: V = Vector3.add(
+      const localAngular: IAutoMovieVector3 = Vector3.add(
         Rotation.velocity(
           vector,
           Vector3.add(
@@ -288,7 +282,7 @@ export function advancePhysicalOwnership(input: {
         ),
         Quaternion.rotateVector(offset, goal.angularVelocity),
       );
-      const local: V = Vector3.add(
+      const local: IAutoMovieVector3 = Vector3.add(
         joint
           ? Vector3.subtract(
               joint.parentFrame.position,
@@ -300,7 +294,7 @@ export function advancePhysicalOwnership(input: {
           Vector3.scale(transition.velocity, velocity),
         ),
       );
-      const localVelocity: V = Vector3.add(
+      const localVelocity: IAutoMovieVector3 = Vector3.add(
         joint
           ? Vector3.scale(
               Vector3.cross(
@@ -360,20 +354,20 @@ export function advancePhysicalOwnership(input: {
   return selected;
 
   /** Bone origins follow the same fixed pivots as colliders, including angular transport velocity. */
-  function author(segment: P.ISegment): void {
+  function author(segment: IAutoMoviePhysicalProfile.ISegment): void {
     const bone: string = segment.bone;
-    const goal: ReturnType<typeof samplePhysicalTarget> = writable(bone);
-    const joint: P.IJoint | undefined = input.bound.jointByChild
+    const goal: IAutoMovieSamplePhysicalTarget.IResult = writable(bone);
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.bound.jointByChild
       .get(input.body.id)!
       .get(bone);
     if (joint) {
-      const parent: ReturnType<typeof samplePhysicalTarget> =
+      const parent: IAutoMovieSamplePhysicalTarget.IResult =
         input.goals[joint.parent]!;
-      const proximal: V = Quaternion.rotateVector(
+      const proximal: IAutoMovieVector3 = Quaternion.rotateVector(
         parent.pose.rotation,
         joint.parentFrame.position,
       );
-      const distal: V = Quaternion.rotateVector(
+      const distal: IAutoMovieVector3 = Quaternion.rotateVector(
         goal.pose.rotation,
         joint.childFrame.position,
       );
@@ -393,7 +387,7 @@ export function advancePhysicalOwnership(input: {
   }
 
   /** Detach only coordinates this ownership pass actually changes. */
-  function writable(bone: string): ReturnType<typeof samplePhysicalTarget> {
+  function writable(bone: string): IAutoMovieSamplePhysicalTarget.IResult {
     if (!owned?.has(bone)) {
       input.goals[bone] = copyPhysicalTarget(input.goals[bone]!);
       (owned ??= new Set()).add(bone);
@@ -402,9 +396,9 @@ export function advancePhysicalOwnership(input: {
   }
 
   /** Validate the same actual collider/display trajectory before passing it through the native f32 boundary. */
-  function write(segment: P.ISegment, joint?: P.IJoint): void {
+  function write(segment: IAutoMoviePhysicalProfile.ISegment, joint?: IAutoMoviePhysicalProfile.IJoint): void {
     const bone: string = segment.bone;
-    const goal: ReturnType<typeof samplePhysicalTarget> = input.goals[bone]!;
+    const goal: IAutoMovieSamplePhysicalTarget.IResult = input.goals[bone]!;
     assertPhysicalNativeMotion(
       segment,
       goal.pose,
@@ -412,7 +406,7 @@ export function advancePhysicalOwnership(input: {
       goal.angularVelocity,
     );
     if (joint) {
-      const anchor: V = physicalSupportPoint(
+      const anchor: IAutoMovieVector3 = physicalSupportPoint(
         goal.pose,
         joint.childFrame.position,
       );
@@ -429,14 +423,14 @@ export function advancePhysicalOwnership(input: {
 
 /** Parent-relative spatial derivatives include transport by the parent's actual angular velocity. */
 function relative(
-  child: ReturnType<typeof samplePhysicalTarget>,
-  parent?: ReturnType<typeof samplePhysicalTarget>,
-): ReturnType<typeof samplePhysicalTarget> {
+  child: IAutoMovieSamplePhysicalTarget.IResult,
+  parent?: IAutoMovieSamplePhysicalTarget.IResult,
+): IAutoMovieSamplePhysicalTarget.IResult {
   if (!parent) return child;
-  const inverse: P.ITransform["rotation"] = Quaternion.inverse(
+  const inverse: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.inverse(
     parent.pose.rotation,
   );
-  const displacement: V = Vector3.subtract(
+  const displacement: IAutoMovieVector3 = Vector3.subtract(
     child.pose.position,
     parent.pose.position,
   );

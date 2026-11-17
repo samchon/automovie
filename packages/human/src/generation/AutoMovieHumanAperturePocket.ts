@@ -1,8 +1,13 @@
-import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanApertureEdge, IAutoMovieHumanAperturePocket, IAutoMovieHumanConstructionPath, IAutoMovieHumanLoftAperture, IAutoMovieHumanLoftMesh } from "@automovie/interface";
+
+
+
+
+
+
+
 import { AutoMovieHumanApertureConstruction } from "./AutoMovieHumanApertureConstruction";
-import type { IAutoMovieHumanApertureEdge } from "./IAutoMovieHumanApertureEdge";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
+
 
 /**
  * Inferred nasal pocket, continuing the observed exterior into a rounded
@@ -105,12 +110,12 @@ export namespace AutoMovieHumanAperturePocket {
    * @param emit Triangle sink.
    */
   export function loop(
-    mesh: AutoMovieHumanLoftMesh.IContext,
+    mesh: IAutoMovieHumanLoftMesh.IContext,
     aperture: IAutoMovieHumanLoftAperture,
     ring: readonly number[],
-    rim: readonly [number, number, number][],
-    slopes: readonly [number, number, number][],
-    emit: (name: string, ...corners: number[]) => void,
+    rim: ReadonlyArray<AutoMovieVector3Tuple>,
+    slopes: ReadonlyArray<AutoMovieVector3Tuple>,
+    emit: IAutoMovieHumanAperturePocket.LoopEmit,
   ): IAutoMovieHumanConstructionPath[] {
     const centre: number[] = [0, 1, 2].map(
       (a: number): number => rim.reduce((sum: number, p: [number, number, number]): number => sum + p[a]!, 0) / rim.length,

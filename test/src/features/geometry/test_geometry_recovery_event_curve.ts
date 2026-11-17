@@ -1,10 +1,6 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
-import {
-  AutoMovieRecoveryEventCurve as E,
-  type IAutoMovieRecoveryEventCurveArc,
-  type IAutoMovieRecoveryEventCurvePiece,
-  prepareAutoMovieRecoveryAnnularChart,
-} from "@automovie/recovery";
+import type { IAutoMovieCurve64, IAutoMovieRecoveryEventCurveArc, IAutoMovieRecoveryEventCurvePiece } from "@automovie/interface";
+
+import { AutoMovieRecoveryEventCurve as E, prepareAutoMovieRecoveryAnnularChart } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -17,10 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Native occurrence direction determines endpoint names and the annular seam) as stated in this comment.
  */
 export function test_geometry_recovery_event_curve(): void {
-  const curve: (id: string, y: number) => C.Cubic = (
+  const curve: (id: string, y: number) => IAutoMovieCurve64.Cubic = (
     id: string,
     y: number,
-  ): C.Cubic => ({
+  ): IAutoMovieCurve64.Cubic => ({
     type: "cubicBezier",
     name: id,
     closed: true,
@@ -98,7 +94,7 @@ export function test_geometry_recovery_event_curve(): void {
       E.endpointAuthority(wrong, 0);
     },
   );
-  const broken: C.Cubic = {
+  const broken: IAutoMovieCurve64.Cubic = {
     ...curve("broken", 0),
     spans: [
       curve("broken", 0).spans[0]!,

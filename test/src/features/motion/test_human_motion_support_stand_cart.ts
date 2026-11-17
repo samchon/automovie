@@ -1,14 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createCart } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanSupportFrame,
-  type IHumanBody,
-  stand,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSupportFrame, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,13 +34,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_support_stand_cart(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
-  const motion = (seconds: number): HumanObject.Placement => ({
+  const motion = (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
     at: { x: 0, y: 0.3, z: 2 * seconds },
     yaw: 10 * seconds,
   });
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "cart",

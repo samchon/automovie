@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalTrackingWithdrawn } from "@automovie/interface";
 /**
  * Whether a body's default tracking is withdrawn at one tick.
  *
@@ -13,12 +14,7 @@
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
-export function physicalTrackingWithdrawn(target: {
-  /** Effective body tracking fraction: authored strength times balance root strength. */ strength: number;
-  /** Explicit per-joint fractions declared by the target. */ jointStrength?: Readonly<
-    Record<string, number>
-  >;
-}): boolean {
+export function physicalTrackingWithdrawn(target: IAutoMoviePhysicalTrackingWithdrawn.ITarget): boolean {
   return (
     target.strength === 0 &&
     !Object.values(target.jointStrength ?? {}).some(

@@ -1,10 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanManoeuvre, IAutoMovieMotionHumanManoeuvreWheel, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanEnsemble } from "./HumanEnsemble";
 import { HumanFormation } from "./HumanFormation";
-import type { IHumanFormation } from "./IHumanFormation";
-import type { IHumanManoeuvre } from "./IHumanManoeuvre";
 
 /**
  * A wheel on a fixed pivot: the formation turned rigidly about its pivot
@@ -46,13 +43,13 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stations hold the frame for as long as they are held.
  */
 export function manoeuvreWheel(
-  ensemble: HumanEnsemble.IEnsemble,
-  manoeuvre: IHumanManoeuvre,
+  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  manoeuvre: IAutoMovieMotionHumanManoeuvre,
   starts: readonly IAutoMovieVector3[],
-  ends: readonly IHumanFormation.ISlot[],
+  ends: readonly IAutoMovieMotionHumanFormation.ISlot[],
   speeds: readonly number[],
-): manoeuvreWheel.IWheel {
-  const members: readonly HumanEnsemble.IMember[] = ensemble.members;
+): IAutoMovieMotionHumanManoeuvreWheel.IWheel {
+  const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members;
   const pivot: IAutoMovieVector3 = pivotOf(manoeuvre, members, starts);
   const origin: { at: IAutoMovieVector3; heading: number } =
     HumanFormation.frame(manoeuvre.from, manoeuvre.at);
@@ -123,7 +120,7 @@ export function manoeuvreWheel(
     1,
     Math.ceil(total / HumanFormation.SAMPLE - 1e-9),
   );
-  const samples: IHumanFormation.ISample[] = [];
+  const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
   for (let k: number = 0; k <= count; ++k) {
     const t: number = Math.min(total, k * HumanFormation.SAMPLE);
     samples.push({
@@ -134,9 +131,9 @@ export function manoeuvreWheel(
       heading: origin.heading + (sign * angle(t) * 180) / Math.PI,
     });
   }
-  const formation: IHumanFormation = {
+  const formation: IAutoMovieMotionHumanFormation = {
     blocks: manoeuvre.from.blocks.map(
-      (b: IHumanFormation.IBlock): IHumanFormation.IBlock => ({
+      (b: IAutoMovieMotionHumanFormation.IBlock): IAutoMovieMotionHumanFormation.IBlock => ({
         ...b,
         offset: {
           lateral: (b.offset?.lateral ?? 0) - lateral,
@@ -149,7 +146,7 @@ export function manoeuvreWheel(
   return {
     ways,
     stations: members.map(
-      (m: HumanEnsemble.IMember): IHumanFormation.IStation => ({
+      (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanFormation.IStation => ({
         formation,
         slot: m.index,
         until: manoeuvre.at + total,
@@ -175,15 +172,6 @@ export namespace manoeuvreWheel {
 
   /** Degrees between two points of a wheeling member's arc. */
   export const ARC: number = 10;
-
-  /** A wheel's members' ways, and the stations they keep, or null when nothing turns. */
-  export interface IWheel {
-    /** Each member's arc about the pivot, world metres, by member order. */
-    ways: IAutoMovieVector3[][];
-
-    /** Each member's slot in the wheeling formation, by member order; null when nothing turns. */
-    stations: IHumanFormation.IStation[] | null;
-  }
 }
 
 /** Turn a point about a pivot by degrees about +Y, as a heading turns. */
@@ -204,31 +192,31 @@ function turn(
 
 /** The wheel's pivot: the front rank's left or right file, or its centre, where the members stand at the word. */
 function pivotOf(
-  manoeuvre: IHumanManoeuvre,
-  members: readonly HumanEnsemble.IMember[],
+  manoeuvre: IAutoMovieMotionHumanManoeuvre,
+  members: readonly IAutoMovieMotionHumanEnsemble.IMember[],
   starts: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3 {
   const front: number[] = members
     .map(
       (
-        m: HumanEnsemble.IMember,
+        m: IAutoMovieMotionHumanEnsemble.IMember,
         i: number,
-      ): [number, HumanFormation.ILocal] => [
+      ): [number, IAutoMovieMotionHumanFormation.ILocal] => [
         i,
         HumanFormation.local(manoeuvre.from, m.index),
       ],
     )
     .filter(
-      (e: [number, HumanFormation.ILocal]): boolean =>
+      (e: [number, IAutoMovieMotionHumanFormation.ILocal]): boolean =>
         e[1].rank === 0 && e[1].block === 0,
     )
     .sort(
       (
-        a: [number, HumanFormation.ILocal],
-        b: [number, HumanFormation.ILocal],
+        a: [number, IAutoMovieMotionHumanFormation.ILocal],
+        b: [number, IAutoMovieMotionHumanFormation.ILocal],
       ): number => a[1].file - b[1].file,
     )
-    .map((e: [number, HumanFormation.ILocal]): number => e[0]);
+    .map((e: [number, IAutoMovieMotionHumanFormation.ILocal]): number => e[0]);
   if (front.length === 0) return starts[0] ?? { x: 0, y: 0, z: 0 };
   const side: "left" | "right" | "centre" = manoeuvre.pivot ?? "left";
   if (side === "centre") {

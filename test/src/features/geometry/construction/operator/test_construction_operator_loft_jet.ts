@@ -1,11 +1,5 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieLoftRelief,
-  AutoMovieSplineCurve,
-  AutoMovieStationHermite,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftJet } from "@automovie/interface";
+import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieLoftRelief, AutoMovieSplineCurve, AutoMovieStationHermite } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -13,7 +7,7 @@ import { nclose } from "../../../internal/nclose";
 /** A world vector. */
 type V = [number, number, number];
 /** A surface jet's six observable fields. */
-const KEYS: readonly (keyof AutoMovieLoftJet.IJet)[] = [
+const KEYS: readonly (keyof IAutoMovieLoftJet.IJet)[] = [
   "p",
   "s",
   "t",
@@ -76,7 +70,7 @@ export function test_construction_operator_loft_jet(): void {
         "reverse sweep",
         failures,
       );
-    const returned: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+    const returned: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
       chain,
       1.3,
       0.2,
@@ -142,11 +136,11 @@ export function test_construction_operator_loft_jet(): void {
         "independent polynomial",
         failures,
       );
-  const wrong: AutoMovieLoftJet.IJet = polynomial(1);
+  const wrong: IAutoMovieLoftJet.IJet = polynomial(1);
   wrong.ss[0] += 0.01;
   const proof: string[] = [];
   same(wrong, polynomial(1), 1e-9, "analytic red proof", proof);
-  const wrongMixed: AutoMovieLoftJet.IJet = eager(analytic, 1, 0);
+  const wrongMixed: IAutoMovieLoftJet.IJet = eager(analytic, 1, 0);
   wrongMixed.st[2] += 0.01;
   same(wrongMixed, eager(analytic, 1, 0), 0, "eager red proof", proof);
   if (proof.length !== 2)
@@ -156,7 +150,7 @@ export function test_construction_operator_loft_jet(): void {
   cap.pole = { end: "bottom", point: [0, 0, 0] };
   cap.layers[0]!.coefficients.fill(0);
   for (const t of [0, -1, Math.PI, 2 * Math.PI]) {
-    const jet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(cap, 0, t);
+    const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(cap, 0, t);
     same(jet, eager(cap, 0, t), 0, "collapsed cap", failures);
     if (
       jet.p.some((v: number): boolean => v !== 0) ||
@@ -179,8 +173,8 @@ export function test_construction_operator_loft_jet(): void {
 
 /** Compare all components, explicitly rejecting nonfinite output. */
 function same(
-  actual: AutoMovieLoftJet.IJet,
-  expected: AutoMovieLoftJet.IJet,
+  actual: IAutoMovieLoftJet.IJet,
+  expected: IAutoMovieLoftJet.IJet,
   tolerance: number,
   label: string,
   failures: string[],
@@ -275,7 +269,7 @@ function made(n: number, lift: number, moving: boolean): IAutoMovieLoftChain {
 }
 
 /** Expanded quadratic surface at phase zero: literal span weights on indices 7,0,1,2. */
-function polynomial(s: number): AutoMovieLoftJet.IJet {
+function polynomial(s: number): IAutoMovieLoftJet.IJet {
   const x: number = 2 + 3 * s + 0.25 * s * s;
   const z: number = -1 + 0.5 * s + 0.125 * s * s;
   const dx: number = 3 + 0.5 * s;
@@ -338,7 +332,7 @@ function eager(
   chain: IAutoMovieLoftChain,
   s: number,
   t: number,
-): AutoMovieLoftJet.IJet {
+): IAutoMovieLoftJet.IJet {
   const [lo, hi] = AutoMovieLoftChain.bracket(chain, s);
   const a: IAutoMovieLoftChain.ILayer = chain.layers[lo]!;
   const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
@@ -365,7 +359,7 @@ function eager(
       w,
     ),
   );
-  const jet: AutoMovieLoftJet.IJet = {
+  const jet: IAutoMovieLoftJet.IJet = {
     p: [0, 0, 0],
     s: [0, 0, 0],
     t: [0, 0, 0],
@@ -446,7 +440,7 @@ function eager(
   for (const relief of chain.reliefs ?? []) {
     const h: number[] = AutoMovieLoftRelief.jet(relief, s, t);
     if (h.every((x: number): boolean => x === 0)) continue;
-    KEYS.forEach((key: keyof AutoMovieLoftJet.IJet, i: number): void => {
+    KEYS.forEach((key: keyof IAutoMovieLoftJet.IJet, i: number): void => {
       jet[key] = add(jet[key], scale(relief.axis, h[i]!));
     });
   }

@@ -1,11 +1,10 @@
-import {
-  type AutoMovieLoftFrame,
-  AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadEarRidge, IAutoMovieHumanHeadEarRidgeAxis } from "@automovie/interface";
 
-import type { AutoMovieHumanHeadEarRidge } from "./AutoMovieHumanHeadEarRidge";
+
+
+
+import { AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
+
 
 /**
  * Original ridge coordinate sources and the frame that borrows a canonical fork.
@@ -32,32 +31,29 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
    */
   export function of(
     name: string,
-    points: [number, number, number][],
+    points: AutoMovieVector3Tuple[],
     stations: number[],
-    normal: [number, number, number],
-    ports: AutoMovieHumanHeadEarRidge.IPorts,
-  ): {
-    axis: AutoMovieViewAxis.IAxis;
-    coordinates: AutoMovieHumanHeadEarRidge.IRidge["coordinates"];
-  } {
+    normal: AutoMovieVector3Tuple,
+    ports: IAutoMovieHumanHeadEarRidge.IPorts,
+  ): IAutoMovieHumanHeadEarRidgeAxis.IOfResult {
     const shared: (
       i: number,
-    ) => AutoMovieHumanHeadEarRidge.IPort | undefined = (
+    ) => IAutoMovieHumanHeadEarRidge.IPort | undefined = (
       i: number,
-    ): AutoMovieHumanHeadEarRidge.IPort | undefined =>
+    ): IAutoMovieHumanHeadEarRidge.IPort | undefined =>
       i === 1 && typeof ports.start === "object"
         ? ports.start
         : i === points.length - 2 && typeof ports.end === "object"
           ? ports.end
           : undefined;
     const span: number = stations.at(-1)! - stations[0]!;
-    const coordinates: AutoMovieHumanHeadEarRidge.IRidge["coordinates"] = [
+    const coordinates: IAutoMovieHumanHeadEarRidge.IRidge["coordinates"] = [
       0, 1, 2,
-    ].map((component: number): AutoMovieViewOutline.IOutline => {
+    ].map((component: number): IAutoMovieViewOutline.IOutline => {
       const input: IAutoMovieViewPart.IOutline = {
         knots: stations.map(
           (station: number, i: number): IAutoMovieViewPart.IKnot => {
-            const parent: AutoMovieHumanHeadEarRidge.IPort | undefined =
+            const parent: IAutoMovieHumanHeadEarRidge.IPort | undefined =
               shared(i);
             return {
               site: `${name}.coordinate.${component}.${i}`,
@@ -76,13 +72,13 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
         ),
       };
       const prepared:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(input);
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(input);
       if ("detail" in prepared)
         throw new Error(`Ear source course ${name}: ${prepared.detail}`);
       return prepared;
-    }) as AutoMovieHumanHeadEarRidge.IRidge["coordinates"];
-    const parent: AutoMovieHumanHeadEarRidge.IPort | undefined =
+    }) as IAutoMovieHumanHeadEarRidge.IRidge["coordinates"];
+    const parent: IAutoMovieHumanHeadEarRidge.IPort | undefined =
       typeof ports.start === "object"
         ? ports.start
         : typeof ports.end === "object"
@@ -93,7 +89,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
         coordinates,
         axis: AutoMovieViewAxis.minimal(
           stations.map(
-            (station: number, i: number): AutoMovieViewAxis.IAxisKnot => ({
+            (station: number, i: number): IAutoMovieViewAxis.IAxisKnot => ({
               station,
               point: points[i]!,
             }),
@@ -102,13 +98,13 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
           1,
         ),
       };
-    const axis: AutoMovieViewAxis.IAxis = {
-      at: (station: number): AutoMovieLoftFrame.IFrame => {
-        const readings: AutoMovieViewOutline.IReading[] = coordinates.map(
+    const axis: IAutoMovieViewAxis.IAxis = {
+      at: (station: number): IAutoMovieLoftFrame.IFrame => {
+        const readings: IAutoMovieViewOutline.IReading[] = coordinates.map(
           (
-            outline: AutoMovieViewOutline.IOutline,
-          ): AutoMovieViewOutline.IReading => {
-            const read: AutoMovieViewOutline.IReading | string =
+            outline: IAutoMovieViewOutline.IOutline,
+          ): IAutoMovieViewOutline.IReading => {
+            const read: IAutoMovieViewOutline.IReading | string =
               AutoMovieViewOutline.at(outline, station);
             if (typeof read === "string" || read.stationJet === null)
               throw new Error(`Ear source ${name} has no regular course frame`);
@@ -116,7 +112,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
           },
         );
         const tangent: [number, number, number] = readings.map(
-          (read: AutoMovieViewOutline.IReading): number => read.stationJet![0],
+          (read: IAutoMovieViewOutline.IReading): number => read.stationJet![0],
         ) as [number, number, number];
         const speed: number = Math.hypot(...tangent);
         if (!(speed > 0 && Number.isFinite(speed)))
@@ -145,7 +141,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
         ];
         return {
           origin: readings.map(
-            (read: AutoMovieViewOutline.IReading): number => read.value,
+            (read: IAutoMovieViewOutline.IReading): number => read.value,
           ) as [number, number, number],
           u,
           v,

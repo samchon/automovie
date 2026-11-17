@@ -1,13 +1,15 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryObservationAnchor, IAutoMovieRecoveryObservationChart, IAutoMovieRecoveryObservationChartSeed, IAutoMovieRecoveryObservationEntry, IAutoMovieRecoveryObservationProvenance, IAutoMovieRecoveryObservationTangents, IAutoMovieRecoveryObservationTransport, IAutoMovieRecoveryObservationTransportRefused } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryObservationAnchor } from "../structures/observation/IAutoMovieRecoveryObservationAnchor";
-import type { IAutoMovieRecoveryObservationChart } from "../structures/observation/IAutoMovieRecoveryObservationChart";
-import type { IAutoMovieRecoveryObservationChartSeed } from "../structures/observation/IAutoMovieRecoveryObservationChartSeed";
-import type { IAutoMovieRecoveryObservationEntry } from "../structures/observation/IAutoMovieRecoveryObservationEntry";
-import type { IAutoMovieRecoveryObservationTangents } from "../structures/observation/IAutoMovieRecoveryObservationTangents";
-import type { IAutoMovieRecoveryObservationTransportRefused } from "../structures/observation/IAutoMovieRecoveryObservationTransportRefused";
-import type { AutoMovieRecoveryObservationProvenance } from "../typings/AutoMovieRecoveryObservationProvenance";
-import type { AutoMovieRecoveryObservationTransport } from "../typings/AutoMovieRecoveryObservationTransport";
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Transport a closed observation chart through uniquely ordered persistent anchors.
@@ -30,7 +32,7 @@ export function transportAutoMovieRecoveryObservationChart(
   previous: IAutoMovieRecoveryObservationChartSeed,
   current: IAutoMovieRecoveryObservationChart,
   relation: string,
-): AutoMovieRecoveryObservationTransport {
+): IAutoMovieRecoveryObservationTransport {
   const refuse: (
     reason: string,
   ) => IAutoMovieRecoveryObservationTransportRefused = (
@@ -38,30 +40,29 @@ export function transportAutoMovieRecoveryObservationChart(
   ): IAutoMovieRecoveryObservationTransportRefused => ({
     admitted: false,
     diagnostics: [reason],
-    originalCourseRetainedByCaller: true,
-  });
-  const sub: (a: C.Vector, b: C.Vector) => C.Vector = (
-    a: C.Vector,
-    b: C.Vector,
-  ): C.Vector => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const norm: (a: C.Vector) => number = (a: C.Vector): number =>
+    originalCourseRetainedByCaller: true });
+  const sub: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const norm: (a: Readonly<AutoMovieVector3Tuple>) => number = (a: Readonly<AutoMovieVector3Tuple>): number =>
     Math.hypot(...a);
-  const unit: (a: C.Vector) => C.Vector = (a: C.Vector): C.Vector => {
+  const unit: (a: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (a: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => {
     const size: number = norm(a);
     if (!(size > 0 && Number.isFinite(size)))
       throw new Error("Unresolved observed tangent");
     return [a[0] / size, a[1] / size, a[2] / size];
   };
-  const negate: (a: C.Vector) => C.Vector = (a: C.Vector): C.Vector => [
+  const negate: (a: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (a: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [
     -a[0],
     -a[1],
     -a[2],
   ];
-  const mix: (a: C.Vector, b: C.Vector, t: number) => C.Vector = (
-    a: C.Vector,
-    b: C.Vector,
+  const mix: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, t: number) => Readonly<AutoMovieVector3Tuple> = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
     t: number,
-  ): C.Vector => [
+  ): Readonly<AutoMovieVector3Tuple> => [
     a[0] + (b[0] - a[0]) * t,
     a[1] + (b[1] - a[1]) * t,
     a[2] + (b[2] - a[2]) * t,
@@ -79,11 +80,11 @@ export function transportAutoMovieRecoveryObservationChart(
     current.anchorIds.length !== n
   )
     throw new Error("Malformed closed observation chart");
-  const finite: (points: readonly C.Vector[]) => boolean = (
-    points: readonly C.Vector[],
+  const finite: (points: readonly Readonly<AutoMovieVector3Tuple>[]) => boolean = (
+    points: readonly Readonly<AutoMovieVector3Tuple>[],
   ): boolean =>
     points.every(
-      (point: C.Vector): boolean =>
+      (point: Readonly<AutoMovieVector3Tuple>): boolean =>
         point.length === 3 && point.every(Number.isFinite),
     );
   if (!finite(previous.pointsMm) || !finite(current.pointsMm))
@@ -142,8 +143,7 @@ export function transportAutoMovieRecoveryObservationChart(
         id,
         previousIndex: i,
         phase: previousPhase![i]!,
-        currentIndex: cm.get(id)!,
-      }),
+        currentIndex: cm.get(id)! }),
     )
     .sort(
       (
@@ -185,8 +185,8 @@ export function transportAutoMovieRecoveryObservationChart(
   const slots: Map<number, number> = new Map(
     indices.map((index: number, i: number): [number, number] => [index, i]),
   );
-  const points: C.Vector[] = indices.map(
-      (i: number): C.Vector => current.pointsMm[i]!,
+  const points: Readonly<AutoMovieVector3Tuple>[] = indices.map(
+      (i: number): Readonly<AutoMovieVector3Tuple> => current.pointsMm[i]!,
     ),
     cumulative: number[] = [0];
   for (let i: number = 0; i < n; i++) {
@@ -233,11 +233,11 @@ export function transportAutoMovieRecoveryObservationChart(
     scheduleSet: Set<number> = new Set(current.schedule);
   const entries: IAutoMovieRecoveryObservationEntry[] = indices.map(
     (sourceIndex: number, i: number): IAutoMovieRecoveryObservationEntry => {
-      const p: C.Vector = points[i]!,
-        left: C.Vector = sub(p, points[(i + n - 1) % n]!),
-        right: C.Vector = sub(points[(i + 1) % n]!, p);
+      const p: Readonly<AutoMovieVector3Tuple> = points[i]!,
+        left: Readonly<AutoMovieVector3Tuple> = sub(p, points[(i + n - 1) % n]!),
+        right: Readonly<AutoMovieVector3Tuple> = sub(points[(i + 1) % n]!, p);
       const corner: boolean = cornerSet.has(sourceIndex),
-        tangent: C.Vector | null = corner
+        tangent: Readonly<AutoMovieVector3Tuple> | null = corner
           ? null
           : unit(sub(points[(i + 1) % n]!, points[(i + n - 1) % n]!));
       return {
@@ -248,10 +248,8 @@ export function transportAutoMovieRecoveryObservationChart(
         schedule: scheduleSet.has(sourceIndex),
         tangents: {
           out: corner ? unit(right) : tangent!,
-          incoming: negate(corner ? unit(left) : tangent!),
-        },
-        provenance: { kind: "observed-point", sourceIndex },
-      };
+          incoming: negate(corner ? unit(left) : tangent!) },
+        provenance: { kind: "observed-point", sourceIndex } };
     },
   );
   let virtualSeam: boolean = false;
@@ -269,7 +267,7 @@ export function transportAutoMovieRecoveryObservationChart(
       return refuse(
         "The inferred seam inverse collapses onto an endpoint in finite arithmetic",
       );
-    const tangent: C.Vector = unit(sub(points[(i + 1) % n]!, points[i]!));
+    const tangent: Readonly<AutoMovieVector3Tuple> = unit(sub(points[(i + 1) % n]!, points[i]!));
     entries.push({
       phase: 0,
       point: mix(points[i]!, points[(i + 1) % n]!, t),
@@ -280,9 +278,7 @@ export function transportAutoMovieRecoveryObservationChart(
       provenance: {
         kind: "observed-PL-interior",
         sourceEdge: [indices[i]!, indices[(i + 1) % n]!],
-        fraction: t,
-      },
-    });
+        fraction: t } });
     virtualSeam = true;
   }
   entries.sort(
@@ -311,7 +307,7 @@ export function transportAutoMovieRecoveryObservationChart(
     row: {
       name: current.name,
       pointsMm: entries.map(
-        (entry: IAutoMovieRecoveryObservationEntry): C.Vector => [
+        (entry: IAutoMovieRecoveryObservationEntry): Readonly<AutoMovieVector3Tuple> => [
           ...entry.point,
         ],
       ),
@@ -337,15 +333,14 @@ export function transportAutoMovieRecoveryObservationChart(
           entry: IAutoMovieRecoveryObservationEntry,
         ): IAutoMovieRecoveryObservationTangents => entry.tangents,
       ),
-      phase,
-    },
+      phase },
     persistentAnchors: anchors,
     direction,
     virtualSeam,
     provenance: entries.map(
       (
         entry: IAutoMovieRecoveryObservationEntry,
-      ): AutoMovieRecoveryObservationProvenance => entry.provenance,
+      ): IAutoMovieRecoveryObservationProvenance => entry.provenance,
     ),
     originalObservationCount: n,
     originalPointsRetained:
@@ -354,6 +349,5 @@ export function transportAutoMovieRecoveryObservationChart(
           entry.provenance.kind === "observed-point",
       ).length === n,
     materialCorrespondenceQualified: false,
-    sourceGuideQualified: false,
-  };
+    sourceGuideQualified: false };
 }

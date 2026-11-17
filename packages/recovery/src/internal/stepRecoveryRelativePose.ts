@@ -1,8 +1,6 @@
+import type { IAutoMovieRecoveryRelativePoseStepOperation, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 /**
  * Apply a five-coordinate local step while retaining a rotation and unit t.
@@ -18,13 +16,10 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources New pose arrays transfer to the caller and no borrowed state, image, quaternion cache or external handle remains.
  */
 export function stepRecoveryRelativePose(
-  pose: {
-    rotation: readonly number[];
-    translation: readonly [number, number, number];
-  },
-  tangent: readonly (readonly [number, number, number])[],
-  step: readonly number[],
-): { rotation: number[]; translation: [number, number, number] } {
+  pose: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[0],
+  tangent: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[1],
+  step: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryRelativePoseStepOperation.Operation> {
   if (step.length !== 5 || !step.every(Number.isFinite) || tangent.length !== 2)
     throw new Error("camera-refinement: finite five-coordinate step required");
   const angle: number = Math.hypot(step[0]!, step[1]!, step[2]!);
@@ -39,8 +34,7 @@ export function stepRecoveryRelativePose(
     const value: IAutoMovieVector3 = Quaternion.rotateVector(quaternion, {
       x: pose.rotation[column]!,
       y: pose.rotation[3 + column]!,
-      z: pose.rotation[6 + column]!,
-    });
+      z: pose.rotation[6 + column]! });
     rotation[column] = value.x;
     rotation[3 + column] = value.y;
     rotation[6 + column] = value.z;
@@ -58,6 +52,5 @@ export function stepRecoveryRelativePose(
       direction[0]! / norm,
       direction[1]! / norm,
       direction[2]! / norm,
-    ],
-  };
+    ] };
 }

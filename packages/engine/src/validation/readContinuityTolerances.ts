@@ -1,5 +1,5 @@
-import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
-import { ViolationCollector } from "./ViolationCollector";
+import type { IAutoMovieContinuityTolerances, IAutoMovieViolationCollector } from "@automovie/interface";
+
 
 /** Default world-space position drift tolerated across a cut (metres). */
 const DEFAULT_POSITION_TOLERANCE: number = 0.05;
@@ -22,12 +22,12 @@ export const readContinuityTolerances: (
   position: number | undefined,
   facingDeg: number | undefined,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => IAutoMovieContinuityTolerances | null = (
   position: number | undefined,
   facingDeg: number | undefined,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): IAutoMovieContinuityTolerances | null => {
   const pos: number = position ?? DEFAULT_POSITION_TOLERANCE;
   const facing: number = facingDeg ?? DEFAULT_FACING_TOLERANCE_DEG;

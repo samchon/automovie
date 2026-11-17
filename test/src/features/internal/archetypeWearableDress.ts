@@ -1,22 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createWearable } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
-  StrikingRoll,
-  dress,
-} from "@automovie/motions";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, StrikingRoll, dress } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -45,7 +31,7 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const item of ["hat", "glasses"] as const) {
       const label: string = `${name} ${item}`;
       const model: ReturnType<typeof createWearable> = createWearable({
@@ -53,8 +39,8 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
       });
       const wear: IAutoMovieVector3 =
         model.affordance("wear").frame.translation;
-      const perform = (taken: boolean): HumanPerformance => {
-        const start: HumanChain = HumanChain.subject("a").stand({
+      const perform = (taken: boolean): IAutoMovieMotionHumanPerformance => {
+        const start: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
           seconds: 0.3,
         });
         return new HumanPerformance({
@@ -95,7 +81,7 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
       };
 
       // 1. It is put on at its place.
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = perform(true);
       } catch (error) {
@@ -104,21 +90,21 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
         );
         continue;
       }
-      const act: HumanSegment.ISegment = film
+      const act: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === "dress")!;
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "dress")!;
       const stroke: number =
         act.start +
         act.plan.events.find((e): boolean => e.name === "stroke")!.share *
           act.plan.duration;
       const socket = (seconds: number): IAutoMovieVector3 => {
-        const frame: IHumanProp.IFrame = film.prop("item", seconds);
+        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("item", seconds);
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, wear),
         );
       };
-      const region: IHumanBody["surfaces"]["regions"]["crown"] =
+      const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["crown"] =
         body.surfaces.regions[dress.WORN[item]];
       const on: number = Vector3.length(
         Vector3.subtract(

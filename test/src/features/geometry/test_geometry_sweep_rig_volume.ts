@@ -1,16 +1,6 @@
-import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSurfaceCage,
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSurfaceRig,
-  type IAutoMovieSweepBinding,
-  poseAutoMovieSurfaceNetwork,
-  rigAutoMovieSurfaceNetwork,
-  sampleAutoMovieSurfaceNetwork,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
-import { type IAutoMovieQuaternion } from "@automovie/interface";
+import type { AutoMovieSurfaceTier, IAutoMovieResolvedBone, IAutoMovieSurfaceCage, IAutoMovieSurfaceNetwork, IAutoMovieSurfaceRig, IAutoMovieSweepBinding, IAutoMovieQuaternion } from "@automovie/interface";
+import { poseAutoMovieSurfaceNetwork, rigAutoMovieSurfaceNetwork, sampleAutoMovieSurfaceNetwork, subdivideAutoMovieSurface } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

@@ -1,27 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanPerformanceHold, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone } from "@automovie/interface";
+
+
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropHold } from "./HumanPropHold";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A prop's world frame as the grips that hold it carry it: the reader
  * `HumanPerformanceRead.prop` documents and delegates to, split from it so
  * the hold's reading, with a grip's in-hand motion, has a file of its own.
  *
- * A grip window that declares an in-hand motion (`IHumanContactWindow.inHand`)
+ * A grip window that declares an in-hand motion (`HumanContactWindow.inHand`)
  * moves the prop within the hand: at a share s of the window, the prop's
  * frame in the hand is the motion's displacement d(s) composed before the
  * offset stored at closure, its position R_d p + t_d and its rotation
@@ -52,28 +44,25 @@ export namespace HumanPerformanceHold {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the offsets on the grip records, released with the performance.
    */
   export function prop(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    own?: {
-      subject: string;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    },
-  ): IHumanProp.IFrame {
-    const prop: IHumanProp | undefined = self.props.get(subject);
+    own?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
+  ): IAutoMovieMotionHumanProp.IFrame {
+    const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...self.props.keys(),
       ]);
     if (prop.motion !== undefined) return prop.motion(seconds);
-    const grips: HumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
+    const grips: IAutoMovieMotionHumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
       self,
       subject,
     );
     // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: HumanPerformanceState.IGrip | undefined;
-    let steady: HumanPerformanceState.IGrip | undefined;
-    let released: HumanPerformanceState.IGrip | undefined;
+    let active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     for (const g of grips) {
       // A grip carries from after it closes; at its closing the prop is where it was.
       if (g.from >= seconds) continue;
@@ -100,18 +89,18 @@ export namespace HumanPerformanceHold {
     // flies until a later grip takes it (#3479: a grip, then a worn bone,
     // then a flight or its rest).
     const since: number = grips.reduce(
-      (latest: number, g: HumanPerformanceState.IGrip): number =>
+      (latest: number, g: IAutoMovieMotionHumanPerformanceState.IGrip): number =>
         g.from < seconds ? Math.max(latest, g.from) : latest,
       -Infinity,
     );
-    const flown: IHumanProp.IFrame | undefined = HumanPropFlight.frame(
+    const flown: IAutoMovieMotionHumanProp.IFrame | undefined = HumanPropFlight.frame(
       self,
       subject,
       seconds,
       since,
     );
     if (flown !== undefined) return flown;
-    const window: HumanPerformanceState.IGrip | undefined = active ?? released;
+    const window: IAutoMovieMotionHumanPerformanceState.IGrip | undefined = active ?? released;
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
     // A window opening on a hand that already holds the prop (a put down
@@ -120,10 +109,10 @@ export namespace HumanPerformanceHold {
     // A worn span rides its bone; a mounted one, the other prop's socket; a
     // held one, its hand's grip socket.
     const carrier = (
-      w: HumanPerformanceState.IGrip,
+      w: IAutoMovieMotionHumanPerformanceState.IGrip,
       at: number,
       supplied?: typeof own,
-    ): IHumanProp.IFrame => {
+    ): IAutoMovieMotionHumanProp.IFrame => {
       if (w.mount !== undefined) return socket(self, w.mount, at, supplied);
       if (w.bone === undefined)
         return HumanPerformanceRead.hand(self, w.subject, w.side, at);
@@ -134,13 +123,13 @@ export namespace HumanPerformanceHold {
       ).get(w.bone)!;
       return { position: bone.worldPosition, rotation: bone.worldRotation };
     };
-    const seat = (w: HumanPerformanceState.IGrip): IHumanProp.IFrame => {
+    const seat = (w: IAutoMovieMotionHumanPerformanceState.IGrip): IAutoMovieMotionHumanProp.IFrame => {
       if (w.offset !== undefined) return w.offset;
-      const earlier: HumanPerformanceState.IGrip | undefined =
+      const earlier: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
         w.bone !== undefined || w.mount !== undefined
           ? undefined
           : grips.find(
-              (g: HumanPerformanceState.IGrip): boolean =>
+              (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
                 g !== w &&
                 g.bone === undefined &&
                 g.mount === undefined &&
@@ -150,12 +139,12 @@ export namespace HumanPerformanceHold {
                 g.to >= w.from - 1e-6,
             );
       if (earlier !== undefined) return (w.offset = moved(earlier, earlier.to));
-      const before: IHumanProp.IFrame = HumanPerformanceHold.prop(
+      const before: IAutoMovieMotionHumanProp.IFrame = HumanPerformanceHold.prop(
         self,
         subject,
         w.from - 1e-6,
       );
-      const hand: IHumanProp.IFrame = carrier(w, w.from);
+      const hand: IAutoMovieMotionHumanProp.IFrame = carrier(w, w.from);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
       return (w.offset = {
         position: Quaternion.rotateVector(
@@ -168,13 +157,13 @@ export namespace HumanPerformanceHold {
     // The offset at a second, with the grip's in-hand motion composed
     // before the stored one: R_d p + t_d and R_d R.
     const moved = (
-      w: HumanPerformanceState.IGrip,
+      w: IAutoMovieMotionHumanPerformanceState.IGrip,
       at: number,
-    ): IHumanProp.IFrame => {
-      const stored: IHumanProp.IFrame = seat(w);
+    ): IAutoMovieMotionHumanProp.IFrame => {
+      const stored: IAutoMovieMotionHumanProp.IFrame = seat(w);
       if (w.inHand === undefined) return stored;
       const span: number = w.to - w.from;
-      const d: IHumanProp.IFrame = w.inHand(
+      const d: IAutoMovieMotionHumanProp.IFrame = w.inHand(
         span > 0 ? Math.min(1, Math.max(0, (at - w.from) / span)) : 1,
       );
       return {
@@ -188,7 +177,7 @@ export namespace HumanPerformanceHold {
       };
     };
     // Carried by the performer reading it: their own body as the read gives it.
-    const hold = (w: HumanPerformanceState.IGrip): HumanPropHold.IHand => ({
+    const hold = (w: IAutoMovieMotionHumanPerformanceState.IGrip): HumanPropHold.IHand => ({
       offset: moved(w, at),
       hand:
         own !== undefined &&
@@ -229,20 +218,20 @@ export namespace HumanPerformanceHold {
    * the source of every worn or held ancestor's frame, as for a direct hold.
    */
   function socket(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     mount: { prop: string; point: string },
     seconds: number,
     own?: {
       subject: string;
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
-  ): IHumanProp.IFrame {
-    const onto: IHumanProp | undefined = self.props.get(mount.prop);
+  ): IAutoMovieMotionHumanProp.IFrame {
+    const onto: IAutoMovieMotionHumanProp | undefined = self.props.get(mount.prop);
     if (onto === undefined)
       throw HumanPerformanceRead.missing("prop", mount.prop, [
         ...self.props.keys(),
       ]);
-    const frame: IHumanProp.IFrame = HumanPerformanceHold.prop(
+    const frame: IAutoMovieMotionHumanProp.IFrame = HumanPerformanceHold.prop(
       self,
       mount.prop,
       seconds,

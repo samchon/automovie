@@ -1,11 +1,10 @@
-import { type AutoMovieHumanHeadTape } from "./AutoMovieHumanHeadTape";
+import type { IAutoMovieHumanHeadTape, IAutoMovieHumanHeadTapeBrow, IAutoMovieHumanHeadTapeSource } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanHeadTapeSource } from "./AutoMovieHumanHeadTapeSource";
 
-/** Actual unchanged ear attachment in the sagittal calibration-mm chart. */
-type P2 = readonly [number, number];
-
-/** A candidate is absent only when an explicit anatomical inequality rejects its plane. */
-type Course = AutoMovieHumanHeadTape.ICourse;
 
 /**
  * Posterior tape search at one explicitly supplied anterior brow-seat datum.
@@ -19,19 +18,7 @@ type Course = AutoMovieHumanHeadTape.ICourse;
  * allows.
  */
 export namespace AutoMovieHumanHeadTapeBrow {
-  /**
-   * How the posterior anchor is searched.
-   *
-   * `complete` scans every original source station and knot midpoint of the
-   * ownership interval and refines each observed local maximum: the search's
-   * definition of the maximizing course. `continued` refines only the local
-   * maximum next to a seed from a neighbouring member of the same source family,
-   * and falls back to `complete` whenever the seed is not a local maximum of its
-   * two neighbouring scan sites. A continued result is therefore a local
-   * maximum; `AutoMovieHumanHeadTape.close` certifies its final member with
-   * `complete` before publishing it.
-   */
-  export type Mode = "complete" | "continued";
+  
 
   /**
    * Maximize the observed posterior course at a fixed original brow seat.
@@ -53,30 +40,30 @@ export namespace AutoMovieHumanHeadTapeBrow {
    * force golden steps, exactly as the comparisons of the former search did.
    */
   export function maximum(
-    reader: AutoMovieHumanHeadTapeSource.IReader,
+    reader: IAutoMovieHumanHeadTapeSource.IReader,
     first: number,
     brow: number,
-    attachments: readonly P2[],
-    seed?: readonly [number, number],
-    mode: Mode = "complete",
-  ): Course {
+    attachments: readonly IAutoMovieHumanHeadTapeBrow.P2[],
+    seed?: IAutoMovieHumanHeadTapeBrow.MaximumSeed,
+    mode: IAutoMovieHumanHeadTapeBrow.Mode = "complete",
+  ): IAutoMovieHumanHeadTape.ICourse {
     if (
       !(
         reader.source.domain[0] <= first &&
         first < brow &&
         brow < reader.source.domain[1] &&
-        attachments.every((point: P2): boolean => point.every(Number.isFinite))
+        attachments.every((point: IAutoMovieHumanHeadTapeBrow.P2): boolean => point.every(Number.isFinite))
       )
     )
       throw new Error(
         "Head brow tape has no ordered regular upper-source interval",
       );
     const span: number = brow - first;
-    const cache: Map<number, Course | null> = new Map();
+    const cache: Map<number, IAutoMovieHumanHeadTape.ICourse | null> = new Map();
     let evaluations: number = 0;
-    const evaluate: (back: number) => Course | null = (
+    const evaluate: (back: number) => IAutoMovieHumanHeadTape.ICourse | null = (
       back: number,
-    ): Course | null => {
+    ): IAutoMovieHumanHeadTape.ICourse | null => {
       if (!(Number.isFinite(back) && back >= first && back <= brow))
         throw new Error(
           "Head brow tape candidate lies outside its upper-source ownership interval",
@@ -85,11 +72,11 @@ export namespace AutoMovieHumanHeadTapeBrow {
       if (evaluations >= 512)
         throw new Error("Head brow tape numerical plane budget exhausted");
       evaluations++;
-      const plane: AutoMovieHumanHeadTapeSource.IPlane =
+      const plane: IAutoMovieHumanHeadTapeSource.IPlane =
         AutoMovieHumanHeadTapeSource.plane(reader, brow, back);
       if (
         attachments.some(
-          (point: P2): boolean => plane.a + plane.b * point[0] < point[1],
+          (point: IAutoMovieHumanHeadTapeBrow.P2): boolean => plane.a + plane.b * point[0] < point[1],
         )
       ) {
         cache.set(back, null);
@@ -102,7 +89,7 @@ export namespace AutoMovieHumanHeadTapeBrow {
       // the coarser rule moves the located maximum only by that error's
       // slope over the length's curvature there, and the published length
       // is the unchanged rule at the selected plane.
-      const course: Course = {
+      const course: IAutoMovieHumanHeadTape.ICourse = {
         plane,
         ...AutoMovieHumanHeadTapeSource.measure(reader, plane, 1),
         coordinates: [0, (back - first) / span],
@@ -113,9 +100,9 @@ export namespace AutoMovieHumanHeadTapeBrow {
       cache.set(back, course);
       return course;
     };
-    let best: Course | null = null;
-    const retain: (candidate: Course | null) => number = (
-      candidate: Course | null,
+    let best: IAutoMovieHumanHeadTape.ICourse | null = null;
+    const retain: (candidate: IAutoMovieHumanHeadTape.ICourse | null) => number = (
+      candidate: IAutoMovieHumanHeadTape.ICourse | null,
     ): number => {
       if (
         candidate !== null &&
@@ -163,10 +150,10 @@ export namespace AutoMovieHumanHeadTapeBrow {
     const sites: number[] = [
       ...new Set([...grid, ...(seed === undefined ? [] : [first + seed[1] * span])]),
     ].sort((a: number, b: number): number => a - b);
-    const coarse: (Course | null)[] = sites.map(evaluate);
+    const coarse: (IAutoMovieHumanHeadTape.ICourse | null)[] = sites.map(evaluate);
     coarse.forEach(retain);
     for (let index: number = 0; index < sites.length; index++) {
-      const candidate: Course | null = coarse[index]!;
+      const candidate: IAutoMovieHumanHeadTape.ICourse | null = coarse[index]!;
       if (
         candidate === null ||
         candidate.lengthMm < (coarse[index - 1]?.lengthMm ?? -Infinity) ||
@@ -253,8 +240,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
     }
 
     /** Publish the best measured course with the existing boundary refusals. */
-    function finish(): Course {
-      const selected: Course | null = best as Course | null;
+    function finish(): IAutoMovieHumanHeadTape.ICourse {
+      const selected: IAutoMovieHumanHeadTape.ICourse | null = best as IAutoMovieHumanHeadTape.ICourse | null;
       if (selected === null)
         throw new Error(
           "No original upper-head brow course passes the actual ear attachments",

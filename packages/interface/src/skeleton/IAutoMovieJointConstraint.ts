@@ -1,4 +1,4 @@
-import { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
+import type { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
 
 /**
  * The anatomical range of motion (ROM) of a single joint, decomposed into the three clinical rotation axes.

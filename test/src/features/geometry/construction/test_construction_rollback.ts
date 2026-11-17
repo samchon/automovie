@@ -1,11 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionView,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionView } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -50,9 +45,9 @@ export function test_construction_rollback(): void {
       0.015,
       0.08,
     );
-  const join: (y: number) => AutoMovieConstructionNode = (
+  const join: (y: number) => IAutoMovieConstructionNode = (
     y: number,
-  ): AutoMovieConstructionNode =>
+  ): IAutoMovieConstructionNode =>
     ConstructionShapes.join(
       "merge",
       "blend.post",
@@ -70,14 +65,14 @@ export function test_construction_rollback(): void {
       },
     );
   const realize: (
-    root: AutoMovieConstructionNode,
-  ) => AutoMovieConstructionRealization.IRealization = (
-    root: AutoMovieConstructionNode,
-  ): AutoMovieConstructionRealization.IRealization =>
+    root: IAutoMovieConstructionNode,
+  ) => IAutoMovieConstructionRealization.IRealization = (
+    root: IAutoMovieConstructionNode,
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
 
-  const alone: AutoMovieConstructionRealization.IRealization = realize(beam());
-  const broken: AutoMovieConstructionRealization.IRealization = realize(
+  const alone: IAutoMovieConstructionRealization.IRealization = realize(beam());
+  const broken: IAutoMovieConstructionRealization.IRealization = realize(
     join(0.2),
   );
   if (
@@ -109,7 +104,7 @@ export function test_construction_rollback(): void {
   );
 
   // Red: the post that meets the beam changes the skin.
-  const met: AutoMovieConstructionRealization.IRealization = realize(join(0));
+  const met: IAutoMovieConstructionRealization.IRealization = realize(join(0));
   if (
     ConstructionChecks.identical(met.mesh.indices, alone.mesh.indices)
       .length === 0

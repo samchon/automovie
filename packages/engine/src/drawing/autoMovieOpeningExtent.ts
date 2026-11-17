@@ -1,7 +1,5 @@
-import {
-  IAutoMovieOpeningProfile,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
+import { type IAutoMovieOpeningExtent, IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
+
 
 import { outlineHull } from "../architecture/outlineHull";
 import { polygonBounds } from "../architecture/polygonBounds";
@@ -32,7 +30,7 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  */
 export const autoMovieOpeningExtent = (
   profile: IAutoMovieOpeningProfile,
-): { width: number; height: number } => {
+): IAutoMovieOpeningExtent.IResult => {
   const bounds: { min: IAutoMoviePlanarPoint; max: IAutoMoviePlanarPoint } =
     polygonBounds(outlineHull(profile));
   return {

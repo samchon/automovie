@@ -1,9 +1,6 @@
-import {
-  IAutoMovieBeatEndState,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieContinuityTolerances, type IAutoMovieValidateContinuity, type IAutoMovieViolationCollector, IAutoMovieValidation } from "@automovie/interface";
 
-import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
+
 import { ViolationCollector } from "./ViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";
@@ -19,25 +16,8 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The opening id map shares lookup work within this boundary, without caching mutable snapshots.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Snapshots are borrowed; only report rows escape and no film playback state is retained.
  */
-export const validateContinuity: (props: {
-  previous: IAutoMovieBeatEndState;
-  opening: IAutoMovieBeatEndState;
-  positionTolerance?: number;
-  facingToleranceDeg?: number;
-}) => IAutoMovieValidation = (props: {
-  /** The previous beat's resolved end-state. */
-  previous: IAutoMovieBeatEndState;
-
-  /** The incoming beat's resolved opening-state. */
-  opening: IAutoMovieBeatEndState;
-
-  /** World-space position drift tolerated (metres); defaults to 0.05. */
-  positionTolerance?: number;
-
-  /** Facing drift tolerated (degrees); defaults to 5. */
-  facingToleranceDeg?: number;
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateContinuity: (props: IAutoMovieValidateContinuity.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateContinuity.IProps): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(
       props.positionTolerance,

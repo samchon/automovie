@@ -1,4 +1,5 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieCreateMeshDepthSampler, IAutoMovieMesh } from "@automovie/interface";
+
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -34,7 +35,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
 export function createAutoMovieMeshDepthSampler(
   mesh: IAutoMovieMesh,
   axis: "x" | "y" | "z",
-): (u: number, v: number) => { minimum: number; maximum: number } | null {
+): IAutoMovieCreateMeshDepthSampler.IResult {
   if (axis !== "x" && axis !== "y" && axis !== "z")
     throw new Error("A depth sampling axis must be X, Y or Z.");
   const axes: readonly number[] = { x: [1, 2, 0], y: [2, 0, 1], z: [0, 1, 2] }[

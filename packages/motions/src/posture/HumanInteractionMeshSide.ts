@@ -1,7 +1,6 @@
-import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanQuadraticProgram, IAutoMovieTetrahedralizeDelaunay, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
+import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
 
 /**
  * The sides an interaction mesh records (`HumanInteractionMesh`): each
@@ -48,7 +47,7 @@ export namespace HumanInteractionMeshSide {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function record(
-    mesh: tetrahedralizeAutoMovieDelaunay.IMesh,
+    mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
     reference: readonly IAutoMovieVector3[],
     extent: number,
   ): ISide[] {
@@ -118,7 +117,7 @@ export namespace HumanInteractionMeshSide {
     side: ISide,
     extent: number,
     key: string,
-  ): QP.IRow {
+  ): IAutoMovieMotionHumanQuadraticProgram.IRow {
     const [a, b, c, d] = side.corners;
     const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), at(x, a));
     const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), at(x, a));

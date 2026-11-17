@@ -1,7 +1,5 @@
-import {
-  IAutoMovieCameraDepthPrecisionConstraint,
-  IAutoMovieCameraDepthPrecisionReport,
-} from "@automovie/interface";
+import { type IAutoMovieEvaluateCameraDepthPrecision, IAutoMovieCameraDepthPrecisionReport } from "@automovie/interface";
+
 
 /** A number as the report carries it: itself when finite, else null. */
 function finiteOrNull(value: number): number | null {
@@ -23,28 +21,7 @@ function finiteOrNull(value: number): number | null {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the current camera range and constraint; it coordinates no requests or effects and retains no map across mutable camera samples.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned report is a fresh record owned by the caller.
  */
-export function evaluateAutoMovieCameraDepthPrecision(props: {
-  /** Stable scene camera identity, non-blank. */
-  camera: string;
-
-  /** Shot-local sample time in seconds, finite and non-negative. */
-  time: number;
-
-  /** Near clip distance in metres, finite and positive. */
-  near: number;
-
-  /** Far clip distance in metres, finite and beyond `near`. */
-  far: number;
-
-  /** Nearest camera-space depth the shot needs resolved, in metres. */
-  requiredNear: number;
-
-  /** Farthest camera-space depth the shot needs resolved, in metres. */
-  requiredFar: number;
-
-  /** Authored depth-buffer bits and largest allowed adjacent step. */
-  constraint: IAutoMovieCameraDepthPrecisionConstraint;
-}): IAutoMovieCameraDepthPrecisionReport {
+export function evaluateAutoMovieCameraDepthPrecision(props: IAutoMovieEvaluateCameraDepthPrecision.IProps): IAutoMovieCameraDepthPrecisionReport {
   const base: Omit<
     IAutoMovieCameraDepthPrecisionReport,
     "lowerCode" | "upperCode" | "measuredStepMeters" | "status" | "passed"

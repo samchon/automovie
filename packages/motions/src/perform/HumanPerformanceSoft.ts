@@ -1,21 +1,10 @@
-import {
-  type IAutoMovieSoftBodyBoundarySample,
-  type IAutoMovieSoftBodyObserver,
-  Vector3,
-  simulateSoftBodyWithBoundaries,
-} from "@automovie/engine";
-import type {
-  IAutoMovieSoftAnchor,
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanForce, IAutoMovieMotionHumanPerformanceSoft, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieSoftAnchor, IAutoMovieSoftBodyBoundarySample, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyObserver, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Vector3, simulateSoftBodyWithBoundaries } from "@automovie/engine";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanForce } from "./HumanForce";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A performance's soft props: each solved once from the displayed poses of
@@ -50,29 +39,6 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The domain's own anchors, capsules and budgets; nothing is invented when a bone or prop is missing: the read throws.
  */
 export namespace HumanPerformanceSoft {
-  /** One soft prop solved over the whole performance. */
-  export interface ISolved {
-    /** The domain's step, seconds. */
-    dt: number;
-
-    /** Every step's particle positions, step 0 the rest as boundaried, world metres row-major. */
-    steps: Float64Array[];
-
-    /** Every step's force on each hand that grips the prop or that the domain anchors it to, by `subject:side`, the forces of the particles one hand bears added, newtons, world frame; empty at a step with no compliant multipliers. */
-    loads: Map<string, IAutoMovieVector3>[];
-  }
-
-  /** A particle the domain itself anchors to a person's hand bone. */
-  export interface IHandAnchor {
-    /** The particle. */
-    particle: number;
-
-    /** The person whose hand holds it. */
-    person: string;
-
-    /** The hand. */
-    side: "left" | "right";
-  }
 
   /**
    * The particles a soft domain anchors to a hand bone (`actor-bone` on
@@ -90,8 +56,8 @@ export namespace HumanPerformanceSoft {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read with nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records.
    */
-  export function held(domain: IAutoMovieSoftBodyDomain): IHandAnchor[] {
-    return domain.anchors.flatMap((a: IAutoMovieSoftAnchor): IHandAnchor[] =>
+  export function held(domain: IAutoMovieSoftBodyDomain): IAutoMovieMotionHumanPerformanceSoft.IHandAnchor[] {
+    return domain.anchors.flatMap((a: IAutoMovieSoftAnchor): IAutoMovieMotionHumanPerformanceSoft.IHandAnchor[] =>
       a.binding?.kind === "actor-bone" &&
       (a.binding.bone === "leftHand" || a.binding.bone === "rightHand")
         ? [
@@ -123,11 +89,11 @@ export namespace HumanPerformanceSoft {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cache is a weak map on the state, released with the performance; each prop keeps (steps + 1) x 3P doubles.
    */
   export function at(
-    state: HumanPerformanceState,
+    state: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
   ): number[] {
-    const solved: ISolved = of(state, subject);
+    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved = of(state, subject);
     const last: number = solved.steps.length - 1;
     const t: number = Math.max(0, Math.min(last, seconds / solved.dt));
     const k: number = Math.min(last, Math.floor(t));
@@ -160,13 +126,13 @@ export namespace HumanPerformanceSoft {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the shared solve.
    */
   export function load(
-    state: HumanPerformanceState,
+    state: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     person: string,
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieVector3 {
-    const solved: ISolved = of(state, subject);
+    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved = of(state, subject);
     const k: number = Math.max(
       0,
       Math.min(solved.loads.length - 1, Math.floor(seconds / solved.dt)),
@@ -196,20 +162,20 @@ export namespace HumanPerformanceSoft {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records; the solves are kept by `of`.
    */
   export function sustained(
-    state: HumanPerformanceState,
-  ): HumanForce.ISustained[] {
-    const out: HumanForce.ISustained[] = [];
+    state: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieMotionHumanForce.ISustained[] {
+    const out: IAutoMovieMotionHumanForce.ISustained[] = [];
     for (const prop of state.props.values()) {
       if (prop.soft === undefined) continue;
       // A hand the domain itself anchors to bears the prop over the whole
       // performance; its record reads every particle that hand bears, so a
       // grip of the same hand adds no record of its own.
       const subject: string = prop.subject;
-      const anchored: Map<string, HumanPerformanceSoft.IHandAnchor> = new Map(
+      const anchored: Map<string, IAutoMovieMotionHumanPerformanceSoft.IHandAnchor> = new Map(
         HumanPerformanceSoft.held(prop.soft).map(
           (
-            h: HumanPerformanceSoft.IHandAnchor,
-          ): [string, HumanPerformanceSoft.IHandAnchor] => [
+            h: IAutoMovieMotionHumanPerformanceSoft.IHandAnchor,
+          ): [string, IAutoMovieMotionHumanPerformanceSoft.IHandAnchor] => [
             `${h.person}:${h.side}`,
             h,
           ],
@@ -270,15 +236,15 @@ export namespace HumanPerformanceSoft {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Kept per state and subject.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak in the state; (K + 1) x 3P doubles per prop.
    */
-  export function of(state: HumanPerformanceState, subject: string): ISolved {
-    let memo: Map<string, ISolved> | undefined = SOLVED.get(state);
+  export function of(state: IAutoMovieMotionHumanPerformanceState, subject: string): IAutoMovieMotionHumanPerformanceSoft.ISolved {
+    let memo: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved> | undefined = SOLVED.get(state);
     if (memo === undefined) {
       memo = new Map();
       SOLVED.set(state, memo);
     }
-    const known: ISolved | undefined = memo.get(subject);
+    const known: IAutoMovieMotionHumanPerformanceSoft.ISolved | undefined = memo.get(subject);
     if (known !== undefined) return known;
-    const prop: IHumanProp | undefined = state.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined = state.props.get(subject);
     const domain: IAutoMovieSoftBodyDomain | undefined = prop?.soft;
     if (domain === undefined)
       throw new HumanRefusal({
@@ -288,8 +254,8 @@ export namespace HumanPerformanceSoft {
         feasible: {
           kind: "alternatives",
           values: [...state.props.values()]
-            .filter((p: IHumanProp): boolean => p.soft !== undefined)
-            .map((p: IHumanProp): string => p.subject),
+            .filter((p: IAutoMovieMotionHumanProp): boolean => p.soft !== undefined)
+            .map((p: IAutoMovieMotionHumanProp): string => p.subject),
         },
         reason: `the prop ${subject} has no soft domain`,
         fix: "read a prop that declares `soft`",
@@ -320,7 +286,7 @@ export namespace HumanPerformanceSoft {
     const solve = (
       upto: number,
       record: boolean,
-    ): Pick<HumanPerformanceSoft.ISolved, "steps" | "loads"> => {
+    ): Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, "steps" | "loads"> => {
       const anchored: IAutoMovieSoftBodyDomain = {
         ...domain,
         anchors: [
@@ -417,19 +383,19 @@ export namespace HumanPerformanceSoft {
 
     // Each grip binds the particle nearest the hand's socket as it closes,
     // read from the solve as it stands then.
-    const windows: HumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
+    const windows: IAutoMovieMotionHumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
       state,
       subject,
     )
-      .filter((g: HumanPerformanceState.IGrip): boolean => g.bone === undefined)
+      .filter((g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean => g.bone === undefined)
       .map(
-        (g: HumanPerformanceState.IGrip): HumanPerformanceState.IGrip => ({
+        (g: IAutoMovieMotionHumanPerformanceState.IGrip): IAutoMovieMotionHumanPerformanceState.IGrip => ({
           ...g,
           from: Math.max(0, g.from),
           to: Math.min(state.duration, g.to),
         }),
       )
-      .filter((g: HumanPerformanceState.IGrip): boolean => g.to >= g.from);
+      .filter((g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean => g.to >= g.from);
     for (const window of windows) {
       const k: number = Math.min(count, Math.round(window.from / dt));
       const positions: Float64Array = solve(k, false).steps[k]!;
@@ -462,11 +428,11 @@ export namespace HumanPerformanceSoft {
         to: window.to,
       });
     }
-    const whole: Pick<HumanPerformanceSoft.ISolved, "steps" | "loads"> = solve(
+    const whole: Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, "steps" | "loads"> = solve(
       count,
       true,
     );
-    const out: ISolved = { dt, steps: whole.steps, loads: whole.loads };
+    const out: IAutoMovieMotionHumanPerformanceSoft.ISolved = { dt, steps: whole.steps, loads: whole.loads };
     if (!state.resolving) memo.set(subject, out);
     return out;
   }
@@ -474,6 +440,6 @@ export namespace HumanPerformanceSoft {
 
 /** The solves kept per performance. */
 const SOLVED: WeakMap<
-  HumanPerformanceState,
-  Map<string, HumanPerformanceSoft.ISolved>
+  IAutoMovieMotionHumanPerformanceState,
+  Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>
 > = new WeakMap();

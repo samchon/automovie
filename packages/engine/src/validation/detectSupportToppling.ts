@@ -1,15 +1,11 @@
-import {
-  IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieHullEdge, type IAutoMovieSupportResult, type IAutoMovieDetectSupportToppling, type IAutoMovieViolationCollector, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieHullEdge } from "../math/IAutoMovieHullEdge";
+
 import { Vector3 } from "../math/Vector3";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointHullDistance } from "../math/pointHullDistance";
-import { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
 import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;
@@ -25,28 +21,8 @@ const DEFAULT_MARGIN: number = 0.02;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared hull serves distance and pivot queries, and one nearest point supplies event and fall direction; no stale support verdict is cached across mutable inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh findings/event/direction transfer to the caller while pivot endpoints borrow support records; no support population is otherwise retained and no physics task is acquired.
  */
-export const detectSupportToppling: (props: {
-  node?: string | undefined;
-  centerOfMass: IAutoMovieVector3;
-  support: readonly IAutoMovieVector3[];
-  margin?: number | undefined;
-  physicsIntent?: string | undefined;
-  path?: string | undefined;
-}) => IAutoMovieSupportResult = (props: {
-  /** Object node id, used to label the emitted event. */
-  node?: string;
-  /** Object center of mass (same frame as `support`; e.g. `bodyCenterOfMass`). */
-  centerOfMass: IAutoMovieVector3;
-  /** Support contact points on the ground plane (XZ used). */
-  support: readonly IAutoMovieVector3[];
-  /** Allowed COM overhang past the hull, meters. Defaults to `0.02`. */
-  margin?: number;
-  /** Marker that suppresses the warning/suggestion (intentional levitation). */
-  physicsIntent?: string;
-  /** JSON path of the annotation being checked. Defaults to `$input`. */
-  path?: string;
-}): IAutoMovieSupportResult => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const detectSupportToppling: (props: IAutoMovieDetectSupportToppling.IProps) => IAutoMovieSupportResult = (props: IAutoMovieDetectSupportToppling.IProps): IAutoMovieSupportResult => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
     props.margin === undefined ? DEFAULT_MARGIN : props.margin;

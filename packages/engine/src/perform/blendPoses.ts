@@ -1,11 +1,5 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { type IAutoMoviePoseLayer, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
 
-import { IAutoMoviePoseLayer } from "./IAutoMoviePoseLayer";
 
 const AXES: readonly ["flexion", "abduction", "twist"] = [
   "flexion",

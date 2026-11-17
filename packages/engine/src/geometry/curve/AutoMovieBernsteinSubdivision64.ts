@@ -1,4 +1,4 @@
-import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
+import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple } from "@automovie/interface";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
 /**
@@ -24,17 +24,17 @@ export namespace AutoMovieBernsteinSubdivision64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reduction levels produce both children rather than evaluating them independently.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each child owns its copied controls and the temporary levels expire.
    */
-  export function split(c: readonly B.Vec[], t: number): [B.Poly, B.Poly] {
-    if (t === 0) return [c.map((): B.Vec => V.clone(c[0]!)), c.map(V.clone)];
+  export function split(c: readonly AutoMovieVector3Tuple[], t: number): [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] {
+    if (t === 0) return [c.map((): AutoMovieVector3Tuple => V.clone(c[0]!)), c.map(V.clone)];
     if (t === 1)
-      return [c.map(V.clone), c.map((): B.Vec => V.clone(c.at(-1)!))];
-    let row: B.Poly = c.map(V.clone);
-    const a: B.Poly = [V.clone(row[0]!)],
-      b: B.Poly = [V.clone(row.at(-1)!)];
+      return [c.map(V.clone), c.map((): AutoMovieVector3Tuple => V.clone(c.at(-1)!))];
+    let row: AutoMovieBernsteinPolynomial64 = c.map(V.clone);
+    const a: AutoMovieBernsteinPolynomial64 = [V.clone(row[0]!)],
+      b: AutoMovieBernsteinPolynomial64 = [V.clone(row.at(-1)!)];
     while (row.length > 1) {
       row = row
         .slice(0, -1)
-        .map((p: B.Vec, i: number): B.Vec => V.mix(p, row[i + 1]!, t));
+        .map((p: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => V.mix(p, row[i + 1]!, t));
       a.push(V.clone(row[0]!));
       b.push(V.clone(row.at(-1)!));
     }
@@ -55,12 +55,12 @@ export namespace AutoMovieBernsteinSubdivision64 {
     c: readonly number[],
     t: number,
   ): [number[], number[]] {
-    const out: [B.Poly, B.Poly] = split(
-      c.map((x: number): B.Vec => [x, 0, 0]),
+    const out: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = split(
+      c.map((x: number): AutoMovieVector3Tuple => [x, 0, 0]),
       t,
     );
-    return out.map((p: B.Poly): number[] =>
-      p.map((x: B.Vec): number => x[0]),
+    return out.map((p: AutoMovieBernsteinPolynomial64): number[] =>
+      p.map((x: AutoMovieVector3Tuple): number => x[0]),
     ) as [number[], number[]];
   }
   /**
@@ -74,10 +74,10 @@ export namespace AutoMovieBernsteinSubdivision64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The left net from the first split is reused for the second subinterval.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned restricted net does not alias the original controls.
    */
-  export function restrict(c: readonly B.Vec[], a: number, b: number): B.Poly {
+  export function restrict(c: readonly AutoMovieVector3Tuple[], a: number, b: number): AutoMovieBernsteinPolynomial64 {
     if (!(0 <= a && a < b && b <= 1))
       throw new Error("A restriction must lie in its original chart");
-    const left: B.Poly = b === 1 ? c.map(V.clone) : split(c, b)[0];
+    const left: AutoMovieBernsteinPolynomial64 = b === 1 ? c.map(V.clone) : split(c, b)[0];
     return a === 0 ? left : split(left, a / b)[1];
   }
   /**
@@ -97,10 +97,10 @@ export namespace AutoMovieBernsteinSubdivision64 {
     b: number,
   ): number[] {
     return restrict(
-      c.map((x: number): B.Vec => [x, 0, 0]),
+      c.map((x: number): AutoMovieVector3Tuple => [x, 0, 0]),
       a,
       b,
-    ).map((p: B.Vec): number => p[0]);
+    ).map((p: AutoMovieVector3Tuple): number => p[0]);
   }
   /**
    * Partition one vector course into three exact consecutive restrictions.
@@ -113,9 +113,9 @@ export namespace AutoMovieBernsteinSubdivision64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The remaining right child supplies both later thirds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The three returned nets own their control arrays.
    */
-  export function thirds(c: readonly B.Vec[]): B.Poly[] {
-    const first: [B.Poly, B.Poly] = split(c, 1 / 3),
-      rest: [B.Poly, B.Poly] = split(first[1], 0.5);
+  export function thirds(c: readonly AutoMovieVector3Tuple[]): AutoMovieBernsteinPolynomial64[] {
+    const first: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = split(c, 1 / 3),
+      rest: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = split(first[1], 0.5);
     return [first[0], ...rest];
   }
   /**
@@ -130,8 +130,8 @@ export namespace AutoMovieBernsteinSubdivision64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the three scalar output arrays escape the embedding.
    */
   export function thirdsS(c: readonly number[]): number[][] {
-    return thirds(c.map((x: number): B.Vec => [x, 0, 0])).map(
-      (p: B.Poly): number[] => p.map((v: B.Vec): number => v[0]),
+    return thirds(c.map((x: number): AutoMovieVector3Tuple => [x, 0, 0])).map(
+      (p: AutoMovieBernsteinPolynomial64): number[] => p.map((v: AutoMovieVector3Tuple): number => v[0]),
     );
   }
 }

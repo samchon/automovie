@@ -1,16 +1,6 @@
-import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -62,7 +52,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_gaits(): void {
   const complaints: string[] = [];
-  const laws: readonly IHumanActionLaw<never>[] = HUMAN_LEXICON.gait!;
+  const laws: readonly IAutoMovieMotionHumanActionLaw<never>[] = HUMAN_LEXICON.gait!;
 
   /** What one gait shows over the middle of its way. */
   interface IReading {
@@ -101,13 +91,13 @@ export function test_human_motion_travel_gaits(): void {
   }
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const drill: number = (0.76 / 0.93) * body.measure.hipHeight;
     const read = (
-      act: (chain: HumanChain) => HumanChain,
+      act: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
       label: string,
     ): IReading | null => {
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "gaits",
@@ -130,8 +120,8 @@ export function test_human_motion_travel_gaits(): void {
         );
         return null;
       }
-      const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
@@ -253,17 +243,17 @@ export function test_human_motion_travel_gaits(): void {
     };
     const styled = (row: string, metres: number): IReading | null =>
       read(
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain.registered(row, { to: { x: 0, y: 0, z: metres } }),
         row,
       );
     const neutral: IReading | null = read(
-      (chain: HumanChain): HumanChain =>
+      (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
         chain.walk({ to: { x: 0, y: 0, z: 8 } }),
       "walk",
     );
     const slow: IReading | null = read(
-      (chain: HumanChain): HumanChain =>
+      (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
         chain.walk({ to: { x: 0, y: 0, z: 6 }, pace: "slow" }),
       "slow walk",
     );

@@ -1,3 +1,6 @@
+import type { AutoMovieHumanSex as AutoMovieHumanSexType, IAutoMovieHumanBodyFat } from "@automovie/interface";
+
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
@@ -13,7 +16,7 @@ export namespace AutoMovieHumanBodyFat {
    * 0.92 (`docs/sources/ansur-1988.md`). Inverted, it gives the navel-level
    * abdomen the men's circumference estimate reads.
    */
-  export const MEN_NATURAL_WAIST: { readonly a: number; readonly omphalion: number; readonly buttock: number } = {
+  export const MEN_NATURAL_WAIST: IAutoMovieHumanBodyFat.IMenNaturalWaist = {
     a: 106.84,
     omphalion: 0.7868,
     buttock: 0.0554,
@@ -32,7 +35,7 @@ export namespace AutoMovieHumanBodyFat {
    * @param hip Hip (buttock) girth, mm.
    * @returns Body fat percentage, held inside the typed field's bounds, 3 to 70.
    */
-  export function navy(sex: AutoMovieHumanSex, stature: number, neckGirth: number, waist: number, hip: number): number {
+  export function navy(sex: AutoMovieHumanSexType, stature: number, neckGirth: number, waist: number, hip: number): number {
     const cm = (mm: number): number => mm / 10;
     const neck: number = cm(neckGirth);
     const percent: number =

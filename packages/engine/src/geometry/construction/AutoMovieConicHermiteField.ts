@@ -1,14 +1,6 @@
-import type { AutoMovieConicArc } from "./AutoMovieConicArc";
+import type { IAutoMovieAlgebra, IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieConicHermiteField, IAutoMoviePolarSector } from "@automovie/interface";
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
-import type { AutoMovieConicHermite } from "./AutoMovieConicHermite";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
-
-/** Scalar operation contract; no implementation table is retained. */
-type Algebra<T> = AutoMovieConicFieldJet.IAlgebra<T>;
-
-/** Actual source Hessian tuple. */
-type Jet = AutoMovieConicFieldJet.IJet;
 
 /**
  * Shared projective G2 geometry at an already selected numeric clock.
@@ -19,37 +11,6 @@ type Jet = AutoMovieConicFieldJet.IJet;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicHermiteField {
-  /**
-   * Point and normalized homogeneous log probabilities at one clock.
-   *
-   * @evidence contracts/development/design.md#principled-representation The projective Bernstein mean preserves the original positive rational polygon.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One intermediate serves point and tangent evaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An endpoint has an explicit point and no invented finite clock.
-   * @evidence contracts/development/common.md#meaningful-documentation Point uses physical quarter coordinates; logs are dimensionless log probabilities.
-   */
-  export interface IProjective<T> {
-    /** Physical point in the selected end chart. */
-    point: readonly [T, T];
-
-    /** Four log probabilities for an interior clock; empty at an explicit endpoint. */
-    logs: readonly T[];
-  }
-
-  /**
-   * Increasing-polar unit tangent and logarithmic speed scale.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positive pair sums avoid subtraction of parallel native derivatives.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The numeric curvature owner and source reader share one direction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the first source derivatives of the unit tangent are externally required.
-   * @evidence contracts/development/common.md#meaningful-documentation Interior speed uses log-odds clock; endpoint speed uses its polygon edge scale.
-   */
-  export interface IDirection<T> {
-    /** Increasing-polar unit tangent in the selected end chart. */
-    tangent: readonly [T, T];
-
-    /** Logarithm of physical positive speed or endpoint edge length. */
-    logSpeed: T;
-  }
 
   /**
    * Stable logarithm of a positive sum with a primal scaling gauge.
@@ -62,7 +23,7 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One maximum normalizes every term.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar without retaining its array.
    */
-  export function logSum<T>(ops: Algebra<T>, values: readonly T[]): T {
+  export function logSum<T>(ops: IAutoMovieAlgebra<T>, values: readonly T[]): T {
     if (values.length === 0) return ops.constant(-Infinity);
     const largest: number = Math.max(
       ...values.map((value: T): number => ops.value(value)),
@@ -72,7 +33,7 @@ export namespace AutoMovieConicHermiteField {
 
   /** Preserve the ordered log-sum arithmetic while reusing an already read primal gauge. */
   function sumAtMaximum<T>(
-    ops: Algebra<T>,
+    ops: IAutoMovieAlgebra<T>,
     values: readonly T[],
     largest: number,
   ): T {
@@ -95,12 +56,12 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a point and at most four log scalars escape.
    */
   export function projective<T>(
-    ops: Algebra<T>,
-    patch: AutoMovieConicHermite.IPatch<T>,
+    ops: IAutoMovieAlgebra<T>,
+    patch: IAutoMovieConicHermite.IPatch<T>,
     weights: readonly T[],
     clock: number | null,
     position: "first" | "interior" | "last" = "interior",
-  ): IProjective<T> {
+  ): IAutoMovieConicHermiteField.IProjective<T> {
     if (position === "first")
       return { point: [patch.extent, ops.constant(0)], logs: [] };
     if (position === "last")
@@ -157,11 +118,11 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a tangent pair and one logarithmic scale escape.
    */
   export function direction<T>(
-    ops: Algebra<T>,
-    patch: AutoMovieConicHermite.IPatch<T>,
-    reading: IProjective<T>,
+    ops: IAutoMovieAlgebra<T>,
+    patch: IAutoMovieConicHermite.IPatch<T>,
+    reading: IAutoMovieConicHermiteField.IProjective<T>,
     position: "first" | "interior" | "last",
-  ): IDirection<T> {
+  ): IAutoMovieConicHermiteField.IDirection<T> {
     if (position !== "interior") {
       const first: readonly [T, T] =
         position === "first" ? patch.points[0]! : patch.points[2]!;
@@ -221,9 +182,9 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh required tuples or one named failure retain no preparation or cache.
    */
   export function read(
-    patch: AutoMovieConicHermite.IPatch<Jet>,
-    ray: AutoMovieConicArc.IRay,
-  ): AutoMovieConicArcField.IReading | AutoMovieConicArcField.IFailure {
+    patch: IAutoMovieConicHermite.IPatch<IAutoMovieConicFieldJet.IJet>,
+    ray: IAutoMovieConicArc.IRay,
+  ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
     if (
       ray.position === "interior" &&
       (ray.clock === null || !Number.isFinite(ray.clock))
@@ -234,18 +195,18 @@ export namespace AutoMovieConicHermiteField {
           "A G2 source reading requires the selected finite interior log-odds clock.",
       };
 
-    const ops: Algebra<Jet> = AutoMovieConicFieldJet.AD;
-    const weights: Jet[] = patch.weights.map(
-      (weight: Jet): Jet => ops.log(weight),
+    const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> = AutoMovieConicFieldJet.AD;
+    const weights: IAutoMovieConicFieldJet.IJet[] = patch.weights.map(
+      (weight: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet => ops.log(weight),
     );
-    const reading: IProjective<Jet> = projective(
+    const reading: IAutoMovieConicHermiteField.IProjective<IAutoMovieConicFieldJet.IJet> = projective(
       ops,
       patch,
       weights,
       ray.clock,
       ray.position,
     );
-    const tangent: IDirection<Jet> = direction(
+    const tangent: IAutoMovieConicHermiteField.IDirection<IAutoMovieConicFieldJet.IJet> = direction(
       ops,
       patch,
       reading,
@@ -273,12 +234,12 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fixed-size numeric descriptor arrays escape.
    */
   export function ray(
-    patch: AutoMovieConicHermite.IPatch,
-    reading: IProjective<number>,
+    patch: IAutoMovieConicHermite.IPatch,
+    reading: IAutoMovieConicHermiteField.IProjective<number>,
     clock: number | null,
     position: "first" | "interior" | "last",
-  ): AutoMovieConicArc.IRay | null {
-    const directionValue: IDirection<number> = direction(
+  ): IAutoMovieConicArc.IRay | null {
+    const directionValue: IAutoMovieConicHermiteField.IDirection<number> = direction(
       AutoMovieConicFieldJet.NUMBER,
       patch,
       reading,
@@ -324,7 +285,7 @@ export namespace AutoMovieConicHermiteField {
         logSum(AutoMovieConicFieldJet.NUMBER, determinants) -
         3 * directionValue.logSpeed;
     }
-    const radial: AutoMoviePolarSector.Jet =
+    const radial: IAutoMoviePolarSector.Jet =
       position === "first"
         ? [
             patch.extent,
@@ -359,7 +320,7 @@ export namespace AutoMovieConicHermiteField {
     point: readonly [number, number],
     tangent: readonly [number, number],
     curvature: number,
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     const rho: number = Math.hypot(...point);
     const dot: number =
       (point[0] / rho) * tangent[0] + (point[1] / rho) * tangent[1];

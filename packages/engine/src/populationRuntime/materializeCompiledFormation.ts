@@ -1,18 +1,7 @@
-import type {
-  AutoMovieFormationCapability,
-  IAutoMovieCompiledFormation,
-  IAutoMovieCompiledFormationLod,
-  IAutoMovieFormationBounds,
-  IAutoMovieFormationDesign,
-  IAutoMovieFormationLayout,
-  IAutoMovieModel,
-  IAutoMovieModelLod,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-  IAutoMovieWorldSurface,
-} from "@automovie/interface";
+import type { AutoMovieFormationCapability, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationLod, IAutoMovieFormationBounds, IAutoMovieFormationDesign, IAutoMovieFormationGrounding, IAutoMovieFormationLayout, IAutoMovieMaterializeCompiledFormation, IAutoMovieModel, IAutoMovieModelLod, IAutoMoviePlacementSummary, IAutoMovieQuaternion, IAutoMovieSummarizeCompiledSlotChunks, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
 
-import { IAutoMovieFormationGrounding } from "../IAutoMovieFormationGrounding";
+
+
 import { formationSlotPosition } from "../formationSlotPosition";
 import { Quaternion } from "../math/Quaternion";
 import { mixSeed } from "../math/mixSeed";
@@ -53,34 +42,12 @@ import { Transform } from "../math/Transform";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The flat summary is reused when no terrain changes Y; the grounded pass shares each generated point between chunk and global folds while preserving ascending running-mean order. No cache crosses mutable designs or terrain.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cloned placement laws and selected terrain plus C chunks/H heroes transfer to the caller; transient folds and digest bytes are call-local and no resource handle is opened.
  */
-export const materializeCompiledFormation: (props: {
-  /** Formation design to compile. */ formation: IAutoMovieFormationDesign;
-  /** Model groups keyed by the id the formation and its tiers name, hashed into each tier's digest; empty when none are supplied. */ models?: ReadonlyMap<
-    string,
-    IAutoMovieModel
-  >;
-  /** Supplied root-centered radius estimate in metres keyed by model group id; an id without one borrows the base group's radius and then half a metre. */ projectionRadii?: ReadonlyMap<
-    string,
-    number
-  >;
-  /** World terrain in declared order; empty when the world has none. */ surfaces?: readonly IAutoMovieWorldSurface[];
-}) => IAutoMovieCompiledFormation = (props: {
-  /** Formation design to compile. */
-  formation: IAutoMovieFormationDesign;
-  /** Model groups keyed by the id the formation and its tiers name, hashed into each tier's digest; empty when none are supplied. */
-  models?: ReadonlyMap<string, IAutoMovieModel>;
-  /**
-   * Supplied root-centered radius estimate in metres keyed by model group id; an id without one borrows the base group's radius and then half a metre.
-   */
-  projectionRadii?: ReadonlyMap<string, number>;
-  /** World terrain in declared order; empty when the world has none. */
-  surfaces?: readonly IAutoMovieWorldSurface[];
-}): IAutoMovieCompiledFormation => {
+export const materializeCompiledFormation: (props: IAutoMovieMaterializeCompiledFormation.IProps) => IAutoMovieCompiledFormation = (props: IAutoMovieMaterializeCompiledFormation.IProps): IAutoMovieCompiledFormation => {
   const formation: IAutoMovieFormationDesign = props.formation;
   const grounded: {
     formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
     ground: IAutoMovieWorldSurface[];
-    footprint: ReturnType<typeof summarizeCompiledSlotRange> | null;
+    footprint: IAutoMoviePlacementSummary | null;
   } = groundFormation(formation, props.surfaces ?? []);
   const position: (slot: number) => IAutoMovieVector3 = (
     slot: number,
@@ -90,7 +57,7 @@ export const materializeCompiledFormation: (props: {
       (hero: { slot: number; actor: string }): number => hero.slot,
     ),
   );
-  const measured: ReturnType<typeof summarizeCompiledSlotChunks> =
+  const measured: IAutoMovieSummarizeCompiledSlotChunks.IResult =
     summarizeCompiledSlotChunks(
       formation.count,
       AUTOMOVIE_FORMATION_CHUNK_SIZE,
@@ -245,9 +212,7 @@ const groundFormation: (
 ) => {
   formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
   ground: IAutoMovieWorldSurface[];
-  /** The finished summary, or null when terrain still has to relieve it. */ footprint: ReturnType<
-    typeof summarizeCompiledSlotRange
-  > | null;
+  /** The finished summary, or null when terrain still has to relieve it. */ footprint: IAutoMoviePlacementSummary | null;
 } = (
   formation: IAutoMovieFormationDesign,
   surfaces: readonly IAutoMovieWorldSurface[],
@@ -255,7 +220,7 @@ const groundFormation: (
   formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
   ground: IAutoMovieWorldSurface[];
   /** The finished summary, or null when terrain still has to relieve it. */
-  footprint: ReturnType<typeof summarizeCompiledSlotRange> | null;
+  footprint: IAutoMoviePlacementSummary | null;
 } => {
   const flat: {
     ground: never[];

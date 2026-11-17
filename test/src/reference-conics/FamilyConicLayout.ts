@@ -1,3 +1,4 @@
+import type { AutoMovieVector2Tuple, IAutoMovieHumanConicSection } from "@automovie/interface";
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanConicSection as S } from "@automovie/human";
 import type { FamilyConicFair as F } from "./FamilyConicFair";
@@ -21,7 +22,7 @@ import type { FamilyConicFair as F } from "./FamilyConicFair";
  */
 export namespace FamilyConicLayout {
   /** A planar chart point, mm (`AutoMovieHumanConicSection.P`). */
-  export type P = S.P;
+  export type P = AutoMovieVector2Tuple;
 
   /** One groove line along the stations: at each station where it is seen, its two inflection phases and its floor's, radians. */
   export interface ILine {
@@ -128,8 +129,8 @@ export namespace FamilyConicLayout {
    * @returns The layout, its runs in the layout's order, for each run the index of its line, and the stations where a line's phases leave
    *   the extremes either side of its run.
    */
-  export function layout(depth: number, lines: readonly ILine[], ends: readonly (readonly number[])[]): { layout: S.ILayout; runs: S.IFeatureRun[]; order: number[]; outside: string[] } {
-    const base: S.ILayout = S.limb(depth);
+  export function layout(depth: number, lines: readonly ILine[], ends: readonly (readonly number[])[]): { layout: IAutoMovieHumanConicSection.ILayout; runs: IAutoMovieHumanConicSection.IFeatureRun[]; order: number[]; outside: string[] } {
+    const base: IAutoMovieHumanConicSection.ILayout = S.limb(depth);
     const K: number = base.anchors.length;
     // Read over the stations a chain was converted at (a refused section has no extremes).
     const circular = (xs: readonly number[]): number => {
@@ -141,7 +142,7 @@ export namespace FamilyConicLayout {
     // The quarter a line stands in: the extreme last before it counter-clockwise.
     const quarter = (phi: number): number => [0, 1, 2, 3].reduce((best: number, q: number): number => (wrap(phi - extremeMeans[q]!) < wrap(phi - extremeMeans[best]!) ? q : best), 0);
     const order: number[] = lines.map((_: ILine, i: number): number => i).sort((a: number, b: number): number => quarter(means[a]!) - quarter(means[b]!) || wrap(means[a]! - extremeMeans[quarter(means[a]!)]!) - wrap(means[b]! - extremeMeans[quarter(means[b]!)]!));
-    const runs: S.IFeatureRun[] = order.map((i: number): S.IFeatureRun => ({ after: (quarter(means[i]!) * K) / 4, anchors: [{ kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, { kind: "f", feature: "inflection" }] }));
+    const runs: IAutoMovieHumanConicSection.IFeatureRun[] = order.map((i: number): IAutoMovieHumanConicSection.IFeatureRun => ({ after: (quarter(means[i]!) * K) / 4, anchors: [{ kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, { kind: "f", feature: "inflection" }] }));
     const outside: string[] = [];
     lines.forEach((line: ILine, i: number): void => {
       const q: number = quarter(means[i]!);
@@ -169,7 +170,7 @@ export namespace FamilyConicLayout {
    *
    * @param phases Each feature run's three phases at this station, in the layout's run order.
    */
-  export function read(chain: IChain, target: S.ILayout, phases: readonly [number, number, number][]): IReading {
+  export function read(chain: IChain, target: IAutoMovieHumanConicSection.ILayout, phases: readonly [number, number, number][]): IReading {
     const K: number = target.anchors.length;
     const { at, shoulders }: { at: number[]; shoulders: number } = S.offsets(target);
     const out: number[] = new Array<number>(S.units(target).length).fill(0);
@@ -177,7 +178,7 @@ export namespace FamilyConicLayout {
     const tangents: (P | null)[] = new Array<P | null>(K).fill(null);
     const phase: number[] = new Array<number>(K).fill(NaN);
     // Extremes: the chain's greatest and least chart coordinates (`extreme`).
-    target.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+    target.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       if (anchor.kind !== "u" && anchor.kind !== "v") return;
       const got: { phi: number; point: P } = extreme(chain, anchor.kind === "u" ? 0 : 1, anchor.pick === "min" ? -1 : 1);
       const p: P = got.point;
@@ -189,7 +190,7 @@ export namespace FamilyConicLayout {
     });
     // Features: each run's three phases, in order, on the chain with its tangent, on the frame's chord.
     let run: number = -1, j: number = 0, previous: number = 0;
-    target.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+    target.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       if (anchor.kind !== "f") return;
       if (k === 0 || target.anchors[k - 1]!.kind !== "f") {
         ++run;
@@ -283,8 +284,8 @@ export namespace FamilyConicLayout {
   }
 
   /** A field vector rounded as the family is stored: millimetres to 0.01, shares and angles to 1e-4 (`FamilyConicFit`, `stored`). */
-  export function stored(values: readonly number[], target: S.ILayout): number[] {
-    const units: S.Unit[] = S.units(target);
+  export function stored(values: readonly number[], target: IAutoMovieHumanConicSection.ILayout): number[] {
+    const units: IAutoMovieHumanConicSection.Unit[] = S.units(target);
     return values.map((y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4));
   }
 
@@ -293,7 +294,7 @@ export namespace FamilyConicLayout {
    * meet ahead of its start and behind its end at these shares; an arc whose tangents do not stand on opposite sides of its chord meets nowhere
    * (`-Infinity`), and the engine refuses it.
    */
-  export function meeting(values: readonly number[], target: S.ILayout): { least: number; arc: number } {
+  export function meeting(values: readonly number[], target: IAutoMovieHumanConicSection.ILayout): { least: number; arc: number } {
     const input = S.resolve(values, target).input;
     const n: number = input.points.length;
     let least: number = Infinity, arc: number = -1;
@@ -317,7 +318,7 @@ export namespace FamilyConicLayout {
    *
    * @returns The stations refused, with the arc and its least meeting share, as text and as stations, the least meeting share over all, and how many stations were checked.
    */
-  export function admit(read: (s: number) => number[], target: S.ILayout, from: number, to: number, step: number, margin: number): { refused: string[]; at: number[]; least: number; checked: number } {
+  export function admit(read: (s: number) => number[], target: IAutoMovieHumanConicSection.ILayout, from: number, to: number, step: number, margin: number): { refused: string[]; at: number[]; least: number; checked: number } {
     const refused: string[] = [];
     const atStations: number[] = [];
     let least: number = Infinity, checked: number = 0;

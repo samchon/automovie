@@ -1,11 +1,9 @@
-import {
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieViewCurves, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanNeckConstruction, IAutoMovieHumanNeckSource } from "@automovie/interface";
 
-import type { AutoMovieHumanNeckSource } from "./AutoMovieHumanNeckSource";
+
+
+import { AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
+
 
 /**
  * The old trunk's temporary neck chain from the actual composed head source.
@@ -26,24 +24,7 @@ import type { AutoMovieHumanNeckSource } from "./AutoMovieHumanNeckSource";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one interval view, its copied scalar records and loft result. Its axis shares the original definition lifetime; no global chain is retained.
  */
 export namespace AutoMovieHumanNeckConstruction {
-  /**
-   * The actual adapter input and every engine outcome.
-   *
-   * @evidence contracts/common.md#principled-implementation Keeps original source identity separate from surviving loft sections and nullable final chain.
-   * @evidence contracts/common.md#clear-and-simple-design A view/result pair exposes both source comparison and all admission diagnostics.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No failed station or null chain is promoted to complete geometry.
-   * @evidence contracts/common.md#meaningful-documentation States borrowing and open-interval scope.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This result type coordinates no requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The body owns the result and borrowed source for one definition lifetime.
-   */
-  export interface IOutput {
-    /** Restricted source records and the original axis on the internal interval, calibration mm. */
-    part: IAutoMovieViewPart;
-
-    /** Complete engine loft outcome, including every omitted section and nullable chain. */
-    loft: AutoMovieViewLoft.IResult;
-  }
+  
 
   /**
    * Evaluate the mass's neck interval for the remaining old trunk.
@@ -64,8 +45,8 @@ export namespace AutoMovieHumanNeckConstruction {
    */
   export function generate(
     mass: IAutoMovieViewPart,
-    placement: AutoMovieHumanNeckSource.IOutput,
-  ): IOutput {
+    placement: IAutoMovieHumanNeckSource.IOutput,
+  ): IAutoMovieHumanNeckConstruction.IOutput {
     const part: IAutoMovieViewPart = define(mass, placement);
     return { part, loft: AutoMovieViewLoft.create(part) };
   }
@@ -73,7 +54,7 @@ export namespace AutoMovieHumanNeckConstruction {
   /** Restrict the actual lower material before any loft, retaining its parameter, all interior knots and both available scalar jets. */
   export function define(
     mass: IAutoMovieViewPart,
-    placement: AutoMovieHumanNeckSource.IOutput,
+    placement: IAutoMovieHumanNeckSource.IOutput,
   ): IAutoMovieViewPart {
     const bottom: number = placement.bottom[1];
     const top: number = placement.head.backLevel;
@@ -89,7 +70,7 @@ export namespace AutoMovieHumanNeckConstruction {
       throw new Error(
         "Neck adapter needs an increasing regular interval inside the actual head source",
       );
-    const source: AutoMovieViewCurves.IResult =
+    const source: IAutoMovieViewCurves.IResult =
       AutoMovieViewCurves.create(mass);
     if (source.diagnostics.length !== 0)
       throw new Error(
@@ -101,15 +82,15 @@ export namespace AutoMovieHumanNeckConstruction {
       );
     const interval: (
       outline: IAutoMovieViewPart.IOutline,
-      prepared: AutoMovieViewOutline.IOutline,
+      prepared: IAutoMovieViewOutline.IOutline,
     ) => IAutoMovieViewPart.IOutline = (
       outline: IAutoMovieViewPart.IOutline,
-      prepared: AutoMovieViewOutline.IOutline,
+      prepared: IAutoMovieViewOutline.IOutline,
     ): IAutoMovieViewPart.IOutline => {
-      const read: (station: number) => AutoMovieViewOutline.IReading = (
+      const read: (station: number) => IAutoMovieViewOutline.IReading = (
         station: number,
-      ): AutoMovieViewOutline.IReading => {
-        const value: AutoMovieViewOutline.IReading | string =
+      ): IAutoMovieViewOutline.IReading => {
+        const value: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(prepared, station);
         if (typeof value === "string")
           throw new Error(`Neck interval source: ${value}`);
@@ -142,7 +123,7 @@ export namespace AutoMovieHumanNeckConstruction {
           value: 0,
         },
       ].map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
-        const value: AutoMovieViewOutline.IReading = read(k.station);
+        const value: IAutoMovieViewOutline.IReading = read(k.station);
         return {
           site: k.site,
           station: k.station,
@@ -163,14 +144,14 @@ export namespace AutoMovieHumanNeckConstruction {
     };
     const edge: (
       outline: IAutoMovieViewPart.IOutline,
-      name: AutoMovieViewCurves.ICurve["name"],
+      name: IAutoMovieViewCurves.ICurve["name"],
     ) => IAutoMovieViewPart.IOutline = (
       outline: IAutoMovieViewPart.IOutline,
-      name: AutoMovieViewCurves.ICurve["name"],
+      name: IAutoMovieViewCurves.ICurve["name"],
     ): IAutoMovieViewPart.IOutline => {
-      const prepared: AutoMovieViewCurves.ICurve["outline"] =
+      const prepared: IAutoMovieViewCurves.ICurve["outline"] =
         source.curves.find(
-          (curve: AutoMovieViewCurves.ICurve): boolean => curve.name === name,
+          (curve: IAutoMovieViewCurves.ICurve): boolean => curve.name === name,
         )!.outline;
       if (prepared === null)
         throw new Error(`Neck adapter has no original ${name}`);
@@ -182,8 +163,8 @@ export namespace AutoMovieHumanNeckConstruction {
       outline: IAutoMovieViewPart.IOutline,
     ): IAutoMovieViewPart.IOutline => {
       const prepared:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
       if ("detail" in prepared)
         throw new Error(`Neck interval fullness: ${prepared.detail}`);
       return interval(outline, prepared);

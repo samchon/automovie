@@ -1,11 +1,8 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanWorkoutSupport, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 
 /**
  * The support a prop gives a workout: a bench's top under a body that lies
@@ -43,13 +40,13 @@ export namespace WorkoutSupport {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    context: Pick<IHumanActionContext, "prop" | "start">,
-    on: { prop: string; affordance: string; other?: string },
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): IAutoMovieVector3 {
-    const read: IHumanActionContext.IProp = context.prop(on.prop);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(on.prop);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
-    const frame: ReturnType<IHumanActionContext.IProp["frame"]> = read.frame(
+    const frame: ReturnType<IAutoMovieMotionHumanActionContext.IProp["frame"]> = read.frame(
       context.start,
     );
     const place = (id: string): IAutoMovieVector3 => {

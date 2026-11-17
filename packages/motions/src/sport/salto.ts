@@ -1,14 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSalto } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { jump } from "../actions/jump";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 
 /**
  * A salto: a jump whose flight turns the whole body head over heels about
@@ -35,38 +28,16 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
  */
 export namespace salto {
   /** The action's name. */
-  export const name: HumanActionKey = "salto";
+  export const name: AutoMovieMotionHumanActionKey = "salto";
 
   /** Cancel table: the jump's. */
-  export const interrupts: IHumanActionLaw["interrupts"] = jump.interrupts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = jump.interrupts;
 
   /** The greatest mean rate of turn, turns a second (provisional; Yeadon 1993). */
   export const RATE: number = 2.5;
 
   /** The flight's apex above take-off when the author names none, a share of the stature (provisional). */
   export const APEX: number = 0.3;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The landing place, the apex, the way and the turns.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The way is a closed union and the turns are whole.
-   */
-  export interface IParams {
-    /** The floor point to land on, world metres. */
-    to: IAutoMovieVector3;
-
-    /** Apex height of the flight above take-off, metres; `APEX` of the stature when absent. */
-    apex?: number;
-
-    /** Which way the body turns; `forward` when absent. */
-    way?: "forward" | "backward";
-
-    /** Whole turns; 1 when absent. */
-    turns?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-  }
 
   /**
    * Plan a salto.
@@ -84,10 +55,10 @@ export namespace salto {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the jump's plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSalto.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanSalto.IParams = context.params;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const turns: number = p.turns ?? 1;
     HumanBound.whole("turns", turns);
 

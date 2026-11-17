@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
 
 /**
  * One frame span's directorial camera intent: what the take frames and how,

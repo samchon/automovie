@@ -1,5 +1,6 @@
+import type { IAutoMovieAuditPhysicalOutcomes, IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
 import { auditPhysicalOutcomes as audit } from "@automovie/engine";
-import type { IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -36,7 +37,7 @@ export function test_physical_outcome_causality(): void {
       }),
     ),
   };
-  const action: audit.IAction = {
+  const action: IAutoMovieAuditPhysicalOutcomes.IAction = {
     id: "promised-contact",
     seconds: 1,
     tolerance: 0.1,
@@ -47,9 +48,9 @@ export function test_physical_outcome_causality(): void {
     expected: "contact",
     source: "solver",
   };
-  const inspect: (promise: audit.IAction) => audit.IFinding[] = (
-    promise: audit.IAction,
-  ): audit.IFinding[] =>
+  const inspect: (promise: IAutoMovieAuditPhysicalOutcomes.IAction) => IAutoMovieAuditPhysicalOutcomes.IFinding[] = (
+    promise: IAutoMovieAuditPhysicalOutcomes.IAction,
+  ): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
     audit({
       actions: [promise],
       contacts: [receipt],
@@ -60,7 +61,7 @@ export function test_physical_outcome_causality(): void {
     });
   TestValidator.equals(
     "future positive impulse does not fulfill an earlier contact",
-    inspect(action).map((finding: audit.IFinding): string => finding.kind),
+    inspect(action).map((finding: IAutoMovieAuditPhysicalOutcomes.IFinding): string => finding.kind),
     ["missed-contact"],
   );
   TestValidator.equals(

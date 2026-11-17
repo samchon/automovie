@@ -1,10 +1,5 @@
-import {
-  AutoMovieSolidCycle,
-  AutoMovieSolidMesh,
-  AutoMovieSolidMeshLoop,
-  type AutoMovieSolidVector,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
+import { AutoMovieSolidCycle, AutoMovieSolidMesh, AutoMovieSolidMeshLoop } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -12,9 +7,9 @@ import { nclose } from "../../../internal/nclose";
 /** A chart point, with each coordinate in its surface parameter's units. */
 type Point = [number, number];
 /** A world vector in mm per unit parameter. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 /** A face trim record used without any generated person. */
-type Loop = AutoMovieSolidMesh.ILoop;
+type Loop = IAutoMovieSolidMesh.ILoop;
 
 /**
  * Face-local trim preparation preserves the live classifier while reusing only
@@ -471,13 +466,13 @@ function consumer(): void {
       };
     },
   };
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
   const chart: Point[] = phases.map((v: number): Point => [1, v]);
   const vertices: number[] = chart.map(([u, v]: Point): number =>
     AutoMovieSolidMesh.vertex(mesh, [Math.cos(v), u, Math.sin(v)], owner, u, v),
   );
-  const open: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+  const open: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
     surface,
     stations: [0, 1, 2, 3],
     phases,
@@ -596,7 +591,7 @@ function consumer(): void {
     [[], []],
     [[0], [0]],
   ] as [number[], number[]][]) {
-    const empty: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const empty: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     TestValidator.predicate(
       "degenerate grid has no triangles",
       AutoMovieSolidMesh.face(empty, {

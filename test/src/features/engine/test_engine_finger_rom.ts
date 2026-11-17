@@ -1,11 +1,7 @@
+import type { IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
 import { DEFAULT_HUMANOID_ROM, clampPose } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-} from "@automovie/interface";
-import { HumanHandShape, type IHumanBody } from "@automovie/motions";
+
+import { HumanHandShape } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -103,7 +99,7 @@ export function test_engine_finger_rom(): void {
     [],
   );
 
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const clamped = (
     joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>

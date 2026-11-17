@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 
@@ -55,18 +56,9 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates its result only.
  */
-export function resolveAutoMovieMutualGoal(input: {
-  /** One person. */ a: resolveAutoMovieMutualGoal.ISide;
-  /** The other person. */ b: resolveAutoMovieMutualGoal.ISide;
-  /**
-   * The height the action itself prefers for the contact, world metres, when
-   * it has one (an object handed over at chest height): the point lies at it,
-   * or at the nearest height both straight arms reach.
-   */
-  height?: number;
-}): resolveAutoMovieMutualGoal.IGoal {
-  const a: resolveAutoMovieMutualGoal.ISide = input.a;
-  const b: resolveAutoMovieMutualGoal.ISide = input.b;
+export function resolveAutoMovieMutualGoal(input: IAutoMovieResolveMutualGoal.IInput): IAutoMovieResolveMutualGoal.IGoal {
+  const a: IAutoMovieResolveMutualGoal.ISide = input.a;
+  const b: IAutoMovieResolveMutualGoal.ISide = input.b;
   for (const side of [a, b])
     if (!(side.reach > 0 && side.limit >= side.reach))
       throw new Error(
@@ -83,7 +75,7 @@ export function resolveAutoMovieMutualGoal(input: {
     );
   const done = (
     point: IAutoMovieVector3,
-  ): resolveAutoMovieMutualGoal.IGoal => ({
+  ): IAutoMovieResolveMutualGoal.IGoal => ({
     point,
     distance: [
       Vector3.length(Vector3.subtract(point, a.shoulder)),
@@ -179,35 +171,4 @@ export function resolveAutoMovieMutualGoal(input: {
     y: Math.min(high, Math.max(low, preferred)),
     z: a.shoulder.z + share * span.z,
   });
-}
-
-/**
- * Companion types of {@link resolveAutoMovieMutualGoal}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit and frame.
- * @evidence contracts/development/design.md#principled-representation A world shoulder with two reach lengths per side; a world point with two distances.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a two-person reaching law passes and reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No body type: any rig supplies a shoulder and two lengths.
- */
-export namespace resolveAutoMovieMutualGoal {
-  /** One person's acting arm. */
-  export interface ISide {
-    /** The acting shoulder joint, world metres. */
-    shoulder: IAutoMovieVector3;
-
-    /** Comfortable shoulder-to-contact distance, metres; positive. */
-    reach: number;
-
-    /** Full shoulder-to-contact reach with the elbow straight, metres; at least `reach`. */
-    limit: number;
-  }
-
-  /** The meeting. */
-  export interface IGoal {
-    /** Where the hands meet, world metres. */
-    point: IAutoMovieVector3;
-
-    /** Each shoulder's distance to it, metres: `a` first. */
-    distance: [number, number];
-  }
 }

@@ -1,5 +1,6 @@
+import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { StrikingReach } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +42,7 @@ export function test_motion_striking_reach(): void {
   const len = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(a, b));
   const root: IAutoMovieVector3 = { x: 0.1, y: 0.9, z: 0 };
-  const base: Omit<StrikingReach.IChain, "point"> = {
+  const base: Omit<IAutoMovieMotionHumanStrikingReach.IChain, "point"> = {
     root,
     upper: 0.45,
     along: 0.3,
@@ -60,7 +61,7 @@ export function test_motion_striking_reach(): void {
     root,
     Vector3.scale(dir, StrikingReach.reach(0.45, 0.3, 30)),
   );
-  const r: StrikingReach.ISolution = StrikingReach.chain({
+  const r: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
     ...base,
     point: at30,
   });
@@ -79,7 +80,7 @@ export function test_motion_striking_reach(): void {
     root,
     Vector3.scale(dir, 2 * StrikingReach.reach(0.45, 0.3, 5)),
   );
-  const s: StrikingReach.ISolution = StrikingReach.chain({
+  const s: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
     ...base,
     point: far,
   });
@@ -93,7 +94,7 @@ export function test_motion_striking_reach(): void {
   );
 
   const close: IAutoMovieVector3 = Vector3.add(root, Vector3.scale(dir, 0.55));
-  const j: StrikingReach.ISolution = StrikingReach.chain({
+  const j: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
     ...base,
     point: close,
   });
@@ -105,7 +106,7 @@ export function test_motion_striking_reach(): void {
       j.along < 0.3 &&
       Math.abs(len(j.point, j.middle) - j.along) < 1e-9,
   );
-  const rigid: StrikingReach.ISolution = StrikingReach.chain({
+  const rigid: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
     ...base,
     point: close,
     slide: false,
@@ -119,7 +120,7 @@ export function test_motion_striking_reach(): void {
   );
 
   const k: number = 1.3;
-  const scaled: StrikingReach.ISolution = StrikingReach.chain({
+  const scaled: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
     ...base,
     root: Vector3.scale(root, k),
     point: Vector3.scale(at30, k),
@@ -137,7 +138,7 @@ export function test_motion_striking_reach(): void {
     y: v.y,
     z: v.z,
   });
-  const mirrored: StrikingReach.ISolution = StrikingReach.chain({
+  const mirrored: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
     ...base,
     root: mirror(root),
     point: mirror(at30),

@@ -1,14 +1,9 @@
-import {
-  AutoMovieIllinois,
-  type AutoMovieLoftContract,
-  AutoMovieViewCurves,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { IAutoMovieViewCurves, IAutoMovieViewPart, IAutoMovieViewSection, IAutoMovieHumanTrunkTape, IAutoMovieConstructionView } from "@automovie/interface";
 
-import type { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
+
+import { AutoMovieIllinois, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+
+
 
 /**
  * The trunk base's fullness at a tape site whose tape wraps the merged skin:
@@ -37,56 +32,21 @@ import type { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSect
  * authoring an extreme failed estimate as a new source knot.
  */
 export namespace AutoMovieHumanTrunkTape {
-  /** A mass at the site. */
-  export interface IMass {
-    /** Identical original source, calibration mm. */
-    part: IAutoMovieViewPart;
-    /** Its actual production declaration, used to admit the fixed AP chart. */
-    view: IAutoMovieConstructionView;
-  }
+  
 
-  /** What the solve reads. */
-  export interface IInput {
-    /** Producer and site, for the diagnostic. */
-    producer: string;
-
-    /** Actual common world-Y section family, authored before the attached originals. */
-    plane: AutoMovieHumanTrunkSectionFamily.IPlane;
-
-    /** The original masses whose common-level side cuts the tape also wraps. */
-    masses: IMass[];
-    /** Actual horizontal cuts of other original parents, retaining their source names and explicit unavailability. These are not AP-chart masses. */
-    parents?: readonly {
-      name: string;
-      points: readonly [number, number][] | string;
-      provenance?: readonly { station: number; phase: number }[];
-    }[];
-    /** Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair. */
-    parentsAt?(shoulder: number): NonNullable<IInput["parents"]>;
-
-    /** The tape, mm. */
-    tape: number;
-  }
+  
 
   /** Phases read on the base's section and on each mass. */
   export const PHASES: number = 512;
 
-  /** The solved shoulder and its diagnostics. */
-  export interface IResult {
-    /** The base's common shoulder, or null when its source/reach/root is not admitted. */
-    shoulder: number | null;
-
-    /** One diagnostic for a tape outside the reach or a box without a valid section. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
+  
 
   /** Project one actual parent cut into tape points and matching provenance without solving or constructing the parent again. */
   export function parent(
     name: string,
     records:
-      | readonly { point: [number, number]; station: number; phase: number }[]
-      | string,
-  ): NonNullable<IInput["parents"]>[number] {
+      IAutoMovieHumanTrunkTape.ParentRecords,
+  ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]>[number] {
     return typeof records === "string"
       ? { name, points: records }
       : {
@@ -112,8 +72,8 @@ export namespace AutoMovieHumanTrunkTape {
    * @param input The site, the base's box, the masses and the tape.
    * @returns The shoulder and the diagnostics.
    */
-  export function solve(input: IInput): IResult {
-    const reach: AutoMovieViewSection.IRange | null =
+  export function solve(input: IAutoMovieHumanTrunkTape.IInput): IAutoMovieHumanTrunkTape.IResult {
+    const reach: IAutoMovieViewSection.IRange | null =
       AutoMovieViewSection.range(input.plane.box);
     if (reach === null)
       return {
@@ -194,7 +154,7 @@ export namespace AutoMovieHumanTrunkTape {
     const sectionPoints: (r: number) => [number, number][] = (
       r: number,
     ): [number, number][] => {
-      const section: AutoMovieViewSection.ISection = input.plane.section(r);
+      const section: IAutoMovieViewSection.ISection = input.plane.section(r);
       const points: [number, number][] = Array.from(
         { length: PHASES },
         (_: unknown, i: number): [number, number] => {
@@ -236,7 +196,7 @@ export namespace AutoMovieHumanTrunkTape {
       moving.set(r, points);
       return points;
     };
-    const parentError: () => IResult = (): IResult => ({
+    const parentError: () => IAutoMovieHumanTrunkTape.IResult = (): IAutoMovieHumanTrunkTape.IResult => ({
       shoulder: null,
       diagnostics: [
         {
@@ -266,7 +226,7 @@ export namespace AutoMovieHumanTrunkTape {
           },
         ],
       };
-    const outside: () => IResult = (): IResult => {
+    const outside: () => IAutoMovieHumanTrunkTape.IResult = (): IAutoMovieHumanTrunkTape.IResult => {
       const base: [number, number][] = sectionPoints(lo);
       const boundary: [number, number][] = [];
       hull([...base, ...cuts, ...additional(lo)], boundary);
@@ -345,7 +305,7 @@ export namespace AutoMovieHumanTrunkTape {
    * @returns Original-curve samples `[x,z]`, mm, or the unsupported premise.
    */
   function cut(
-    mass: IMass,
+    mass: IAutoMovieHumanTrunkTape.IMass,
     y: number,
     owners: Map<
       [number, number],
@@ -365,7 +325,7 @@ export namespace AutoMovieHumanTrunkTape {
       Math.abs(axis.origin.y * 1000 - y) > ON_PLANE
     )
       return `${mass.part.name}: tape needs the actual fixed AP chart at the common generating level`;
-    const prepared: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(
+    const prepared: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(
       mass.part,
     );
     if (prepared.diagnostics.length !== 0)
@@ -384,7 +344,7 @@ export namespace AutoMovieHumanTrunkTape {
       for (let sample: number = 0; sample <= LINE_SAMPLES; sample++)
         stations.add(s0 + ((s1 - s0) * sample) / LINE_SAMPLES);
       for (const station of stations) {
-        const point: AutoMovieViewCurves.IReading | string =
+        const point: IAutoMovieViewCurves.IReading | string =
           AutoMovieViewCurves.at(curve, mass.part.axis, station);
         if (typeof point === "string") return `${mass.part.name}: ${point}`;
         const position: [number, number] = [point.point[0], point.point[2]];

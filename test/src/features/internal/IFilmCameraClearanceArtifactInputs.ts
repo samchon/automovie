@@ -1,7 +1,5 @@
-import type {
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-} from "@automovie/engine";
+import type { IAutoMoviePerformedShot, IAutoMovieStagedSet } from "@automovie/interface";
+
 
 /** Existing successful performance and staged set for artifact identity assertions. */
 export interface IFilmCameraClearanceArtifactInputs {

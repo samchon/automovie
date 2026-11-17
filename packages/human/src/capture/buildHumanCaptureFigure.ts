@@ -1,4 +1,5 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
+
 import * as THREE from "three";
 
 import { HUMAN_CAPTURE_PEOPLE } from "./HUMAN_CAPTURE_PEOPLE";

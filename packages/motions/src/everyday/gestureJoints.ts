@@ -1,8 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanGestureStroke } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { gestureSignal } from "./gestureSignal";
-import type { gestureStroke } from "./gestureStroke";
 
 /**
  * The joints a gesture moves directly.
@@ -119,7 +118,7 @@ export namespace gestureJoints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
   export function at(
-    kind: gestureStroke.Kind,
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
     u: number,
     cycles: number,
     envelope: number,

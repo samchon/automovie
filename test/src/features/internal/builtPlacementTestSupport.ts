@@ -1,10 +1,11 @@
-import type { AutoMovieBuiltPlacementSupportLocator } from "@automovie/interface";
+import type { IAutoMovieBuiltPlacementSupportLocator } from "@automovie/interface";
+
 
 /** Construct the stated support locator without changing its kind. */
 export const builtPlacementTestSupport = (
-  kind: AutoMovieBuiltPlacementSupportLocator["kind"],
+  kind: IAutoMovieBuiltPlacementSupportLocator["kind"],
   id: string,
-): AutoMovieBuiltPlacementSupportLocator => {
+): IAutoMovieBuiltPlacementSupportLocator => {
   switch (kind) {
     case "element":
       return { kind, id };

@@ -1,3 +1,4 @@
+import type { IAutoMovieSolidMeshConstraints } from "@automovie/interface";
 import { AutoMovieSolidMeshConstraints } from "@automovie/engine";
 
 /** One existing chart point and its authoritative mesh identity. */
@@ -58,7 +59,7 @@ export function test_construction_chart_constraints(): void {
       [3, [4 * scale, 0]],
       [4, [2 * scale, 2 * scale]],
     ];
-    const diagonal: AutoMovieSolidMeshConstraints.ISegment[] = [
+    const diagonal: IAutoMovieSolidMeshConstraints.ISegment[] = [
       { a: 0, b: 1, turn: 0 },
       { a: 2, b: 3, turn: 0 },
     ];
@@ -137,7 +138,7 @@ export function test_construction_chart_constraints(): void {
     [2, [2, 0]],
     [3, [2, 0]],
   ];
-  const segment: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const segment: IAutoMovieSolidMeshConstraints.ISegment[] = [
     { a: 0, b: 1, turn: 0 },
   ];
   refuse(
@@ -272,13 +273,13 @@ function inspect(
   failures: string[],
   label: string,
   values: Vertex[],
-  segments: AutoMovieSolidMeshConstraints.ISegment[],
+  segments: IAutoMovieSolidMeshConstraints.ISegment[],
   expected: string,
   period?: number,
 ): void {
   const before: string = JSON.stringify({ values, segments });
   const vertices: Map<number, readonly [number, number]> = new Map(values);
-  const made: AutoMovieSolidMeshConstraints.IEdge[] | string =
+  const made: IAutoMovieSolidMeshConstraints.IEdge[] | string =
     AutoMovieSolidMeshConstraints.split(vertices, segments, period);
   if (typeof made === "string") {
     failures.push(`${label}: ${made}`);
@@ -291,7 +292,7 @@ function inspect(
     failures.push(`${label}: input mutation`);
   if (made.length !== 0) {
     made[0]!.sources.push(999);
-    const repeated: AutoMovieSolidMeshConstraints.IEdge[] | string =
+    const repeated: IAutoMovieSolidMeshConstraints.IEdge[] | string =
       AutoMovieSolidMeshConstraints.split(vertices, segments, period);
     if (typeof repeated === "string" || signature(repeated) !== expected)
       failures.push(`${label}: retained mutable output`);
@@ -299,10 +300,10 @@ function inspect(
 }
 
 /** Canonical endpoint/turn/source labels form an independent finite collection oracle. */
-function signature(edges: AutoMovieSolidMeshConstraints.IEdge[]): string {
+function signature(edges: IAutoMovieSolidMeshConstraints.IEdge[]): string {
   return edges
     .map(
-      (edge: AutoMovieSolidMeshConstraints.IEdge): string =>
+      (edge: IAutoMovieSolidMeshConstraints.IEdge): string =>
         `${edge.a}/${edge.b}/${edge.turn}:${edge.sources.join(",")}`,
     )
     .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -313,7 +314,7 @@ function signature(edges: AutoMovieSolidMeshConstraints.IEdge[]): string {
 function refuse(
   failures: string[],
   label: string,
-  result: AutoMovieSolidMeshConstraints.IEdge[] | string,
+  result: IAutoMovieSolidMeshConstraints.IEdge[] | string,
   expected: string,
 ): void {
   if (typeof result !== "string" || !result.includes(expected))

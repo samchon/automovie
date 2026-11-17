@@ -1,10 +1,8 @@
+import type { IAutoMovieMotionHumanKickBall, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Transform, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { kickBall } from "../../ballStrike/kickBall";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -47,8 +45,8 @@ export function ballStrikeCases(
       y: radius,
       z: toe + 0.15 + radius,
     };
-    const params: kickBall.IParams = { ball: "ball" };
-    const performance: HumanPerformance = FamilyCaseKit.perform(
+    const params: IAutoMovieMotionHumanKickBall.IParams = { ball: "ball" };
+    const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "ball",
       [{ subject: "a", body: who.body }],
       HumanChain.subject("a").act("kickBall", params),
@@ -107,7 +105,7 @@ export function ballStrikeCases(
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function ball(centre: IAutoMovieVector3, radius: number): IHumanProp {
+function ball(centre: IAutoMovieVector3, radius: number): IAutoMovieMotionHumanProp {
   return {
     subject: "ball",
     frame: { position: centre, rotation: { x: 0, y: 0, z: 0, w: 1 } },

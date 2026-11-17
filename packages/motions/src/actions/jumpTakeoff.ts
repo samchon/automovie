@@ -1,8 +1,5 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieResolvedBone } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -22,8 +19,8 @@ import { poseBones } from "../posture/poseBones";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function jumpTakeoff(
-  body: IHumanBody,
-  entry: IHumanEntryState,
+  body: IAutoMovieMotionHumanBody,
+  entry: IAutoMovieMotionHumanEntryState,
 ): "left" | "right" {
   const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
     (side: "left" | "right"): boolean => entry.feet[side].planted,

@@ -1,6 +1,10 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanBreastRelief, IAutoMovieHumanTrunkFeature } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The breasts merged into the trunk: the left breast's dome sampled as a
@@ -11,17 +15,7 @@ import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature"
  * with the thorax is C2 by construction.
  */
 export namespace AutoMovieHumanBreastRelief {
-  /** What the merge reads. */
-  export interface IInput {
-    /** The breast's dome. */
-    dome: IAutoMovieHumanTrunkFeature;
-
-    /** The trunk's base surface: the body point at a height and a phase. */
-    base: AutoMovieHumanTrunkReliefNet.Base;
-
-    /** The base's phase at a lateral place on the front at the bust point's height. */
-    phaseOf: (z: number) => number;
-  }
+  
 
   /**
    * Both breasts' windows.
@@ -29,7 +23,7 @@ export namespace AutoMovieHumanBreastRelief {
    * @param input The dome, the base and the phase map.
    * @returns The left and the right window.
    */
-  export function create(input: IInput): IAutoMovieLoftRelief[] {
+  export function create(input: IAutoMovieHumanBreastRelief.IInput): IAutoMovieLoftRelief[] {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     const o: [number, number, number] = dome.frame.origin;
 

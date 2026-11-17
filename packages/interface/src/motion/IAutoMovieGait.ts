@@ -1,5 +1,5 @@
-import { IAutoMovieGaitLimb } from "./IAutoMovieGaitLimb";
-import { IAutoMovieGaitRootBob } from "./IAutoMovieGaitRootBob";
+import type { IAutoMovieGaitLimb } from "./IAutoMovieGaitLimb";
+import type { IAutoMovieGaitRootBob } from "./IAutoMovieGaitRootBob";
 
 /**
  * A reusable locomotion cycle expressed as timed joint oscillations. `gaitMotion` samples each limb's phase, duty, amplitude and easing into one looping motion; optional rootBob supplies sampled vertical body displacement. Profiles collect named gaits, and binding assigns the target skeleton id without deriving rig-specific joint angles.

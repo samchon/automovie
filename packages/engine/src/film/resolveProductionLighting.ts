@@ -1,7 +1,5 @@
-import {
-  IAutoMovieLight,
-  IAutoMovieProductionLighting,
-} from "@automovie/interface";
+import { type IAutoMovieResolveProductionLighting, IAutoMovieLight } from "@automovie/interface";
+
 
 import { resolveShotLighting } from "../resolve/resolveShotLighting";
 
@@ -21,13 +19,7 @@ import { resolveShotLighting } from "../resolve/resolveShotLighting";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves one instant per call; current production assembly inherits the shot-opening snapshot once, rather than resampling these story tracks each frame. No cross-call result is cached for mutable lighting records.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; untouched sources are the declared objects by reference and touched ones are fresh copies owned by the caller.
  */
-export function resolveProductionLighting(props: {
-  /** The production's declared sources and their story-clock motion. */
-  lighting: IAutoMovieProductionLighting;
-
-  /** The instant to evaluate, in story-clock seconds. */
-  storySeconds: number;
-}): IAutoMovieLight[] {
+export function resolveProductionLighting(props: IAutoMovieResolveProductionLighting.IProps): IAutoMovieLight[] {
   return resolveShotLighting({
     lights: props.lighting.lights,
     clips: props.lighting.motions,

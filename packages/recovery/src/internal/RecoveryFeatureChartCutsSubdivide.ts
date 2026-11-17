@@ -1,21 +1,5 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryFeatureChartCuts, IAutoMovieRecoveryFeatureChartCutsSubdivide } from "@automovie/interface";
 
-import type { RecoveryFeatureChartCuts } from "./RecoveryFeatureChartCuts";
-
-type Input = Parameters<typeof RecoveryFeatureChartCuts>[0];
-type Output = ReturnType<typeof RecoveryFeatureChartCuts>;
-type Row = { a: number; b: number; face: number };
-type Topology = {
-  edges: Map<string, Row[]>;
-  vertexEdges: string[][];
-  incident: number[][];
-  components: number[][];
-  faceComponent: Int32Array;
-  cycles: number[][];
-  areas: number[];
-  normals: C.Vector[];
-};
-type Feature = Input["featureEdges"][number];
 /**
  * Subdivide colliding feature edges using the unchanged exact midpoint arithmetic.
  *
@@ -28,38 +12,23 @@ type Feature = Input["featureEdges"][number];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources DataView and integer scratch are private to this call; arrays and diagnostic bounds transfer to the caller.
  */
 export function RecoveryFeatureChartCutsSubdivide(
-  input: Input,
-  source: Topology,
-  features: Map<string, Feature>,
-  collisions: Set<string>,
-  physicalPositions: Map<string, C.Vector>,
-  analyze: (
-    vertices: readonly C.Vector[],
-    triangles: readonly (readonly [number, number, number])[],
-  ) => Topology,
-  fail: (reason: string) => never,
-  edge: (a: number, b: number) => string,
-  lex: (a: string, b: string) => number,
-): {
-  vertices: C.Vector[];
-  physical: string[];
-  occurrences: string[];
-  insertions: Output["insertions"];
-  diagnostics: string[];
-  observationDisplacementUpperMm: number;
-  triangles: [number, number, number][];
-  owners: number[];
-  parents: number[];
-  expanded: Map<string, Feature>;
-  subdivided: Topology;
-} {
-  const vertices: C.Vector[] = input.verticesMm.map(
-      (p: C.Vector): C.Vector => [...p],
+  input: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[0],
+  source: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[1],
+  features: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[2],
+  collisions: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[3],
+  physicalPositions: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[4],
+  analyze: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[5],
+  fail: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[6],
+  edge: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[7],
+  lex: Parameters<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation>[8],
+): ReturnType<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation> {
+  const vertices: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
+      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...p],
     ),
     physical: string[] = [...input.physicalKeys],
     occurrences: string[] = [...input.occurrenceKeys],
     occurrenceSet: Set<string> = new Set(occurrences);
-  const insertions: ReturnType<typeof RecoveryFeatureChartCuts>["insertions"] =
+  const insertions: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["insertions"] =
       [],
     diagnostics: string[] = [],
     midpoints: Map<string, number> = new Map(),
@@ -125,10 +94,10 @@ export function RecoveryFeatureChartCutsSubdivide(
       ),
   );
   for (const word of orderedCollisions) {
-    const feature: Feature = features.get(word)!,
+    const feature: IAutoMovieRecoveryFeatureChartCutsSubdivide.Feature = features.get(word)!,
       a: number = feature.a,
       b: number = feature.b,
-      point: C.Vector = [0, 1, 2].map((k: number): number =>
+      point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map((k: number): number =>
         roundedHalfUnits(
           integer(vertices[a]![k]!) + integer(vertices[b]![k]!),
           false,
@@ -167,7 +136,7 @@ export function RecoveryFeatureChartCutsSubdivide(
       ) as [string, string],
       key: string = `feature-midpoint:${JSON.stringify([feature.sourceEdge, ...edgeKeys])}`,
       occurrence: string = `feature-midpoint-occurrence:${JSON.stringify([feature.sourceEdge, ...[occurrences[a]!, occurrences[b]!].sort(lex)])}`;
-    const previous: C.Vector | undefined = physicalPositions.get(key);
+    const previous: Readonly<AutoMovieVector3Tuple> | undefined = physicalPositions.get(key);
     if (
       (previous &&
         previous.some((x: number, k: number): boolean => x !== point[k])) ||
@@ -234,7 +203,7 @@ export function RecoveryFeatureChartCutsSubdivide(
       }
     },
   );
-  const expanded: Map<string, Feature> = new Map();
+  const expanded: Map<string, IAutoMovieRecoveryFeatureChartCutsSubdivide.Feature> = new Map();
   for (const feature of features.values()) {
     const middle: number | undefined = midpoints.get(
       edge(feature.a, feature.b),
@@ -245,15 +214,15 @@ export function RecoveryFeatureChartCutsSubdivide(
       expanded.set(edge(middle, feature.b), { ...feature, a: middle });
     }
   }
-  const subdivided: Topology = midpoints.size
+  const subdivided: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology = midpoints.size
       ? analyze(vertices, triangles)
       : source,
     measuredAreas: number[] = new Array(input.triangles.length).fill(0);
   triangles.forEach(
     (_: readonly [number, number, number], face: number): void => {
       const parent: number = parents[face]!,
-        n: C.Vector = subdivided.normals[face]!,
-        old: C.Vector = source.normals[parent]!;
+        n: Readonly<AutoMovieVector3Tuple> = subdivided.normals[face]!,
+        old: Readonly<AutoMovieVector3Tuple> = source.normals[parent]!;
       if (
         !(
           n.reduce(
@@ -287,6 +256,5 @@ export function RecoveryFeatureChartCutsSubdivide(
     owners,
     parents,
     expanded,
-    subdivided,
-  };
+    subdivided };
 }

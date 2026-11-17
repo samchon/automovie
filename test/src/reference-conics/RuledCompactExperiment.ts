@@ -1,5 +1,6 @@
-import type { IAutoMovieModel } from "@automovie/interface";
-import type { IAutoMovieCurve64 as G } from "@automovie/engine";
+import type { IAutoMovieCurve64, IAutoMovieModel } from "@automovie/interface";
+
+
 import { approximateAutoMovieRecoveryCompactCurves } from "@automovie/recovery";
 import { ReferenceRuledRealization } from "./ReferenceRuledRealization";
 import { ConicPaperRender } from "./ConicPaperRender";
@@ -115,11 +116,11 @@ export async function RuledCompactExperiment(): Promise<void> {
 
 /** Independent elementary checks cover open-end preservation and an interior-error bound before private input is read. */
 function verifyAlgebra(): void {
-  const curve: G.Cubic = { type: "cubicBezier", name: "open-line", closed: false, unit: "mm", phaseUnit: "mm", phaseIntervals: [1], spans: [[[0, 7, 0], [1 / 3, 7, 0], [2 / 3, 7, 0], [1, 7, 0]]] };
+  const curve: IAutoMovieCurve64.Cubic = { type: "cubicBezier", name: "open-line", closed: false, unit: "mm", phaseUnit: "mm", phaseIntervals: [1], spans: [[[0, 7, 0], [1 / 3, 7, 0], [2 / 3, 7, 0], [1, 7, 0]]] };
   if (!A.prepare(curve).accepted) throw new Error("An open curve was incorrectly closed");
-  const changed: G.Cubic = { ...curve, spans: [[[0, 7, 0], [1 / 3, 7, 0.8], [2 / 3, 7, 0.8], [1, 7, 0]]] };
+  const changed: IAutoMovieCurve64.Cubic = { ...curve, spans: [[[0, 7, 0], [1 / 3, 7, 0.8], [2 / 3, 7, 0.8], [1, 7, 0]]] };
   if (A.bound(curve, changed, 0.5, (): boolean => true).accepted) throw new Error("A cubic interior extremum escaped the independent bound");
-  const bounded: G.Cubic = { ...curve, spans: [[[0, 7, 0], [1 / 3, 7, 0.6], [2 / 3, 7, 0.6], [1, 7, 0]]] };
+  const bounded: IAutoMovieCurve64.Cubic = { ...curve, spans: [[[0, 7, 0], [1 / 3, 7, 0.6], [2 / 3, 7, 0.6], [1, 7, 0]]] };
   if (!A.bound(curve, bounded, 0.5, (): boolean => true).accepted) throw new Error("Convex-hull subdivision did not tighten a supported bound");
 }
 

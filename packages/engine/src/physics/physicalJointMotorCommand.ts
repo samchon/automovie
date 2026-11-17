@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalJointMotorCommand, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
@@ -31,16 +28,7 @@ import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalJointMotorCommand(input: {
-  /** Joint whose declared axes, gains and caps are commanded. */ joint: P.IJoint;
-  /** Current child-relative joint rotation. */ current: IAutoMovieQuaternion;
-  /** Target child-relative joint rotation. */ target: IAutoMovieQuaternion;
-  /** Current relative angular velocity in the joint frame, rad/s. */ velocity: IAutoMovieVector3;
-  /** Target relative angular velocity in the joint frame, rad/s. */ targetVelocity: IAutoMovieVector3;
-  /** Tracking fraction in [0, 1]. */ strength: number;
-  /** Optional joint-frame torque feed-forward, N m, scaled by strength. */ feedForward?: IAutoMovieVector3;
-  /** Native substep, seconds; positive. */ timestep: number;
-}): physicalJointMotorCommand.IOutput {
+export function physicalJointMotorCommand(input: IAutoMoviePhysicalJointMotorCommand.IInput): IAutoMoviePhysicalJointMotorCommand.IOutput {
   const delta: IAutoMovieQuaternion = Quaternion.multiply(
     input.target,
     Quaternion.inverse(input.current),
@@ -81,7 +69,7 @@ export function physicalJointMotorCommand(input: {
           input.timestep,
         )
       : requested;
-  const output: physicalJointMotorCommand.IOutput = {
+  const output: IAutoMoviePhysicalJointMotorCommand.IOutput = {
     axes: [],
     error: 0,
     saturated: [],
@@ -104,40 +92,4 @@ export function physicalJointMotorCommand(input: {
   }
   output.error = Math.sqrt(output.error);
   return output;
-}
-/**
- * Output shapes of {@link physicalJointMotorCommand}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Output shapes of ) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Output shapes of : companion namespace of 2 members (`IOutput`, `IAxis`); units and frames named in its text: radians, frame. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `physicalJointMotorCommand` in packages/engine/src/physics/physicalJointMotorCommand.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace physicalJointMotorCommand {
-  /** One joint's motor command. */
-  export interface IOutput {
-    /** One velocity-motor command per declared axis, in declaration order. */
-    axes: IAxis[];
-
-    /** Norm of the declared axes' geodesic error, radians. */
-    error: number;
-
-    /** Axes whose forecast demand exceeds their torque cap. */
-    saturated: ("x" | "y" | "z")[];
-  }
-
-  /** One axis's native velocity-motor command. */
-  export interface IAxis {
-    /** Joint-frame axis. */
-    axis: "x" | "y" | "z";
-
-    /** Target relative angular speed, rad/s. */
-    speed: number;
-
-    /** Implicit motor damping, N m s/rad. */
-    damping: number;
-
-    /** Motor torque cap, N m; zero for an inactive motor. */
-    maximumTorque: number;
-  }
 }

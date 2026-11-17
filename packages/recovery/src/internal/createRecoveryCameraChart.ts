@@ -1,5 +1,6 @@
+import type { IAutoMovieRecoveryCameraChartCreationOperation } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+
 
 /**
  * Build a supplied pinhole K and its analytic inverse in the resident pixel chart.
@@ -16,8 +17,8 @@ import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two owned nine-number arrays transfer to the synchronous pair owner; no borrowed RGB, process, callback or global state is retained.
  */
 export function createRecoveryCameraChart(
-  view: IAutoMovieRecoveryCameraPairInput["views"][number],
-): { matrix: number[]; inverse: number[] } {
+  view: Parameters<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation> {
   const [fx, fy]: [number, number] = view.camera.focalPx;
   const [cx, cy]: [number, number] = view.camera.principalPointPx;
   const skew: number = view.camera.skewPx;

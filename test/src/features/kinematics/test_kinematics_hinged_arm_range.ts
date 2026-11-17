@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieHingedArticulation,
-  hingedArmArticulation,
-} from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieHingedArticulation, IAutoMovieVector3 } from "@automovie/interface";
+import { hingedArmArticulation } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

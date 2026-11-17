@@ -1,12 +1,5 @@
-import {
-  type IAutoMovieFootprintRing,
-  type IAutoMovieRegionTriangulation,
-  autoMoviePlanarRegionFailure,
-  footprintConvexPieces,
-  footprintRing,
-  triangulateAutoMoviePolygon,
-  triangulateAutoMovieRegion,
-} from "@automovie/engine";
+import type { IAutoMovieFootprintRing, IAutoMovieRegionTriangulation } from "@automovie/interface";
+import { autoMoviePlanarRegionFailure, footprintConvexPieces, footprintRing, triangulateAutoMoviePolygon, triangulateAutoMovieRegion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

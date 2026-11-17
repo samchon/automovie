@@ -1,9 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type AutoMovieSolidIntersection,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidIntersection } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -29,7 +26,7 @@ export function test_construction_arc(): void {
   const R: number = 0.03;
   const r: number = 0.015;
   const w: number = 0.006;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "beam",
     {
       origin: { x: -0.1, y: 0, z: 0 },
@@ -39,7 +36,7 @@ export function test_construction_arc(): void {
     R,
     0.2,
   );
-  const part: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const part: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "post",
     {
       origin: { x: 0, y: 0, z: 0 },
@@ -49,7 +46,7 @@ export function test_construction_arc(): void {
     r,
     0.08,
   );
-  const tree: AutoMovieConstructionNode = ConstructionShapes.join(
+  const tree: IAutoMovieConstructionNode = ConstructionShapes.join(
     "merge",
     "blend.post",
     host,
@@ -63,13 +60,13 @@ export function test_construction_arc(): void {
     { part: { type: "chord", value: w }, host: { type: "chord", value: w } },
     { type: "arc" },
   );
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
-  const joined: AutoMovieConstructionRealization.IJoin | undefined =
+  const joined: IAutoMovieConstructionRealization.IJoin | undefined =
     real.joins.find(
-      (j: AutoMovieConstructionRealization.IJoin): boolean =>
+      (j: IAutoMovieConstructionRealization.IJoin): boolean =>
         j.name === "blend.post",
     );
   if (joined === undefined)
@@ -78,7 +75,7 @@ export function test_construction_arc(): void {
     );
 
   const points: V3[] = joined.join.curve.points.map(
-    (q: AutoMovieSolidIntersection.IPoint): V3 => [
+    (q: IAutoMovieSolidIntersection.IPoint): V3 => [
       q.point[0] / 1000,
       q.point[1] / 1000,
       q.point[2] / 1000,

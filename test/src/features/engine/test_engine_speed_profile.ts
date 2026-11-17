@@ -1,3 +1,4 @@
+import type { IAutoMovieSpeedProfile } from "@automovie/interface";
 import { speedProfile } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_speed_profile(): void {
   const findings: string[] = [];
-  const profile: speedProfile.IProfile = speedProfile({
+  const profile: IAutoMovieSpeedProfile.IProfile = speedProfile({
     start: 1,
     speed: 2,
     acceleration: 2,
@@ -58,10 +59,10 @@ export function test_engine_speed_profile(): void {
   // 3. Sweep: monotone distance, bounded and continuous speed, inverse.
   const steps: number = 2000;
   const dt: number = (profile.end - profile.start) / steps;
-  let before: speedProfile.IState = profile.at(profile.start);
+  let before: IAutoMovieSpeedProfile.IState = profile.at(profile.start);
   for (let k: number = 1; k <= steps; k++) {
     const t: number = profile.start + k * dt;
-    const now: speedProfile.IState = profile.at(t);
+    const now: IAutoMovieSpeedProfile.IState = profile.at(t);
     const rate: number = (now.speed - before.speed) / dt;
     if (now.distance < before.distance - 1e-12)
       findings.push(`the distance falls at ${t} s`);

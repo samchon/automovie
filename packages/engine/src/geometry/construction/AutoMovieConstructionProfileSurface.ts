@@ -1,11 +1,10 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type { IAutoMovieConstructionProfileSource, IAutoMovieSolidSurface, AutoMovieVector2Tuple, IAutoMovieLoftFrame, IAutoMovieLoftWorldJetWorld, IAutoMovieConstructionProfile } from "@automovie/interface";
+
+
 
 import { AutoMovieConstructionProfileTopology } from "./AutoMovieConstructionProfileTopology";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Exact world chart of one original interval, retained or in its actual neighborhood.
@@ -73,12 +72,12 @@ export function AutoMovieConstructionProfileSurface(
     period,
     orientation: loop.surfaceOrientation ?? 1,
     point: (station: number, phase: number): [number, number, number] => {
-      const local: IAutoMovieConstructionProfileSource.Vector = curve.point(
+      const local: AutoMovieVector2Tuple = curve.point(
         station,
         clock(station, phase),
       );
       pair(local);
-      const frame: AutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
+      const frame: IAutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
       frameRow(frame);
       const point: [number, number, number] = [0, 1, 2].map(
         (k: number): number =>
@@ -110,7 +109,7 @@ export function AutoMovieConstructionProfileSurface(
         st: scale(local!.st, factor),
         tt: scale(local!.tt, factor * factor),
       };
-      const world: ReturnType<typeof AutoMovieLoftWorldJet> =
+      const world: IAutoMovieLoftWorldJetWorld =
         AutoMovieLoftWorldJet(scaled, rows);
       const normal: number[] = [
         world.s[1] * world.t[2] - world.s[2] * world.t[1],
@@ -145,7 +144,7 @@ function pair(value: readonly number[]): void {
 }
 
 /** Copy actual frame value/first/second operands without manufacturing absent data. */
-function frameRow(frame: AutoMovieLoftFrame.IFrame): number[] {
+function frameRow(frame: IAutoMovieLoftFrame.IFrame): number[] {
   const row: number[] = [];
   for (const key of ["origin", "u", "v"] as const) {
     if (
@@ -161,9 +160,9 @@ function frameRow(frame: AutoMovieLoftFrame.IFrame): number[] {
 
 /** Actual affine clock scaling applies only to the corresponding derivative order. */
 function scale(
-  value: IAutoMovieConstructionProfileSource.Vector,
+  value: AutoMovieVector2Tuple,
   factor: number,
-): IAutoMovieConstructionProfileSource.Vector {
+): AutoMovieVector2Tuple {
   return [factor * value[0], factor * value[1]];
 }
 

@@ -1,11 +1,5 @@
-import {
-  AutoMovieMotionManner,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  seated,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionManner } from "@automovie/interface";
+import { AutoMovieMotionManner, HumanChain, HumanPerformance, seated } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,8 +28,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_base_manner_presets(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const chair: seated.ISeat = {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: { x: 0, y: seated.popliteal(body), z: -0.1 },
       yaw: 0,
       depth: 0.45,
@@ -53,9 +47,9 @@ export function test_human_motion_base_manner_presets(): void {
       up: number;
     }
     const times = (
-      manner: AutoMovieMotionManner.IManner | undefined,
+      manner: IAutoMovieMotionManner.IManner | undefined,
     ): ITimes => {
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "manners",
         performers: [
           {
@@ -74,8 +68,8 @@ export function test_human_motion_base_manner_presets(): void {
           })
           .rise(manner === undefined ? {} : { manner }).node,
       });
-      const sitting: HumanSegment.ISegment = performance.segments("a")[0]!;
-      const rising: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const sitting: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+      const rising: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
       const down: number =
         sitting.plan.events.find(
           (e: { name: string; share: number }): boolean => e.name === "seated",

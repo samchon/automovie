@@ -1,9 +1,5 @@
-import {
-  IAutoMovieSemanticMask,
-  IAutoMovieSemanticMaskEntry,
-} from "@automovie/interface";
+import { type IAutoMovieSemanticMaskResolution, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
 
-import { IAutoMovieSemanticMaskResolution } from "./IAutoMovieSemanticMaskResolution";
 
 /**
  * Read one rendered colour back to the thing it named, plus everything that

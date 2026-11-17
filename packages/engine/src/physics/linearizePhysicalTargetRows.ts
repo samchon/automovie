@@ -1,8 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-/** Borrowed world transforms for one candidate. */
-type Poses = Readonly<Record<string, P.ITransform>>;
-
+import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePoses } from "@automovie/interface";
 /**
  * Freeze local witnesses once and differentiate only rows affected by the probed joint subtree. Every row remains present, including invariant self distances.
  *
@@ -15,19 +11,19 @@ type Poses = Readonly<Record<string, P.ITransform>>;
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
 export function linearizePhysicalTargetRows(
-  rows: readonly linearizePhysicalTargetRows.IRows[],
-  accepted: Poses,
-): (probe: Poses, moved?: ReadonlySet<string>) => number[] {
-  const models: ((probe: Poses) => number[])[] = rows.map(
-    (row: linearizePhysicalTargetRows.IRows): ((probe: Poses) => number[]) =>
+  rows: readonly IAutoMovieLinearizePhysicalTargetRows.IRows[],
+  accepted: IAutoMoviePoses,
+): (probe: IAutoMoviePoses, moved?: ReadonlySet<string>) => number[] {
+  const models: ((probe: IAutoMoviePoses) => number[])[] = rows.map(
+    (row: IAutoMovieLinearizePhysicalTargetRows.IRows): ((probe: IAutoMoviePoses) => number[]) =>
       row.linearize(accepted),
   );
   const baseline: number[][] = models.map(
-    (model: (probe: Poses) => number[]): number[] => model(accepted),
+    (model: (probe: IAutoMoviePoses) => number[]): number[] => model(accepted),
   );
-  return (probe: Poses, moved?: ReadonlySet<string>): number[] =>
+  return (probe: IAutoMoviePoses, moved?: ReadonlySet<string>): number[] =>
     rows.flatMap(
-      (row: linearizePhysicalTargetRows.IRows, index: number): number[] => {
+      (row: IAutoMovieLinearizePhysicalTargetRows.IRows, index: number): number[] => {
         if (moved === undefined) return models[index]!(probe);
         const affected: string[] = [...row.bones].filter(
           (bone: string): boolean => moved.has(bone),
@@ -38,26 +34,4 @@ export function linearizePhysicalTargetRows(
           : models[index]!(probe);
       },
     );
-}
-
-/**
- * Exact row dependencies are declared by their existing geometric owner.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Exact row dependencies are declared by their existing geometric owner) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Exact row dependencies are declared by their existing geometric owner: companion namespace of 1 member (`IRows`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `linearizePhysicalTargetRows` in packages/engine/src/physics/linearizePhysicalTargetRows.ts; its surface is the 1 member listed and the text shows 5 other files naming it, mostly packages/engine (3), test (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace linearizePhysicalTargetRows {
-  /** One residual group and its call-local witness model. */
-  export interface IRows {
-    /** All candidate bones read by this group. External bodies remain actual. */ bones: ReadonlySet<string>;
-    /** True only for intrinsic same-body separation, invariant under a common rigid motion. */ rigidInvariant?: boolean;
-    /** Exact nonlinear residuals used for acceptance. */ measure: (
-      poses: Poses,
-    ) => number[];
-    /** Frozen local model at an accepted configuration. */ linearize: (
-      poses: Poses,
-    ) => (probe: Poses) => number[];
-  }
 }

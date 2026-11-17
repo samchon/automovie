@@ -1,9 +1,5 @@
-import {
-  AutoMovieComposition,
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import type { IAutoMovieIntent, IAutoMovieResolveSchedule, IAutoMovieSchedule } from "@automovie/interface";
+import { AutoMovieComposition, resolveAutoMovieSchedule } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -36,8 +32,8 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 scenarios and what each pins.
  */
 export function test_composition_schedule_cut(): void {
-  const laws: resolveAutoMovieSchedule.ILaws = {
-    timing: (intent: IAutoMovieIntent): resolveAutoMovieSchedule.ITiming =>
+  const laws: IAutoMovieResolveSchedule.ILaws = {
+    timing: (intent: IAutoMovieIntent): IAutoMovieResolveSchedule.ITiming =>
       intent.capability === "kick"
         ? {
             duration: 2,
@@ -128,7 +124,7 @@ export function test_composition_schedule_cut(): void {
   });
   const both = (
     until: IAutoMovieIntent["until"],
-    l: resolveAutoMovieSchedule.ILaws = laws,
+    l: IAutoMovieResolveSchedule.ILaws = laws,
   ): IAutoMovieSchedule =>
     resolveAutoMovieSchedule(
       AutoMovieComposition.parallel(

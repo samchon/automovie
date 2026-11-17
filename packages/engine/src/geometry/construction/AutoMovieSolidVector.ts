@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
 /**
  * The vector algebra the solid operators share: world vectors in millimetres
  * as fixed triples, and the 3 by 3 and 2 by 2 linear solves their Newton steps
@@ -17,15 +18,6 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidVector {
-  /**
-   * Three Cartesian components: world points use mm; directions use the caller's scale.
-   *
-   * @evidence contracts/development/design.md#principled-representation A fixed triple represents three-dimensional points, displacements and directions in the operator's declared frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The tuple fixes component count without a wrapper allocation or hidden coordinate transform.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type adds no finite-value, unit-length or units guarantee; those depend on the operation and caller.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes physical point units from a direction's supplied scale.
-   */
-  export type Vec3 = [number, number, number];
 
   /**
    * The sum of two vectors.
@@ -42,7 +34,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A componentwise sum has no shared preparation or coordinated effects.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh tuple; neither input is changed or retained.
    */
-  export function add(a: Readonly<Vec3>, b: Readonly<Vec3>): Vec3 {
+  export function add(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
@@ -61,7 +53,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No interval, phase or request preparation is coordinated here.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new tuple and keeps no reference to either operand.
    */
-  export function sub(a: Readonly<Vec3>, b: Readonly<Vec3>): Vec3 {
+  export function sub(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
@@ -80,7 +72,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This scalar operation owns no reusable phase or request state.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned tuple escapes; the supplied vector is read-only.
    */
-  export function scale(a: Readonly<Vec3>, k: number): Vec3 {
+  export function scale(a: Readonly<AutoMovieVector3Tuple>, k: number): AutoMovieVector3Tuple {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
@@ -99,9 +91,9 @@ export namespace AutoMovieSolidVector {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh tuple and retains neither the term list nor its vector references.
    */
   export function combine(
-    terms: readonly (readonly [number, Readonly<Vec3>])[],
-  ): Vec3 {
-    const out: Vec3 = [0, 0, 0];
+    terms: readonly (readonly [number, Readonly<AutoMovieVector3Tuple>])[],
+  ): AutoMovieVector3Tuple {
+    const out: AutoMovieVector3Tuple = [0, 0, 0];
     for (const [k, a] of terms) {
       out[0] += k * a[0];
       out[1] += k * a[1];
@@ -125,7 +117,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No reusable preparation belongs to this scalar inner product.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number without retaining state or inputs.
    */
-  export function dot(a: Readonly<Vec3>, b: Readonly<Vec3>): number {
+  export function dot(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
@@ -144,7 +136,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single cross product coordinates no repeated operation or shared cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh three-number tuple and holds no operand references.
    */
-  export function cross(a: Readonly<Vec3>, b: Readonly<Vec3>): Vec3 {
+  export function cross(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -166,7 +158,7 @@ export namespace AutoMovieSolidVector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A norm reading coordinates no reusable preparation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only a number is returned; no input or handle is retained.
    */
-  export function norm(a: Readonly<Vec3>): number {
+  export function norm(a: Readonly<AutoMovieVector3Tuple>): number {
     return Math.hypot(a[0], a[1], a[2]);
   }
 
@@ -187,7 +179,7 @@ export namespace AutoMovieSolidVector {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes the norm once for all three component divisions.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Null or a caller-owned new triple escapes; no state survives the call.
    */
-  export function unit(a: Readonly<Vec3>): Vec3 | null {
+  export function unit(a: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple | null {
     const l: number = norm(a);
     return l > 0 ? [a[0] / l, a[1] / l, a[2] / l] : null;
   }
@@ -212,11 +204,11 @@ export namespace AutoMovieSolidVector {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporaries die with the synchronous call; a successful solve returns a fresh triple without retaining matrix columns.
    */
   export function solve3(
-    c0: Readonly<Vec3>,
-    c1: Readonly<Vec3>,
-    c2: Readonly<Vec3>,
-    b: Readonly<Vec3>,
-  ): Vec3 | null {
+    c0: Readonly<AutoMovieVector3Tuple>,
+    c1: Readonly<AutoMovieVector3Tuple>,
+    c2: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple | null {
     const det: number = dot(c0, cross(c1, c2));
     const size: number = norm(c0) * norm(c1) * norm(c2);
     if (!(Math.abs(det) > 1e-14 * size)) return null;

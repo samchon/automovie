@@ -1,30 +1,17 @@
-import { AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadNeck, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanHeadNeckScalars } from "@automovie/interface";
 
-import type { IAutoMovieHumanHeadNeck } from "../IAutoMovieHumanHeadNeck";
-import type { AutoMovieHumanHeadNeckCurves } from "./AutoMovieHumanHeadNeckCurves";
+
+
+
+import { AutoMovieViewOutline } from "@automovie/engine";
+
 
 /** Original neck scalar controls and their declared radius-dependent bases, before numerical closure or any point/loft consumer. */
 export namespace AutoMovieHumanHeadNeckScalars {
-  /** One affine lower-neck generating axis, before its scalar controls or either anatomical consumer. */
-  export interface IAxis {
-    /** Original parameter is physical world-Y in calibration mm. */
-    readonly parameter: "physical-Y-mm";
-
-    /** Shared normal-plane origin, calibration mm. */
-    readonly anchor: readonly [number, number, number];
-
-    /** Derivative per physical station mm, including its unit Y component. */
-    readonly first: readonly [number, number, number];
-
-    /** The declared affine primitive has zero second derivative. */
-    readonly second: readonly [number, number, number];
-
-    /** Actual point on the declared lower/normal affine primitive; no completed curve is read. */
-    point(station: number): [number, number, number];
-  }
+  
 
   /** The retained mean/pose coefficients declare this affine lower source, not a Taylor continuation of emitted geometry. */
-  export function axis(neck: Pick<IAutoMovieHumanHeadNeck, "x" | "level" | "backSlope">): IAxis {
+  export function axis(neck: Pick<IAutoMovieHumanHeadNeck, "x" | "level" | "backSlope">): IAutoMovieHumanHeadNeckScalars.IAxis {
     const x: number = neck.x;
     const y: number = neck.level;
     const m: number = neck.backSlope;
@@ -36,36 +23,17 @@ export namespace AutoMovieHumanHeadNeckScalars {
       } };
   }
 
-  /** One call-owned generating family, with prepared immutable bases shared by the constraint owner. */
-  export interface IOutput {
-    /** Actual numeric radius declaration at a selected lower radius. */
-    radius(base: number): IAutoMovieViewPart.IOutline;
-
-    /** Actual physical-station centre, independent of the lower-radius trial. */
-    centre: IAutoMovieViewPart.IOutline;
-
-    /** The identical invariant axis prepared once by this generating owner. */
-    preparedCentre: AutoMovieViewOutline.IOutline;
-
-    /** Original course parameter length, not another tape. */
-    clock: number;
-
-    /** Radius-independent radius ordinate basis. */
-    constant: AutoMovieViewOutline.IOutline;
-
-    /** Radius coefficient of the unknown lower radius. */
-    basis: AutoMovieViewOutline.IOutline;
-  }
+  
 
   /** Author common controls before the radius-dependent side-site/height trial; no external anterior-support estimate constrains front X. */
   export function create(
-    input: AutoMovieHumanHeadNeckCurves.IInputs,
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
     first: number,
     lower: number,
     upper: number,
-  ): IOutput {
+  ): IAutoMovieHumanHeadNeckScalars.IOutput {
     const r: number = input.neck.radius;
-    const affine: IAxis = axis(input.neck);
+    const affine: IAutoMovieHumanHeadNeckScalars.IAxis = axis(input.neck);
     const m: number = affine.first[0];
 
     const axisSpan: number = input.crown - first;
@@ -152,8 +120,8 @@ export namespace AutoMovieHumanHeadNeckScalars {
     // linear in the two original knot ordinates: C(y) + base * B(y).
 
     // These are declared knot bases, not sampled or fitted completed curves.
-    const constant: AutoMovieViewOutline.IOutline = prepare(radius(0, r));
-    const basis: AutoMovieViewOutline.IOutline = prepare(radius(1, 0));
+    const constant: IAutoMovieViewOutline.IOutline = prepare(radius(0, r));
+    const basis: IAutoMovieViewOutline.IOutline = prepare(radius(1, 0));
 
     return { radius, centre, preparedCentre: prepare(centre), clock, constant, basis };
   }
@@ -173,7 +141,7 @@ export namespace AutoMovieHumanHeadNeckScalars {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a caller-owned numeric knot array and retains no callback, prepared source or process.
    */
   export function height(
-    input: AutoMovieHumanHeadNeckCurves.IInputs,
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
     side: number,
   ): IAutoMovieViewPart.IOutline {
     if (!(Number.isFinite(side) && side > 0 && side < Math.PI))
@@ -206,7 +174,7 @@ export namespace AutoMovieHumanHeadNeckScalars {
 }
 
 /** Prepare only the authored scalar; admission failure is not a replacement source. */
-function prepare(outline: IAutoMovieViewPart.IOutline): AutoMovieViewOutline.IOutline {
+function prepare(outline: IAutoMovieViewPart.IOutline): IAutoMovieViewOutline.IOutline {
   const prepared: ReturnType<typeof AutoMovieViewOutline.create> = AutoMovieViewOutline.create(outline);
   if ("detail" in prepared) throw new Error("Neck original source: " + prepared.detail);
   return prepared;

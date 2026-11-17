@@ -1,12 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createCart } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -30,9 +26,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_support_walk_wagon(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
-  const body: IHumanBody = motionHumanBody("m-average");
-  const perform = (speed: number): HumanPerformance => {
-    const motion = (seconds: number): HumanObject.Placement => ({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const perform = (speed: number): IAutoMovieMotionHumanPerformance => {
+    const motion = (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
       at: { x: 0, y: 0, z: speed * seconds },
       yaw: 0,
     });
@@ -54,8 +50,8 @@ export function test_human_motion_support_walk_wagon(): void {
         .node,
     });
   };
-  let moving: HumanPerformance;
-  let still: HumanPerformance;
+  let moving: IAutoMovieMotionHumanPerformance;
+  let still: IAutoMovieMotionHumanPerformance;
   try {
     moving = perform(2);
     still = perform(0);
@@ -74,7 +70,7 @@ export function test_human_motion_support_walk_wagon(): void {
       .every((c) => c.support.kind === "prop"),
   );
   const local = (
-    p: HumanPerformance,
+    p: IAutoMovieMotionHumanPerformance,
     speed: number,
     side: "left" | "right",
     t: number,

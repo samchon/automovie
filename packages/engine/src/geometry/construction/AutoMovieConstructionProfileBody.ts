@@ -1,8 +1,7 @@
-import type { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfile";
+import type { IAutoMovieSolidSurface, IAutoMovieConstructionProfileBody, IAutoMovieConstructionProfileGrid, IAutoMoviePreparedConstructionProfile, IAutoMovieSolidBody, IAutoMovieSolidMesh } from "@automovie/interface";
+
 import { AutoMovieConstructionProfileGrid } from "./AutoMovieConstructionProfileGrid";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Publish original profile charts and authoritative common boundaries to a body.
@@ -19,28 +18,6 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionProfileBody {
-  /**
-   * An actual collapsed endpoint and its existing neighboring regular ring.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: An actual collapsed endpoint and its existing neighboring regular ring.
-   * @evidence contracts/development/design.md#principled-representation Represents An actual collapsed endpoint and its existing neighboring regular ring: interface of 5 members (`surface`, `station`, `regular`, `vertices`, `checks`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IEnd` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileBody.ts; its surface is the 5 members listed and the text shows 25 other files naming it, mostly packages/engine (11), packages/human (8), test (6), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IEnd {
-    /** Original collapsed point belongs to this actual retained surface. */
-    surface: IAutoMovieSolidSurface;
-    /** Actual physical station mm, not the first regular tessellation row. */
-    station: number;
-
-    /** Actual neighboring regular ring station mm; its original cap strip is not a trimmed patch. */
-    regular: number;
-
-    /** Positive native boundary traversal: bottom reverses the loop clock. */
-    vertices: number[];
-    /** One per ring arc: actual retained face and clock for cap trim admission. */
-    checks: { face: number; phase: number; from: number; to: number }[];
-  }
 
   /**
    * Append prepared original faces; the realizing leaf owns rollback on any failure.
@@ -54,14 +31,14 @@ export namespace AutoMovieConstructionProfileBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 21 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function append(
-    body: AutoMovieSolidBody.IBody,
-    prepared: AutoMovieConstructionProfile.IPrepared,
+    body: IAutoMovieSolidBody.IBody,
+    prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
     tolerance: number,
-  ): IEnd[] {
-    const grids: AutoMovieConstructionProfileGrid.IGrid[] =
+  ): IAutoMovieConstructionProfileBody.IEnd[] {
+    const grids: IAutoMovieConstructionProfileGrid.IGrid[] =
       AutoMovieConstructionProfileGrid.create(prepared, tolerance);
     const offset: number = body.faces.length;
-    const result: IEnd[] = [];
+    const result: IAutoMovieConstructionProfileBody.IEnd[] = [];
     for (const grid of grids) {
       const pieces: typeof grid.loop.pieces = grid.loop.pieces;
       const owners: number[] = pieces.map(
@@ -118,7 +95,7 @@ export namespace AutoMovieConstructionProfileBody {
           piece.id,
         )!;
         const phases: number[] = grid.phases.get(piece.id)!;
-        const loops: AutoMovieSolidMesh.ILoop[] = [];
+        const loops: IAutoMovieSolidMesh.ILoop[] = [];
         if (surface.period !== undefined) {
           for (const row of [0, rowCount - 1])
             loops.push({
@@ -173,7 +150,7 @@ export namespace AutoMovieConstructionProfileBody {
         if (grid.loop.pole !== end && grid.loop.pole !== "both") continue;
         const row: number = end === "bottom" ? 0 : rowCount - 1;
         const vertices: number[] = [];
-        const checks: IEnd["checks"] = [];
+        const checks: IAutoMovieConstructionProfileBody.IEnd["checks"] = [];
         for (let i: number = 0; i < pieces.length; i++) {
           const phases: number[] = grid.phases.get(pieces[i]!.id)!;
           for (let j: number = 0; j < phases.length - 1; j++) {

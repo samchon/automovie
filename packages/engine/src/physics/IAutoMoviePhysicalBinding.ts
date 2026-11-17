@@ -1,15 +1,7 @@
-import type {
-  IAutoMovieContactReceipt,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
-import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
+import type { IAutoMoviePhysicalHandoff, IAutoMoviePhysicalProfile, IAutoMoviePhysicalTargetInterval, IAutoMoviePhysicsCache, IAutoMoviePreparePhysicalGeometry, IAutoMovieSamplePhysicalAuthoredTargets, IAutoMovieSolvePhysicalCompliantContacts, IAutoMovieContactReceipt } from "@automovie/interface";
 
-import type { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
-import type { IAutoMoviePhysicalHandoff } from "./IAutoMoviePhysicalHandoff";
-import type { PhysicalTargetInterval } from "./PhysicalTargetInterval";
-import type { preparePhysicalGeometry } from "./preparePhysicalGeometry";
-import type { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
-import type { solvePhysicalCompliantContacts as solveCompliance } from "./solvePhysicalCompliantContacts";
+
+import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
 
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot restore.
@@ -22,7 +14,7 @@ import type { solvePhysicalCompliantContacts as solveCompliance } from "./solveP
 export interface IAutoMoviePhysicalBinding {
   /** Admitted immutable providers shared by fits within this run. */ profiles: Record<
     string,
-    P
+    IAutoMoviePhysicalProfile
   >;
   /** Immobile position-kinematic floor; omitted only while native binding is being constructed. */ floor?: RigidBody;
   /** Scene/body segment keys to live rigid bodies. */ bodies: Map<
@@ -39,7 +31,7 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Outer surfaces eligible for compliant contact, excluding rigid inner cores. */ surfaces: Map<
     number,
-    solveCompliance.ISurface
+    IAutoMovieSolvePhysicalCompliantContacts.ISurface
   >;
   /** Bodies whose persistent motor forces were already cleared on withdrawal. */ released: Set<string>;
   /** Bodies whose declared contact-triggered withdrawal has actually occurred. */ contactReleased: Set<string>;
@@ -51,12 +43,12 @@ export interface IAutoMoviePhysicalBinding {
     string,
     Record<string, IAutoMoviePhysicalHandoff>
   >;
-  /** Actual native ownership transitions, shared with the replay cache. */ ownership: AutoMoviePhysicsCache.IOwnership[];
-  /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: AutoMoviePhysicsCache.ISupportWrench[];
+  /** Actual native ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicsCache.IOwnership[];
+  /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicsCache.ISupportWrench[];
   /** Explicit root-withdrawal quality policies currently applied during protective joint effort. */ reflexQuality: Set<string>;
   /** At most one transient set of recovery motor goals per body and cached interval. */ planned: Map<
     string,
-    PhysicalTargetInterval.IPlan & {
+    IAutoMoviePhysicalTargetInterval.IPlan & {
       rootDrop: number;
       residuals: Record<string, number>;
       fromRootDrop: number;
@@ -64,7 +56,7 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Actual-root support motor targets, rebuilt once per interval and after checkpoint restore. */ supportPlanned: Map<
     string,
-    PhysicalTargetInterval.IPlan
+    IAutoMoviePhysicalTargetInterval.IPlan
   >;
   /** Reused per-body segment maps; no native wrappers escape the run. */ segments: Map<
     string,
@@ -72,15 +64,15 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Joint postorder for linear-work downstream gravity moments. */ gravityOrder: Map<
     string,
-    P.IJoint[]
+    IAutoMoviePhysicalProfile.IJoint[]
   >;
   /** Stable parent-before-child order for coherent authored reconstruction. */ order: Map<
     string,
-    P.ISegment[]
+    IAutoMoviePhysicalProfile.ISegment[]
   >;
   /** Immutable profile parent joints, indexed once per binding. */ jointByChild: Map<
     string,
-    Map<string, P.IJoint>
+    Map<string, IAutoMoviePhysicalProfile.IJoint>
   >;
   /** Exact descendant lists compiled once for related-branch coordinate updates. */ descendants: Map<
     string,
@@ -102,13 +94,13 @@ export interface IAutoMoviePhysicalBinding {
       /** Run-owned segment selection. */ bones: Set<string>;
     }
   >;
-  /** Initialized convex queries shared by collider-relative tracking. */ geometry?: preparePhysicalGeometry.IQueries;
+  /** Initialized convex queries shared by collider-relative tracking. */ geometry?: IAutoMoviePreparePhysicalGeometry.IQueries;
   /** Authored interval coefficients rebuilt from admitted targets after restore. */ authoredTargets: Map<
     string,
-    samplePhysicalAuthoredTargets.IPlan
+    IAutoMovieSamplePhysicalAuthoredTargets.IPlan
   >;
   /** Fitted interval endpoints; native substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
     string,
-    PhysicalTargetInterval.IPlan
+    IAutoMoviePhysicalTargetInterval.IPlan
   >;
 }

@@ -1,13 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSeated, IAutoMovieMotionTarget } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanBody,
-  type IHumanProp,
-  seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance, HumanRefusal, seated } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -18,7 +12,7 @@ interface ICase {
   title: string;
 
   /** The expected class. */
-  kind: HumanRefusal.Kind;
+  kind: IAutoMovieMotionHumanRefusal.Kind;
 
   /** The expected action. */
   act: string;
@@ -30,13 +24,13 @@ interface ICase {
   gap: number;
 
   /** The refused chain of `a`. */
-  refused: HumanChain;
+  refused: IAutoMovieMotionHumanChain;
 
   /** The chain the refusal's fix leads to, read from the refusal itself where it names a value. */
-  repaired: (refusal: HumanRefusal) => HumanChain;
+  repaired: (refusal: IAutoMovieMotionHumanRefusal) => IAutoMovieMotionHumanChain;
 
   /** What else the refusal must carry. */
-  holds: (refusal: HumanRefusal) => boolean;
+  holds: (refusal: IAutoMovieMotionHumanRefusal) => boolean;
 }
 
 /**
@@ -86,17 +80,17 @@ interface ICase {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 scenarios and why a refusal is a contract for its reader.
  */
 export function test_human_motion_refusal_contract(): void {
-  const a: IHumanBody = motionHumanBody("m-average");
-  const b: IHumanBody = motionHumanBody("f-small");
-  const shoulder: AutoMovieMotionTarget = {
+  const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const shoulder: IAutoMovieMotionTarget = {
     kind: "person",
     subject: "b",
     region: "shoulderLeft",
   };
-  const chest: AutoMovieMotionTarget = { kind: "self", region: "sternum" };
+  const chest: IAutoMovieMotionTarget = { kind: "self", region: "sternum" };
 
   // A bottle at hip height within the right hand's reach, with two grips.
-  const bottle: IHumanProp = {
+  const bottle: IAutoMovieMotionHumanProp = {
     subject: "bottle",
     frame: {
       position: {
@@ -145,7 +139,7 @@ export function test_human_motion_refusal_contract(): void {
   };
 
   // A chair under `a`, as high as the popliteal height, 0.1 m behind the heels.
-  const chair = (yaw: number): seated.ISeat => ({
+  const chair = (yaw: number): IAutoMovieMotionHumanSeated.ISeat => ({
     at: {
       x: 0,
       y: seated.popliteal(a),
@@ -154,10 +148,10 @@ export function test_human_motion_refusal_contract(): void {
     yaw,
     depth: 0.45,
   });
-  const alternatives = (refusal: HumanRefusal): readonly string[] =>
+  const alternatives = (refusal: IAutoMovieMotionHumanRefusal): readonly string[] =>
     refusal.feasible?.kind === "alternatives" ? refusal.feasible.values : [];
   const near: number = 0.8 * (a.measure.upperArm + a.measure.forearm);
-  const start = (): HumanChain => HumanChain.subject("a");
+  const start = (): IAutoMovieMotionHumanChain => HumanChain.subject("a");
   // The mouth wiped with the palm, in a hand shape the palm's contact may or
   // may not lie on.
   const wipe = (shape: "relaxed" | "flat") => ({
@@ -308,8 +302,8 @@ export function test_human_motion_refusal_contract(): void {
   const perform = (
     seed: string,
     gap: number,
-    chain: HumanChain,
-  ): HumanPerformance =>
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed,
       performers: [
@@ -331,7 +325,7 @@ export function test_human_motion_refusal_contract(): void {
       props: [bottle],
       composition: chain.node,
     });
-  const refusal = (seed: string, gap: number, chain: HumanChain): unknown => {
+  const refusal = (seed: string, gap: number, chain: IAutoMovieMotionHumanChain): unknown => {
     try {
       perform(seed, gap, chain);
     } catch (error) {

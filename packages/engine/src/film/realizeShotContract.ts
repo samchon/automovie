@@ -1,26 +1,8 @@
-import {
-  IAutoMovieCamera,
-  IAutoMovieCompiledContractRealization,
-  IAutoMovieCompiledFormation,
-  IAutoMovieCompiledFormationHero,
-  IAutoMovieCompiledPredicateResult,
-  IAutoMovieDiagnostic,
-  IAutoMovieFormationChunk,
-  IAutoMovieFormationDesign,
-  IAutoMovieSceneNode,
-  IAutoMovieShotContract,
-  IAutoMovieShotEventContract,
-  IAutoMovieShotParticipant,
-  IAutoMovieShotPredicate,
-  IAutoMovieSubjectBox,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedCamera, type IAutoMovieRealizeShotContract, type IAutoMovieRealizeShotContractProps, type IAutoMovieShotContractSubjectReader, IAutoMovieCamera, IAutoMovieCompiledContractRealization, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationHero, IAutoMovieCompiledPredicateResult, IAutoMovieDiagnostic, IAutoMovieFormationChunk, IAutoMovieFormationDesign, IAutoMovieSceneNode, IAutoMovieShotContract, IAutoMovieShotEventContract, IAutoMovieShotParticipant, IAutoMovieShotPredicate, IAutoMovieSubjectBox, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
-import { IRealizeShotContractProps } from "./IRealizeShotContractProps";
-import { IShotContractSubjectReader } from "./IShotContractSubjectReader";
 import { createShotContractSubjectReader } from "./createShotContractSubjectReader";
 import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
 import { evaluateShotPredicate } from "./evaluateShotPredicate";
@@ -55,11 +37,8 @@ const TRANSFORM_TOLERANCE: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Builds one subject reader per call and shares it across every predicate, event, camera sample and participant check, so object-motion sampling and subject extents computed for one grade are reused by the others; nothing is shared across calls, because each call grades different artifacts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and its caches are owned by this call and released on return; the returned record holds fresh outcome objects plus references to the contract's predicates and copies of resolved camera placements, sized by the contract.
  */
-export function realizeShotContract(props: IRealizeShotContractProps): {
-  realization: IAutoMovieCompiledContractRealization;
-  diagnostics: IAutoMovieDiagnostic[];
-} {
-  const reader: IShotContractSubjectReader =
+export function realizeShotContract(props: IAutoMovieRealizeShotContractProps): IAutoMovieRealizeShotContract.IResult {
+  const reader: IAutoMovieShotContractSubjectReader =
     createShotContractSubjectReader(props);
   const diagnostics: IAutoMovieDiagnostic[] = [];
   function fail(field: string, expectation: string): void {
@@ -282,7 +261,7 @@ function compactFormationPasses(
  * Whether every promoted hero has a scene node within the declared transform comparison tolerance, built from the design's model group.
  */
 function heroesMaterialized(
-  reader: IShotContractSubjectReader,
+  reader: IAutoMovieShotContractSubjectReader,
   design: IAutoMovieFormationDesign,
   formation: IAutoMovieCompiledFormation,
 ): boolean {
@@ -304,8 +283,8 @@ function heroesMaterialized(
  * Grade the live camera at one shot-local second against the contract's required subjects. Without a live camera or a raster the sample fails with a not-a-number depth report.
  */
 function cameraOutcome(
-  props: IRealizeShotContractProps,
-  reader: IShotContractSubjectReader,
+  props: IAutoMovieRealizeShotContractProps,
+  reader: IAutoMovieShotContractSubjectReader,
   time: number,
 ): ICameraOutcome {
   const required: readonly string[] = props.contract.camera.requiredSubjects;
@@ -314,7 +293,7 @@ function cameraOutcome(
       (candidate: IAutoMovieCamera): boolean =>
         candidate.id === props.compiled.shot.camera,
     );
-  const frameFormat: IRealizeShotContractProps["frameFormat"] =
+  const frameFormat: IAutoMovieRealizeShotContractProps["frameFormat"] =
     props.production?.frameFormat ?? props.frameFormat;
   if (camera === undefined || frameFormat === undefined)
     return {

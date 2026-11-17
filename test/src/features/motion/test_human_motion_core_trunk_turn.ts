@@ -1,21 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  getConstraint,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanTrunk,
-  HumanTrunkTurn,
-  type IHumanBody,
-  type IHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, getConstraint } from "@automovie/engine";
+
+import { HumanTrunk, HumanTrunkTurn, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,16 +38,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the posture and the 5 scenarios with their bounds.
  */
 export function test_human_motion_core_trunk_turn(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const base: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-  const posture: IHumanPosture = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const posture: IAutoMovieMotionHumanPosture = {
     ...base,
     joints: { ...base.joints, spine: [10, 3, -4], chest: [10, 3, -4] },
   };
   const complaints: string[] = [];
   const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
   const of = (
-    p: IHumanPosture,
+    p: IAutoMovieMotionHumanPosture,
     bone: "spine" | "chest" | "neck" | "head",
   ): readonly [number, number, number] => p.joints[bone] ?? [0, 0, 0];
   const range = (bone: AutoMovieHumanoidBone): Constraint =>
@@ -72,7 +58,7 @@ export function test_human_motion_core_trunk_turn(): void {
     )!;
 
   // 1. Nothing at a share of 0.
-  const still: IHumanPosture = HumanTrunkTurn.turned(body, posture, 0, "left");
+  const still: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(body, posture, 0, "left");
   for (const bone of ["spine", "chest", "neck", "head"] as const)
     if (JSON.stringify(of(still, bone)) !== JSON.stringify(of(posture, bone)))
       complaints.push(
@@ -86,7 +72,7 @@ export function test_human_motion_core_trunk_turn(): void {
     [0.5, "left", "min", "max"],
     [-0.5, "left", "max", "min"],
   ] as const) {
-    const turned: IHumanPosture = HumanTrunkTurn.turned(
+    const turned: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(
       body,
       posture,
       share,
@@ -110,7 +96,7 @@ export function test_human_motion_core_trunk_turn(): void {
   }
 
   // 4. The neck and the head take it back.
-  const small: IHumanPosture = HumanTrunkTurn.turned(
+  const small: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(
     body,
     posture,
     0.2,
@@ -132,7 +118,7 @@ export function test_human_motion_core_trunk_turn(): void {
         `at a share of 0.2 the neck and the head turn ${head.toFixed(4)} about axis ${axis} against the trunk's ${trunk.toFixed(4)}, its opposite expected`,
       );
   }
-  const whole: IHumanPosture = HumanTrunkTurn.turned(body, posture, 1, "left");
+  const whole: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(body, posture, 1, "left");
   for (const bone of ["neck", "head"] as const) {
     const limits: Constraint = range(bone);
     const got: readonly [number, number, number] = of(whole, bone);

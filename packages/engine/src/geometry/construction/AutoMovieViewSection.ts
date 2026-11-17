@@ -1,19 +1,15 @@
+import type { IAutoMovieCurveLengthMeasurement64, IAutoMoviePolarSector, IAutoMovieQuarters, IAutoMovieViewSection, IAutoMovieViewSectionRange } from "@automovie/interface";
+
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieIllinois } from "./AutoMovieIllinois";
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
 import { AutoMovieViewSectionRange } from "./AutoMovieViewSectionRange";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
-
-/** The four ordered support directions and their corresponding source-quarter records. */
-type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 
 /** Internal measured source; inspection observations are attached only to public results. */
 type Measured = Pick<
-  AutoMovieViewSection.ISection,
+  IAutoMovieViewSection.ISection,
   "box" | "shoulders" | "guides" | "conics" | "girth"
 >;
 
@@ -34,85 +30,6 @@ export namespace AutoMovieViewSection {
   export const ELLIPSE: number = Math.SQRT2 - 1;
 
   /**
-   * The finite positive support half extents about the source axis.
-   *
-   * @evidence contracts/development/design.md#principled-representation Four positive extents identify the support lines at the cardinal chart angles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One tuple carries the four support identities.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No source extent is derived from a mesh or fitted for validity.
-   * @evidence contracts/development/common.md#meaningful-documentation States chart directions and millimetres.
-   */
-  export interface IBox {
-    /** Half extents along +u,+v,-u,-v, millimetres, finite and positive. */
-    extents: Quarters<number>;
-  }
-
-  /**
-   * One source section before periodic phase fitting.
-   *
-   * @evidence contracts/development/design.md#principled-representation The box, original shoulders, shared main jets and admitted rational/corrected source describe the actual section function.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record separates source ownership from quadrature observations and derived girth/diagonals.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Observation knots never replace the actual rational source and no failure is hidden.
-   * @evidence contracts/development/common.md#meaningful-documentation Members name exact inputs, evaluator, observations and derived millimetre measures.
-   */
-  export interface ISection {
-    /** Original source support box. */
-    box: IBox;
-
-    /** Original conic shoulder per quarter. */
-    shoulders: Quarters<number>;
-
-    /** Four exact cardinal guide jets, including shared radial second derivatives. */
-    guides: Quarters<AutoMoviePolarSector.IGuide>;
-
-    /** Quadrature/inspection observations of the actual source, in increasing angle; these do not define an interpolant. */
-    knots: AutoMoviePolarSector.IGuide[];
-
-    /** The actual exact-conic/correction source, including an explicit admission failure. */
-    conics: AutoMovieViewConic.ICurve;
-
-    /** No extra polar bump; quarter fullness belongs to shoulders. */
-    fullness: Quarters<number>;
-
-    /** Numerical taut-tape girth in millimetres; zero in bare and nonfinite on quadrature failure. */
-    girth: number;
-
-    /** Radii along the four original corner directions, derived observations in millimetres. */
-    diagonals: Quarters<number>;
-  }
-
-  /**
-   * Finite admitted common-shoulder reach and its actual source girths.
-   *
-   * @evidence contracts/development/design.md#principled-representation Valid source sections and finite actual-source quadrature define the two returned reach endpoints.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One pair for shoulder and one for girth describe the range.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not claim mathematical reach beyond finite source/quadrature admission.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state shoulder shares and millimetre girths.
-   */
-  export interface IRange {
-    /** Least and greatest admitted common shoulder before quarter departures. */
-    shoulder: [number, number];
-
-    /** Corresponding actual-source girths, millimetres. */
-    girth: [number, number];
-  }
-
-  /**
-   * A section selected by requested girth and any explicit reach diagnostic.
-   *
-   * @evidence contracts/development/design.md#principled-representation The actual source girth selects the common shoulder, while an outside request retains the admitted endpoint with a diagnostic.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One nullable section and diagnostic list represent success and named failure.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Never silently rescales a box or hides an outside-range request.
-   * @evidence contracts/development/common.md#meaningful-documentation States null and retained-endpoint meanings.
-   */
-  export interface ISolved {
-    /** Actual source section, an admitted outside-request endpoint, or null without finite admitted reach/estimate. A nonnull result can retain an unresolved-residual diagnostic. */
-    section: ISection | null;
-
-    /** Explicit reach/source/residual diagnostic; empty only after measured residual admission. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
-
-  /**
    * Shared positive guide curvatures, inverse millimetres.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Each guide uses the smaller of its two rational endpoint curvatures a/(2w^2*b^2), retaining the published guide law.
@@ -124,9 +41,9 @@ export namespace AutoMovieViewSection {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one four-number tuple.
    */
   export function curvatures(
-    box: IBox,
-    shoulders: Quarters<number>,
-  ): Quarters<number> {
+    box: IAutoMovieViewSection.IBox,
+    shoulders: IAutoMovieQuarters<number>,
+  ): IAutoMovieQuarters<number> {
     return AutoMovieViewConic.curvatures(
       AutoMovieConicFieldJet.NUMBER,
       box.extents,
@@ -145,16 +62,16 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the prepared source for every measure.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned section owns its source/observations; scratch is released.
    */
-  export function of(box: IBox, shoulders: Quarters<number>): ISection {
-    const section: ISection = bare(box, shoulders);
-    const e: Quarters<number> = box.extents;
+  export function of(box: IAutoMovieViewSection.IBox, shoulders: IAutoMovieQuarters<number>): IAutoMovieViewSection.ISection {
+    const section: IAutoMovieViewSection.ISection = bare(box, shoulders);
+    const e: IAutoMovieQuarters<number> = box.extents;
     section.diagonals = [0, 1, 2, 3].map(
       (q: number): number =>
         radius(
           section,
           section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!),
         )[0],
-    ) as Quarters<number>;
+    ) as IAutoMovieQuarters<number>;
     section.girth = length(section);
     return section;
   }
@@ -170,12 +87,12 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared source serves all later validity/value/girth consumers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns all returned conic/observation records; no global cache.
    */
-  export function bare(box: IBox, shoulders: Quarters<number>): ISection {
+  export function bare(box: IAutoMovieViewSection.IBox, shoulders: IAutoMovieQuarters<number>): IAutoMovieViewSection.ISection {
     return observations(AutoMovieViewSectionConic.prepare(box, shoulders));
   }
 
   /** Public records retain every original observation, including failed-source numbers. */
-  function observations(value: Measured): ISection {
+  function observations(value: Measured): IAutoMovieViewSection.ISection {
     return {
       box: value.box,
       shoulders: value.shoulders,
@@ -189,16 +106,16 @@ export namespace AutoMovieViewSection {
   }
 
   /** Decorate only a selected public section, retaining its already measured girth. */
-  function completed(value: Measured): ISection {
-    const section: ISection = observations(value);
-    const e: Quarters<number> = value.box.extents;
+  function completed(value: Measured): IAutoMovieViewSection.ISection {
+    const section: IAutoMovieViewSection.ISection = observations(value);
+    const e: IAutoMovieQuarters<number> = value.box.extents;
     section.diagonals = [0, 1, 2, 3].map(
       (q: number): number =>
         radius(
           section,
           section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!),
         )[0],
-    ) as Quarters<number>;
+    ) as IAutoMovieQuarters<number>;
     return section;
   }
 
@@ -219,7 +136,7 @@ export namespace AutoMovieViewSection {
     r: number,
     t: number,
     start: number,
-  ): AutoMoviePolarSector.IGuide {
+  ): IAutoMoviePolarSector.IGuide {
     return AutoMovieConicArc.guide(a, b, r, t, start);
   }
 
@@ -235,9 +152,9 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one three-number jet and retains no query state.
    */
   export function radius(
-    section: ISection,
+    section: IAutoMovieViewSection.ISection,
     phi: number,
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     return AutoMovieViewConic.radius(section.conics, phi);
   }
 
@@ -256,7 +173,7 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one scalar survives the measurement's local scratch.
    */
   export function length(
-    section: ISection,
+    section: IAutoMovieViewSection.ISection,
     axisScale: readonly [number, number] = [1, 1],
   ): number {
     return AutoMovieViewSectionConic.length(section, axisScale);
@@ -274,14 +191,9 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only two returned scalars survive; each measurement releases its bounded local panel stacks.
    */
   export function measure(
-    section: ISection,
+    section: IAutoMovieViewSection.ISection,
     axisScale: readonly [number, number] = [1, 1],
-  ): {
-    /** Finer native-target measurement in source units, normally mm; NaN on numeric refusal. */
-    lengthMm: number;
-    /** Actual absolute difference of the two native estimated targets, not a bound or polar K/2K result. */
-    differenceMm: number;
-  } {
+  ): IAutoMovieCurveLengthMeasurement64 {
     const coarse: number = AutoMovieViewSectionConic.length(section, axisScale);
     const fine: number = AutoMovieViewSectionConic.length(
       section,
@@ -302,7 +214,7 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared quarters serve every diagnostic read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one string or null with no retained query state.
    */
-  export function fault(section: ISection): string | null {
+  export function fault(section: IAutoMovieViewSection.ISection): string | null {
     return AutoMovieViewSectionConic.fault(section);
   }
 
@@ -318,9 +230,9 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary measured-source records are released; the caller owns four scalar bounds.
    */
   export function range(
-    box: IBox,
-    departures: Quarters<number> = [0, 0, 0, 0],
-  ): IRange | null {
+    box: IAutoMovieViewSection.IBox,
+    departures: IAutoMovieQuarters<number> = [0, 0, 0, 0],
+  ): IAutoMovieViewSection.IRange | null {
     return AutoMovieViewSectionRange.create(box, departures);
   }
 
@@ -337,19 +249,19 @@ export namespace AutoMovieViewSection {
    */
   export function solve(
     producer: string,
-    box: IBox,
+    box: IAutoMovieViewSection.IBox,
     girth: number,
-    departures: Quarters<number> = [0, 0, 0, 0],
-  ): ISolved {
-    const e: Quarters<number> = box.extents;
+    departures: IAutoMovieQuarters<number> = [0, 0, 0, 0],
+  ): IAutoMovieViewSection.ISolved {
+    const e: IAutoMovieQuarters<number> = box.extents;
     const W: number = e[0] + e[2];
     const D: number = e[1] + e[3];
-    const family: AutoMovieViewSectionRange.IFamily =
+    const family: IAutoMovieViewSectionRange.IFamily =
       AutoMovieViewSectionRange.nearby(box, departures, girth);
     if (family.accepted !== undefined)
       return { section: completed(family.accepted.source), diagnostics: [] };
     let local: boolean = family.range !== null;
-    let reach: IRange | null = family.range ?? range(box, departures);
+    let reach: IAutoMovieViewSection.IRange | null = family.range ?? range(box, departures);
 
     // Only an admitted local solve may retry through the unchanged complete
     // reach path; original callback exceptions are never caught or replaced.
@@ -384,7 +296,7 @@ export namespace AutoMovieViewSection {
       let localRefusal: boolean = false;
       const r: number | null = AutoMovieIllinois.root(
         (x: number): number => {
-          const trial: AutoMovieViewSectionRange.ITrial = family.at(x);
+          const trial: IAutoMovieViewSectionRange.ITrial = family.at(x);
           if (local && trial.fault !== null) {
             localRefusal = true;
             return NaN;
@@ -403,7 +315,7 @@ export namespace AutoMovieViewSection {
           ? "no finite bracketed shoulder estimate"
           : AutoMovieViewSectionConic.fault(value);
       const residual: number = value === null ? NaN : value.girth - girth;
-      const section: ISection | null = value === null ? null : completed(value);
+      const section: IAutoMovieViewSection.ISection | null = value === null ? null : completed(value);
       const refused: boolean =
         localRefusal ||
         failure !== null ||

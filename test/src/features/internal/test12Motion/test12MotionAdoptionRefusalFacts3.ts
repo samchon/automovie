@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalMotionAdoptionReceipt } from "@automovie/interface";
 import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
 
 import { throwsError } from "../predicates";
@@ -241,7 +242,7 @@ export function test12MotionAdoptionRefusalFacts3(
       "pointerTracksAreRefused",
       (): boolean =>
         throwsError(
-          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
+          (): IAutoMovieExternalMotionAdoptionReceipt =>
             adoptAutoMovieExternalMotion({
               inspection: test12MotionWithTrack(inspection, {
                 channel: {
@@ -263,7 +264,7 @@ export function test12MotionAdoptionRefusalFacts3(
       "scaleTracksAreRefused",
       (): boolean =>
         throwsError(
-          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
+          (): IAutoMovieExternalMotionAdoptionReceipt =>
             adoptAutoMovieExternalMotion({
               inspection: test12MotionWithTrack(inspection, {
                 channel: { kind: "node", node: "node_0", path: "scale" },
@@ -281,7 +282,7 @@ export function test12MotionAdoptionRefusalFacts3(
       "weightTracksAreRefused",
       (): boolean =>
         throwsError(
-          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
+          (): IAutoMovieExternalMotionAdoptionReceipt =>
             adoptAutoMovieExternalMotion({
               inspection: test12MotionWithTrack(inspection, {
                 channel: { kind: "node", node: "node_0", path: "weights" },

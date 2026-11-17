@@ -1,5 +1,9 @@
-import type { IAutoMovieHumanEar } from "../structures/head/IAutoMovieHumanEar";
-import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
+import type { AutoMovieHumanSex as AutoMovieHumanSexType, IAutoMovieHumanEar, IAutoMovieHumanEarPlace, IAutoMovieHumanHeadIdentity } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
@@ -29,7 +33,7 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  */
 export namespace AutoMovieHumanEarPlace {
   /** The line on the ear length, women and men, mm. */
-  export const ABOVE_TRAGION_ON_LENGTH: readonly [{ readonly a: number; readonly b: number }, { readonly a: number; readonly b: number }] = [
+  export const ABOVE_TRAGION_ON_LENGTH: IAutoMovieHumanEarPlace.AboveTragionOnLength = [
     { a: 6.96, b: 0.3645 },
     { a: 8.12, b: 0.3673 },
   ];
@@ -49,7 +53,7 @@ export namespace AutoMovieHumanEarPlace {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A scalar affine expression coordinates no cross-request or effectful work.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows one module coefficient pair and returns a scalar without retaining the input ear.
    */
-  export function aboveTragion(ear: IAutoMovieHumanEar, sex: AutoMovieHumanSex): number {
+  export function aboveTragion(ear: IAutoMovieHumanEar, sex: AutoMovieHumanSexType): number {
     const fit: { readonly a: number; readonly b: number } = ABOVE_TRAGION_ON_LENGTH[sex === AutoMovieHumanSex.Female ? 0 : 1];
     return fit.a + fit.b * ear.length;
   }
@@ -62,7 +66,7 @@ export namespace AutoMovieHumanEarPlace {
    * published source found: `test_human_estimate_nasion_ear` reads -0.0996
    * (SD 0.0068) and -0.1406 (SD 0.0215) on eight ears of four people.
    */
-  export const FORWARD: { readonly front: number; readonly centre: number } = { front: -0.0996, centre: -0.1406 };
+  export const FORWARD: IAutoMovieHumanEarPlace.IForward = { front: -0.0996, centre: -0.1406 };
 
   /**
    * The concha's depth inside the rim per ear protrusion. Estimated from the
@@ -85,7 +89,7 @@ export namespace AutoMovieHumanEarPlace {
    * @evidence contracts/performance.md#reuse-equivalent-work Reads the one fixed FORWARD record; this currently unused conversion retains no input-dependent result cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh caller-owned two-number object; the helper retains neither it nor the head input.
    */
-  export function forward(head: IAutoMovieHumanHeadIdentity): { front: number; centre: number } {
+  export function forward(head: IAutoMovieHumanHeadIdentity): IAutoMovieHumanEarPlace.IForwardResult {
     return { front: FORWARD.front * head.length, centre: FORWARD.centre * head.length };
   }
 

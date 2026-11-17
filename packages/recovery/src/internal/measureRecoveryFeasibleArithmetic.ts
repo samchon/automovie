@@ -1,10 +1,7 @@
-import {
-  type IAutoMovieSimplexAtom,
-  type IAutoMovieSimplexMinimum,
-  adjacentAutoMovieFloat64,
-} from "@automovie/engine";
+import type { IAutoMovieRecoveryFeasibleArithmetic, IAutoMovieSimplexAtom, IAutoMovieSimplexMinimum } from "@automovie/interface";
+import { adjacentAutoMovieFloat64 } from "@automovie/engine";
 
-import type { IAutoMovieRecoveryFeasibleArithmetic } from "../structures/internal/IAutoMovieRecoveryFeasibleArithmetic";
+
 
 /**
  * Bound stored-dual reconstruction separately from actual returned-row error.

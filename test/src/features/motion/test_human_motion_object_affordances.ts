@@ -1,20 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createCar, createDrinkware, createSeat } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -64,14 +52,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_object_affordances(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const perform = (
-    composition: HumanChain,
+    composition: IAutoMovieMotionHumanChain,
     at: { x: number; y: number; z: number },
     yaw: number,
-    props: HumanPerformance.IInput["props"] = [],
-  ): HumanPerformance =>
+    props: IAutoMovieMotionHumanPerformance.IInput["props"] = [],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "object",
       props,
@@ -97,7 +85,7 @@ export function test_human_motion_object_affordances(): void {
     at: { x: 0.3, y: 0, z: -0.45 },
     yaw: 30,
   };
-  const seat: seated.ISeat = HumanObject.seat(chair, where);
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(chair, where);
   const placed: IAutoMovieTransform = chair.placed("seat", {
     translation: where.at,
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, where.yaw),
@@ -120,7 +108,7 @@ export function test_human_motion_object_affordances(): void {
 
   // 2. The body ends on it, facing its way. It starts with the ankles 0.2 m ahead of the front edge.
   const radians: number = (where.yaw * Math.PI) / 180;
-  const sat: HumanPerformance = perform(
+  const sat: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.subject("a").sit({ seat }),
     {
       x: seat.at.x + 0.2 * Math.sin(radians),
@@ -151,7 +139,7 @@ export function test_human_motion_object_affordances(): void {
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const prop: IHumanProp = HumanObject.prop("glass", glass, {
+  const prop: IAutoMovieMotionHumanProp = HumanObject.prop("glass", glass, {
     at: { x: 0.15, y: 0.9, z: 0.4 },
     yaw: 0,
   });
@@ -160,7 +148,7 @@ export function test_human_motion_object_affordances(): void {
     sorted(Object.keys(prop.points)),
     sorted((glass.affordances ?? []).map((a): string => a.id)),
   );
-  const taken: HumanPerformance = perform(
+  const taken: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.subject("a").pickUp({ prop: "glass", handle: "body" }),
     { x: 0, y: 0, z: 0 },
     0,
@@ -285,7 +273,7 @@ export function test_human_motion_object_affordances(): void {
     got !== undefined &&
     Math.hypot(got.x - expected.x, got.y - expected.y, got.z - expected.z) <=
       1e-9;
-  const saddle: seated.ISeat = HumanObject.seat(
+  const saddle: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     {
       affordances: [
         contact("saddle", "seat", { x: 0, y: 0.9, z: 0 }, { astride: true }),
@@ -307,7 +295,7 @@ export function test_human_motion_object_affordances(): void {
     complaints.push(
       `a saddle with three stirrups turned 90 degrees reads astride ${saddle.astride} and rests ${JSON.stringify(saddle.footrests)}; astride with the nearest stirrup of each side at (1.1, 0.4, 1.7) on the left and (1.1, 0.4, 2.3) on the right expected`,
     );
-  const stool: seated.ISeat = HumanObject.seat(
+  const stool: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     {
       affordances: [
         contact("top", "seat", { x: 0, y: 0.75, z: 0 }),

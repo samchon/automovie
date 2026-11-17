@@ -1,9 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanBend,
-  HumanFrame,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanBend, HumanFrame } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -79,7 +76,7 @@ export function test_motion_compose_bend_presets(): void {
   );
 
   // 2. The bend point.
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const length: number = body.measure.upperArm;
   const root: IAutoMovieVector3 = { x: 0.4, y: 0.02, z: -0.7 };
   for (const side of ["left", "right"] as const) {
@@ -91,7 +88,7 @@ export function test_motion_compose_bend_presets(): void {
           body,
           { root, yaw },
           side,
-          name as AutoMovieMotionHumanBend.Arm,
+          name as IAutoMovieMotionHumanBend.Arm,
           0.2,
         );
         const want: IAutoMovieVector3 = HumanFrame.point(
@@ -110,7 +107,7 @@ export function test_motion_compose_bend_presets(): void {
 
     // 3. The turn.
     const s: IAutoMovieVector3 = shoulder;
-    const props: AutoMovieMotionHumanBend.ISolve = {
+    const props: IAutoMovieMotionHumanBend.ISolve = {
       body,
       posture: { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
       side,

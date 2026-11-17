@@ -1,19 +1,8 @@
+import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAudit,
-  HumanChain,
-  HumanHand,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+
+import { AutoMovieMotionHumanAudit, HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -51,13 +40,13 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPickUpStep(name: motionHumanBody.Name): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const perform = (at: IAutoMovieVector3 | null): HumanPerformance =>
+  const perform = (at: IAutoMovieVector3 | null): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "step",
       props:
@@ -80,7 +69,7 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
     error instanceof Error ? error.message : String(error);
 
   // The standing right shoulder.
-  const still: HumanPerformance = perform(null);
+  const still: IAutoMovieMotionHumanPerformance = perform(null);
   const shoulder: IAutoMovieVector3 = HumanSignature.joint(
     HumanSignature.of(still, "a", body, 0),
     0,
@@ -103,20 +92,20 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
     const at: IAutoMovieVector3 = placed(
       arm + socket + body.measure.stature / 8,
     );
-    const film: HumanPerformance = perform(at);
-    const pick: HumanSegment.ISegment = film.segments("a")[0]!;
+    const film: IAutoMovieMotionHumanPerformance = perform(at);
+    const pick: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[0]!;
     const lifted: number = film.prop("glass", pick.end).position.y - at.y;
     if (!(lifted >= 0.05))
       complaints.push(
         `${name}: the glass ends ${(lifted * 1000).toFixed(0)} mm above where it stood, at least 50 expected`,
       );
-    const plants = (part: "leftFoot" | "rightFoot"): IHumanContactWindow[] =>
+    const plants = (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] =>
       pick.plan.contacts.filter(
-        (c: IHumanContactWindow): boolean =>
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.part === part && c.kind === "plant",
       );
-    const right: IHumanContactWindow[] = plants("rightFoot");
-    const left: IHumanContactWindow[] = plants("leftFoot");
+    const right: IAutoMovieMotionHumanContactWindow[] = plants("rightFoot");
+    const left: IAutoMovieMotionHumanContactWindow[] = plants("leftFoot");
     if (
       right.length === 1 &&
       right[0]!.from <= 1e-6 &&
@@ -162,7 +151,7 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
         speed: null,
         balance: null,
       },
-    }).findings.filter((f: AutoMovieMotionHumanAudit.IFinding): boolean =>
+    }).findings.filter((f: IAutoMovieMotionHumanAudit.IFinding): boolean =>
       /Foot|Toes/.test(f.where),
     ))
       complaints.push(

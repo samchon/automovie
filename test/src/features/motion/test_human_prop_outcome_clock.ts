@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieProjectile,
-  projectileAt,
-  projectileFirstContact,
-} from "@automovie/engine";
-import {
-  HumanPropOutcome,
-  HumanRefusal,
-  type IHumanProp,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropOutcome, IAutoMovieProjectile, IAutoMovieProjectileFirstContact } from "@automovie/interface";
+import { projectileAt, projectileFirstContact } from "@automovie/engine";
+import { HumanPropOutcome, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -47,7 +40,7 @@ export function test_human_prop_outcome_clock(): void {
     velocity: { x: 0, y: -1, z: 0 },
     gravity: { x: 0, y: 0, z: 0 },
   };
-  const prop: IHumanProp = {
+  const prop: IAutoMovieMotionHumanProp = {
     subject: "clock sphere",
     frame: {
       position: { x: 0, y: 0, z: 0 },
@@ -74,11 +67,11 @@ export function test_human_prop_outcome_clock(): void {
     time: number,
     height?: number,
     normal?: number,
-  ) => HumanPropOutcome.IMeeting = (
+  ) => IAutoMovieMotionHumanPropOutcome.IMeeting = (
     time: number,
     height: number = -time,
     normal: number = 1,
-  ): HumanPropOutcome.IMeeting => ({
+  ): IAutoMovieMotionHumanPropOutcome.IMeeting => ({
     hit: {
       time,
       point: { x: 0, y: height, z: 0 },
@@ -92,7 +85,7 @@ export function test_human_prop_outcome_clock(): void {
 
   /** Settlement is a real returned contact record, never a foreign-method replacement. */
   const settle: Input["settle"] = (
-    met: HumanPropOutcome.IMeeting,
+    met: IAutoMovieMotionHumanPropOutcome.IMeeting,
     p: IAutoMovieProjectile,
   ): ReturnType<Input["settle"]> => {
     settlements++;
@@ -117,7 +110,7 @@ export function test_human_prop_outcome_clock(): void {
     meeting: meeting(first),
     horizon,
     settle,
-    meet: (): HumanPropOutcome.IMeeting | null => {
+    meet: (): IAutoMovieMotionHumanPropOutcome.IMeeting | null => {
       sweeps++;
       if (sweeps > 1 && next !== undefined)
         throw new Error("invalid callback repeated without clock refusal");
@@ -182,7 +175,7 @@ export function test_human_prop_outcome_clock(): void {
   sweeps = 0;
   settlements = 0;
   const floor: Input = input(0, 2);
-  const ground: projectileFirstContact.ICollider = projectileFirstContact.plane(
+  const ground: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
     "floor",
     { x: 0, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
@@ -208,7 +201,7 @@ export function test_human_prop_outcome_clock(): void {
       collider: ground.id,
       struck: { kind: "ground" },
     };
-  floor.meet = (p: IAutoMovieProjectile): HumanPropOutcome.IMeeting | null => {
+  floor.meet = (p: IAutoMovieProjectile): IAutoMovieMotionHumanPropOutcome.IMeeting | null => {
     sweeps++;
     if (sweeps > 1)
       throw new Error("departing floor contact repeated without refusal");
@@ -228,9 +221,9 @@ export function test_human_prop_outcome_clock(): void {
   sweeps = 0;
   settlements = 0;
   const valid: Input = input(0.25, 2);
-  valid.meet = (): HumanPropOutcome.IMeeting | null =>
+  valid.meet = (): IAutoMovieMotionHumanPropOutcome.IMeeting | null =>
     ++sweeps === 1 ? meeting(0.5, 0.25, -1) : null;
-  const legs: HumanPropOutcome.ILeg[] = HumanPropOutcome.legs(valid);
+  const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(valid);
   if (
     legs.length !== 2 ||
     !nclose(legs[0]?.from ?? NaN, 0.25, 0) ||

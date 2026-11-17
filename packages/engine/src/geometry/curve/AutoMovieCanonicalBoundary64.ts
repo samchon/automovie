@@ -1,3 +1,4 @@
+import type { IAutoMovieCanonicalBoundary64, IAutoMovieCanonicalBoundaryPhase64 } from "@automovie/interface";
 /**
  * Exact normalized boundary phases and atomic interval incidence in binary64.
  * Phase keys preserve the exact dyadic affine combination before display rounding.
@@ -10,25 +11,6 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieCanonicalBoundary64 {
-  /**
-   * One authority's directed normalized interval; finite endpoints lie in [0,1]
-   * and differ. Authority is a nonempty caller-owned identity, not a position.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two normalized endpoints describe an oriented restriction of one named boundary.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This structural record separates authority identity from phase arithmetic.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Numeric coincidence supplies no authority identity.
-   * @evidence contracts/development/common.md#meaningful-documentation States endpoint range, directed order and caller-owned identity.
-   */
-  export type Interval = {
-    /** Nonempty caller-owned boundary identity, independent of numeric coincidence. */
-    authority: string;
-
-    /** Finite initial canonical phase in [0,1]; directed order is preserved. */
-    start: number;
-
-    /** Finite terminal canonical phase in [0,1], distinct from start. */
-    end: number;
-  };
 
   /**
    * An integer times a power of two, normalized to an odd numerator or zero.
@@ -56,7 +38,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     start: number,
     end: number,
     t: number,
-  ): { value: number; key: string } {
+  ): IAutoMovieCanonicalBoundaryPhase64 {
     admit(start, end);
     unit(t);
     const a: Dyadic = decode(start),
@@ -95,7 +77,7 @@ export namespace AutoMovieCanonicalBoundary64 {
   export function local(
     start: number,
     end: number,
-    q: { value: number; key: string },
+    q: IAutoMovieCanonicalBoundaryPhase64,
   ): number {
     admit(start, end);
     unit(q.value);
@@ -137,8 +119,8 @@ export namespace AutoMovieCanonicalBoundary64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a signed scalar escapes; parsed BigInts are call-local.
    */
   export function compare(
-    a: { value: number; key: string },
-    b: { value: number; key: string },
+    a: IAutoMovieCanonicalBoundaryPhase64,
+    b: IAutoMovieCanonicalBoundaryPhase64,
   ): -1 | 0 | 1 {
     const x: Dyadic = parse(a.key),
       y: Dyadic = parse(b.key);
@@ -168,9 +150,9 @@ export namespace AutoMovieCanonicalBoundary64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one local scalar escapes; the fixed eight-byte DataView and phase brackets are call-local, with no retained callback or cache.
    */
   export function inverse(
-    forward: (local: number) => ReturnType<typeof phase>,
-    target: ReturnType<typeof phase>,
-    anchors: readonly { local: number; phase: ReturnType<typeof phase> }[],
+    forward: (local: number) => IAutoMovieCanonicalBoundaryPhase64,
+    target: IAutoMovieCanonicalBoundaryPhase64,
+    anchors: IAutoMovieCanonicalBoundary64.IInverseAnchors,
   ): number {
     if (
       anchors.length < 2 ||
@@ -211,13 +193,13 @@ export namespace AutoMovieCanonicalBoundary64 {
     let low: bigint = view.getBigUint64(0, false);
     view.setFloat64(0, last.local, false);
     let high: bigint = view.getBigUint64(0, false);
-    let loPhase: ReturnType<typeof phase> = first.phase,
-      hiPhase: ReturnType<typeof phase> = last.phase;
+    let loPhase: IAutoMovieCanonicalBoundaryPhase64 = first.phase,
+      hiPhase: IAutoMovieCanonicalBoundaryPhase64 = last.phase;
     while (high - low > 1n) {
       const middle: bigint = (low + high) >> 1n;
       view.setBigUint64(0, middle, false);
       const local: number = view.getFloat64(0, false),
-        mapped: ReturnType<typeof phase> = forward(local);
+        mapped: IAutoMovieCanonicalBoundaryPhase64 = forward(local);
       if (
         compare(mapped, loPhase) * direction < 0 ||
         compare(mapped, hiPhase) * direction > 0
@@ -266,23 +248,8 @@ export namespace AutoMovieCanonicalBoundary64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local maps expire on return or failure; returned atoms/diagnostics scale with declared interval incidences and are caller-owned, with no global cache or native resource.
    */
   export function partition(
-    uses: readonly {
-      id: string;
-      authority: string;
-      start: number;
-      end: number;
-      walk: 1 | -1;
-    }[],
-  ): {
-    atoms: {
-      authority: string;
-      start: number;
-      end: number;
-      uses: string[];
-      walks: (1 | -1)[];
-    }[];
-    diagnostics: string[];
-  } {
+    uses: IAutoMovieCanonicalBoundary64.IPartitionUses,
+  ): IAutoMovieCanonicalBoundary64.IPartitionResult {
     const ids: Set<string> = new Set(),
       groups: Map<
         string,
@@ -317,7 +284,7 @@ export namespace AutoMovieCanonicalBoundary64 {
       });
       events.get(hi)!.remove.push(use.id);
     }
-    const atoms: ReturnType<typeof partition>["atoms"] = [],
+    const atoms: IAutoMovieCanonicalBoundary64.IPartitionResult["atoms"] = [],
       diagnostics: string[] = [];
     for (const authority of [...groups.keys()].sort(lexical)) {
       const events: NonNullable<ReturnType<typeof groups.get>> =

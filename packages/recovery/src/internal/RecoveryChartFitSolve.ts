@@ -1,11 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoxSolve, IAutoMovieRecoveryChartFitPrepare, IAutoMovieRecoveryChartFitSolve, IAutoMovieRecoveryChartFitSystem } from "@automovie/interface";
+
+
 
 import { RecoveryChartBoxSolve as S } from "./RecoveryChartBoxSolve";
-import type { RecoveryChartFit } from "./RecoveryChartFit";
-import type { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";
-import type { RecoveryChartFitSystem } from "./RecoveryChartFitSystem";
-
-type Input = RecoveryChartFit.Input;
 
 /**
  * Solve the normalized box problem and reconstruct the original coefficient registry.
@@ -19,19 +16,10 @@ type Input = RecoveryChartFit.Input;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Solver arrays and controls belong to this fit; no alternative solve or cached initialization is retained.
  */
 export function RecoveryChartFitSolve(
-  input: Input,
-  prepared: ReturnType<typeof RecoveryChartFitPrepare>,
-  system: ReturnType<typeof RecoveryChartFitSystem>,
-): {
-  lo: [number, number, number];
-  hi: [number, number, number];
-  solved: ReturnType<typeof S>;
-  x: Float64Array;
-  iterations: number;
-  projectedGradient: number;
-  controls: C.Vector[];
-  dependentEnclosureViolationMm: number;
-} {
+  input: Parameters<IAutoMovieRecoveryChartFitSolve.Operation>[0],
+  prepared: Parameters<IAutoMovieRecoveryChartFitSolve.Operation>[1],
+  system: Parameters<IAutoMovieRecoveryChartFitSolve.Operation>[2],
+): ReturnType<IAutoMovieRecoveryChartFitSolve.Operation> {
   const {
     finite,
     lower,
@@ -39,13 +27,11 @@ export function RecoveryChartFitSolve(
     origin,
     scale,
     slots,
-    reduced,
-  }: ReturnType<typeof RecoveryChartFitPrepare> = prepared;
+    reduced }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
   const {
     hessian,
     rhs,
-    diagnostics,
-  }: ReturnType<typeof RecoveryChartFitSystem> = system;
+    diagnostics }: ReturnType<IAutoMovieRecoveryChartFitSystem.Operation> = system;
   const lo: [number, number, number] = [
     (lower[0] - origin[0]!) / scale,
     (lower[1] - origin[1]!) / scale,
@@ -58,7 +44,7 @@ export function RecoveryChartFitSolve(
   ];
   const initialValues: number[] | undefined = input.initialControlsMm
     ? reduced.independent.flatMap((id: number): number[] => {
-        const point: C.Vector | undefined = input.initialControlsMm![id];
+        const point: Readonly<AutoMovieVector3Tuple> | undefined = input.initialControlsMm![id];
         if (!point || !finite(point))
           throw new Error(
             "Prolonged initialization must address every independent coefficient finitely",
@@ -77,7 +63,7 @@ export function RecoveryChartFitSolve(
     for (let id: number = 0; id < reduced.expressions.length; id++) {
       const expression: (typeof reduced.expressions)[number] =
         reduced.expressions[id]!;
-      const point: C.Vector | undefined = input.initialControlsMm[id];
+      const point: Readonly<AutoMovieVector3Tuple> | undefined = input.initialControlsMm[id];
       if (!point || !finite(point))
         throw new Error("Every prolonged coefficient must be finite");
       const reconstructed: number[] = expression.constant.map(
@@ -106,7 +92,7 @@ export function RecoveryChartFitSolve(
         "Prolonged field is incompatible with the new coefficient relations at the declared tolerance",
       );
   }
-  const solved: ReturnType<typeof S> = S({
+  const solved: ReturnType<IAutoMovieRecoveryChartBoxSolve.Operation> = S({
     hessian: hessian.map((row: Map<number, number>): [number, number][] => [
       ...row,
     ]),
@@ -115,13 +101,12 @@ export function RecoveryChartFitSolve(
     upper: hi,
     maxIterations: input.maxIterations,
     gradientTolerance: input.gradientTolerance,
-    initialValues,
-  });
+    initialValues });
   const x: Float64Array = solved.values,
     iterations: number = solved.iterations,
     projectedGradient: number = solved.projectedGradient;
-  const controls: C.Vector[] = input.controls.map(
-    (p: C.Vector | null, id: number): C.Vector =>
+  const controls: Readonly<AutoMovieVector3Tuple>[] = input.controls.map(
+    (p: Readonly<AutoMovieVector3Tuple> | null, id: number): Readonly<AutoMovieVector3Tuple> =>
       p === null
         ? ([0, 1, 2].map((k: number): number =>
             reduced.expressions[id]!.terms.reduce(
@@ -134,10 +119,10 @@ export function RecoveryChartFitSolve(
           ) as [number, number, number])
         : [...p],
   );
-  if (controls.some((p: C.Vector): boolean => !finite(p)))
+  if (controls.some((p: Readonly<AutoMovieVector3Tuple>): boolean => !finite(p)))
     throw new Error("The fitted coefficient registry became nonfinite");
   const dependentEnclosureViolationMm: number = controls.reduce(
-    (maximum: number, point: C.Vector): number =>
+    (maximum: number, point: Readonly<AutoMovieVector3Tuple>): number =>
       Math.max(
         maximum,
         ...point.map((value: number, k: number): number =>
@@ -159,6 +144,5 @@ export function RecoveryChartFitSolve(
     iterations,
     projectedGradient,
     controls,
-    dependentEnclosureViolationMm,
-  };
+    dependentEnclosureViolationMm };
 }

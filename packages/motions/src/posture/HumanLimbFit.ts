@@ -1,31 +1,13 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  Quaternion,
-  Vector3,
-  fitSeededChainToTarget,
-  resolvePose,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitSeededChainToTarget, resolvePose } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
-import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
 import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
 import { HumanLimbMirror } from "./HumanLimbMirror";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
 /**
@@ -74,7 +56,7 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function chain(limb: IHumanPosture.Limb): IChain {
+  export function chain(limb: IAutoMovieMotionHumanPosture.Limb): IChain {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     return limb.endsWith("Arm")
       ? {
@@ -122,11 +104,11 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function world(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
-  ): IHumanPosture.IGoal {
+    limb: IAutoMovieMotionHumanPosture.Limb,
+    goal: IAutoMovieMotionHumanPosture.IGoal,
+  ): IAutoMovieMotionHumanPosture.IGoal {
     const on: AutoMovieHumanoidBone | undefined = goal.on;
     if (on === undefined) return goal;
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
@@ -179,7 +161,7 @@ export namespace HumanLimbFit {
    * it too; two arms with goals that ride neither are fitted as one coupled
    * problem (`HumanLimbPair`), each first on its own with the other only a
    * coming wrist (`rival`). An arm keeps clear of the
-   * other bodies its goal names (`IHumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
+   * other bodies its goal names (`HumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
    * A left limb is fitted as the right limb in the mirror image of its world
    * (the pose, the goal, the colliders it keeps clear of and the other arm)
    * and mirrored back, so a mirrored posture's fit is the mirror of the
@@ -210,10 +192,10 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    attached: IHumanPosture.IGoal,
+    limb: IAutoMovieMotionHumanPosture.Limb,
+    attached: IAutoMovieMotionHumanPosture.IGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
@@ -232,12 +214,12 @@ export namespace HumanLimbFit {
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
-    const goal: IHumanPosture.IGoal = world(body, pose, limb, attached);
+    const goal: IAutoMovieMotionHumanPosture.IGoal = world(body, pose, limb, attached);
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
     // whatever the hint or the hand's turn prefer.
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
+    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] | null = limb.endsWith("Arm")
       ? HumanArmClearance.obstacles(
           body,
           poseBones(body, pose),
@@ -369,10 +351,10 @@ export namespace HumanLimbFit {
    * @returns The pose with the limb fitted, and the seed that continues it.
    */
   export function remembered(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: IAutoMovieMotionHumanPosture.Limb,
+    goal: IAutoMovieMotionHumanPosture.IGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
@@ -394,7 +376,7 @@ export namespace HumanLimbFit {
    * @param goal The goal.
    * @returns Its mirror image.
    */
-  export function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
+  export function reflected(goal: IAutoMovieMotionHumanPosture.IGoal): IAutoMovieMotionHumanPosture.IGoal {
     return HumanLimbMirror.goal(goal);
   }
   /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
@@ -418,10 +400,10 @@ export namespace HumanLimbFit {
 
   /** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given, continued from `near` when one is given. */
   function once(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: IAutoMovieMotionHumanPosture.Limb,
+    goal: IAutoMovieMotionHumanPosture.IGoal,
     obstruction?: IObstruction,
     near?: IAutoMovieSwivelNear,
   ): IAutoMovieSeededChainFit {
@@ -435,7 +417,7 @@ export namespace HumanLimbFit {
       abduction: of[1],
       twist: of[2],
     });
-    // An elbow left to the body (`IHumanPosture.IGoal.elbow`) takes, among the
+    // An elbow left to the body (`HumanPosture.IGoal.elbow`) takes, among the
     // swivels whose hand error is least, the one of least strain the fit's own
     // sweep reads (`AutoMovieMotionHumanBend.strainOf`), task first (Nakamura;
     // Siciliano and Slotine 1991); a continued fit keeps its seed's side.

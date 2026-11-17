@@ -1,8 +1,11 @@
-import type { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+import type {
+  IAutoMovieClip,
+  IAutoMovieExternalMotionInspection,
+  IAutoMovieExternalMotionNodeInspection,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "../AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
-import type { IAutoMovieExternalMotionInspection } from "../IAutoMovieExternalMotionInspection";
-import type { IAutoMovieExternalMotionNodeInspection } from "../IAutoMovieExternalMotionNodeInspection";
 import type { IAccessorSource } from "./IAccessorSource";
 import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 import { inspectExternalMotionNodes } from "./inspectExternalMotionNodes";

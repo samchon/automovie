@@ -1,6 +1,7 @@
+import type { IAutoMovieComposition, IAutoMovieMotionHumanGunCrew, IAutoMovieAffordance } from "@automovie/interface";
 import { createCannon } from "@automovie/archetypes";
-import type { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieAffordance } from "@automovie/interface";
+
+
 import { HumanGunCrew } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +30,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_gun_crew_order(): void {
-  const roles: HumanGunCrew.IRoles = {
+  const roles: IAutoMovieMotionHumanGunCrew.IRoles = {
     gunner: "g",
     n1: "a",
     n2: "b",
@@ -37,7 +38,7 @@ export function test_human_motion_gun_crew_order(): void {
     n4: "d",
     n5: "e",
   };
-  const drill: AutoMovieComposition = HumanGunCrew.drill(roles, {
+  const drill: IAutoMovieComposition = HumanGunCrew.drill(roles, {
     gun: "gun",
     rammer: "rammer",
     charge: "charge",
@@ -61,15 +62,15 @@ export function test_human_motion_gun_crew_order(): void {
     "parallel",
   );
   if (drill.kind !== "parallel") return;
-  const parts: readonly AutoMovieComposition[] = drill.parts;
+  const parts: readonly IAutoMovieComposition[] = drill.parts;
   TestValidator.equals("twelve duties", parts.length, 12);
 
   // Each part is one chain of one duty, or one synced to an instant.
-  const intent = (node: AutoMovieComposition) => {
-    const inner: AutoMovieComposition =
+  const intent = (node: IAutoMovieComposition) => {
+    const inner: IAutoMovieComposition =
       node.kind === "sequence" ? node.parts.at(-1)! : node;
     const at = inner.kind === "at" ? inner : undefined;
-    const leaf: AutoMovieComposition = at === undefined ? inner : at.part;
+    const leaf: IAutoMovieComposition = at === undefined ? inner : at.part;
     return {
       at,
       intent: leaf.kind === "intent" ? leaf.intent : undefined,

@@ -1,25 +1,6 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  fitChainToTarget,
-  indexSkeletonTopology,
-  jointRomOvershoot,
-  resolvePose,
-  rotationBetween,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitChainToTarget, indexSkeletonTopology, jointRomOvershoot, resolvePose, rotationBetween } from "@automovie/engine";
+
 
 /**
  * The trunk with two T-posed arms and the readings

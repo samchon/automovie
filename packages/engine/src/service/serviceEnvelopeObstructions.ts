@@ -1,8 +1,5 @@
-import {
-  IAutoMoviePropBox,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
-} from "@automovie/interface";
+import { type IAutoMovieServiceEnvelopeObstructions, IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
+
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
@@ -26,13 +23,7 @@ import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each obstruction box asks a different access query and no mutable node-placement cache is stored here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Filtered node aliases and temporary bounds are released on return; only a fresh id array belongs to the caller.
  */
-export const serviceEnvelopeObstructions: (props: {
-  network: IAutoMovieServiceNetwork;
-  bounds: IAutoMoviePropBox;
-}) => string[] = (props: {
-  network: IAutoMovieServiceNetwork;
-  bounds: IAutoMoviePropBox;
-}): string[] =>
+export const serviceEnvelopeObstructions: (props: IAutoMovieServiceEnvelopeObstructions.IProps) => string[] = (props: IAutoMovieServiceEnvelopeObstructions.IProps): string[] =>
   props.network.nodes
     .filter((node: IAutoMovieServiceNode): boolean => {
       const envelope: IAutoMoviePropBox | null = serviceMaintenanceBounds(node);

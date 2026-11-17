@@ -1,7 +1,12 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark, IAutoMovieInspectionKindStyle, IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+
+
+
+
+
 
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
-import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
+
 
 /**
  * List what the colours of a picture's marks mean: each drawn kind once, with the number of its marks drawn in its colour, and for each kind with flagged marks one entry in the flag colour, labelled `<label> (flagged)`, with their number.
@@ -18,7 +23,7 @@ import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLege
  */
 export function legendAutoMovieInspectionMarks(
   marks: readonly IAutoMovieMark[],
-  kinds: ReadonlyMap<string, { label: string; color: number }>,
+  kinds: ReadonlyMap<string, IAutoMovieInspectionKindStyle>,
 ): IAutoMovieInspectionLegendEntry[] {
   const counts: Map<string, { plain: number; flagged: number }> = new Map<
     string,

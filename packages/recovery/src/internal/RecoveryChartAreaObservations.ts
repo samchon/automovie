@@ -1,6 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartAreaObservations, IAutoMovieRecoveryChartFit, IAutoMovieRecoveryChartPhysicalJet } from "@automovie/interface";
 
-import type { RecoveryChartFit as J } from "./RecoveryChartFit";
+
+
+
 import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
 
 /**
@@ -24,22 +26,7 @@ import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Tensor knots, fixed Gauss abscissas and each clipped polygon are reused for all child samples; source positions are evaluated affinely rather than refitted.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One clipped polygon is transient; the caller owns at most maxObservations returned rows, and all source references expire after the call.
  */
-export function RecoveryChartAreaObservations(input: {
-  verticesMm: readonly C.Vector[];
-  triangles: readonly (readonly [number, number, number])[];
-  parameters: readonly (readonly number[])[];
-  u: readonly number[];
-  v: readonly number[];
-  rectangles?: readonly (readonly [number, number, number, number])[];
-  maxObservations: number;
-  physicalGradientLengthMm?: number;
-}): {
-  observations: J.Input["observations"][number][];
-  sourceAreaMm2: number;
-  integratedAreaMm2: number;
-  children: number;
-  maximumRelativeAreaDiscrepancy: number;
-} {
+export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecoveryChartAreaObservations.Operation>[0]): ReturnType<IAutoMovieRecoveryChartAreaObservations.Operation> {
   if (
     !Number.isSafeInteger(input.maxObservations) ||
     input.maxObservations < 49 ||
@@ -126,7 +113,7 @@ export function RecoveryChartAreaObservations(input: {
     if (previous !== 1)
       throw new Error("Observation rectangles leave an uncovered stripe");
   }
-  type Vertex = { uv: [number, number]; point: C.Vector };
+  type Vertex = { uv: [number, number]; point: Readonly<AutoMovieVector3Tuple> };
   const nodes: readonly number[] = [
     0.025446043828620757, 0.12923440720030277, 0.2970774243113014, 0.5,
     0.7029225756886985, 0.8707655927996972, 0.9745539561713792,
@@ -136,10 +123,10 @@ export function RecoveryChartAreaObservations(input: {
     0.2089795918367347, 0.19091502525255946, 0.1398526957446383,
     0.06474248308443485,
   ];
-  const area: (a: C.Vector, b: C.Vector, c: C.Vector) => number = (
-    a: C.Vector,
-    b: C.Vector,
-    c: C.Vector,
+  const area: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, c: Readonly<AutoMovieVector3Tuple>) => number = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    c: Readonly<AutoMovieVector3Tuple>,
   ): number => {
     const x: number[] = b.map(
         (value: number, k: number): number => value - a[k]!,
@@ -187,13 +174,12 @@ export function RecoveryChartAreaObservations(input: {
           point: [0, 1, 2].map(
             (k: number): number =>
               a.point[k]! + t * (b.point[k]! - a.point[k]!),
-          ) as [number, number, number],
-        });
+          ) as [number, number, number] });
       }
     }
     return output;
   };
-  const observations: J.Input["observations"][number][] = [];
+  const observations: IAutoMovieRecoveryChartFit.Input["observations"][number][] = [];
   let sourceAreaMm2: number = 0,
     integratedAreaMm2: number = 0,
     children: number = 0,
@@ -203,7 +189,7 @@ export function RecoveryChartAreaObservations(input: {
       if (!Number.isSafeInteger(id) || id < 0 || id >= input.verticesMm.length)
         throw new Error("Private source triangle address is invalid");
       const uv: readonly number[] = input.parameters[id]!,
-        point: C.Vector = input.verticesMm[id]!;
+        point: Readonly<AutoMovieVector3Tuple> = input.verticesMm[id]!;
       if (
         uv.length !== 2 ||
         uv.some(
@@ -247,14 +233,13 @@ export function RecoveryChartAreaObservations(input: {
         minimum[1]! >= v1
       )
         continue;
-      const physicalJet: ReturnType<typeof P> | undefined =
+      const physicalJet: ReturnType<IAutoMovieRecoveryChartPhysicalJet.Operation> | undefined =
         input.physicalGradientLengthMm
           ? P({
               pointsMm: [source[0]!.point, source[1]!.point, source[2]!.point],
               parameters: [source[0]!.uv, source[1]!.uv, source[2]!.uv],
               bounds: [u0, u1, v0, v1],
-              lengthMm: input.physicalGradientLengthMm,
-            })
+              lengthMm: input.physicalGradientLengthMm })
           : undefined;
       let polygon: Vertex[] = clip(source, 0, u0, true);
       polygon = clip(polygon, 0, u1, false);
@@ -288,7 +273,7 @@ export function RecoveryChartAreaObservations(input: {
                 beta * (b.uv[axis]! - a.uv[axis]!) +
                 gamma * (c.uv[axis]! - a.uv[axis]!),
             );
-            const pointMm: C.Vector = [0, 1, 2].map(
+            const pointMm: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
               (axis: number): number =>
                 a.point[axis]! +
                 beta * (b.point[axis]! - a.point[axis]!) +
@@ -306,8 +291,7 @@ export function RecoveryChartAreaObservations(input: {
               v: (uv[1]! - v0) / (v1 - v0),
               pointMm,
               weight,
-              physicalJet,
-            });
+              physicalJet });
           }
       }
     }
@@ -331,6 +315,5 @@ export function RecoveryChartAreaObservations(input: {
     sourceAreaMm2,
     integratedAreaMm2,
     children,
-    maximumRelativeAreaDiscrepancy,
-  };
+    maximumRelativeAreaDiscrepancy };
 }

@@ -1,13 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanVerdicts,
-  type IHumanBody,
-  type walk,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieMotionHumanWalkParams, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanSignature, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -59,10 +52,10 @@ export function motionWalkFacing(
   name: motionHumanBody.Name,
   which: "back" | "side" | "arc" | "about",
 ): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const perform = (params: walk.IParams): HumanPerformance =>
+  const perform = (params: IAutoMovieMotionHumanWalkParams): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "facing",
       performers: [
@@ -83,7 +76,7 @@ export function motionWalkFacing(
   const centre: IAutoMovieVector3 = at(0, 1.5);
   const walks: {
     label: string;
-    params: walk.IParams;
+    params: IAutoMovieMotionHumanWalkParams;
     faces: (root: IAutoMovieVector3) => number;
   }[] = [
     {
@@ -124,7 +117,7 @@ export function motionWalkFacing(
         about: "",
       }[which],
   )) {
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(one.params);
     } catch (error) {
@@ -133,13 +126,13 @@ export function motionWalkFacing(
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       0,
     );
-    const segment: HumanSegment.ISegment = performance.segments("a")[0]!;
+    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
     durations[one.label] = segment.end - segment.entryTime;
 
     // 1. It arrives.
@@ -188,7 +181,7 @@ export function motionWalkFacing(
     // 3. The feet keep the floor: the shipped verdicts read no foot slide,
     // lift or sink.
     for (const finding of HumanVerdicts.of(performance).findings.filter(
-      (f: HumanVerdicts.IFinding): boolean =>
+      (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         f.check === "slip" || f.check === "lift" || f.check === "floor",
     ))
       complaints.push(
@@ -202,7 +195,7 @@ export function motionWalkFacing(
   // 5. Backward against forward.
   if (which === "back")
     try {
-      const forward: HumanSegment.ISegment = perform({ to: at(0, 2) }).segments(
+      const forward: IAutoMovieMotionHumanSegment.ISegment = perform({ to: at(0, 2) }).segments(
         "a",
       )[0]!;
       const ratio: number =

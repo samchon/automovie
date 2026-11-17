@@ -1,14 +1,6 @@
-import {
-  Quaternion,
-  type AutoMoviePhysicalSimulation as Simulation,
-  physicalSupportPoint,
-  setPhysicalTargetJointRotation,
-  warmPhysicalSupportTargets,
-} from "@automovie/engine";
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMovieFootfallPattern, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import { Quaternion, physicalSupportPoint, setPhysicalTargetJointRotation, warmPhysicalSupportTargets } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
@@ -31,7 +23,7 @@ import { vclose } from "../internal/vclose";
  */
 export function test_physical_support_redundancy(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(profile, 1 / 120);
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(profile, 1 / 120);
   const limb: IAutoMovieFootfallPattern["limbs"][number] =
     body.balance!.pattern.limbs.find(
       (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>

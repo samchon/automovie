@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanF1Frames, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 import { AutoMovieHumanF1Frames, AutoMovieHumanF1Joints as J, AutoMovieHumanF1Landmarks as L, AutoMovieHumanSegmentFrame as F } from "@automovie/human";
 
 /**
@@ -30,8 +31,8 @@ export function test_human_f1_frames(): void {
     const error: number = Math.max(...a.map((x: number, i: number): number => Math.abs(x - b[i]!)));
     if (!(error <= limit)) failures.push(`${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`);
   };
-  const segments: AutoMovieHumanF1Frames.ISegment[] = AutoMovieHumanF1Frames.segments();
-  const byName: Map<string, AutoMovieHumanF1Frames.ISegment> = new Map(segments.map((s: AutoMovieHumanF1Frames.ISegment): [string, AutoMovieHumanF1Frames.ISegment] => [s.name, s]));
+  const segments: IAutoMovieHumanF1Frames.ISegment[] = AutoMovieHumanF1Frames.segments();
+  const byName: Map<string, IAutoMovieHumanF1Frames.ISegment> = new Map(segments.map((s: IAutoMovieHumanF1Frames.ISegment): [string, IAutoMovieHumanF1Frames.ISegment] => [s.name, s]));
 
   // 1: parents first, and the named segments.
   const seen: Set<string> = new Set();
@@ -47,14 +48,14 @@ export function test_human_f1_frames(): void {
 
   // 2: orthonormal and right-handed.
   for (const s of segments) {
-    const [x, y, z]: [F.V3, F.V3, F.V3] = s.frame.axes;
+    const [x, y, z]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] = s.frame.axes;
     near(s.name + " unit", [F.dot(x, x), F.dot(y, y), F.dot(z, z)], [1, 1, 1]);
     near(s.name + " square", [F.dot(x, y), F.dot(y, z), F.dot(z, x)], [0, 0, 0]);
     near(s.name + " triple product", [F.dot(x, F.cross(y, z))], [1]);
   }
 
   // 3: origins on the joints.
-  const origins: [string, F.V3][] = [
+  const origins: [string, AutoMovieVector3Tuple][] = [
     ["thorax", L.suprasternale],
     ["head", [L.tragion[0], L.tragion[1], 0]],
     ["humerus", J.upperarm],
@@ -77,10 +78,10 @@ export function test_human_f1_frames(): void {
   for (const [name, point] of origins) if (byName.has(name)) near(name + " origin", byName.get(name)!.frame.origin, point, 0);
 
   // 4: the chain returns the reference, and identity rotations give the neutral body.
-  const joints: F.IJoint[] = AutoMovieHumanF1Frames.joints();
-  const reference: Map<string, F.IFrame> = AutoMovieHumanF1Frames.world((): undefined => undefined);
+  const joints: IAutoMovieHumanSegmentFrame.IJoint[] = AutoMovieHumanF1Frames.joints();
+  const reference: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = AutoMovieHumanF1Frames.world((): undefined => undefined);
   for (const s of segments) {
-    const got: F.IFrame | undefined = reference.get(s.name);
+    const got: IAutoMovieHumanSegmentFrame.IFrame | undefined = reference.get(s.name);
     if (got === undefined) {
       failures.push(`${s.name}: not returned by the chain`);
       continue;
@@ -88,29 +89,29 @@ export function test_human_f1_frames(): void {
     near(s.name + " reference origin", got.origin, s.frame.origin, tolerance);
     for (let k: number = 0; k < 3; ++k) near(s.name + " reference axis " + "XYZ"[k], got.axes[k]!, s.frame.axes[k]!);
   }
-  const neutral: Map<string, F.IFrame> = AutoMovieHumanF1Frames.world((name: string): F.M3 | undefined => (name === "pelvis" ? undefined : F.IDENTITY));
-  const pelvis: F.IFrame = byName.get("pelvis")!.frame;
+  const neutral: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = AutoMovieHumanF1Frames.world((name: string): IAutoMovieHumanSegmentFrame.M3 | undefined => (name === "pelvis" ? undefined : F.IDENTITY));
+  const pelvis: IAutoMovieHumanSegmentFrame.IFrame = byName.get("pelvis")!.frame;
   for (const joint of joints) {
-    const got: F.IFrame = neutral.get(joint.name)!;
+    const got: IAutoMovieHumanSegmentFrame.IFrame = neutral.get(joint.name)!;
     for (let k: number = 0; k < 3; ++k) near(joint.name + " neutral axis " + "XYZ"[k], got.axes[k]!, pelvis.axes[k]!);
     if (joint.parent !== null) near(joint.name + " neutral offset", F.toLocal(neutral.get(joint.parent)!, got.origin), joint.offset, tolerance);
   }
 
   // 5: the twin.
-  const D: F.M3 = [[1, 0, 0], [0, 1, 0], [0, 0, -1]];
+  const D: IAutoMovieHumanSegmentFrame.M3 = [[1, 0, 0], [0, 1, 0], [0, 0, -1]];
   for (const joint of joints) {
     if (joint.parent === null) continue;
-    const child: F.IFrame = F.mirror(byName.get(joint.name)!.frame);
-    const parent: F.IFrame = F.mirror(byName.get(joint.parent)!.frame);
+    const child: IAutoMovieHumanSegmentFrame.IFrame = F.mirror(byName.get(joint.name)!.frame);
+    const parent: IAutoMovieHumanSegmentFrame.IFrame = F.mirror(byName.get(joint.parent)!.frame);
     near(joint.name + " twin triple product", [F.dot(child.axes[0], F.cross(child.axes[1], child.axes[2]))], [1]);
     near(joint.name + " twin rotation", F.relative(parent, child).rotation.flat(), F.multiply(F.multiply(D, joint.rotation), D).flat());
   }
 
   // 6: the rules return the stored chain.
-  const ruled: F.IJoint[] = F.chain(segments);
+  const ruled: IAutoMovieHumanSegmentFrame.IJoint[] = F.chain(segments);
   near("chain length", [ruled.length], [joints.length], 0);
-  ruled.forEach((joint: F.IJoint, i: number): void => {
-    const stored: F.IJoint | undefined = joints[i];
+  ruled.forEach((joint: IAutoMovieHumanSegmentFrame.IJoint, i: number): void => {
+    const stored: IAutoMovieHumanSegmentFrame.IJoint | undefined = joints[i];
     if (stored === undefined || stored.name !== joint.name || stored.parent !== joint.parent) {
       failures.push(`${joint.name}: the stored chain holds ${stored?.name ?? "nothing"} under ${stored?.parent ?? "none"} there`);
       return;

@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryRegularizationUpdate } from "../structures/image/IAutoMovieRecoveryRegularizationUpdate";
+import type { IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
+
 
 /**
  * React to one selected increment using its undamped computed agreement.
@@ -36,8 +37,7 @@ export function updateRecoveryRegularization(
         ? predictedDecrease
         : null,
     ratio: null,
-    factor: null,
-  };
+    factor: null };
   if (
     !(
       result.actualDecrease !== null &&

@@ -1,8 +1,6 @@
-import type { AutoMovieConstructionRealization } from "./AutoMovieConstructionRealization";
+import type { IAutoMovieConstructionCurve, IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionRealization, IAutoMovieSampleConstructionCurves } from "@automovie/interface";
+
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
-import type { IAutoMovieConstructionCurve } from "./IAutoMovieConstructionCurve";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Sample the construction lines of every lofted chain of a realization as polylines in metres: its section rings, its four guide rails and its axis, so an inspection can draw what a form was built from.
@@ -31,10 +29,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  */
 export function sampleAutoMovieConstructionCurves(
   realization: Pick<
-    AutoMovieConstructionRealization.IRealization,
+    IAutoMovieConstructionRealization.IRealization,
     "chains" | "surfaces" | "diagnostics"
   >,
-  options?: { phases?: number; steps?: number },
+  options?: IAutoMovieSampleConstructionCurves.IOptions,
 ): IAutoMovieConstructionCurve[] {
   /** Samples per ring. */
   const phases: number = options?.phases ?? 48;

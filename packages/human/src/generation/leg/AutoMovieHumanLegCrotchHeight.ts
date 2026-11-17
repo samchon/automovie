@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanLegCrotchHeight } from "@automovie/interface";
+
 /**
  * The crotch's height from the inseam's definition: ISO 8559-1 5.7.6 defines
  * the inside leg length as the vertical distance from the crotch to the outer
@@ -11,14 +13,7 @@
  * under on m2.
  */
 export namespace AutoMovieHumanLegCrotchHeight {
-  /** What the crotch height is placed from. */
-  export interface IInput {
-    /** Inseam, calibration mm: the body control, the specimen's when unknown. */
-    inseam: number;
-
-    /** Lateral malleolus height, calibration mm: the feet's `ankleHeight` inputs, the mean of the two sides. */
-    ankleHeight: number;
-  }
+  
 
   /**
    * The crotch height.
@@ -27,7 +22,7 @@ export namespace AutoMovieHumanLegCrotchHeight {
    * @returns Crotch height above the floor, calibration mm.
    * @throws {Error} When either input is not positive.
    */
-  export function of(input: IInput): number {
+  export function of(input: IAutoMovieHumanLegCrotchHeight.IInput): number {
     if (!(input.inseam > 0) || !(input.ankleHeight > 0))
       throw new Error("The crotch height needs a positive inseam and ankle height");
 

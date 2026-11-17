@@ -1,16 +1,6 @@
-import {
-  type IAutoMovieEnvelopeAssembly,
-  type IAutoMovieEnvelopeRequest,
-  analyzeAutoMovieEnvelope,
-} from "@automovie/engine";
-import type {
-  AutoMovieAnalysisDomain,
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisRun,
-  IAutoMovieAnalysisSample,
-  IAutoMovieAnalysisWarning,
-  IAutoMovieEnvironmentContext,
-} from "@automovie/interface";
+import type { IAutoMovieEnvelopeAssembly, IAutoMovieEnvelopeRequest, AutoMovieAnalysisDomain, IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieEnvironmentContext } from "@automovie/interface";
+import { analyzeAutoMovieEnvelope } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { analysisContext } from "./analysisFixtures";

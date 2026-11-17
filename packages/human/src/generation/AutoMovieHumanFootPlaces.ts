@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFootPlaces } from "@automovie/interface";
+
 /**
  * The standing foot's observed yaw, ankle skin-loop place, dorsum heights
  * and toe skin reaches ({@link TOES}, from `test_human_estimate_sites`).
@@ -45,7 +47,7 @@ export namespace AutoMovieHumanFootPlaces {
   /**
    * Dorsum height per body-X span, at projected shares from heel X.
    */
-  export const FOREFOOT: readonly { readonly share: number; readonly height: number }[] = [
+  export const FOREFOOT: IAutoMovieHumanFootPlaces.Forefoot = [
     { share: 0.6, height: 0.1704 },
     { share: 0.7, height: 0.1002 },
     { share: 0.8, height: 0.0827 },
@@ -122,7 +124,7 @@ export namespace AutoMovieHumanFootPlaces {
    * construction proxy. Combining the along maximum and first-loop across
    * mean gives a generated apex proxy, not an observed three-dimensional tip.
    */
-  export const TOES: readonly { readonly tip: number; readonly across: number }[] = [
+  export const TOES: IAutoMovieHumanFootPlaces.Toes = [
     { tip: 0.9681, across: 0.0072 },
     { tip: 0.9782, across: 0.1119 },
     { tip: 0.9354, across: 0.1639 },

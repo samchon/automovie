@@ -1,13 +1,16 @@
-import type { IAutoMovieHumanSeam } from "../../lofting/IAutoMovieHumanSeam";
-import type { IAutoMovieHumanWeb } from "./IAutoMovieHumanWeb";
-import type { IAutoMovieHumanWebCrests } from "./IAutoMovieHumanWebCrests";
-import type { IAutoMovieHumanWebInput } from "./IAutoMovieHumanWebInput";
+import type { AutoMovieVector3Tuple, IAutoMovieArcLengthJet, IAutoMovieHumanWeb, IAutoMovieHumanWebCrests, IAutoMovieHumanWebInput } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, plus: add, scale, dot, norm, unit }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { leaving, H }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
 
@@ -34,7 +37,7 @@ export namespace AutoMovieHumanWebCrest {
     // first and second derivatives by the one-sided three-point rule, the jet
     // a column copies so it leaves the parent G2 (`AutoMovieHumanSeam`, J1).
     const deepParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(parent, sp + (down ? 2 * H : -2 * H));
-    const parentJet = (t: number): IAutoMovieHumanSeam.IArcJet => leaving(onParent(t), inParent(t), deepParent(t), -1);
+    const parentJet = (t: number): IAutoMovieArcLengthJet => leaving(onParent(t), inParent(t), deepParent(t), -1);
 
     // The webs: every pair of pinches two children part at.
     const webs: Map<string, IAutoMovieHumanWeb> = new Map();

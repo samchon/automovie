@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieSweepSurface,
-  compileAutoMovieSweep,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSweepSurface, IAutoMovieVector3 } from "@automovie/interface";
+import { compileAutoMovieSweep } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepGirthTube } from "../internal/sweepGirthTube";

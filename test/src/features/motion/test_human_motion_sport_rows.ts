@@ -1,16 +1,8 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRefusal, IAutoMovieVector3 } from "@automovie/interface";
 import { createBall } from "@automovie/archetypes";
 import { AutoMovieGravity, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSport,
-  HumanSportThrow,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSport, HumanSportThrow } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertSportSprintStart } from "../internal/assertSportSprintStart";
@@ -70,13 +62,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the eight numbered scenarios with their bounds and sources.
  */
 export function test_human_motion_sport_rows(): void {
-  const rows = (lexicon: object): IHumanActionLaw<never>[] =>
+  const rows = (lexicon: object): IAutoMovieMotionHumanActionLaw<never>[] =>
     Object.values(lexicon).filter(
-      (value: unknown): value is IHumanActionLaw<never> =>
+      (value: unknown): value is IAutoMovieMotionHumanActionLaw<never> =>
         typeof value === "object" && value !== null && "plan" in value,
     );
-  const sport: IHumanActionLaw<never>[] = rows(HumanSport);
-  const thrown: IHumanActionLaw<never>[] = rows(HumanSportThrow);
+  const sport: IAutoMovieMotionHumanActionLaw<never>[] = rows(HumanSport);
+  const thrown: IAutoMovieMotionHumanActionLaw<never>[] = rows(HumanSportThrow);
 
   // 1. Families and names.
   const sportFamilies: ReadonlySet<string> = new Set([
@@ -115,50 +107,50 @@ export function test_human_motion_sport_rows(): void {
   );
 
   // 2. The shipped kinds.
-  const kinds: [IHumanActionLaw<never>, string, string][] = [
-    [HumanSport.sprintStart as IHumanActionLaw<never>, "athletics", ""],
-    [HumanSport.handstand as IHumanActionLaw<never>, "gymnastics", ""],
+  const kinds: [IAutoMovieMotionHumanActionLaw<never>, string, string][] = [
+    [HumanSport.sprintStart as IAutoMovieMotionHumanActionLaw<never>, "athletics", ""],
+    [HumanSport.handstand as IAutoMovieMotionHumanActionLaw<never>, "gymnastics", ""],
     [
-      HumanSport.horseStance as IHumanActionLaw<never>,
+      HumanSport.horseStance as IAutoMovieMotionHumanActionLaw<never>,
       "martialArt",
       "horseStance",
     ],
     [
-      HumanSport.karatePunches as IHumanActionLaw<never>,
+      HumanSport.karatePunches as IAutoMovieMotionHumanActionLaw<never>,
       "martialArt",
       "chokuZuki",
     ],
     [
-      HumanSport.taiChiPush as IHumanActionLaw<never>,
+      HumanSport.taiChiPush as IAutoMovieMotionHumanActionLaw<never>,
       "martialArt",
       "taiChiPush",
     ],
-    [HumanSport.dribble as IHumanActionLaw<never>, "ballSport", "dribble"],
-    [HumanSport.volleyDig as IHumanActionLaw<never>, "ballSport", "dig"],
-    [HumanSport.volleySet as IHumanActionLaw<never>, "ballSport", "set"],
-    [HumanSport.throwIn as IHumanActionLaw<never>, "ballSport", "throwIn"],
+    [HumanSport.dribble as IAutoMovieMotionHumanActionLaw<never>, "ballSport", "dribble"],
+    [HumanSport.volleyDig as IAutoMovieMotionHumanActionLaw<never>, "ballSport", "dig"],
+    [HumanSport.volleySet as IAutoMovieMotionHumanActionLaw<never>, "ballSport", "set"],
+    [HumanSport.throwIn as IAutoMovieMotionHumanActionLaw<never>, "ballSport", "throwIn"],
     [
-      HumanSport.catcherCrouch as IHumanActionLaw<never>,
+      HumanSport.catcherCrouch as IAutoMovieMotionHumanActionLaw<never>,
       "baseball",
       "catcherCrouch",
     ],
     [
-      HumanSport.fieldGrounder as IHumanActionLaw<never>,
+      HumanSport.fieldGrounder as IAutoMovieMotionHumanActionLaw<never>,
       "baseball",
       "groundBall",
     ],
     [
-      HumanSport.battingStance as IHumanActionLaw<never>,
+      HumanSport.battingStance as IAutoMovieMotionHumanActionLaw<never>,
       "baseball",
       "battingStance",
     ],
     [
-      HumanSport.readyPosition as IHumanActionLaw<never>,
+      HumanSport.readyPosition as IAutoMovieMotionHumanActionLaw<never>,
       "racket",
       "readyPosition",
     ],
-    [HumanSport.splitStep as IHumanActionLaw<never>, "racket", "splitStep"],
-    [HumanSport.golfAddress as IHumanActionLaw<never>, "racket", "golfAddress"],
+    [HumanSport.splitStep as IAutoMovieMotionHumanActionLaw<never>, "racket", "splitStep"],
+    [HumanSport.golfAddress as IAutoMovieMotionHumanActionLaw<never>, "racket", "golfAddress"],
   ];
   for (const [law, family, kind] of kinds) {
     TestValidator.equals(
@@ -178,8 +170,8 @@ export function test_human_motion_sport_rows(): void {
   const ball = createBall({ kind: "handball" });
   for (const name of ["m-average", "f-small"] as const)
     for (const level of ["novice", "elite"] as const) {
-      const body: IHumanBody = motionHumanBody(name);
-      let performance: HumanPerformance;
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "pitch",
@@ -233,11 +225,11 @@ export function test_human_motion_sport_rows(): void {
 
   const complaints: string[] = [];
   const solo = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     level: "novice" | "elite",
-    law: IHumanActionLaw<never>,
+    law: IAutoMovieMotionHumanActionLaw<never>,
     params: object,
-  ): HumanPerformance | string => {
+  ): IAutoMovieMotionHumanPerformance | string => {
     try {
       return new HumanPerformance({
         seed: "sport",
@@ -265,7 +257,7 @@ export function test_human_motion_sport_rows(): void {
   for (const name of ["f-small", "m-large"] as const)
     for (const level of ["novice", "elite"] as const)
       for (const [law] of kinds) {
-        const built: HumanPerformance | string = solo(
+        const built: IAutoMovieMotionHumanPerformance | string = solo(
           motionHumanBody(name),
           level,
           law,
@@ -281,11 +273,11 @@ export function test_human_motion_sport_rows(): void {
   // 7 and 8. A throw-in of a football.
   const football = createBall({ kind: "football" });
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const target: IAutoMovieVector3 = { x: 0, y: 0, z: 15 };
     const throwIn = (
       at: IAutoMovieVector3 | undefined,
-    ): HumanPerformance | string | HumanRefusal => {
+    ): IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal => {
       try {
         return new HumanPerformance({
           seed: "throwIn",
@@ -317,7 +309,7 @@ export function test_human_motion_sport_rows(): void {
         return error instanceof Error ? error.message : String(error);
       }
     };
-    const built: HumanPerformance | string | HumanRefusal = throwIn(target);
+    const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = throwIn(target);
     if (!(built instanceof HumanPerformance))
       complaints.push(
         `${name} throw-in: expected to plan, got ${built instanceof HumanRefusal ? built.message : built}`,
@@ -357,7 +349,7 @@ export function test_human_motion_sport_rows(): void {
             `${name} throw-in: the path passes ${((height - target.y) * 1000).toFixed(1)} mm off the target, within 10 mm expected`,
           );
       }
-      const feet = (seconds: number): ReturnType<HumanPerformance["bones"]> =>
+      const feet = (seconds: number): ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =>
         built.bones("a", seconds);
       for (const side of ["left", "right"] as const) {
         const from: IAutoMovieVector3 = feet(placed.start).get(
@@ -373,7 +365,7 @@ export function test_human_motion_sport_rows(): void {
           );
       }
     }
-    const refused: HumanPerformance | string | HumanRefusal =
+    const refused: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal =
       throwIn(undefined);
     if (
       !(

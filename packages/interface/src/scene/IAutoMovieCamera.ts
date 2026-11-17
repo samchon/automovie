@@ -1,6 +1,6 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieCameraClearanceEnvelope } from "./IAutoMovieCameraClearanceEnvelope";
-import { IAutoMovieCameraDepthPrecisionConstraint } from "./IAutoMovieCameraDepthPrecisionConstraint";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieCameraClearanceEnvelope } from "./IAutoMovieCameraClearanceEnvelope";
+import type { IAutoMovieCameraDepthPrecisionConstraint } from "./IAutoMovieCameraDepthPrecisionConstraint";
 
 /**
  * A perspective camera: the viewpoint a frame is rendered from.

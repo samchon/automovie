@@ -1,9 +1,9 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import { type IAutoMovieResolvedPhysicalVertices, type IAutoMovieViolationCollector, IAutoMovieMesh } from "@automovie/interface";
+
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { weldMeshVertices } from "../math/weldMeshVertices";
-import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Append shared welded edge-incidence, winding and optional boundary findings.
@@ -19,16 +19,16 @@ import { ViolationCollector } from "./ViolationCollector";
 export const appendMeshTopology: (
   mesh: IAutoMovieMesh,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   expectClosed: boolean,
 ) => void = (
   mesh: IAutoMovieMesh,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   expectClosed: boolean,
 ): void => {
   let physical:
-    | ReturnType<typeof resolveAutoMovieMeshPhysicalVertices>
+    | IAutoMovieResolvedPhysicalVertices
     | undefined;
   if (mesh.physicalVertices !== undefined) {
     try {

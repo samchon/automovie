@@ -1,11 +1,5 @@
-import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanHand,
-  AutoMovieMotionHumanJoints,
-  HumanHand,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
+import { AutoMovieMotionHumanArm, AutoMovieMotionHumanHand, AutoMovieMotionHumanJoints, HumanHand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -43,7 +37,7 @@ export function test_motion_compose_parts(): void {
     ["trunk", "head", "rightHand"],
   );
 
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -55,7 +49,7 @@ export function test_motion_compose_parts(): void {
     channels: ["head"],
     from: 0,
     to: 1,
-    delta: (seconds: number): AutoMovieMotionHumanJoints.Angles =>
+    delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
       seconds > 0.9
         ? { spine: [1, 0, 0] }
         : { head: [20 * seconds, 0, 1], neck: [4, 0, 0] },
@@ -73,7 +67,7 @@ export function test_motion_compose_parts(): void {
   const fist = HumanHand.shape("left", "fist");
   const bones = Object.keys(fist) as (keyof typeof fist)[];
   const matches = (
-    got: IHumanPosture["joints"],
+    got: IAutoMovieMotionHumanPosture["joints"],
     want: (bone: keyof typeof fist) => number,
   ): boolean =>
     bones.length > 0 &&

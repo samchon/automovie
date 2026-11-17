@@ -41,7 +41,7 @@ A production records its adopted decisions in its own `PROJECT.md` and its creat
 
 ### Authorable capability
 
-A capability the authoring agent cannot drive is not a capability. Hence rough types in `interface`, closed unions instead of construction kits, and a formation as a count and a layout. `interface` and `engine` grow toward representing every object and motion, so each new axis is additive, never a rewrite.
+A capability the authoring agent cannot drive is not a capability. Hence authorable types in `interface`, closed unions instead of construction kits, and a formation as a count and a layout. `interface` and `engine` grow toward representing every object and motion, so each new axis is additive, never a rewrite.
 
 Product packages and the shipped scaffold hold general capability, never finished content such as catalog entries or profile libraries. Extend the engine when authoring is blocked, not to hand someone a finished chair; pre-built content also voids the subject-independence benchmark.
 
@@ -75,12 +75,13 @@ Inventories are in the [root README](../../../README.md#packages) and the packag
 
 | Package | Owns |
 | --- | --- |
-| `interface` | The pure-type authoring AST |
+| `interface` | Canonical common and domain contracts, including the authoring AST |
 | `engine` | Deterministic computation and runtime admission, and the universal motion primitives |
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
 | `archetypes` | Coarse seeded producers of what a person acts with, and their affordances |
 | `recovery` | Reference-mesh reconstruction |
+| `ingest` | Deterministic decoding and inspection of external media bytes |
 | `render` | Building and drawing scenes, the passes, the inspection core, the capture plan and record |
 | `viewer` | The interactive display, a React library |
 | `cli` | The `automovie` command: creating a production, and the hosts that capture, render and review it |
@@ -88,6 +89,8 @@ Inventories are in the [root README](../../../README.md#packages) and the packag
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration |
 
 `archetypes` covers objects, furniture, architecture, vehicles, animals and weapons, and no product package depends on it. `render` also owns frame schedules and encoding plans, and launches nothing. `cli` installs `template/scaffold`.
+
+`interface` owns pure contracts reached through the main public APIs of `engine`, `human`, `motions`, `recovery`, `ingest` and `render`, including their input, result and callback contracts. Runtime implementations stay in those packages. Frontend contracts and declarations requiring an implementation dependency stay with their owners. Archetype assets and producer APIs, evidence tooling, scaffold APIs, CLI hosts, viewer state and test support retain their package ownership; new assets use the existing common model, affordance, body, rig and geometry contracts without adding catalogue entries to `interface`.
 
 Only `render` and `viewer` import `three.js` in their public surface. A package's subject module, kept out of its barrel, may import it to build what the shared instrument draws, which is how the Human figure is inspected.
 
@@ -101,7 +104,7 @@ Only `render` and `viewer` import `three.js` in their public surface. A package'
 
 ### Recovery
 
-`recovery` owns its algorithms, policy, workflows, APIs and hosts, and none of its algorithms move into `engine`. Its shared declarative input contracts stay in `interface`, existing reusable mathematics and surface generation stay in `engine`, and display stays in `viewer`.
+`recovery` owns its algorithms, policy, workflows and hosts, and none of its algorithms move into `engine`. Its pure public contracts stay in `interface`, existing reusable mathematics and surface generation stay in `engine`, and display stays in `viewer`.
 
 ### Productions
 
@@ -114,6 +117,6 @@ These are the commands and versions the tree does not show:
 - The workspace runs Node 22.23.2, and `human` and generated projects require at least that.
 - `pnpm run build` compiles with correctness lint and the shared native declaration guards.
 - `pnpm run evidence` separately checks checklist answers.
-- CI runs build and evidence in `build.yml` and the suite in `test.yml`; `website.yml` also deploys on a `master` push.
+- CI runs the build in `build.yml` and the suite in `test.yml`; `website.yml` also deploys on a `master` push.
 
 The Node floor exists because older Node 22 loaders can expose an unevaluated ES module in a mixed CommonJS and ES-module graph.

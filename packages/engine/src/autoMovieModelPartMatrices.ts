@@ -1,6 +1,5 @@
-import { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import { type IAutoMovieResolvedBone, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "./kinematics/IAutoMovieResolvedBone";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Matrix4 } from "./math/Matrix4";
 

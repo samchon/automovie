@@ -1,11 +1,5 @@
-import {
-  IAutoMovieCopyDriver,
-  IAutoMovieDrivenDriver,
-} from "@automovie/interface";
-
+import type { IAutoMovieValueDriver } from "@automovie/interface";
 import { channelKey } from "./channelKey";
-
-type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
 
 /**
  * Order value drivers by channel dependencies with the existing DFS tie order.
@@ -19,8 +13,8 @@ type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Output retains D borrowed driver references; producer/dependency/color maps are call-local and no sampled channel, scene graph, handle or task survives here.
  */
 export function orderValueDrivers(
-  drivers: readonly ValueDriver[],
-): ValueDriver[] {
+  drivers: readonly IAutoMovieValueDriver[],
+): IAutoMovieValueDriver[] {
   const producers: Map<string, number[]> = new Map();
   for (let index: number = 0; index < drivers.length; ++index)
     for (const key of outputsOf(drivers[index]!)) {
@@ -29,7 +23,7 @@ export function orderValueDrivers(
       else previous.push(index);
     }
   const dependencies: number[][] = drivers.map(
-    (driver: ValueDriver, index: number): number[] => {
+    (driver: IAutoMovieValueDriver, index: number): number[] => {
       const required: Set<number> = new Set();
       for (const key of inputsOf(driver))
         for (const producer of producers.get(key) ?? [])
@@ -40,7 +34,7 @@ export function orderValueDrivers(
     },
   );
   const color: number[] = new Array<number>(drivers.length).fill(0);
-  const order: ValueDriver[] = [];
+  const order: IAutoMovieValueDriver[] = [];
   function visit(index: number): void {
     if (color[index] === 2) return;
     if (color[index] === 1) throw new Error("driver dependency cycle");
@@ -64,13 +58,13 @@ function trsKeys(
   return keys;
 }
 
-function outputsOf(driver: ValueDriver): string[] {
+function outputsOf(driver: IAutoMovieValueDriver): string[] {
   return driver.type === "copy"
     ? trsKeys(driver.owner, driver)
     : [channelKey(driver.output)];
 }
 
-function inputsOf(driver: ValueDriver): string[] {
+function inputsOf(driver: IAutoMovieValueDriver): string[] {
   return driver.type === "copy"
     ? trsKeys(driver.source, driver)
     : [channelKey(driver.source)];

@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieSignedMeshQueryHit,
-  createAutoMovieSignedMeshQuery,
-} from "@automovie/engine";
-import { type IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieSignedMeshQueryHit, IAutoMovieMesh } from "@automovie/interface";
+import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { closestTriangleDistanceSquaredOracle } from "../internal/closestTriangleDistanceSquaredOracle";

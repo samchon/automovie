@@ -1,10 +1,5 @@
-import {
-  AutoMovieMotionClock,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanActionPlan,
-  type IHumanPosture,
-  composeAutoMovieMotionHumanAction,
-} from "@automovie/motions";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
+import { AutoMovieMotionClock, composeAutoMovieMotionHumanAction } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -34,12 +29,12 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
 export function test_motion_compose_action(): void {
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(1, [
+  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(1, [
     { name: "strokeStart", seconds: 0.2 },
     { name: "contact", seconds: 0.5 },
     { name: "strokeEnd", seconds: 0.8 },
   ]);
-  const base: IHumanActionPlan = {
+  const base: IAutoMovieMotionHumanActionPlan = {
     duration: 1,
     events: [],
     contacts: [
@@ -51,7 +46,7 @@ export function test_motion_compose_action(): void {
         support: { kind: "ground" },
       },
     ],
-    posture: (seconds: number): IHumanPosture => ({
+    posture: (seconds: number): IAutoMovieMotionHumanPosture => ({
       root: { x: seconds, y: 0, z: 0 },
       yaw: 0,
       pitch: 0,
@@ -64,7 +59,7 @@ export function test_motion_compose_action(): void {
     channels: ["head"],
     from: 0,
     to: 1,
-    write: (posture: IHumanPosture): IHumanPosture => ({
+    write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
       ...posture,
       joints: { ...posture.joints, head: [posture.pitch, 0, 0] },
     }),
@@ -92,21 +87,21 @@ export function test_motion_compose_action(): void {
         path: () => ({ x: 0, y: 1, z: 0 }),
       },
     ],
-    write: (posture: IHumanPosture): IHumanPosture => ({
+    write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
       ...posture,
       yaw: 99,
       pitch: 30,
     }),
   });
-  const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+  const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
     base,
     clock,
     primitives: [head, trunk(0.2, 0.8)],
     contact: "contact",
   });
 
-  const inside: IHumanPosture = plan.posture(0.5);
-  const outside: IHumanPosture = plan.posture(0.1);
+  const inside: IAutoMovieMotionHumanPosture = plan.posture(0.5);
+  const outside: IAutoMovieMotionHumanPosture = plan.posture(0.1);
   TestValidator.equals("inside the window the head reads the trunk", inside, {
     root: { x: 0.5, y: 0, z: 0 },
     yaw: 0,

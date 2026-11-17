@@ -1,13 +1,15 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanHandDigit, IAutoMovieHumanHandWindow, IAutoMovieHumanInterosseousValley } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanSeamCarve } from "../../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 import { AutoMovieHumanInterosseousValley } from "./AutoMovieHumanInterosseousValley";
 import { AutoMovieHumanMetacarpalArch } from "./AutoMovieHumanMetacarpalArch";
 import { AutoMovieHumanPalmPalmarSector } from "./AutoMovieHumanPalmPalmarSector";
-import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
 
 /**
  * The palm's reliefs on its own sections, in the hand form's axes (`a` along
@@ -48,17 +50,17 @@ export namespace AutoMovieHumanPalmRelief {
    * @param ring The section's points, form axes, mm of the form.
    * @param start The palm's first section's place along the hand, `a`.
    */
-  export function ring(digits: readonly IAutoMovieHumanHandDigit[], ring: readonly Vec3[], start: number): Vec3[] {
+  export function ring(digits: readonly IAutoMovieHumanHandDigit[], ring: readonly AutoMovieVector3Tuple[], start: number): AutoMovieVector3Tuple[] {
     const fingers: readonly IAutoMovieHumanHandDigit[] = digits.slice(1);
-    const cs: number[] = ring.map((q: Vec3): number => q[2]);
-    const bs: number[] = ring.map((q: Vec3): number => q[1]);
+    const cs: number[] = ring.map((q: AutoMovieVector3Tuple): number => q[2]);
+    const bs: number[] = ring.map((q: AutoMovieVector3Tuple): number => q[1]);
     const middle: number = (Math.max(...cs) + Math.min(...cs)) / 2;
     const half: number = Math.max(1e-6, (Math.max(...cs) - Math.min(...cs)) / 2);
     const palm: number = (Math.max(...bs) - Math.min(...bs)) / 2;
 
     // The valleys between neighbouring metacarpals, thumb side first.
-    const valleys: { input: AutoMovieHumanInterosseousValley.IInput; head: number }[] = fingers.slice(0, -1).map(
-      (d: IAutoMovieHumanHandDigit, i: number): { input: AutoMovieHumanInterosseousValley.IInput; head: number } => {
+    const valleys: { input: IAutoMovieHumanInterosseousValley.IInput; head: number }[] = fingers.slice(0, -1).map(
+      (d: IAutoMovieHumanHandDigit, i: number): { input: IAutoMovieHumanInterosseousValley.IInput; head: number } => {
         const e: IAutoMovieHumanHandDigit = fingers[i + 1]!;
         const radius: number =
           (AutoMovieHumanMetacarpalArch.radius({ centre: [d.centre[1], d.centre[2]], root: d.width[0]![1] }) +
@@ -75,15 +77,15 @@ export namespace AutoMovieHumanPalmRelief {
     // (LENGTH_SHARE of the metacarpal) is half that run.
     const little: IAutoMovieHumanHandDigit = fingers[fingers.length - 1]!;
     const run: number = Math.max(1, little.centre[0] - start);
-    const hypothenar: AutoMovieHumanHandWindow.IMassSize = { length: run / (2 * AutoMovieHumanHandWindow.HYPOTHENAR.length), width: palm, depth: palm };
+    const hypothenar: IAutoMovieHumanHandWindow.IMassSize = { length: run / (2 * AutoMovieHumanHandWindow.HYPOTHENAR.length), width: palm, depth: palm };
     const belly: number = start + run / 2;
 
     // The palmar sector's pad: the half ellipse between the section's radial
     // and ulnar side points (its extremes across the hand), sampled and read
     // at each point's place across; it joins the palmar face by the smooth
     // union, its blend width from its own depth and half width.
-    const radial: Vec3 = ring.reduce((m: Vec3, q: Vec3): Vec3 => (q[1] > m[1] ? q : m), ring[0]!);
-    const ulnar: Vec3 = ring.reduce((m: Vec3, q: Vec3): Vec3 => (q[1] < m[1] ? q : m), ring[0]!);
+    const radial: AutoMovieVector3Tuple = ring.reduce((m: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple): AutoMovieVector3Tuple => (q[1] > m[1] ? q : m), ring[0]!);
+    const ulnar: AutoMovieVector3Tuple = ring.reduce((m: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple): AutoMovieVector3Tuple => (q[1] < m[1] ? q : m), ring[0]!);
     const pad: [number, number][] = AutoMovieHumanPalmPalmarSector.arc(
       { sides: [[radial[1], radial[2]], [ulnar[1], ulnar[2]]], bone: middle },
       PAD_SAMPLES,
@@ -95,7 +97,7 @@ export namespace AutoMovieHumanPalmRelief {
     // the heel) to its full depth at the knuckles, by the smooth step of the
     // way along, as the valleys do.
     const head: number = fingers.reduce((s: number, d: IAutoMovieHumanHandDigit): number => s + d.centre[0], 0) / fingers.length;
-    const along: number = Math.min(1, Math.max(0, (ring.reduce((s: number, q: Vec3): number => s + q[0], 0) / ring.length - start) / Math.max(1e-6, head - start)));
+    const along: number = Math.min(1, Math.max(0, (ring.reduce((s: number, q: AutoMovieVector3Tuple): number => s + q[0], 0) / ring.length - start) / Math.max(1e-6, head - start)));
     const grow: number = along * along * (3 - 2 * along);
     const chord = (b: number): number => radial[2] + ((b - radial[1]) * (ulnar[2] - radial[2])) / (ulnar[1] - radial[1] || 1);
     const padAt = (b: number): number => {
@@ -111,11 +113,11 @@ export namespace AutoMovieHumanPalmRelief {
       return chord(b) - padWidth + grow * (c - chord(b));
     };
 
-    return ring.map((q: Vec3): Vec3 => {
+    return ring.map((q: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
       const dorsal: number = Math.min(1, Math.max(0, (middle - q[2]) / half));
       const palmar: number = Math.min(1, Math.max(0, (q[2] - middle) / half));
       const sink: number = valleys.reduce(
-        (sum: number, v: { input: AutoMovieHumanInterosseousValley.IInput; head: number }): number =>
+        (sum: number, v: { input: IAutoMovieHumanInterosseousValley.IInput; head: number }): number =>
           sum + AutoMovieHumanInterosseousValley.depth(v.input, q[1], (q[0] - start) / Math.max(1e-6, v.head - start)),
         0,
       );

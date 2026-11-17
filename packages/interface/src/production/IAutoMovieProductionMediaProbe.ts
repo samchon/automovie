@@ -1,9 +1,9 @@
 import type { IAutoMovieSemanticMask } from "../render/IAutoMovieSemanticMask";
-import { IAutoMovieProductionAudioProbe } from "./IAutoMovieProductionAudioProbe";
-import { IAutoMovieProductionPngPicture } from "./IAutoMovieProductionPngPicture";
+import type { IAutoMovieProductionAudioProbe } from "./IAutoMovieProductionAudioProbe";
+import type { IAutoMovieProductionPngPicture } from "./IAutoMovieProductionPngPicture";
 import type { IAutoMovieProductionSoundEvidence } from "./IAutoMovieProductionSoundEvidence";
-import { IAutoMovieProductionVideoProbe } from "./IAutoMovieProductionVideoProbe";
-import { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
+import type { IAutoMovieProductionVideoProbe } from "./IAutoMovieProductionVideoProbe";
+import type { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
 
 /**
  * Parser-derived metadata for one renderer-owned output file.

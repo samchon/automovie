@@ -1,15 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanFitGoals, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanQuadraticProgram, IAutoMovieMotionHumanSequentialConvex, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
-import type { HumanBodyFitTypes } from "./HumanBodyFitTypes";
 import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanJacobian } from "./HumanJacobian";
 import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * A whole-body fit: the static posture nearest a preferred one in which
@@ -52,35 +50,6 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor is read on the body's colliders, the ranges on the shared table, the slopes on the shared Jacobian, the loop and the convex step are the shared ones.
  */
 export namespace HumanBodyFit {
-  /**
-   * The bone-carried point and orientation goal, owned by HumanBodyFitTypes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the underlying goal owner.
-   * @evidence contracts/development/design.md#principled-representation The existing public name aliases the same rigid-effector record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves the public type used by contact laws.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second type definition.
-   */
-  export type ITarget = HumanBodyFitTypes.ITarget;
-
-  /**
-   * The fitted posture and measured residuals, owned by HumanBodyFitTypes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the underlying result owner.
-   * @evidence contracts/development/design.md#principled-representation The existing public name aliases the measured result.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps callers on the same result type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copied result shape.
-   */
-  export type IResult = HumanBodyFitTypes.IResult;
-
-  /**
-   * The static multi-contact problem, owned by HumanBodyFitTypes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the underlying input owner.
-   * @evidence contracts/development/design.md#principled-representation The same constraints are the numerical fit's inputs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves existing HumanBodyFit.IProps consumers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No duplicate parameter record.
-   */
-  export type IProps = HumanBodyFitTypes.IProps;
   /** The price of a millimetre a contact misses by, in the merit and in each step's rows: an exact penalty above what the objective trades a millimetre of a contact for (a degree of a joint moves a contact a few millimetres, and weighs one). */
   export const PRICE: number = 100;
 
@@ -131,7 +100,7 @@ export namespace HumanBodyFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function solve(props: IProps): IHumanPosture {
+  export function solve(props: IAutoMovieMotionHumanBodyFitTypes.IProps): IAutoMovieMotionHumanPosture {
     return fit(props).posture;
   }
 
@@ -149,25 +118,25 @@ export namespace HumanBodyFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
-  export function fit(props: IProps): IResult {
-    const { body, posture }: Pick<IProps, "body" | "posture"> = props;
-    const variables: readonly HumanJacobian.IVariable[] =
+  export function fit(props: IAutoMovieMotionHumanBodyFitTypes.IProps): IAutoMovieMotionHumanBodyFitTypes.IResult {
+    const { body, posture }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, "body" | "posture"> = props;
+    const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] =
       props.variables ?? HumanFitVariables.BODY;
-    const targets: readonly ITarget[] = props.targets ?? [];
-    const angles: readonly HumanFitGoals.IAngle[] = props.angles ?? [];
+    const targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = props.targets ?? [];
+    const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] = props.angles ?? [];
     const bearing: readonly RegExp[] = props.bearing ?? [];
     const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
     const n: number = variables.length;
     const key: Float64Array = HumanFitVariables.vector(variables, posture);
     const units: number[] = variables.map(
-      (v: HumanJacobian.IVariable): number => HumanFitVariables.unit(v),
+      (v: IAutoMovieMotionHumanJacobian.IVariable): number => HumanFitVariables.unit(v),
     );
 
     // A step under a variable's resolution share, in the widest region's
     // terms, moves no variable by what a film shows.
     const least: number = Math.min(
       ...variables.map(
-        (v: HumanJacobian.IVariable): number =>
+        (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
           (HumanFitVariables.resolution(v) * SETTLED) /
           HumanFitVariables.reach(v),
       ),
@@ -199,22 +168,22 @@ export namespace HumanBodyFit {
     // rows linearise being the same (warm-started SQP, Nocedal and Wright
     // 2006, section 18.7).
     let previous: {
-      qp: HumanQuadraticProgram.IProblem;
-      state: HumanQuadraticProgram.IState;
+      qp: IAutoMovieMotionHumanQuadraticProgram.IProblem;
+      state: IAutoMovieMotionHumanQuadraticProgram.IState;
       rows: IRead[];
     } | null = null;
-    const problem: HumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
       evaluate: merit.evaluate,
       feasible: (e: IEvaluation): boolean => merit.holds(e.misses),
       correct: (
         x: Float64Array,
-        _step: HumanSequentialConvex.IStep<Float64Array>,
+        _step: IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array>,
         trial: IEvaluation,
       ): Float64Array | null => {
         if (last === null || last.x !== x) return null;
         const l: ILast = last;
-        const shifted: HumanQuadraticProgram.IRow[] = l.rows.map(
-          (r: IRead): HumanQuadraticProgram.IRow => {
+        const shifted: IAutoMovieMotionHumanQuadraticProgram.IRow[] = l.rows.map(
+          (r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => {
             let model: number = 0;
             for (let a: number = 0; a < r.row.index.length; a++)
               model += r.row.coef[a]! * l.moved[r.row.index[a]!]!;
@@ -222,7 +191,7 @@ export namespace HumanBodyFit {
             return { ...r.row, l: r.row.l - miss, u: r.row.u - miss };
           },
         );
-        const state: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
+        const state: IAutoMovieMotionHumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
           {
             n,
             band: n - 1,
@@ -242,7 +211,7 @@ export namespace HumanBodyFit {
         mu: number,
         _radius: number,
         objective: boolean,
-      ): HumanSequentialConvex.IModel<Float64Array> => {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
         const at: IReading = e.r;
         const step: HumanBodyFitRows.IStep = {
           body,
@@ -299,18 +268,18 @@ export namespace HumanBodyFit {
         return {
           solve: (
             radius: number,
-          ): HumanSequentialConvex.IStep<Float64Array> => {
-            const qp: HumanQuadraticProgram.IProblem = {
+          ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
+            const qp: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
               n,
               band: n - 1,
               p,
               q,
               rows: [
-                ...rows.map((r: IRead): HumanQuadraticProgram.IRow => r.row),
+                ...rows.map((r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => r.row),
                 ...HumanFitVariables.bounds(variables, x, radius),
               ],
             };
-            const state: HumanQuadraticProgram.IState =
+            const state: IAutoMovieMotionHumanQuadraticProgram.IState =
               previous !== null && previous.rows === rows
                 ? HumanQuadraticProgram.solve(qp, previous.state)
                 : HumanQuadraticProgram.solve(
@@ -366,7 +335,7 @@ export namespace HumanBodyFit {
         (v: number, i: number): number => v + s[i]! * units[i]!,
       );
 
-    const solved: HumanSequentialConvex.IResult<Float64Array, IEvaluation> =
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IEvaluation> =
       HumanSequentialConvex.minimise(
         problem,
         HumanFitVariables.vector(variables, props.start ?? posture),
@@ -393,10 +362,10 @@ export namespace HumanBodyFit {
     return {
       posture: HumanFitVariables.written(variables, posture, solved.x),
       residuals: targets.map(
-        (t: ITarget, k: number): { point: number; turn: number } =>
+        (t: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): { point: number; turn: number } =>
           HumanBodyFitRows.residual(t, r, k),
       ),
-      angles: angles.map((target: HumanFitGoals.IAngle, k: number): number => {
+      angles: angles.map((target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): number => {
         const [lo, hi]: readonly [number, number] =
           HumanFitGoals.bounds(target);
         return (

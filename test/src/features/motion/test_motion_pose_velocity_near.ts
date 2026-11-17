@@ -1,5 +1,6 @@
+import type { IAutoMovieSamplePoseVelocity, IAutoMoviePose } from "@automovie/interface";
 import { inertializeOffset, samplePoseVelocity } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -47,10 +48,10 @@ export function test_motion_pose_velocity_near(): void {
     });
   const read = (
     near?: (s: number) => IAutoMoviePose,
-  ): samplePoseVelocity.IState =>
+  ): IAutoMovieSamplePoseVelocity.IState =>
     samplePoseVelocity(knee(true), 0.4, 1e-3, "after", undefined, near);
-  const continued: samplePoseVelocity.IState = read(knee(false));
-  const shown: samplePoseVelocity.IState = read();
+  const continued: IAutoMovieSamplePoseVelocity.IState = read(knee(false));
+  const shown: IAutoMovieSamplePoseVelocity.IState = read();
   TestValidator.predicate(
     `the continued read sees the motion (${continued.velocity.joints.get("leftLowerLeg")![0]})`,
     Math.abs(continued.velocity.joints.get("leftLowerLeg")![0] - 33.7) <=

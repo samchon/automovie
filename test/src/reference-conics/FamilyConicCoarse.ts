@@ -1,7 +1,8 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieLoftRelief, IAutoMovieViewChain } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import { AutoMovieLoftRelief, AutoMovieViewChain, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief, AutoMovieViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicRelief, AutoMovieHumanConicSection, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicProject as P } from "./FamilyConicProject";
 
@@ -30,7 +31,7 @@ import { FamilyConicProject as P } from "./FamilyConicProject";
  * - The admitted grid with the fewest stored heights is chosen; a net with none keeps its grid and its heights.
  */
 namespace FamilyConicCoarse {
-  type Family = AutoMovieHumanConicLoft.IFamily;
+  type Family = IAutoMovieHumanConicLoft.IFamily;
 
   /** The nets made their own mirror image before anything else: the trunk's two nets that go once round it. */
   const SYMMETRISED: string[] = ["trunk.low", "trunk.crown"];
@@ -87,10 +88,10 @@ namespace FamilyConicCoarse {
   /** The wall's polar radius of a family at a station and a phase, mm, for the slope's reading; stations are held to the knots' range. */
   function radius(family: Family): (station: number, phase: number) => number {
     const read: (s: number) => number[] = AutoMovieHumanConicLoft.reader(family);
-    const sections: Map<number, AutoMovieViewChain.ISection> = new Map();
+    const sections: Map<number, IAutoMovieViewChain.ISection> = new Map();
     return (station: number, phase: number): number => {
       const s: number = Math.min(family.knots.at(-1)!, Math.max(family.knots[0]!, station));
-      let section: AutoMovieViewChain.ISection | undefined = sections.get(s);
+      let section: IAutoMovieViewChain.ISection | undefined = sections.get(s);
       if (section === undefined) sections.set(s, (section = AutoMovieHumanConicSection.chain(read(s), family.layout)));
       const r: number = AutoMovieViewChain.radius(section, phase);
       return Number.isFinite(r) ? r : 1;
@@ -104,7 +105,7 @@ namespace FamilyConicCoarse {
 
   /** The nets a module stores, with their families. */
   function stored(): { family: Family; mirroredFamily: boolean; relief: IAutoMovieLoftRelief }[] {
-    return AutoMovieHumanF1.FAMILIES.flatMap((m: AutoMovieHumanF1.IMember) => (m.family.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => AutoMovieHumanConicRelief.stored(relief) > 0).map((relief: IAutoMovieLoftRelief) => ({ family: m.family, mirroredFamily: m.mirrored, relief })));
+    return AutoMovieHumanF1.FAMILIES.flatMap((m: IAutoMovieHumanF1.IMember) => (m.family.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => AutoMovieHumanConicRelief.stored(relief) > 0).map((relief: IAutoMovieLoftRelief) => ({ family: m.family, mirroredFamily: m.mirrored, relief })));
   }
 
   const fix = (x: number, digits: number = 3): string => x.toFixed(digits);

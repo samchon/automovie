@@ -1,12 +1,9 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMoviePreparePhysicalGeometry, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import type { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
 
 /**
  * Freeze the current separating normal and bone-local surface witnesses for a
@@ -26,12 +23,12 @@ import type { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeome
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function linearizePhysicalSeparation(
-  geometry: Geometry.IQueries,
-  a: Geometry.ICollider,
-  b: Geometry.ICollider,
-  measured?: ReturnType<Geometry.IQueries["contact"]>,
-): (first: P.ITransform, second: P.ITransform) => number {
-  const receipt: ReturnType<Geometry.IQueries["contact"]> =
+  geometry: IAutoMoviePreparePhysicalGeometry.IQueries,
+  a: IAutoMoviePreparePhysicalGeometry.ICollider,
+  b: IAutoMoviePreparePhysicalGeometry.ICollider,
+  measured?: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>,
+): (first: IAutoMoviePhysicalProfile.ITransform, second: IAutoMoviePhysicalProfile.ITransform) => number {
+  const receipt: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
     measured === undefined ? geometry.contact(a, b, 0) : measured;
   if (!receipt || receipt.separation >= 0) return (): number => 0;
   const first: IAutoMovieVector3 = Vector3.subtract(
@@ -51,7 +48,7 @@ export function linearizePhysicalSeparation(
     Vector3.subtract(second, b.pose.position),
   );
   const difference: IAutoMovieVector3 = Vector3.subtract(second, first);
-  return (poseA: P.ITransform, poseB: P.ITransform): number =>
+  return (poseA: IAutoMoviePhysicalProfile.ITransform, poseB: IAutoMoviePhysicalProfile.ITransform): number =>
     receipt.separation +
     Vector3.dot(
       receipt.normal,

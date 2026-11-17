@@ -1,22 +1,6 @@
-import {
-  IAutoMovieCompiledDefinedShot,
-  compileDefinedShot,
-  defineShot,
-  inheritProductionLighting,
-} from "@automovie/engine";
-import {
-  IAutoMovieBlocking,
-  IAutoMovieClip,
-  IAutoMovieLight,
-  IAutoMoviePerformance,
-  IAutoMovieProductionDesign,
-  IAutoMovieProductionLighting,
-  IAutoMovieShotBuildContext,
-  IAutoMovieShotContract,
-  IAutoMovieShotProgram,
-  IAutoMovieShotStoryTime,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { type IAutoMovieCompiledDefinedShot, IAutoMovieBlocking, IAutoMovieClip, IAutoMovieLight, IAutoMoviePerformance, IAutoMovieProductionDesign, IAutoMovieProductionLighting, IAutoMovieShotBuildContext, IAutoMovieShotContract, IAutoMovieShotProgram, IAutoMovieShotStoryTime, IAutoMovieSkeleton } from "@automovie/interface";
+import { compileDefinedShot, defineShot, inheritProductionLighting } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import {

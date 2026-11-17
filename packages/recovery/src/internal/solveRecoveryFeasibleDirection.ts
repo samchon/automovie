@@ -1,12 +1,8 @@
-import {
-  type IAutoMovieSimplexAtom,
-  type IAutoMovieSimplexBudget,
-  adjacentAutoMovieFloat64,
-  minimizeAutoMovieSimplexQuadratic,
-} from "@automovie/engine";
+import type { IAutoMovieRecoveryFeasibleArithmetic, IAutoMovieRecoveryFeasibleDirection, IAutoMovieSimplexAtom, IAutoMovieSimplexBudget } from "@automovie/interface";
+import { adjacentAutoMovieFloat64, minimizeAutoMovieSimplexQuadratic } from "@automovie/engine";
 
-import type { IAutoMovieRecoveryFeasibleArithmetic } from "../structures/internal/IAutoMovieRecoveryFeasibleArithmetic";
-import type { IAutoMovieRecoveryFeasibleDirection } from "../structures/internal/IAutoMovieRecoveryFeasibleDirection";
+
+
 import { measureRecoveryFeasibleArithmetic } from "./measureRecoveryFeasibleArithmetic";
 
 /**
@@ -66,8 +62,7 @@ export function solveRecoveryFeasibleDirection(
       {
         ...budget,
         maxWork: budget.maxWork - metadataWork - certificateWork,
-        maxEntries: budget.maxEntries - width - 128,
-      },
+        maxEntries: budget.maxEntries - width - 128 },
       charge,
     );
   charge(certificateWork);
@@ -205,6 +200,5 @@ export function solveRecoveryFeasibleDirection(
       ((solution.converged && rowsQualified) ||
         (roundoffCandidate && reconstructionRowsQualified)),
     iterations: solution.iterations,
-    work: metadataWork + solution.work + certificateWork,
-  };
+    work: metadataWork + solution.work + certificateWork };
 }

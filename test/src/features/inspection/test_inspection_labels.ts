@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionLabel,
-  applyAutoMovieInspection,
-  placeAutoMovieInspectionLabels,
-} from "@automovie/render";
+import type { IAutoMovieInspectionLabel } from "@automovie/interface";
+import { type IAutoMovieInspectionHandle, applyAutoMovieInspection, placeAutoMovieInspectionLabels } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

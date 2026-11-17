@@ -1,13 +1,7 @@
-import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanGymnasticsWheel, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { minimumJerk } from "@automovie/engine";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /**
@@ -34,43 +28,6 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: every place follows from the spokes.
  */
 export namespace GymnasticsWheel {
-  /** A part of the body that may bear. */
-  export interface ISpoke {
-    /** Its joints: one, or two that bear together at their middle. */
-    bones: readonly (AutoMovieHumanoidBone & IHumanContactWindow["part"])[];
-
-    /** The height of its joints' middle when it bears, world metres. */
-    height: number;
-
-    /** What it bears on. */
-    support: IHumanContactWindow.Support;
-  }
-
-  /** One row of the table. */
-  export interface IRow {
-    /** The turn's angle, degrees. */
-    angle: number;
-
-    /** The root, world metres. */
-    root: IAutoMovieVector3;
-
-    /** The bearing spoke's index in the spokes. */
-    bears: number;
-  }
-
-  /** A rolled table. */
-  export interface IWheel {
-    /** The rows, by growing angle, the first at 0 and the last at the turn's end. */
-    rows: readonly IRow[];
-
-    /**
-     * The root at an angle, between the rows.
-     *
-     * @param angle Degrees, clamped into the table.
-     * @returns World metres.
-     */
-    root(angle: number): IAutoMovieVector3;
-  }
 
   /** How much lower a later spoke must reach to take the weight from an earlier one, metres: two spokes level within it keep the earlier. */
   const LEVEL: number = 1e-3;
@@ -89,22 +46,15 @@ export namespace GymnasticsWheel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table holds one record per row and is released with the plan.
    */
-  export function roll(props: {
-    body: IHumanBody;
-    shaped: (angle: number) => IHumanPosture;
-    spokes: readonly ISpoke[];
-    start: IAutoMovieVector3;
-    until: number;
-    step: number;
-  }): IWheel {
+  export function roll(props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps): IAutoMovieMotionHumanGymnasticsWheel.IWheel {
     const count: number = Math.max(1, Math.ceil(props.until / props.step));
-    const rows: IRow[] = [];
+    const rows: IAutoMovieMotionHumanGymnasticsWheel.IRow[] = [];
     let place: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (let i: number = 0; i <= count; i++) {
       const angle: number = (props.until * i) / count;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         StrikingBody.trunk(props.body, props.shaped(angle));
-      const middle = (spoke: ISpoke): IAutoMovieVector3 => {
+      const middle = (spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke): IAutoMovieVector3 => {
         let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
         for (const bone of spoke.bones) {
           const p: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
@@ -119,7 +69,7 @@ export namespace GymnasticsWheel {
       for (let s: number = 1; s < props.spokes.length; s++)
         if (reach(s) < reach(bears) - LEVEL) bears = s;
       const at: IAutoMovieVector3 = middle(props.spokes[bears]!);
-      const before: IRow | undefined = rows.at(-1);
+      const before: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = rows.at(-1);
       if (before === undefined)
         place = { x: props.start.x + at.x, y: 0, z: props.start.z + at.z };
       else if (before.bears !== bears) {
@@ -179,27 +129,27 @@ export namespace GymnasticsWheel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function contacts(
-    wheel: IWheel,
-    spokes: readonly ISpoke[],
+    wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel,
+    spokes: readonly IAutoMovieMotionHumanGymnasticsWheel.ISpoke[],
     share: (angle: number) => number,
-  ): IHumanContactWindow[] {
-    const windows: IHumanContactWindow[] = [];
+  ): IAutoMovieMotionHumanContactWindow[] {
+    const windows: IAutoMovieMotionHumanContactWindow[] = [];
 
     // Each joint's running window and the last row it bore at.
-    const open: Map<string, { window: IHumanContactWindow; row: number }> =
+    const open: Map<string, { window: IAutoMovieMotionHumanContactWindow; row: number }> =
       new Map();
-    wheel.rows.forEach((row: IRow, index: number): void => {
+    wheel.rows.forEach((row: IAutoMovieMotionHumanGymnasticsWheel.IRow, index: number): void => {
       const at: number = share(row.angle);
-      const spoke: ISpoke = spokes[row.bears]!;
+      const spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke = spokes[row.bears]!;
       for (const bone of spoke.bones) {
         const running:
-          | { window: IHumanContactWindow; row: number }
+          | { window: IAutoMovieMotionHumanContactWindow; row: number }
           | undefined = open.get(bone);
         if (running !== undefined && running.row === index - 1) {
           running.window.to = at;
           running.row = index;
         } else {
-          const window: IHumanContactWindow = {
+          const window: IAutoMovieMotionHumanContactWindow = {
             part: bone,
             kind: "plant",
             from: at,
@@ -258,7 +208,7 @@ export namespace GymnasticsWheel {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function laid(body: IHumanBody): number {
+  export function laid(body: IAutoMovieMotionHumanBody): number {
     return AutoMovieMotionHumanPlaced.wrist(body, "left", {
       point: { x: 0, y: 0, z: 0 },
       facing: { x: 0, y: -1, z: 0 },

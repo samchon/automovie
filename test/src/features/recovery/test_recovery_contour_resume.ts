@@ -1,11 +1,5 @@
-import {
-  type IAutoMovieRecoveryContourResumeInput,
-  type IAutoMovieRecoverySavedSection,
-  type IAutoMovieRecoverySectionsInput,
-  type IAutoMovieRecoverySourceLineage,
-  observeAutoMovieRecoverySections,
-  resumeAutoMovieRecoveryContours,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryContourResumeInput, IAutoMovieRecoverySavedSection, IAutoMovieRecoverySectionsInput, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
+import { observeAutoMovieRecoverySections, resumeAutoMovieRecoveryContours } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryContourResumeMutations } from "../internal/createRecoveryContourResumeMutations";
@@ -462,7 +456,7 @@ export function test_recovery_contour_resume(): void {
     typeof resumeAutoMovieRecoveryContours<"hermite">
   > = resumeAutoMovieRecoveryContours(input, {
     curveFormat: "hermite",
-    signal: controller.signal,
+    cancelled: (): boolean => controller.signal.aborted,
     onProgress: (phase: string): void => {
       if (phase === "contour-resume-fit") {
         fitCheckpoints++;
@@ -483,7 +477,7 @@ export function test_recovery_contour_resume(): void {
   const stopped: ReturnType<typeof resumeAutoMovieRecoveryContours<"hermite">> =
     resumeAutoMovieRecoveryContours(input, {
       curveFormat: "hermite",
-      signal: preaborted.signal,
+      cancelled: (): boolean => preaborted.signal.aborted,
       onProgress: (): void => {
         progress++;
       },

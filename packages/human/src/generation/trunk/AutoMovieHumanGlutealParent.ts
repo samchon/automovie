@@ -1,27 +1,21 @@
-import {
-  AutoMovieConstructionViews,
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieSolidVector,
-  AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewAxis, IAutoMovieViewPart, IAutoMovieHumanGlutealCut, IAutoMovieHumanGlutealParent, IAutoMovieConstructionView } from "@automovie/interface";
+
+
+
+import { AutoMovieConstructionViews, AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieSolidVector, AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
+
 
 import { AutoMovieHumanGlutealCut } from "./AutoMovieHumanGlutealCut";
 
 /** A calibration-mm point or dimensionless direction. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /** One admitted original source, before lofting or Boolean assembly. */
 interface Field {
   /** Identical original production part, including its actual frame owner. */
   part: IAutoMovieViewPart;
   /** Prepared original scalar/fullness/cap owner. */
-  source: AutoMovieLoftViewSource.ISource;
+  source: IAutoMovieLoftViewSource.ISource;
 }
 
 /** Existing scalar meeting accuracy, in calibration millimetres. */
@@ -32,15 +26,14 @@ const BRACKETS: number = 16;
 
 /** Source-native parent chords for a gluteal footprint; no emitted skin is read. */
 export namespace AutoMovieHumanGlutealParent {
-  /** A horizontal-cut point and its unchanged original source chart. */
-  export type ILevelPoint = AutoMovieHumanGlutealCut.IPoint;
+  
 
   /** Read original cut points and their actual physical station/phase once for the tape and its support provenance. */
   export function levelCutRecords(
     part: IAutoMovieViewPart,
     y: number,
     count: number,
-  ): ILevelPoint[] | string {
+  ): IAutoMovieHumanGlutealCut.IPoint[] | string {
     return AutoMovieHumanGlutealCut.records(part, y, count);
   }
 
@@ -49,51 +42,24 @@ export namespace AutoMovieHumanGlutealParent {
     part: IAutoMovieViewPart,
     y: number,
     count: number,
-  ): [number, number][] | string {
+  ): IAutoMovieHumanGlutealParent.LevelCutResult {
     return AutoMovieHumanGlutealCut.create(part, y, count);
   }
 
-  /** A boundary point and the actual original chart that supplied it. */
-  export interface IBoundary {
-    /** World AP coordinate, calibration mm. */
-    x: number;
-    /** Source part name; a union keeps the actual outer boundary's owner. */
-    owner: string;
-    /** Physical source station, calibration mm. */
-    station: number;
-    /** Original polar phase, radians. */
-    phase: number;
-  }
+  
 
-  /** One occupied AP interval at the queried world height/across position. */
-  export interface IChord {
-    /** Posterior and anterior actual source boundaries. */
-    back: IBoundary;
-    /** Anterior actual source boundary. */
-    front: IBoundary;
-  }
+  
 
-  /** Shared original definitions and their local contact reader. */
-  export interface IParent {
-    /** The identical original parts consumed by the production parent lofts. */
-    parts: readonly IAutoMovieViewPart[];
-    /** Same prepared scalar/fullness/cap owners; physical jets stay available through the public reader. */
-    sources: readonly {
-      part: IAutoMovieViewPart;
-      source: AutoMovieLoftViewSource.ISource;
-    }[];
-    /** Admitted source-native AP intervals, or the explicit unavailable premise. */
-    chord(y: number, z: number): IChord[] | string;
-  }
+  
 
   /** Read one actual trunk without inventing an unrelated leg parent. */
-  export function trunkOnly(part: IAutoMovieViewPart): IParent | string {
+  export function trunkOnly(part: IAutoMovieViewPart): IAutoMovieHumanGlutealParent.IParent | string {
     const field: Field | string = prepare(part);
     if (typeof field === "string") return field;
     return {
       parts: [part],
       sources: [field],
-      chord(y: number, z: number): IChord[] | string {
+      chord(y: number, z: number): IAutoMovieHumanGlutealParent.IChord[] | string {
         if (![y, z].every(Number.isFinite))
           return "Trunk contact needs finite world Y/Z.";
         return trunkChord(field, y, z);
@@ -104,23 +70,23 @@ export namespace AutoMovieHumanGlutealParent {
   /** Prepare the actual trunk and same leg once; values and jets remain separate capabilities. */
   export function create(
     trunk: IAutoMovieViewPart,
-    leg: { part: IAutoMovieViewPart; view: IAutoMovieConstructionView },
-  ): IParent | string {
+    leg: IAutoMovieHumanGlutealParent.ICreateLeg,
+  ): IAutoMovieHumanGlutealParent.IParent | string {
     const upper: Field | string = prepare(trunk);
     const lower: Field | string = prepare(leg.part);
     if (typeof upper === "string" || typeof lower === "string")
       return typeof upper === "string" ? upper : (lower as string);
-    const lowerReader: ((y: number, z: number) => IChord[] | string) | string =
+    const lowerReader: ((y: number, z: number) => IAutoMovieHumanGlutealParent.IChord[] | string) | string =
       legReader(lower, leg.view);
     if (typeof lowerReader === "string") return lowerReader;
     return {
       parts: [trunk, leg.part],
       sources: [upper, lower],
-      chord(y: number, z: number): IChord[] | string {
+      chord(y: number, z: number): IAutoMovieHumanGlutealParent.IChord[] | string {
         if (![y, z].every(Number.isFinite))
           return "Gluteal parent contact needs finite world Y/Z.";
-        const a: IChord[] | string = trunkChord(upper, y, z);
-        const b: IChord[] | string = lowerReader(y, z);
+        const a: IAutoMovieHumanGlutealParent.IChord[] | string = trunkChord(upper, y, z);
+        const b: IAutoMovieHumanGlutealParent.IChord[] | string = lowerReader(y, z);
         if (typeof a === "string" || typeof b === "string")
           return typeof a === "string" ? a : (b as string);
         return unite([...a, ...b]);
@@ -131,7 +97,7 @@ export namespace AutoMovieHumanGlutealParent {
 
 /** Retain the full original source, refusing unavailable direct fullness explicitly. */
 function prepare(part: IAutoMovieViewPart): Field | string {
-  const result: AutoMovieLoftViewSource.IResult | null =
+  const result: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
   if (result === null)
     return `${part.name}: gluteal contact needs the actual prepared direct-fullness source.`;
@@ -145,7 +111,7 @@ function trunkChord(
   field: Field,
   y: number,
   z: number,
-): AutoMovieHumanGlutealParent.IChord[] | string {
+): IAutoMovieHumanGlutealParent.IChord[] | string {
   const [first, last]: readonly [number, number] = field.source.domain;
   if (y < first || y > last) return [];
   const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
@@ -160,7 +126,7 @@ function trunkChord(
     )
   )
     return `${field.part.name}: contact needs its actual level +X/+Z frame.`;
-  const values: AutoMovieLoftViewRead.IValues | string =
+  const values: IAutoMovieLoftViewRead.IValues | string =
     AutoMovieLoftViewRead.values(field.source, y);
   if (typeof values === "string") return values;
   const across: number = z - frame.origin[2];
@@ -180,10 +146,10 @@ function trunkChord(
     const at: (
       a: number,
       b: number,
-    ) => AutoMovieHumanGlutealParent.IBoundary | string = (
+    ) => IAutoMovieHumanGlutealParent.IBoundary | string = (
       a: number,
       b: number,
-    ): AutoMovieHumanGlutealParent.IBoundary | string => {
+    ): IAutoMovieHumanGlutealParent.IBoundary | string => {
       const phase: number | null = AutoMovieIllinois.root(
         (phi: number): number => read(phi)[1] - across,
         a,
@@ -195,11 +161,11 @@ function trunkChord(
         return `${field.part.name}: no admitted local AP chord root.`;
       return boundary(field, frame.origin[0] + read(phase)[0], y, phase);
     };
-    const back: AutoMovieHumanGlutealParent.IBoundary | string = at(
+    const back: IAutoMovieHumanGlutealParent.IBoundary | string = at(
       Math.PI / 2,
       (3 * Math.PI) / 2,
     );
-    const front: AutoMovieHumanGlutealParent.IBoundary | string = at(
+    const front: IAutoMovieHumanGlutealParent.IBoundary | string = at(
       -Math.PI / 2,
       Math.PI / 2,
     );
@@ -218,14 +184,14 @@ function legReader(
   field: Field,
   view: IAutoMovieConstructionView,
 ):
-  | ((y: number, z: number) => AutoMovieHumanGlutealParent.IChord[] | string)
+  | ((y: number, z: number) => IAutoMovieHumanGlutealParent.IChord[] | string)
   | string {
   if (view.axis.type !== "jointed")
     return `${field.part.name}: gluteal contact needs the actual jointed leg declaration.`;
   const centres: Vec3[] = view.axis.centres.map(
     AutoMovieConstructionViews.point,
   );
-  const runs: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+  const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
     centres,
     view.axis.halves.map(
       (value: number): number => value * AutoMovieConstructionViews.SCALE,
@@ -247,7 +213,7 @@ function legReader(
   return (
     y: number,
     z: number,
-  ): AutoMovieHumanGlutealParent.IChord[] | string => {
+  ): IAutoMovieHumanGlutealParent.IChord[] | string => {
     const cache: Map<number, Reading | string | null> = new Map();
     const evaluate: (x: number) => Reading | string | null = (
       x: number,
@@ -268,7 +234,7 @@ function legReader(
       if (typeof value === "string") return value;
       readings.push({ x, value });
     }
-    const intersections: AutoMovieHumanGlutealParent.IBoundary[] = [];
+    const intersections: IAutoMovieHumanGlutealParent.IBoundary[] = [];
     for (let i: number = 1; i < readings.length; i++) {
       const a: (typeof readings)[number] = readings[i - 1]!;
       const b: (typeof readings)[number] = readings[i]!;
@@ -299,7 +265,7 @@ function legReader(
         return `${field.part.name}: AP contact has no admitted source residual.`;
       if (
         !intersections.some(
-          (old: AutoMovieHumanGlutealParent.IBoundary): boolean =>
+          (old: IAutoMovieHumanGlutealParent.IBoundary): boolean =>
             Math.abs(old.x - root) <= TOLERANCE,
         )
       )
@@ -309,7 +275,7 @@ function legReader(
       return `${field.part.name}: bounded AP search has no admitted contact bracket; absence is not established.`;
     if (intersections.length % 2 !== 0)
       return `${field.part.name}: AP contact leaves its proximal source domain or has an unresolved tangency.`;
-    const chords: AutoMovieHumanGlutealParent.IChord[] = [];
+    const chords: IAutoMovieHumanGlutealParent.IChord[] = [];
     for (let i: number = 0; i < intersections.length; i += 2)
       chords.push({ back: intersections[i]!, front: intersections[i + 1]! });
     return chords;
@@ -360,7 +326,7 @@ function radial(
   const u: number = AutoMovieSolidVector.dot(delta, frame.u);
   const v: number = AutoMovieSolidVector.dot(delta, frame.v);
   const phase: number = Math.atan2(v, u);
-  const values: AutoMovieLoftViewRead.IValues | string =
+  const values: IAutoMovieLoftViewRead.IValues | string =
     AutoMovieLoftViewRead.values(field.source, station);
   if (typeof values === "string") return values;
   if (values.extents.every((value: number): boolean => value === 0))
@@ -414,23 +380,23 @@ function boundary(
   x: number,
   station: number,
   phase: number,
-): AutoMovieHumanGlutealParent.IBoundary {
+): IAutoMovieHumanGlutealParent.IBoundary {
   return { x, owner: field.part.name, station, phase };
 }
 
 /** Union only local occupied AP intervals, retaining each actual outer owner. */
 function unite(
-  chords: AutoMovieHumanGlutealParent.IChord[],
-): AutoMovieHumanGlutealParent.IChord[] {
-  const sorted: AutoMovieHumanGlutealParent.IChord[] = [...chords].sort(
+  chords: IAutoMovieHumanGlutealParent.IChord[],
+): IAutoMovieHumanGlutealParent.IChord[] {
+  const sorted: IAutoMovieHumanGlutealParent.IChord[] = [...chords].sort(
     (
-      a: AutoMovieHumanGlutealParent.IChord,
-      b: AutoMovieHumanGlutealParent.IChord,
+      a: IAutoMovieHumanGlutealParent.IChord,
+      b: IAutoMovieHumanGlutealParent.IChord,
     ): number => a.back.x - b.back.x,
   );
-  const out: AutoMovieHumanGlutealParent.IChord[] = [];
+  const out: IAutoMovieHumanGlutealParent.IChord[] = [];
   for (const chord of sorted) {
-    const last: AutoMovieHumanGlutealParent.IChord | undefined = out.at(-1);
+    const last: IAutoMovieHumanGlutealParent.IChord | undefined = out.at(-1);
     if (last === undefined || chord.back.x > last.front.x + TOLERANCE)
       out.push({ ...chord });
     else if (chord.front.x > last.front.x) last.front = chord.front;

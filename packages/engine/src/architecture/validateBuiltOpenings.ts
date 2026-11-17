@@ -1,12 +1,5 @@
-import {
-  IAutoMovieBoundaryFace,
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
+import { type IAutoMovieValidateBuiltOpenings, type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { appendBuiltRegionDefects } from "./appendBuiltRegionDefects";
 import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
@@ -48,23 +41,17 @@ import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
 export const validateBuiltOpenings: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  boundaries: {
-    ids: ReadonlySet<string>;
-    faces: ReadonlyMap<string, IAutoMovieBoundaryFace>;
-  },
+  boundaries: IAutoMovieValidateBuiltOpenings.IBoundaries,
   elementIds: ReadonlySet<string>,
   driven: Map<string, string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => Map<number, IAutoMoviePlanarPoint[]> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  boundaries: {
-    ids: ReadonlySet<string>;
-    faces: ReadonlyMap<string, IAutoMovieBoundaryFace>;
-  },
+  boundaries: IAutoMovieValidateBuiltOpenings.IBoundaries,
   elementIds: ReadonlySet<string>,
   driven: Map<string, string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): Map<number, IAutoMoviePlanarPoint[]> => {
   collectDeclaredIds(
     environment.openings,
@@ -147,13 +134,13 @@ const validateVoid: (
   path: string,
   host: IAutoMovieBuiltBoundary | undefined,
   face: IAutoMovieBoundaryFace | undefined,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => IAutoMoviePlanarPoint[] | null = (
   opening: IAutoMovieBuiltOpening,
   path: string,
   host: IAutoMovieBuiltBoundary | undefined,
   face: IAutoMovieBoundaryFace | undefined,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): IAutoMoviePlanarPoint[] | null => {
   if (opening.profile === undefined) return null;
   const profilePath: string = `${path}.profile`;

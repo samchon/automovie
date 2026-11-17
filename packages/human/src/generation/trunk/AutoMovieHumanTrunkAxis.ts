@@ -1,9 +1,8 @@
-import {
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanTrunkAxis } from "@automovie/interface";
+
+
+import { AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
+
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 
@@ -24,23 +23,7 @@ import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructi
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each call owns its temporary prepared curves and returned axis/back record. Temporaries become unreachable on return; the caller owns the result, with no process, renderer or external handle.
  */
 export namespace AutoMovieHumanTrunkAxis {
-  /**
-   * One declaration shared by the original part and production tree.
-   *
-   * @evidence contracts/common.md#principled-implementation Pairs the actual metre axis with the calibration-mm world-back source used to derive it; neither record asserts final surface fidelity.
-   * @evidence contracts/common.md#clear-and-simple-design Holds the two outputs of one placement operation without a second geometry owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no sampled replacement, person selector or fallback result.
-   * @evidence contracts/common.md#meaningful-documentation Both fields document units, frame and source ownership.
-   * @evidence contracts/performance.md#efficient-algorithms The record stores references to the two O(n)-sized declarations and performs no computation itself.
-   * @evidence contracts/performance.md#reuse-equivalent-work Consumers share this call's axis declaration rather than reconstructing placement.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains these plain data until its source result is released; there is no cache or external resource.
-   */
-  export interface IResult {
-    /** Fixed +X/+Z level planes; coordinate lengths and endpoint stations are metres. */
-    axis: IAutoMovieConstructionParallelAxis;
-    /** Actual world-back declaration, calibration mm, in the radial source parameter. */
-    back: IAutoMovieViewPart.IOutline;
-  }
+  
 
   /**
    * Add actual source values and parameter jets without recentering their
@@ -66,11 +49,11 @@ export namespace AutoMovieHumanTrunkAxis {
   export function create(
     back: IAutoMovieViewPart.IOutline,
     radius: IAutoMovieViewPart.IOutline,
-    ends: AutoMovieViewOutline.IEnds,
-  ): IResult | string {
+    ends: IAutoMovieViewOutline.IEnds,
+  ): IAutoMovieHumanTrunkAxis.IResult | string {
     const radial:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       radius,
       ends,
     );
@@ -100,7 +83,7 @@ export namespace AutoMovieHumanTrunkAxis {
       const knot: IAutoMovieViewPart.IKnot | undefined = world.knots.find(
         (k: IAutoMovieViewPart.IKnot): boolean => k.station === station,
       );
-      const reading: AutoMovieViewOutline.IReading | string =
+      const reading: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(radial, station);
       if (knot === undefined || typeof reading === "string")
         return typeof reading === "string"
@@ -113,8 +96,8 @@ export namespace AutoMovieHumanTrunkAxis {
         };
     }
     const prepared:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(world);
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(world);
     if ("detail" in prepared) return prepared.detail;
     const stations: number[] = [
       ...new Set(
@@ -128,11 +111,11 @@ export namespace AutoMovieHumanTrunkAxis {
       knots: [],
     };
     for (const station of stations) {
-      const a: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
+      const a: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
         prepared,
         station,
       );
-      const b: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
+      const b: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
         radial,
         station,
       );

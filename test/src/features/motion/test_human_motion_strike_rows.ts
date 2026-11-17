@@ -1,8 +1,5 @@
-import {
-  HumanDefence,
-  HumanStrike,
-  type IHumanActionLaw,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
+import { HumanDefence, HumanStrike } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,13 +29,13 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_strike_rows(): void {
-  const rows = (lexicon: object): IHumanActionLaw<never>[] =>
+  const rows = (lexicon: object): IAutoMovieMotionHumanActionLaw<never>[] =>
     Object.values(lexicon).filter(
-      (value: unknown): value is IHumanActionLaw<never> =>
+      (value: unknown): value is IAutoMovieMotionHumanActionLaw<never> =>
         typeof value === "object" && value !== null && "plan" in value,
     );
-  const strikes: IHumanActionLaw<never>[] = rows(HumanStrike);
-  const defences: IHumanActionLaw<never>[] = rows(HumanDefence);
+  const strikes: IAutoMovieMotionHumanActionLaw<never>[] = rows(HumanStrike);
+  const defences: IAutoMovieMotionHumanActionLaw<never>[] = rows(HumanDefence);
 
   // 1. Families and names.
   TestValidator.predicate(
@@ -61,49 +58,49 @@ export function test_human_motion_strike_rows(): void {
     law: { resolve?: (given: object) => object },
     given: object = {},
   ): object => law.resolve!(given);
-  const table: [IHumanActionLaw<never>, object][] = [
+  const table: [IAutoMovieMotionHumanActionLaw<never>, object][] = [
     [
-      HumanStrike.jab as IHumanActionLaw<never>,
+      HumanStrike.jab as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "straight", hand: "lead" },
     ],
     [
-      HumanStrike.cross as IHumanActionLaw<never>,
+      HumanStrike.cross as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "straight", hand: "rear" },
     ],
     [
-      HumanStrike.leadHook as IHumanActionLaw<never>,
+      HumanStrike.leadHook as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "hook", hand: "lead" },
     ],
     [
-      HumanStrike.rearHook as IHumanActionLaw<never>,
+      HumanStrike.rearHook as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "hook", hand: "rear" },
     ],
     [
-      HumanStrike.leadUppercut as IHumanActionLaw<never>,
+      HumanStrike.leadUppercut as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "uppercut", hand: "lead" },
     ],
     [
-      HumanStrike.rearUppercut as IHumanActionLaw<never>,
+      HumanStrike.rearUppercut as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "uppercut", hand: "rear" },
     ],
     [
-      HumanStrike.roundKick as IHumanActionLaw<never>,
+      HumanStrike.roundKick as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "round", leg: "rear" },
     ],
     [
-      HumanStrike.switchKick as IHumanActionLaw<never>,
+      HumanStrike.switchKick as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "round", leg: "lead" },
     ],
     [
-      HumanStrike.pushKick as IHumanActionLaw<never>,
+      HumanStrike.pushKick as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "push", leg: "lead" },
     ],
     [
-      HumanStrike.teep as IHumanActionLaw<never>,
+      HumanStrike.teep as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "push", leg: "rear" },
     ],
-    [HumanStrike.leadKnee as IHumanActionLaw<never>, { leg: "lead" }],
-    [HumanStrike.rearKnee as IHumanActionLaw<never>, { leg: "rear" }],
+    [HumanStrike.leadKnee as IAutoMovieMotionHumanActionLaw<never>, { leg: "lead" }],
+    [HumanStrike.rearKnee as IAutoMovieMotionHumanActionLaw<never>, { leg: "rear" }],
   ];
   for (const [law, expected] of table)
     TestValidator.equals(
@@ -113,15 +110,15 @@ export function test_human_motion_strike_rows(): void {
     );
 
   // 5. Defences.
-  const kinds: [IHumanActionLaw<never>, string][] = [
-    [HumanDefence.cover as IHumanActionLaw<never>, "cover"],
-    [HumanDefence.parry as IHumanActionLaw<never>, "parry"],
-    [HumanDefence.elbowBlock as IHumanActionLaw<never>, "elbowBlock"],
-    [HumanDefence.highBlock as IHumanActionLaw<never>, "highBlock"],
-    [HumanDefence.checkKick as IHumanActionLaw<never>, "check"],
-    [HumanDefence.slip as IHumanActionLaw<never>, "slip"],
-    [HumanDefence.roll as IHumanActionLaw<never>, "roll"],
-    [HumanDefence.sway as IHumanActionLaw<never>, "sway"],
+  const kinds: [IAutoMovieMotionHumanActionLaw<never>, string][] = [
+    [HumanDefence.cover as IAutoMovieMotionHumanActionLaw<never>, "cover"],
+    [HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>, "parry"],
+    [HumanDefence.elbowBlock as IAutoMovieMotionHumanActionLaw<never>, "elbowBlock"],
+    [HumanDefence.highBlock as IAutoMovieMotionHumanActionLaw<never>, "highBlock"],
+    [HumanDefence.checkKick as IAutoMovieMotionHumanActionLaw<never>, "check"],
+    [HumanDefence.slip as IAutoMovieMotionHumanActionLaw<never>, "slip"],
+    [HumanDefence.roll as IAutoMovieMotionHumanActionLaw<never>, "roll"],
+    [HumanDefence.sway as IAutoMovieMotionHumanActionLaw<never>, "sway"],
   ];
   for (const [law, kind] of kinds)
     TestValidator.equals(
@@ -134,7 +131,7 @@ export function test_human_motion_strike_rows(): void {
   const at = { kind: "person", subject: "b", region: "chin" };
   TestValidator.equals(
     "a strike row passes the given target through",
-    (fixed(HumanStrike.jab as IHumanActionLaw<never>, { at }) as { at: object })
+    (fixed(HumanStrike.jab as IAutoMovieMotionHumanActionLaw<never>, { at }) as { at: object })
       .at,
     at,
   );

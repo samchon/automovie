@@ -1,9 +1,6 @@
-import type { IAutoMovieLoftChain } from "@automovie/engine";
-import {
-  AutoMovieHumanJointCentres,
-  type AutoMovieHumanSkeletonLaw,
-  type IAutoMovieHumanBodyCalibration,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyCalibration, IAutoMovieHumanJointCentres, IAutoMovieHumanSkeletonLaw, IAutoMovieLoftChain } from "@automovie/interface";
+
+import { AutoMovieHumanJointCentres } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -33,7 +30,7 @@ export function test_human_joint_girth(): void {
     position: [number, number, number],
     toward: [number, number, number],
     tip: [number, number, number] | null = null,
-  ): AutoMovieHumanSkeletonLaw.IBone => ({
+  ): IAutoMovieHumanSkeletonLaw.IBone => ({
     bone: name,
     parent,
     position,
@@ -87,7 +84,7 @@ export function test_human_joint_girth(): void {
   } as unknown as IAutoMovieHumanBodyCalibration;
   const joints: Map<string, number> = new Map(
     AutoMovieHumanJointCentres.derive(calibration).map(
-      (j: AutoMovieHumanJointCentres.IJoint): [string, number] => [
+      (j: IAutoMovieHumanJointCentres.IJoint): [string, number] => [
         j.bone,
         j.radius,
       ],

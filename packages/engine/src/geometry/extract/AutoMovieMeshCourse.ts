@@ -1,13 +1,8 @@
+import type { AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieMeshCourse, IAutoMovieMeshExtract } from "@automovie/interface";
 import { AutoMovieMeshExtract } from "./AutoMovieMeshExtract";
 
-/** A point or direction, millimetres. */
-type V3 = AutoMovieMeshExtract.V3;
-
-/** A chart point or direction, millimetres. */
-type V2 = [number, number];
-
 /** A polyline segment, chart millimetres, start then end. */
-type Segment = readonly [V2, V2];
+type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];
 
 /**
  * Sections of a dense mesh on the planes of a course: one exact plane cut per
@@ -38,165 +33,6 @@ type Segment = readonly [V2, V2];
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member serves only a test or one part; the reading is the same for every part's course.
  */
 export namespace AutoMovieMeshCourse {
-  /**
-   * One station's section plane: origin on the course, chart axes `u` and
-   * `v` in the plane, normal `v x u` along the course (the
-   * `AutoMovieLoftFrame` and `AutoMovieViewAxis` convention).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units, the orthonormal premise and the normal's orientation.
-   * @evidence contracts/development/design.md#principled-representation A course plane is a station with an origin and two chart axes; the normal is derived, so it cannot disagree with them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exactly what a cut and its chart readings consume; the loft's own frame type stays with the loft.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Orthonormality remains a producer premise, not re-checked; the station is only a label for ordering and interpolation, not assumed to be arclength.
-   */
-  export interface IPlane {
-    /** Station along the course, millimetres (a label; not assumed to be arclength). */
-    station: number;
-
-    /** The course point, millimetres. */
-    origin: V3;
-
-    /** The chart's first axis, unit. */
-    u: V3;
-
-    /** The chart's second axis, unit and square to `u`. */
-    v: V3;
-  }
-
-  /**
-   * One quarter's conic shoulder read off a loop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States rho's definition, its admissible range and its millimetre scale.
-   * @evidence contracts/development/design.md#principled-representation The measured share and the corner reach that turns a share into millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the trace's reduction and its diagnostics.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Null is kept for a loop that never meets the segment instead of a default value.
-   */
-  export interface IQuarter {
-    /**
-     * `|M->S| / |M->A|`, signed along `M->A`: M the chord midpoint between
-     * the quarter's two guide points, A the box corner, S the loop's
-     * outermost crossing of the segment from the course point (`t = -1`)
-     * through M to A (`t = 1`). A conic quarter needs `0 < rho < 1` (0.5 a
-     * parabola, `sqrt(2) - 1` the ellipse on a centred symmetric box); a
-     * value at or below zero means the loop is concave there. Null when the
-     * loop never meets that segment.
-     */
-    rho: number | null;
-
-    /** `|M->A|`, millimetres: a shoulder error of `d` moves S by `d` times this. */
-    reach: number;
-  }
-
-  /**
-   * One quarter between two given guides, split at its shoulder bar.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the guides, the arc, the split point, its tangent reading, the two pieces and every null meaning.
-   * @evidence contracts/development/design.md#principled-representation The loop's own arc between two guide points (each tangent along its support line) split at that arc's shoulder point, each piece a conic on its two ends and tangent lines with its own shoulder read on its own sub-arc (#3158).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the trace's split runs and receipt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing crossing or an unmet tangent pair stays null; nothing is clamped.
-   */
-  export interface IPiece {
-    /** The split point: the arc's outermost crossing of the segment from the guides' chord midpoint toward their support lines' corner, chart mm; null when the arc misses it. */
-    split: [number, number] | null;
-
-    /** The crossed polyline edge's direction there (the polyline's own tangent at the split), radians from `+u` toward `+v`, along the arc from the first guide toward the second; null without a split. */
-    angle: number | null;
-
-    /** The shoulders of the piece from the first guide to the split and of the piece from the split to the second guide, each read on its own sub-arc (the crossed edge divided at the split); null where its tangent lines do not meet ahead of both ends or its sub-arc misses its segment. */
-    shoulders: [number | null, number | null];
-
-    /** Each piece's `|M->A|`, mm, null with its shoulder's first cause. */
-    reach: [number | null, number | null];
-  }
-
-  /**
-   * One point of a loop where its tangent is square to a support direction
-   * and its outward side faces that direction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, the point's chart and the value's meaning.
-   * @evidence contracts/development/design.md#principled-representation A crest (a local maximum of the support, the loop convex there) or a notch (a local minimum facing the same way, the loop concave there), with its point and support value.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the trace's receipt and its feature lines.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only features standing out by the walk's tolerance are reported; nothing is smoothed or merged, and no loop point is dropped.
-   */
-  export interface IFeature {
-    /** `crest`: a local maximum of the support; `notch`: a local minimum facing the same direction. */
-    kind: "crest" | "notch";
-
-    /** The loop point, chart millimetres. */
-    point: [number, number];
-
-    /** Its support value (the point along the direction), millimetres. */
-    value: number;
-  }
-
-  /**
-   * A loop's four chart extents and four conic quarters about the course point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the extents' order and signs, the touch offsets' meaning, the features' order and the quarter order.
-   * @evidence contracts/development/design.md#principled-representation The four-quarter view section's own inputs (four support lines and four shoulders) plus the touch offsets and the features that report what those inputs leave out.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member is read by the trace or its receipt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are the loop's own; nothing is admitted or refused here.
-   */
-  export interface IReading {
-    /** Signed extents `+u`, `-u`, `+v`, `-v`, millimetres about the course point: the loop's measured envelope. */
-    extents: [number, number, number, number];
-
-    /**
-     * Where each extreme touches its support line, measured off the course
-     * point's axis line, millimetres: the `v` of the `+u` and `-u` extremes,
-     * the `u` of the `+v` and `-v` extremes. The four-quarter view section
-     * touches its box on those axis lines, so a nonzero offset is shape it
-     * cannot carry. A loop reaching its extreme value at more than one point
-     * reports the first in loop order: a reading of this section alone, not
-     * a correspondence with its neighbours.
-     */
-    touch: [number, number, number, number];
-
-    /** The crests and notches facing `+u`, `-u`, `+v`, `-v`, each list in increasing phase from `-pi`. */
-    features: [IFeature[], IFeature[], IFeature[], IFeature[]];
-
-    /** Quarters q0..q3: between `+u`/`+v`, `+v`/`-u`, `-u`/`-v`, `-v`/`+u`, on the axis-line guides. */
-    quarters: [IQuarter, IQuarter, IQuarter, IQuarter];
-  }
-
-  /**
-   * One station's section.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every member's unit and frame and exactly when each is null.
-   * @evidence contracts/development/design.md#principled-representation The cut's own flags beside the holding loop and its in-plane readings; `loop`, `reading`, `area` and `reach` are null together when no loop holds the course point, and `normal` and `centroid` are also null for a zero-area loop, where neither exists.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds the trace, its diagnostics or its receipt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No loop reading is defaulted to zero; the nulls are the producer's guarantee, documented rather than encoded as a union because the trace reads them through one guard.
-   */
-  export interface ISection {
-    /** The station's plane. */
-    plane: IPlane;
-
-    /** Outer pieces of the cut after the extraction's bridging. */
-    pieces: number;
-
-    /** The outer piece holding the course point, chart millimetres, or null. */
-    loop: [number, number][] | null;
-
-    /** Its extents and quarters; null exactly when `loop` is. */
-    reading: IReading | null;
-
-    /** Its unit Newell normal, world; null without a loop or for a zero-area loop. */
-    normal: V3 | null;
-
-    /** Its area centroid in its own plane, world millimetres; null without a loop or for a zero-area loop. */
-    centroid: V3 | null;
-
-    /** Its area, square millimetres; null exactly when `loop` is. */
-    area: number | null;
-
-    /** The largest distance of a loop point from the course point, millimetres; null exactly when `loop` is. */
-    reach: number | null;
-
-    /** The cut's own flags (`AutoMovieMeshExtract.outline`: open, bridged, unclosed), in full. */
-    flags: string[];
-
-    /** The family checks: `jump <name>: <mm>` on the holding loop's values. */
-    checks: string[];
-  }
 
   /**
    * Cut a mesh on every course plane and read each holding loop.
@@ -215,14 +51,14 @@ export namespace AutoMovieMeshCourse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each cut is read once for all its readings.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained state or handle; only the returned sections remain.
    */
-  export function cut(mesh: AutoMovieMeshExtract.IMesh, planes: readonly IPlane[], tolerance: number = 0.5, bridge: number = 25): ISection[] {
-    const sections: ISection[] = planes.map((plane: IPlane): ISection => {
-      const n: V3 = cross(plane.v, plane.u);
-      const cut: AutoMovieMeshExtract.ISection = AutoMovieMeshExtract.outline(mesh, { origin: plane.origin, axes: [n, plane.u, plane.v] }, [0], 0, tolerance, bridge)[0]!;
-      const held: AutoMovieMeshExtract.ILoop | undefined = cut.outer.find((l: AutoMovieMeshExtract.ILoop): boolean => contains(l.points, 0, 0));
+  export function cut(mesh: IAutoMovieMeshExtract.IMesh, planes: readonly IAutoMovieMeshCourse.IPlane[], tolerance: number = 0.5, bridge: number = 25): IAutoMovieMeshCourse.ISection[] {
+    const sections: IAutoMovieMeshCourse.ISection[] = planes.map((plane: IAutoMovieMeshCourse.IPlane): IAutoMovieMeshCourse.ISection => {
+      const n: AutoMovieVector3Tuple = cross(plane.v, plane.u);
+      const cut: IAutoMovieMeshExtract.ISection = AutoMovieMeshExtract.outline(mesh, { origin: plane.origin, axes: [n, plane.u, plane.v] }, [0], 0, tolerance, bridge)[0]!;
+      const held: IAutoMovieMeshExtract.ILoop | undefined = cut.outer.find((l: IAutoMovieMeshExtract.ILoop): boolean => contains(l.points, 0, 0));
       if (held === undefined) return { plane, pieces: cut.outer.length, loop: null, reading: null, normal: null, centroid: null, area: null, reach: null, flags: cut.flags, checks: [] };
-      const world: V3[] = held.points.map(([a, b]: [number, number]): V3 => add(plane.origin, add(scale(plane.u, a), scale(plane.v, b))));
-      const vector: V3 = newell(world);
+      const world: AutoMovieVector3Tuple[] = held.points.map(([a, b]: [number, number]): AutoMovieVector3Tuple => add(plane.origin, add(scale(plane.u, a), scale(plane.v, b))));
+      const vector: AutoMovieVector3Tuple = newell(world);
       const length: number = Math.hypot(...vector);
       return {
         plane,
@@ -240,10 +76,10 @@ export namespace AutoMovieMeshCourse {
 
     // Jumps on the holding loop's own values.
     const names: string[] = ["+u", "-u", "+v", "-v", "q0", "q1", "q2", "q3"];
-    const value = (s: ISection, k: number): number | null => {
+    const value = (s: IAutoMovieMeshCourse.ISection, k: number): number | null => {
       if (s.reading === null) return null;
       if (k < 4) return s.reading.extents[k]!;
-      const q: IQuarter = s.reading.quarters[k - 4]!;
+      const q: IAutoMovieMeshCourse.IQuarter = s.reading.quarters[k - 4]!;
       return q.rho === null ? null : q.rho * q.reach;
     };
     for (let i: number = 1; i + 1 < sections.length; ++i)
@@ -274,7 +110,7 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; returns fresh tuples.
    */
-  export function read(loop: readonly (readonly [number, number])[], tolerance: number = 0.5): IReading {
+  export function read(loop: readonly (readonly [number, number])[], tolerance: number = 0.5): IAutoMovieMeshCourse.IReading {
     let iu: [number, number] = [0, 0];
     let iv: [number, number] = [0, 0];
     for (let i: number = 1; i < loop.length; ++i) {
@@ -285,24 +121,24 @@ export namespace AutoMovieMeshCourse {
     }
     const extents: [number, number, number, number] = [loop[iu[0]]![0], loop[iu[1]]![0], loop[iv[0]]![1], loop[iv[1]]![1]];
     const touch: [number, number, number, number] = [loop[iu[0]]![1], loop[iu[1]]![1], loop[iv[0]]![0], loop[iv[1]]![0]];
-    const found: IFeature[][] = DIRECTIONS.map((d: V2): IFeature[] => features(loop, d, tolerance));
+    const found: IAutoMovieMeshCourse.IFeature[][] = DIRECTIONS.map((d: AutoMovieVector2Tuple): IAutoMovieMeshCourse.IFeature[] => features(loop, d, tolerance));
 
     // Guides on the axis lines, in quarter order +u, +v, -u, -v.
-    const guides: V2[] = [
+    const guides: AutoMovieVector2Tuple[] = [
       [extents[0], 0],
       [0, extents[2]],
       [extents[1], 0],
       [0, extents[3]],
     ];
     const all: Segment[] = loop.map((p: readonly [number, number], i: number): Segment => [[p[0], p[1]], [loop[(i + 1) % loop.length]![0], loop[(i + 1) % loop.length]![1]]]);
-    const quarters: IQuarter[] = [0, 1, 2, 3].map((q: number): IQuarter => {
-      const g0: V2 = guides[q]!;
-      const g1: V2 = guides[(q + 1) % 4]!;
-      const M: V2 = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
-      const A: V2 = [g0[0] + g1[0], g0[1] + g1[1]];
+    const quarters: IAutoMovieMeshCourse.IQuarter[] = [0, 1, 2, 3].map((q: number): IAutoMovieMeshCourse.IQuarter => {
+      const g0: AutoMovieVector2Tuple = guides[q]!;
+      const g1: AutoMovieVector2Tuple = guides[(q + 1) % 4]!;
+      const M: AutoMovieVector2Tuple = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
+      const A: AutoMovieVector2Tuple = [g0[0] + g1[0], g0[1] + g1[1]];
       return { rho: crossing(all, M, A)?.t ?? null, reach: Math.hypot(A[0] - M[0], A[1] - M[1]) };
     });
-    return { extents, touch, features: found as IReading["features"], quarters: quarters as IReading["quarters"] };
+    return { extents, touch, features: found as IAutoMovieMeshCourse.IReading["features"], quarters: quarters as IAutoMovieMeshCourse.IReading["quarters"] };
   }
 
   /**
@@ -329,7 +165,7 @@ export namespace AutoMovieMeshCourse {
    */
   export function ascend(loop: readonly (readonly [number, number])[], direction: number, start: number, tolerance: number = 0.5): number {
     const N: number = loop.length;
-    const d: V2 = DIRECTIONS[direction]!;
+    const d: AutoMovieVector2Tuple = DIRECTIONS[direction]!;
     const h = (i: number): number => loop[i]![0] * d[0] + loop[i]![1] * d[1];
     let best: number = start;
     for (const step of [1, N - 1]) {
@@ -358,7 +194,7 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; returns fresh tuples.
    */
-  export function pieces(loop: readonly (readonly [number, number])[], guides: readonly [number, number, number, number]): [IPiece, IPiece, IPiece, IPiece] {
+  export function pieces(loop: readonly (readonly [number, number])[], guides: readonly [number, number, number, number]): [IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece] {
     const N: number = loop.length;
     let area: number = 0;
     for (let i: number = 0; i < N; ++i) {
@@ -367,15 +203,15 @@ export namespace AutoMovieMeshCourse {
       area += p[0] * q[1] - q[0] * p[1];
     }
     const step: number = area > 0 ? 1 : N - 1;
-    const lines: V2[] = [
+    const lines: AutoMovieVector2Tuple[] = [
       [0, 1],
       [-1, 0],
       [0, -1],
       [1, 0],
     ];
-    const at = (i: number): V2 => [loop[i]![0], loop[i]![1]];
-    const g: V2[] = guides.map(at);
-    const corners: V2[] = [
+    const at = (i: number): AutoMovieVector2Tuple => [loop[i]![0], loop[i]![1]];
+    const g: AutoMovieVector2Tuple[] = guides.map(at);
+    const corners: AutoMovieVector2Tuple[] = [
       [g[0]![0], g[1]![1]],
       [g[2]![0], g[1]![1]],
       [g[2]![0], g[3]![1]],
@@ -388,21 +224,21 @@ export namespace AutoMovieMeshCourse {
       for (let i: number = a; i !== b; i = (i + step) % N) out.push([at(i), at((i + step) % N)]);
       return out;
     };
-    return [0, 1, 2, 3].map((q: number): IPiece => {
+    return [0, 1, 2, 3].map((q: number): IAutoMovieMeshCourse.IPiece => {
       const segments: Segment[] = arc(guides[q]!, guides[(q + 1) % 4]!);
-      const g0: V2 = g[q]!;
-      const g1: V2 = g[(q + 1) % 4]!;
-      const M: V2 = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
-      const A: V2 = corners[q]!;
+      const g0: AutoMovieVector2Tuple = g[q]!;
+      const g1: AutoMovieVector2Tuple = g[(q + 1) % 4]!;
+      const M: AutoMovieVector2Tuple = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
+      const A: AutoMovieVector2Tuple = corners[q]!;
       const hit: { t: number; index: number } | null = crossing(segments, M, A);
       if (hit === null) return { split: null, angle: null, shoulders: [null, null], reach: [null, null] };
-      const S: V2 = [M[0] + hit.t * (A[0] - M[0]), M[1] + hit.t * (A[1] - M[1])];
+      const S: AutoMovieVector2Tuple = [M[0] + hit.t * (A[0] - M[0]), M[1] + hit.t * (A[1] - M[1])];
       const [from, to]: Segment = segments[hit.index]!;
-      const T: V2 = [to[0] - from[0], to[1] - from[1]];
+      const T: AutoMovieVector2Tuple = [to[0] - from[0], to[1] - from[1]];
       const first: [number | null, number | null] = piece(g0, lines[q]!, S, T, [...segments.slice(0, hit.index), [from, S]]);
       const second: [number | null, number | null] = piece(S, T, g1, lines[(q + 1) % 4]!, [[S, to], ...segments.slice(hit.index + 1)]);
       return { split: S, angle: Math.atan2(T[1], T[0]), shoulders: [first[0], second[0]], reach: [first[1], second[1]] };
-    }) as [IPiece, IPiece, IPiece, IPiece];
+    }) as [IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece];
   }
 
   /**
@@ -421,9 +257,9 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure arc reading has no shared requests across calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Segment pairs are temporary. Only the two scalar readings are returned.
    */
-  export function shoulder(arc: readonly V2[], start: V2, end: V2): [number | null, number | null] {
+  export function shoulder(arc: readonly AutoMovieVector2Tuple[], start: AutoMovieVector2Tuple, end: AutoMovieVector2Tuple): [number | null, number | null] {
     if (arc.length < 2) return [null, null];
-    return piece(arc[0]!, start, arc[arc.length - 1]!, end, arc.slice(1).map((point: V2, i: number): Segment => [arc[i]!, point]));
+    return piece(arc[0]!, start, arc[arc.length - 1]!, end, arc.slice(1).map((point: AutoMovieVector2Tuple, i: number): Segment => [arc[i]!, point]));
   }
 
   /**
@@ -440,11 +276,11 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function newell(points: readonly V3[]): V3 {
-    const out: V3 = [0, 0, 0];
+  export function newell(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
+    const out: AutoMovieVector3Tuple = [0, 0, 0];
     for (let i: number = 0; i < points.length; ++i) {
-      const p: V3 = points[i]!;
-      const q: V3 = points[(i + 1) % points.length]!;
+      const p: AutoMovieVector3Tuple = points[i]!;
+      const q: AutoMovieVector3Tuple = points[(i + 1) % points.length]!;
       out[0] += (p[1] - q[1]) * (p[2] + q[2]);
       out[1] += (p[2] - q[2]) * (p[0] + q[0]);
       out[2] += (p[0] - q[0]) * (p[1] + q[1]);
@@ -466,17 +302,17 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function centroid(points: readonly V3[]): V3 | null {
-    const n: V3 = newell(points);
+  export function centroid(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple | null {
+    const n: AutoMovieVector3Tuple = newell(points);
     const length: number = Math.hypot(...n);
     if (length === 0 || points.length < 3) return null;
-    const unit: V3 = scale(n, 1 / length);
-    const o: V3 = points[0]!;
+    const unit: AutoMovieVector3Tuple = scale(n, 1 / length);
+    const o: AutoMovieVector3Tuple = points[0]!;
     let weight: number = 0;
-    let sum: V3 = [0, 0, 0];
+    let sum: AutoMovieVector3Tuple = [0, 0, 0];
     for (let i: number = 1; i + 1 < points.length; ++i) {
-      const a: V3 = points[i]!;
-      const b: V3 = points[i + 1]!;
+      const a: AutoMovieVector3Tuple = points[i]!;
+      const b: AutoMovieVector3Tuple = points[i + 1]!;
       const w: number = dot(cross(sub(a, o), sub(b, o)), unit) / 2;
       weight += w;
       sum = add(sum, scale(add(o, add(a, b)), w / 3));
@@ -485,7 +321,7 @@ export namespace AutoMovieMeshCourse {
   }
 
   /** The four support directions, `+u`, `-u`, `+v`, `-v`. */
-  const DIRECTIONS: readonly V2[] = [
+  const DIRECTIONS: readonly AutoMovieVector2Tuple[] = [
     [1, 0],
     [-1, 0],
     [0, 1],
@@ -500,15 +336,15 @@ export namespace AutoMovieMeshCourse {
    * the segment from the chord midpoint toward that point. Null with its
    * first cause.
    */
-  function piece(P0: V2, T0: V2, P2: V2, T2: V2, segments: readonly Segment[]): [number | null, number | null] {
+  function piece(P0: AutoMovieVector2Tuple, T0: AutoMovieVector2Tuple, P2: AutoMovieVector2Tuple, T2: AutoMovieVector2Tuple, segments: readonly Segment[]): [number | null, number | null] {
     const den: number = T0[0] * T2[1] - T0[1] * T2[0];
     if (den === 0) return [null, null];
-    const d: V2 = [P2[0] - P0[0], P2[1] - P0[1]];
+    const d: AutoMovieVector2Tuple = [P2[0] - P0[0], P2[1] - P0[1]];
     const a: number = (d[0] * T2[1] - d[1] * T2[0]) / den;
     const b: number = (T0[0] * d[1] - T0[1] * d[0]) / den;
     if (!(a > 0 && b > 0)) return [null, null];
-    const A: V2 = [P0[0] + a * T0[0], P0[1] + a * T0[1]];
-    const M: V2 = [(P0[0] + P2[0]) / 2, (P0[1] + P2[1]) / 2];
+    const A: AutoMovieVector2Tuple = [P0[0] + a * T0[0], P0[1] + a * T0[1]];
+    const M: AutoMovieVector2Tuple = [(P0[0] + P2[0]) / 2, (P0[1] + P2[1]) / 2];
     const reach: number = Math.hypot(A[0] - M[0], A[1] - M[1]);
     return [crossing(segments, M, A)?.t ?? null, reach];
   }
@@ -520,7 +356,7 @@ export namespace AutoMovieMeshCourse {
    * kind when its outward normal (the loop's own winding, the tangent from
    * its two neighbours) faces d. Sorted by phase from `-pi`.
    */
-  function features(loop: readonly (readonly [number, number])[], d: V2, tolerance: number): IFeature[] {
+  function features(loop: readonly (readonly [number, number])[], d: AutoMovieVector2Tuple, tolerance: number): IAutoMovieMeshCourse.IFeature[] {
     const N: number = loop.length;
     if (N < 3) return [];
     const h = (i: number): number => loop[i]![0] * d[0] + loop[i]![1] * d[1];
@@ -552,17 +388,17 @@ export namespace AutoMovieMeshCourse {
         candidate = i;
       }
     }
-    const out: IFeature[] = [];
+    const out: IAutoMovieMeshCourse.IFeature[] = [];
     for (const turn of turns) {
       const a: readonly [number, number] = loop[(turn.index + N - 1) % N]!;
       const b: readonly [number, number] = loop[(turn.index + 1) % N]!;
-      const t: V2 = [b[0] - a[0], b[1] - a[1]];
-      const normal: V2 = [winding * t[1], -winding * t[0]];
+      const t: AutoMovieVector2Tuple = [b[0] - a[0], b[1] - a[1]];
+      const normal: AutoMovieVector2Tuple = [winding * t[1], -winding * t[0]];
       if (!(normal[0] * d[0] + normal[1] * d[1] > 0)) continue;
       const p: readonly [number, number] = loop[turn.index]!;
       out.push({ kind: turn.kind, point: [p[0], p[1]], value: h(turn.index) });
     }
-    return out.sort((x: IFeature, y: IFeature): number => Math.atan2(x.point[1], x.point[0]) - Math.atan2(y.point[1], y.point[0]));
+    return out.sort((x: IAutoMovieMeshCourse.IFeature, y: IAutoMovieMeshCourse.IFeature): number => Math.atan2(x.point[1], x.point[0]) - Math.atan2(y.point[1], y.point[0]));
   }
 
   /**
@@ -570,14 +406,14 @@ export namespace AutoMovieMeshCourse {
    * M)`, t in [-1, 1], and the crossed segment's index, or null. A
    * zero-length segment is never crossed.
    */
-  function crossing(segments: readonly Segment[], M: V2, A: V2): { t: number; index: number } | null {
-    const d: V2 = [A[0] - M[0], A[1] - M[1]];
+  function crossing(segments: readonly Segment[], M: AutoMovieVector2Tuple, A: AutoMovieVector2Tuple): { t: number; index: number } | null {
+    const d: AutoMovieVector2Tuple = [A[0] - M[0], A[1] - M[1]];
     let best: { t: number; index: number } | null = null;
     segments.forEach(([p, q]: Segment, i: number): void => {
-      const e: V2 = [q[0] - p[0], q[1] - p[1]];
+      const e: AutoMovieVector2Tuple = [q[0] - p[0], q[1] - p[1]];
       const den: number = d[0] * e[1] - d[1] * e[0];
       if (den === 0) return;
-      const w: V2 = [p[0] - M[0], p[1] - M[1]];
+      const w: AutoMovieVector2Tuple = [p[0] - M[0], p[1] - M[1]];
       const t: number = (w[0] * e[1] - w[1] * e[0]) / den;
       const s: number = (w[0] * d[1] - w[1] * d[0]) / den;
       if (s >= 0 && s <= 1 && t >= -1 && t <= 1 && (best === null || t > best.t)) best = { t, index: i };
@@ -597,27 +433,27 @@ export namespace AutoMovieMeshCourse {
   }
 
   /** a + b. */
-  function add(a: V3, b: V3): V3 {
+  function add(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** a - b. */
-  function sub(a: V3, b: V3): V3 {
+  function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** a s. */
-  function scale(a: V3, s: number): V3 {
+  function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
   /** a . b. */
-  function dot(a: V3, b: V3): number {
+  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
   /** a x b. */
-  function cross(a: V3, b: V3): V3 {
+  function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   }
 }

@@ -1,10 +1,8 @@
-import type {
-  IAutoMovieRecoveryCameraMapInput,
-  IAutoMovieRecoveryCameraPairInput,
-} from "@automovie/interface";
+import type { IAutoMovieRecoveryCameraMapAdmissionOperation, IAutoMovieRecoveryCameraPairAdmissionOperation, IAutoMovieRecoveryCameraMapInput, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+
 
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
 
 /**
  * Admit the closed three-view map and supplied charts before image allocation.
@@ -20,8 +18,8 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Three owned fixed-size charts transfer to the caller; borrowed input pixels are neither copied nor retained globally and no external resource is acquired.
  */
 export function admitRecoveryCameraMap(
-  input: IAutoMovieRecoveryCameraMapInput,
-): ReturnType<typeof createRecoveryCameraChart>[] {
+  input: Parameters<IAutoMovieRecoveryCameraMapAdmissionOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryCameraMapAdmissionOperation.Operation> {
   const closed: (value: object, keys: readonly string[]) => void = (
     value: object,
     keys: readonly string[],
@@ -130,16 +128,14 @@ export function admitRecoveryCameraMap(
     cohort: input.cohort,
     views: input.views.slice(0, 2),
     policy: input.seedPolicy,
-    budget: input.seedBudget,
-  };
-  const first: ReturnType<typeof admitRecoveryCameraPair> =
+    budget: input.seedBudget };
+  const first: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =
     admitRecoveryCameraPair(seed);
-  const third: ReturnType<typeof admitRecoveryCameraPair> =
+  const third: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =
     admitRecoveryCameraPair({
       ...seed,
       views: [input.views[0]!, input.views[2]!],
-      budget: { ...input.seedBudget, maxPixels: budget.maxPixels },
-    });
+      budget: { ...input.seedBudget, maxPixels: budget.maxPixels } });
   const pixels: number = input.views.reduce(
     (sum: number, view: (typeof input.views)[number]): number =>
       sum + view.width * view.height,

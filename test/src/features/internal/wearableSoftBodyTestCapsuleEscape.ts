@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieSoftBodyBoundarySample,
-  simulateSoftBodyWithBoundaries,
-} from "@automovie/engine";
-import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import type { IAutoMovieSoftBodyBoundarySample, IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import { simulateSoftBodyWithBoundaries } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**

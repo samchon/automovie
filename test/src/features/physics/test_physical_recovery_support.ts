@@ -1,7 +1,5 @@
-import {
-  type advancePhysicalBalance as Balance,
-  samplePhysicalRecoverySupport,
-} from "@automovie/engine";
+import type { IAutoMovieAdvancePhysicalBalance } from "@automovie/interface";
+import { samplePhysicalRecoverySupport } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /** Actual recovery ownership drives support promises causally, independently of an authored calendar.
@@ -18,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A late confirmed landing ends the swing only at its actual arrival.).
  */
 export function test_physical_recovery_support(): void {
-  const state: Balance.IState = {
+  const state: IAutoMovieAdvancePhysicalBalance.IState = {
     last: "supported",
     offsets: {},
     steps: [

@@ -1,11 +1,14 @@
-import type { IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanTrunkConstruction, IAutoMovieHumanTrunkInputs, IAutoMovieHumanTrunkSolution } from "@automovie/interface";
+
+
+
+
+
+
 
 import { AutoMovieHumanTrunkChains } from "./AutoMovieHumanTrunkChains";
 import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
-import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
-import type { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
+
 
 /**
  * The trunk and shoulders composed from their pieces: the solve closes the
@@ -20,19 +23,12 @@ import type { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat"
  * The section is mirror-symmetric, so the legs part exactly on the midline.
  */
 export namespace AutoMovieHumanTrunkConstruction {
-  /** What a trunk reads, in the same millimetres as the calibration. */
-  export type IInputs = IAutoMovieHumanTrunkInputs;
+  
 
   /** Uniform phases of the chains' rings: two per control point of the 256-control section. */
   const SAMPLES: number = 512;
 
-  /** One actual solve and its placement metadata, before legacy chains are requested. */
-  export interface IPlacement {
-    /** Same solved trunk used by placement and the current body original builders. */
-    solution: IAutoMovieHumanTrunkSolution;
-    /** Existing neck, landmarks and diagnostics; no legacy trunk chains are added. */
-    calibration: IAutoMovieHumanBodyCalibration;
-  }
+  
 
   /**
    * Calibration with the trunk's rows replaced, or added when it holds none.
@@ -44,7 +40,7 @@ export namespace AutoMovieHumanTrunkConstruction {
    */
   export function apply(
     calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
+    inputs: IAutoMovieHumanTrunkInputs,
     floor: number,
   ): IAutoMovieHumanBodyCalibration {
     return loft(prepare(calibration, inputs, floor));
@@ -62,10 +58,10 @@ export namespace AutoMovieHumanTrunkConstruction {
    */
   export function prepare(
     calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
+    inputs: IAutoMovieHumanTrunkInputs,
     floor: number,
-    original?: { seat: AutoMovieHumanTrunkNeckSeat.ISeat; raw: () => IAutoMovieLoftChain },
-  ): IPlacement {
+    original?: IAutoMovieHumanTrunkConstruction.IPrepareOriginal,
+  ): IAutoMovieHumanTrunkConstruction.IPlacement {
     const neck: IAutoMovieLoftChain | undefined = original === undefined ? calibration.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === "head",
     ) : undefined;
@@ -117,7 +113,7 @@ export namespace AutoMovieHumanTrunkConstruction {
    * @evidence contracts/performance.md#reuse-equivalent-work Reads the supplied solution without another solver call.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned chain arrays; no persistent receiver is retained here.
    */
-  export function loft(prepared: IPlacement): IAutoMovieHumanBodyCalibration {
+  export function loft(prepared: IAutoMovieHumanTrunkConstruction.IPlacement): IAutoMovieHumanBodyCalibration {
     const made: IAutoMovieLoftChain[] = AutoMovieHumanTrunkChains.build(
       prepared.solution,
       { samples: SAMPLES, rule: "sagittal" },

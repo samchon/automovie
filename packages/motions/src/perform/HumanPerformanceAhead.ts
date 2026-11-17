@@ -1,13 +1,10 @@
-import type { IAutoMovieIntent } from "@automovie/engine";
+import type { IAutoMovieIntent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanPerformanceState } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 
 /**
  * What a performer's next action on a prop demands of a grip an earlier
@@ -54,13 +51,13 @@ export namespace HumanPerformanceAhead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context.
    */
   export function reader(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "subject" | "body" | "skill" | "prop" | "start"
     >,
     ordinal: number,
-  ): (grip: IHumanActionLaw.IGrip) => readonly IHumanActionLaw.IDemand[] {
+  ): (grip: IAutoMovieMotionHumanActionLaw.IGrip) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
     const found: Map<string, INext | null> = new Map();
     const next = (prop: string): INext | null => {
       if (!found.has(prop))
@@ -68,8 +65,8 @@ export namespace HumanPerformanceAhead {
       return found.get(prop)!;
     };
     return (
-      grip: IHumanActionLaw.IGrip,
-    ): readonly IHumanActionLaw.IDemand[] => {
+      grip: IAutoMovieMotionHumanActionLaw.IGrip,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
       const asked: INext | null = next(grip.prop);
       if (asked === null || asked.law.demands === undefined) return [];
       return asked.law.demands({
@@ -103,7 +100,7 @@ export namespace HumanPerformanceAhead {
   /** An action asked for its demands: its law and its resolved parameters. */
   interface INext {
     /** Its law. */
-    law: IHumanActionLaw<never>;
+    law: IAutoMovieMotionHumanActionLaw<never>;
 
     /** Its parameters, as its law resolves them. */
     params: object;
@@ -111,7 +108,7 @@ export namespace HumanPerformanceAhead {
 
   /** The first of a performer's actions after `ordinal` that names a prop, or null. */
   function find(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     ordinal: number,
     prop: string,
@@ -119,7 +116,7 @@ export namespace HumanPerformanceAhead {
     for (const intent of (self.intended.get(subject) ?? []).slice(
       ordinal + 1,
     )) {
-      const law: IHumanActionLaw<never> | undefined = self.laws.get(
+      const law: IAutoMovieMotionHumanActionLaw<never> | undefined = self.laws.get(
         intent.capability,
       );
       // An action the vocabulary lacks is refused where it is placed.

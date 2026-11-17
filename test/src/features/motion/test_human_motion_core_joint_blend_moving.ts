@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieJointAxes, IAutoMovieQuaternion } from "@automovie/interface";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -5,11 +6,8 @@ import {
   jointToQuaternion,
   skeletonJointAxes,
 } from "@automovie/engine";
-import type {
-  IAutoMovieJointAxes,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
-import { type IHumanBody, blendHumanJoint } from "@automovie/motions";
+
+import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,7 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_joint_blend_moving(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const axes: IAutoMovieJointAxes | undefined = skeletonJointAxes(
     body.skeleton,
     HUMANOID_JOINT_AXES,

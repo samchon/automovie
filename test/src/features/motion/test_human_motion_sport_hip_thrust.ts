@@ -1,19 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createBench } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanSportGym,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportGym } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -77,9 +66,9 @@ export function test_human_motion_sport_hip_thrust(): void {
   );
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "hip-thrust",
@@ -113,15 +102,15 @@ export function test_human_motion_sport_hip_thrust(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
-    const row: HumanSegment.ISegment = film
+    const row: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "hipThrust")!;
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "hipThrust")!;
     const when = (event: string): number =>
       row.start +
       (row.plan.events.find((e): boolean => e.name === event)?.share ??

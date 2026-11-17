@@ -1,11 +1,6 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, rotationBetween } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieAffordance,
-  IAutoMovieModelPart,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
@@ -251,7 +246,7 @@ export namespace ArchetypeSpan {
       const transform: IAutoMovieTransform | undefined = laid.get(part.id);
       if (transform === undefined || part.geometry.type !== "primitive")
         return part;
-      const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+      const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
       return {
         ...part,
         geometry: {

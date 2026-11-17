@@ -1,16 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HUMAN_MANOEUVRES,
-  HumanEnsemble,
-  HumanFormation,
-  HumanGait,
-  HumanManoeuvre,
-  HumanRefusal,
-  type IHumanBody,
-  type IHumanFormation,
-  type IHumanManoeuvre,
-  manoeuvreWheel,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanManoeuvre, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HUMAN_MANOEUVRES, HumanEnsemble, HumanFormation, HumanGait, HumanManoeuvre, HumanRefusal, manoeuvreWheel } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,12 +45,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_ensemble_manoeuvre(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [
+  const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
     motionHumanBody("m-tall"),
   ];
-  const block = (lateral: number, depth: number): IHumanFormation.IBlock => ({
+  const block = (lateral: number, depth: number): IAutoMovieMotionHumanFormation.IBlock => ({
     layout: {
       kind: "line",
       ranks: 2,
@@ -73,24 +63,24 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   const fixed = (
     at: IAutoMovieVector3,
     heading: number,
-  ): IHumanFormation.Frame => ({ kind: "fixed", at, heading });
-  const column = (frame: IHumanFormation.Frame): IHumanFormation => ({
+  ): IAutoMovieMotionHumanFormation.Frame => ({ kind: "fixed", at, heading });
+  const column = (frame: IAutoMovieMotionHumanFormation.Frame): IAutoMovieMotionHumanFormation => ({
     blocks: [0, 1, 2, 3].map(
-      (k: number): IHumanFormation.IBlock => block(0, 3 * k),
+      (k: number): IAutoMovieMotionHumanFormation.IBlock => block(0, 3 * k),
     ),
     frame,
   });
-  const line = (frame: IHumanFormation.Frame): IHumanFormation => ({
+  const line = (frame: IAutoMovieMotionHumanFormation.Frame): IAutoMovieMotionHumanFormation => ({
     // Deployed on the head of the column: block 0 halts in its place and the others take post to its right.
     blocks: [0, 1, 2, 3].map(
-      (k: number): IHumanFormation.IBlock => block(k * 4.2, 0),
+      (k: number): IAutoMovieMotionHumanFormation.IBlock => block(k * 4.2, 0),
     ),
     frame,
   });
   const ensemble = (
-    formation: IHumanFormation,
+    formation: IAutoMovieMotionHumanFormation,
     count: number = 48,
-  ): HumanEnsemble.IEnsemble =>
+  ): IAutoMovieMotionHumanEnsemble.IEnsemble =>
     HumanEnsemble.of({
       id: "b",
       seed: "manoeuvre",
@@ -99,7 +89,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
       preset: "line",
       formation,
     });
-  const deploy = (frame: IHumanFormation.Frame): IHumanManoeuvre => ({
+  const deploy = (frame: IAutoMovieMotionHumanFormation.Frame): IAutoMovieMotionHumanManoeuvre => ({
     from: column(frame),
     to: line(frame),
     rule: "deploy",
@@ -109,9 +99,9 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   });
 
   // 1. Deploy.
-  const origin: IHumanFormation.Frame = fixed({ x: 0, y: 0, z: 0 }, 0);
-  const troop: HumanEnsemble.IEnsemble = ensemble(column(origin));
-  let parts: IHumanManoeuvre.IPart[] = [];
+  const origin: IAutoMovieMotionHumanFormation.Frame = fixed({ x: 0, y: 0, z: 0 }, 0);
+  const troop: IAutoMovieMotionHumanEnsemble.IEnsemble = ensemble(column(origin));
+  let parts: IAutoMovieMotionHumanManoeuvre.IPart[] = [];
   try {
     parts = HumanManoeuvre.plan(troop, deploy(origin));
   } catch (error) {
@@ -129,13 +119,13 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     if (Math.hypot(end.x - slot.x, end.z - slot.z) > 1e-9)
       findings.push(`member ${p.member}'s way ends off its slot`);
   }
-  const reach = (p: IHumanManoeuvre.IPart): number =>
+  const reach = (p: IAutoMovieMotionHumanManoeuvre.IPart): number =>
     Math.hypot(
       p.via[p.via.length - 1]!.x - p.via[0]!.x,
       p.via[p.via.length - 1]!.z - p.via[0]!.z,
     );
-  const farthest: IHumanManoeuvre.IPart | undefined = [...parts].sort(
-    (a: IHumanManoeuvre.IPart, b: IHumanManoeuvre.IPart): number =>
+  const farthest: IAutoMovieMotionHumanManoeuvre.IPart | undefined = [...parts].sort(
+    (a: IAutoMovieMotionHumanManoeuvre.IPart, b: IAutoMovieMotionHumanManoeuvre.IPart): number =>
       reach(b) - reach(a),
   )[0];
   if (farthest !== undefined && farthest.delay !== 0)
@@ -148,12 +138,12 @@ export function test_human_motion_ensemble_manoeuvre(): void {
       findings.push(`member ${p.member}'s first leg leaves its depth`);
       break;
     }
-  if (!parts.some((p: IHumanManoeuvre.IPart): boolean => p.via.length === 3))
+  if (!parts.some((p: IAutoMovieMotionHumanManoeuvre.IPart): boolean => p.via.length === 3))
     findings.push("no member deploys by the flank");
   // The unit keeps together: every way is marched at the slowest member's march speed.
   const slowestMarch: number = Math.min(
     ...troop.members.map(
-      (m: HumanEnsemble.IMember): number =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
         (HumanGait.MARCH.step *
           m.body.measure.hipHeight *
           HumanGait.MARCH.cadence) /
@@ -161,9 +151,9 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     ),
   );
   for (const p of parts.filter(
-    (p: IHumanManoeuvre.IPart): boolean => reach(p) > 1e-6,
+    (p: IAutoMovieMotionHumanManoeuvre.IPart): boolean => reach(p) > 1e-6,
   )) {
-    const frame: IHumanFormation.Frame | undefined = p.station?.formation.frame;
+    const frame: IAutoMovieMotionHumanFormation.Frame | undefined = p.station?.formation.frame;
     if (frame?.kind !== "path" || frame.speed !== slowestMarch) {
       findings.push(
         `member ${p.member} does not march its way at the unit's pace`,
@@ -173,7 +163,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   }
 
   // 2. Wheel.
-  const wide: IHumanFormation = {
+  const wide: IAutoMovieMotionHumanFormation = {
     blocks: [
       {
         layout: {
@@ -189,11 +179,11 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   };
   // Wheeled left by 90 degrees about file 0 of the front rank, which stands 3.3 m to the frame's left: the new frame faces +X with file 0 where it stood.
   const pivotAt: IAutoMovieVector3 = HumanFormation.slot(wide, 0, 0).at;
-  const wheeled: IHumanFormation = {
+  const wheeled: IAutoMovieMotionHumanFormation = {
     ...wide,
     frame: fixed({ x: pivotAt.x, y: 0, z: pivotAt.z + 3.3 }, 90),
   };
-  const wheelParts: IHumanManoeuvre.IPart[] = HumanManoeuvre.plan(
+  const wheelParts: IAutoMovieMotionHumanManoeuvre.IPart[] = HumanManoeuvre.plan(
     ensemble(wide, 24),
     {
       from: wide,
@@ -207,7 +197,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   const still: IAutoMovieVector3 = HumanFormation.slot(wheeled, 0, 0).at;
   if (Math.hypot(still.x - pivotAt.x, still.z - pivotAt.z) > 1e-9)
     findings.push("the pivot does not keep its place");
-  const length = (p: IHumanManoeuvre.IPart): number =>
+  const length = (p: IAutoMovieMotionHumanManoeuvre.IPart): number =>
     p.via
       .slice(1)
       .reduce(
@@ -215,7 +205,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
           s + Math.hypot(q.x - p.via[k]!.x, q.z - p.via[k]!.z),
         0,
       );
-  const front: IHumanManoeuvre.IPart[] = wheelParts.slice(0, 12);
+  const front: IAutoMovieMotionHumanManoeuvre.IPart[] = wheelParts.slice(0, 12);
   for (let k: number = 1; k < front.length; ++k)
     if (!(length(front[k]!) >= length(front[k - 1]!) - 1e-9))
       findings.push(
@@ -223,13 +213,13 @@ export function test_human_motion_ensemble_manoeuvre(): void {
       );
 
   // The wheel's stations: one turning formation, the line straight, the outward man at the lengthened step and no faster, the target reached.
-  const wheeling: IHumanFormation.IStation | undefined = wheelParts[0]?.station;
+  const wheeling: IAutoMovieMotionHumanFormation.IStation | undefined = wheelParts[0]?.station;
   if (wheeling === undefined) findings.push("the wheel keeps no station");
   else {
     const until: number = wheeling.until!;
     const slowest: number = Math.min(
       ...ensemble(wide, 24).members.map(
-        (m: HumanEnsemble.IMember): number =>
+        (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
           (HumanGait.MARCH.step *
             m.body.measure.hipHeight *
             HumanGait.MARCH.cadence) /
@@ -289,25 +279,25 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     facing: number,
     lateral: number,
     depth: number,
-  ): IHumanFormation.IBlock => ({ ...block(lateral, depth), facing });
-  const square: IHumanFormation = {
+  ): IAutoMovieMotionHumanFormation.IBlock => ({ ...block(lateral, depth), facing });
+  const square: IAutoMovieMotionHumanFormation = {
     blocks: [face(0, 0, -3), face(90, -3, 0), face(180, 0, 3), face(270, 3, 0)],
     frame: origin,
   };
   // Each face turns its block a quarter turn, which straight ways inside a block cross (the plan refuses them, below); the crowd's steering takes those crossings.
-  const squareRow: IHumanManoeuvre = {
+  const squareRow: IAutoMovieMotionHumanManoeuvre = {
     from: column(origin),
     to: square,
     rule: "square",
     on: { of: "orders", event: "square" },
     at: 0,
   };
-  const squared: IHumanManoeuvre.IPart[] = HumanManoeuvre.plan(troop, {
+  const squared: IAutoMovieMotionHumanManoeuvre.IPart[] = HumanManoeuvre.plan(troop, {
     ...squareRow,
     rule: { ...HUMAN_MANOEUVRES.square, path: "steered" },
   });
   for (const p of squared) {
-    const slot: HumanFormation.ILocal = HumanFormation.local(square, p.slot);
+    const slot: IAutoMovieMotionHumanFormation.ILocal = HumanFormation.local(square, p.slot);
     if ((slot.rank === 0) !== (p.arrive === "kneel"))
       findings.push(
         `member ${p.member} of rank ${slot.rank} arrives ${p.arrive}`,
@@ -324,8 +314,8 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   }
 
   // 4. A moved frame.
-  const moved: IHumanFormation.Frame = fixed({ x: 5, y: 0, z: -3 }, 30);
-  const movedParts: IHumanManoeuvre.IPart[] = HumanManoeuvre.plan(
+  const moved: IAutoMovieMotionHumanFormation.Frame = fixed({ x: 5, y: 0, z: -3 }, 30);
+  const movedParts: IAutoMovieMotionHumanManoeuvre.IPart[] = HumanManoeuvre.plan(
     ensemble(column(moved)),
     deploy(moved),
   );
@@ -337,7 +327,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
       z: -3 - p.x * Math.sin(h) + p.z * Math.cos(h),
     };
   };
-  parts.forEach((p: IHumanManoeuvre.IPart, i: number): void => {
+  parts.forEach((p: IAutoMovieMotionHumanManoeuvre.IPart, i: number): void => {
     const a: IAutoMovieVector3 = turn(p.via[p.via.length - 1]!);
     const b: IAutoMovieVector3 =
       movedParts[i]!.via[movedParts[i]!.via.length - 1]!;
@@ -400,7 +390,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     }
 
   // 6. A row is its four choices.
-  const written: IHumanManoeuvre.IPart[] = HumanManoeuvre.plan(troop, {
+  const written: IAutoMovieMotionHumanManoeuvre.IPart[] = HumanManoeuvre.plan(troop, {
     ...deploy(origin),
     rule: { ...HUMAN_MANOEUVRES.deploy },
   });

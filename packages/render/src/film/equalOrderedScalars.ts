@@ -1,7 +1,7 @@
-import type { AutoMovieOrderedScalar } from "./AutoMovieOrderedScalar.js";
+import type { AutoMovieOrderedEntry, AutoMovieOrderedScalar } from "@automovie/interface";
 
-/** One position of a compared array: a scalar or a one-level row of scalars. */
-type IOrderedEntry = AutoMovieOrderedScalar | readonly AutoMovieOrderedScalar[];
+
+
 
 /**
  * Compare ordered arrays of scalars, or of arrays of scalars, by value.
@@ -26,18 +26,18 @@ type IOrderedEntry = AutoMovieOrderedScalar | readonly AutoMovieOrderedScalar[];
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function keeps no reference to its arguments after returning a boolean and opens no handle or task.
  */
 export const equalOrderedScalars: (
-  left: readonly IOrderedEntry[],
-  right: readonly IOrderedEntry[],
+  left: readonly AutoMovieOrderedEntry[],
+  right: readonly AutoMovieOrderedEntry[],
 ) => boolean = (
-  left: readonly IOrderedEntry[],
-  right: readonly IOrderedEntry[],
+  left: readonly AutoMovieOrderedEntry[],
+  right: readonly AutoMovieOrderedEntry[],
 ): boolean => {
   if (Array.isArray(left) === false || Array.isArray(right) === false)
     return false;
   if (left.length !== right.length) return false;
   for (let at: number = 0; at < left.length; ++at) {
-    const one: IOrderedEntry = left[at]!;
-    const other: IOrderedEntry = right[at]!;
+    const one: AutoMovieOrderedEntry = left[at]!;
+    const other: AutoMovieOrderedEntry = right[at]!;
     if (Array.isArray(one) || Array.isArray(other)) {
       if (Array.isArray(one) === false || Array.isArray(other) === false)
         return false;

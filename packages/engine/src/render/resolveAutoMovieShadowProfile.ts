@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieConstraintViolation,
-  IAutoMovieLight,
-  IAutoMovieSceneEnvironment,
-} from "@automovie/interface";
+import type { IAutoMovieResolveShadowProfile, IAutoMovieViolationCollector, IAutoMovieLight } from "@automovie/interface";
+
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
@@ -27,28 +24,12 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The same resolved profile is reused for storage requirements and draw bounds in one inventory request; changed policy/light facts require a new profile.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar caster/violation records escape; no shadow target, native light, task or context lifecycle is retained.
  */
-export function resolveAutoMovieShadowProfile(props: {
-  lights: readonly Pick<IAutoMovieLight, "id" | "type" | "castShadow">[];
-  shadows?: IAutoMovieSceneEnvironment["shadows"] | null;
-}):
-  | {
-      success: false;
-      violations: IAutoMovieConstraintViolation[];
-      enabled?: undefined;
-      type?: undefined;
-      casters?: undefined;
-    }
-  | {
-      success: true;
-      enabled: boolean;
-      type: "pcf" | "vsm";
-      casters: { light: string; depthFaces: number; filterDraws: number }[];
-      violations?: undefined;
-    } {
+export function resolveAutoMovieShadowProfile(props: IAutoMovieResolveShadowProfile.IProps):
+  IAutoMovieResolveShadowProfile.IResult {
   const policy: { enabled: boolean; type: "pcf" | "pcfSoft" | "vsm" } =
     props.shadows ?? { enabled: true, type: "pcf" };
   const type: "pcf" | "vsm" = normalizeAutoMovieShadowFilter(policy.type);
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   if (policy.enabled && type === "vsm")
     props.lights.forEach(
       (

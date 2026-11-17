@@ -1,3 +1,4 @@
+import type { IAutoMovieCaptureCell, IAutoMovieCaptureDrawing, IAutoMovieCapturePlan, IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -201,7 +202,7 @@ export class AutoMovieCaptureHost {
    */
   public async capture(props: {
     /** The request, as `parseAutoMovieCapturePlanRequest` read it. */
-    request: Render.IAutoMovieCapturePlanRequest;
+    request: IAutoMovieCapturePlanRequest;
 
     /** Data the subject module reads, as JSON, or null. */
     props: unknown;
@@ -211,14 +212,14 @@ export class AutoMovieCaptureHost {
 
     /** The subject owner's own section of the record, or absent. */
     section?: Readonly<Record<string, unknown>>;
-  }): Promise<Extract<Render.IAutoMovieCaptureRecord, { state: "complete" }>> {
+  }): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
     const { render } = this;
     const session: Render.AutoMovieDrawSession = await this.session({
       subject: props.request.subject,
       props: props.props,
     });
     try {
-      const plan: Render.IAutoMovieCapturePlan = render.planAutoMovieCapture({
+      const plan: IAutoMovieCapturePlan = render.planAutoMovieCapture({
         request: props.request,
         subject: session.subject,
         cuts: [],
@@ -236,8 +237,8 @@ export class AutoMovieCaptureHost {
       return await render.runAutoMovieCapture({
         plan,
         draw: (
-          cell: Render.IAutoMovieCaptureCell,
-        ): Promise<Render.IAutoMovieCaptureDrawing> =>
+          cell: IAutoMovieCaptureCell,
+        ): Promise<IAutoMovieCaptureDrawing> =>
           session.drawing(cell, plan),
         folder,
         revision: readAutoMovieRevision(this.root),

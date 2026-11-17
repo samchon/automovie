@@ -1,12 +1,6 @@
-import {
-  type IAutoMovieBodyCollisionResult,
-  type IAutoMovieCollisionActor,
-  detectBodyCollision,
-} from "@automovie/engine";
-import type {
-  IAutoMovieKeyframe,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import type { IAutoMovieBodyCollisionResult, IAutoMovieCollisionActor, IAutoMovieKeyframe, IAutoMovieTransform } from "@automovie/interface";
+import { detectBodyCollision } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

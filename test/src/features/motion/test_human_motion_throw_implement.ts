@@ -1,18 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanThrowObjectLaunch, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { createStick } from "@automovie/archetypes";
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanThrownWeapon,
-  HumanVerdicts,
-  type IHumanBody,
-  throwObject,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanThrownWeapon, HumanVerdicts, throwObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,8 +45,8 @@ export function test_human_motion_throw_implement(): void {
       .frame.translation;
   const target: IAutoMovieVector3 = { x: 0, y: 0, z: 15 };
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "atlatl",
@@ -91,7 +81,7 @@ export function test_human_motion_throw_implement(): void {
       continue;
     }
     const segment = performance.segments("a")[1]!;
-    const launch: throwObject.ILaunch | undefined = throwObject.of(
+    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined = throwObject.of(
       segment.plan,
     );
     if (launch === undefined) {

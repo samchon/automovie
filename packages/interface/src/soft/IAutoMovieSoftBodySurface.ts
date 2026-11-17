@@ -1,5 +1,5 @@
-import { IAutoMovieMesh } from "../model/IAutoMovieMesh";
-import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
+import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
+import type { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
 
 /**
  * The derived drawable geometry of one soft-body state.

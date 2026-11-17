@@ -1,13 +1,11 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalPointBound as Bound, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   planPhysicalContactTargets as plan,
 } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalPointBound as Bound,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -32,21 +30,21 @@ import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 export async function test_physical_point_bounds(): Promise<void> {
   const profile: P = PhysicalPointFixtures.profile();
   const receiver: P = PhysicalFixtures.sphere(0.01);
-  const body: Simulation.IBody = PhysicalFixtures.body(
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "assembly",
     profile,
     1 / 120,
   );
-  const other: Simulation.IBody = PhysicalFixtures.body(
+  const other: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "receiver",
     receiver,
     1 / 120,
   );
-  const input: Simulation.IInput = PhysicalFixtures.input(
+  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
     [body, other],
     1 / 120,
   );
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const targets: Record<string, P.ITransform> = body.targets[0]!.segments;
   const bound: Bound = PhysicalPointFixtures.bound();
   const before: string = JSON.stringify({ targets, bound });
@@ -131,7 +129,7 @@ export async function test_physical_point_bounds(): Promise<void> {
     before,
   );
   for (const mode of ["kinematic", "simulated"] as const) {
-    const consumer: Simulation.IInput = structuredClone(input);
+    const consumer: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
     for (const actor of consumer.bodies) {
       actor.mode = { kind: mode };
       for (const target of actor.targets) {
@@ -141,7 +139,7 @@ export async function test_physical_point_bounds(): Promise<void> {
     }
     for (const target of consumer.bodies[0]!.targets)
       target.pointBounds = [structuredClone(bound)];
-    const run: Simulation = await Simulation.compute(consumer);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(consumer);
     TestValidator.predicate(
       "consumer dispatch fits point-only target",
       Math.abs(turn(run.cache.at(1 / 120).bodies.assembly!) - Math.PI / 4) <
@@ -181,7 +179,7 @@ export async function test_physical_point_bounds(): Promise<void> {
     },
   ];
   for (const mutate of mutations) {
-    const invalid: Simulation.IInput = structuredClone(input);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
     const value: Bound = structuredClone(bound);
     mutate(value);
     invalid.bodies[0]!.targets[0]!.pointBounds = [value];
@@ -199,8 +197,8 @@ export async function test_physical_point_bounds(): Promise<void> {
   Simulation.identity(input);
   body.targets[0]!.pointBounds[1]!.id = body.targets[0]!.pointBounds[0]!.id;
   assert.throws((): string => Simulation.identity(input), /point/);
-  const compound: Simulation.IInput = structuredClone(input);
-  const dense: Simulation.IBody = compound.bodies[0]!;
+  const compound: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const dense: IAutoMoviePhysicalSimulationInput.IBody = compound.bodies[0]!;
   for (const segment of dense.profile.segments)
     segment.shapes = Array.from(
       { length: 250 },

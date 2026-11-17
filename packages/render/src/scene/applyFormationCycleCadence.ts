@@ -1,4 +1,5 @@
-import type { IAutoMovieFormationCadenceSegment } from "@automovie/engine";
+import type { IAutoMovieFormationCadenceSegment } from "@automovie/interface";
+
 
 import type { IAutoMovieFormationCadence } from "./IAutoMovieFormationCadence.js";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";

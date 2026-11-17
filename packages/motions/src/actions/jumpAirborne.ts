@@ -1,16 +1,8 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJumpAirborne, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { Quaternion, minimumJerk } from "@automovie/engine";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { jumpPath } from "./jumpPath";
 import { stand } from "./stand";
 
@@ -26,24 +18,6 @@ import { stand } from "./stand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The turning is the flight pass's; this module only declares it and carries what comes back.
  */
 export namespace jumpAirborne {
-  /**
-   * A flight's requested turns.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, sign and default.
-   * @evidence contracts/development/design.md#principled-representation Turns about the somersault and long axes and the way, as the author writes them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `turning`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The way is a closed union.
-   */
-  export interface IRotation {
-    /** Somersault turns, whole or half; 0 when absent. */
-    somersault?: number & tags.Minimum<0> & HumanUnit<"">;
-
-    /** Twist turns, signed; 0 when absent. */
-    twist?: number & HumanUnit<"">;
-
-    /** Which way the somersault turns; `forward` when absent. */
-    way?: "forward" | "backward" | "left" | "right";
-  }
 
   /**
    * What the airborne shape is drawn from.
@@ -55,7 +29,7 @@ export namespace jumpAirborne {
    */
   export interface IShape {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The foot that pushed off. */
     takeoff: "left" | "right";
@@ -95,7 +69,7 @@ export namespace jumpAirborne {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function knee(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     heading: number,
     root: IAutoMovieVector3,
     side: "left" | "right",
@@ -137,7 +111,7 @@ export namespace jumpAirborne {
     shape: IShape,
     root: IAutoMovieVector3,
     u: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const { body, takeoff, heading } = shape;
     const l: number = body.measure.hipHeight;
     const s: number = minimumJerk(u).s;
@@ -153,7 +127,7 @@ export namespace jumpAirborne {
       rightLowerArm: [12 + arms / 3, 0, 0],
       [`${takeoff}Toes`]: [40 * (1 - s), 0, 0],
     };
-    const limbs: IHumanPosture["limbs"] = {};
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const) {
       const p: IAutoMovieVector3 = jumpPath.lerp(
         shape.start[side],
@@ -187,7 +161,7 @@ export namespace jumpAirborne {
    */
   export interface ITurning {
     /** The plan's flight members, none for a flight with no turns. */
-    declared: Pick<IHumanActionPlan, "flight" | "airborne">;
+    declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
 
     /**
      * A posture in flight with the rotation handed back, unchanged before
@@ -197,7 +171,7 @@ export namespace jumpAirborne {
      * @param seconds Seconds of the jump.
      * @returns The posture, turned.
      */
-    turned(posture: IHumanPosture, seconds: number): IHumanPosture;
+    turned(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -220,7 +194,7 @@ export namespace jumpAirborne {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the one rotation the pass hands back, for as long as the plan.
    */
   export function turning(
-    rotation: IRotation | undefined,
+    rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
     takeoff: number,
     touchdown: number,
     duration: number,
@@ -230,8 +204,8 @@ export namespace jumpAirborne {
     const twist: number = rotation?.twist ?? 0;
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
-    let rotated: ((seconds: number) => IHumanPosture.IRotation) | null = null;
-    const declared: Pick<IHumanActionPlan, "flight" | "airborne"> =
+    let rotated: ((seconds: number) => IAutoMovieMotionHumanPosture.IRotation) | null = null;
+    const declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne"> =
       somersault === 0 && twist === 0
         ? {}
         : {
@@ -253,14 +227,14 @@ export namespace jumpAirborne {
               },
             },
             airborne: (
-              handed: (seconds: number) => IHumanPosture.IRotation,
+              handed: (seconds: number) => IAutoMovieMotionHumanPosture.IRotation,
             ): void => {
               rotated = handed;
             },
           };
     return {
       declared,
-      turned: (posture: IHumanPosture, t: number): IHumanPosture =>
+      turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
         rotated === null || t <= takeoff || t >= touchdown
           ? posture
           : { ...posture, rotation: rotated(t) },

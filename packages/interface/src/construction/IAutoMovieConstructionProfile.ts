@@ -31,18 +31,37 @@ export interface IAutoMovieConstructionProfile {
   regions: IAutoMovieConstructionProfile.IRegion[];
 
   /** Actual dependency identities; an edit supplies a new source instance. */
-  revisions: { source: string; constraints: string; topology: string };
+  revisions: {
+    /** Identity of the original source-function revision. */
+    source: string;
+
+    /** Identity of the constraints used to prepare those source functions. */
+    constraints: string;
+
+    /** Identity of the retained piece/loop/branch topology. */
+    topology: string;
+  };
 }
 
+/**
+ * Original contour pieces, guides and ownership regions of a profile family.
+ *
+ * @evidence contracts/development/design.md#principled-representation Loop station domains retain metres, piece clocks retain source units and signed traversals preserve original functions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation, guide resolution and mesh selections share these members under the family that owns their identities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No member substitutes output polylines for the original source or treats logical labels as proven geometric continuity.
+ * @evidence contracts/development/common.md#meaningful-documentation Original contour pieces, guides and ownership regions of a profile family. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMovieConstructionProfile {
   /**
-   * A complete oriented contour on a stable physical station interval.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A complete oriented contour on a stable physical station interval.
-   * @evidence contracts/development/design.md#principled-representation Represents A complete oriented contour on a stable physical station interval: interface of 7 members (`id`, `kind`, `orientation`, `surfaceOrientation`, `domain`, `pole`, ...); units and frames named in its text: local, world, metres. Optional members `surfaceOrientation`, `pole` express documented absence, and the ranges its member docs state are left to runtime validation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ILoop` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 7 members listed and the text shows 31 other files naming it, mostly packages/engine (16), test (8), packages/human (6), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`surfaceOrientation`, `pole`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
-   */
+ * A complete oriented contour over a physical station interval.
+ *
+ * Its ordered original pieces close an outer contour or hole. The station domain is in metres inside the family's domain. orientation describes winding in the plane; surfaceOrientation independently sets the world surface sign and defaults to +1. pole declares whole-loop collapse only at named ends; an absent pole leaves regular open ends. AutoMovieConstructionProfile preparation resolves sources and domains; declaring a loop does not prove simplicity or global regularity.
+ *
+ * @evidence contracts/development/design.md#principled-representation A closed component retains original piece order, winding, physical station bounds and explicit endpoint collapse.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation and meshing use the same contour record for outer components and holes without imposing convexity.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Planar winding and surface normal orientation are distinct; coincident loops are not automatically sewn.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines piece order, station units, both orientation conventions and absent pole/default surface orientation.
+ */
   export interface ILoop {
     /** Unique loop identity in the family. */
     id: string;
@@ -67,13 +86,15 @@ export namespace IAutoMovieConstructionProfile {
   }
 
   /**
-   * An actual original function interval; no new interpolation is implied.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: An actual original function interval; no new interpolation is implied.
-   * @evidence contracts/development/design.md#principled-representation Represents An actual original function interval; no new interpolation is implied: interface of 5 members (`id`, `source`, `clock`, `direction`, `branch`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPiece` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 5 members listed and the text shows 18 other files naming it, mostly packages/human (11), packages/engine (4), test (3), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
+ * One retained original curve interval in a profile contour.
+ *
+ * source resolves to an invocation-owned curve family. clock is increasing in that source's parameter units; direction selects traversal without changing the original function. branch preserves the declared topological branch shared with neighboring pieces. Profile preparation checks source availability and retained intervals before building charts.
+ *
+ * @evidence contracts/development/design.md#principled-representation Original source identity, parameter interval and traversal sign represent a curve piece without resampling it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Profile chart preparation and guide resolution share the piece identity and source interval.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A reverse traversal does not rewrite the source or create new interpolation, and an unresolved source is not guessed from its name.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines clock units, traversal sign, chart identity and topological branch meaning.
+ */
   export interface IPiece {
     /** Unique piece/chart identity in the family. */
     id: string;
@@ -92,13 +113,15 @@ export namespace IAutoMovieConstructionProfile {
   }
 
   /**
-   * A named original locus along a piece's physical station coordinate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A named original locus along a piece's physical station coordinate.
-   * @evidence contracts/development/design.md#principled-representation Represents A named original locus along a piece's physical station coordinate: interface of 3 members (`id`, `piece`, `clock`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IGuide` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 3 members listed and the text shows 42 other files naming it, mostly packages/human (26), packages/engine (9), test (7), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
+ * A named locus at one original clock value along a profile piece.
+ *
+ * piece names an existing family piece; clock uses that original curve's parameter and lies in its retained interval. Profile preparation resolves the source, so the guide follows the original station-varying curve rather than an observed display polyline.
+ *
+ * @evidence contracts/development/design.md#principled-representation A piece reference and fixed source clock identify a locus throughout the piece's physical station domain.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Source constraints and geometry selections share a stable guide identity without copying sampled positions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration does not fit a locus to output geometry or invent missing source derivatives.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines piece membership, source parameter units and original-curve ownership.
+ */
   export interface IGuide {
     /** Guide identity used by source constraints and editor selections. */
     id: string;
@@ -111,13 +134,15 @@ export namespace IAutoMovieConstructionProfile {
   }
 
   /**
-   * Logical identity mapped to real piece charts without duplicate geometry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Logical identity mapped to real piece charts without duplicate geometry.
-   * @evidence contracts/development/design.md#principled-representation Represents Logical identity mapped to real piece charts without duplicate geometry: interface of 7 members (`id`, `logicalParts`, `pieces`, `domain`, `trim`, `material`, ...); units and frames named in its text: metres. Optional members `domain`, `trim` express documented absence, and the ranges its member docs state are left to runtime validation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IRegion` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 7 members listed and the text shows 24 other files naming it, mostly packages/human (16), movies (4), packages/engine (3), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`domain`, `trim`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
-   */
+ * Logical selections and material/binding ownership on original profile pieces.
+ *
+ * pieces names existing family charts. An omitted domain uses the retained family interval in metres; omitted or null trim selects complete referenced charts, while a trim key resolves an original-source membership function. Material and binding identities express ownership, not optical values or a guarantee that touching charts are sewn.
+ *
+ * @evidence contracts/development/design.md#principled-representation Explicit piece and optional original membership references assign logical and material/binding regions without duplicating geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation and mesh selection consume one region identity across the original source charts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Touching sheets may retain different material and binding owners; a logical name cannot create a shared physical boundary.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines chart references, metre domain defaults, trim absence and ownership identities.
+ */
   export interface IRegion {
     /** Region identity, separate from a loop or generating stream. */
     id: string;

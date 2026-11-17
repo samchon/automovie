@@ -1,149 +1,8 @@
+import type { IAutoMovieRecoveryEventRegion, IAutoMovieRecoveryEventRegionCells, IAutoMovieRecoveryEventRegionSource, IAutoMovieRecoveryEventRegionTopology } from "@automovie/interface";
 import { RecoveryEventRegionCells } from "./RecoveryEventRegionCells";
 import { RecoveryEventRegionPorts } from "./RecoveryEventRegionPorts";
 import { RecoveryEventRegionSource } from "./RecoveryEventRegionSource";
 import { RecoveryEventRegionTopology } from "./RecoveryEventRegionTopology";
-
-type V = readonly [number, number, number];
-type Triangle = readonly [number, number, number];
-type PortReference =
-  | { kind: "closed" | "open"; section: number; curve: number }
-  | { kind: "contact"; section: number; observation: number }
-  | { kind: "boundary"; name: string };
-interface Source {
-  verticesMm: readonly V[];
-  triangles: readonly Triangle[];
-  canon: Int32Array;
-  heights: readonly number[];
-  incidence: "raw" | "canonical";
-}
-interface Port {
-  id: string;
-  reference: PortReference;
-  side: "before" | "after" | "physical";
-  /** Exact cut-segment faces, rather than an unqualified endpoint-star superset. */
-  faces: readonly number[];
-  /** Original source endpoint addresses of physical boundary edges, when supplied. */
-  edges?: readonly (readonly [number, number])[];
-}
-interface Query {
-  beforeMm: number;
-  afterMm: number;
-  candidates: readonly number[];
-  ports: readonly Port[];
-}
-interface Node {
-  id: string;
-  incidenceId: string;
-  vertices: readonly number[];
-  scalar: number;
-}
-type IssueCode =
-  | "collapsed-declared-incidence"
-  | "duplicate-face-occurrence"
-  | "source-geometry-rank-below-two"
-  | "flat-source-face"
-  | "repeated-cell-incidence-vertex"
-  | "nonmanifold-edge-incidence"
-  | "nonmanifold-source-edge"
-  | "nonmanifold-vertex-link"
-  | "boundary-is-not-a-simple-cycle"
-  | "orientation-parity-obstruction"
-  | "input-face-directions-inconsistent"
-  | "point-contact-between-edge-components"
-  | "port-ambiguous-ownership"
-  | "port-missing-ownership"
-  | "overlapping-port-boundary-claims";
-interface Issue {
-  code: IssueCode;
-  faces: number[];
-  cells: number[];
-  occurrences: string[];
-  ports: string[];
-}
-interface Cell {
-  id: number;
-  face: number;
-  /** Dimension in the source triangle's reference domain, independently of geometric rank. */
-  dimension: 0 | 1 | 2;
-  /** Exact affine rank of the original face, not the physical dimension of a contact cell. */
-  sourceGeometryRank: 0 | 1 | 2;
-  scalarKind:
-    | "varying"
-    | "flat-interior"
-    | "flat-before"
-    | "flat-after"
-    | "boundary-contact";
-  /** One plane registry must own on-plane faces/contacts when adjacent query results are combined. */
-  stratum:
-    | { kind: "open-slab"; beforeMm: number; afterMm: number }
-    | { kind: "plane"; coordinateMm: number };
-  nodes: string[];
-  component: number | null;
-  /** Relative face reorientation for a qualified orientable sheet, never an outward-normal claim. */
-  orientationFlip: boolean | null;
-}
-interface Occurrence {
-  id: string;
-  cell: number;
-  face: number;
-  from: string;
-  to: string;
-  edge: string;
-  side: "before" | "after" | "physical";
-  physicalBoundary: boolean;
-  component: number;
-}
-interface Component {
-  id: number;
-  cells: number[];
-  faces: number[];
-  classification: "unclassified";
-  /** Topology of the relative two-cell sheet; lower-dimensional contacts remain separate evidence. */
-  topology: {
-    vertices: number;
-    edges: number;
-    faces: number;
-    euler: number | null;
-    manifold: boolean;
-    orientable: boolean | null;
-    inputOrientationConsistent: boolean;
-    boundaryCycles: number;
-    genus: number | null;
-  };
-  /** Halfedge occurrence and traversal direction; no coordinate or arbitrary seam closure is added. */
-  cycles: {
-    occurrences: { id: string; direction: 1 | -1 }[];
-    nodes: string[];
-    orientation: "coherent" | "unqualified";
-  }[];
-  unresolvedBoundary: string[];
-  issueIds: number[];
-}
-interface Result {
-  incidence: Source["incidence"];
-  boundsMm: [number, number];
-  /** Candidate inclusion is the caller's closed-overlap premise, not independently certified here. */
-  coverage: {
-    candidateFaces: number;
-    outsideCandidates: number;
-    completeness: "caller-premise";
-  };
-  nodes: Node[];
-  aliases: { rawNode: string; incidenceId: string }[];
-  cells: Cell[];
-  occurrences: Occurrence[];
-  components: Component[];
-  contacts: { cell: number; touchingComponents: number[] }[];
-  ports: {
-    id: string;
-    reference: PortReference;
-    cells: number[];
-    components: number[];
-    occurrences: string[];
-    status: "unique-component" | "contact-only" | "ambiguous" | "missing";
-  }[];
-  issues: Issue[];
-}
 
 /**
  * Prepare private scalar-clipped source-cell ownership and boundary incidence observations.
@@ -165,13 +24,13 @@ interface Result {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Source addresses, exact alias equality, triangle rank and duplicate occurrence detection are prepared once. Query roots, edge occurrences and vertex links are reused for topology, contacts and port ownership without recomputing geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Preparation retains immutable source references and per-face metadata until its caller releases the closure. Temporary integer coordinates are cleared after rank admission. Query maps expire on return; the caller owns private cell and incidence records and must not publish them as engine geometry.
  */
-export function RecoveryEventRegion(source: Source): (query: Query) => Result {
-  const prepared: ReturnType<typeof RecoveryEventRegionSource> =
+export function RecoveryEventRegion(source: Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]): ReturnType<IAutoMovieRecoveryEventRegion.Operation> {
+  const prepared: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> =
     RecoveryEventRegionSource(source);
-  return (query: Query): Result => {
-    const work: ReturnType<typeof RecoveryEventRegionCells> =
+  return (query: IAutoMovieRecoveryEventRegion.Query): IAutoMovieRecoveryEventRegion.Result => {
+    const work: ReturnType<IAutoMovieRecoveryEventRegionCells.Operation> =
       RecoveryEventRegionCells(source, prepared, query);
-    const topology: ReturnType<typeof RecoveryEventRegionTopology> =
+    const topology: ReturnType<IAutoMovieRecoveryEventRegionTopology.Operation> =
       RecoveryEventRegionTopology(source, prepared, work);
     return RecoveryEventRegionPorts(source, prepared, work, topology, query);
   };

@@ -1,10 +1,14 @@
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
+import type {
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * An action composed of part primitives over a base.
@@ -37,15 +41,15 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the clock and the sorted primitives, and holds no per-second state.
  */
 export function composeAutoMovieMotionHumanAction(
-  props: composeAutoMovieMotionHumanAction.IProps,
-): IHumanActionPlan {
+  props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
+): IAutoMovieMotionHumanActionPlan {
   const duration: number = props.clock.duration;
   if (Math.abs(props.base.duration - duration) > 1e-6)
     throw new Error("A composed action's base lasts as long as its clock");
   const rank = (p: IAutoMovieMotionHumanPrimitive): number =>
     Math.min(
       ...p.channels.map((c: AutoMovieMotionHumanChannel): number =>
-        AutoMovieMotionHumanChannel.ORDER.indexOf(c),
+        HumanChannels.ORDER.indexOf(c),
       ),
     );
   const primitives: IAutoMovieMotionHumanPrimitive[] = props.primitives
@@ -94,22 +98,23 @@ export function composeAutoMovieMotionHumanAction(
           fix: "give one of the two movements another body part or another time",
         });
     }
-  const contacts: IHumanContactWindow[] = [
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [
     ...props.base.contacts,
     ...primitives.flatMap(
-      (p: IAutoMovieMotionHumanPrimitive): readonly IHumanContactWindow[] =>
-        p.contacts ?? [],
+      (
+        p: IAutoMovieMotionHumanPrimitive,
+      ): readonly IAutoMovieMotionHumanContactWindow[] => p.contacts ?? [],
     ),
   ];
-  const weapons: IHumanActionPlan.IWeapon[] = [
+  const weapons: IAutoMovieMotionHumanActionPlan.IWeapon[] = [
     ...(props.base.weapons ?? []),
     ...primitives.flatMap(
       (
         p: IAutoMovieMotionHumanPrimitive,
-      ): readonly IHumanActionPlan.IWeapon[] => p.weapons ?? [],
+      ): readonly IAutoMovieMotionHumanActionPlan.IWeapon[] => p.weapons ?? [],
     ),
   ];
-  const base: IHumanActionPlan = props.base;
+  const base: IAutoMovieMotionHumanActionPlan = props.base;
   // What is planned once over a span is planned now, in the order the
   // primitives write, each on the posture so far before it.
   primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
@@ -119,7 +124,7 @@ export function composeAutoMovieMotionHumanAction(
     duration,
     events: props.clock.events(),
     contacts,
-    channels: AutoMovieMotionHumanChannel.ORDER.filter(
+    channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
           p.channels.includes(c),
@@ -134,22 +139,26 @@ export function composeAutoMovieMotionHumanAction(
     ...(base.stop === undefined
       ? {}
       : {
-          stop: (events: readonly IHumanActionPlan.IContactEvent[]): void =>
-            base.stop!(events),
+          stop: (
+            events: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
+          ): void => base.stop!(events),
         }),
-    posture: (seconds: number): IHumanPosture => so(primitives.length)(seconds),
+    posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+      so(primitives.length)(seconds),
   };
   // The posture so far before the primitive at `index`, at any second: the
   // base and every primitive before it that is active then, each given its
   // own posture so far in turn.
-  function so(index: number): (seconds: number) => IHumanPosture {
-    return (seconds: number): IHumanPosture => {
+  function so(
+    index: number,
+  ): (seconds: number) => IAutoMovieMotionHumanPosture {
+    return (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      let posture: IHumanPosture = base.posture(t);
+      let posture: IAutoMovieMotionHumanPosture = base.posture(t);
       for (let i: number = 0; i < index; ++i) {
         const p: IAutoMovieMotionHumanPrimitive = primitives[i]!;
         if (t >= p.from - 1e-9 && t <= p.to + 1e-9)
-          posture = AutoMovieMotionHumanChannel.merge(
+          posture = HumanChannels.merge(
             posture,
             p.write(posture, Math.min(p.to, Math.max(p.from, t)), so(i)),
             p.channels,
@@ -157,29 +166,5 @@ export function composeAutoMovieMotionHumanAction(
       }
       return posture;
     };
-  }
-}
-/**
- * Companion types of {@link composeAutoMovieMotionHumanAction}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what `IProps` is composed of; each member states its meaning and its constraint.
- * @evidence contracts/development/design.md#principled-representation The posture kept where nothing is claimed, the time axis, the part movements, and which instant is decisive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One interface of four members; contacts and weapons come from the base and the primitives and are not stated a second time.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The decisive instant is a name of the clock and not a second, so it cannot disagree with the clock.
- */
-export namespace composeAutoMovieMotionHumanAction {
-  /** What an action is composed of. */
-  export interface IProps {
-    /** The plan whose posture the unclaimed channels keep; as long as the clock. */
-    base: IHumanActionPlan;
-
-    /** The action's clock: its duration and its events. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The part primitives, in any order. */
-    primitives: readonly IAutoMovieMotionHumanPrimitive[];
-
-    /** The clock instant that is the action's decisive instant, when it has one. */
-    contact?: string;
   }
 }

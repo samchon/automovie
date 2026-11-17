@@ -1,27 +1,10 @@
-import type {
-  IAutoMovieCaptionGraphemeSegmentationIdentity,
-  IAutoMovieCaptionReadabilityBoundary,
-  IAutoMovieCaptionReadabilityMeasurement,
-  IAutoMovieCaptionReadabilityOutcome,
-  IAutoMovieCaptionReadabilityProfile,
-  IAutoMovieCaptionReadabilityReport,
-  IAutoMovieFilmTimeline,
-} from "@automovie/interface";
+import type { IAutoMovieCaptionGraphemeRuntime, IAutoMovieCaptionGraphemeSegmentationIdentity, IAutoMovieCaptionReadabilityBoundary, IAutoMovieCaptionReadabilityMeasurement, IAutoMovieCaptionReadabilityOutcome, IAutoMovieCaptionReadabilityProfile, IAutoMovieCaptionReadabilityReport, IAutoMovieFilmTimeline } from "@automovie/interface";
+
+
+
 
 import { autoMovieCaptionLanguageComparisonKey } from "./autoMovieCaptionLanguageComparisonKey.js";
 import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText.js";
-
-/** Runtime-owned grapheme segmentation behavior and its complete identity. */
-interface IAutoMovieCaptionGraphemeRuntime {
-  /** Complete identity of the exact segmentation behavior below. */
-  identity: IAutoMovieCaptionGraphemeSegmentationIdentity;
-
-  /**
-   * Segment one canonical caption line into grapheme clusters; only the number
-   * of yielded items is read.
-   */
-  segment(value: string): Iterable<unknown>;
-}
 
 /**
  * Measure caption readability through one injected, identity-bearing runtime

@@ -1,4 +1,5 @@
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
+import type { IAutoMovieSchedule, IAutoMovieEvaluateSchedule } from "@automovie/interface";
+
 
 /**
  * The schedule at one instant, pure and seekable: the entries active then
@@ -19,8 +20,8 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
 export function evaluateAutoMovieSchedule(
   schedule: IAutoMovieSchedule,
   seconds: number,
-): evaluateAutoMovieSchedule.IInstant {
-  const active: evaluateAutoMovieSchedule.IActive[] = [];
+): IAutoMovieEvaluateSchedule.IInstant {
+  const active: IAutoMovieEvaluateSchedule.IActive[] = [];
   const states: Record<string, unknown> = {};
   const ended: Map<string, IAutoMovieSchedule.IEntry> = new Map();
   for (const entry of schedule.entries) {
@@ -44,37 +45,4 @@ export function evaluateAutoMovieSchedule(
   }
   for (const [subject, entry] of ended) states[subject] = entry.state;
   return { seconds, active, states };
-}
-/**
- * Companion types of {@link evaluateAutoMovieSchedule}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 2 members (`IActive`, `IInstant`); units and frames named in its text: seconds, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `evaluateAutoMovieSchedule` in packages/engine/src/composition/evaluateAutoMovieSchedule.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
- */
-export namespace evaluateAutoMovieSchedule {
-  /** One active entry. */
-  export interface IActive {
-    /** The entry. */
-    entry: IAutoMovieSchedule.IEntry;
-
-    /** Seconds since its start. */
-    local: number;
-
-    /** Share of its duration elapsed, in [0, 1). */
-    phase: number;
-  }
-
-  /** The schedule at an instant. */
-  export interface IInstant {
-    /** The instant. */
-    seconds: number;
-
-    /** Active entries, by start. */
-    active: IActive[];
-
-    /** Each subject's state after its latest ended entry with a state. */
-    states: Record<string, unknown>;
-  }
 }

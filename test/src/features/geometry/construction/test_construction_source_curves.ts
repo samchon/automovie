@@ -1,11 +1,5 @@
-import {
-  type AutoMovieLoftFrame,
-  AutoMovieViewAxis,
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftFrame, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewOutline, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieViewAxis, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
 
 /**
  * Original view curves remain observable before section admission, with their actual frames, knot identities, natural-cubic extrema and finite pole endpoints.
@@ -29,17 +23,17 @@ export function test_construction_source_curves(): void {
       failures.push(`${name}: ${actual}, expected ${expected}`);
   };
   const read = (
-    outline: AutoMovieViewOutline.IOutline,
+    outline: IAutoMovieViewOutline.IOutline,
     station: number,
-  ): AutoMovieViewOutline.IReading => {
-    const out: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
+  ): IAutoMovieViewOutline.IReading => {
+    const out: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
       outline,
       station,
     );
     if (typeof out === "string") throw new Error(out);
     return out;
   };
-  const overshoot: AutoMovieViewOutline.IOutline = prepared(
+  const overshoot: IAutoMovieViewOutline.IOutline = prepared(
     knots([0, 1, 2], [1, 0.01, 0.01]),
   );
   if (
@@ -71,7 +65,7 @@ export function test_construction_source_curves(): void {
     [-1, 2.2375, -1.2375],
     [3, 0.2575, 0.2475],
   ]) {
-    const extended: AutoMovieViewOutline.IReading = read(overshoot, s!);
+    const extended: IAutoMovieViewOutline.IReading = read(overshoot, s!);
     near(`curved source extension ${s}`, extended.value, expected!);
     near(`curved source extension first ${s}`, extended.stationJet![0], slope!);
     near(`curved source extension second ${s}`, extended.stationJet![1], 0);
@@ -81,7 +75,7 @@ export function test_construction_source_curves(): void {
       .length !== 0
   )
     failures.push("constant span has isolated extrema");
-  const rooted: AutoMovieViewOutline.IOutline = prepared(
+  const rooted: IAutoMovieViewOutline.IOutline = prepared(
     knots([0, 1, 4], [0, 0.01, 0.01]),
     { bottom: 0 },
   );
@@ -92,13 +86,13 @@ export function test_construction_source_curves(): void {
   );
 
   for (const top of [false, true]) {
-    const outline: AutoMovieViewOutline.IOutline = prepared(
+    const outline: IAutoMovieViewOutline.IOutline = prepared(
       knots([0, 4], top ? [2, 0] : [0, 2]),
       top ? { top: 4 } : { bottom: 0 },
     );
     for (const s of [0.25, 1, 2.25, 3.75]) {
       const d: number = top ? 4 - s : s;
-      const actual: AutoMovieViewOutline.IReading = read(outline, s);
+      const actual: IAutoMovieViewOutline.IReading = read(outline, s);
       near(`single pole ${top} value at ${s}`, actual.value, Math.sqrt(d));
       near(
         `single pole ${top} first at ${s}`,
@@ -111,7 +105,7 @@ export function test_construction_source_curves(): void {
         -1 / (4 * d ** 1.5),
       );
     }
-    const endpoint: AutoMovieViewOutline.IReading = read(outline, top ? 4 : 0);
+    const endpoint: IAutoMovieViewOutline.IReading = read(outline, top ? 4 : 0);
     if (
       endpoint.value !== 0 ||
       endpoint.location !== "pole" ||
@@ -126,7 +120,7 @@ export function test_construction_source_curves(): void {
       failures.push(`single pole ${top} accepts an outside query`);
     if (Math.abs(read(outline, 1).value - (top ? 1.5 : 0.5)) < 0.1)
       failures.push(`red: station-linear single pole ${top} matches sigma`);
-    const extension: AutoMovieViewOutline.IReading = read(
+    const extension: IAutoMovieViewOutline.IReading = read(
       outline,
       top ? -5 : 9,
     );
@@ -142,11 +136,11 @@ export function test_construction_source_curves(): void {
       -1 / 108,
     );
   }
-  const both: AutoMovieViewOutline.IOutline = prepared(
+  const both: IAutoMovieViewOutline.IOutline = prepared(
     knots([0, 2, 4], [0, 1, 0]),
     { bottom: 0, top: 4 },
   );
-  const close: AutoMovieViewOutline.IReading = read(
+  const close: IAutoMovieViewOutline.IReading = read(
     prepared(knots([0, 4], [0, 2]), { bottom: 0 }),
     1e-310,
   );
@@ -167,7 +161,7 @@ export function test_construction_source_curves(): void {
     const fxx: number = (-24 * z) / Math.PI ** 3;
     const dx: number = 1 / Math.sqrt(s * (4 - s));
     const dxx: number = (s - 2) / (s * (4 - s)) ** 1.5;
-    const actual: AutoMovieViewOutline.IReading = read(both, s);
+    const actual: IAutoMovieViewOutline.IReading = read(both, s);
     near(`both pole value at ${s}`, actual.value, f);
     near(`both pole first at ${s}`, actual.stationJet![0], fx * dx);
     near(
@@ -179,7 +173,7 @@ export function test_construction_source_curves(): void {
   for (const s of [0, 4])
     if (read(both, s).stationJet !== null || read(both, s).value !== 0)
       failures.push(`both pole endpoint ${s}`);
-  const tiny: AutoMovieViewOutline.IReading = read(both, 1e-300);
+  const tiny: IAutoMovieViewOutline.IReading = read(both, 1e-300);
   const tinyExpected: number = 3e-150 / Math.PI;
   if (!(Math.abs(tiny.value - tinyExpected) <= tinyExpected * 1e-13))
     failures.push(
@@ -199,7 +193,7 @@ export function test_construction_source_curves(): void {
   const part: IAutoMovieViewPart = {
     name: "source",
     axis: {
-      at: (s: number): AutoMovieLoftFrame.IFrame => ({
+      at: (s: number): IAutoMovieLoftFrame.IFrame => ({
         origin: [s * s, s, s ** 3],
         u: [Math.cos(s), 0, Math.sin(s)],
         v: [-Math.sin(s), 0, Math.cos(s)],
@@ -219,8 +213,8 @@ export function test_construction_source_curves(): void {
     order: 16,
     samples: 32,
   };
-  const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
-  const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+  const source: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (
     source.diagnostics.length !== 0 ||
     source.curves.length !== 4 ||
@@ -231,7 +225,7 @@ export function test_construction_source_curves(): void {
       "invalid fullness hides or invalidates independent source edges",
     );
   for (const s of [0, 0.5, 2, 4]) {
-    const actual: AutoMovieViewCurves.IReading | string =
+    const actual: IAutoMovieViewCurves.IReading | string =
       AutoMovieViewCurves.at(source.curves[0]!, part.axis, s);
     if (typeof actual === "string") failures.push(actual);
     else {
@@ -250,7 +244,7 @@ export function test_construction_source_curves(): void {
       shoulder: knots([0, 4], [Math.SQRT2 - 1, Math.SQRT2 - 1]),
     },
   };
-  const built: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(valid);
+  const built: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(valid);
   if (built.sections.length < 2 || built.chain === null)
     failures.push("valid source no longer lofts");
   for (const section of built.sections)
@@ -264,18 +258,18 @@ export function test_construction_source_curves(): void {
     ...part,
     front: { ...part.front, positive: knots([0, 0], [0, 0]) },
   };
-  const partial: AutoMovieViewCurves.IResult =
+  const partial: IAutoMovieViewCurves.IResult =
     AutoMovieViewCurves.create(broken);
   if (
     partial.diagnostics.length !== 1 ||
     partial.curves.filter(
-      (c: AutoMovieViewCurves.ICurve): boolean => c.outline !== null,
+      (c: IAutoMovieViewCurves.ICurve): boolean => c.outline !== null,
     ).length !== 3
   )
     failures.push("one malformed edge hides its three valid neighbours");
   const invalid: (
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure
   )[] = [
     AutoMovieViewOutline.create(knots([0, 4], [1, 0]), { bottom: 0 }),
     AutoMovieViewOutline.create(knots([0, NaN], [0, 1])),
@@ -289,7 +283,7 @@ export function test_construction_source_curves(): void {
     invalid.some((out: (typeof invalid)[number]): boolean => !("detail" in out))
   )
     failures.push("malformed source admitted");
-  const open: AutoMovieViewOutline.IOutline = prepared(knots([0, 1], [2, 5]));
+  const open: IAutoMovieViewOutline.IOutline = prepared(knots([0, 1], [2, 5]));
   for (const s of [-1, 2]) {
     near(`tangent extension ${s}`, read(open, s).value, 2 + 3 * s);
     if (read(open, s).location !== "extension")
@@ -311,7 +305,7 @@ export function test_construction_source_curves(): void {
     typeof AutoMovieViewCurves.at(
       source.curves[0]!,
       {
-        at: (): AutoMovieLoftFrame.IFrame => ({
+        at: (): IAutoMovieLoftFrame.IFrame => ({
           origin: [NaN, 0, 0],
           u: [1, 0, 0],
           v: [0, 0, 1],
@@ -321,10 +315,10 @@ export function test_construction_source_curves(): void {
     ) !== "string"
   )
     failures.push("nonfinite actual frame admitted");
-  const thrown: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
+  const thrown: IAutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
     source.curves[0]!,
     {
-      at: (): AutoMovieLoftFrame.IFrame => {
+      at: (): IAutoMovieLoftFrame.IFrame => {
         throw new Error("made-axis-failure");
       },
     },
@@ -363,9 +357,9 @@ function knots(
 /** Admission used only to keep unexpected fixture failures explicit. */
 function prepared(
   outline: IAutoMovieViewPart.IOutline,
-  ends: AutoMovieViewOutline.IEnds = {},
-): AutoMovieViewOutline.IOutline {
-  const result: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  ends: IAutoMovieViewOutline.IEnds = {},
+): IAutoMovieViewOutline.IOutline {
+  const result: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create(outline, ends);
   if ("detail" in result) throw new Error(result.detail);
   return result;

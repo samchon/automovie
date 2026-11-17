@@ -1,17 +1,6 @@
-import {
-  type IAutoMovieDrawingFeatureResolution,
-  deriveAutoMovieDrawing,
-  resolveAutoMovieDrawingFeature,
-} from "@automovie/engine";
-import {
-  type IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  type IAutoMovieDrawing,
-  type IAutoMovieDrawingDimension,
-  IAutoMovieDrawingFeature,
-  type IAutoMovieDrawingGap,
-  type IAutoMovieDrawingPoint,
-} from "@automovie/interface";
+import { type IAutoMovieDrawingFeatureResolution, type IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, type IAutoMovieDrawing, type IAutoMovieDrawingDimension, IAutoMovieDrawingFeature, type IAutoMovieDrawingGap, type IAutoMovieDrawingPoint } from "@automovie/interface";
+import { deriveAutoMovieDrawing, resolveAutoMovieDrawingFeature } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -1,9 +1,6 @@
-import { IAutoMoviePerformedShot } from "@automovie/engine";
-import type {
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieConstraintViolation,
-} from "@automovie/interface";
+import type { IAutoMoviePerformedShot, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieConstraintViolation } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { assertFilmPositionalTargetKinds } from "../internal/assertFilmPositionalTargetKinds";

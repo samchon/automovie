@@ -1,4 +1,4 @@
-import type { IHumanDrillRegulation } from "./IHumanDrillRegulation";
+import type { IAutoMovieMotionHumanDrillRegulation } from "@automovie/interface";
 
 /**
  * The drill cadences and paces by regulation, steps a minute and metres.
@@ -17,7 +17,7 @@ import type { IHumanDrillRegulation } from "./IHumanDrillRegulation";
  *   `HumanGait.DOUBLE`.
  */
 export const HUMAN_DRILL_CADENCES: Readonly<
-  Record<IHumanDrillRegulation.Name, IHumanDrillRegulation>
+  Record<IAutoMovieMotionHumanDrillRegulation.Name, IAutoMovieMotionHumanDrillRegulation>
 > = {
   british1792: {
     times: { ordinary: 75, quick: 108, quickest: 120 },

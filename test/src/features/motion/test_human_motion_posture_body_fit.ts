@@ -1,5 +1,6 @@
+import type { IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   HumanBodyFit,
   HumanChain,
@@ -54,7 +55,7 @@ export function test_human_motion_posture_body_fit(): void {
     const bones = poseBones(body, resolveHumanPosture(body, standing));
 
     // The crouch's full squat at its lowest, by its joint angles.
-    const perf: HumanPerformance = new HumanPerformance({
+    const perf: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "fit",
       performers: [
         {
@@ -86,7 +87,7 @@ export function test_human_motion_posture_body_fit(): void {
       ),
       limbs: {},
     };
-    const targets: HumanBodyFit.ITarget[] = [];
+    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [];
     for (const side of ["left", "right"] as const) {
       targets.push({
         bone: `${side}Toes`,
@@ -118,7 +119,7 @@ export function test_human_motion_posture_body_fit(): void {
     ];
 
     // 1. The palms land.
-    const result: HumanBodyFit.IResult = HumanBodyFit.fit({
+    const result: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
       body,
       posture: squat,
       targets,
@@ -148,8 +149,8 @@ export function test_human_motion_posture_body_fit(): void {
 
     // 2. A palm a metre past reach is reported, never claimed met.
     if (name === "m-average") {
-      const far: HumanBodyFit.ITarget[] = targets.map(
-        (t: HumanBodyFit.ITarget, k: number): HumanBodyFit.ITarget =>
+      const far: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = targets.map(
+        (t: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
           k === 1
             ? {
                 ...t,
@@ -158,7 +159,7 @@ export function test_human_motion_posture_body_fit(): void {
               }
             : t,
       );
-      const missed: HumanBodyFit.IResult = HumanBodyFit.fit({
+      const missed: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
         body,
         posture: squat,
         targets: far,

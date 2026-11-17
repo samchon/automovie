@@ -1,9 +1,12 @@
-import type { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanFootBody, IAutoMovieHumanFootMalleolusWindow } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootMalleolusBump } from "./AutoMovieHumanFootMalleolusBump";
 
-type Vec3 = G.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * Where a malleolus's relief window stands on the body's chain: the stations
@@ -18,39 +21,13 @@ type Vec3 = G.Vec3;
  * about the border's own phase. The right foot's phases are reversed.
  */
 export namespace AutoMovieHumanFootMalleolusWindow {
-  /** What a window's place reads. */
-  export interface IInput {
-    /** The foot's frame. */
-    frame: AutoMovieHumanFootFrame.IFrame;
+  
 
-    /** The body whose guide the malleolus stands on. */
-    body: AutoMovieHumanFootBody.IBody;
-
-    /** Which border. */
-    which: "lateral" | "medial";
-
-    /** The malleolus's centre height, lateral malleolus heights. */
-    height: number;
-
-    /** The malleolus's radius, mm. */
-    radius: number;
-
-    /** 1 for the left foot, -1 for the right's reflection. */
-    sign: 1 | -1;
-  }
-
-  /** A window's place. */
-  export interface IPlace {
-    /** The stations the window covers, lowest first. */
-    stations: [number, number];
-
-    /** The phases it covers, in the side's ring order. */
-    phases: [number, number];
-  }
+  
 
   /** The place of a malleolus's window. */
-  export function of(input: IInput): IPlace {
-    const body: AutoMovieHumanFootBody.IBody = input.body;
+  export function of(input: IAutoMovieHumanFootMalleolusWindow.IInput): IAutoMovieHumanFootMalleolusWindow.IPlace {
+    const body: IAutoMovieHumanFootBody.IBody = input.body;
     const height: number = input.height * input.frame.H;
 
     // The station where the border's guide reaches the malleolus's height.
@@ -69,7 +46,7 @@ export namespace AutoMovieHumanFootMalleolusWindow {
     const perMm: number = 1 / Math.max(1e-3, Math.hypot(...G.sub(near, at)));
 
     // The reach round the section, in phase, from the section's perimeter.
-    const section: AutoMovieHumanFootBody.ISection = body.section(station);
+    const section: IAutoMovieHumanFootBody.ISection = body.section(station);
     const ring: Vec3[] = section.ring;
     let perimeter: number = 0;
     ring.forEach((p: Vec3, i: number): void => {

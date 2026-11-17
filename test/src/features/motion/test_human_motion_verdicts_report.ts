@@ -1,9 +1,5 @@
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanVerdicts,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanVerdicts } from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -33,9 +29,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the 3 scenarios and why both directions matter.
  */
 export function test_human_motion_verdicts_report(): void {
-  const a: IHumanBody = motionHumanBody("m-average");
-  const b: IHumanBody = motionHumanBody("f-small");
-  const perform = (gap: number, chain: HumanChain): HumanPerformance =>
+  const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const perform = (gap: number, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "verdicts",
       performers: [
@@ -59,11 +55,11 @@ export function test_human_motion_verdicts_report(): void {
     });
 
   // 1. A sound scene.
-  const sound: HumanPerformance = perform(
+  const sound: IAutoMovieMotionHumanPerformance = perform(
     3,
     HumanChain.subject("a").stand({ seconds: 2 }),
   );
-  const clean: HumanVerdicts.IReport = HumanVerdicts.of(sound);
+  const clean: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(sound);
   TestValidator.predicate(
     `standing apart is clean, got ${HumanVerdicts.describe(clean)}`,
     clean.clean && clean.findings.length === 0,
@@ -75,11 +71,11 @@ export function test_human_motion_verdicts_report(): void {
   );
 
   // 2. Two bodies on one floor point.
-  const merged: HumanVerdicts.IReport = HumanVerdicts.of(
+  const merged: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
     perform(0, HumanChain.subject("a").stand({ seconds: 1 })),
   );
-  const partner: HumanVerdicts.IFinding | undefined = merged.findings.find(
-    (f: HumanVerdicts.IFinding): boolean => f.check === "partner",
+  const partner: IAutoMovieMotionHumanVerdicts.IFinding | undefined = merged.findings.find(
+    (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean => f.check === "partner",
   );
   TestValidator.predicate(
     `two bodies on one point are found, got ${HumanVerdicts.describe(merged)}`,

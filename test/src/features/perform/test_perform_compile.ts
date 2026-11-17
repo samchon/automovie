@@ -1,12 +1,6 @@
-import {
-  IAutoMovieActionSynthesizer,
-  compilePerformance,
-} from "@automovie/engine";
-import type {
-  IAutoMovieActionCall,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-} from "@automovie/interface";
+import type { IAutoMovieActionSynthesizer, IAutoMovieActionCall, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import { compilePerformance } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";

@@ -1,20 +1,8 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanLoad, AutoMovieHumanoidBone, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarriedCouplingLoad, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -49,10 +37,10 @@ export namespace HumanCarriedCouplingLoad {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function load(
-    bearer: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
+    bearer: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
     role: string = coupling.bearer,
-  ): Parameters<typeof HumanLoad.lean>[0] {
+  ): IAutoMovieMotionHumanLoad.ILeanProps {
     const at: IStanding = standing(bearer, coupling, role);
     return {
       mass: at.mass,
@@ -81,10 +69,10 @@ export namespace HumanCarriedCouplingLoad {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function lean(
-    bearer: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
+    bearer: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
     role: string = coupling.bearer,
-  ): { pitch: number; roll: number } {
+  ): IAutoMovieMotionHumanCarriedCouplingLoad.ILeanResult {
     const at: IStanding = standing(bearer, coupling, role);
     const pair: IAutoMovieVector3 = Vector3.subtract(
       Vector3.scale(
@@ -113,19 +101,19 @@ export namespace HumanCarriedCouplingLoad {
 
   /** The bearer standing still with its share of the coupled load, read once for the lean and the capacity. */
   const standing = (
-    bearer: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
+    bearer: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
     role: string,
   ): IStanding => {
     // This bearer's share of the borne weight, and the borne centre in its
     // own anchor frame.
     const share: number = coupling.contacts
       .filter(
-        (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
+        (c: IAutoMovieMotionCoupling.IContact): boolean =>
           c.on.role === role,
       )
       .reduce(
-        (s: number, c: AutoMovieMotionMeeting.ICoupledContact): number =>
+        (s: number, c: IAutoMovieMotionCoupling.IContact): number =>
           s + c.load,
         0,
       );
@@ -144,11 +132,11 @@ export namespace HumanCarriedCouplingLoad {
             Quaternion.inverse(frame.rotation),
             Vector3.subtract(coupling.centre, frame.position),
           );
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(bearer.skeleton, bearer.profile);
     // The first bearer stands in the stance the key pose was placed on; a
     // further one stands upright.
-    const posture: IHumanPosture =
+    const posture: IAutoMovieMotionHumanPosture =
       frame === undefined
         ? HumanCarriedCouplingPose.stance(bearer, coupling.key.stance)
         : HumanCarriedCouplingPose.stance(bearer, { incline: 0, depth: 0 });
@@ -194,11 +182,11 @@ export namespace HumanCarriedCouplingLoad {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure check.
    */
   export function bearable(
-    bearer: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
+    bearer: IAutoMovieMotionHumanBody,
+    coupling: IAutoMovieMotionCoupling,
     role: string = coupling.bearer,
   ): void {
-    const props: Parameters<typeof HumanLoad.lean>[0] = load(
+    const props: IAutoMovieMotionHumanLoad.ILeanProps = load(
       bearer,
       coupling,
       role,

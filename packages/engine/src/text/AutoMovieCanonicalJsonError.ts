@@ -1,5 +1,4 @@
-import { AutoMovieCanonicalJsonErrorCategory } from "./AutoMovieCanonicalJsonErrorCategory";
-
+import type { AutoMovieCanonicalJsonErrorCategory } from "@automovie/interface";
 /**
  * Carry a closed canonical-JSON domain refusal without publishing partial identity text.
  *

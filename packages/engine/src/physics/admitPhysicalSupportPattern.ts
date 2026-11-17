@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieFootfallPattern as Pattern,
-} from "@automovie/interface";
+import type { IAutoMovieFootfallPattern, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -19,12 +16,12 @@ import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalSupportPattern(
-  profile: P,
-  pattern: Pattern,
+  profile: IAutoMoviePhysicalProfile,
+  pattern: IAutoMovieFootfallPattern,
   stepping: boolean,
 ): void {
   const known: Set<string> = new Set(
-    profile.segments.map((segment: P.ISegment): string => segment.bone),
+    profile.segments.map((segment: IAutoMoviePhysicalProfile.ISegment): string => segment.bone),
   );
   const vector: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
@@ -59,7 +56,7 @@ export function admitPhysicalSupportPattern(
         (bone: string, index: number): boolean =>
           index > 0 &&
           !profile.joints.some(
-            (joint: P.IJoint): boolean =>
+            (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
               joint.parent === limb.chain[index - 1] && joint.child === bone,
           ),
       ) ||

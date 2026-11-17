@@ -1,3 +1,4 @@
+import type { IAutoMovieInertializeOffset } from "@automovie/interface";
 /**
  * The decaying offset of one channel after a transition, by inertialization.
  *
@@ -53,7 +54,7 @@ export function inertializeOffset(
   duration: number,
   elapsed: number,
   through: boolean = false,
-): inertializeOffset.IState {
+): IAutoMovieInertializeOffset.IState {
   if (
     ![x0, v0, elapsed].every(Number.isFinite) ||
     !(duration > 0) ||
@@ -77,26 +78,4 @@ export function inertializeOffset(
     velocity: -(4 * s3 * (b + c * s) + s3 * s * c),
     duration: t1,
   };
-}
-
-/**
- * Companion types of {@link inertializeOffset}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit.
- * @evidence contracts/development/design.md#principled-representation An offset, its rate and the decay time actually used.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the pose inertialization and its audits read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
- */
-export namespace inertializeOffset {
-  /** The offset at an instant. */
-  export interface IState {
-    /** Offset, the channel's unit. */
-    value: number;
-
-    /** Offset velocity, the channel's unit per second. */
-    velocity: number;
-
-    /** The decay time after the overshoot clamp, seconds. */
-    duration: number;
-  }
 }

@@ -1,20 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  type IHumanBody,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -61,7 +48,7 @@ export function test_human_motion_core_hand_rotation(): void {
       180) /
     Math.PI;
   for (const name of ["m-average", "f-small", "m-long-armed"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const standing: IAutoMoviePose = resolveHumanPosture(
       body,
       stand.posture(body, { x: 0, y: 0, z: 0 }, 0),

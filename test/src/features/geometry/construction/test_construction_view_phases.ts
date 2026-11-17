@@ -1,10 +1,5 @@
-import {
-  type AutoMovieConstructionRealization,
-  AutoMovieViewAxis,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import type { IAutoMovieConstructionRealization, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieViewAxis, AutoMovieViewSection, realizeAutoMovieConstruction } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -38,7 +33,7 @@ export function test_construction_view_phases(): void {
   ];
   for (const { name, phases, expected } of cases) {
     const part: IAutoMovieViewPart = { ...tube(name), ...(phases === undefined ? {} : { phases }) };
-    const realized: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(
+    const realized: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(
       { name: "phase-tree", root: { type: "source", name: part.name, source: part.name } },
       { chord: 1e-3, sources: new Map([[part.name, part]]) },
     );

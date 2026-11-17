@@ -1,10 +1,6 @@
-import {
-  FRAMING_AIM_FRACTION,
-  FRAMING_HEIGHT_FRACTION,
-  IAutoMovieFramedSubject,
-  compileCameraMove,
-} from "@automovie/engine";
-import { IAutoMovieCamera, IAutoMovieCameraAction } from "@automovie/interface";
+import { type IAutoMovieFramedSubject, IAutoMovieCamera, IAutoMovieCameraAction } from "@automovie/interface";
+import { FRAMING_AIM_FRACTION, FRAMING_HEIGHT_FRACTION, compileCameraMove } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

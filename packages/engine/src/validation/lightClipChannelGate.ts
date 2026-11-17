@@ -1,11 +1,9 @@
-import type { IAutoMovieConstraintViolation } from "@automovie/interface";
+import type { IAutoMovieClipChannelGate, IAutoMovieLightChannelProperty, IAutoMovieLightPointer, IAutoMovieConstraintViolation } from "@automovie/interface";
+
 
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { withArticle } from "../text/withArticle";
-import type { IAutoMovieLightChannelProperty } from "./../resolve/IAutoMovieLightChannelProperty";
-import type { IAutoMovieLightPointer } from "./../resolve/IAutoMovieLightPointer";
-import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { pushViolation } from "./pushViolation";
 
 /**

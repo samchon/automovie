@@ -1,12 +1,11 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieBernstein64 as S,
-} from "@automovie/engine";
-import type { IAutoMovieBicubicAtlasGeometry as G } from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryChartAssembly, IAutoMovieRecoveryChartLeafAssembly } from "@automovie/interface";
 
-import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
+import { AutoMovieBernstein64 as S } from "@automovie/engine";
+
+
+
 import { RecoveryChartLeafAssembly } from "./RecoveryChartLeafAssembly";
-import type { RecoveryChartLeafFit } from "./RecoveryChartLeafFit";
+
 
 /**
  * Assemble fitted chart fields using one canonical boundary coefficient registry.
@@ -27,26 +26,8 @@ import type { RecoveryChartLeafFit } from "./RecoveryChartLeafFit";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps and counters are local to one bounded chart batch and expire on return. Public coefficients, patches and scalar diagnostics transfer to the observation caller; no source observations or handles are retained.
  */
 export function RecoveryChartAssembly(
-  charts: readonly {
-    name: string;
-    controlsMm: readonly C.Vector[];
-    patches: readonly { id: string; controlIds: readonly number[] }[];
-    partition: { u: readonly number[]; v: readonly number[] };
-    boundaries: readonly ReturnType<
-      ReturnType<typeof RecoveryChartBoundary>["get"]
-    >[];
-    leafLayout?: ReturnType<typeof RecoveryChartLeafFit>["leafLayout"];
-  }[],
-): {
-  controlsMm: C.Vector[];
-  patches: { id: string; controlIds: number[] }[];
-  diagnostics: string[];
-  maximumCanonicalRestrictionDifferenceMm: number;
-  sharedBoundarySpans: number;
-  unmatchedBoundarySpans: number;
-  boundaryAuthorities?: G["boundaryAuthorities"];
-  boundaryBindings?: G["boundaryBindings"];
-} {
+  charts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartAssembly.Operation> {
   if (
     charts.length &&
     charts.every(
@@ -58,28 +39,27 @@ export function RecoveryChartAssembly(
       charts.map(
         (
           chart: (typeof charts)[number],
-        ): Parameters<typeof RecoveryChartLeafAssembly>[0][number] => ({
+        ): Parameters<IAutoMovieRecoveryChartLeafAssembly.Operation>[0][number] => ({
           ...chart,
-          leafLayout: chart.leafLayout!,
-        }),
+          leafLayout: chart.leafLayout! }),
       ),
     );
-  const controlsMm: C.Vector[] = [],
+  const controlsMm: Readonly<AutoMovieVector3Tuple>[] = [],
     patches: { id: string; controlIds: number[] }[] = [],
     diagnostics: string[] = [];
   const ids: Map<string, number> = new Map(),
-    spans: Map<string, { net: C.Span; uses: number; boundary: string }> =
+    spans: Map<string, { net: IAutoMovieCurve64.Span; uses: number; boundary: string }> =
       new Map(),
     boundaryUses: Map<string, number> = new Map(),
-    endpoints: Map<string, C.Vector> = new Map();
+    endpoints: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
   let maximumCanonicalRestrictionDifferenceMm: number = 0;
-  const install: (key: string, point: C.Vector) => number = (
+  const install: (key: string, point: Readonly<AutoMovieVector3Tuple>) => number = (
     key: string,
-    point: C.Vector,
+    point: Readonly<AutoMovieVector3Tuple>,
   ): number => {
     const existing: number | undefined = ids.get(key);
     if (existing !== undefined) {
-      const old: C.Vector = controlsMm[existing]!;
+      const old: Readonly<AutoMovieVector3Tuple> = controlsMm[existing]!;
       if (old.some((x: number, k: number): boolean => x !== point[k]))
         throw new Error(
           "One declared canonical coefficient has conflicting values",
@@ -120,11 +100,11 @@ export function RecoveryChartAssembly(
               binding.reversed ? binding.knots.length - 1 - own : own
             ]!;
       };
-      const endpoint: (parameter: number) => C.Vector = (
+      const endpoint: (parameter: number) => Readonly<AutoMovieVector3Tuple> = (
         parameter: number,
-      ): C.Vector => {
+      ): Readonly<AutoMovieVector3Tuple> => {
         const key: string = `${binding.id}.at.${parameter}`,
-          previous: C.Vector | undefined = endpoints.get(key);
+          previous: Readonly<AutoMovieVector3Tuple> | undefined = endpoints.get(key);
         if (previous) return previous;
         const knot: number = binding.canonicalKnots.indexOf(parameter),
           which: number =
@@ -133,18 +113,18 @@ export function RecoveryChartAssembly(
               : binding.canonicalKnots.findIndex(
                   (end: number, i: number): boolean => i > 0 && parameter < end,
                 ) - 1;
-        const original: C.Span = binding.canonicalCurve.spans[which]!,
+        const original: IAutoMovieCurve64.Span = binding.canonicalCurve.spans[which]!,
           localParameter: number =
             (parameter - binding.canonicalKnots[which]!) /
             (binding.canonicalKnots[which + 1]! -
               binding.canonicalKnots[which]!);
-        const point: C.Vector =
+        const point: Readonly<AutoMovieVector3Tuple> =
           knot >= 0
             ? parameter === 1
               ? original[3]
               : original[0]
             : S.split(
-                original.map((p: C.Vector): [number, number, number] => [
+                original.map((p: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
                   p[0],
                   p[1],
                   p[2],
@@ -163,7 +143,7 @@ export function RecoveryChartAssembly(
             knots[binding.reversed ? interval : interval + 1]!,
           ),
           key: string = `${binding.id}:${a}:${b}`;
-        let span: { net: C.Span; uses: number; boundary: string } | undefined =
+        let span: { net: IAutoMovieCurve64.Span; uses: number; boundary: string } | undefined =
           spans.get(key);
         if (!span) {
           const which: number =
@@ -178,9 +158,9 @@ export function RecoveryChartAssembly(
             throw new Error(
               "A canonical boundary interval crosses an unregistered coefficient knot",
             );
-          const raw: C.Span = S.restrict(
+          const raw: IAutoMovieCurve64.Span = S.restrict(
             binding.canonicalCurve.spans[which]!.map(
-              (point: C.Vector): [number, number, number] => [
+              (point: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
                 point[0],
                 point[1],
                 point[2],
@@ -188,15 +168,15 @@ export function RecoveryChartAssembly(
             ),
             (a - start) / (end - start),
             (b - start) / (end - start),
-          ) as unknown as C.Span;
-          const net: C.Span = [endpoint(a), raw[1], raw[2], endpoint(b)];
+          ) as unknown as IAutoMovieCurve64.Span;
+          const net: IAutoMovieCurve64.Span = [endpoint(a), raw[1], raw[2], endpoint(b)];
           span = { net, uses: 0, boundary: binding.id };
           spans.set(key, span);
         }
         span.uses++;
         for (let k: number = 0; k < 4; k++) {
           const canonical: number = binding.reversed ? 3 - k : k,
-            point: C.Vector = span.net[canonical]!,
+            point: Readonly<AutoMovieVector3Tuple> = span.net[canonical]!,
             at: number =
               side === 0
                 ? 3 * interval + k
@@ -217,7 +197,7 @@ export function RecoveryChartAssembly(
             (canonical === 0 || canonical === 3
               ? `${binding.id}.at.${parameter}`
               : `${key}.handle.${canonical}`);
-          const old: C.Vector = chart.controlsMm[at]!;
+          const old: Readonly<AutoMovieVector3Tuple> = chart.controlsMm[at]!;
           maximumCanonicalRestrictionDifferenceMm = Math.max(
             maximumCanonicalRestrictionDifferenceMm,
             Math.hypot(old[0] - point[0], old[1] - point[1], old[2] - point[2]),
@@ -236,8 +216,7 @@ export function RecoveryChartAssembly(
               chart.controlsMm[id]!,
             );
           return local[id]!;
-        }),
-      });
+        }) });
   }
   const sharedBoundarySpans: number = [...spans.values()].filter(
       (span: { uses: number }): boolean => span.uses > 1,
@@ -260,6 +239,5 @@ export function RecoveryChartAssembly(
     diagnostics,
     maximumCanonicalRestrictionDifferenceMm,
     sharedBoundarySpans,
-    unmatchedBoundarySpans,
-  };
+    unmatchedBoundarySpans };
 }

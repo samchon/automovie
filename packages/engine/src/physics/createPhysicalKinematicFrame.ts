@@ -1,8 +1,5 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation } from "./AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
@@ -17,15 +14,15 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function createPhysicalKinematicFrame(
-  input: AutoMoviePhysicalSimulation.IInput,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
   step: number,
-): Cache.IFrame {
-  const bodies: Cache.IFrame["bodies"] = Object.create(null);
+): IAutoMoviePhysicsCache.IFrame {
+  const bodies: IAutoMoviePhysicsCache.IFrame["bodies"] = Object.create(null);
   for (const body of input.bodies) {
     bodies[body.id] = Object.create(null);
     for (const segment of body.profile.segments) {
-      const pose: P.ITransform = body.targets[step]!.segments[segment.bone]!;
-      const before: P.ITransform =
+      const pose: IAutoMoviePhysicalProfile.ITransform = body.targets[step]!.segments[segment.bone]!;
+      const before: IAutoMoviePhysicalProfile.ITransform =
         body.targets[Math.max(0, step - 1)]!.segments[segment.bone]!;
       bodies[body.id]![segment.bone] = {
         ...structuredClone(pose),

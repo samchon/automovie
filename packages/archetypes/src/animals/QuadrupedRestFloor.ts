@@ -1,11 +1,6 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, physicalShapeBounds } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 /**
  * Exact lowest world Y of one rigid primitive used by a rest cycle.
@@ -28,7 +23,7 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
     part.transform === undefined
   )
     throw new RangeError(`Rest requires a transformed primitive: ${part.id}`);
-  const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+  const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
   if (shape.type === "plane") return Infinity;
   const dimensions: readonly number[] =
     shape.type === "box"

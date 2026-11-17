@@ -1,16 +1,9 @@
+import type { IAutoMovieGeometryQuery, IAutoMovieCompiledEffect, IAutoMovieCompiledShotSource, IAutoMovieEffectRecipe, IAutoMovieProductionDesign, IAutoMovieQuaternion, IAutoMovieSceneNode } from "@automovie/interface";
 import {
   measureAutoMovieGeometry,
   sampleCompiledEffect,
 } from "@automovie/engine";
-import type {
-  AutoMovieGeometryQuery,
-  IAutoMovieCompiledEffect,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieEffectRecipe,
-  IAutoMovieProductionDesign,
-  IAutoMovieQuaternion,
-  IAutoMovieSceneNode,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";
@@ -154,7 +147,7 @@ const PRODUCTION: Pick<IAutoMovieProductionDesign, "frameFormat"> = {
 };
 
 function measure(
-  request: Partial<Extract<AutoMovieGeometryQuery, { query: "effect" }>>,
+  request: Partial<Extract<IAutoMovieGeometryQuery, { query: "effect" }>>,
   shot: IAutoMovieCompiledShotSource = storm(),
   production: typeof PRODUCTION | null = PRODUCTION,
 ): Record<string, number | string | boolean> {

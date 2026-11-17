@@ -1,8 +1,8 @@
+import type { IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRefusal, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanHand } from "../posture/HumanHand";
 import type { handshakeOffer } from "./handshakeOffer";
 
 /**
@@ -46,16 +46,16 @@ export namespace handshakeReach {
   export function refusal(
     a: handshakeOffer.ISide,
     b: handshakeOffer.ISide,
-    side: HumanHand.Side,
+    side: IAutoMovieMotionHumanHand.Side,
     pump: number,
     miss: IMiss,
     attempt: (
       a: handshakeOffer.ISide,
       b: handshakeOffer.ISide,
-      side: HumanHand.Side,
+      side: IAutoMovieMotionHumanHand.Side,
       pump: number,
     ) => handshakeOffer.IMeeting | IMiss,
-  ): HumanRefusal {
+  ): IAutoMovieMotionHumanRefusal {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const level: number = Math.hypot(span.x, span.z);
     const along: IAutoMovieVector3 =

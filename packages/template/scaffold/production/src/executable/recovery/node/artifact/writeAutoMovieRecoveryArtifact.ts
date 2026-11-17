@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieRecoveryArraySource,
-  type IAutoMovieRecoveryByteDigest,
-} from "@automovie/recovery";
+import type { IAutoMovieByteDigest, IAutoMovieJsonArraySource } from "@automovie/interface";
+
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -32,9 +30,9 @@ export function writeAutoMovieRecoveryArtifact(
   artifact: object,
   arraySources: ReadonlyMap<
     readonly unknown[],
-    readonly IAutoMovieRecoveryArraySource[]
+    readonly IAutoMovieJsonArraySource[]
   > = new Map(),
-): IAutoMovieRecoveryByteDigest {
+): IAutoMovieByteDigest {
   if (artifact === null || typeof artifact !== "object")
     throw new Error("An artifact root must be a plain data container");
   fs.mkdirSync(path.dirname(output), { recursive: true });
@@ -276,7 +274,7 @@ export function writeAutoMovieRecoveryArtifact(
     }
     ancestors.delete(current);
   };
-  let result: IAutoMovieRecoveryByteDigest;
+  let result: IAutoMovieByteDigest;
   try {
     encode(artifact);
     flush();

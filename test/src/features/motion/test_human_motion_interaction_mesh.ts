@@ -1,15 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHoldMesh, IAutoMovieMotionHumanInteractionMesh, IAutoMovieMotionHumanPerformance, IAutoMovieTetrahedralizeDelaunay, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanHoldMesh,
-  HumanInteractionMesh,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanHoldMesh, HumanInteractionMesh, HumanPerformance } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -67,24 +59,24 @@ export function test_human_motion_interaction_mesh(): void {
   // Two bodies' joints facing each other a foot apart, the second turned
   // half round, and the bones of each body by its parents.
   const pair = (
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): {
     points: IAutoMovieVector3[];
-    bones: HumanInteractionMesh.IBone[];
+    bones: IAutoMovieMotionHumanInteractionMesh.IBone[];
     index: (body: 0 | 1, bone: AutoMovieHumanoidBone) => number;
   } => {
     const points: IAutoMovieVector3[] = [];
     const indices: Map<string, number> = new Map();
     const gap: number = a.measure.footLength;
-    [a, b].forEach((body: IHumanBody, k: number): void => {
+    [a, b].forEach((body: IAutoMovieMotionHumanBody, k: number): void => {
       for (const [bone, p] of body.rest) {
         indices.set(`${k}:${bone}`, points.length);
         points.push(k === 0 ? { ...p } : { x: -p.x, y: p.y, z: gap - p.z });
       }
     });
-    const bones: HumanInteractionMesh.IBone[] = [];
-    [a, b].forEach((body: IHumanBody, k: number): void => {
+    const bones: IAutoMovieMotionHumanInteractionMesh.IBone[] = [];
+    [a, b].forEach((body: IAutoMovieMotionHumanBody, k: number): void => {
       for (const bone of body.skeleton.bones)
         if (bone.parent !== null) {
           const from: number | undefined = indices.get(`${k}:${bone.bone}`);
@@ -115,7 +107,7 @@ export function test_human_motion_interaction_mesh(): void {
     motionHumanBody("m-average"),
     motionHumanBody("f-average"),
   );
-  const mesh: tetrahedralizeAutoMovieDelaunay.IMesh =
+  const mesh: IAutoMovieTetrahedralizeDelaunay.IMesh =
     tetrahedralizeAutoMovieDelaunay(reference.points);
   const extent: number = Math.max(
     ...reference.points.map((p: IAutoMovieVector3): number => Vector3.length(p)),
@@ -163,7 +155,7 @@ export function test_human_motion_interaction_mesh(): void {
   );
 
   // 2. Identity.
-  const same: HumanInteractionMesh.IResult =
+  const same: IAutoMovieMotionHumanInteractionMesh.IResult =
     HumanInteractionMesh.adapt({
       reference: reference.points,
       bones: reference.bones,
@@ -187,11 +179,11 @@ export function test_human_motion_interaction_mesh(): void {
   ] as const) {
     const cell: string = `${names[0]} with ${names[1]}`;
     const target = pair(motionHumanBody(names[0]), motionHumanBody(names[1]));
-    const contact: HumanInteractionMesh.IContact = {
+    const contact: IAutoMovieMotionHumanInteractionMesh.IContact = {
       a: reference.index(0, "leftHand"),
       b: reference.index(1, "rightHand"),
     };
-    const adapt = (): HumanInteractionMesh.IResult =>
+    const adapt = (): IAutoMovieMotionHumanInteractionMesh.IResult =>
       HumanInteractionMesh.adapt({
         reference: reference.points,
         // Both pairs list their joints in the rig's one order, so the
@@ -200,7 +192,7 @@ export function test_human_motion_interaction_mesh(): void {
         contacts: [contact],
         mesh,
       });
-    const adapted: HumanInteractionMesh.IResult = adapt();
+    const adapted: IAutoMovieMotionHumanInteractionMesh.IResult = adapt();
     let stretched: number = 0;
     for (const b of target.bones)
       stretched = Math.max(
@@ -247,13 +239,13 @@ export function test_human_motion_interaction_mesh(): void {
 
   // 6. The hold adapted through the motions' owner: two standing bodies'
   // displayed bones as the key, the wrists paired.
-  const keyBodies: readonly [IHumanBody, IHumanBody] = [
+  const keyBodies: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-average"),
   ];
-  const film: HumanPerformance = new HumanPerformance({
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "hold-mesh",
-    performers: keyBodies.map((body: IHumanBody, k: number) => ({
+    performers: keyBodies.map((body: IAutoMovieMotionHumanBody, k: number) => ({
       subject: k === 0 ? "a" : "b",
       body,
       at: { x: 0, y: 0, z: k === 0 ? 0 : keyBodies[0].measure.footLength },
@@ -264,15 +256,15 @@ export function test_human_motion_interaction_mesh(): void {
       .stand({ seconds: 0.2 })
       .with(HumanChain.subject("b").stand({ seconds: 0.2 })).node,
   });
-  const targets: readonly [IHumanBody, IHumanBody] = [
+  const targets: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] = [
     motionHumanBody("f-small"),
     motionHumanBody("m-large"),
   ];
-  const keys: [HumanHoldMesh.IKey, HumanHoldMesh.IKey] = [
+  const keys: [IAutoMovieMotionHumanHoldMesh.IKey, IAutoMovieMotionHumanHoldMesh.IKey] = [
     { body: keyBodies[0], bones: film.bones("a", 0.1) },
     { body: keyBodies[1], bones: film.bones("b", 0.1) },
   ];
-  const held: [HumanHoldMesh.IAdapted, HumanHoldMesh.IAdapted] =
+  const held: [IAutoMovieMotionHumanHoldMesh.IAdapted, IAutoMovieMotionHumanHoldMesh.IAdapted] =
     HumanHoldMesh.adapt(keys, targets, [{ a: "leftHand", b: "rightHand" }]);
   const offset: IAutoMovieVector3 = Vector3.subtract(
     keys[0].bones.get("leftHand")!.worldPosition,
@@ -291,7 +283,7 @@ export function test_human_motion_interaction_mesh(): void {
     `the hold adapted to (f-small, m-large) keeps the wrists' key offset within ${(kept * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
     kept <= BOUND,
   );
-  held.forEach((adapted: HumanHoldMesh.IAdapted, k: number): void => {
+  held.forEach((adapted: IAutoMovieMotionHumanHoldMesh.IAdapted, k: number): void => {
     for (const bone of targets[k]!.skeleton.bones) {
       if (bone.parent === null) continue;
       const a: IAutoMovieVector3 | undefined = adapted.joints.get(bone.bone);
@@ -319,9 +311,9 @@ export function test_human_motion_interaction_mesh(): void {
 
   // 7. A headlock (the plum clinch's hold on the neck, `HumanStageFight`'s
   // headlock row) adapted from its key pose on the reference pair.
-  const lock: HumanPerformance = new HumanPerformance({
+  const lock: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "hold-mesh",
-    performers: keyBodies.map((body: IHumanBody, k: number) => ({
+    performers: keyBodies.map((body: IAutoMovieMotionHumanBody, k: number) => ({
       subject: k === 0 ? "a" : "b",
       body,
       at: { x: 0, y: 0, z: k === 0 ? 0 : keyBodies[0].measure.footLength * 2 },
@@ -343,11 +335,11 @@ export function test_human_motion_interaction_mesh(): void {
     segment.start +
     segment.plan.duration *
       (segment.plan.events.find((e) => e.name === "stroke")?.share ?? 0.5);
-  const lockKeys: [HumanHoldMesh.IKey, HumanHoldMesh.IKey] = [
+  const lockKeys: [IAutoMovieMotionHumanHoldMesh.IKey, IAutoMovieMotionHumanHoldMesh.IKey] = [
     { body: keyBodies[0], bones: lock.bones("a", holding) },
     { body: keyBodies[1], bones: lock.bones("b", holding) },
   ];
-  const lockContacts: HumanHoldMesh.IContact[] = [
+  const lockContacts: IAutoMovieMotionHumanHoldMesh.IContact[] = [
     { a: "leftHand", b: "neck" },
     { a: "rightHand", b: "neck" },
   ];
@@ -355,11 +347,11 @@ export function test_human_motion_interaction_mesh(): void {
     ["f-small", "m-large"],
     ["m-large", "f-small"],
   ] as const) {
-    const bodiesOf: readonly [IHumanBody, IHumanBody] = [
+    const bodiesOf: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] = [
       motionHumanBody(order[0]),
       motionHumanBody(order[1]),
     ];
-    const locked: [HumanHoldMesh.IAdapted, HumanHoldMesh.IAdapted] =
+    const locked: [IAutoMovieMotionHumanHoldMesh.IAdapted, IAutoMovieMotionHumanHoldMesh.IAdapted] =
       HumanHoldMesh.adapt(lockKeys, bodiesOf, lockContacts);
     for (const c of lockContacts) {
       const offset: IAutoMovieVector3 = Vector3.subtract(

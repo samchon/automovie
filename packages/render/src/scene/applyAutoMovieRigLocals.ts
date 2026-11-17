@@ -1,8 +1,11 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieRigLocalTransform } from "@automovie/interface";
+
+
+
 import type * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
-import type { IAutoMovieRigLocalTransform } from "./IAutoMovieRigLocalTransform.js";
+
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
 /**

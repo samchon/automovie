@@ -1,24 +1,8 @@
+import type { IAutoMovieComposition, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCatchObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createBall, createGlove } from "@automovie/archetypes";
-import {
-  type AutoMovieComposition,
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
-  catchObject,
-} from "@automovie/motions";
+import { Quaternion, Vector3, quaternionFromAutoMovieBasis } from "@automovie/engine";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, catchObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,7 +29,7 @@ export function test_archetype_glove_catch(): void {
     kind: "fielder",
   });
   const radius: number = ball.affordance("grip").aperture! / 2;
-  const thrower: IHumanBody = motionHumanBody("m-average");
+  const thrower: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const distance: number = 2.5;
   // Worn on the left hand: the glove's fingers (+Z) along the hand's (+X at
   // rest), its pocket (+Y) on the palm's side (-Y at rest), its wrist
@@ -55,7 +39,7 @@ export function test_archetype_glove_catch(): void {
     { x: 0, y: -1, z: 0 },
     { x: 1, y: 0, z: 0 },
   );
-  const worn: IHumanProp.IFrame = {
+  const worn: IAutoMovieMotionHumanProp.IFrame = {
     position: Vector3.scale(
       Quaternion.rotateVector(turn, glove.affordance("hand").frame.translation),
       -1,
@@ -65,7 +49,7 @@ export function test_archetype_glove_catch(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const at: IAutoMovieVector3 = {
       x: 0,
       y: body.measure.chestHeight,
@@ -76,8 +60,8 @@ export function test_archetype_glove_catch(): void {
     const perform = (
       side: "left" | "right",
       gloved: boolean,
-    ): HumanPerformance => {
-      const composition: AutoMovieComposition = {
+    ): IAutoMovieMotionHumanPerformance => {
+      const composition: IAutoMovieComposition = {
         kind: "parallel",
         parts: [
           HumanChain.subject("a").act(
@@ -130,16 +114,16 @@ export function test_archetype_glove_catch(): void {
       });
     };
     const contact = (
-      film: HumanPerformance,
+      film: IAutoMovieMotionHumanPerformance,
     ): { at: number; centre: IAutoMovieVector3 } => {
-      const act: HumanSegment.ISegment = film.segments("b")[0]!;
+      const act: IAutoMovieMotionHumanSegment.ISegment = film.segments("b")[0]!;
       const local: number = act.plan.contact ?? Number.NaN;
       return {
         at: act.start + local,
-        centre: (act.plan as catchObject.IPlan).object(local),
+        centre: (act.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(local),
       };
     };
-    const palm = (film: HumanPerformance, seconds: number): number => {
+    const palm = (film: IAutoMovieMotionHumanPerformance, seconds: number): number => {
       const hand: IAutoMovieVector3 = film
         .bones("b", seconds)
         .get("leftHand")!.worldPosition;
@@ -147,11 +131,11 @@ export function test_archetype_glove_catch(): void {
     };
 
     // 1. The gloved catch meets the ball with the pocket.
-    let gloved: HumanPerformance | undefined;
+    let gloved: IAutoMovieMotionHumanPerformance | undefined;
     try {
       gloved = perform("left", true);
       const meet: { at: number; centre: IAutoMovieVector3 } = contact(gloved);
-      const frame: IHumanProp.IFrame = gloved.prop("glove", meet.at);
+      const frame: IAutoMovieMotionHumanProp.IFrame = gloved.prop("glove", meet.at);
       const pocket: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(
@@ -174,7 +158,7 @@ export function test_archetype_glove_catch(): void {
 
     // 2. Bare-handed, the hand meets the ball nearer by the pocket's depth.
     try {
-      const bare: HumanPerformance = perform("left", false);
+      const bare: IAutoMovieMotionHumanPerformance = perform("left", false);
       if (gloved !== undefined) {
         const depth: number =
           palm(gloved, contact(gloved).at) - palm(bare, contact(bare).at);

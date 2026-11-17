@@ -1,15 +1,8 @@
-import type {
-  AutoMovieConstructionOutlineParameter,
-  IAutoMovieConstructionParallelAxis,
-} from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewAxisJet, IAutoMovieViewOutline, IAutoMovieViewParallelAxis, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
 
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
  * Parallel source planes: fixed chart axes translated by three admitted source-coordinate curves, independent of the origin course's tangent.
@@ -26,28 +19,9 @@ export namespace AutoMovieViewParallelAxis {
    * The weak identity lookup reuses the authored record without searching, sampling or rebuilding an interpolation. It contains only axes actually prepared from their declarations. Each live factory axis retains one copied declaration; a dead weak key releases that metadata. Public from/source own this serialization contract.
    */
   const DECLARATIONS: WeakMap<
-    AutoMovieViewAxis.IAxis,
+    IAutoMovieViewAxis.IAxis,
     IAutoMovieConstructionParallelAxis
   > = new WeakMap();
-
-  /**
-   * Three source coordinates of an origin in world millimetres.
-   *
-   * @evidence contracts/development/design.md#principled-representation Independent scalar source curves locate a fixed-basis plane at the same authored station.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three existing outline records carry the origin without sampled frame data.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The origin remains authored source data and is not recentered by an emitted section.
-   * @evidence contracts/development/common.md#meaningful-documentation States world space, millimetres and shared station meaning.
-   */
-  export interface IOrigin {
-    /** World X by authored station, both millimetres. */
-    x: IAutoMovieViewPart.IOutline;
-
-    /** World Y by the same authored station, millimetres. */
-    y: IAutoMovieViewPart.IOutline;
-
-    /** World Z by the same authored station, millimetres. */
-    z: IAutoMovieViewPart.IOutline;
-  }
 
   /**
    * Admit fixed planes and their original coordinate curves.
@@ -61,12 +35,12 @@ export namespace AutoMovieViewParallelAxis {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closure lifetime owns the two three-component direction copies and three source preparations; each returned frame owns its vectors.
    */
   export function create(
-    origin: IOrigin,
-    u: AutoMovieSolidVector.Vec3,
-    v: AutoMovieSolidVector.Vec3,
-  ): AutoMovieViewAxis.IAxis | string {
-    const U: AutoMovieSolidVector.Vec3 = [...u];
-    const V: AutoMovieSolidVector.Vec3 = [...v];
+    origin: IAutoMovieViewParallelAxis.IOrigin,
+    u: AutoMovieVector3Tuple,
+    v: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxis.IAxis | string {
+    const U: AutoMovieVector3Tuple = [...u];
+    const V: AutoMovieVector3Tuple = [...v];
     const tolerance: number = 64 * Number.EPSILON;
     if (
       ![...U, ...V].every(Number.isFinite) ||
@@ -75,21 +49,21 @@ export namespace AutoMovieViewParallelAxis {
       Math.abs(U[0] * V[0] + U[1] * V[1] + U[2] * V[2]) > tolerance
     )
       return "parallel chart directions must be finite, unit and perpendicular";
-    const curves: AutoMovieViewOutline.IOutline[] = [];
+    const curves: IAutoMovieViewOutline.IOutline[] = [];
     for (const coordinate of ["x", "y", "z"] as const) {
       const source:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
         origin[coordinate],
       );
       if ("detail" in source)
         return `parallel origin ${coordinate}: ${source.detail}`;
       curves.push(source);
     }
-    const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+    const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
       station: number,
-    ): AutoMovieLoftFrame.IFrame => {
-      const point: AutoMovieSolidVector.Vec3 = [0, 0, 0];
+    ): IAutoMovieLoftFrame.IFrame => {
+      const point: AutoMovieVector3Tuple = [0, 0, 0];
       for (let c: number = 0; c < 3; c++) {
         const value: number | string = AutoMovieViewOutline.value(
           curves[c]!,
@@ -105,13 +79,13 @@ export namespace AutoMovieViewParallelAxis {
       at,
       jet: (
         station: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
-      ): AutoMovieViewAxisJet.IJet | null => {
-        const point: AutoMovieSolidVector.Vec3 = [0, 0, 0];
-        const first: AutoMovieSolidVector.Vec3 = [0, 0, 0];
-        const second: AutoMovieSolidVector.Vec3 = [0, 0, 0];
+        parameter?: IAutoMovieConstructionOutlineParameter,
+      ): IAutoMovieViewAxisJet.IJet | null => {
+        const point: AutoMovieVector3Tuple = [0, 0, 0];
+        const first: AutoMovieVector3Tuple = [0, 0, 0];
+        const second: AutoMovieVector3Tuple = [0, 0, 0];
         for (let c: number = 0; c < 3; c++) {
-          const reading: AutoMovieViewOutline.IReading | string =
+          const reading: IAutoMovieViewOutline.IReading | string =
             AutoMovieViewOutline.at(curves[c]!, station);
           if (typeof reading === "string") {
             const value: number | string = AutoMovieViewOutline.value(
@@ -158,9 +132,9 @@ export namespace AutoMovieViewParallelAxis {
    */
   export function from(
     declaration: IAutoMovieConstructionParallelAxis,
-  ): AutoMovieViewAxis.IAxis | string {
+  ): IAutoMovieViewAxis.IAxis | string {
     const original: IAutoMovieConstructionParallelAxis = copy(declaration);
-    const axis: AutoMovieViewAxis.IAxis | string = create(
+    const axis: IAutoMovieViewAxis.IAxis | string = create(
       {
         x: AutoMovieViewOutline.scale(original.origin.x, 1000, 1000),
         y: AutoMovieViewOutline.scale(original.origin.y, 1000, 1000),
@@ -185,7 +159,7 @@ export namespace AutoMovieViewParallelAxis {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh declaration owned by the caller; the WeakMap retains no strong axis key.
    */
   export function source(
-    axis: AutoMovieViewAxis.IAxis,
+    axis: IAutoMovieViewAxis.IAxis,
   ): IAutoMovieConstructionParallelAxis | null {
     const original: IAutoMovieConstructionParallelAxis | undefined =
       DECLARATIONS.get(axis);

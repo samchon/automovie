@@ -1,7 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanInteractionMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanInteractionMesh } from "./HumanInteractionMesh";
+import { Vector3 } from "@automovie/engine";
 
 /**
  * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections
@@ -44,12 +43,12 @@ export namespace HumanInteractionMeshLaplacian {
   export function rows(
     reference: readonly IAutoMovieVector3[],
     neighbours: readonly (readonly number[])[],
-    bones: readonly HumanInteractionMesh.IBone[],
+    bones: readonly IAutoMovieMotionHumanInteractionMesh.IBone[],
   ): Row[] {
     const edge = (a: number, b: number): string =>
       a < b ? `${a}|${b}` : `${b}|${a}`;
     const omitted: Set<string> = new Set(
-      bones.map((bone: HumanInteractionMesh.IBone): string =>
+      bones.map((bone: IAutoMovieMotionHumanInteractionMesh.IBone): string =>
         edge(bone.from, bone.to),
       ),
     );

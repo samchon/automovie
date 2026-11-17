@@ -1,13 +1,6 @@
-import type { AutoMovieMotionTarget } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSupportRows,
-  type IHumanBody,
-  type IHumanContactWindow,
-  seated,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanSupportRows, seated } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,35 +44,35 @@ import { motionHumanStance } from "../internal/motionHumanStance";
 export function test_human_motion_lexicon_rows_support(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance = motionHumanStance(body);
     const toes: number =
       (stance.get("leftToes")!.worldPosition.z +
         stance.get("rightToes")!.worldPosition.z) /
       2;
-    const surface = (height: number, ahead: number): AutoMovieMotionTarget =>
+    const surface = (height: number, ahead: number): IAutoMovieMotionTarget =>
       ({
         kind: "point",
         at: { x: 0, y: height, z: toes + ahead },
         frame: "world",
         normal: { x: 0, y: 1, z: 0 },
-      }) as AutoMovieMotionTarget;
+      }) as IAutoMovieMotionTarget;
     const arm: number = body.measure.upperArm + body.measure.forearm;
     // The table's front edge where the law sweep stages its chair, 0.1 m
     // behind the heels, the table behind it.
     const edge: number = body.rest.get("leftFoot")!.z - 0.1 - toes;
-    const table: seated.ISeat = {
+    const table: IAutoMovieMotionHumanSeated.ISeat = {
       at: { x: 0, y: seated.popliteal(body), z: toes + edge },
       yaw: 0,
       depth: 0.45,
     };
-    const rows: readonly [string, AutoMovieMotionTarget][] = [
+    const rows: readonly [string, IAutoMovieMotionTarget][] = [
       ["scramble", surface(body.measure.hipHeight, arm / 2)],
       ["slideOff", surface(seated.popliteal(body), edge)],
     ];
     for (const [row, on] of rows) {
       const cell: string = `${row} on ${name}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "support-rows",
@@ -110,9 +103,9 @@ export function test_human_motion_lexicon_rows_support(): void {
         );
         continue;
       }
-      const placed: HumanSegment.ISegment | undefined = performance
+      const placed: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row);
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row);
       complaints.check(
         `${cell}: placed as ${placed?.name ?? "nothing"}`,
         placed?.name === row,
@@ -120,10 +113,10 @@ export function test_human_motion_lexicon_rows_support(): void {
       if (placed === undefined) continue;
       const ending: string[] = placed.plan.contacts
         .filter(
-          (w: IHumanContactWindow): boolean =>
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
             w.part.endsWith("Foot") && w.to >= 1 - 1e-9,
         )
-        .map((w: IHumanContactWindow): string => w.part)
+        .map((w: IAutoMovieMotionHumanContactWindow): string => w.part)
         .sort((x: string, y: string): number => x.localeCompare(y));
       complaints.check(
         `${cell}: ends bearing on ${ending.join(" and ") || "no foot"}, both feet expected`,

@@ -1,5 +1,9 @@
-import type { AutoMovieLoftContract } from "@automovie/engine";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
+import type { IAutoMovieLoftContract, IAutoMovieHumanBodyBox, IAutoMovieHumanBodyMeasures } from "@automovie/interface";
+
+
+
+
+
 
 /**
  * The trunk's three boxes: at the chest, the natural waist and the hip, the
@@ -27,14 +31,13 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  * hip breadth's level lies within a few centimetres of the buttock's.
  */
 export namespace AutoMovieHumanBodyBox {
-  /** A trunk level whose breadth, depth and girth are all published. */
-  export type Level = "chest" | "waist" | "hip";
+  
 
   /** The three levels, top down. */
-  export const LEVELS: readonly Level[] = ["chest", "waist", "hip"];
+  export const LEVELS: readonly IAutoMovieHumanBodyBox.Level[] = ["chest", "waist", "hip"];
 
   /** Each level's measures, by their `IAutoMovieHumanBodyAnatomy` names. */
-  export const FIELDS: Readonly<Record<Level, IFields>> = {
+  export const FIELDS: Readonly<Record<IAutoMovieHumanBodyBox.Level, IAutoMovieHumanBodyBox.IFields>> = {
     chest: { breadth: "chestBreadth", depth: "chestDepth", girth: "chestCircumference" },
     waist: { breadth: "waistBreadth", depth: "waistDepth", girth: "waistCircumference" },
     hip: { breadth: "hipBreadth", depth: "buttockDepth", girth: "hipCircumference" },
@@ -47,50 +50,9 @@ export namespace AutoMovieHumanBodyBox {
    */
   export const ROUNDING: number = 1e-9;
 
-  /** One level's three measure names. */
-  export interface IFields {
-    /** Its breadth, the front view's outline. */
-    breadth: "chestBreadth" | "waistBreadth" | "hipBreadth";
+  
 
-    /** Its depth, the side view's outline. */
-    depth: "chestDepth" | "waistDepth" | "buttockDepth";
-
-    /** Its tape girth. */
-    girth: "chestCircumference" | "waistCircumference" | "hipCircumference";
-  }
-
-  /** One level's box and the girth the section takes in it, mm. */
-  export interface IBox {
-    /** The level. */
-    level: Level;
-
-    /** Breadth, mm. */
-    breadth: number;
-
-    /** Depth, mm. */
-    depth: number;
-
-    /** The person's girth, mm, supplied or defaulted. */
-    girth: number;
-
-    /** Least perimeter of a convex section touching the box, `2 sqrt(W^2 + D^2)`, mm. */
-    rhombus: number;
-
-    /** Greatest perimeter, the box's own, `2 (W + D)`, mm. */
-    box: number;
-
-    /**
-     * The girth the section takes: the person's, held at the nearest end of
-     * the range when it contradicts the box, mm.
-     */
-    tape: number;
-
-    /**
-     * Where the tape lies in the range, `(tape - rhombus) / (box - rhombus)`:
-     * 0 the rhombus, 1 the box. The trunk's fullness solve reads it.
-     */
-    fullness: number;
-  }
+  
 
   /**
    * The range of taut-tape perimeters of a convex section touching all four
@@ -100,7 +62,7 @@ export namespace AutoMovieHumanBodyBox {
    * @param depth Box depth, mm.
    * @returns The rhombus's and the box's perimeters, mm.
    */
-  export function range(breadth: number, depth: number): [number, number] {
+  export function range(breadth: number, depth: number): IAutoMovieHumanBodyBox.RangeResult {
     return [2 * Math.hypot(breadth, depth), 2 * (breadth + depth)];
   }
 
@@ -109,9 +71,9 @@ export namespace AutoMovieHumanBodyBox {
    *
    * @param measures A person's resolved measures.
    */
-  export function of(measures: IAutoMovieHumanBodyMeasures): IBox[] {
-    return LEVELS.map((level: Level): IBox => {
-      const fields: IFields = FIELDS[level];
+  export function of(measures: IAutoMovieHumanBodyMeasures): IAutoMovieHumanBodyBox.IBox[] {
+    return LEVELS.map((level: IAutoMovieHumanBodyBox.Level): IAutoMovieHumanBodyBox.IBox => {
+      const fields: IAutoMovieHumanBodyBox.IFields = FIELDS[level];
       const breadth: number = measures[fields.breadth];
       const depth: number = measures[fields.depth];
       const girth: number = measures[fields.girth];
@@ -132,11 +94,11 @@ export namespace AutoMovieHumanBodyBox {
    * @param measures A person's resolved measures.
    * @returns The contradictions, producer `human.inputs`, level 1.
    */
-  export function diagnose(measures: IAutoMovieHumanBodyMeasures): AutoMovieLoftContract.IDiagnostic[] {
+  export function diagnose(measures: IAutoMovieHumanBodyMeasures): IAutoMovieLoftContract.IDiagnostic[] {
     return of(measures)
-      .filter((b: IBox): boolean => !(b.girth >= b.rhombus - ROUNDING && b.girth <= b.box + ROUNDING))
+      .filter((b: IAutoMovieHumanBodyBox.IBox): boolean => !(b.girth >= b.rhombus - ROUNDING && b.girth <= b.box + ROUNDING))
       .map(
-        (b: IBox): AutoMovieLoftContract.IDiagnostic => ({
+        (b: IAutoMovieHumanBodyBox.IBox): IAutoMovieLoftContract.IDiagnostic => ({
           producer: "human.inputs",
           level: 1,
           contract: `the ${b.level} girth lies inside its breadth and depth's box`,
@@ -175,11 +137,11 @@ export namespace AutoMovieHumanBodyBox {
    * @returns The level's breadth, depth and girth, mm.
    */
   export function place(
-    supplied: { breadth: number | undefined; depth: number | undefined; girth: number | undefined },
+    supplied: IAutoMovieHumanBodyBox.IPlaceSupplied,
     girth: number,
-    breadth: (girth: number) => number,
-    depth: (girth: number) => number,
-  ): { breadth: number; depth: number; girth: number } {
+    breadth: IAutoMovieHumanBodyBox.PlaceBreadth,
+    depth: IAutoMovieHumanBodyBox.PlaceDepth,
+  ): IAutoMovieHumanBodyBox.IPlaceResult {
     const g: number = supplied.girth ?? girth;
     const w: number = supplied.breadth ?? breadth(g);
     const d: number = supplied.depth ?? depth(g);

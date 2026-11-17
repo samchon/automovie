@@ -1,18 +1,7 @@
-import {
-  type AutoMoviePhysicsCache,
-  type IAutoMovieMark,
-  markAutoMovieRomOvershoot,
-  markAutoMovieSkeleton,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
-import {
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionTrail,
-  applyAutoMovieInspection,
-  markAutoMovieInspectionTrails,
-  planAutoMovieInspectionTrailTimes,
-  sampleAutoMovieInspectionTrails,
-} from "@automovie/render";
+import type { IAutoMovieInspectionTrail, IAutoMovieMark, IAutoMoviePhysicsCache, IAutoMoviePhysicalProfile } from "@automovie/interface";
+import { markAutoMovieRomOvershoot, markAutoMovieSkeleton } from "@automovie/engine";
+
+import { type IAutoMovieInspectionHandle, applyAutoMovieInspection, markAutoMovieInspectionTrails, planAutoMovieInspectionTrailTimes, sampleAutoMovieInspectionTrails } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -148,7 +137,7 @@ export async function test_inspection_motion(): Promise<void> {
             },
           },
         },
-      } as unknown as AutoMoviePhysicsCache.IFrame,
+      } as unknown as IAutoMoviePhysicsCache.IFrame,
     });
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,

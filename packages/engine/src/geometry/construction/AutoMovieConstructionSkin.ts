@@ -1,10 +1,7 @@
-import type { AutoMovieConstructionRealization } from "./AutoMovieConstructionRealization";
-import type { AutoMovieConstructionState } from "./AutoMovieConstructionState";
+import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionRealization, IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidMesh } from "@automovie/interface";
+
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * A realized construction's skin: every face's open end that its chain closes in a pole closed by a fan to the pole, and the body's mesh returned in the tree's metres with its owners as face names. An end with neither a pole nor a shared ring stays open.
@@ -31,9 +28,9 @@ export namespace AutoMovieConstructionSkin {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local map and fan arrays die after the call; the body retains emitted apex vertices/triangles and any newly registered surface owner for its own lifetime.
    */
   export function close(
-    body: AutoMovieSolidBody.IBody,
-    state: AutoMovieConstructionState.IState,
-    open: readonly (readonly AutoMovieSolidMesh.IOpen[])[],
+    body: IAutoMovieSolidBody.IBody,
+    state: IAutoMovieConstructionState.IState,
+    open: readonly (readonly IAutoMovieSolidMesh.IOpen[])[],
   ): void {
     const chainOf: Map<IAutoMovieSolidSurface, IAutoMovieLoftChain> = new Map(
       state.chainSurfaces.map(
@@ -46,7 +43,7 @@ export namespace AutoMovieConstructionSkin {
         ],
       ),
     );
-    body.faces.forEach((f: AutoMovieSolidBody.IFace, i: number): void => {
+    body.faces.forEach((f: IAutoMovieSolidBody.IFace, i: number): void => {
       const chain: IAutoMovieLoftChain | undefined = chainOf.get(f.surface);
       if (chain === undefined) return;
       const first: number = chain.layers[0]!.y;
@@ -108,8 +105,8 @@ export namespace AutoMovieConstructionSkin {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh position/index/coordinate/name arrays sized by this mesh; the adapter retains neither body nor surface closures globally.
    */
   export function mesh(
-    body: AutoMovieSolidBody.IBody,
-  ): AutoMovieConstructionRealization.IMesh {
+    body: IAutoMovieSolidBody.IBody,
+  ): IAutoMovieConstructionRealization.IMesh {
     const vertices: number = body.mesh.positions.length / 3;
     return {
       positions: body.mesh.positions.map(
@@ -118,7 +115,7 @@ export namespace AutoMovieConstructionSkin {
       indices: body.mesh.indices.slice(),
       coordinates: body.mesh.coordinates.slice(0, 3 * vertices),
       owners: body.mesh.owners.map(
-        (o: AutoMovieSolidMesh.IOwner): string => o.name,
+        (o: IAutoMovieSolidMesh.IOwner): string => o.name,
       ),
     };
   }

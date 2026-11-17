@@ -1,16 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  HumanChain,
-  HumanEmblem,
-  HumanHabit,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanActionLaw,
-  type IHumanBody,
-  touch,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanEmblem, HumanHabit, HumanPerformance, HumanSignature, touch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,7 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds and sources.
  */
 export function test_human_motion_emblem_signatures(): void {
-  const laws: IHumanActionLaw<never>[] = [
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanEmblem.hush,
     HumanEmblem.blownKiss,
     HumanEmblem.handOnHeart,
@@ -53,18 +43,18 @@ export function test_human_motion_emblem_signatures(): void {
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-average", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const read = (
       row: string,
       check: (
-        performance: HumanPerformance,
-        reader: HumanSignature.IReader,
+        performance: IAutoMovieMotionHumanPerformance,
+        reader: IAutoMovieMotionHumanSignature.IReader,
         held: number,
         start: number,
       ) => void,
     ): void => {
       try {
-        const performance: HumanPerformance = new HumanPerformance({
+        const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "emblem",
           laws,
           performers: [
@@ -80,7 +70,7 @@ export function test_human_motion_emblem_signatures(): void {
             .stand({ seconds: 0.3 })
             .registered(row, {}).node,
         });
-        const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+        const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +
           (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -103,8 +93,8 @@ export function test_human_motion_emblem_signatures(): void {
     read(
       "hush",
       (
-        _performance: HumanPerformance,
-        reader: HumanSignature.IReader,
+        _performance: IAutoMovieMotionHumanPerformance,
+        reader: IAutoMovieMotionHumanSignature.IReader,
         held: number,
         _start: number,
       ): void => {
@@ -139,8 +129,8 @@ export function test_human_motion_emblem_signatures(): void {
     read(
       "blownKiss",
       (
-        performance: HumanPerformance,
-        reader: HumanSignature.IReader,
+        performance: IAutoMovieMotionHumanPerformance,
+        reader: IAutoMovieMotionHumanSignature.IReader,
         held: number,
         _start: number,
       ): void => {
@@ -164,8 +154,8 @@ export function test_human_motion_emblem_signatures(): void {
     read(
       "handOnHeart",
       (
-        performance: HumanPerformance,
-        reader: HumanSignature.IReader,
+        performance: IAutoMovieMotionHumanPerformance,
+        reader: IAutoMovieMotionHumanSignature.IReader,
         held: number,
         _start: number,
       ): void => {
@@ -189,8 +179,8 @@ export function test_human_motion_emblem_signatures(): void {
     read(
       "checkWatch",
       (
-        _performance: HumanPerformance,
-        reader: HumanSignature.IReader,
+        _performance: IAutoMovieMotionHumanPerformance,
+        reader: IAutoMovieMotionHumanSignature.IReader,
         held: number,
         start: number,
       ): void => {

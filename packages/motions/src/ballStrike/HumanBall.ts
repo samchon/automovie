@@ -1,12 +1,8 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 
 /**
  * A ball as a law that meets it reads it: its centre and its radius, from
@@ -47,12 +43,12 @@ export namespace HumanBall {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "prop">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
     subject: string,
     seconds: number,
     axis: string,
   ): IBall {
-    const read: IHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const grip: IAutoMovieAffordance | undefined = affordances.find(
@@ -70,7 +66,7 @@ export namespace HumanBall {
         reason: `${subject} declares no ${grip === undefined ? "grip" : "aperture on its grip"} to read a ball's centre and size from`,
         fix: "name a ball whose grip is its centre with its diameter as the aperture, as createBall declares",
       });
-    const frame: IHumanProp.IFrame = read.frame(seconds);
+    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(seconds);
     return {
       centre: Vector3.add(
         frame.position,

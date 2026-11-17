@@ -1,8 +1,8 @@
-import type { IAutoMovieConstructionOutlineRange } from "@automovie/interface";
+import type { IAutoMovieViewPart, IAutoMovieNaturalSpline, IAutoMovieViewHermite, IAutoMovieConstructionOutlineRange } from "@automovie/interface";
+
+
 
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
-import type { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
 /**
@@ -14,26 +14,6 @@ import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewHermite {
-  /**
-   * Prepared spans in the selected unnormalized source parameter.
-   *
-   * @evidence contracts/development/design.md#principled-representation Retains one shared first/second jet per source knot and fixed-degree coefficients on each positive interval.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing abscissae/ordinates and three derived arrays suffice for all source reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds no emitted sections or fitted source points.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish parameter jets from normalized per-span polynomial coefficients.
-   */
-  export interface ICurve {
-    /** Source parameter knots, shared with the owning admitted natural source. */
-    xs: readonly number[];
-    /** Source values, shared with the same owner. */
-    ys: readonly number[];
-    /** First derivatives in the selected source parameter at every knot. */
-    first: readonly number[];
-    /** Second derivatives in that same parameter at every knot. */
-    second: readonly number[];
-    /** Increment coefficients c1..c5 on each unit span, with the left source value as c0. */
-    coefficients: readonly (readonly number[])[];
-  }
 
   /**
    * Admit requested normalized source jets and an optional sufficient scalar hull bound.
@@ -47,11 +27,11 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful sources own O(n) arrays; failed local preparation is released and no global cache retains input records.
    */
   export function create(
-    spline: AutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalSpline.ISpline,
     knots: readonly IAutoMovieViewPart.IKnot[],
     range: IAutoMovieConstructionOutlineRange | undefined,
-  ): ICurve | string {
-    const { xs, ys, curvatures }: AutoMovieNaturalSpline.ISpline = spline;
+  ): IAutoMovieViewHermite.ICurve | string {
+    const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
     const n: number = xs.length;
     const span: number = xs[n - 1]! - xs[0]!;
     const first: number[] = [];
@@ -197,7 +177,7 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads already prepared coefficients and endpoint jets.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no query state.
    */
-  export function value(curve: ICurve, x: number): number {
+  export function value(curve: IAutoMovieViewHermite.ICurve, x: number): number {
     const last: number = curve.xs.length - 1;
     if (x <= curve.xs[0]!)
       return curve.ys[0]! + (x - curve.xs[0]!) * curve.first[0]!;
@@ -224,7 +204,7 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the prepared shared jets and coefficients.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one pair and retains no query state.
    */
-  export function derivative(curve: ICurve, x: number): [number, number] {
+  export function derivative(curve: IAutoMovieViewHermite.ICurve, x: number): [number, number] {
     const last: number = curve.xs.length - 1;
     if (x < curve.xs[0]!) return [curve.first[0]!, 0];
     if (x > curve.xs[last]!) return [curve.first[last]!, 0];
@@ -253,7 +233,7 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same span, normalized coordinate and coefficients for value and both derivatives within this query; no generic algebra callbacks or cross-input cache are involved.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh three-number tuple and retains no input, cursor or query state.
    */
-  export function read(curve: ICurve, x: number): [number, number, number] {
+  export function read(curve: IAutoMovieViewHermite.ICurve, x: number): [number, number, number] {
     const last: number = curve.xs.length - 1;
     if (x <= curve.xs[0]!)
       return [
@@ -294,7 +274,7 @@ export namespace AutoMovieViewHermite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One inspection reads a fixed prepared source; the caller can retain its resulting sampling stations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation-local output holds at most fifteen binary64 candidates per source span and retains no additional source owner.
    */
-  export function critical(curve: ICurve): number[] {
+  export function critical(curve: IAutoMovieViewHermite.ICurve): number[] {
     return curve.coefficients.flatMap(
       (c: readonly number[], i: number): number[] => {
         const scale: number = Math.max(...c.map(Math.abs));

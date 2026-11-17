@@ -1,4 +1,4 @@
-import { IAutoMoviePropBox } from "./IAutoMoviePropBox";
+import type { IAutoMoviePropBox } from "./IAutoMoviePropBox";
 
 /**
  * One axis-aligned model-local volume another prop may not occupy.

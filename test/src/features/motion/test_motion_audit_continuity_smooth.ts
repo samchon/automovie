@@ -1,8 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditContinuity,
-  type IAutoMovieMotionHumanAuditMotion,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditContinuity, IAutoMovieMotionHumanAuditMotion, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
@@ -45,10 +43,10 @@ export function test_motion_audit_continuity_smooth(): void {
   });
   const measure = (
     motion: IAutoMovieMotionHumanAuditMotion,
-  ): AutoMovieMotionHumanAuditContinuity.IResult =>
+  ): IAutoMovieMotionHumanAuditContinuity.IResult =>
     AutoMovieMotionHumanAuditContinuity.measure(motion, "a");
 
-  const swing: AutoMovieMotionHumanAuditContinuity.IResult = measure(
+  const swing: IAutoMovieMotionHumanAuditContinuity.IResult = measure(
     motionAuditPoints(2, (t: number) => ({
       hips: at(0, 1, 0),
       rightHand: at(0.3 * Math.sin(Math.PI * t), 1, 0.3),
@@ -68,7 +66,7 @@ export function test_motion_audit_continuity_smooth(): void {
 
   const jerk = (u: number): number =>
     u >= 1 ? 1 : 10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5;
-  const reach: AutoMovieMotionHumanAuditContinuity.IResult = measure(
+  const reach: IAutoMovieMotionHumanAuditContinuity.IResult = measure(
     motionAuditPoints(1, (t: number) => ({
       rightHand: at(0, 1, 0.6 * jerk(t / 0.25)),
     })),
@@ -83,7 +81,7 @@ export function test_motion_audit_continuity_smooth(): void {
   );
   TestValidator.equals("a reach never turns back", reach.reversal.value, 0);
 
-  const corner: AutoMovieMotionHumanAuditContinuity.IResult = measure(
+  const corner: IAutoMovieMotionHumanAuditContinuity.IResult = measure(
     motionAuditPoints(2 / 24, (t: number) => ({
       rightHand:
         t < 1.5 / 24 ? at(0.05 * Math.min(1, t * 24), 1, 0) : at(0.05, 1, 0.05),
@@ -95,7 +93,7 @@ export function test_motion_audit_continuity_smooth(): void {
     0,
   );
 
-  const empty: AutoMovieMotionHumanAuditContinuity.IResult = measure(
+  const empty: IAutoMovieMotionHumanAuditContinuity.IResult = measure(
     motionAuditPoints(0, () => ({ hips: at(0, 1, 0) })),
   );
   TestValidator.predicate(
@@ -108,7 +106,7 @@ export function test_motion_audit_continuity_smooth(): void {
       empty.speed.where === "none",
   );
 
-  const brief: AutoMovieMotionHumanAuditContinuity.IResult = measure(
+  const brief: IAutoMovieMotionHumanAuditContinuity.IResult = measure(
     motionAuditPoints(0.01, (t: number) => ({ hips: at(0.5 * t, 1, 0) })),
   );
   TestValidator.predicate(

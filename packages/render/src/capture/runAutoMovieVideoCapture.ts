@@ -1,13 +1,16 @@
+import type { IAutoMovieCaptureCell, IAutoMovieCaptureDrawing, IAutoMovieCapturePlan, IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord, IAutoMovieCaptureSubject, IAutoMovieRunVideoCaptureProps } from "@automovie/interface";
+
+
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
-import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
-import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
-import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage.js";
-import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
+
+
+
+
+
+
+
 import { planAutoMovieCapture } from "./planAutoMovieCapture.js";
 import { planAutoMovieVideoFrames } from "./planAutoMovieVideoFrames.js";
 import { planAutoMovieVideoSceneCuts } from "./planAutoMovieVideoSceneCuts.js";
@@ -45,31 +48,7 @@ const BACKEND: string = "ffmpeg";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each run detects and extracts afresh, because the file may have changed.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Extracted stills wait in the folder, claimed by its record, and each is deleted once read; one decoded still is held at a time.
  */
-export async function runAutoMovieVideoCapture(props: {
-  /** Path of the video file, as the process runner reads it. */
-  file: string;
-
-  /** The file's clock and raster, which the host knows from its source or a probe. */
-  subject: Pick<
-    IAutoMovieCaptureSubject,
-    "name" | "durationSeconds" | "fps" | "width" | "height"
-  >;
-
-  /** What the capture asks for. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** Where files are read and written. */
-  storage: IAutoMovieCaptureStorage;
-
-  /** The capture's root folder. */
-  root: string;
-
-  /** Runs FFmpeg with the given arguments and resolves when it ends successfully. */
-  run: (args: readonly string[]) => Promise<void>;
-
-  /** Source revision the host captures from. */
-  revision: string;
-}): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+export async function runAutoMovieVideoCapture(props: IAutoMovieRunVideoCaptureProps): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
   // 1. What a file cannot give is refused before the folder is touched.
   const { request } = props;
   if (

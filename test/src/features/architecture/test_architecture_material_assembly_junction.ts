@@ -1,14 +1,6 @@
-import {
-  type IAutoMovieAssemblyBreak,
-  type IAutoMovieAssemblyContinuity,
-  type IAutoMovieAssemblyJunction,
-  type IAutoMovieAssemblyReveal,
-  type IAutoMovieResolvedAssembly,
-  autoMovieAssemblyOpeningReveal,
-  matchAutoMovieAssemblyJunction,
-  resolveAutoMovieMaterialAssembly,
-} from "@automovie/engine";
-import type { IAutoMovieMaterialAssembly } from "@automovie/interface";
+import type { IAutoMovieAssemblyBreak, IAutoMovieAssemblyContinuity, IAutoMovieAssemblyJunction, IAutoMovieAssemblyReveal, IAutoMovieResolvedAssembly, IAutoMovieMaterialAssembly } from "@automovie/interface";
+import { autoMovieAssemblyOpeningReveal, matchAutoMovieAssemblyJunction, resolveAutoMovieMaterialAssembly } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { assembly, layer } from "../internal/materialFixtures";

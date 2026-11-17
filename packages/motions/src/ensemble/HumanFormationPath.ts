@@ -1,8 +1,8 @@
+import type { IAutoMovieMotionHumanFormation, IAutoMovieSpeedProfile, IAutoMovieVector3 } from "@automovie/interface";
+
 import { speedProfile } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanFormation } from "./IHumanFormation";
 
 /**
  * A path frame laid out on the film clock: where its origin is and which way
@@ -59,7 +59,7 @@ export namespace HumanFormationPath {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the stretches and the profile for as long as the reader is held.
    */
   export function lay(
-    frame: IHumanFormation.IPath,
+    frame: IAutoMovieMotionHumanFormation.IPath,
     acceleration: number,
     turn: number,
   ): ILaid {
@@ -108,7 +108,7 @@ export namespace HumanFormationPath {
 
     // The profile: one cruise to a stop, or the marks held and changed at the frame's rates.
     const start: number = frame.start ?? 0;
-    const profiled: speedProfile.Stretch[] = [];
+    const profiled: IAutoMovieSpeedProfile.Stretch[] = [];
     if (typeof frame.speed === "number") {
       if (!(Number.isFinite(frame.speed) && frame.speed > 0))
         refuse(
@@ -178,7 +178,7 @@ export namespace HumanFormationPath {
         profiled.push({ kind: "distance", length: left, speed: 0, cap: v });
       }
     }
-    const profile: speedProfile.IProfile = speedProfile({
+    const profile: IAutoMovieSpeedProfile.IProfile = speedProfile({
       start,
       speed: 0,
       acceleration,

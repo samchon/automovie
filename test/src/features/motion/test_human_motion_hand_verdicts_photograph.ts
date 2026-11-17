@@ -1,17 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditContinuity,
-  HumanChain,
-  HumanHabit,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IAutoMovieMotionHumanAuditMeasure,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditContinuity, HumanChain, HumanHabit, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,18 +40,18 @@ import { photographScene } from "../internal/photographScene";
  * @evidence contracts/development/common.md#meaningful-documentation States what the row was, the held camera, why the reading is cut to two bounds, one body and a short hold, and the 3 scenarios.
  */
 export function test_human_motion_hand_verdicts_photograph(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const performance: HumanPerformance = photographScene(body);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const performance: IAutoMovieMotionHumanPerformance = photographScene(body);
   const complaints: string[] = [];
 
   // 1. The hands at the camera's two sides.
-  const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+  const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
   const instant = (event: string): number =>
     placed.start +
     (placed.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       placed.plan.duration;
   const held: number = (instant("strokeEnd") + instant("relax")) / 2;
-  const reader: HumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     performance,
     "a",
     body,
@@ -117,7 +106,7 @@ export function test_human_motion_hand_verdicts_photograph(): void {
         .join(", ")}; around it ${[-1, 0, 1]
         .map((k: number): string => {
           const at: number = jump.seconds + k / 48;
-          const posture: IHumanPosture = performance.posture("a", at);
+          const posture: IAutoMovieMotionHumanPosture = performance.posture("a", at);
           const shown = performance
             .pose("a", at)
             .joints.find((j): boolean => j.bone === jump.where);

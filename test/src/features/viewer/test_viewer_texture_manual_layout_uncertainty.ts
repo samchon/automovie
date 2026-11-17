@@ -1,3 +1,4 @@
+import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
 import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -39,8 +40,8 @@ export async function test_viewer_texture_manual_layout_uncertainty(): Promise<v
     height: number;
     data: Uint8Array<ArrayBuffer>;
   } = { width: 8, height: 8, data: new Uint8Array(256) };
-  const read: () => import("@automovie/engine").IAutoMovieRenderTextureSource =
-    (): import("@automovie/engine").IAutoMovieRenderTextureSource =>
+  const read: () => IAutoMovieRenderTextureSource =
+    (): IAutoMovieRenderTextureSource =>
       readAutoMovieTextureSource("manual", texture);
   TestValidator.equals(
     "empty manual list retains authority",
@@ -72,7 +73,7 @@ export async function test_viewer_texture_manual_layout_uncertainty(): Promise<v
       ]) {
         texture.generateMipmaps = generate;
         texture.minFilter = filter;
-        const fact: import("@automovie/engine").IAutoMovieRenderTextureSource =
+        const fact: IAutoMovieRenderTextureSource =
           read();
         TestValidator.equals(
           "manual first level owns observed extent",
@@ -230,7 +231,7 @@ export async function test_viewer_texture_manual_layout_uncertainty(): Promise<v
     THREE.LinearMipmapLinearFilter,
   ]) {
     framebuffer.minFilter = filter;
-    const fact: import("@automovie/engine").IAutoMovieRenderTextureSource =
+    const fact: IAutoMovieRenderTextureSource =
       readAutoMovieTextureSource("framebuffer", framebuffer);
     TestValidator.equals(
       "framebuffer copying requires its owning profile",

@@ -1,8 +1,12 @@
-import { AutoMovieIllinois, AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
-import type { IAutoMovieConstructionOutline, IAutoMovieConstructionView } from "@automovie/interface";
+import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadLayout, IAutoMovieConstructionOutline, IAutoMovieConstructionView } from "@automovie/interface";
+
+
+import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
+
+
 
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
@@ -51,7 +55,7 @@ export namespace AutoMovieHumanHeadCaliper {
     const upper: number = first.knots.at(-1)!.station;
     const glabella: number = named(base.part.front.positive, "glabella");
     fixed(base.view);
-    const front: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(base.part.front.positive, { top: upper });
+    const front: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(base.part.front.positive, { top: upper });
     if ("detail" in front) throw new Error(`Cranial glabella source: ${front.detail}`);
     const targetValue: number | string = AutoMovieViewOutline.value(front, glabella);
     if (typeof targetValue === "string") throw new Error(`Cranial glabella source: ${targetValue}`);
@@ -61,7 +65,7 @@ export namespace AutoMovieHumanHeadCaliper {
       const previous: number | undefined = measured.get(reach);
       if (previous !== undefined) return previous;
       const share: number = (reach - plan.reach) / plan.reach;
-      const curve: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ ...first, knots: first.knots.map((k: IAutoMovieViewPart.IKnot, i: number): IAutoMovieViewPart.IKnot => ({ ...k, value: k.value + share * (second.knots[i]!.value - k.value), ...(k.jet === undefined ? {} : { jet: { first: k.jet.first === null ? null : k.jet.first + share * (second.knots[i]!.jet!.first! - k.jet.first), second: k.jet.second === null ? null : k.jet.second + share * (second.knots[i]!.jet!.second! - k.jet.second) } }) })) }, { top: upper });
+      const curve: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ ...first, knots: first.knots.map((k: IAutoMovieViewPart.IKnot, i: number): IAutoMovieViewPart.IKnot => ({ ...k, value: k.value + share * (second.knots[i]!.value - k.value), ...(k.jet === undefined ? {} : { jet: { first: k.jet.first === null ? null : k.jet.first + share * (second.knots[i]!.jet!.first! - k.jet.first), second: k.jet.second === null ? null : k.jet.second + share * (second.knots[i]!.jet!.second! - k.jet.second) } }) })) }, { top: upper });
       if ("detail" in curve) throw new Error(`Cranial posterior family: ${curve.detail}`);
       const candidates: number[] | string = AutoMovieViewOutline.distanceStations(curve, glabella, targetValue, [lower, upper]);
       if (typeof candidates === "string") throw new Error(`Cranial caliper: ${candidates}`);

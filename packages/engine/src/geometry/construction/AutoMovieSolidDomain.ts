@@ -1,5 +1,5 @@
+import type { IAutoMovieSolidSurface } from "@automovie/interface";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Pre-evaluation admission of solver trials to an actually owned chart.

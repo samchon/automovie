@@ -1,6 +1,6 @@
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
-import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
-import { IAutoMovieOnHitReaction } from "./IAutoMovieOnHitReaction";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { IAutoMovieOnHitReaction } from "./IAutoMovieOnHitReaction";
 
 /**
  * Loose a projectile at a target. The engine computes when it lands, so the model never hand-times the target's reaction: it gives `onHit`, and the engine schedules the struck node's recoil at the computed impact ("shoot him off his horse" without knowing when the arrow arrives).

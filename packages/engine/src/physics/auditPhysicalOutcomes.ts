@@ -1,4 +1,5 @@
-import type { IAutoMovieContactReceipt } from "@automovie/interface";
+import type { IAutoMovieAuditPhysicalOutcomes, IAutoMovieContactReceipt } from "@automovie/interface";
+
 
 import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
 
@@ -17,10 +18,10 @@ import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function auditPhysicalOutcomes(
-  input: auditPhysicalOutcomes.IInput,
-): auditPhysicalOutcomes.IFinding[] {
+  input: IAutoMovieAuditPhysicalOutcomes.IInput,
+): IAutoMovieAuditPhysicalOutcomes.IFinding[] {
   admitPhysicalOutcomes(input);
-  const findings: auditPhysicalOutcomes.IFinding[] = [];
+  const findings: IAutoMovieAuditPhysicalOutcomes.IFinding[] = [];
   const used: Set<string> = new Set();
   for (const action of input.actions) {
     const contacts: IAutoMovieContactReceipt[] = input.contacts.filter(
@@ -98,62 +99,4 @@ export function auditPhysicalOutcomes(
         message: `Unplanned contact ${receipt.id}`,
       });
   return findings;
-}
-
-/**
- * Promises select identities explicitly; labels never select physical policy.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Promises select identities explicitly; labels never select physical policy) and documents 3 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Promises select identities explicitly; labels never select physical policy: companion namespace of 3 members (`IAction`, `IFinding`, `IInput`); units and frames named in its text: second, seconds, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `auditPhysicalOutcomes` in packages/engine/src/physics/auditPhysicalOutcomes.ts; its surface is the 3 members listed and the text shows 5 other files naming it, mostly test (3), packages/engine (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace auditPhysicalOutcomes {
-  /** One contact or deliberate miss, including a guard instead of a face target. */
-  export interface IAction {
-    /** Screenplay action id. */ id: string;
-    /** Planned contact/miss second. */ seconds: number;
-    /** Allowed absolute timing error, seconds. */ tolerance: number;
-    /** Attacking scene body. */ actor: string;
-    /** Receiving scene body. */ target: string;
-    /** Allowed striking collider ids. */ actorShapes: string[];
-    /** Allowed receiving collider ids. */ targetShapes: string[];
-    /** A planned hit/block or a planned miss. */ expected: "contact" | "miss";
-    /** Required observation source. */ source: "geometric" | "solver";
-  }
-  /** Every failed promise remains visible to the caller. */
-  export interface IFinding {
-    /** Owning action or unexpected receipt id. */ actionId: string;
-    /** Failure category. */ kind:
-      | "missed-contact"
-      | "unexpected-contact"
-      | "unplanned-contact"
-      | "wrong-fall";
-    /** Planned or observed film second. */ seconds: number;
-    /** Actual geometric surface gap, metres; null for a fall. */ missDistance:
-      | number
-      | null;
-    /** Human-readable measured failure. */ message: string;
-  }
-  /** Observation readers are explicit; the audit never manufactures contacts. */
-  export interface IInput {
-    /** Screenplay contact/miss requirements. */ actions: IAction[];
-    /** Measured geometric or solved episodes. */ contacts: IAutoMovieContactReceipt[];
-    /** Required falls. */ falls: {
-      id: string;
-      body: string;
-      seconds: number;
-      tolerance: number;
-    }[];
-    /** First observed fall per scene body. */ observedFalls: Record<
-      string,
-      number
-    >;
-    /** Actual nearest surface gap for a missed promise. */ missDistance: (
-      action: IAction,
-    ) => number;
-    /** Explicit exclusions such as ordinary floor support. */ allowUnplanned: (
-      receipt: IAutoMovieContactReceipt,
-    ) => boolean;
-  }
 }

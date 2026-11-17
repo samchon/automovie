@@ -1,12 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,8 +37,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_hand_overlay_wave(): void {
   const complaints: string[] = [];
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const perform = (composition: HumanChain): HumanPerformance =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const perform = (composition: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "wave",
         performers: [
@@ -58,14 +52,14 @@ export function test_human_motion_hand_overlay_wave(): void {
         ],
         composition: composition.node,
       });
-    const walk = (): HumanChain =>
+    const walk = (): IAutoMovieMotionHumanChain =>
       HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 3 } });
 
     // 1. The wave rides the walk and keeps its events.
-    let waved: HumanPerformance;
+    let waved: IAutoMovieMotionHumanPerformance;
     try {
       waved = perform(
-        walk().over((u: HumanChain): HumanChain => u.gesture({ kind: "wave" })),
+        walk().over((u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u.gesture({ kind: "wave" })),
       );
     } catch (error) {
       complaints.push(
@@ -73,7 +67,7 @@ export function test_human_motion_hand_overlay_wave(): void {
       );
       continue;
     }
-    const over: HumanSegment.IOverlay = waved.overlays("a")[0]!;
+    const over: IAutoMovieMotionHumanSegment.IOverlay = waved.overlays("a")[0]!;
     const instant = (event: string): number =>
       over.start +
       (over.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
@@ -95,13 +89,13 @@ export function test_human_motion_hand_overlay_wave(): void {
       );
 
     // 2. The stroke shows: the hand is up and swings.
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       waved,
       "a",
       body,
       0,
     );
-    const plain: HumanSignature.IReader = HumanSignature.of(
+    const plain: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       perform(walk()),
       "a",
       body,
@@ -162,7 +156,7 @@ export function test_human_motion_hand_overlay_wave(): void {
       [
         "a hand in the pocket",
         walk().over(
-          (u: HumanChain): HumanChain =>
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             u.rest({ right: "pocket", seconds: 1 }),
         ),
         "rightHand,rightArm",
@@ -170,7 +164,7 @@ export function test_human_motion_hand_overlay_wave(): void {
       [
         "a look ahead",
         walk().over(
-          (u: HumanChain): HumanChain =>
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             u.look({
               target: {
                 kind: "point",
@@ -199,7 +193,7 @@ export function test_human_motion_hand_overlay_wave(): void {
     let thrown: unknown = null;
     try {
       perform(
-        walk().over((u: HumanChain): HumanChain => u.gesture({ kind: "bow" })),
+        walk().over((u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u.gesture({ kind: "bow" })),
       );
     } catch (error) {
       thrown = error;

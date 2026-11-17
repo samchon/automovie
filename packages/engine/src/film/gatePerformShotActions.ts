@@ -1,9 +1,8 @@
-import { IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieEnginePerformShotGateContext, IAutoMovieActionCall, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { withArticle } from "../text/withArticle";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { IPerformShotActionPlan } from "./IPerformShotActionPlan";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
 import { performShotActors } from "./performShotActors";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
@@ -33,10 +32,10 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan, bounded by the action count, is owned by `performShot` for the rest of its call; nothing else is retained.
  */
 export function gatePerformShotActions(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   actions: readonly IAutoMovieActionCall[],
-): IPerformShotActionPlan {
-  const plan: IPerformShotActionPlan = {
+): IAutoMovieEnginePerformShotActionPlan {
+  const plan: IAutoMovieEnginePerformShotActionPlan = {
     liveCamera: null,
     stageActions: [],
     stageActionPaths: [],
@@ -117,7 +116,7 @@ export function gatePerformShotActions(
 
 /** Check an action's actor field and that every actor is staged. */
 function gateActors(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   action: IAutoMovieActionCall,
   actors: readonly string[],
   path: string,
@@ -183,7 +182,7 @@ function gateActors(
 
 /** Check an action's start, duration, span and repeat against the shot. */
 function gateTiming(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   action: IAutoMovieActionCall,
   path: string,
 ): void {

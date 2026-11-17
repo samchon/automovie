@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createBall,
   createTool,
@@ -5,19 +6,8 @@ import {
   createWearable,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFoot,
-  HumanObject,
-  type IHumanBody,
-  type IHumanProp,
-  catchObject,
-  handshake,
-} from "@automovie/motions";
+
+import { HumanChain, HumanFoot, HumanObject, catchObject, handshake } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -48,7 +38,7 @@ const grip = (id: string, y: number, toward: number): IAutoMovieAffordance => ({
 });
 
 /** An upright 70 by 190 mm bottle standing at a point. */
-const bottle = (at: IAutoMovieVector3): IHumanProp => ({
+const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "bottle",
   frame: { position: at, rotation: Quaternion.identity() },
   points: {},
@@ -73,7 +63,7 @@ const bottle = (at: IAutoMovieVector3): IHumanProp => ({
  * (Grandjean's band for light standing work), its low grip 85 % of the arm's
  * reach from that hand's resting shoulder.
  */
-const place = (a: IHumanBody, hand: string): IAutoMovieVector3 => {
+const place = (a: IAutoMovieMotionHumanBody, hand: string): IAutoMovieVector3 => {
   const shoulder: IAutoMovieVector3 = a.rest.get(
     hand === "left" ? "leftUpperArm" : "rightUpperArm",
   )!;
@@ -88,7 +78,7 @@ const place = (a: IHumanBody, hand: string): IAutoMovieVector3 => {
 };
 
 /** The distance two people shake hands and hand a thing over at. */
-const meeting = (a: IHumanBody, b: IHumanBody): number =>
+const meeting = (a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number =>
   handshake.gap(a, b) +
   handshake.stance(a).sternum +
   handshake.stance(b).sternum;
@@ -100,8 +90,8 @@ const meeting = (a: IHumanBody, b: IHumanBody): number =>
  */
 const handing = (
   pick: motionHumanLawSweep.Pick,
-  a: IHumanBody,
-  b: IHumanBody,
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
 ): motionHumanLawSweep.IScene => {
   const hand: string = pick("hand") ?? "right";
   const shoulder: IAutoMovieVector3 = a.rest.get(
@@ -130,8 +120,8 @@ const handing = (
 
 /** `a` throws to `b`, who catches, over a style's distance. */
 const throwing = (
-  a: IHumanBody,
-  b: IHumanBody,
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
   style: string,
   thrower: object,
   catcher: object,
@@ -211,7 +201,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
 > = {
   pickUp: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string = pick("hand") ?? "right";
     return S.solo(
@@ -224,7 +214,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   putDown: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string = pick("hand") ?? "right";
     const at: IAutoMovieVector3 = place(a, hand);
@@ -241,7 +231,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   // holds it, so it drops from the open hand (#3479).
   release: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string = pick("hand") ?? "right";
     return S.solo(
@@ -257,8 +247,8 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   receive: handing,
   handshake: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.duo(
       a,
@@ -271,19 +261,19 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     ),
   throwObject: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     throwing(a, b, pick("style") ?? "overarm", S.set(pick, "hand"), {}),
   catchObject: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     throwing(a, b, "toss", {}, S.set(pick, "hands", "side")),
   operate: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string | undefined = pick("hand");
     const kind: string = pick("mechanism") ?? "button";
@@ -310,7 +300,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   kickBall: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const foot: "left" | "right" = pick("foot") === "left" ? "left" : "right";
     const ankle: IAutoMovieVector3 = a.rest.get(`${foot}Foot`)!;
@@ -338,12 +328,12 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   useTool: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string = pick("hand") ?? "right";
     const tool: string = pick("tool") ?? "hammer";
     const bench: number = a.measure.shoulderHeight - a.measure.upperArm - 0.15;
-    const props: IHumanProp[] = [
+    const props: IAutoMovieMotionHumanProp[] = [
       HumanObject.prop(
         "tool",
         createTool({
@@ -398,7 +388,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   wipe: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string | undefined = pick("hand");
     return S.solo(
@@ -416,7 +406,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   dress: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const item: string = pick("item") ?? "hat";
     return S.solo(

@@ -1,16 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  HumanSocial,
-  type IHumanBody,
-  type IHumanPosture,
-  armWrestle,
-  seated,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature, HumanSocial, armWrestle, seated } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,7 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 5 scenarios with their bounds.
  */
 export function test_human_motion_social_arm_wrestle(): void {
-  const bodies: Record<"a" | "b", IHumanBody> = {
+  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
@@ -61,7 +51,7 @@ export function test_human_motion_social_arm_wrestle(): void {
   const table: IAutoMovieVector3 = { x: 0, y: top, z: 0.275 };
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
-  const sits = (who: "a" | "b"): HumanChain => {
+  const sits = (who: "a" | "b"): IAutoMovieMotionHumanChain => {
     const behind: number = bodies[who].rest.get("leftFoot")!.z - 0.1;
     return HumanChain.subject(who).sit({
       seat: {
@@ -76,7 +66,7 @@ export function test_human_motion_social_arm_wrestle(): void {
     });
   };
 
-  const build = (pin: number): HumanPerformance =>
+  const build = (pin: number): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "wrestle",
       laws: [armWrestle],
@@ -97,7 +87,7 @@ export function test_human_motion_social_arm_wrestle(): void {
   // 1. A pin past an arm's range is refused with the angle it holds, and
   // the contest plans at that angle.
   let angle: number = 85;
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     try {
       performance = build(angle);
@@ -121,8 +111,8 @@ export function test_human_motion_social_arm_wrestle(): void {
         // for the fit to be read off.
         for (const pin of [angle, angle + 5])
           try {
-            const pinned: HumanPerformance = build(pin);
-            const placed: HumanSegment.ISegment = pinned.segments("b")[1]!;
+            const pinned: IAutoMovieMotionHumanPerformance = build(pin);
+            const placed: IAutoMovieMotionHumanSegment.ISegment = pinned.segments("b")[1]!;
             const seconds: number =
               placed.start +
               (placed.plan.events.find((e): boolean => e.name === "pin")
@@ -147,12 +137,12 @@ export function test_human_motion_social_arm_wrestle(): void {
     );
     return;
   }
-  const readers: Record<"a" | "b", HumanSignature.IReader> = {
+  const readers: Record<"a" | "b", IAutoMovieMotionHumanSignature.IReader> = {
     a: HumanSignature.of(performance, "a", bodies.a, 0),
     b: HumanSignature.of(performance, "b", bodies.b, 0),
   };
   const instant = (who: "a" | "b", event: string): number => {
-    const placed: HumanSegment.ISegment = performance.segments(who)[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments(who)[1]!;
     return (
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -240,7 +230,7 @@ export function test_human_motion_social_arm_wrestle(): void {
 }
 
 /** A posture as text for a complaint: root, yaw, pitch, roll, every set joint and every limb goal, numbers to four places, a goal's colliders left out. */
-function dump(posture: IHumanPosture): string {
+function dump(posture: IAutoMovieMotionHumanPosture): string {
   return JSON.stringify(
     {
       root: posture.root,
@@ -250,7 +240,7 @@ function dump(posture: IHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
+          ([limb, goal]: [string, IAutoMovieMotionHumanPosture.IGoal | undefined]): [
             string,
             object | undefined,
           ] => [

@@ -1,12 +1,8 @@
+import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieBicubicAtlasTessellation64, IAutoMovieCanonicalBoundaryPhase64, IAutoMoviePrepareBicubicAtlasBoundary64, IAutoMoviePrepareBicubicAtlasBoundary64Binding } from "@automovie/interface";
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
-import type { tessellateAutoMovieBicubicAtlas64 as T } from "./tessellateAutoMovieBicubicAtlas64";
-
-type Binding = NonNullable<T.Input["boundaryBindings"]>[number] & {
-  legacy?: string;
-};
 type Use = {
   patch: string;
   side: 0 | 1 | 2 | 3;
@@ -34,20 +30,9 @@ type Use = {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps and closures retain only this caller-owned atlas and its O(P+B) incidence/constraint records plus requested canonical samples. The generator releases them on completion or cancellation; no cross-request state or external handles exist.
  */
 export function prepareAutoMovieBicubicAtlasBoundary64(
-  input: T.Input,
+  input: IAutoMovieBicubicAtlasTessellation64.Input,
   sides: readonly (readonly number[])[],
-): {
-  authorities: Map<string, readonly number[]>;
-  bindings: Map<string, Binding>;
-  root: (key: string) => string;
-  canonicalPoint: (
-    authority: string,
-    phase: ReturnType<typeof Q.phase>,
-  ) => B.Vec;
-  positions: Map<string, B.Vec>;
-  conflicts: Set<string>;
-  diagnostics: Map<string, string[]>;
-} {
+): IAutoMoviePrepareBicubicAtlasBoundary64.IResult {
   const authorities: Map<string, readonly number[]> = new Map();
   for (const authority of input.boundaryAuthorities ?? []) {
     if (
@@ -70,7 +55,7 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
       );
     authorities.set(authority.id, authority.controlIds);
   }
-  const explicit: Map<string, Binding> = new Map(),
+  const explicit: Map<string, IAutoMoviePrepareBicubicAtlasBoundary64Binding> = new Map(),
     groups: Map<string, Use[]> = new Map(),
     uses: Map<string, Use> = new Map();
   for (const patch of input.boundaryBindings?.length ? input.patches : [])
@@ -115,7 +100,7 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     b = root(b);
     if (a !== b) aliases.set(a < b ? b : a, a < b ? a : b);
   };
-  const constraints: { id: number; point: B.Vec }[] = [];
+  const constraints: { id: number; point: AutoMovieVector3Tuple }[] = [];
   for (const binding of input.boundaryBindings ?? []) {
     if (!binding)
       throw new Error("A patch side requires a complete canonical binding");
@@ -132,17 +117,17 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
       throw new Error(
         "A patch side requires one valid oriented canonical binding",
       );
-    const first: ReturnType<typeof Q.phase> = Q.phase(
+    const first: IAutoMovieCanonicalBoundaryPhase64 = Q.phase(
         binding.start,
         binding.end,
         0,
       ),
-      last: ReturnType<typeof Q.phase> = Q.phase(binding.start, binding.end, 1);
+      last: IAutoMovieCanonicalBoundaryPhase64 = Q.phase(binding.start, binding.end, 1);
     explicit.set(key, binding);
-    const controls: B.Poly = authorities
+    const controls: AutoMovieBernsteinPolynomial64 = authorities
       .get(binding.authority)!
-      .map((id: number): B.Vec => V.clone(input.controlsMm[id]!));
-    const net: B.Poly = S.restrict(
+      .map((id: number): AutoMovieVector3Tuple => V.clone(input.controlsMm[id]!));
+    const net: AutoMovieBernsteinPolynomial64 = S.restrict(
       controls,
       Math.min(binding.start, binding.end),
       Math.max(binding.start, binding.end),
@@ -161,13 +146,13 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     for (let k: number = 0; k < 4; k++)
       constraints.push({ id: use.ids[k]!, point: net[k]! });
   }
-  const bindings: Map<string, Binding> = new Map(),
+  const bindings: Map<string, IAutoMoviePrepareBicubicAtlasBoundary64Binding> = new Map(),
     diagnostics: Map<string, string[]> = new Map();
   for (const [tuple, group] of groups) {
-    const declared: { binding: Binding; start: number; end: number }[] =
+    const declared: { binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding; start: number; end: number }[] =
       group.flatMap(
-        (use: Use): { binding: Binding; start: number; end: number }[] => {
-          const binding: Binding | undefined = explicit.get(
+        (use: Use): { binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding; start: number; end: number }[] => {
+          const binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding | undefined = explicit.get(
             `${use.patch}:${use.side}`,
           );
           return binding
@@ -199,7 +184,7 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     );
     for (const use of group) {
       const key: string = `${use.patch}:${use.side}`,
-        original: Binding | undefined = explicit.get(key);
+        original: IAutoMoviePrepareBicubicAtlasBoundary64Binding | undefined = explicit.get(key);
       bindings.set(
         key,
         original ?? {
@@ -220,7 +205,7 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
         diagnostics.set(use.patch, messages);
       }
       for (const endpoint of [0, 1]) {
-        const phase: ReturnType<typeof Q.phase> = Q.phase(
+        const phase: IAutoMovieCanonicalBoundaryPhase64 = Q.phase(
           owner.start,
           owner.end,
           use.reverse ? 1 - endpoint : endpoint,
@@ -232,11 +217,11 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
       }
     }
   }
-  const positions: Map<string, B.Vec> = new Map(),
+  const positions: Map<string, AutoMovieVector3Tuple> = new Map(),
     conflicts: Set<string> = new Set();
   for (const constraint of constraints) {
     const key: string = root(`control:${constraint.id}`),
-      previous: B.Vec | undefined = positions.get(key);
+      previous: AutoMovieVector3Tuple | undefined = positions.get(key);
     if (
       !constraint.point.every(Number.isFinite) ||
       (previous &&
@@ -249,18 +234,18 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
   }
   const canonicalPoint: (
     authority: string,
-    phase: ReturnType<typeof Q.phase>,
-  ) => B.Vec = (
+    phase: IAutoMovieCanonicalBoundaryPhase64,
+  ) => AutoMovieVector3Tuple = (
     authority: string,
-    phase: ReturnType<typeof Q.phase>,
-  ): B.Vec => {
+    phase: IAutoMovieCanonicalBoundaryPhase64,
+  ): AutoMovieVector3Tuple => {
     const key: string = root(`authority:${authority}:${phase.key}`),
-      previous: B.Vec | undefined = positions.get(key);
+      previous: AutoMovieVector3Tuple | undefined = positions.get(key);
     if (previous) return previous;
-    const point: B.Vec = B.value(
+    const point: AutoMovieVector3Tuple = B.value(
       authorities
         .get(authority)!
-        .map((id: number): B.Vec => V.clone(input.controlsMm[id]!)),
+        .map((id: number): AutoMovieVector3Tuple => V.clone(input.controlsMm[id]!)),
       phase.value,
     );
     positions.set(key, point);

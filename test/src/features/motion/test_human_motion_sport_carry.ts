@@ -1,23 +1,8 @@
+import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import { createKettlebell } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-  type resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanSignature,
-  HumanSportCarry,
-  type IHumanBody,
-} from "@automovie/motions";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportCarry } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -72,14 +57,14 @@ export function test_human_motion_sport_carry(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
     const arm: number = body.measure.upperArm + body.measure.forearm;
     // Each rack stands beside its hip: the hip region's surface at rest
     // (the rig rests unrotated), out by the bell's own half-width across, so
     // neither the hand nor the bell starts inside the body.
-    const rack = (sign: 1 | -1): HumanObject.Placement => {
-      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+    const rack = (sign: 1 | -1): IAutoMovieMotionHumanObject.Placement => {
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[sign === 1 ? "hipLeft" : "hipRight"];
       return {
         at: {
@@ -90,7 +75,7 @@ export function test_human_motion_sport_carry(): void {
         yaw: 0,
       };
     };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "farmer",
@@ -113,7 +98,7 @@ export function test_human_motion_sport_carry(): void {
           .pickUp({ prop: "bellL", handle: "grip", hand: "left", lift: 0.02 })
           .registered("farmersWalk", { to: { x: 0, y: 0, z: 3 } })
           .over(
-            (o: HumanChain): HumanChain =>
+            (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               o.registered("farmersHold", {
                 left: "bellL",
                 right: "bellR",
@@ -128,7 +113,7 @@ export function test_human_motion_sport_carry(): void {
       continue;
     }
     const walking = performance.segments("a")[2]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,

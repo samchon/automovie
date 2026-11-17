@@ -1,8 +1,6 @@
-import type {
-  IAutoMovieRenderTextureResidency,
-  IAutoMovieRenderTextureSource,
-} from "@automovie/engine";
-import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
+import type { IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureSource, IAutoMovieCompiledFormationLod } from "@automovie/interface";
+
+
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";

@@ -1,6 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryDiskBoundaryPreparationOperation, IAutoMovieRecoveryDiskChart } from "@automovie/interface";
 
-import type { IRecoveryDiskChart } from "./IRecoveryDiskChart";
+
+
+
 import { prepareRecoveryDiskBoundary } from "./prepareRecoveryDiskBoundary";
 
 /**
@@ -28,8 +30,8 @@ import { prepareRecoveryDiskBoundary } from "./prepareRecoveryDiskBoundary";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local incidence, links and arithmetic buffers expire on return or failure. The caller owns copied private coordinates/keys and at most F+3 triangles; no state, handles or source topology reaches a generated-field consumer here.
  */
 export function RecoveryDiskChart(
-  input: IRecoveryDiskChart.Input,
-): IRecoveryDiskChart.Result {
+  input: Parameters<IAutoMovieRecoveryDiskChart.Operation>[0],
+): ReturnType<IAutoMovieRecoveryDiskChart.Operation> {
   const fail: (reason: string) => never = (reason: string): never => {
     throw new Error(`Unsupported disk chart: ${reason}`);
   };
@@ -46,7 +48,7 @@ export function RecoveryDiskChart(
       (key: string): boolean => typeof key !== "string" || !key.length,
     ) ||
     input.verticesMm.some(
-      (p: C.Vector): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3 || !p.every(Number.isFinite),
     ) ||
     !(
       input.cornerDegrees > 0 &&
@@ -57,12 +59,12 @@ export function RecoveryDiskChart(
     fail(
       "finite positions, physical keys and a corner threshold in (0,180) are required",
     );
-  const physicalPositions: Map<string, C.Vector> = new Map();
-  const admitPhysicalKey: (key: string, point: C.Vector) => void = (
+  const physicalPositions: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
+  const admitPhysicalKey: (key: string, point: Readonly<AutoMovieVector3Tuple>) => void = (
     key: string,
-    point: C.Vector,
+    point: Readonly<AutoMovieVector3Tuple>,
   ): void => {
-    const previous: C.Vector | undefined = physicalPositions.get(key);
+    const previous: Readonly<AutoMovieVector3Tuple> | undefined = physicalPositions.get(key);
     if (
       previous &&
       !previous.every((x: number, k: number): boolean => x === point[k])
@@ -93,13 +95,13 @@ export function RecoveryDiskChart(
     (): Map<number, Set<number>> => new Map(),
   );
   const normal: (
-    a: C.Vector,
-    b: C.Vector,
-    c: C.Vector,
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    c: Readonly<AutoMovieVector3Tuple>,
   ) => [number, number, number] = (
-    a: C.Vector,
-    b: C.Vector,
-    c: C.Vector,
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    c: Readonly<AutoMovieVector3Tuple>,
   ): [number, number, number] => {
     const u: number[] = b.map((x: number, k: number): number => x - a[k]!),
       v: number[] = c.map((x: number, k: number): number => x - a[k]!);
@@ -113,7 +115,7 @@ export function RecoveryDiskChart(
       fail("a private triangle is degenerate or its normal is unrepresentable");
     return [n[0] / length, n[1] / length, n[2] / length];
   };
-  const normals: C.Vector[] = [];
+  const normals: Readonly<AutoMovieVector3Tuple>[] = [];
   input.triangles.forEach(
     (triangle: readonly [number, number, number], face: number): void => {
       if (
@@ -230,15 +232,14 @@ export function RecoveryDiskChart(
     total,
     scaled,
     perimeterMm,
-    quarterMm,
-  }: ReturnType<typeof prepareRecoveryDiskBoundary> =
+    quarterMm }: ReturnType<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation> =
     prepareRecoveryDiskBoundary(input, fail);
-  const verticesMm: C.Vector[] = input.verticesMm.map(
-      (p: C.Vector): C.Vector => [...p],
+  const verticesMm: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
+      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...p],
     ),
     vertexKeys: string[] = [...input.vertexKeys];
   const insertedBoundaryVertices: ReturnType<
-      typeof RecoveryDiskChart
+      IAutoMovieRecoveryDiskChart.Operation
     >["insertedBoundaryVertices"] = [],
     cuts: Map<string, { id: number; offset: bigint }[]> = new Map();
   const corners: number[] = [cycle[0]!];
@@ -273,7 +274,7 @@ export function RecoveryDiskChart(
     if (!(fraction > 0 && fraction < 1 && Number.isFinite(fraction)))
       fail("an interior boundary quarter is not representable");
     const key: string = `disk-boundary:${JSON.stringify([input.vertexKeys[first], input.vertexKeys[last]])}:${fraction}`;
-    const point: C.Vector = [0, 1, 2].map(
+    const point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
       (k: number): number =>
         input.verticesMm[first]![k]! +
         fraction * (input.verticesMm[last]![k]! - input.verticesMm[first]![k]!),
@@ -297,8 +298,7 @@ export function RecoveryDiskChart(
       key,
       edgeKeys: [input.vertexKeys[first]!, input.vertexKeys[last]!],
       fractionFromFirst: fraction,
-      pointMm: point,
-    });
+      pointMm: point });
     const word: string = edgeKey(a, b),
       rows: { id: number; offset: bigint }[] = cuts.get(word) ?? [];
     rows.push({ id, offset });
@@ -353,7 +353,7 @@ export function RecoveryDiskChart(
         );
       }
       for (const child of children) {
-        const n: C.Vector = normal(
+        const n: Readonly<AutoMovieVector3Tuple> = normal(
           verticesMm[child[0]]!,
           verticesMm[child[1]]!,
           verticesMm[child[2]]!,
@@ -414,7 +414,5 @@ export function RecoveryDiskChart(
         ? "maximum-qualified-turn-then-key"
         : "minimum-key-without-qualified-turn",
       quarterLengthsMm: [quarterMm, quarterMm, quarterMm, quarterMm],
-      perimeterMm,
-    },
-  };
+      perimeterMm } };
 }

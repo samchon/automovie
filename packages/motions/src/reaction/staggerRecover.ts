@@ -1,12 +1,9 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { walkStanceCourse } from "../actions/walkStanceCourse";
+import { Vector3 } from "@automovie/engine";
 import {
   AutoMovieMotionHumanTiming,
 } from "../compose/AutoMovieMotionHumanTiming";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerClose } from "./staggerClose";
@@ -38,10 +35,10 @@ export namespace staggerRecover {
     side: "left" | "right";
 
     /** Where it stood before the step. */
-    from: HumanFoot.IPlacement;
+    from: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** Where it lands. */
-    to: HumanFoot.IPlacement;
+    to: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** The swing's start, seconds since the action's start. */
     start: number;
@@ -78,7 +75,7 @@ export namespace staggerRecover {
     settled: number;
 
     /** The stances' course over the whole recovery as its steps were judged (`walkStanceCourse`), each step's course continued from the last; absent for the pendulum alone. */
-    stances?: walkStanceCourse.ICourse;
+    stances?: IAutoMovieMotionHumanWalkStanceCourse.ICourse;
   }
 
   /** A span: its start, its held centre of pressure, and the travel and velocity it started from. */
@@ -99,7 +96,7 @@ export namespace staggerRecover {
   /** The state a `snapshot` keeps. */
   export interface IState {
     /** The feet. */
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The spans. */
     phases: IPhase[];
@@ -150,8 +147,8 @@ export namespace staggerRecover {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the shared sequences for the search only.
    */
   export function recover(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
     righting: number,
@@ -208,11 +205,11 @@ export namespace staggerRecover {
         orders.push(order);
       }
     let caught: boolean = false;
-    let judging: walkStanceCourse.ICourse | undefined;
+    let judging: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined;
     const taken: Map<
       string,
       {
-        course: walkStanceCourse.ICourse | undefined;
+        course: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined;
         done: boolean | null;
         state: IState;
       }

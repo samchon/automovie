@@ -1,11 +1,6 @@
-import {
-  IAutoMovieRestFrame,
-  ViolationCollector,
-  clampJointRom,
-  restRelativeConstraint,
-  validateJointRom,
-} from "@automovie/engine";
-import { IAutoMovieJointConstraint } from "@automovie/interface";
+import { type IAutoMovieRestFrame, type IAutoMovieViolationCollector, IAutoMovieJointConstraint } from "@automovie/interface";
+import { ViolationCollector, clampJointRom, restRelativeConstraint, validateJointRom } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -29,7 +24,7 @@ const passesCone: (
   j: ReturnType<typeof joint>,
   constraint: IAutoMovieJointConstraint,
 ): boolean => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({ joint: j, constraint, path: "$input", collector });
   return collector.items.length === 0;
 };
@@ -72,7 +67,7 @@ export function test_rom_rest_frame_swing_cone(): void {
     flexion: 90,
     abduction: 90,
   });
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: corner,
     constraint: reconciled,

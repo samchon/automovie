@@ -1,16 +1,6 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  type IAutoMovieResolvedBone,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { motionFitArms } from "../internal/motionFitArms";

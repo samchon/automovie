@@ -1,5 +1,9 @@
-import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
-import type { AutoMovieHumanTrunkAssembly } from "./AutoMovieHumanTrunkAssembly";
+import type { IAutoMovieArcLengthJet, IAutoMovieHumanTrunkAssembly, IAutoMovieHumanTrunkGuides, IAutoMovieHumanTrunkSection } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 
 /**
@@ -57,14 +61,13 @@ import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
  *   cleft at the pelvis; the spinal furrow is a relief over it, not this arc.
  */
 export namespace AutoMovieHumanTrunkGuides {
-  /** A guide of the canonical left side. */
-  export type Guide = "frontMidline" | "bustLine" | "anteriorAxillary" | "midAxillary" | "posteriorAxillary" | "scapular" | "backMidline";
+  
 
   /** The guides in knot order, front midline to back midline. */
-  export const ORDER: readonly Guide[] = ["frontMidline", "bustLine", "anteriorAxillary", "midAxillary", "posteriorAxillary", "scapular", "backMidline"];
+  export const ORDER: readonly IAutoMovieHumanTrunkGuides.Guide[] = ["frontMidline", "bustLine", "anteriorAxillary", "midAxillary", "posteriorAxillary", "scapular", "backMidline"];
 
   /** Each guide's knot of the 256-control section, on the canonical left side. */
-  export const KNOT: Readonly<Record<Guide, number>> = {
+  export const KNOT: Readonly<Record<IAutoMovieHumanTrunkGuides.Guide, number>> = {
     frontMidline: 0,
     bustLine: 24,
     anteriorAxillary: 46,
@@ -94,7 +97,7 @@ export namespace AutoMovieHumanTrunkGuides {
    * @param folded Whether to add the crotch fold; sectors take the guides without it. The mid-axillary line has none.
    * @returns The guide's arclength jet.
    */
-  export function jet(guide: Guide, s: AutoMovieHumanTrunkQuadrant.ISection, folded: boolean = true): IAutoMovieHumanSeam.IArcJet {
+  export function jet(guide: IAutoMovieHumanTrunkGuides.Guide, s: IAutoMovieHumanTrunkSection, folded: boolean = true): IAutoMovieArcLengthJet {
     switch (guide) {
       case "frontMidline":
         return AutoMovieHumanTrunkQuadrant.onMidline(s, "front", SHARE.bustLine, folded);
@@ -113,26 +116,10 @@ export namespace AutoMovieHumanTrunkGuides {
     }
   }
 
-  /** A left sector: the quadrant it lies on, its two guides and whether the crotch fold acts on it. */
-  export interface ISector {
-    /** The sector's name in findings. */
-    name: string;
-
-    /** The quadrant the sector lies on. */
-    side: AutoMovieHumanTrunkQuadrant.Side;
-
-    /** Its first and second guide. */
-    guides: readonly [Guide, Guide];
-
-    /** Whether the crotch fold or the gluteal cleft's displacement acts on it. */
-    folded: boolean;
-
-    /** The lateral shares of its first and second guide in a section. */
-    shares: (s: AutoMovieHumanTrunkQuadrant.ISection) => [number, number];
-  }
+  
 
   /** The left side's sectors, each after the guide of the same index. */
-  export const SECTORS: readonly ISector[] = [
+  export const SECTORS: readonly IAutoMovieHumanTrunkGuides.ISector[] = [
     {
       name: "trunk.sternal",
       side: "front",
@@ -145,28 +132,28 @@ export namespace AutoMovieHumanTrunkGuides {
       side: "front",
       guides: ["bustLine", "anteriorAxillary"],
       folded: true,
-      shares: (s: AutoMovieHumanTrunkQuadrant.ISection): [number, number] => [SHARE.bustLine, s.anterior],
+      shares: (s: IAutoMovieHumanTrunkSection): [number, number] => [SHARE.bustLine, s.anterior],
     },
     {
       name: "trunk.anteriorFlank",
       side: "front",
       guides: ["anteriorAxillary", "midAxillary"],
       folded: false,
-      shares: (s: AutoMovieHumanTrunkQuadrant.ISection): [number, number] => [s.anterior, 1],
+      shares: (s: IAutoMovieHumanTrunkSection): [number, number] => [s.anterior, 1],
     },
     {
       name: "trunk.posteriorFlank",
       side: "back",
       guides: ["midAxillary", "posteriorAxillary"],
       folded: false,
-      shares: (s: AutoMovieHumanTrunkQuadrant.ISection): [number, number] => [1, s.posterior ?? SHARE.posteriorAxillary],
+      shares: (s: IAutoMovieHumanTrunkSection): [number, number] => [1, s.posterior ?? SHARE.posteriorAxillary],
     },
     {
       name: "trunk.scapular",
       side: "back",
       guides: ["posteriorAxillary", "scapular"],
       folded: true,
-      shares: (s: AutoMovieHumanTrunkQuadrant.ISection): [number, number] => [s.posterior ?? SHARE.posteriorAxillary, SHARE.scapular],
+      shares: (s: IAutoMovieHumanTrunkSection): [number, number] => [s.posterior ?? SHARE.posteriorAxillary, SHARE.scapular],
     },
     {
       name: "trunk.erector",
@@ -187,8 +174,8 @@ export namespace AutoMovieHumanTrunkGuides {
    * @param speeds Its guides' speeds, mm per radian.
    * @returns The sector's jet function.
    */
-  export function sector(sector: ISector, s: AutoMovieHumanTrunkQuadrant.ISection, speeds: readonly [number, number]): AutoMovieHumanTrunkAssembly.Sector {
-    const [a, b]: readonly [Guide, Guide] = sector.guides;
+  export function sector(sector: IAutoMovieHumanTrunkGuides.ISector, s: IAutoMovieHumanTrunkSection, speeds: IAutoMovieHumanTrunkGuides.SectorSpeeds): IAutoMovieHumanTrunkAssembly.Sector {
+    const [a, b]: readonly [IAutoMovieHumanTrunkGuides.Guide, IAutoMovieHumanTrunkGuides.Guide] = sector.guides;
 
     return AutoMovieHumanTrunkQuadrant.between(s, sector.side, jet(a, s, false), jet(b, s, false), [KNOT[a], KNOT[b]], speeds, sector.folded);
   }

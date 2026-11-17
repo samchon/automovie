@@ -1,22 +1,12 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createBicycle,
   createHorse,
   createMotorcycle,
   createSeat,
 } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFoot,
-  HumanFrame,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
-  type seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanFoot, HumanFrame, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -78,27 +68,27 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_base_seat_heights(): void {
   const complaints: string[] = [];
-  const where: HumanObject.Placement = {
+  const where: IAutoMovieMotionHumanObject.Placement = {
     at: { x: 0, y: 0, z: -0.6 },
     yaw: 0,
   };
-  const stool: HumanObject.IModel = createSeat({ kind: "barStool" });
-  const motorcycle: HumanObject.IModel = createMotorcycle({
+  const stool: IAutoMovieMotionHumanObject.IModel = createSeat({ kind: "barStool" });
+  const motorcycle: IAutoMovieMotionHumanObject.IModel = createMotorcycle({
     kind: "motorcycle",
   });
-  const bicycle: HumanObject.IModel = createBicycle({});
-  const horse: HumanObject.IModel = createHorse({});
-  const scooter: HumanObject.IModel = createMotorcycle({ kind: "scooter" });
+  const bicycle: IAutoMovieMotionHumanObject.IModel = createBicycle({});
+  const horse: IAutoMovieMotionHumanObject.IModel = createHorse({});
+  const scooter: IAutoMovieMotionHumanObject.IModel = createMotorcycle({ kind: "scooter" });
 
   // A seat with its rests removed is one whose feet must hang.
-  const bare = (model: HumanObject.IModel): seated.ISeat => {
-    const { footrests: _rests, ...seat }: seated.ISeat = HumanObject.seat(
+  const bare = (model: IAutoMovieMotionHumanObject.IModel): IAutoMovieMotionHumanSeated.ISeat => {
+    const { footrests: _rests, ...seat }: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       model,
       where,
     );
     return seat;
   };
-  const seats: readonly (readonly [string, seated.ISeat])[] = [
+  const seats: readonly (readonly [string, IAutoMovieMotionHumanSeated.ISeat])[] = [
     ["a dining chair", HumanObject.seat(createSeat({ kind: "dining" }), where)],
     ["a bar stool without its bar", bare(stool)],
     ["a scooter's seat", HumanObject.seat(scooter, where)],
@@ -125,14 +115,14 @@ export function test_human_motion_base_seat_heights(): void {
   ];
   for (let b: number = 0; b < names.length; ++b) {
     const name: "f-small" | "m-average" | "m-large" = names[b]!;
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (let s: number = 0; s < seats.length; ++s) {
-      const [kind, seat]: readonly [string, seated.ISeat] = seats[s]!;
+      const [kind, seat]: readonly [string, IAutoMovieMotionHumanSeated.ISeat] = seats[s]!;
       // Each seat sat with the legs ahead is performed once, on the body its place in the two lists gives it; the saddles are the saddle test's.
       const astride: boolean = seat.astride === true;
       if ((b + s) % 3 !== 0 || astride) continue;
       const label: string = `${name} on ${kind}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "seats",
@@ -159,13 +149,13 @@ export function test_human_motion_base_seat_heights(): void {
         );
         continue;
       }
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
         seat.yaw,
       );
-      const [sitting, rising]: readonly (HumanSegment.ISegment | undefined)[] =
+      const [sitting, rising]: readonly (IAutoMovieMotionHumanSegment.ISegment | undefined)[] =
         performance.segments("a");
       if (sitting === undefined || rising === undefined) {
         complaints.push(
@@ -175,7 +165,7 @@ export function test_human_motion_base_seat_heights(): void {
       }
       const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
         )!.point;
 
       // 3. The seat region rests at the seat's height.
@@ -195,7 +185,7 @@ export function test_human_motion_base_seat_heights(): void {
             body.measure.thighRadius);
       for (const side of ["left", "right"] as const) {
         const planted: boolean = sitting.plan.contacts.some(
-          (c: IHumanContactWindow): boolean =>
+          (c: IAutoMovieMotionHumanContactWindow): boolean =>
             c.part === `${side}Foot` && c.kind === "plant" && c.to >= 1 - 1e-9,
         );
         const tread: IAutoMovieVector3 | undefined = seat.footrests?.[side];

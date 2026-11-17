@@ -1,26 +1,14 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { HumanBalance } from "./HumanBalance";
 import { HumanGaze } from "./HumanGaze";
 import { bendLower } from "./bendLower";
 import { handGoals } from "./handGoals";
@@ -69,51 +57,16 @@ import { handGoals } from "./handGoals";
  */
 export namespace bend {
   /** The action's name. */
-  export const name: HumanActionName = "bend";
+  export const name: AutoMovieMotionHumanActionName = "bend";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     bend: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
     // A pick up continues the deepest point of a bend, the body held as it
     // is lowered and the arm taken from the target over to the grip.
     pickUp: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
   };
-
-  /**
-   * A lowering strategy: `stoop` keeps the knees nearly straight, `squat`
-   * lowers the hips to 0.45 of their height, `semiSquat` to 0.75, and `auto`
-   * lets the plan choose by the target's height (`choose`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each strategy does to the hips and what `auto` defers to.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the three postures the lifting literature compares plus the deferred choice; each concrete strategy keys the `bendLower.HIPS` and `bendLower.HEEL` tables, so no other value can be written.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the bend law; read by its parameters, its helpers and the capture cases that sweep the strategies.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Variation enters as table rows keyed by the union, not as members per strategy; `auto` is excluded from the tables by `Exclude`, so it cannot reach the posture code unresolved.
-   */
-  export type Strategy = "stoop" | "semiSquat" | "squat" | "auto";
-
-  /**
-   * Parameters of a bend: the point the hand goes to, which hand, the
-   * strategy and how long the hand stays there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes.
-   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union, read once at the start; the hand is the shared hand side; the hold is seconds, and a negative hold is refused at plan time, the one invalid value the type does not rule out.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target and hand types are imported from their owners.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body, and every combination of fields is meaningful.
-   */
-  export interface IParams {
-    /** The point the hand goes to. */
-    toward: AutoMovieMotionTarget;
-
-    /** The hand; `right` when absent. */
-    side?: HumanHand.Side;
-
-    /** How the body lowers; `auto` when absent. */
-    strategy?: Strategy;
-
-    /** Seconds the hand stays at the target; 0.5 when absent. */
-    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
-  }
 
   /** Fitts's constants: intercept and slope, seconds, and the target width, metres (provisional). */
   export const FITTS: Readonly<{ a: number; b: number; width: number }> = {
@@ -141,23 +94,23 @@ export namespace bend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, target, solved quantities and stand base, released with the performance; nothing grows per call.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const side: HumanHand.Side = context.params.side ?? "right";
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const side: IAutoMovieMotionHumanHand.Side = context.params.side ?? "right";
     const hold: number = context.params.hold ?? 0.5;
     HumanBound.least("hold", hold, 0, "s");
     const target: IAutoMovieVector3 = context.aim(
       context.params.toward,
       context.start,
     ).point;
-    const requested: Strategy = context.params.strategy ?? "auto";
-    const probe: IHumanActionPlan = stand.plan(
+    const requested: IAutoMovieMotionHumanBend.Strategy = context.params.strategy ?? "auto";
+    const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: 1 } },
       side,
     );
-    const upright: IHumanPosture = probe.posture(0);
-    const { strategy, lean, pitch }: bendLower.ISolved = bend.lowering(
+    const upright: IAutoMovieMotionHumanPosture = probe.posture(0);
+    const { strategy, lean, pitch }: IAutoMovieMotionHumanBendLower.ISolved = bend.lowering(
       body,
       upright,
       target,
@@ -180,7 +133,7 @@ export namespace bend {
     const duration: number = 2 * down + hold;
     // The body stands under the bend, its sway signed in the bending side's
     // frame, so a left bend mirrors a right one (`stand.plan`).
-    const base: IHumanActionPlan = stand.plan(
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: duration } },
       side,
     );
@@ -194,14 +147,14 @@ export namespace bend {
       ],
       contacts: base.contacts,
       contact: down,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t <= down + hold
             ? minimumJerk(t / down).s
             : 1 - minimumJerk((t - down - hold) / down).s;
-        const standing: IHumanPosture = base.posture(t);
-        const lowered: IHumanPosture = bendLower.lower(
+        const standing: IAutoMovieMotionHumanPosture = base.posture(t);
+        const lowered: IAutoMovieMotionHumanPosture = bendLower.lower(
           body,
           standing,
           strategy,
@@ -209,7 +162,7 @@ export namespace bend {
           s,
           lean * Math.sin((pitch * s * Math.PI) / 180),
         );
-        const aimed: IHumanPosture = HumanGaze.aim(
+        const aimed: IAutoMovieMotionHumanPosture = HumanGaze.aim(
           body,
           lowered,
           target,
@@ -236,7 +189,7 @@ export namespace bend {
         // The free palm braces on its own thigh just above the knee, as people
         // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
         // 2016, J Biomech 49:881), moving there from where it hangs.
-        const free: HumanHand.Side = side === "left" ? "right" : "left";
+        const free: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
         const thigh = hanging.get(`${free}UpperLeg`)!;
         const kneeAt: IAutoMovieVector3 = hanging.get(
           `${free}LowerLeg`,
@@ -330,14 +283,14 @@ export namespace bend {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lowering(
-    body: IHumanBody,
-    upright: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    upright: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
-    side: HumanHand.Side,
-    strategy: Strategy,
+    side: IAutoMovieMotionHumanHand.Side,
+    strategy: IAutoMovieMotionHumanBend.Strategy,
     reach?: number,
-  ): bendLower.ISolved {
-    const chosen: Exclude<Strategy, "auto"> = choose(body, target, strategy);
+  ): IAutoMovieMotionHumanBendLower.ISolved {
+    const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(body, target, strategy);
     try {
       return bendLower.solve(body, upright, target, side, chosen, reach);
     } catch (error) {
@@ -364,10 +317,10 @@ export namespace bend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function choose(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     target: IAutoMovieVector3,
-    strategy: Strategy,
-  ): Exclude<Strategy, "auto"> {
+    strategy: IAutoMovieMotionHumanBend.Strategy,
+  ): Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> {
     if (strategy !== "auto") return strategy;
     return target.y < body.measure.ankleHeight + 0.5 * body.measure.shank
       ? "semiSquat"
@@ -377,8 +330,8 @@ export namespace bend {
 
 /** World bones of a posture, limbs solved. */
 function bones(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
 ): ReturnType<typeof poseBones> {
   return poseBones(body, resolveHumanPosture(body, posture));
 }

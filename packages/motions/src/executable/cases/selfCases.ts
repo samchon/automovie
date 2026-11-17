@@ -1,14 +1,12 @@
+import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSelfAction, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm } from "@automovie/interface";
+
 import { AutoMovieChain } from "@automovie/engine";
-import type { AutoMovieHumanoidRegion } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanHand } from "../../posture/HumanHand";
-import type { selfAction } from "../../touch/selfAction";
 import { touch } from "../../touch/touch";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -53,7 +51,7 @@ export function selfCases(
   const out: IMotionCaptureCase[] = [];
   const self = (region: AutoMovieHumanoidRegion) =>
     ({ kind: "self", region }) as const;
-  const rows: [string, touch.IParams][] = [
+  const rows: [string, IAutoMovieMotionHumanTouch.IParams][] = [
     ["pat-belly", { target: self("abdomen"), kind: "pat" }],
     ["rub-nape", { target: self("nape"), kind: "rub" }],
     [
@@ -101,21 +99,21 @@ export function selfCases(
   ];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const [label, params] of rows) {
       const name: string = `self-${label}${suffix}`;
-      const performance: HumanPerformance | null = attempt(out, name, () =>
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(out, name, () =>
         perform(body, HumanChain.subject("a").act("touch", params)),
       );
       if (performance === null) continue;
-      const kind: AutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
-      const form: AutoMovieMotionHumanTouchForm.IForm =
+      const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
+      const form: IAutoMovieMotionHumanTouchForm.IForm =
         AutoMovieMotionHumanTouchForm.FORMS[kind];
-      const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+      const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
         touch.EFFECTORS[params.with ?? "palm"];
       const ready: number = TouchVerdicts.event(performance, "a", "ready");
       const strokeStart: number = TouchVerdicts.event(
@@ -132,7 +130,7 @@ export function selfCases(
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
-      const hands: [HumanHand.Side, AutoMovieHumanoidRegion][] = [
+      const hands: [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion][] = [
         [
           "right",
           (params.target as { region: AutoMovieHumanoidRegion }).region,
@@ -143,7 +141,7 @@ export function selfCases(
               [
                 "left",
                 (params.other as { region: AutoMovieHumanoidRegion }).region,
-              ] as [HumanHand.Side, AutoMovieHumanoidRegion],
+              ] as [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion],
             ]),
       ];
       for (const [side, region] of hands) {
@@ -244,9 +242,9 @@ export function selfCases(
       "fistPump",
       "neckRoll",
       "shoulderRoll",
-    ] as selfAction.Kind[]) {
+    ] as IAutoMovieMotionHumanSelfAction.Kind[]) {
       const name: string = `self-${kind}${suffix}`;
-      const performance: HumanPerformance | null = attempt(out, name, () =>
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(out, name, () =>
         perform(body, HumanChain.subject("a").act("selfAction", { kind })),
       );
       if (performance === null) continue;
@@ -305,8 +303,8 @@ export function selfCases(
 function attempt(
   out: IMotionCaptureCase[],
   name: string,
-  run: () => HumanPerformance,
-): HumanPerformance | null {
+  run: () => IAutoMovieMotionHumanPerformance,
+): IAutoMovieMotionHumanPerformance | null {
   try {
     return run();
   } catch (error) {
@@ -323,7 +321,7 @@ function attempt(
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */
-function perform(body: IHumanBody, chain: HumanChain): HumanPerformance {
+function perform(body: IAutoMovieMotionHumanBody, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "self",
     performers: [

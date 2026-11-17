@@ -1,16 +1,11 @@
-import {
-  IAutoMovieActionTarget,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieEnginePerformShotGateContext, type IAutoMovieResolvePerformShotTarget, type IAutoMovieViolationCollector, IAutoMovieActionTarget, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { isRecord } from "../validation/isRecord";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotId } from "./validatePerformShotId";
 
@@ -44,15 +39,8 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing; the returned point is a staged or resolved vector the caller only reads.
  */
 export function resolvePerformShotTarget(
-  context: IPerformShotGateContext,
-  props: {
-    target: unknown;
-    path: string;
-    label: string;
-    subject: string;
-    seconds: number;
-    formationsFramed: boolean;
-  },
+  context: IAutoMovieEnginePerformShotGateContext,
+  props: IAutoMovieResolvePerformShotTarget.IProps,
 ): IAutoMovieVector3 | null {
   const target: unknown = props.target;
   const path: string = props.path;
@@ -122,12 +110,12 @@ export function resolvePerformShotTarget(
  * Check the ids an untyped target carries, answering whether it is a target record resolution may read.
  */
 function validateTargetIds(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   target: unknown,
   path: string,
   label: string,
 ): target is IAutoMovieActionTarget {
-  const out: ViolationCollector = context.out;
+  const out: IAutoMovieViolationCollector = context.out;
   const initial: number = out.items.length;
   if (!isRecord(target)) {
     out.push("type", path, `${label} must be an action target`, target);
@@ -222,7 +210,7 @@ function validateTargetIds(
 
 /** Check that a bone target names a rigged staged actor carrying the bone. */
 function validateBoneTarget(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   node: string,
   bone: string,
   path: string,

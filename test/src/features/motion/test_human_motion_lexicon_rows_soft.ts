@@ -1,15 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieAffordance, IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHandleShapes } from "../internal/motionHandleShapes";
@@ -39,7 +31,7 @@ const lattice = (props: {
   selfCollision?: boolean;
   /** The particles' rest places, row-major, when they do not lie on the lattice's two axes. */
   path?: readonly IAutoMovieVector3[];
-}): IHumanProp => {
+}): IAutoMovieMotionHumanProp => {
   const rest: number[] = [];
   const at = (c: number, r: number): IAutoMovieVector3 =>
     props.path?.[r * props.columns + c] ??
@@ -135,8 +127,8 @@ const lattice = (props: {
  */
 export function test_human_motion_lexicon_rows_soft(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const m: IHumanBody["measure"] = body.measure;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const reach: number = 0.5 * (m.upperArm + m.forearm);
   const performer = (subject: string, z: number, yaw: number) => ({
     subject,
@@ -145,7 +137,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
     yaw,
     proficiency: { level: "trained" as const },
   });
-  const finite = (p: HumanPerformance, subject: string): boolean => {
+  const finite = (p: IAutoMovieMotionHumanPerformance, subject: string): boolean => {
     for (let t: number = 0; t <= p.duration; t += 0.1)
       if (!p.soft(subject, t).every(Number.isFinite)) return false;
     return true;
@@ -154,7 +146,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
   // 1. A towel held spread.
   try {
     const edge: number = 2 * m.shoulderHalfWidth;
-    const towel: IHumanProp = lattice({
+    const towel: IAutoMovieMotionHumanProp = lattice({
       subject: "towel",
       columns: 8,
       rows: 8,
@@ -165,7 +157,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
       seconds: 8,
       handles: { cornerA: [0, 0], cornerB: [7, 0] },
     });
-    const p: HumanPerformance = new HumanPerformance({
+    const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "soft-rows",
       props: [towel],
       performers: [performer("a", 0, 0)],
@@ -205,14 +197,14 @@ export function test_human_motion_lexicon_rows_soft(): void {
         radius: 0.015,
       },
     ];
-    const pole: IHumanProp = {
+    const pole: IAutoMovieMotionHumanProp = {
       subject: "pole",
       frame: { position: poleAt, rotation: Quaternion.identity() },
       points: {},
       affordances: grip,
       shapes: motionHandleShapes(grip),
     };
-    const flag: IHumanProp = lattice({
+    const flag: IAutoMovieMotionHumanProp = lattice({
       subject: "flag",
       columns: 6,
       rows: 4,
@@ -233,7 +225,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
         },
       })),
     });
-    const p: HumanPerformance = new HumanPerformance({
+    const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "soft-rows",
       props: [pole, flag],
       performers: [performer("a", 0, 0)],
@@ -243,7 +235,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
     });
     let worst: number = 0;
     for (let t: number = 0; t <= p.duration; t += 0.1) {
-      const f: IHumanProp.IFrame = p.prop("pole", t);
+      const f: IAutoMovieMotionHumanProp.IFrame = p.prop("pole", t);
       const s: number[] = p.soft("flag", t);
       [0, 6, 12, 18].forEach((particle: number, k: number): void => {
         const ring: IAutoMovieVector3 = Vector3.add(
@@ -279,7 +271,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
       body.rest.get("rightHand")!,
       socket,
     );
-    const strap: IHumanProp = lattice({
+    const strap: IAutoMovieMotionHumanProp = lattice({
       subject: "strap",
       columns: 1,
       rows: 11,
@@ -304,7 +296,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
       ],
     });
     strap.soft!.mass[10] = 2;
-    const p: HumanPerformance = new HumanPerformance({
+    const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "soft-rows",
       props: [strap],
       performers: [performer("a", 0, 0)],
@@ -344,7 +336,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
           : s <= side + 2 * w
             ? { x: w - (s - side), y: m.waistHeight, z: reach + side }
             : { x: -w, y: m.waistHeight, z: reach + side - (s - side - 2 * w) };
-      const rope: IHumanProp = lattice({
+      const rope: IAutoMovieMotionHumanProp = lattice({
         subject: "rope",
         columns: 1,
         rows: 25,
@@ -370,7 +362,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
               ),
             }),
       });
-      const p: HumanPerformance = new HumanPerformance({
+      const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "soft-rows",
         props: [rope],
         performers: two
@@ -401,7 +393,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
   // 6. A lace keeps its crossing.
   try {
     const radius: number = 0.003;
-    const lace: IHumanProp = lattice({
+    const lace: IAutoMovieMotionHumanProp = lattice({
       subject: "lace",
       columns: 1,
       rows: 21,
@@ -421,7 +413,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
       ],
       selfCollision: true,
     });
-    const p: HumanPerformance = new HumanPerformance({
+    const p: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "soft-rows",
       props: [lace],
       performers: [performer("a", 0, 0)],

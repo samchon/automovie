@@ -1,6 +1,4 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import type { IHumanPosture } from "./IHumanPosture";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 /**
  * The order to fit a posture's limbs in: legs then arms, so an arm is
@@ -27,17 +25,17 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns only the ordered names and retains nothing.
  */
 export function orderHumanLimbs(
-  limbs: IHumanPosture["limbs"],
-): IHumanPosture.Limb[] {
-  const all: readonly IHumanPosture.Limb[] = [
+  limbs: IAutoMovieMotionHumanPosture["limbs"],
+): IAutoMovieMotionHumanPosture.Limb[] {
+  const all: readonly IAutoMovieMotionHumanPosture.Limb[] = [
     "leftLeg",
     "rightLeg",
     "leftArm",
     "rightArm",
   ];
   // The limb a bone belongs to, when it belongs to one.
-  const owner = (bone: AutoMovieHumanoidBone): IHumanPosture.Limb | undefined =>
-    all.find((limb: IHumanPosture.Limb): boolean => {
+  const owner = (bone: AutoMovieHumanoidBone): IAutoMovieMotionHumanPosture.Limb | undefined =>
+    all.find((limb: IAutoMovieMotionHumanPosture.Limb): boolean => {
       const side: string = limb.startsWith("left") ? "left" : "right";
       return limb.endsWith("Arm")
         ? bone.startsWith(side) &&
@@ -45,14 +43,14 @@ export function orderHumanLimbs(
         : bone.startsWith(side) &&
             /(UpperLeg|LowerLeg|Foot|Toes|Hallux)/.test(bone);
     });
-  const after = (limb: IHumanPosture.Limb): IHumanPosture.Limb | undefined => {
+  const after = (limb: IAutoMovieMotionHumanPosture.Limb): IAutoMovieMotionHumanPosture.Limb | undefined => {
     const on: AutoMovieHumanoidBone | undefined = limbs[limb]?.on;
-    const first: IHumanPosture.Limb | undefined =
+    const first: IAutoMovieMotionHumanPosture.Limb | undefined =
       on === undefined ? undefined : owner(on);
     return first === limb ? undefined : first;
   };
   for (const limb of all) {
-    const first: IHumanPosture.Limb | undefined = after(limb);
+    const first: IAutoMovieMotionHumanPosture.Limb | undefined = after(limb);
     if (first !== undefined && after(first) === limb)
       throw new Error(
         `The ${limb} and ${first} goals are attached to each other and cannot be ordered`,
@@ -60,12 +58,12 @@ export function orderHumanLimbs(
   }
   // With at most one dependency per limb and no two-cycle, placing each limb
   // after its dependency in one pass is a topological order of four nodes.
-  const out: IHumanPosture.Limb[] = [];
-  const visit = (limb: IHumanPosture.Limb, depth: number): void => {
+  const out: IAutoMovieMotionHumanPosture.Limb[] = [];
+  const visit = (limb: IAutoMovieMotionHumanPosture.Limb, depth: number): void => {
     if (out.includes(limb)) return;
     if (depth > all.length)
       throw new Error("Limb goal attachments form a cycle");
-    const first: IHumanPosture.Limb | undefined = after(limb);
+    const first: IAutoMovieMotionHumanPosture.Limb | undefined = after(limb);
     if (first !== undefined) visit(first, depth + 1);
     out.push(limb);
   };

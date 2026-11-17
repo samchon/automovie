@@ -1,10 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanCarryHumanPosture, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanPosture } from "./IHumanPosture";
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 /**
  * A posture carried rigidly by a frame that moved: every world point of it
@@ -27,10 +23,10 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function carryHumanPosture(
-  posture: IHumanPosture,
-  origin: carryHumanPosture.IFrame,
-  now: carryHumanPosture.IFrame,
-): IHumanPosture {
+  posture: IAutoMovieMotionHumanPosture,
+  origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame,
+  now: IAutoMovieMotionHumanCarryHumanPosture.IFrame,
+): IAutoMovieMotionHumanPosture {
   const turn: IAutoMovieQuaternion = Quaternion.multiply(
     now.rotation,
     Quaternion.inverse(origin.rotation),
@@ -48,9 +44,9 @@ export function carryHumanPosture(
     });
     return (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
   };
-  const limbs: IHumanPosture["limbs"] = {};
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const limb of ["leftLeg", "rightLeg", "leftArm", "rightArm"] as const) {
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
+    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
     limbs[limb] =
       goal.on !== undefined
@@ -70,22 +66,4 @@ export function carryHumanPosture(
     yaw: posture.yaw + heading(now.rotation) - heading(origin.rotation),
     limbs,
   };
-}
-/**
- * Companion types of {@link carryHumanPosture}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the member.
- * @evidence contracts/development/design.md#principled-representation A rigid world frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the function reads of a frame.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions.
- */
-export namespace carryHumanPosture {
-  /** A rigid world frame. */
-  export interface IFrame {
-    /** Origin, world metres. */
-    position: IAutoMovieVector3;
-
-    /** Rotation to the world. */
-    rotation: IAutoMovieQuaternion;
-  }
 }

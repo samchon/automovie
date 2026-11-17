@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalBalanceExhaustion } from "@automovie/interface";
 /**
  * Whether bounded support recovery is exhausted at one tick.
  *
@@ -15,18 +16,7 @@
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
-export function physicalBalanceExhaustion(input: {
-  /** Whether this tick's support assessment is unrecoverable. */ unrecoverable: boolean;
-  /** Start of the current unrecoverable interval, seconds, when one is open. */ lostSince?: number;
-  /** Whether a timed-out landing has failed. */ failedLanding?: boolean;
-  /** Current native tick time, seconds. */ seconds: number;
-  /** Policy recovery duration, seconds. */ duration: number;
-}): {
-  /** Start of the unrecoverable interval after this tick, undefined when closed. */ lostSince:
-    | number
-    | undefined;
-  /** Whether root tracking must be withdrawn. */ exhausted: boolean;
-} {
+export function physicalBalanceExhaustion(input: IAutoMoviePhysicalBalanceExhaustion.IInput): IAutoMoviePhysicalBalanceExhaustion.IResult {
   const lostSince: number | undefined = input.unrecoverable
     ? (input.lostSince ?? input.seconds)
     : undefined;

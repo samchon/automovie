@@ -1,10 +1,6 @@
-import { IAutoMovieScript } from "@automovie/interface";
-import {
-  IAutoMovieCaptionEntry,
-  IAutoMovieCaptionSidecar,
-  planCaptionSidecar,
-  renderCaptionSidecar,
-} from "@automovie/render";
+import { type IAutoMovieCaptionEntry, type IAutoMovieCaptionSidecar, IAutoMovieScript } from "@automovie/interface";
+
+import { planCaptionSidecar, renderCaptionSidecar } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { CAPTION_SEQUENCE } from "../internal/CAPTION_SEQUENCE";

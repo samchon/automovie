@@ -1,7 +1,8 @@
+import type { IAutoMovieRecoveryPoseModelCreationOperation, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMatrix3, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
+
 
 /**
  * Pixel epipolar model and its five local calibrated-pose derivatives.
@@ -20,17 +21,10 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only six owned matrices and two tangent vectors return; call-local algebra retains no image, mutable calibration, cache or external handle.
  */
 export function createRecoveryPoseModel(
-  pose: {
-    rotation: readonly number[];
-    translation: readonly [number, number, number];
-  },
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-): {
-  matrix: number[];
-  derivatives: number[][];
-  tangent: [number, number, number][];
-} {
+  pose: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[0],
+  first: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[1],
+  second: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryPoseModelCreationOperation.Operation> {
   const t: readonly [number, number, number] = pose.translation;
   if (Math.abs(Math.hypot(...t) - 1) > 1e-10)
     throw new Error("camera-refinement: translation must have unit gauge");

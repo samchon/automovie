@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieContactReceipt,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache, IAutoMovieContactReceipt } from "@automovie/interface";
+
 import RAPIER, {
   type PhysicsHooks,
   type RigidBody,
@@ -9,7 +7,6 @@ import RAPIER, {
 } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulationInput } from "./AutoMoviePhysicalSimulationInput";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
@@ -45,13 +42,13 @@ export class AutoMoviePhysicalSimulation {
   /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
   private constructor(
     /** Owned sampled inputs establishing checkpoint equivalence. */
-    public readonly input: AutoMoviePhysicalSimulation.IInput,
+    public readonly input: IAutoMoviePhysicalSimulationInput.IInput,
     /** Complete replay state. */
-    public readonly cache: Cache,
+    public readonly cache: IAutoMoviePhysicsCache,
     /** Native fixed steps performed by this run. */
     public readonly recomputedSteps: number,
     /** Pre-solve PD demands exceeding the native enforced motor torque cap. */
-    public readonly tracking: AutoMoviePhysicalSimulation.IDiagnostic[],
+    public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
   ) {}
 
   /**
@@ -67,7 +64,7 @@ export class AutoMoviePhysicalSimulation {
    */
   public trackingAt(
     seconds: number,
-  ): AutoMoviePhysicalSimulation.IDiagnostic[] {
+  ): IAutoMoviePhysicalSimulationInput.IDiagnostic[] {
     return samplePhysicalTracking(
       this.input,
       this.cache,
@@ -87,15 +84,15 @@ export class AutoMoviePhysicalSimulation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  public static identity(input: AutoMoviePhysicalSimulation.IInput): string {
+  public static identity(input: IAutoMoviePhysicalSimulationInput.IInput): string {
     return physicalInputDigest(this.admitted(input));
   }
 
   /** All identity callers and actual runs use exactly the same owned defaults and admission. */
   private static admitted(
-    input: AutoMoviePhysicalSimulation.IInput,
-  ): AutoMoviePhysicalSimulation.IInput {
-    const owned: AutoMoviePhysicalSimulation.IInput = structuredClone(input);
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+  ): IAutoMoviePhysicalSimulationInput.IInput {
+    const owned: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
     if (owned.substeps === undefined) owned.substeps = 16;
     if (owned.internalIterations === undefined) owned.internalIterations = 1;
     if (owned.contactTolerance === undefined) owned.contactTolerance = 0.0001;
@@ -126,13 +123,13 @@ export class AutoMoviePhysicalSimulation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
    */
   public static async compute(
-    input: AutoMoviePhysicalSimulation.IInput,
-    previous?: AutoMoviePhysicalSimulation,
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+    previous?: IAutoMoviePhysicalSimulation,
     signal?: AbortSignal,
     progress?: (completed: number, total: number) => void,
-  ): Promise<AutoMoviePhysicalSimulation> {
+  ): Promise<IAutoMoviePhysicalSimulation> {
     signal?.throwIfAborted();
-    const owned: AutoMoviePhysicalSimulation.IInput = this.admitted(input);
+    const owned: IAutoMoviePhysicalSimulationInput.IInput = this.admitted(input);
     const identity: string = physicalInputDigest(owned);
     if (previous?.cache.identity === identity) {
       progress?.(
@@ -142,9 +139,9 @@ export class AutoMoviePhysicalSimulation {
       signal?.throwIfAborted();
       return previous;
     }
-    const cache: Cache = new Cache(identity, owned.rate, owned.duration);
+    const cache: IAutoMoviePhysicsCache = new Cache(identity, owned.rate, owned.duration);
     const count: number = Math.round(owned.duration * owned.rate);
-    const diagnostics: AutoMoviePhysicalSimulation.IDiagnostic[] = [];
+    const diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
 
     // A fully kinematic film constructs no dynamics world and takes no native steps.
     if (
@@ -206,10 +203,10 @@ export class AutoMoviePhysicalSimulation {
           bound.supportPlanned.set(id, structuredClone(planned));
       if (
         owned.bodies.some(
-          (body: AutoMoviePhysicalSimulation.IBody): boolean =>
+          (body: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
             !!body.selfAvoidance ||
             body.targets.some(
-              (target: AutoMoviePhysicalSimulation.ITarget): boolean =>
+              (target: IAutoMoviePhysicalSimulationInput.ITarget): boolean =>
                 !!target.bindings?.length ||
                 !!target.pointBounds?.length ||
                 target.dynamicSegments !== undefined,
@@ -230,7 +227,7 @@ export class AutoMoviePhysicalSimulation {
       );
       if (start > 0)
         for (const body of owned.bodies) {
-          const target: AutoMoviePhysicalSimulation.ITarget =
+          const target: IAutoMoviePhysicalSimulationInput.ITarget =
             samplePhysicalTrackingTarget(
               body,
               body.targets[start]!,
@@ -321,7 +318,7 @@ export class AutoMoviePhysicalSimulation {
           assertPhysicalReturnPath(owned, bound, tick, "before");
           for (const impulse of owned.impulses)
             if (impulse.step === step && substep === 1) {
-              const body: AutoMoviePhysicalSimulation.IBody = owned.bodies.find(
+              const body: IAutoMoviePhysicalSimulationInput.IBody = owned.bodies.find(
                 (candidate: (typeof owned.bodies)[number]): boolean =>
                   candidate.id === impulse.body,
               )!;
@@ -357,7 +354,7 @@ export class AutoMoviePhysicalSimulation {
                 `${body.id}/${segment.bone}`,
               )!;
               if (rigid.isSleeping()) continue;
-              const pose: P.ITransform = {
+              const pose: IAutoMoviePhysicalProfile.ITransform = {
                 position: rigid.translation(),
                 rotation: rigid.rotation(),
               };
@@ -402,7 +399,7 @@ export class AutoMoviePhysicalSimulation {
             if (receipt.a.body === "floor" || receipt.b.body === "floor")
               continue;
             for (const side of [receipt.a, receipt.b]) {
-              const body: AutoMoviePhysicalSimulation.IBody = owned.bodies.find(
+              const body: IAutoMoviePhysicalSimulationInput.IBody = owned.bodies.find(
                 (candidate: (typeof owned.bodies)[number]): boolean =>
                   candidate.id === side.body,
               )!;
@@ -480,47 +477,4 @@ export class AutoMoviePhysicalSimulation {
       }
     }
   }
-}
-
-/**
- * Public input and diagnostic aliases keep their established simulation owner.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Public input and diagnostic aliases keep their established simulation owner) and documents 4 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Public input and diagnostic aliases keep their established simulation owner: companion namespace of 4 members (`ITarget`, `IBody`, `IInput`, `IDiagnostic`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalSimulation` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 4 members listed and the text shows 76 other files naming it, mostly test (39), packages/engine (34), movies (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace AutoMoviePhysicalSimulation {
-  /**
-   * Sampled authored segment goals and tracking strengths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Sampled authored segment goals and tracking strengths) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents Sampled authored segment goals and tracking strengths: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ITarget` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 48 other files naming it, mostly packages/engine (18), packages/human (11), movies (10), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type ITarget = AutoMoviePhysicalSimulationInput.ITarget;
-  /**
-   * One provider body and its bounded controller policy.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (One provider body and its bounded controller policy) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents One provider body and its bounded controller policy: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IBody` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 97 other files naming it, mostly packages/engine (42), test (42), packages/human (12), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type IBody = AutoMoviePhysicalSimulationInput.IBody;
-  /**
-   * Complete finite simulation work and input description.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Complete finite simulation work and input description) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents Complete finite simulation work and input description: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type IInput = AutoMoviePhysicalSimulationInput.IInput;
-  /**
-   * Pre-solve actuator-cap forecast at a completed cached step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pre-solve actuator-cap forecast at a completed cached step) as stated in this comment.
-   * @evidence contracts/development/design.md#principled-representation Represents Pre-solve actuator-cap forecast at a completed cached step: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IDiagnostic` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 79 other files naming it, mostly packages/human (53), packages/engine (15), test (11), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */ export type IDiagnostic = AutoMoviePhysicalSimulationInput.IDiagnostic;
 }

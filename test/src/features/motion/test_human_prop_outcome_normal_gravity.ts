@@ -1,5 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanPropOutcome, type IHumanProp } from "@automovie/motions";
+import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropOutcome, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanPropOutcome } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/vclose";
@@ -28,7 +29,7 @@ type Input = Parameters<typeof HumanPropOutcome.legs>[0];
  */
 export function test_human_prop_outcome_normal_gravity(): void {
   const findings: string[] = [];
-  const prop: IHumanProp = {
+  const prop: IAutoMovieMotionHumanProp = {
     subject: "normal-gravity sphere",
     frame: {
       position: { x: 0, y: 10, z: 0 },
@@ -104,7 +105,7 @@ export function test_human_prop_outcome_normal_gravity(): void {
       },
     };
     try {
-      const legs: HumanPropOutcome.ILeg[] = HumanPropOutcome.legs(input);
+      const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(input);
       if (position === null || exit === null) {
         if (legs.length !== 0 || sweeps !== 0)
           findings.push(`${name}: bounded small rebound did not settle`);

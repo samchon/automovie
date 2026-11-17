@@ -1,0 +1,35 @@
+import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieHumanJointCentres } from "./IAutoMovieHumanJointCentres";
+
+/**
+ * What every piece of the neutral posture reads of a body's bind skeleton.
+ *
+ * @evidence contracts/common.md#meaningful-documentation States what each reader returns, its frame and unit.
+ *
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation What every piece of the neutral posture reads of a body's bind skeleton.
+ * @evidence contracts/development/design.md#principled-representation `byBone`: The bind joints by bone, calibration millimetres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanNeutralTurn.body. Read by AutoMovieHumanNeutralAnkle.derive, AutoMovieHumanNeutralForearm.derive, AutoMovieHumanNeutralHip.derive. Also types AutoMovieHumanNeutral.body.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `byBone`; callers supply the complete record.
+ */
+export interface IAutoMovieHumanNeutralBody {
+  /** The bind joints by bone, calibration millimetres. */
+  byBone: ReadonlyMap<string, IAutoMovieHumanJointCentres.IJoint>;
+
+  /**
+   * A bone's unit direction at the bind, from its joint toward its end.
+   *
+   * @param bone The Human joint.
+   * @returns The unit vector in the registered frame.
+   */
+  direction(bone: string): AutoMovieVector3Tuple;
+
+  /**
+   * The vector between two joints at the bind.
+   *
+   * @param from The first joint.
+   * @param to The second joint.
+   * @returns `to` less `from`, calibration millimetres.
+   */
+  between(from: string, to: string): AutoMovieVector3Tuple;
+}

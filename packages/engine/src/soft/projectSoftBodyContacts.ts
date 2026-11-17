@@ -1,9 +1,5 @@
-import {
-  IAutoMovieSoftCollider,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieSoftBodyResolvedCapsule, IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedCapsule";
 
 /** Project one unanchored particle through authored static colliders, then resolved moving capsules, preserving the running contact count.
  *

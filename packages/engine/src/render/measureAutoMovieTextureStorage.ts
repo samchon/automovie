@@ -1,3 +1,4 @@
+import type { IAutoMovieMeasureTextureStorage } from "@automovie/interface";
 /**
  * Count uncompressed two-dimensional texel storage in bytes. Each mip level
  * halves integer dimensions and retains at least one texel on either axis;
@@ -14,12 +15,7 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All texture representations share this extent formula; mutable caller facts are recomputed rather than retained behind an identity key.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a number/null returns, with no pixel buffer, native texture, handle or asynchronous work owned.
  */
-export function measureAutoMovieTextureStorage(props: {
-  width: number;
-  height: number;
-  bytesPerTexel: number | null;
-  mipmapped: boolean;
-}): number | null {
+export function measureAutoMovieTextureStorage(props: IAutoMovieMeasureTextureStorage.IProps): number | null {
   if (
     !Number.isSafeInteger(props.width) ||
     props.width <= 0 ||

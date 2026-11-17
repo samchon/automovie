@@ -1,20 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingBlade, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSupportAim, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanSupportAim } from "../carrier/HumanSupportAim";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import type { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /**
  * How a presented weapon is held, read once per plan: the weapon as the
@@ -33,43 +24,20 @@ import type { HumanWeaponPresent } from "./HumanWeaponPresent";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end; the reach is the body's own, never a share of it.
  */
 export namespace HumanWeaponHeld {
-  /** The held weapon and the performer's axes, read once per plan. */
-  export interface ISetup {
-    /** The weapon as the shooting hand holds it, with its tip and edge. */
-    tool: StrikingHeld.ITool;
-
-    /** The support hand's hold on the weapon, or null for one hand or the bare hand. */
-    support: StrikingBlade.ISupport | null;
-
-    /** Whether the weapon is a long gun: a prop that declares a fore-end. */
-    long: boolean;
-
-    /** Half the fore-end's length, metres: how far back the support hand may take it. */
-    slide: number;
-
-    /** The arm's length, upper arm and forearm, metres. */
-    arm: number;
-
-    /** The butt's point from the grip in the hand's frame, for a weapon that declares a `butt`; absent otherwise. */
-    butt?: IAutoMovieVector3;
-
-    /** The support hand's hold at the lock, for a firelock that declares a `cock`: the recover's left hand, which "seizes the Firelock strong above the Lock" (the 1764 Manual Exercise); absent otherwise. */
-    lock?: StrikingBlade.ISupport;
-  }
 
   /** The hand a weapon action holds the weapon in: the right when the parameters name none. */
-  export const hand = (p: HumanWeaponPresent.IWield): HumanHand.Side =>
+  export const hand = (p: IAutoMovieMotionHumanWeaponPresent.IWield): IAutoMovieMotionHumanHand.Side =>
     p.hand ?? "right";
 
   /** How the hand holds the weapon at an action's start, by the points it is read at (`StrikingHeld.of`). */
   export const held =
     (
       context: Pick<
-        IHumanActionContext<HumanWeaponPresent.IWield>,
+        IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
         "body" | "entry" | "prop" | "subject" | "params"
       >,
-    ): ((points: StrikingHeld.IPoints) => StrikingHeld.ITool) =>
-    (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
+    ): ((points: IAutoMovieMotionHumanStrikingHeld.IPoints) => IAutoMovieMotionHumanStrikingHeld.ITool) =>
+    (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool =>
       StrikingHeld.of(
         context,
         hand(context.params),
@@ -88,13 +56,13 @@ export namespace HumanWeaponHeld {
    */
   export const setup = (
     context: Pick<
-      IHumanActionContext<HumanWeaponPresent.IWield>,
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
       "params" | "prop" | "body"
     >,
-    read: (points: StrikingHeld.IPoints) => StrikingHeld.ITool,
-  ): ISetup => {
-    const p: HumanWeaponPresent.IWield = context.params;
-    const side: HumanHand.Side = hand(p);
+    read: (points: IAutoMovieMotionHumanStrikingHeld.IPoints) => IAutoMovieMotionHumanStrikingHeld.ITool,
+  ): IAutoMovieMotionHumanWeaponHeld.ISetup => {
+    const p: IAutoMovieMotionHumanWeaponPresent.IWield = context.params;
+    const side: IAutoMovieMotionHumanHand.Side = hand(p);
     const found = (id: string): IAutoMovieAffordance | undefined =>
       p.gun === undefined
         ? undefined
@@ -116,7 +84,7 @@ export namespace HumanWeaponHeld {
         fix: "hold it in both hands, or hold a handgun",
       });
 
-    const tool: StrikingHeld.ITool = read({
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = read({
       tip: p.tip ?? "muzzle",
       ...(p.from === undefined ? {} : { from: p.from }),
       edge: p.edge ?? "sight",
@@ -159,7 +127,7 @@ export namespace HumanWeaponHeld {
       ...(found("cock") === undefined
         ? {}
         : {
-            lock: ((): StrikingBlade.ISupport => {
+            lock: ((): IAutoMovieMotionHumanStrikingBlade.ISupport => {
               const at: IAutoMovieVector3 = read({ tip: "cock" }).tip;
               return {
                 offset: {
@@ -187,13 +155,13 @@ export namespace HumanWeaponHeld {
    * @throws {HumanRefusal} When the support arm cannot reach the fore-end.
    */
   export const supported = (
-    context: Pick<IHumanActionContext, "body">,
-    s: ISetup,
-    pose: StrikingHeld.IHandFrame,
-    posture: IHumanPosture,
-  ): StrikingBlade.ISupport | null => {
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    s: IAutoMovieMotionHumanWeaponHeld.ISetup,
+    pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanStrikingBlade.ISupport | null => {
     if (s.support === null || !s.long) return s.support;
-    const other: HumanHand.Side = s.tool.side === "left" ? "right" : "left";
+    const other: IAutoMovieMotionHumanHand.Side = s.tool.side === "left" ? "right" : "left";
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
       context.body,
       posture,
@@ -249,14 +217,14 @@ export namespace HumanWeaponHeld {
    * (`HumanSupportAim`).
    */
   export const carried = (
-    context: IHumanActionContext<HumanWeaponPresent.IWield>,
-    s: ISetup,
-    plan: IHumanActionPlan,
-    aim?: HumanSupportAim.IAim,
-  ): IHumanActionPlan => {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
+    s: IAutoMovieMotionHumanWeaponHeld.ISetup,
+    plan: IAutoMovieMotionHumanActionPlan,
+    aim?: IAutoMovieMotionHumanSupportAim.IAim,
+  ): IAutoMovieMotionHumanActionPlan => {
     if (context.carrier === undefined) return plan;
-    const side: HumanHand.Side = s.tool.side;
-    const other: HumanHand.Side = side === "left" ? "right" : "left";
+    const side: IAutoMovieMotionHumanHand.Side = s.tool.side;
+    const other: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
     return HumanSupportCarry.plan(
       context,
       plan,

@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
+
 /**
  * Penalty sequential convex optimisation with a trust region, the outer loop
  * of TrajOpt (Schulman et al. 2014, "Motion planning with sequential convex
@@ -14,237 +16,6 @@
  * reading.
  */
 export namespace HumanSequentialConvex {
-  /** An iterate's reading: the merit's two parts. */
-  export interface IEvaluation {
-    /** The objective. */
-    objective: number;
-
-    /** The constraints' violations summed, in the units the penalty weighs. */
-    violation: number;
-  }
-
-  /** The convex model's step within a region. */
-  export interface IStep<X> {
-    /** The iterate the step reaches, projected onto any hard set the caller keeps. */
-    trial: X;
-
-    /** The model's decrease of the merit from the iterate to the step, `m(0) - m(p)`. */
-    predicted: number;
-
-    /** The step's largest coordinate, in the region's units. */
-    length: number;
-
-    /** Whether the step reaches the region's boundary, where a schedule that grows only there (`ISchedule.boundary`) grows. */
-    full: boolean;
-
-    /** The violation of the linearised constraints at the step, in the units the penalty weighs, the model's own; the steering reads it (`IOptions.steer`). */
-    violation?: number;
-
-    /** Whether the step meets the linearised constraints to the caller's tolerance, the steering's linear feasibility (`IOptions.steer`). */
-    met?: boolean;
-
-    /** The model's own accuracy in the merit's units, below which a predicted decrease is not one and the solve settles without trying the step (the termination of an SQP on its subproblem's accuracy, Nocedal and Wright chapter 18); never settles so when absent. */
-    accuracy?: number;
-  }
-
-  /** A convex model of the merit about an iterate, at one penalty. */
-  export interface IModel<X> {
-    /**
-     * The model's step within a region.
-     *
-     * @param radius The region's half-width, in the caller's units.
-     * @returns The step.
-     */
-    solve(radius: number): IStep<X>;
-
-    /** Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one). */
-    taken?(): void;
-  }
-
-  /** The problem, as the caller reads it. */
-  export interface IProblem<X, E extends IEvaluation> {
-    /**
-     * An iterate's reading.
-     *
-     * @param x The iterate.
-     * @returns Its objective and violation, and whatever else the caller reads.
-     */
-    evaluate(x: X): E;
-
-    /**
-     * The convex model about an iterate: the caller's own subproblem, solved
-     * by whatever inner solve it chooses.
-     *
-     * @param x The iterate.
-     * @param evaluation Its reading.
-     * @param penalty The penalty's weight.
-     * @param radius The region the model is next solved within, the widest of the round.
-     * @param objective Whether the model holds the objective; false for the steering's step of the violation alone (`IOptions.steer`).
-     * @returns The model.
-     */
-    convexify(
-      x: X,
-      evaluation: E,
-      penalty: number,
-      radius: number,
-      objective: boolean,
-    ): IModel<X>;
-
-    /**
-     * Whether a reading meets the constraints, to the caller's tolerance.
-     *
-     * @param evaluation The reading.
-     * @returns Whether it is feasible.
-     */
-    feasible(evaluation: E): boolean;
-
-    /**
-     * The second-order correction of a rejected step, against the Maratos
-     * effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step
-     * `p` plus a correction `p^` that meets the constraints' linearisation at
-     * the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its
-     * minimum-norm solution being their (15.36). Asked only for a step whose
-     * ratio did not exceed `ISchedule.eta` and whose predicted decrease is
-     * positive, once per step and before the region shrinks; the corrected
-     * point is judged on the step's own predicted decrease, taken where its
-     * ratio exceeds `eta` and dropped otherwise, never searched along
-     * (their Algorithm 15.2, p. 443, in the trust region of their Algorithm
-     * 18.4, p. 549). Absent, no correction is tried.
-     *
-     * @param x The iterate.
-     * @param step The rejected step.
-     * @param trial The reading at the step's trial.
-     * @returns The corrected point `x + p + p^`, or null where the caller has none.
-     */
-    correct?(x: X, step: IStep<X>, trial: E): X | null;
-  }
-
-  /**
-   * Why a solve stopped, read off its last convexification: `model`, the
-   * model's predicted decrease under `ISchedule.improved` or within its own
-   * accuracy (`IStep.accuracy`); `step`, a step taken under
-   * `ISchedule.least`, or a rejected proposal under it at an already feasible
-   * iterate (numerical no progress, not a stationarity certificate);
-   * `collapsed`, no step taken, the region fallen under
-   * `ISchedule.least` or the tries spent; `rounds`, the convexifications ran
-   * out (`IOptions.rounds`) with steps still being taken.
-   */
-  export type Reason = "model" | "step" | "collapsed" | "rounds";
-
-  /**
-   * How the region moves: a step is taken where the ratio of the actual to
-   * the predicted decrease exceeds `eta`, and the region shrinks by `shrink`
-   * on every step not taken, at most `tries` times a convexification; a
-   * step taken shrinks the region where its ratio is below `low` and grows
-   * it by `expand`, to `widest`, where its ratio exceeds `high` (on a step at
-   * the boundary when `boundary` holds), Nocedal and Wright's Algorithm 4.1
-   * in its general form.
-   */
-  export interface ISchedule {
-    /** The ratio a step must exceed to be taken. */
-    eta: number;
-
-    /** The ratio below which a step taken shrinks the region. */
-    low: number;
-
-    /** The ratio above which a step taken grows the region. */
-    high: number;
-
-    /** The region's factor where it shrinks. */
-    shrink: number;
-
-    /** The region's factor where it grows. */
-    expand: number;
-
-    /** Whether the region grows only on a step that reaches its boundary. */
-    boundary: boolean;
-
-    /** The widest the region grows. */
-    widest: number;
-
-    /** The region's first half-width, set again at each penalty. */
-    trust: number;
-
-    /** A region or a step below which the solve has settled. */
-    least: number;
-
-    /** Steps tried per convexification at most, the region shrinking between them. */
-    tries: number;
-
-    /**
-     * The predicted decrease below which the solve has settled.
-     *
-     * @param merit The merit at the iterate.
-     * @returns The decrease.
-     */
-    improved: (merit: number) => number;
-  }
-
-  /** What a solve is run with. */
-  export interface IOptions {
-    /** The region's schedule. */
-    schedule: ISchedule;
-
-    /** The penalties, ascending, each tried while the constraints are not met at the one before. */
-    penalties: readonly number[];
-
-    /** Convexifications per penalty at most. */
-    rounds: number;
-
-    /** The penalty to start at, a solve continued from another's result (`IResult.penalty`); the first when absent. */
-    from?: number;
-
-    /** The region's first half-width, a solve following another of the same kind (`IResult.radius`); `ISchedule.trust` when absent. */
-    radius?: number;
-
-    /**
-     * Whether the penalty is steered (Byrd, Nocedal and Waltz 2008, "Steering
-     * exact penalty methods for nonlinear programming", Optim Methods Softw
-     * 23:197; Algorithm 5.1, p. 11 of the 2007 technical report): each round,
-     * where the step at the penalty leaves the linearised constraints
-     * violated (`IStep.met`), the step of the violation alone (the model
-     * without the objective, their (5.10)) sets the progress a step can make;
-     * the penalty grows by `STEERING.increase` until the step meets the
-     * linearised constraints where that one does, or else reduces their
-     * violation by at least `STEERING.feasibility` of what that one does
-     * (their (5.13), p. 10), and then until the model's decrease is at least
-     * `STEERING.merit` times the penalty times the step's reduction of the
-     * violation (their (5.14), p. 10). The penalty is then tied to the
-     * problem at every iterate, so a start the constraints' linearisation
-     * cannot satisfy is not pulled off them by the objective, and the steps
-     * keep their progress on feasibility. With it, `penalties` gives only the
-     * first penalty and `from` a continued one. False when absent.
-     */
-    steer?: boolean;
-  }
-  /** A solve's result. */
-  export interface IResult<X, E> {
-    /** The last iterate taken. */
-    x: X;
-
-    /** Its reading. */
-    evaluation: E;
-
-    /** The penalty it was reached at. */
-    penalty: number;
-
-    /** The region it ended with, which a following solve of the same kind may start from (`IOptions.radius`). */
-    radius: number;
-
-    /** Whether the last convexification ended with no step taken, its region fallen below `ISchedule.least` or its tries spent, rather than on the model's own accuracy. */
-    collapsed: boolean;
-
-    /** Why the solve stopped (`Reason`). */
-    reason: Reason;
-
-    /**
-     * Whether a convergence test with the region open ended the solve, its
-     * reason `model` or `step`; a collapsed region and spent rounds are
-     * not, so a caller can tell a solve that converged from one a cap or a
-     * collapse stopped.
-     */
-    settled: boolean;
-  }
 
   /**
    * The steering's constants (`IOptions.steer`), as KNITRO-Active applies
@@ -277,19 +48,19 @@ export namespace HumanSequentialConvex {
    * @param options The schedule, the penalties, the rounds, a continued solve's penalty and region, and whether the penalty is steered.
    * @returns The last iterate taken, its reading, its penalty and region, whether the last convexification collapsed, why the solve stopped and whether it converged; the caller refuses an infeasible one by its own reading.
    */
-  export function minimise<X, E extends IEvaluation>(
-    problem: IProblem<X, E>,
+  export function minimise<X, E extends IAutoMovieMotionHumanSequentialConvex.IEvaluation>(
+    problem: IAutoMovieMotionHumanSequentialConvex.IProblem<X, E>,
     start: X,
-    options: IOptions,
-  ): IResult<X, E> {
-    const s: ISchedule = options.schedule;
+    options: IAutoMovieMotionHumanSequentialConvex.IOptions,
+  ): IAutoMovieMotionHumanSequentialConvex.IResult<X, E> {
+    const s: IAutoMovieMotionHumanSequentialConvex.ISchedule = options.schedule;
     const steer: boolean = options.steer === true;
     let x: X = start;
     let current: E = problem.evaluate(x);
     let radius: number = options.radius ?? s.trust;
     let penalty: number = options.penalties[0]!;
     let collapsed: boolean = false;
-    let reason: Reason = "rounds";
+    let reason: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
     // A steered solve starts at the continued penalty when there is one, the first otherwise.
     const first: number =
       options.from !== undefined ? options.from : options.penalties[0]!;
@@ -300,10 +71,10 @@ export namespace HumanSequentialConvex {
       let mu: number = ladder;
       penalty = mu;
       for (let round: number = 0; round < options.rounds; ++round) {
-        let model: IModel<X> = problem.convexify(x, current, mu, radius, true);
-        let pending: IStep<X> | undefined;
+        let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> = problem.convexify(x, current, mu, radius, true);
+        let pending: IAutoMovieMotionHumanSequentialConvex.IStep<X> | undefined;
         if (steer) {
-          const steered: { mu: number; model: IModel<X>; step: IStep<X> } =
+          const steered: { mu: number; model: IAutoMovieMotionHumanSequentialConvex.IModel<X>; step: IAutoMovieMotionHumanSequentialConvex.IStep<X> } =
             steering(problem, x, current, mu, radius, model);
           mu = steered.mu;
           model = steered.model;
@@ -314,12 +85,12 @@ export namespace HumanSequentialConvex {
         let taken: boolean = false;
         let settled: boolean = false;
         let told: boolean = false;
-        let ended: Reason = "rounds";
+        let ended: IAutoMovieMotionHumanSequentialConvex.Reason = "rounds";
 
         // The region shrinks until a step is taken, it is too small to move
         // the iterate, or its tries run out.
         for (let attempt: number = 0; attempt < s.tries; ++attempt) {
-          const step: IStep<X> = pending ?? model.solve(radius);
+          const step: IAutoMovieMotionHumanSequentialConvex.IStep<X> = pending ?? model.solve(radius);
           pending = undefined;
 
           // A predicted decrease within the model's own accuracy is no
@@ -408,18 +179,18 @@ export namespace HumanSequentialConvex {
   }
 
   /** Algorithm 5.1 of Byrd, Nocedal and Waltz at one region (`IOptions.steer`): the penalty, its model and the model's step. */
-  function steering<X, E extends IEvaluation>(
-    problem: IProblem<X, E>,
+  function steering<X, E extends IAutoMovieMotionHumanSequentialConvex.IEvaluation>(
+    problem: IAutoMovieMotionHumanSequentialConvex.IProblem<X, E>,
     x: X,
     current: E,
     penalty: number,
     radius: number,
-    first: IModel<X>,
-  ): { mu: number; model: IModel<X>; step: IStep<X> } {
+    first: IAutoMovieMotionHumanSequentialConvex.IModel<X>,
+  ): { mu: number; model: IAutoMovieMotionHumanSequentialConvex.IModel<X>; step: IAutoMovieMotionHumanSequentialConvex.IStep<X> } {
     let mu: number = penalty;
-    let model: IModel<X> = first;
-    let step: IStep<X> = model.solve(radius);
-    const reduced: (d: IStep<X>) => number = (d: IStep<X>): number => {
+    let model: IAutoMovieMotionHumanSequentialConvex.IModel<X> = first;
+    let step: IAutoMovieMotionHumanSequentialConvex.IStep<X> = model.solve(radius);
+    const reduced: (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>) => number = (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>): number => {
       if (d.violation === undefined)
         throw new Error(
           "A steered penalty needs each step's linearised violation",
@@ -438,10 +209,10 @@ export namespace HumanSequentialConvex {
       // its reduction (step 3, (5.13), p. 10). Linear feasibility is the caller's, to its
       // tolerance, since a subproblem solved to a relative accuracy meets its
       // rows only to that accuracy.
-      const best: IStep<X> = problem
+      const best: IAutoMovieMotionHumanSequentialConvex.IStep<X> = problem
         .convexify(x, current, mu, radius, false)
         .solve(radius);
-      const enough: (d: IStep<X>) => boolean = (d: IStep<X>): boolean =>
+      const enough: (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>) => boolean = (d: IAutoMovieMotionHumanSequentialConvex.IStep<X>): boolean =>
         best.met === true
           ? d.met === true
           : reduced(d) >= STEERING.feasibility * reduced(best);

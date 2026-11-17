@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieMark,
-  type IAutoMovieMeshDefect,
-  measureAutoMovieMeshDefects,
-} from "@automovie/engine";
+import type { IAutoMovieMark, IAutoMovieMeshDefect } from "@automovie/interface";
+import { measureAutoMovieMeshDefects } from "@automovie/engine";
 import * as THREE from "three";
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";

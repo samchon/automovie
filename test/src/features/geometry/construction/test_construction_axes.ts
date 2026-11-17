@@ -1,23 +1,6 @@
-import {
-  AutoMovieConstructionContinuation,
-  type AutoMovieConstructionRealization,
-  AutoMovieConstructionViews,
-  AutoMovieLoftChain,
-  type AutoMovieLoftFrame,
-  AutoMovieLoftJet,
-  AutoMovieViewAxis,
-  AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionOutlineParameter,
-  IAutoMovieConstructionKnot,
-  IAutoMovieConstructionView,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionOutlineParameter, IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieSolidSurface, IAutoMovieViewAxis, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieConstructionKnot, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieConstructionContinuation, AutoMovieConstructionViews, AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieViewAxis, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -69,15 +52,15 @@ function sources(): string[] {
       AutoMovieConstructionViews.part(view);
     if (typeof part === "string") throw new Error(part);
     part.axis = {
-      at: (station: number): AutoMovieLoftFrame.IFrame =>
+      at: (station: number): IAutoMovieLoftFrame.IFrame =>
         sourceJet(station, offset).value,
       jet: (
         station: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
+        parameter?: IAutoMovieConstructionOutlineParameter,
       ): FrameJet | null =>
         parameter === undefined ? sourceJet(station, offset) : null,
     };
-    const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+    const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     if (
       result.chain === null ||
       result.surface === null ||
@@ -91,9 +74,9 @@ function sources(): string[] {
   const host: IAutoMovieLoftChain = build("source.host", 0);
   for (const station of [7.3, 27.5, 63.4, 91.2]) {
     const source: FrameJet = sourceJet(station, 0);
-    const actual: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(host, station, 0);
+    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(host, station, 0);
     const expected: V3[] = [source.value, source.first, source.second].map(
-      (frame: AutoMovieLoftFrame.IFrame): V3 =>
+      (frame: IAutoMovieLoftFrame.IFrame): V3 =>
         frame.origin.map(
           (value: number, k: number): number => value + 3 * frame.u[k]!,
         ) as V3,
@@ -187,12 +170,12 @@ function sources(): string[] {
       const hs: number = hostEnd === "bottom" ? 0 : 100;
       const ps: number = partEnd === "bottom" ? 0 : 100;
       for (const phase of [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
-        const owner: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const owner: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
           host,
           hs,
           direction * phase,
         );
-        const actual: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
           continued,
           ps,
           phase,
@@ -241,13 +224,13 @@ function sourceJet(station: number, offset: number): FrameJet {
 
 /** One actual axis value and both physical-station derivatives. */
 type FrameJet = NonNullable<
-  ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>
+  ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>
 >;
 
 /** An independent numeric copy retains the axis owner but shares no frame triples. */
 function copyFrame(
-  frame: AutoMovieLoftFrame.IFrame,
-): AutoMovieLoftFrame.IFrame {
+  frame: IAutoMovieLoftFrame.IFrame,
+): IAutoMovieLoftFrame.IFrame {
   return { origin: [...frame.origin], u: [...frame.u], v: [...frame.v] };
 }
 
@@ -320,7 +303,7 @@ function level(): string[] {
       },
     },
   };
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: tube }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     out.push(`level: diagnostics ${ConstructionRead.diagnostics(real)}`);
@@ -390,7 +373,7 @@ function jointed(): string[] {
     (bisector[0] ** 2 + bisector[1] ** 2 + bisector[2] ** 2);
 
   // The runs, in the kernel's millimetres.
-  const runs: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
+  const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(
     centres.map((c: V3): V3 => [1000 * c[0], 1000 * c[1], 1000 * c[2]]),
     [1000 * h],
   );
@@ -406,7 +389,7 @@ function jointed(): string[] {
         100 - 1000 * setback + 2000 * h + 100 - 1000 * setback,
       ],
     ];
-    runs.forEach((run: AutoMovieViewAxis.IRun, i: number): void => {
+    runs.forEach((run: IAutoMovieViewAxis.IRun, i: number): void => {
       const got: number[] = [run.from, run.to, run.start, run.end];
       want[i]!.forEach((value: number, k: number): void => {
         if (!(Math.abs(got[k]! - value) <= 1e-9 * 100))
@@ -439,7 +422,7 @@ function jointed(): string[] {
     halves: [h],
     up: { x: 1, y: 0, z: 0 },
   };
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: limb }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     out.push(`jointed: diagnostics ${ConstructionRead.diagnostics(real)}`);

@@ -1,18 +1,6 @@
-import {
-  IAutoMovieFormationGrounding,
-  IAutoMovieFormationPlacement,
-  formationSlot,
-  formationSlotPosition,
-  worldHeightfield,
-  worldRamp,
-  worldSurfaceHeight,
-  worldTerrain,
-} from "@automovie/engine";
-import {
-  IAutoMovieFormationDesign,
-  IAutoMovieVector3,
-  IAutoMovieWorldSurface,
-} from "@automovie/interface";
+import { type IAutoMovieFormationGrounding, type IAutoMovieFormationPlacement, IAutoMovieFormationDesign, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
+import { formationSlot, formationSlotPosition, worldHeightfield, worldRamp, worldSurfaceHeight, worldTerrain } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

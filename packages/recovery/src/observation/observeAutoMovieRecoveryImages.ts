@@ -1,11 +1,9 @@
-import type {
-  IAutoMovieRecoveryImageInput,
-  IAutoMovieRecoveryImageObservation,
-} from "@automovie/interface";
+import type { IAutoMovieRecoveryImageChartAssertOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryImageInput, IAutoMovieRecoveryImageObservation } from "@automovie/interface";
+
 
 import { assertRecoveryImageChart } from "../internal/assertRecoveryImageChart";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
 
 /**
  * Measure opaque row supports using a supplied fixed RGB background and cameras.
@@ -29,16 +27,31 @@ export function observeAutoMovieRecoveryImages(
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryImageObservation> {
   const operator: IAutoMovieRecoveryResult<unknown>["operator"] =
     "orthographic-images-v1";
-  const cancelled: () => boolean = (): boolean =>
-    options.signal?.aborted === true;
+  let cancellationRequested: boolean = false;
+  let cancellationCallback: boolean = false;
+  let callback: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    cancellationCallback = true;
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error("Cancellation callback must return a boolean synchronously");
+    cancellationCallback = false;
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
+  try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+
   if (cancelled())
     return {
       operator,
       status: "cancelled",
-      diagnostics: ["Cancelled before image admission"],
-    };
-  let callback: boolean = false;
-  try {
+      diagnostics: ["Cancelled before image admission"] };
+  
+  
     const finite: (value: unknown) => value is number = (
       value: unknown,
     ): value is number => typeof value === "number" && Number.isFinite(value);
@@ -151,11 +164,10 @@ export function observeAutoMovieRecoveryImages(
         return {
           operator,
           status: "cancelled",
-          diagnostics: ["Cancelled between image scans"],
-        };
+          diagnostics: ["Cancelled between image scans"] };
       const rows: IAutoMovieRecoveryImageObservation["views"][number]["rows"] =
         [];
-      const chart: ReturnType<typeof assertRecoveryImageChart> =
+      const chart: ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> =
         assertRecoveryImageChart(view);
       let previousRow: number | undefined;
       for (let row: number = 0; row < view.height; row++) {
@@ -222,11 +234,9 @@ export function observeAutoMovieRecoveryImages(
         height: view.height,
         camera: {
           ...view.camera,
-          principalPointPx: [...view.camera.principalPointPx],
-        },
+          principalPointPx: [...view.camera.principalPointPx] },
         rows,
-        quantizationMm: view.camera.pixelPitchMm / 2,
-      });
+        quantizationMm: view.camera.pixelPitchMm / 2 });
       callback = true;
       options.onProgress?.("image-support", views.length, input.views.length);
       callback = false;
@@ -235,8 +245,7 @@ export function observeAutoMovieRecoveryImages(
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before observation transfer"],
-      };
+        diagnostics: ["Cancelled before observation transfer"] };
     return {
       operator,
       status: "complete",
@@ -246,16 +255,13 @@ export function observeAutoMovieRecoveryImages(
         frame: input.frame,
         cohort: input.cohort,
         method: "fixed-background-channel-distance-v1",
-        views,
-      },
-    };
+        views } };
   } catch (failure: unknown) {
     return {
       operator,
-      status: cancelled() ? "cancelled" : callback ? "failed" : "refused",
+      status: cancellationRequested ? "cancelled" : cancellationCallback || callback ? "failed" : "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ],
-    };
+      ] };
   }
 }

@@ -1,5 +1,7 @@
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
+import type { IAutoMovieHumanBodyCalibration, IAutoMovieHumanHandForm } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 

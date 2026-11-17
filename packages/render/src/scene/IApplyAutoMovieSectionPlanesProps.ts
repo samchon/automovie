@@ -1,4 +1,5 @@
-import type { IAutoMovieSectionPlane } from "@automovie/engine";
+import type { IAutoMovieSectionPlane } from "@automovie/interface";
+
 import type * as THREE from "three";
 
 import type { IAutoMovieSectionRenderer } from "./IAutoMovieSectionRenderer.js";

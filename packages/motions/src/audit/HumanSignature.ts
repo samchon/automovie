@@ -1,16 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 
@@ -67,51 +57,6 @@ export namespace HumanSignature {
    */
   export const HELD: number = 10;
 
-  /** What the readings need of a performance: its length and anyone's displayed bones. */
-  export interface IMotion {
-    /** Seconds from 0 to the end. */
-    duration: number;
-
-    /**
-     * A person's displayed world bones at a film second.
-     *
-     * @param subject The person.
-     * @param seconds Film seconds.
-     * @returns Resolved bones by rig bone.
-     */
-    bones(
-      subject: string,
-      seconds: number,
-    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  }
-
-  /** One performer of a motion, as the readings take them. */
-  export interface IReader {
-    /** The motion. */
-    motion: IMotion;
-
-    /** The performer. */
-    subject: string;
-
-    /** Their body. */
-    body: IHumanBody;
-
-    /** The heading their forward is read along, degrees about +Y, 0 facing +Z. */
-    yaw: number;
-  }
-
-  /** The gait of a window: the duty factor of each foot and the cadence. */
-  export interface IGait {
-    /** The share of the window each foot bears, averaged over both feet. */
-    duty: number;
-
-    /** Foot strikes (a foot coming down) per minute, both feet. */
-    cadence: number;
-
-    /** The strikes, in time order, with the foot. */
-    strikes: { seconds: number; side: "left" | "right" }[];
-  }
-
   /**
    * A reader of one performer.
    *
@@ -122,17 +67,17 @@ export namespace HumanSignature {
    * @returns The reader.
    */
   export function of(
-    motion: IMotion,
+    motion: IAutoMovieMotionHumanSignature.IMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     yaw: number,
-  ): IReader {
+  ): IAutoMovieMotionHumanSignature.IReader {
     return { motion, subject, body, yaw };
   }
 
   /** The performer's bones at a second. */
   export function bones(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return reader.motion.bones(reader.subject, seconds);
@@ -148,7 +93,7 @@ export namespace HumanSignature {
    * @throws {Error} When the rig lacks the bone.
    */
   export function joint(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
@@ -176,7 +121,7 @@ export namespace HumanSignature {
    * about 0 (Kendall, McCreary, Provance, Rodgers and Romani 2005, Muscles:
    * Testing and Function, 5th ed.).
    */
-  export function trunk(reader: IReader, seconds: number): number {
+  export function trunk(reader: IAutoMovieMotionHumanSignature.IReader, seconds: number): number {
     const l: IAutoMovieVector3 = joint(reader, seconds, "leftUpperLeg");
     const r: IAutoMovieVector3 = joint(reader, seconds, "rightUpperLeg");
     const sl: IAutoMovieVector3 = joint(reader, seconds, "leftUpperArm");
@@ -214,7 +159,7 @@ export namespace HumanSignature {
 
   /** A knee's flexion, degrees. */
   export function knee(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
     side: "left" | "right",
   ): number {
@@ -227,7 +172,7 @@ export namespace HumanSignature {
 
   /** A hip's flexion: the thigh's turn from the trunk's line, degrees. */
   export function hip(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
     side: "left" | "right",
   ): number {
@@ -241,7 +186,7 @@ export namespace HumanSignature {
 
   /** An elbow's flexion, degrees. */
   export function elbow(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
     side: "left" | "right",
   ): number {
@@ -253,7 +198,7 @@ export namespace HumanSignature {
   }
 
   /** The head's pitch: how far its forward axis points below the horizon, degrees. */
-  export function head(reader: IReader, seconds: number): number {
+  export function head(reader: IAutoMovieMotionHumanSignature.IReader, seconds: number): number {
     const b: IAutoMovieResolvedBone | undefined = bones(reader, seconds).get(
       "head",
     );
@@ -267,7 +212,7 @@ export namespace HumanSignature {
   }
 
   /** The whole-body centre of mass of the performer, world metres. */
-  export function centre(reader: IReader, seconds: number): IAutoMovieVector3 {
+  export function centre(reader: IAutoMovieMotionHumanSignature.IReader, seconds: number): IAutoMovieVector3 {
     return resolveAutoMovieCenterOfMass.place(
       resolveAutoMovieCenterOfMass(reader.body.skeleton, reader.body.profile),
       bones(reader, seconds),
@@ -276,7 +221,7 @@ export namespace HumanSignature {
 
   /** The lowest sole socket of a foot, world metres. */
   export function sole(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
     side: "left" | "right",
   ): IAutoMovieVector3 {
@@ -302,7 +247,7 @@ export namespace HumanSignature {
    * @returns Whether the foot bears.
    */
   export function bears(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
     side: "left" | "right",
     floor: number = 0,
@@ -346,13 +291,13 @@ export namespace HumanSignature {
    * @returns The duty factor, the cadence and the strikes.
    */
   export function gait(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     from: number,
     to: number,
     rate: number = 120,
-  ): IGait {
+  ): IAutoMovieMotionHumanSignature.IGait {
     const ts: number[] = times(from, to, rate);
-    const strikes: IGait["strikes"] = [];
+    const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] = [];
     let bearing: number = 0;
     for (const side of ["left", "right"] as const) {
       let before: boolean | undefined;
@@ -363,7 +308,7 @@ export namespace HumanSignature {
         // A foot strikes once a stride: a contact that flickers within a
         // quarter second of the same foot's last strike (a heel handing the
         // load to the ball) is the same footfall.
-        const mine: IGait["strikes"] = strikes.filter(
+        const mine: IAutoMovieMotionHumanSignature.IGait["strikes"] = strikes.filter(
           (s): boolean => s.side === side,
         );
         const last: number | undefined = mine[mine.length - 1]?.seconds;
@@ -402,7 +347,7 @@ export namespace HumanSignature {
    * @returns The peak speed.
    */
   export function speed(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     bone: AutoMovieHumanoidBone,
     from: number,
     to: number,
@@ -434,7 +379,7 @@ export namespace HumanSignature {
    * @throws {Error} When the rig lacks the region's bone.
    */
   export function region(
-    reader: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     name: AutoMovieHumanoidRegion,
     seconds: number,
   ): IAutoMovieVector3 {
@@ -457,8 +402,8 @@ export namespace HumanSignature {
    * @returns The least distance.
    */
   export function apart(
-    reader: IReader,
-    partner: IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
+    partner: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
   ): number {
     const mine = bones(reader, seconds);

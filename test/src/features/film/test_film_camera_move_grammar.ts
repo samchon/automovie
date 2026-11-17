@@ -1,15 +1,6 @@
-import {
-  IAutoMovieFramedSubject,
-  Quaternion,
-  compileCameraMove,
-} from "@automovie/engine";
-import {
-  IAutoMovieCamera,
-  IAutoMovieCameraAction,
-  IAutoMovieQuaternion,
-  IAutoMovieTrack,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFramedSubject, IAutoMovieCamera, IAutoMovieCameraAction, IAutoMovieQuaternion, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, compileCameraMove } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";

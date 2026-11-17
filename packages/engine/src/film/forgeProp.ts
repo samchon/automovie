@@ -1,17 +1,11 @@
-import {
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieNode,
-  IAutoMoviePropArticulation,
-  IAutoMoviePropSpec,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieForgedProp, type IAutoMovieViolationCollector, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieNode, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieValidation } from "@automovie/interface";
+
+
 
 import { profileSemanticKeys } from "../resolve/profileSemanticKeys";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../validation/validateModel";
-import { IAutoMovieForgedProp } from "./IAutoMovieForgedProp";
 
 /** The builder-sealed ingest closure of an imported appearance. */
 type IImportedClosure = NonNullable<IAutoMovieModel["imported"]>;
@@ -51,7 +45,7 @@ interface IDeclaredNode {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after return; success references the caller's spec, and failure owns a violation list bounded by a few violations per joint, asset, LOD level and mapped key plus the model's own.
  */
 export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
 
   if (spec.node.trim().length === 0)
     out.push(
@@ -114,7 +108,7 @@ export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
 function gateImportedAppearance(
   model: IAutoMovieModel,
   modelRef: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const path: string = "$input.model";
   if (modelRef.trim().length === 0)
@@ -274,7 +268,7 @@ function gateImportedAppearance(
 function gateArticulation(
   articulation: IAutoMoviePropArticulation,
   model: IAutoMovieModel,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const path: string = "$input.articulation";
   const parts: Set<string> = new Set(

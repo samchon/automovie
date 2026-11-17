@@ -1,9 +1,5 @@
-import {
-  IAutoMovieBuildingUnit,
-  IAutoMovieBuiltEnvironment,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieBuildingUnit, IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 
 /**
@@ -34,11 +30,11 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 export const validateBuiltBuildings: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const buildingIds: Set<string> = collectDeclaredIds(
     environment.buildings,
@@ -136,13 +132,13 @@ const checkRoot: (
   id: string,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   parents: ReadonlyMap<string, string | null>,
   id: string,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (!parents.has(id))
     collector.push("type", path, `${label} "${id}" does not resolve`, id);
@@ -158,7 +154,7 @@ const appendOwnership: (
   path: string,
   label: string,
   rootLabel: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   records: readonly { id: string; parent: string | null }[],
   parents: ReadonlyMap<string, string | null>,
@@ -166,7 +162,7 @@ const appendOwnership: (
   path: string,
   label: string,
   rootLabel: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   records.forEach(
     (record: { id: string; parent: string | null }, index: number): void => {

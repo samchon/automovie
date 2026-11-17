@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram, IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
+
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
@@ -36,7 +38,7 @@ export namespace HumanArmOptimiser {
     // The multipliers of the last step taken, which the next subproblem
     // starts from.
     let duals: Map<string, number> | undefined;
-    const problem: SCO.IProblem<number[][][], M.IEvaluation> = {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<number[][][], M.IEvaluation> = {
       evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(context, x),
       feasible: (evaluation: M.IEvaluation): boolean =>
         evaluation.worst.value <= M.TOLERANCE,
@@ -45,10 +47,10 @@ export namespace HumanArmOptimiser {
         evaluation: M.IEvaluation,
         mu: number,
         radius: number,
-      ): SCO.IModel<number[][][]> => {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
-        const model: QP.IProblem = HumanArmTrajectoryConvex.convexify(
+        const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = HumanArmTrajectoryConvex.convexify(
           context,
           x,
           evaluation,
@@ -56,17 +58,17 @@ export namespace HumanArmOptimiser {
           SCHEDULE.expand * radius,
         );
         const zero: number = QP.value(model, new Float64Array(model.n));
-        let trusted: QP.IProblem | undefined;
-        let warm: QP.IState | undefined;
+        let trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem | undefined;
+        let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
         return {
-          solve: (r: number): SCO.IStep<number[][][]> => {
+          solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<number[][][]> => {
             trusted = {
               ...model,
               rows: [
                 ...model.rows,
                 ...Array.from(
                   { length: model.n },
-                  (_: unknown, i: number): QP.IRow => ({
+                  (_: unknown, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
                     index: [i],
                     coef: [1],
                     l: -r,
@@ -94,7 +96,7 @@ export namespace HumanArmOptimiser {
         };
       },
     };
-    const solved: SCO.IResult<number[][][], M.IEvaluation> = SCO.minimise(
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<number[][][], M.IEvaluation> = SCO.minimise(
       problem,
       start.map((arm: readonly (readonly number[])[]): number[][] =>
         arm.map((v: readonly number[]): number[] => [...v]),
@@ -131,7 +133,7 @@ const ROUNDS: number = 20;
  * and the settling tests (a step or region of a thousandth of a unit, a
  * predicted decrease of a millionth of the merit).
  */
-const SCHEDULE: SCO.ISchedule = {
+const SCHEDULE: IAutoMovieMotionHumanSequentialConvex.ISchedule = {
   eta: 0.1,
   low: 0.1,
   high: 0.1,

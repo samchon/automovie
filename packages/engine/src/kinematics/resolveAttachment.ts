@@ -1,16 +1,8 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieAttachment,
-  IAutoMovieJointAxes,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, type IAutoMovieRestFrame, AutoMovieHumanoidBone, IAutoMovieAttachment, IAutoMovieJointAxes, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
 
 /**

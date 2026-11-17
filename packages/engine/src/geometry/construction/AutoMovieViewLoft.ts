@@ -1,24 +1,19 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieViewPart, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMoviePolarSector, IAutoMovieViewChain, IAutoMovieViewLoft, IAutoMovieViewLoftInputsInputs, IAutoMovieViewSection } from "@automovie/interface";
 
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieViewChain } from "./AutoMovieViewChain";
 import { AutoMovieViewLoftInputs } from "./AutoMovieViewLoftInputs";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** Existing ordered quarter layout shared with the view input owner. */
 type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
@@ -26,7 +21,7 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 /** One emitted station's plane, radius reader and four-quarter metadata, in station order. */
 interface Row {
   station: number;
-  frame: AutoMovieLoftFrame.IFrame;
+  frame: IAutoMovieLoftFrame.IFrame;
   radius: (phi: number) => number;
   view: IAutoMovieLoftChain.IView | undefined;
 }
@@ -66,71 +61,6 @@ interface Row {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected source keeps its diagnostic, never publishes a replacement shape, and a split chain declares only the continuity of its joins.
  */
 export namespace AutoMovieViewLoft {
-  /**
-   * The operator's result.
-   *
-   * @evidence contracts/development/design.md#principled-representation Separates the final loft chain/surface from admitted sections, source diagnostics and the declared phase/station continuity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Nullable final geometry and retained sections/diagnostics express partial and total admission failures.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing chain remains null; surviving sections are not described as the complete original source curve.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state null cases, section identity and continuity.
-   */
-  export interface IResult {
-    /** Bare chain, null on input/station/coefficient/frame preparation failure; regular-surface qualification is separate. */
-    chain: IAutoMovieLoftChain | null;
-
-    /** Regular surface for merge/diff, null for an absent chain, unavailable physical2 or failed anchor admission. */
-    surface: IAutoMovieSolidSurface | null;
-
-    /** Each surviving four-quarter station's section, by station. */
-    sections: IStation[];
-
-    /** Each surviving chain station's section, by station, for a source declaring touch offsets or splits. */
-    chains: IChainStation[];
-
-    /** Every broken premise. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-
-    /** C2 in phase and regular station for four-quarter sections; C1 in both once a chain station is present (moving G1 joins with unequal curvatures; C2 only within the pieces between them). A true pole has no finite station 2-jet; geometric G2 of the complete phase approximation is not certified by this literal. */
-    continuity: { phase: "C2" | "C1"; station: "C2" | "C1" };
-  }
-
-  /**
-   * One emitted station.
-   *
-   * @evidence contracts/development/design.md#principled-representation Stores one admitted section with its station and actual input plane, before final coefficient/frame interpolation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Station, frame and section preserve the section owner's inputs and result.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not claim an emitted section exists at a failed station or closing pole.
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish source station units, plane and admitted section.
-   */
-  export interface IStation {
-    /** Station, mm. */
-    station: number;
-
-    /** Its section plane. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** Its section. */
-    section: AutoMovieViewSection.ISection;
-  }
-
-  /**
-   * One emitted chain station.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish source station units, plane and the chain with its join curvatures.
-   * @evidence contracts/development/design.md#principled-representation Stores one admitted conic chain with its physical station and exact input plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The loft result exposes its split station to the compatibility layer and inspection alongside ordinary section stations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only an admitted chain is stored and its individual arc geometry remains available.
-   */
-  export interface IChainStation {
-    /** Station, mm. */
-    station: number;
-
-    /** Its section plane. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** Its chain section. */
-    chain: AutoMovieViewChain.ISection;
-  }
 
   /**
    * Loft a part from its views.
@@ -146,8 +76,8 @@ export namespace AutoMovieViewLoft {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared scalar sources across station values; SeamStation skips source-owned tables and reuses each ordinary curvature table for its slope solve.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned direct chain owns original scalar preparations and O(LN) compatibility bindings alongside its sections; temporary samples are call-local and no cross-part cache is added.
    */
-  export function create(part: IAutoMovieViewPart): IResult {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+  export function create(part: IAutoMovieViewPart): IAutoMovieViewLoft.IResult {
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${part.name}`;
     /** Keep every failed input premise with the view producer that encountered it. */
     const report: (contract: string, detail: string) => void = (
@@ -157,7 +87,7 @@ export namespace AutoMovieViewLoft {
       diagnostics.push({ producer, level: 2, contract, detail });
     };
     /** A failed admission retains diagnostics without publishing partial final geometry. */
-    const empty: () => IResult = (): IResult => ({
+    const empty: () => IAutoMovieViewLoft.IResult = (): IAutoMovieViewLoft.IResult => ({
       chain: null,
       surface: null,
       sections: [],
@@ -208,16 +138,16 @@ export namespace AutoMovieViewLoft {
       end === "bottom" ? first : last,
     );
 
-    const admitted: AutoMovieLoftViewSource.IResult | null =
+    const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(part);
     if (admitted !== null) {
       for (const fault of admitted.diagnostics)
         report(fault.contract, fault.detail);
       if (admitted.source === null) return empty();
     }
-    const direct: AutoMovieLoftViewSource.ISource | null =
+    const direct: IAutoMovieLoftViewSource.ISource | null =
       admitted?.source ?? null;
-    const inputs: ReturnType<typeof AutoMovieViewLoftInputs> =
+    const inputs: (IAutoMovieViewLoftInputsInputs | null) =
       AutoMovieViewLoftInputs(part, direct, report);
     if (inputs === null) return empty();
     const { lateral, medial, ahead, behind, owner, shoulders } = inputs;
@@ -341,11 +271,11 @@ export namespace AutoMovieViewLoft {
           ) as Quarters<number>);
     };
 
-    const sections: IStation[] = [];
-    const chains: IChainStation[] = [];
+    const sections: IAutoMovieViewLoft.IStation[] = [];
+    const chains: IAutoMovieViewLoft.IChainStation[] = [];
     for (const s of stations) {
       const at: string = `station ${s} mm`;
-      const actual: AutoMovieLoftViewRead.IValues | string | null =
+      const actual: IAutoMovieLoftViewRead.IValues | string | null =
         direct === null ? null : AutoMovieLoftViewRead.values(direct, s);
       if (typeof actual === "string") {
         report("outline", actual);
@@ -389,7 +319,7 @@ export namespace AutoMovieViewLoft {
         actual !== null &&
         (actual.touch !== undefined || actual.splits !== undefined || actual.pieces !== undefined)
       ) {
-        const prepared: AutoMovieViewChain.ISection | string =
+        const prepared: IAutoMovieViewChain.ISection | string =
           AutoMovieLoftSectionNative.chain(actual);
         if (typeof prepared === "string") {
           report("view chain", `${at}: ${prepared}`);
@@ -398,12 +328,12 @@ export namespace AutoMovieViewLoft {
         chains.push({ station: s, frame: part.axis.at(s), chain: prepared });
         continue;
       }
-      const box: AutoMovieViewSection.IBox = { extents };
+      const box: IAutoMovieViewSection.IBox = { extents };
 
       // The quarters' fullness from its owner.
-      let section: AutoMovieViewSection.ISection | null;
+      let section: IAutoMovieViewSection.ISection | null;
       if (fullness.kind === "girth") {
-        const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+        const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
           `${producer} ${at}`,
           box,
           owner(s),
@@ -461,7 +391,7 @@ export namespace AutoMovieViewLoft {
     const N: number = part.order;
     const rows: Row[] = [
       ...sections.map(
-        (st: IStation): Row => ({
+        (st: IAutoMovieViewLoft.IStation): Row => ({
           station: st.station,
           frame: st.frame,
           radius: (phi: number): number =>
@@ -470,14 +400,14 @@ export namespace AutoMovieViewLoft {
             extents: [...st.section.box.extents],
             shoulders: [...st.section.shoulders],
             curvatures: st.section.guides.map(
-              (g: AutoMoviePolarSector.IGuide): number =>
+              (g: IAutoMoviePolarSector.IGuide): number =>
                 (g.value - g.curvature) / (g.value * g.value),
             ) as Quarters<number>,
           },
         }),
       ),
       ...chains.map(
-        (st: IChainStation): Row => ({
+        (st: IAutoMovieViewLoft.IChainStation): Row => ({
           station: st.station,
           frame: st.frame,
           radius: (phi: number): number =>
@@ -533,7 +463,7 @@ export namespace AutoMovieViewLoft {
       ...(poles[1] !== undefined ? { opposite: poles[1] } : {}),
     };
     if (closes.length !== 0) {
-      const parameter: AutoMovieConstructionOutlineParameter =
+      const parameter: IAutoMovieConstructionOutlineParameter =
         closes.length === 2
           ? { type: "angle", bottom: first, top: last }
           : { type: "root", end: closes[0]!, pole: tips[0]! };
@@ -587,7 +517,7 @@ export namespace AutoMovieViewLoft {
 }
 
 /** The continuity every four-quarter chain carries. */
-const CONTINUITY: AutoMovieViewLoft.IResult["continuity"] = {
+const CONTINUITY: IAutoMovieViewLoft.IResult["continuity"] = {
   phase: "C2",
   station: "C2",
 };

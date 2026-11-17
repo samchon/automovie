@@ -1,4 +1,5 @@
-import { type IAutoMovieSubdivisionCage } from "@automovie/engine";
+import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
+
 
 /**
  * Undirected cage edges in order of first appearance walking faces and

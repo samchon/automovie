@@ -1,9 +1,14 @@
-import type { IAutoMovieHumanTrunkContext } from "./IAutoMovieHumanTrunkContext";
-import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
-import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
-import type { IAutoMovieHumanTrunkState } from "./IAutoMovieHumanTrunkState";
+import type { IAutoMovieHumanTrunkColumn, IAutoMovieHumanTrunkContext, IAutoMovieHumanTrunkFeatures, IAutoMovieHumanTrunkInputs, IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkKeys, IAutoMovieHumanTrunkState } from "@automovie/interface";
+
+
+
+
+
+
+
+
 import { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
-import type { AutoMovieHumanTrunkFeatures } from "./AutoMovieHumanTrunkFeatures";
+
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
@@ -14,8 +19,7 @@ import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
  * features stand on. A function of the context and the state alone.
  */
 export namespace AutoMovieHumanTrunkKeys {
-  /** The landmark heights the courses move. */
-  export type Heights = Record<"fold" | "bust" | "waist" | "highHip", number>;
+  
 
   /**
    * The landmark heights, kept apart so the sections stay ordered: the waist
@@ -26,7 +30,7 @@ export namespace AutoMovieHumanTrunkKeys {
    * @param st The state.
    * @returns The waist, fold, bust and high hip heights, mm.
    */
-  export function heights(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): Heights {
+  export function heights(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): IAutoMovieHumanTrunkKeys.Heights {
     const w: number = Math.min(Math.max(st.waist, ctx.buttock + 0.08 * ctx.span), ctx.axilla - 0.25 * ctx.span);
     const top: number = Math.min(st.bust, ctx.axilla - 0.04 * ctx.span);
     const f: number = Math.max(w + 0.05 * ctx.span, top - AutoMovieHumanTrunkLandmarks.FOLD_DROP * ctx.span);
@@ -43,7 +47,7 @@ export namespace AutoMovieHumanTrunkKeys {
    * @returns The keys by rising height, from the crotch to the neck's ring.
    */
   export function keys(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): IAutoMovieHumanTrunkKey[] {
-    const h: Heights = heights(ctx, st);
+    const h: IAutoMovieHumanTrunkKeys.Heights = heights(ctx, st);
     const K: typeof AutoMovieHumanTrunkShapes = AutoMovieHumanTrunkShapes;
     const S: number = ctx.fixed.stature;
     const share: number = AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary;
@@ -96,7 +100,7 @@ export namespace AutoMovieHumanTrunkKeys {
    * @param st The state.
    * @returns The column.
    */
-  export function column(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): AutoMovieHumanTrunkColumn.IColumn {
+  export function column(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): IAutoMovieHumanTrunkColumn.IColumn {
     return AutoMovieHumanTrunkColumn.create(keys(ctx, st), ctx.fixed.crotch, ctx.soft);
   }
 
@@ -111,10 +115,10 @@ export namespace AutoMovieHumanTrunkKeys {
   export function sites(
     ctx: IAutoMovieHumanTrunkContext,
     st: IAutoMovieHumanTrunkState,
-    col: AutoMovieHumanTrunkColumn.IColumn,
-  ): AutoMovieHumanTrunkFeatures.ISites {
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+  ): IAutoMovieHumanTrunkFeatures.ISites {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
-    const h: Heights = heights(ctx, st);
+    const h: IAutoMovieHumanTrunkKeys.Heights = heights(ctx, st);
     const target: IAutoMovieHumanTrunkKey = AutoMovieHumanTrunkShapes.key(
       ctx.buttock,
       st.widths.buttock,

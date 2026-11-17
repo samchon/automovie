@@ -1,19 +1,17 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   ROM_TOLERANCE,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanVerdicts } from "../audit/HumanVerdicts";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
-import type { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSupport } from "../striking/StrikingSupport";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -49,7 +47,7 @@ export namespace HumanWeaponPose {
     turn: number;
 
     /** The entry posture with the trunk turned and the supporting hand on its planned handle. */
-    bladed: IHumanPosture;
+    bladed: IAutoMovieMotionHumanPosture;
 
     /** The sight line's start, world metres. */
     eye: IAutoMovieVector3;
@@ -61,10 +59,10 @@ export namespace HumanWeaponPose {
     line: IAutoMovieVector3;
 
     /** How the weapon is carried. */
-    carriage: HumanWeaponPresent.Carriage;
+    carriage: IAutoMovieMotionHumanWeaponPresent.Carriage;
 
     /** The firing hand's grip frame the carriage asks. */
-    pose: StrikingHeld.IHandFrame;
+    pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
   }
 
   /**
@@ -87,15 +85,15 @@ export namespace HumanWeaponPose {
    */
   export function of(
     context: Pick<
-      IHumanActionContext<HumanWeaponPresent.IPresent>,
+      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
       "params" | "body" | "aim"
     >,
-    entry: IHumanPosture,
+    entry: IAutoMovieMotionHumanPosture,
     start: number,
-    s: HumanWeaponHeld.ISetup,
+    s: IAutoMovieMotionHumanWeaponHeld.ISetup,
   ): IPosed {
-    const p: HumanWeaponPresent.IPresent = context.params;
-    const carriage: HumanWeaponPresent.Carriage = p.carriage ?? "aim";
+    const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
+    const carriage: IAutoMovieMotionHumanWeaponPresent.Carriage = p.carriage ?? "aim";
     // A long gun is shouldered with the support shoulder forward: the
     // trunk turns toward the firing side, and the eye, the shoulders and
     // the reach are read on the turned trunk. At the recover the body stays
@@ -106,12 +104,12 @@ export namespace HumanWeaponPose {
         : s.tool.side === "right"
           ? -HumanWeaponPresent.BLADED
           : HumanWeaponPresent.BLADED;
-    const bladed: IHumanPosture = StrikingBlade.turned(entry, turn);
+    const bladed: IAutoMovieMotionHumanPosture = StrikingBlade.turned(entry, turn);
 
     // Both arms are judged where the presentation will put them. Leaving
     // the previous support goal here makes that old hand an obstacle to a
     // feasible two-handed presentation.
-    const supported = (frame: StrikingHeld.IHandFrame): IHumanPosture =>
+    const supported = (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame): IAutoMovieMotionHumanPosture =>
       StrikingSupport.posture(
         context.body,
         bladed,
@@ -133,7 +131,7 @@ export namespace HumanWeaponPose {
     const shoulder: IAutoMovieVector3 = bones.get(
       `${s.tool.side}UpperArm`,
     )!.worldPosition;
-    const anchor: HumanWeaponPresent.Anchor =
+    const anchor: IAutoMovieMotionHumanWeaponPresent.Anchor =
       p.anchor ?? (s.long ? "cheek" : "eye");
     const eye: IAutoMovieVector3 =
       anchor === "eye"
@@ -184,7 +182,7 @@ export namespace HumanWeaponPose {
         reason: `the target lies ${off.toFixed(0)} degrees off the heading, beyond the ${HumanWeaponPresent.TURN} degrees the arms present to`,
         fix: "turn to face the target first",
       });
-    const pose: StrikingHeld.IHandFrame = ((): StrikingHeld.IHandFrame => {
+    const pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame = ((): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       if (carriage === "aim") {
         // The bore on the line from the eye to the target, the arms out
         // (a handgun) or the butt drawn in to the shoulder (a long gun);
@@ -192,7 +190,7 @@ export namespace HumanWeaponPose {
         const sight: IAutoMovieVector3 = Vector3.normalize(
           Vector3.subtract(target, eye),
         );
-        const held = (out: number): StrikingHeld.IHandFrame =>
+        const held = (out: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
           StrikingRoll.hand(
             context,
             s.tool,
@@ -238,7 +236,7 @@ export namespace HumanWeaponPose {
             });
           return step;
         };
-        const chosen: StrikingHeld.IHandFrame = held(
+        const chosen: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(
           outward(
             eye,
             s.arm +
@@ -293,7 +291,7 @@ export namespace HumanWeaponPose {
         const along: IAutoMovieVector3 = Vector3.normalize(
           Vector3.subtract(before, hip),
         );
-        const held: StrikingHeld.IHandFrame = StrikingRoll.hand(
+        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
           context,
           { ...s.tool, axis: Vector3.normalize(piece) },
           Vector3.length(piece),

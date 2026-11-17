@@ -1,20 +1,8 @@
+import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAudit,
-  HumanChain,
-  HumanHand,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  HumanVerdicts,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  seated,
-} from "@automovie/motions";
+
+import { AutoMovieMotionHumanAudit, HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal, HumanSignature, HumanVerdicts, seated } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -64,19 +52,19 @@ export function motionPickUpSeated(
   name: motionHumanBody.Name,
   which: "pick" | "verdicts",
 ): void {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const chair: seated.ISeat = {
+  const chair: IAutoMovieMotionHumanSeated.ISeat = {
     at: { x: 0, y: seated.popliteal(body), z: -0.1 },
     yaw: 0,
     depth: 0.45,
   };
-  const perform = (at: IAutoMovieVector3 | null): HumanPerformance => {
-    const sitting: HumanChain = HumanChain.subject("a").sit({
+  const perform = (at: IAutoMovieVector3 | null): IAutoMovieMotionHumanPerformance => {
+    const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("a").sit({
       seat: chair,
       seconds: 0.5,
     });
@@ -103,9 +91,9 @@ export function motionPickUpSeated(
     error instanceof Error ? error.message : String(error);
 
   // The seated shoulder and chest, from a film that only sits.
-  const still: HumanPerformance = perform(null);
-  const sat: HumanSegment.ISegment = still.segments("a")[0]!;
-  const reader0: HumanSignature.IReader = HumanSignature.of(
+  const still: IAutoMovieMotionHumanPerformance = perform(null);
+  const sat: IAutoMovieMotionHumanSegment.ISegment = still.segments("a")[0]!;
+  const reader0: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     still,
     "a",
     body,
@@ -135,16 +123,16 @@ export function motionPickUpSeated(
   // 1 to 4. A glass just beyond the seated arm.
   try {
     const at: IAutoMovieVector3 = placed(arm + socket + 0.1);
-    const film: HumanPerformance = perform(at);
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const film: IAutoMovieMotionHumanPerformance = perform(at);
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
-    const pick: HumanSegment.ISegment = film
+    const pick: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "pickUp")!;
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "pickUp")!;
     const grasp: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
@@ -152,7 +140,7 @@ export function motionPickUpSeated(
         pick.plan.duration;
     if (which === "verdicts") {
       // 6. The whole shipped verdicts over the pick up.
-      const report: HumanVerdicts.IReport = HumanVerdicts.of(film, 24, {
+      const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(film, 24, {
         from: pick.start,
         to: pick.end,
       });
@@ -213,7 +201,7 @@ export function motionPickUpSeated(
           balance: null,
         },
       }).findings.filter(
-        (f: AutoMovieMotionHumanAudit.IFinding): boolean =>
+        (f: IAutoMovieMotionHumanAudit.IFinding): boolean =>
           f.seconds >= pick.start - 1e-6 &&
           f.seconds <= pick.end + 1e-6 &&
           /Foot|Toes/.test(f.where),

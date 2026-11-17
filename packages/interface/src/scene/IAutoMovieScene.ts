@@ -1,10 +1,10 @@
-import { IAutoMovieStage } from "../authoring/IAutoMovieStage";
-import { IAutoMovieCamera } from "./IAutoMovieCamera";
-import { IAutoMovieFog } from "./IAutoMovieFog";
-import { IAutoMovieLight } from "./IAutoMovieLight";
-import { IAutoMovieSceneEnvironment } from "./IAutoMovieSceneEnvironment";
-import { IAutoMovieSceneNode } from "./IAutoMovieSceneNode";
-import { IAutoMovieSpace } from "./IAutoMovieSpace";
+import type { IAutoMovieStage } from "../authoring/IAutoMovieStage";
+import type { IAutoMovieCamera } from "./IAutoMovieCamera";
+import type { IAutoMovieFog } from "./IAutoMovieFog";
+import type { IAutoMovieLight } from "./IAutoMovieLight";
+import type { IAutoMovieSceneEnvironment } from "./IAutoMovieSceneEnvironment";
+import type { IAutoMovieSceneNode } from "./IAutoMovieSceneNode";
+import type { IAutoMovieSpace } from "./IAutoMovieSpace";
 
 /**
  * A scene: placed characters, cameras, and lights, the top-level container the viewer plays and the renderer bakes frames from.

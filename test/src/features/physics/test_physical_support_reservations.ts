@@ -1,8 +1,9 @@
+import type { IAutoMoviePhysicalBalance, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalBalance as Balance,
   AutoMoviePhysicalSimulation as Simulation,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -24,8 +25,8 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  */
 export function test_physical_support_reservations(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(profile, 0.1);
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 0.1);
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(profile, 0.1);
+  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 0.1);
   input.gravity.y = -9.81;
   const before: string = Simulation.identity(input);
   body.targets[0]!.unavailableSupports = ["support-0"];
@@ -43,7 +44,7 @@ export function test_physical_support_reservations(): void {
   );
   let refusals: number = 0;
   for (const unavailable of [["missing"], ["support-0", "support-0"]]) {
-    const invalid: Simulation.IInput = structuredClone(input);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
     invalid.bodies[0]!.targets[0]!.unavailableSupports = unavailable;
     try {
       Simulation.identity(invalid);
@@ -52,12 +53,12 @@ export function test_physical_support_reservations(): void {
     }
   }
   TestValidator.equals("all malformed reservations refuse", refusals, 2);
-  const supports: Balance.ISupport[] = body.balance!.pattern.limbs.map(
+  const supports: IAutoMoviePhysicalBalance.ISupport[] = body.balance!.pattern.limbs.map(
     (
       limb: NonNullable<
-        Simulation.IBody["balance"]
+        IAutoMoviePhysicalSimulationInput.IBody["balance"]
       >["pattern"]["limbs"][number],
-    ): Balance.ISupport => {
+    ): IAutoMoviePhysicalBalance.ISupport => {
       const position: P.ITransform["position"] = profile.segments.find(
         (segment: P.ISegment): boolean => segment.bone === limb.bone,
       )!.neutral.position;
@@ -74,14 +75,14 @@ export function test_physical_support_reservations(): void {
     maximumStep: 0.7,
     margin: 0.01,
   };
-  const available: Balance.IResult = Balance.assess({
+  const available: IAutoMoviePhysicalBalance.IResult = Balance.assess({
     ...common,
     unavailable: [],
   });
-  const reserved: Balance.IResult = Balance.assess({
+  const reserved: IAutoMoviePhysicalBalance.IResult = Balance.assess({
     ...common,
     unavailable: supports.map(
-      (support: Balance.ISupport): string => support.bone,
+      (support: IAutoMoviePhysicalBalance.ISupport): string => support.bone,
     ),
   });
   TestValidator.predicate(

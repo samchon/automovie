@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieCapturePlanRequest,
-  formatAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import { formatAutoMovieCapturePlanRequest, parseAutoMovieCapturePlanRequest, readAutoMovieCaptureArguments } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   AUTOMOVIE_INSPECT_OPTIONS,

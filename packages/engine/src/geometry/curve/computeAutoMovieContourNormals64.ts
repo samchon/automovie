@@ -1,7 +1,7 @@
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 
-type V3 = M.V;
+type V3 = AutoMovieVector3Tuple;
 const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
@@ -25,7 +25,7 @@ const cross: (a: V3, b: V3) => V3 = (a: V3, b: V3): V3 => [
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inputs remain caller-owned; local area vectors expire on return and the flat normals array transfers to the generated mesh.
  */
 export function computeAutoMovieContourNormals64(
-  vertices: readonly C.Vector[],
+  vertices: readonly Readonly<AutoMovieVector3Tuple>[],
   triangles: readonly (readonly [number, number, number])[],
 ): number[] {
   const geometricNormals: V3[] = vertices.map((): V3 => [0, 0, 0]);

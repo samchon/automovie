@@ -1,7 +1,12 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanEyelid, IAutoMovieHumanLoftAperture } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+
 import { AutoMovieHumanEyeGlobe } from "./AutoMovieHumanEyeGlobe";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+
 
 /**
  * Eyelid margin geometry around one eye opening, from its calibrated
@@ -31,8 +36,7 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * {@link AutoMovieHumanLoftAperture.outline}.
  */
 export namespace AutoMovieHumanEyelid {
-  /** Point `[x, y, z]` in mm. */
-  export type Point = [number, number, number];
+  
 
   /**
    * Lid rule constants in mm.
@@ -54,16 +58,7 @@ export namespace AutoMovieHumanEyelid {
    * - `gap`: clearance of the posterior edge off the globe surface.
    * - `clearance`: least lid thickness over the globe across the band.
    */
-  export const rule: {
-    band: number;
-    upper: number;
-    lower: number;
-    offset: number;
-    taper: number;
-    merge: number;
-    gap: number;
-    clearance: number;
-  } = {
+  export const rule: IAutoMovieHumanEyelid.IRule = {
     band: 2.5,
     upper: 1.0,
     lower: 0.8,
@@ -77,71 +72,11 @@ export namespace AutoMovieHumanEyelid {
   /** Margin samples per eye. */
   export const SAMPLES: number = 360;
 
-  /** Seated globe frame in calibration mm. */
-  export interface IGlobe {
-    /** Centre of the scleral ellipsoid. */
-    centre: Point;
+  
 
-    /** Unit gaze direction, the aperture's `forward`. */
-    forward: Point;
+  
 
-    /** Unit up, orthogonal to `forward`. */
-    up: Point;
-
-    /** Unit `forward x up`. */
-    lateral: Point;
-  }
-
-  /** One margin sample. */
-  export interface ISample {
-    /** Phase of the aperture series, radians. */
-    phase: number;
-
-    /** Posterior lid edge, on the globe where the globe lies behind it. */
-    contact: Point;
-
-    /** Anterior lid edge, the lash line. */
-    anterior: Point;
-
-    /** Unit direction across the margin away from the opening, in projection. */
-    outward: Point;
-
-    /** Unit direction along increasing phase, in projection. */
-    tangent: Point;
-
-    /** Distance of the contact point from the gaze axis, mm. */
-    rho: number;
-
-    /** Whether the sample belongs to the upper lid. */
-    upper: boolean;
-
-    /** Arc length to the nearer canthus, mm. */
-    corner: number;
-
-    /** Position along its lid: 0 at the medial canthus, 1 at the lateral. */
-    position: number;
-
-    /** Margin depth from posterior to anterior edge, mm. */
-    thickness: number;
-  }
-
-  /** Evaluated margin of one eye. */
-  export interface ILid {
-    /** Aperture name, e.g. `eye.left`. */
-    name: string;
-
-    /** Seated globe. */
-    globe: IGlobe;
-
-    /** Samples at uniform phases. */
-    samples: ISample[];
-
-    /** Index of the medial canthus sample. */
-    medial: number;
-
-    /** Index of the lateral canthus sample. */
-    lateral: number;
-  }
+  
 
   /**
    * Evaluate the lid of an eye aperture.
@@ -153,17 +88,17 @@ export namespace AutoMovieHumanEyelid {
   export function create(
     aperture: IAutoMovieHumanLoftAperture,
     eye: IAutoMovieHumanBodyCalibration.IEye,
-  ): ILid {
-    const globe: IGlobe = seat(aperture, eye);
+  ): IAutoMovieHumanEyelid.ILid {
+    const globe: IAutoMovieHumanEyelid.IGlobe = seat(aperture, eye);
     const n: number = SAMPLES;
-    const raw: Point[] = Array.from(
+    const raw: AutoMovieVector3Tuple[] = Array.from(
       { length: n },
-      (_: unknown, i: number): Point =>
+      (_: unknown, i: number): AutoMovieVector3Tuple =>
         AutoMovieHumanLoftAperture.evaluate(aperture, (2 * Math.PI * i) / n),
     );
 
     // Projected coordinates relative to the globe centre.
-    const plane: [number, number][] = raw.map((p: Point): [number, number] => [
+    const plane: [number, number][] = raw.map((p: AutoMovieVector3Tuple): [number, number] => [
       dot(sub(p, globe.centre), globe.lateral),
       dot(sub(p, globe.centre), globe.up),
     ]);
@@ -222,7 +157,7 @@ export namespace AutoMovieHumanEyelid {
       height(first) > height(second) ? first : second,
     );
 
-    const samples: ISample[] = raw.map((p: Point, i: number): ISample => {
+    const samples: IAutoMovieHumanEyelid.ISample[] = raw.map((p: AutoMovieVector3Tuple, i: number): IAutoMovieHumanEyelid.ISample => {
       const before: [number, number] = plane[(i + n - 1) % n]!;
       const after: [number, number] = plane[(i + 1) % n]!;
       const tl: number = after[0] - before[0];
@@ -230,11 +165,11 @@ export namespace AutoMovieHumanEyelid {
       const tlen: number = Math.hypot(tl, tv) || 1;
       const t2: [number, number] = [tl / tlen, tv / tlen];
       const o2: [number, number] = [turn * t2[1], -turn * t2[0]];
-      const tangent: Point = add(
+      const tangent: AutoMovieVector3Tuple = add(
         scale(globe.lateral, t2[0]),
         scale(globe.up, t2[1]),
       );
-      const outward: Point = add(
+      const outward: AutoMovieVector3Tuple = add(
         scale(globe.lateral, o2[0]),
         scale(globe.up, o2[1]),
       );
@@ -252,7 +187,7 @@ export namespace AutoMovieHumanEyelid {
         ? Math.max(depth, surface)
         : depth;
       const placed: number = w > 0 ? w * surface + (1 - w) * free : free;
-      const contact: Point = add(p, scale(globe.forward, placed - depth));
+      const contact: AutoMovieVector3Tuple = add(p, scale(globe.forward, placed - depth));
 
       const upper: boolean = upperArc.has(i);
       const toMedial: number = Math.min(along(i, medial), along(medial, i));
@@ -294,9 +229,9 @@ export namespace AutoMovieHumanEyelid {
   export function seat(
     aperture: IAutoMovieHumanLoftAperture,
     eye: IAutoMovieHumanBodyCalibration.IEye,
-  ): IGlobe {
-    const forward: Point = normalize(aperture.forward);
-    const up: Point = normalize(sub([0, 1, 0], scale(forward, forward[1])));
+  ): IAutoMovieHumanEyelid.IGlobe {
+    const forward: AutoMovieVector3Tuple = normalize(aperture.forward);
+    const up: AutoMovieVector3Tuple = normalize(sub([0, 1, 0], scale(forward, forward[1])));
     const shift: number = AutoMovieHumanEyeGlobe.seat(eye.radius);
     return {
       centre: add(eye.centre, scale(forward, shift)),
@@ -314,35 +249,35 @@ export namespace AutoMovieHumanEyelid {
    * @param p Point in mm
    * @returns Depth in mm
    */
-  export function surface(globe: IGlobe, p: Readonly<Point>): number {
-    const d: Point = sub(p, globe.centre);
+  export function surface(globe: IAutoMovieHumanEyelid.IGlobe, p: Readonly<AutoMovieVector3Tuple>): number {
+    const d: AutoMovieVector3Tuple = sub(p, globe.centre);
     return AutoMovieHumanEyeGlobe.anterior(
       Math.hypot(dot(d, globe.lateral), dot(d, globe.up)),
     );
   }
 
   /** Vector sum. */
-  export function add(a: Readonly<Point>, b: Readonly<Point>): Point {
+  export function add(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Vector difference. */
-  export function sub(a: Readonly<Point>, b: Readonly<Point>): Point {
+  export function sub(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** Scaled vector. */
-  export function scale(a: Readonly<Point>, k: number): Point {
+  export function scale(a: Readonly<AutoMovieVector3Tuple>, k: number): AutoMovieVector3Tuple {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
   /** Dot product. */
-  export function dot(a: Readonly<Point>, b: Readonly<Point>): number {
+  export function dot(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
   /** Cross product. */
-  export function cross(a: Readonly<Point>, b: Readonly<Point>): Point {
+  export function cross(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -351,7 +286,7 @@ export namespace AutoMovieHumanEyelid {
   }
 
   /** Unit vector; a zero vector stays zero. */
-  export function normalize(a: Readonly<Point>): Point {
+  export function normalize(a: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     const length: number = Math.hypot(a[0], a[1], a[2]);
     return length > 0 ? scale(a, 1 / length) : [0, 0, 0];
   }

@@ -1,17 +1,6 @@
-import {
-  IAutoMovieFootLeg,
-  plantStanceFeet,
-  resolvePose,
-  sampleMotion,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { type IAutoMovieFootLeg, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+import { plantStanceFeet, resolvePose, sampleMotion } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";

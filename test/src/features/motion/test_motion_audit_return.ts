@@ -1,9 +1,6 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanAuditReturn, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
 import { AutoMovieMotionHumanAuditReturn } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,7 +82,7 @@ export function test_motion_audit_return(): void {
   const read = (
     before: Bones,
     after: Bones,
-  ): AutoMovieMotionHumanAuditReturn.IResult =>
+  ): IAutoMovieMotionHumanAuditReturn.IResult =>
     AutoMovieMotionHumanAuditReturn.measure(
       {
         duration: 2,
@@ -99,21 +96,21 @@ export function test_motion_audit_return(): void {
     );
   const near = (got: number, expected: number): boolean =>
     Math.abs(got - expected) <= 1e-9;
-  const show = (result: AutoMovieMotionHumanAuditReturn.IResult): string =>
+  const show = (result: IAutoMovieMotionHumanAuditReturn.IResult): string =>
     JSON.stringify(result);
   const HOME: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const AWAY: IAutoMovieVector3 = { x: 2, y: 1, z: 0 };
   const entry: Bones = place(REST, HOME, 0);
 
   // 1. Still.
-  const still: AutoMovieMotionHumanAuditReturn.IResult = read(entry, entry);
+  const still: IAutoMovieMotionHumanAuditReturn.IResult = read(entry, entry);
   TestValidator.equals("a body that does not move is back", still, {
     world: { value: 0, seconds: 2, where: "none" },
     shape: { value: 0, seconds: 2, where: "none" },
   });
 
   // 2. A hand left up.
-  const raised: AutoMovieMotionHumanAuditReturn.IResult = read(
+  const raised: IAutoMovieMotionHumanAuditReturn.IResult = read(
     entry,
     place({ ...REST, leftHand: { x: 0.3, y: 0.23, z: 0.1 } }, HOME, 0),
   );
@@ -127,7 +124,7 @@ export function test_motion_audit_return(): void {
   );
 
   // 3. The form kept, the body carried and turned.
-  const carried: AutoMovieMotionHumanAuditReturn.IResult = read(
+  const carried: IAutoMovieMotionHumanAuditReturn.IResult = read(
     entry,
     place(REST, AWAY, 90),
   );
@@ -157,7 +154,7 @@ export function test_motion_audit_return(): void {
   );
 
   // 4. A finger off under the same displacement.
-  const curled: AutoMovieMotionHumanAuditReturn.IResult = read(
+  const curled: IAutoMovieMotionHumanAuditReturn.IResult = read(
     entry,
     place(
       { ...REST, leftIndexDistal: { x: 0.38, y: 0.188, z: 0.1 } },

@@ -1,7 +1,10 @@
-import {
-  AutoMovieLoftSection,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodySurfaceLoft, IAutoMovieHumanSurfaceBoundary, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
+
+
+
+
+
+import { AutoMovieLoftSection } from "@automovie/engine";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
@@ -10,9 +13,7 @@ import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanSurfaceBoundary as IBoundary } from "./IAutoMovieHumanSurfaceBoundary";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
+
 
 const {
   chain,
@@ -50,10 +51,10 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    * @evidence contracts/performance.md#reuse-equivalent-work Reads the same chain source owner as ring generation, without another body or curve preparation.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Endpoint closures are local to this call; no source cache or mesh is retained globally here.
    */
-  export function loft(context: IContext, target: IAutoMovieLoftChain): void {
+  export function loft(context: IAutoMovieHumanSurfaceContext, target: IAutoMovieLoftChain): void {
     const phases: number[] = ownPhases(context, target);
-    const bottom: IBoundary = boundary(context, target, "bottom");
-    const top: IBoundary = boundary(context, target, "top");
+    const bottom: IAutoMovieHumanSurfaceBoundary = boundary(context, target, "bottom");
+    const top: IAutoMovieHumanSurfaceBoundary = boundary(context, target, "top");
     // Retained caps use the actual source domain. Event-owned boundaries do
     // not restore a cut-away end, and legacy calibrated domes stay separate.
     const bottomTip: number | null =
@@ -116,7 +117,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     // pole.
     const ringPhases: (readonly number[])[] = [];
     const rings: number[][] = heights.map((y: number, k: number): number[] => {
-      const end: IBoundary | undefined =
+      const end: IAutoMovieHumanSurfaceBoundary | undefined =
         k === 0 ? bottom : k === heights.length - 1 ? top : undefined;
       if (
         end !== undefined &&
@@ -214,7 +215,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    * root ring.
    */
   export function join(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     appendage: IAutoMovieHumanBodyCalibration.IAppendage,
   ): void {
     const base: IAutoMovieLoftChain = chain(context, appendage.base);
@@ -252,11 +253,11 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    * loop's nearest.
    */
   export function holeEdge(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     baseName: string,
-    loopPolygon: [number, number][],
+    loopPolygon: IAutoMovieHumanBodySurfaceLoft.HoleEdgeLoopPolygon,
     winding: boolean = false,
-  ): [number[], [number, number][]] {
+  ): IAutoMovieHumanBodySurfaceLoft.HoleEdgeResult {
     const hole = context.holes.get(baseName);
     if (hole === undefined) throw new Error(`Base ${baseName} left no hole`);
     const loops: number[][] = boundaryLoops(hole.cells);

@@ -1,4 +1,5 @@
-import type { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
+import type { IAutoMovieCompactCurveApproximation, IAutoMovieConicApproximation } from "@automovie/interface";
+
 import type { ConicPaperInput as I } from "./ConicPaperInput";
 
 /** Whole saved curves keep their physical phase clock while old span boundaries remain soft observations. */
@@ -38,9 +39,9 @@ export namespace CompactCurveSource {
   /** Immutable source coefficients and the complete callback chart used by every candidate degree. */
   export interface Prepared {
     /** Whole closed source domain, old soft knots and observed hard tangent breaks. */
-    curve: C.ICurve;
+    curve: IAutoMovieCompactCurveApproximation.ICurve;
     /** Exact planar cubic baseline pieces with original physical phase intervals. */
-    pieces: C.IPiece[];
+    pieces: IAutoMovieCompactCurveApproximation.IPiece[];
     /** Baseline cost under the same shared-coordinate and knot convention as every new result. */
     storage: Storage;
     /** Every source joint, including closure, retained for artifact and corner attribution. */
@@ -54,9 +55,9 @@ export namespace CompactCurveSource {
   }
 
   /** Count the same independently stored numeric fields for old and new planar coefficient nets. */
-  export function storage(pieces: readonly C.IPiece[]): Storage {
-    let coordinates: number = pieces.reduce((sum: number, p: C.IPiece): number => sum + 2 * p.controls.length, 0);
-    const same = (a: P.Point, b: P.Point): boolean => a[0] === b[0] && a[1] === b[1];
+  export function storage(pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[]): Storage {
+    let coordinates: number = pieces.reduce((sum: number, p: IAutoMovieCompactCurveApproximation.IPiece): number => sum + 2 * p.controls.length, 0);
+    const same = (a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point): boolean => a[0] === b[0] && a[1] === b[1];
     for (let i: number = 1; i < pieces.length; ++i)
       if (same(pieces[i - 1]!.controls.at(-1)!, pieces[i]!.controls[0]!)) coordinates -= 2;
     if (pieces.length > 0 && same(pieces.at(-1)!.controls.at(-1)!, pieces[0]!.controls[0]!)) coordinates -= 2;
@@ -67,20 +68,20 @@ export namespace CompactCurveSource {
   /** Prepare cached analytic coefficients once; each later query uses binary interval lookup, not a span scan. */
   export function prepare(loop: I.Loop): Prepared {
     const prefix: number[] = [0];
-    const coefficients: P.Point[][][] = [];
-    const pieces: C.IPiece[] = [];
+    const coefficients: IAutoMovieConicApproximation.Point[][][] = [];
+    const pieces: IAutoMovieCompactCurveApproximation.IPiece[] = [];
     const refusals: string[] = [];
     let planeResidual: number = 0;
     for (let i: number = 0; i < loop.curve.spans.length; ++i) {
       const span: I.Span = loop.curve.spans[i]!;
       const h: number = loop.curve.phaseIntervals[i]!;
       if (!(h > 0 && Number.isFinite(h))) throw new Error("Invalid physical source interval at " + loop.key);
-      const original: P.Point[] = span.map((p: I.V): P.Point => [p[0], p[2]]);
-      const levels: P.Point[][] = [original];
+      const original: IAutoMovieConicApproximation.Point[] = span.map((p: I.V): IAutoMovieConicApproximation.Point => [p[0], p[2]]);
+      const levels: IAutoMovieConicApproximation.Point[][] = [original];
       for (let order: number = 1; order <= 3; ++order) {
-        const previous: P.Point[] = levels.at(-1)!;
+        const previous: IAutoMovieConicApproximation.Point[] = levels.at(-1)!;
         const degree: number = previous.length - 1;
-        levels.push(previous.slice(1).map((p: P.Point, j: number): P.Point => [degree * (p[0] - previous[j]![0]) / h, degree * (p[1] - previous[j]![1]) / h]));
+        levels.push(previous.slice(1).map((p: IAutoMovieConicApproximation.Point, j: number): IAutoMovieConicApproximation.Point => [degree * (p[0] - previous[j]![0]) / h, degree * (p[1] - previous[j]![1]) / h]));
       }
       coefficients.push(levels);
       const a: number = prefix.at(-1)!;
@@ -98,18 +99,18 @@ export namespace CompactCurveSource {
     const breaks: number[] = [];
     for (let i: number = 0; i < pieces.length; ++i) {
       const j: number = (i + 1) % pieces.length;
-      const a: P.Point = coefficients[i]![0]!.at(-1)!;
-      const b: P.Point = coefficients[j]![0]![0]!;
-      const da: P.Point = coefficients[i]![1]!.at(-1)!;
-      const db: P.Point = coefficients[j]![1]![0]!;
+      const a: IAutoMovieConicApproximation.Point = coefficients[i]![0]!.at(-1)!;
+      const b: IAutoMovieConicApproximation.Point = coefficients[j]![0]![0]!;
+      const da: IAutoMovieConicApproximation.Point = coefficients[i]![1]!.at(-1)!;
+      const db: IAutoMovieConicApproximation.Point = coefficients[j]![1]![0]!;
       const la: number = Math.hypot(...da), lb: number = Math.hypot(...db);
-      let incoming: P.Point | undefined, outgoing: P.Point | undefined;
+      let incoming: IAutoMovieConicApproximation.Point | undefined, outgoing: IAutoMovieConicApproximation.Point | undefined;
       let incomingOrder: number | null = null, outgoingOrder: number | null = null;
 
       // A stationary parameter is not necessarily a geometric corner: the exact first nonzero Taylor jet owns its limit.
       for (let order: number = 1; order <= 3; ++order) {
-        const left: P.Point = coefficients[i]![order]!.at(-1)!;
-        const right: P.Point = coefficients[j]![order]![0]!;
+        const left: IAutoMovieConicApproximation.Point = coefficients[i]![order]!.at(-1)!;
+        const right: IAutoMovieConicApproximation.Point = coefficients[j]![order]![0]!;
         if (incoming === undefined && Math.hypot(...left) > 0) {
           const sign: number = order % 2 === 0 ? -1 : 1;
           incoming = [sign * left[0], sign * left[1]]; incomingOrder = order;
@@ -127,7 +128,7 @@ export namespace CompactCurveSource {
     let queries: number = 0;
 
     // Source breaks need exact side jets: an epsilon offset would conflate phase scale and source noise.
-    const evaluate = (t: number, order: 0 | 1 | 2 | 3 | 4 | 5, side?: "left" | "right"): P.Point => {
+    const evaluate = (t: number, order: 0 | 1 | 2 | 3 | 4 | 5, side?: "left" | "right"): IAutoMovieConicApproximation.Point => {
       ++queries;
       if (order > 3) return [0, 0];
       let parameter: number = Math.max(0, Math.min(period, t));
@@ -140,14 +141,14 @@ export namespace CompactCurveSource {
         else hi = middle;
       }
       const u: number = (parameter - prefix[lo]!) / (prefix[lo + 1]! - prefix[lo]!);
-      let values: P.Point[] = coefficients[lo]![order]!.slice();
+      let values: IAutoMovieConicApproximation.Point[] = coefficients[lo]![order]!.slice();
       while (values.length > 1)
-        values = values.slice(1).map((p: P.Point, i: number): P.Point => [(1 - u) * values[i]![0] + u * p[0], (1 - u) * values[i]![1] + u * p[1]]);
+        values = values.slice(1).map((p: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [(1 - u) * values[i]![0] + u * p[0], (1 - u) * values[i]![1] + u * p[1]]);
       return values[0]!;
     };
     return { curve: { domain: [0, period], knots: prefix.slice(1, -1), breaks, closed: true,
-      evaluate: (t: number): P.Point => evaluate(t, 0),
-      derivative: (t: number, order: 1 | 2 | 3 | 4 | 5, side?: "left" | "right"): P.Point => evaluate(t, order, side) },
+      evaluate: (t: number): IAutoMovieConicApproximation.Point => evaluate(t, 0),
+      derivative: (t: number, order: 1 | 2 | 3 | 4 | 5, side?: "left" | "right"): IAutoMovieConicApproximation.Point => evaluate(t, order, side) },
     pieces, storage: storage(pieces), joints, refusals: [...new Set(refusals)], planeResidualMm: planeResidual, queries: (): number => queries };
   }
 }

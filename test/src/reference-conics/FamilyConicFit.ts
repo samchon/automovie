@@ -1,3 +1,4 @@
+import type { IAutoMovieNaturalSpline, IAutoMovieViewChain } from "@automovie/interface";
 import { writeFileSync } from "node:fs";
 import { AutoMovieNaturalSpline as S, AutoMovieViewChain as Q } from "@automovie/engine";
 import { FamilyConicSection as C } from "./FamilyConicSection";
@@ -227,8 +228,8 @@ export namespace FamilyConicFit {
 
   /** Station basis of a knot vector: each knot's cardinal natural cubic, read at a station. */
   export function basisOf(knots: readonly number[]): (s: number) => number[] {
-    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-    return (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+    const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map((_: number, m: number): IAutoMovieNaturalSpline.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    return (s: number): number[] => cardinals.map((spline: IAutoMovieNaturalSpline.ISpline): number => S.evaluate(spline, s));
   }
 
   /** A family's section numbers at a station: its knot values read through the knots' basis. */
@@ -246,7 +247,7 @@ export namespace FamilyConicFit {
     return rows.map((row: IRow): IMisfit => {
       const b: number[] = basis(row.s);
       const t: number[] = values.map((field: readonly number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
-      const section: Q.ISection = C.chain(t, layout);
+      const section: IAutoMovieViewChain.ISection = C.chain(t, layout);
       const out: IMisfit = { s: row.s, heldout: row.heldout, skin: { sum: 0, n: 0, max: 0, phase: NaN }, free: { sum: 0, n: 0, max: 0 }, fault: section.fault };
       if (section.fault !== null) return out;
       for (const p of row.points) {
@@ -316,8 +317,8 @@ export namespace FamilyConicFit {
     const seedWeights: number[] = seeds.map((t: number[]): number => (!ADAPTIVE || C.chain(t, layout).fault === null ? 1 : 0));
     const knots: number[] = ADAPTIVE && initial === undefined ? adaptiveKnots(train, seeds, seedWeights, [given[0]!, given[given.length - 1]!], layout, margin) : [...given];
     const M: number = knots.length;    const samples: ISample[] = train.map(vertices);
-    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-    const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+    const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map((_: number, m: number): IAutoMovieNaturalSpline.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    const basis = (s: number): number[] => cardinals.map((spline: IAutoMovieNaturalSpline.ISpline): number => S.evaluate(spline, s));
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
     const failed = (fault: string): IResult => ({ layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
 
@@ -395,7 +396,7 @@ export namespace FamilyConicFit {
     // Residuals of one section: radial misses at its vertices, then one barrier entry per share; null when its chain is inadmissible.
     const theta = (values: number[][], b: number[]): number[] => values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
     const residual = (t: number[], i: number): number[] | null => {
-      const section: Q.ISection = C.chain(t, layout);
+      const section: IAutoMovieViewChain.ISection = C.chain(t, layout);
       if (section.fault !== null) return null;
       const sample: ISample = samples[i]!;
       const r: number[] = new Array<number>(sample.phases.length);
@@ -711,7 +712,7 @@ export namespace FamilyConicFit {
     // solution, so a start the admissible region holds far from the skin is carried to it without a jump across the region's wall.
     const skinRadii: number[][] = samples.map((sample: ISample): number[] => [...sample.radii]);
     const startRadii: number[][] = samples.map((sample: ISample, i: number): number[] => {
-      const section: Q.ISection = C.chain(theta(Y, B[i]!), layout);
+      const section: IAutoMovieViewChain.ISection = C.chain(theta(Y, B[i]!), layout);
       return sample.phases.map((phi: number, k: number): number => (section.fault === null ? Q.radius(section, phi) : skinRadii[i]![k]!));
     });
     const homotopy: number[] = !polish ? [] : process.argv.includes("--homotopy") ? Array.from({ length: HOMOTOPY_STEPS }, (_: unknown, k: number): number => (k + 1) / HOMOTOPY_STEPS) : [1];
@@ -876,7 +877,7 @@ export namespace FamilyConicFit {
     let chord: number = 0;
     const sums: Record<"train" | "held", { max: number; sum: number; square: number; n: number }> = { train: { max: 0, sum: 0, square: 0, n: 0 }, held: { max: 0, sum: 0, square: 0, n: 0 } };
     for (const row of rows) {
-      const section: Q.ISection = C.chain(theta(Y, basis(row.s)), layout);
+      const section: IAutoMovieViewChain.ISection = C.chain(theta(Y, basis(row.s)), layout);
       let maximum: number = section.fault === null ? 0 : Infinity;
       let worst: number = NaN;
       const into = sums[row.heldout ? "held" : "train"];
@@ -902,7 +903,7 @@ export namespace FamilyConicFit {
   /** Carry a family to another knot vector by reading every field at the new knots. */
   export function resample(values: readonly (readonly number[])[], from: readonly number[], to: readonly number[]): number[][] {
     return values.map((field: readonly number[]): number[] => {
-      const spline: S.ISpline = S.create(from, field);
+      const spline: IAutoMovieNaturalSpline.ISpline = S.create(from, field);
       return to.map((s: number): number => S.evaluate(spline, s));
     });
   }
@@ -971,8 +972,8 @@ export namespace FamilyConicFit {
     const blocked: Set<number> = new Set();
     for (let round: number = 0; round < 200; ++round) {
       const M: number = knots.length;
-      const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-      const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+      const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map((_: number, m: number): IAutoMovieNaturalSpline.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+      const basis = (s: number): number[] => cardinals.map((spline: IAutoMovieNaturalSpline.ISpline): number => S.evaluate(spline, s));
       const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
       const gram: number[][] = zeros(M, M);
       B.forEach((b: number[], i: number): void => {
@@ -1237,8 +1238,8 @@ export namespace FamilyConicFit {
       }
     }
     const M: number = knots.length;
-    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-    const basis = (s: number): number[] => cardinals.map((c: S.ISpline): number => S.evaluate(c, s));
+    const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map((_: number, m: number): IAutoMovieNaturalSpline.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    const basis = (s: number): number[] => cardinals.map((c: IAutoMovieNaturalSpline.ISpline): number => S.evaluate(c, s));
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
     const gram: number[][] = zeros(M, M);
     for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
@@ -1303,7 +1304,7 @@ export namespace FamilyConicFit {
     const units: C.Unit[] = C.units(layout);
     const read = (knots: readonly number[], values: readonly (readonly number[])[], s: number): number[] => values.map((field: readonly number[]): number => S.evaluate(S.create([...knots], [...field]), Math.max(knots[0]!, Math.min(knots.at(-1)!, s))));
     const misses = (t: number[], row: IRow): number[] | null => {
-      const section: Q.ISection = C.chain(t, layout);
+      const section: IAutoMovieViewChain.ISection = C.chain(t, layout);
       if (section.fault !== null) return null;
       return row.points.map((p: C.P): number => Math.abs(Q.radius(section, Math.atan2(p[1], p[0])) - Math.hypot(p[0], p[1])));
     };
@@ -1327,8 +1328,8 @@ export namespace FamilyConicFit {
     }
     const project = (knots: number[]): number[][] | null => {
       const M: number = knots.length;
-      const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-      const B: number[][] = kept.map((i: number): number[] => cardinals.map((c: S.ISpline): number => S.evaluate(c, rows[i]!.s)));
+      const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map((_: number, m: number): IAutoMovieNaturalSpline.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+      const B: number[][] = kept.map((i: number): number[] => cardinals.map((c: IAutoMovieNaturalSpline.ISpline): number => S.evaluate(c, rows[i]!.s)));
       const gram: number[][] = zeros(M, M);
       for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
       const values: number[][] = [];

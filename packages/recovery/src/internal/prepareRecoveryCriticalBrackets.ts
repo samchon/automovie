@@ -1,5 +1,6 @@
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { critical } from "./mesh-observations/critical";
+import type { IAutoMovieRecoveryCriticalBracketsPreparationOperation } from "@automovie/interface";
+
+
 
 /**
  * Prepare critical physical brackets and retain explicit unresolvable gaps.
@@ -13,20 +14,13 @@ import type { critical } from "./mesh-observations/critical";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Levels and diagnostic arrays are caller-owned and updated in their original order; returned sets and bracket records live for one extraction.
  */
 export function prepareRecoveryCriticalBrackets(
-  criticals: ReturnType<typeof critical>,
-  heights: readonly number[],
-  stepMm: number,
-  levels: Set<number>,
-  diagnostics: string[],
-  topologyGaps: IAutoMovieRecoveryMeshSections["topologyGaps"],
-): {
-  unsupportedVertices: Set<number>;
-  bracketed: {
-    event: ReturnType<typeof critical>[number];
-    before: number;
-    after: number;
-  }[];
-} {
+  criticals: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[0],
+  heights: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[1],
+  stepMm: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[2],
+  levels: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[3],
+  diagnostics: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[4],
+  topologyGaps: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[5],
+): ReturnType<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation> {
   const unsupportedVertices: Set<number> = new Set();
   const bracketed: {
     event: (typeof criticals)[number];
@@ -53,8 +47,7 @@ export function prepareRecoveryCriticalBrackets(
       topologyGaps.push({
         beforeMm: event.level - stepMm / 100,
         afterMm: event.level + stepMm / 100,
-        reason,
-      });
+        reason });
       continue;
     }
     const before: number = event.level - epsilon,

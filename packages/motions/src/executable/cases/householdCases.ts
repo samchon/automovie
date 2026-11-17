@@ -1,12 +1,11 @@
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWipe, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { operate } from "../../affordance/operate";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { wipe } from "../../tasks/wipe";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -48,11 +47,11 @@ export function householdCases(
     const m = who.body.measure;
     const top: number = m.shoulderHeight - m.upperArm - 0.225;
     const centre: IAutoMovieVector3 = { x: -0.15, y: top, z: 0.4 };
-    const wiping: wipe.IParams = {
+    const wiping: IAutoMovieMotionHumanWipe.IParams = {
       on: { kind: "point", at: centre, frame: "world" },
       cycles: 3,
     };
-    const drawer: operate.IParams = {
+    const drawer: IAutoMovieMotionHumanOperate.IParams = {
       mechanism: {
         kind: "slider",
         at: {
@@ -64,7 +63,7 @@ export function householdCases(
         travel: 0.15,
       },
     };
-    const chains: [string, HumanChain][] = [
+    const chains: [string, IAutoMovieMotionHumanChain][] = [
       ["wipe", HumanChain.subject("a").act("wipe", wiping)],
       [
         "drawer-wipe",
@@ -72,7 +71,7 @@ export function householdCases(
       ],
     ];
     for (const [label, chain] of chains) {
-      const performance: HumanPerformance = FamilyCaseKit.perform(
+      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
         "household",
         [{ subject: "a", body: who.body }],
         chain,

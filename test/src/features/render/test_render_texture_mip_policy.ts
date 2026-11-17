@@ -1,12 +1,6 @@
-import {
-  type IAutoMovieRenderTextureSource,
-  measureAutoMovieRenderTextureClosure,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMaterial,
-  IAutoMovieRenderTextureCost,
-  IAutoMovieTextureReference,
-} from "@automovie/interface";
+import type { IAutoMovieRenderTextureSource, IAutoMovieMaterial, IAutoMovieRenderTextureCost, IAutoMovieTextureReference } from "@automovie/interface";
+import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { material } from "../internal/renderFixtures";

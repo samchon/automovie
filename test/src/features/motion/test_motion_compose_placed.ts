@@ -1,23 +1,7 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanPlaced,
-  AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanTargetGrid,
-  HumanFoot,
-  HumanHand,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTargetGrid, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+
+import { AutoMovieMotionHumanArm, AutoMovieMotionHumanPlaced, AutoMovieMotionHumanTarget, HumanFoot, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -79,10 +63,10 @@ export function test_motion_compose_placed(): void {
     Math.abs(a.z - b.z) <= e;
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const rested = (
     root: IAutoMovieVector3,
-    turn: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+    turn: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     poseBones(body, {
       skeleton: body.skeleton.id,
@@ -147,8 +131,8 @@ export function test_motion_compose_placed(): void {
   );
 
   // 2. Joint, shoulders and carried.
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-  const pitched: IHumanPosture = { ...quiet, pitch: 30, limbs: {} };
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const pitched: IAutoMovieMotionHumanPosture = { ...quiet, pitch: 30, limbs: {} };
   for (const [name, posture] of [
     ["the stance", quiet],
     ["a pitched trunk", pitched],
@@ -197,12 +181,12 @@ export function test_motion_compose_placed(): void {
     y: quiet.root.y + restHips.y,
     z: quiet.root.z + restHips.z,
   };
-  const over: IHumanPosture = {
+  const over: IAutoMovieMotionHumanPosture = {
     ...quiet,
     pitch: 40,
     root: P.root({ yaw: 0, pitch: 40, roll: 0 }, restHips, shownHips),
   };
-  const grid: AutoMovieMotionHumanTargetGrid.IGrid = {
+  const grid: IAutoMovieMotionHumanTargetGrid.IGrid = {
     height: "chest",
     lateral: "centre",
     distance: "near",
@@ -230,7 +214,7 @@ export function test_motion_compose_placed(): void {
     };
     const facing: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
     const forward: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const reach: HumanHand.IWrist = HumanHand.reach(
+    const reach: IAutoMovieMotionHumanHand.IWrist = HumanHand.reach(
       body,
       side,
       "palm",
@@ -260,7 +244,7 @@ export function test_motion_compose_placed(): void {
       `${side}: the wrist puts the palm on the point, facing as asked`,
       near(read.point, at, 1e-9) && near(read.normal, facing, 1e-9),
     );
-    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(body, side, {
+    const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(body, side, {
       surface: "palm",
       shape: "flat",
       point: at,
@@ -309,7 +293,7 @@ export function test_motion_compose_placed(): void {
     point: { x: shoulder.x, y: shoulder.y - 0.1, z: shoulder.z + 0.4 },
     facing: { x: 0, y: 0, z: 1 },
   };
-  const rest: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
+  const rest: IAutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArm.angles(
     stance,
     "right",
   );
@@ -328,13 +312,13 @@ export function test_motion_compose_placed(): void {
     laid(1).map((p) => p.channels),
     [["rightArm"], ["rightHand"]],
   );
-  const written = (weight: number): IHumanPosture =>
+  const written = (weight: number): IAutoMovieMotionHumanPosture =>
     laid(weight).reduce(
-      (posture: IHumanPosture, p: IAutoMovieMotionHumanPrimitive) =>
+      (posture: IAutoMovieMotionHumanPosture, p: IAutoMovieMotionHumanPrimitive) =>
         p.write(posture, 0.5),
       quiet,
     );
-  const atRest: IHumanPosture = written(0);
+  const atRest: IAutoMovieMotionHumanPosture = written(0);
   complaints.check(
     "at weight 0 the arm holds its rest",
     JSON.stringify(atRest.joints.rightUpperArm) ===
@@ -359,11 +343,11 @@ export function test_motion_compose_placed(): void {
       point: { x: side === "left" ? 0.15 : -0.15, y: 0.9, z: 0.45 },
       normal: { x: 0, y: 1, z: 0 },
     };
-    const handTarget: AutoMovieMotionHumanArm.ITarget =
+    const handTarget: IAutoMovieMotionHumanArmTarget.ITarget =
       AutoMovieMotionHumanTarget.hand(body, quiet, side, placeAt, {
         bend: "front",
       });
-    const palmRest: HumanHand.IFrame = HumanHand.offset(
+    const palmRest: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
       side,
       "palm",
@@ -395,9 +379,9 @@ export function test_motion_compose_placed(): void {
         Math.abs(HumanFoot.pitch(foot.rotation)) <= 1e-9 &&
         Math.abs(HumanFoot.heading(foot.rotation) - 90) <= 1e-9,
     );
-    const held: AutoMovieMotionHumanArm.IAngles =
+    const held: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(stance, side);
-    const wanted: IHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
+    const wanted: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
       body,
       side,
       handTarget,
@@ -417,8 +401,8 @@ export function test_motion_compose_placed(): void {
       carry(0.5).channels,
       [`${side}Arm`],
     );
-    const zero: IHumanPosture = carry(0).write(quiet, 0.5);
-    const one: IHumanPosture = carry(1).write(quiet, 0.5);
+    const zero: IAutoMovieMotionHumanPosture = carry(0).write(quiet, 0.5);
+    const one: IAutoMovieMotionHumanPosture = carry(1).write(quiet, 0.5);
     complaints.check(
       `${side}: a carried arm holds its rest at weight 0 and takes its goal at weight 1`,
       JSON.stringify(zero.joints[`${side}UpperArm`]) ===

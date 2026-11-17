@@ -1,5 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
 /**
  * Shared self-contact exclusions for native filtering, goal fitting and audit. Same owners, direct joint neighbours and declared overlapping pivot regions cannot collide with themselves.
  *
@@ -12,19 +11,19 @@ import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function isPhysicalProfilePairExcluded(
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
   a: string,
   b: string,
 ): boolean {
   return (
     a === b ||
     profile.joints.some(
-      (joint: P.IJoint): boolean =>
+      (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
         (joint.parent === a && joint.child === b) ||
         (joint.parent === b && joint.child === a),
     ) ||
     (profile.collisionExclusions?.some(
-      (pair: NonNullable<P["collisionExclusions"]>[number]): boolean =>
+      (pair: NonNullable<IAutoMoviePhysicalProfile["collisionExclusions"]>[number]): boolean =>
         (pair.a === a && pair.b === b) || (pair.a === b && pair.b === a),
     ) ??
       false)

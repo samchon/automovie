@@ -1,26 +1,13 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   type Archetype,
   createClub,
   createSword,
   createWeaponRack,
 } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -56,7 +43,7 @@ export function test_archetype_weapons_rack(): void {
   const stood = (
     slot: "slot2" | "slot3",
     end: IAutoMovieVector3,
-  ): IHumanProp.IFrame => ({
+  ): IAutoMovieMotionHumanProp.IFrame => ({
     position: Vector3.subtract(
       rack.affordance(slot).frame.translation,
       Quaternion.rotateVector(down, end),
@@ -67,8 +54,8 @@ export function test_archetype_weapons_rack(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let film: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "rack",
@@ -98,7 +85,7 @@ export function test_archetype_weapons_rack(): void {
       );
       continue;
     }
-    const pick: HumanSegment.ISegment = film.segments("a")[1]!;
+    const pick: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[1]!;
     const closed: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
@@ -109,7 +96,7 @@ export function test_archetype_weapons_rack(): void {
       local: IAutoMovieVector3,
       seconds: number,
     ): IAutoMovieVector3 => {
-      const frame: IHumanProp.IFrame = film.prop(prop, seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(prop, seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, local),

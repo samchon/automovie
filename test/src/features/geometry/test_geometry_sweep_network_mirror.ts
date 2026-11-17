@@ -1,9 +1,5 @@
-import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieSurfaceCage,
-  type IAutoMovieSurfaceNetwork,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import type { AutoMovieSurfaceTier, IAutoMovieSurfaceCage, IAutoMovieSurfaceNetwork } from "@automovie/interface";
+import { sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

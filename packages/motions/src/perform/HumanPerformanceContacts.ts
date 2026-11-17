@@ -1,17 +1,13 @@
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   resolveAutoMovieContactEvents,
   segmentSegmentDistance,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -36,16 +32,16 @@ export namespace HumanPerformanceContacts {
    * holds of its own.
    */
   export function hold(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment.ISegment,
     riding: boolean,
   ): void {
-    const plan: IHumanActionPlan = segment.plan;
+    const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
     for (const held of person.holds) {
       if (held.until !== Infinity) continue;
-      const take: IHumanActionPlan["contacts"][number] | undefined =
+      const take: IAutoMovieMotionHumanActionPlan["contacts"][number] | undefined =
         plan.contacts.find(
-          (c: IHumanActionPlan["contacts"][number]): boolean =>
+          (c: IAutoMovieMotionHumanActionPlan["contacts"][number]): boolean =>
             c.part === `${held.side}Hand` &&
             c.kind === "grip" &&
             c.support.kind === "prop" &&
@@ -65,7 +61,7 @@ export namespace HumanPerformanceContacts {
           feasible: {
             kind: "alternatives",
             values: person.holds.some(
-              (h: HumanSegment.IHeld): boolean =>
+              (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
                 h.until === Infinity && h.side !== held.side,
             )
               ? []
@@ -98,15 +94,15 @@ export namespace HumanPerformanceContacts {
    * A contact is mutual: when the limb a weapon meets is striking too, its
    * capsule nearest the striker stops at the same second.
    */
-  export function contacts(self: HumanPerformanceState): void {
-    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
+  export function contacts(self: IAutoMovieMotionHumanPerformanceState): void {
+    const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];
     const owners: Map<
       string,
       {
-        person: HumanSegment.IPerson;
-        segment: HumanSegment.ISegment;
+        person: IAutoMovieMotionHumanSegment.IPerson;
+        segment: IAutoMovieMotionHumanSegment.ISegment;
         id: string;
-        limb: IHumanActionPlan.IWeapon["limb"];
+        limb: IAutoMovieMotionHumanActionPlan.IWeapon["limb"];
         from: number;
         to: number;
       }
@@ -162,10 +158,10 @@ export namespace HumanPerformanceContacts {
         },
       ]),
     );
-    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
+    const met: Map<string, IAutoMovieMotionHumanActionPlan.IContactEvent & { key: string }> =
       new Map();
     let applied: string = "";
-    const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
+    const apply = (stops: IAutoMovieResolveContactEvents.IStops): void => {
       const signature: string = [...stops]
         .map(([k, s]) => `${k}@${s}`)
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -173,7 +169,7 @@ export namespace HumanPerformanceContacts {
       if (signature === applied) return;
       applied = signature;
       for (const person of self.people.values()) person.stops.clear();
-      const changed: Set<HumanSegment.ISegment> = new Set();
+      const changed: Set<IAutoMovieMotionHumanSegment.ISegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
         owner.person.stops.set(
@@ -214,7 +210,7 @@ export namespace HumanPerformanceContacts {
       for (const person of self.people.values()) HumanSegment.forget(person);
     };
     const nearest = (
-      owner: HumanSegment.IPerson,
+      owner: IAutoMovieMotionHumanSegment.IPerson,
       [point, end]: [IAutoMovieVector3, IAutoMovieVector3],
       seconds: number,
     ): string => {
@@ -235,16 +231,16 @@ export namespace HumanPerformanceContacts {
       }
       return best.subject;
     };
-    const events: resolveAutoMovieContactEvents.IEvent[] =
+    const events: IAutoMovieResolveContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons,
         bodies: [...self.people.values()].map(
-          (person: HumanSegment.IPerson) => ({
+          (person: IAutoMovieMotionHumanSegment.IPerson) => ({
             id: person.performer.subject,
             distance: (
               point: IAutoMovieVector3,
               seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
+              stops: IAutoMovieResolveContactEvents.IStops,
             ): number => {
               apply(stops);
               return HumanColliders.distance(
@@ -261,7 +257,7 @@ export namespace HumanPerformanceContacts {
               a: IAutoMovieVector3,
               b: IAutoMovieVector3,
               seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
+              stops: IAutoMovieResolveContactEvents.IStops,
               taper?: readonly [number, number],
             ): number => {
               apply(stops);
@@ -285,7 +281,7 @@ export namespace HumanPerformanceContacts {
               a: IAutoMovieVector3,
               b: IAutoMovieVector3,
               seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
+              stops: IAutoMovieResolveContactEvents.IStops,
             ): string | undefined => {
               apply(stops);
               const bone: AutoMovieHumanoidBone =
@@ -329,7 +325,7 @@ export namespace HumanPerformanceContacts {
         step: HumanPerformanceContacts.STEP,
       });
     apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
-    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> =
+    const plans: Map<IAutoMovieMotionHumanSegment.ISegment, IAutoMovieMotionHumanActionPlan.IContactEvent[]> =
       new Map();
     for (const owner of owners.values()) plans.set(owner.segment, []);
     for (const e of events) {
@@ -343,7 +339,7 @@ export namespace HumanPerformanceContacts {
         subject: owner.person.performer.subject,
         segment: owner.segment,
         weapon: owner.segment.plan.weapons!.find(
-          (w: IHumanActionPlan.IWeapon): boolean => w.id === owner.id,
+          (w: IAutoMovieMotionHumanActionPlan.IWeapon): boolean => w.id === owner.id,
         )!,
         against: e.against,
         seconds: e.seconds,

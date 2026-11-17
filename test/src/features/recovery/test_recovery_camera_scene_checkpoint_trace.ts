@@ -1,13 +1,5 @@
-import {
-  type IAutoMovieRecoveryMapLandmark,
-  type IAutoMovieRecoveryMapPose,
-  type IAutoMovieRecoverySceneCheckpointTrace,
-  type IAutoMovieRecoverySceneWork,
-  admitRecoveryCameraScene,
-  completeRecoverySceneCheckpoint,
-  evaluateRecoveryScenePoint,
-  linkRecoveryCameraTracks,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapPose, IAutoMovieRecoverySceneCheckpointTrace, IAutoMovieRecoverySceneWork } from "@automovie/interface";
+import { admitRecoveryCameraScene, completeRecoverySceneCheckpoint, evaluateRecoveryScenePoint, linkRecoveryCameraTracks } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";

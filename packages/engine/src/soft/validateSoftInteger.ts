@@ -1,5 +1,4 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
-
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 /**
  * Append a type violation for a value outside a safe-integer interval.
  *
@@ -12,14 +11,14 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Any finding remains in the caller-owned collector; this operation retains neither input records nor a task.
  */
 export const validateSoftInteger: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,
   min: number,
   max: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,

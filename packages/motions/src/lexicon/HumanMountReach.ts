@@ -1,8 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { Vector3 } from "@automovie/engine";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
@@ -52,8 +50,8 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function holds six vectors and two lengths per hand.
    */
   export function reach(
-    body: IHumanBody,
-    seated: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    seated: IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
   ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.

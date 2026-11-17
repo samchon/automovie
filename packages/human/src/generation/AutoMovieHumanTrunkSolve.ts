@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanTrunkSolve } from "@automovie/interface";
+
 import { AutoMovieStationHermite } from "@automovie/engine";
 
 /**
@@ -21,7 +23,7 @@ export namespace AutoMovieHumanTrunkSolve {
    * @param sign 1 when the function rises over the interval, -1 when it falls.
    * @returns The argument at which the function crosses zero, or an end of the interval when it does not.
    */
-  export function bisect(lo: number, hi: number, f: (x: number) => number, sign: 1 | -1): number {
+  export function bisect(lo: number, hi: number, f: IAutoMovieHumanTrunkSolve.BisectF, sign: 1 | -1): number {
     let a: number = lo;
     let b: number = hi;
 
@@ -72,7 +74,7 @@ export namespace AutoMovieHumanTrunkSolve {
    * @param f The function of z.
    * @returns The function returning `[f, f', f'']`.
    */
-  export function jet(f: (z: number) => number): (z: number) => [number, number, number] {
+  export function jet(f: IAutoMovieHumanTrunkSolve.JetF): IAutoMovieHumanTrunkSolve.JetResult {
     const h: number = 0.05;
 
     return (z: number): [number, number, number] => {
@@ -84,17 +86,7 @@ export namespace AutoMovieHumanTrunkSolve {
     };
   }
 
-  /** A scalar function's value with its first two derivatives. */
-  export interface IJet {
-    /** The value. */
-    value: number;
-
-    /** The first derivative. */
-    slope: number;
-
-    /** The second derivative. */
-    curvature: number;
-  }
+  
 
   /**
    * The quintic Hermite of a function between two ends that carry their
@@ -108,7 +100,7 @@ export namespace AutoMovieHumanTrunkSolve {
    * @param y Position in the interval.
    * @returns The function's jet at `y`.
    */
-  export function quintic(a: IJet, b: IJet, y0: number, y1: number, y: number): IJet {
+  export function quintic(a: IAutoMovieHumanTrunkSolve.IJet, b: IAutoMovieHumanTrunkSolve.IJet, y0: number, y1: number, y: number): IAutoMovieHumanTrunkSolve.IJet {
     const H: number = y1 - y0;
     const u: number = (y - y0) / H;
     const ends: number[] = [a.value, a.slope, a.curvature, b.curvature, b.slope, b.value];

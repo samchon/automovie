@@ -1,14 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type AutoMovieSolidTrim,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionView,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieSolidTrim, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -62,7 +54,7 @@ export function test_construction_trim(): void {
       };
     },
   );
-  const tree: AutoMovieConstructionNode = {
+  const tree: IAutoMovieConstructionNode = {
     type: "trim",
     name: "slot",
     host: tube,
@@ -73,12 +65,12 @@ export function test_construction_trim(): void {
       at(m)[1] + 0.01,
     ]),
   };
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
 
-  const trim: AutoMovieSolidTrim.ITrim = ConstructionRead.trim(real, "tube");
+  const trim: IAutoMovieSolidTrim.ITrim = ConstructionRead.trim(real, "tube");
   const surface: IAutoMovieSolidSurface = ConstructionRead.surface(
     real,
     "tube",

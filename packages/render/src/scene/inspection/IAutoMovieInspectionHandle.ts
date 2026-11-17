@@ -1,10 +1,14 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark, IAutoMovieInspectionLabel, IAutoMovieInspectionLegendEntry, IAutoMovieInspectionView } from "@automovie/interface";
+
+
+
+
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
-import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
-import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
+
+
+
 
 /**
  * An inspection applied to a scene: what its colours mean, what it selected, and the calls made while it is in force.

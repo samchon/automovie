@@ -1,4 +1,5 @@
-import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief } from "@automovie/interface";
+import { AutoMovieLoftRelief } from "@automovie/engine";
 
 import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicProject";
 

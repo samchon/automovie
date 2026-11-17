@@ -1,25 +1,11 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
@@ -53,8 +39,8 @@ export namespace HumanCarriedBorne {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
   export function plan(
-    context: IHumanActionContext<HumanCarried.IBorne>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
+  ): IAutoMovieMotionHumanActionPlan {
     const by: string | undefined = context.params.by;
     const seconds: number = lasting(context.params.seconds ?? 2);
     if (by === context.subject)
@@ -65,10 +51,10 @@ export namespace HumanCarriedBorne {
         reason: "a person is carried by someone else",
         fix: "name the carrier",
       });
-    const carry: HumanCarried.Carry = context.params.carry ?? "piggyback";
-    const row: HumanCarried.IRow = HumanCarried.CARRIES[carry];
-    const body: IHumanBody = context.body;
-    const carrier: IHumanActionContext.IPerformer | undefined =
+    const carry: IAutoMovieMotionHumanCarried.Carry = context.params.carry ?? "piggyback";
+    const row: IAutoMovieMotionHumanCarried.IRow = HumanCarried.CARRIES[carry];
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const carrier: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
       by === undefined ? undefined : context.performer(by);
 
     // A second helper takes the carry's other side (#3440).
@@ -88,11 +74,11 @@ export namespace HumanCarriedBorne {
         reason: `a second helper takes the other side of a carry that has one and a first bearer, and the ${carry} ${by === undefined ? "has no first bearer" : "has no other side"}`,
         fix: "name a first bearer and a carry with another side, or no second helper",
       });
-    const helper: IHumanActionContext.IPerformer | undefined =
+    const helper: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
       second === undefined ? undefined : context.performer(second);
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const [hip, knee, apart]: readonly [number, number, number] = row.legs;
-    const joints: IHumanPosture["joints"] = {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
       leftUpperLeg: [hip, apart, 0],
       rightUpperLeg: [hip, apart, 0],
       leftLowerLeg: [knee, 0, 0],
@@ -101,7 +87,7 @@ export namespace HumanCarriedBorne {
 
     // A carrier makes the carry a coupled meeting (#3437): the borne body
     // rests on every contact of the coupling, each with its load share.
-    const coupling: AutoMovieMotionMeeting.ICoupling | undefined =
+    const coupling: IAutoMovieMotionCoupling | undefined =
       by === undefined
         ? undefined
         : context.meeting(
@@ -141,8 +127,8 @@ export namespace HumanCarriedBorne {
               ]
             : coupling.contacts.map(
                 (
-                  contact: AutoMovieMotionMeeting.ICoupledContact,
-                ): IHumanContactWindow => ({
+                  contact: IAutoMovieMotionCoupling.IContact,
+                ): IAutoMovieMotionHumanContactWindow => ({
                   part: contact.part,
                   kind: contact.kind,
                   region: contact.region,
@@ -164,7 +150,7 @@ export namespace HumanCarriedBorne {
                         },
                 }),
               ),
-      posture: (at: number): IHumanPosture => {
+      posture: (at: number): IAutoMovieMotionHumanPosture => {
         // With no carrier the carry's posture is taken where the body stands.
         if (carrier === undefined)
           return { ...entry, pitch: row.pitch, joints, limbs: {} };
@@ -185,10 +171,10 @@ export namespace HumanCarriedBorne {
                 }),
           });
         }
-        const theirs: ReturnType<IHumanActionContext.IPerformer["bones"]> =
+        const theirs: ReturnType<IAutoMovieMotionHumanActionContext.IPerformer["bones"]> =
           carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
         const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
-        const turned: IHumanPosture = {
+        const turned: IAutoMovieMotionHumanPosture = {
           root: { x: 0, y: 0, z: 0 },
           yaw:
             (hips === undefined ? 0 : HumanFrame.heading(hips.worldRotation)) +
@@ -200,7 +186,7 @@ export namespace HumanCarriedBorne {
         };
 
         // The root that puts the resting region on the carrier's region.
-        const posture: IHumanPosture = {
+        const posture: IAutoMovieMotionHumanPosture = {
           ...turned,
           root: Vector3.subtract(
             Vector3.add(placed(carrier.body, theirs, row.theirs, "carry"), {
@@ -213,7 +199,7 @@ export namespace HumanCarriedBorne {
             placed(body, HumanTrunk.resolve(body, turned), row.mine, "carry"),
           ),
         };
-        const limbs: IHumanPosture["limbs"] = {};
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         (["left", "right"] as const).forEach(
           (side: "left" | "right", index: number): void => {
             const region: AutoMovieHumanoidRegion | null =
@@ -249,12 +235,12 @@ export namespace HumanCarriedBorne {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function placed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     region: AutoMovieHumanoidRegion,
     axis: string,
   ): IAutoMovieVector3 {
-    const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+    const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[region];
     const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
     if (bone === undefined)

@@ -1,9 +1,5 @@
-import {
-  IAutoMovieBuiltConnector,
-  IAutoMovieConnectorLanding,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieConnectorLanding } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**
  * Validate the further spaces a run serves along its own route.
@@ -33,12 +29,12 @@ export const validateBuiltConnectorLandings: (
   connector: IAutoMovieBuiltConnector,
   path: string,
   spaces: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   connector: IAutoMovieBuiltConnector,
   path: string,
   spaces: ReadonlySet<string>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const landings: IAutoMovieConnectorLanding[] | undefined = connector.landings;
   if (landings === undefined) return;

@@ -1,10 +1,5 @@
-import {
-  AutoMovieRasterSheet,
-  type IAutoMovieCaptureBudget,
-  type IAutoMovieCaptureLayout,
-  type IAutoMovieRasterImage,
-  planAutoMovieCaptureLayout,
-} from "@automovie/render";
+import type { IAutoMovieCaptureBudget, IAutoMovieCaptureLayout, IAutoMovieRasterImage } from "@automovie/interface";
+import { AutoMovieRasterSheet, planAutoMovieCaptureLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";

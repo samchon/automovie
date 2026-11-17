@@ -1,4 +1,5 @@
-import type { HumanActionName, IHumanBody } from "@automovie/motions";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanBody } from "@automovie/interface";
+
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -7,12 +8,12 @@ const S: typeof motionHumanLawSweep = motionHumanLawSweep;
 /** A solo law whose only required parameter is its kind. */
 const kinded =
   (
-    law: HumanActionName,
+    law: AutoMovieMotionHumanActionName,
     kind: string,
     fixed: object,
     ...params: string[]
   ): motionHumanLawSweep.Stage =>
-  (pick: motionHumanLawSweep.Pick, a: IHumanBody): motionHumanLawSweep.IScene =>
+  (pick: motionHumanLawSweep.Pick, a: IAutoMovieMotionHumanBody): motionHumanLawSweep.IScene =>
     S.solo(
       a,
       S.chain().act(law, {
@@ -43,7 +44,7 @@ export const MOTION_HUMAN_LAW_STAGES_SPORT: Readonly<
 > = {
   exercise: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const side: string | undefined = pick("side");
     return S.solo(
@@ -60,12 +61,12 @@ export const MOTION_HUMAN_LAW_STAGES_SPORT: Readonly<
   dance: kinded("dance", "stepTouch", { bpm: 120 }, "side"),
   athletics: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("athletics", S.set(pick, "front"))),
   gymnastics: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => S.solo(a, S.chain().act("gymnastics", {})),
   martialArt: kinded("martialArt", "horseStance", {}),
   ballSport: kinded("ballSport", "dribble", {}, "side"),

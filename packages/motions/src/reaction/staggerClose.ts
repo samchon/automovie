@@ -1,11 +1,11 @@
+import type { IAutoMovieMinimumJerk, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { walkStanceCourse } from "../actions/walkStanceCourse";
 import {
   AutoMovieMotionHumanTiming,
 } from "../compose/AutoMovieMotionHumanTiming";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
@@ -49,7 +49,7 @@ export namespace staggerClose {
     bend: Record<"pitch" | "roll", IAutoMovieVector3>,
     kinematic: boolean,
     stepped: "left" | "right",
-    judging: walkStanceCourse.ICourse | undefined,
+    judging: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined,
     righting: number,
   ): staggerRecover.IRecovery | null {
     const { STEP, STEP_TIME, TRANSFER, SETTLED, TRACKING, KNOTS } =
@@ -65,7 +65,7 @@ export namespace staggerClose {
     // stood over them at the entry, under the caught point.
     const anchor: "left" | "right" = stepped;
     const closer: "left" | "right" = anchor === "left" ? "right" : "left";
-    const middle = (of: Record<"left" | "right", HumanFoot.IPlacement>) =>
+    const middle = (of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>) =>
       flat(Vector3.scale(Vector3.add(of.left.ankle, of.right.ankle), 0.5));
     const stance: number = Vector3.dot(
       Vector3.subtract(entered[closer].ankle, entered[anchor].ankle),
@@ -77,7 +77,7 @@ export namespace staggerClose {
       Vector3.subtract(flat(centre), middle(entered)),
     );
     const placed: IAutoMovieVector3 = feet[anchor].ankle;
-    const closing: HumanFoot.IPlacement = {
+    const closing: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: {
         ...Vector3.add(
           Vector3.add(placed, Vector3.scale(across, stance)),
@@ -131,7 +131,7 @@ export namespace staggerClose {
     let e: IAutoMovieVector3 = begin;
     const longest: number = righting + 20 / w;
     for (let i: number = 1; i * STEP <= longest; i++) {
-      const reference: minimumJerk.IProfile = minimumJerk(
+      const reference: IAutoMovieMinimumJerk.IProfile = minimumJerk(
         ((i - 1) * STEP) / righting,
       );
       const towards: IAutoMovieVector3 = Vector3.lerp(begin, rest, reference.s);
@@ -228,7 +228,7 @@ export namespace staggerClose {
     // continued, from their last landing, over the closing step and the
     // settling, by the course's own receding horizon.
     const landed: number = steps.at(-2)!.land;
-    const course: walkStanceCourse.ICourse = staggerSequential.solve(
+    const course: IAutoMovieMotionHumanWalkStanceCourse.ICourse = staggerSequential.solve(
       body,
       staggerKnots.of(body, entry, bend, { ...recovery, caught: landed }, settled),
       judging,

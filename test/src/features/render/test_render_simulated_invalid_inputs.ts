@@ -1,8 +1,6 @@
-import { IAutoMovieRenderSubject } from "@automovie/engine";
-import type {
-  IAutoMoviePlantingDomain,
-  IAutoMovieRenderInventory,
-} from "@automovie/interface";
+import type { IAutoMovieRenderSubject, IAutoMoviePlantingDomain, IAutoMovieRenderInventory } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";

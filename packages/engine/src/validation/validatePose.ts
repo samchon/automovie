@@ -1,11 +1,5 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { type IAutoMovieValidatePose, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
+
 
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
@@ -23,26 +17,9 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The by-bone map is request-local and default constraint/ROM owners are shared.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns diagnostics; temporary map/set storage releases without an FK pose or host resource.
  */
-export const validatePose: (props: {
-  pose: IAutoMoviePose;
-  skeleton: IAutoMovieSkeleton;
-  path?: string;
-  collector?: ViolationCollector;
-}) => ViolationCollector = (props: {
-  /** Borrowed pose; null joint angles mean rest and invalid angles are reported without clamping. */
-  pose: IAutoMoviePose;
-
-  /** Current rig for bone identity and per-bone/default degree constraints. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Base diagnostic address, defaulting to $input. */
-  path?: string;
-
-  /** Optional caller-owned sink; omitted, a fresh collector is returned. */
-  collector?: ViolationCollector;
-}): ViolationCollector => {
+export const validatePose: (props: IAutoMovieValidatePose.IProps) => IAutoMovieViolationCollector = (props: IAutoMovieValidatePose.IProps): IAutoMovieViolationCollector => {
   const path: string = props.path ?? "$input";
-  const collector: ViolationCollector =
+  const collector: IAutoMovieViolationCollector =
     props.collector ?? new ViolationCollector();
   const byBone: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(
     props.skeleton.bones.map(

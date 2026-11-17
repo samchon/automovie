@@ -1,21 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createCar } from "@automovie/archetypes";
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanObstacle,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  HumanTravelCar,
-  type IHumanBody,
-  type seated,
-} from "@automovie/motions";
+
+
+import { HumanChain, HumanObject, HumanObstacle, HumanPerformance, HumanRefusal, HumanSignature, HumanTravelCar } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,13 +36,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_car(): void {
   const complaints: string[] = [];
-  const car: HumanObject.IModel = createCar({ kind: "sedan" });
-  const where: HumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
-  const seat: seated.ISeat = HumanObject.seat(car, where, "driverSeat");
-  const door: HumanObstacle.IAperture = HumanObstacle.apertures(
+  const car: IAutoMovieMotionHumanObject.IModel = createCar({ kind: "sedan" });
+  const where: IAutoMovieMotionHumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(car, where, "driverSeat");
+  const door: IAutoMovieMotionHumanObstacle.IAperture = HumanObstacle.apertures(
     car,
     where,
-  ).find((a: HumanObstacle.IAperture): boolean => a.id === "driverAperture")!;
+  ).find((a: IAutoMovieMotionHumanObstacle.IAperture): boolean => a.id === "driverAperture")!;
   const depth: number = seat.depth ?? 0.45;
 
   // The level direction out of the door, and the heading facing it.
@@ -76,9 +63,9 @@ export function test_human_motion_travel_car(): void {
 
   // Standing in the doorway with the back to the seat's door-side edge.
   const perform = (
-    body: IHumanBody,
-    through: HumanObstacle.IAperture,
-  ): HumanPerformance =>
+    body: IAutoMovieMotionHumanBody,
+    through: IAutoMovieMotionHumanObstacle.IAperture,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "car",
       laws: [HumanTravelCar.getIn],
@@ -102,8 +89,8 @@ export function test_human_motion_travel_car(): void {
     });
   const top: number = door.at.y + door.height;
   for (const name of ["m-average", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(body, door);
     } catch (error) {
@@ -112,13 +99,13 @@ export function test_human_motion_travel_car(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       0,
     );
-    const entry: HumanSegment.ISegment = performance.segments("a")[0]!;
+    const entry: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
 
     // 2. The crown stays under the door's top.
     let highest: { over: number; at: number } = { over: -Infinity, at: 0 };
@@ -164,7 +151,7 @@ export function test_human_motion_travel_car(): void {
   }
 
   // 4. Doors no one gets in by.
-  const average: IHumanBody = motionHumanBody("m-average");
+  const average: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   for (const [label, through] of [
     ["a door narrowed to 0.2 m", { ...door, width: 0.2 }],
     ["a door lowered to 0.5 m", { ...door, height: 0.5 }],

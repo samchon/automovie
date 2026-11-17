@@ -1,14 +1,6 @@
-import {
-  IAutoMovieCameraCoverageEntry,
-  IAutoMovieFramedSubject,
-  compileCameraCoverage,
-  compileCameraMove,
-} from "@automovie/engine";
-import {
-  IAutoMovieCamera,
-  IAutoMovieCameraIntent,
-  IAutoMovieTrack,
-} from "@automovie/interface";
+import { type IAutoMovieCameraCoverageEntry, type IAutoMovieFramedSubject, IAutoMovieCamera, IAutoMovieCameraIntent, IAutoMovieTrack } from "@automovie/interface";
+import { compileCameraCoverage, compileCameraMove } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, vclose } from "../internal/predicates";

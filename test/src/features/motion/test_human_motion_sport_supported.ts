@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createBench,
   createParallelBars,
@@ -9,21 +10,8 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanSportGym,
-  HumanSportThrow,
-  HumanSportWorkout,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportGym, HumanSportThrow, HumanSportWorkout } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -99,9 +87,9 @@ export function test_human_motion_sport_supported(): void {
   );
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "supported",
@@ -186,16 +174,16 @@ export function test_human_motion_sport_supported(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
     const when = (row: string, event: string): number => {
-      const found: HumanSegment.ISegment = film
+      const found: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -217,7 +205,7 @@ export function test_human_motion_sport_supported(): void {
       );
     // The grip sockets' middle, the centre of the closed fists.
     const fists = (seconds: number): IAutoMovieVector3 => {
-      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = film.bones(
         "a",
         seconds,
       );
@@ -225,7 +213,7 @@ export function test_human_motion_sport_supported(): void {
         [body.surfaces.sockets.gripLeft, body.surfaces.sockets.gripRight]
           .map(
             (
-              socket: IHumanBody["surfaces"]["sockets"]["gripLeft"],
+              socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"],
             ): IAutoMovieVector3 =>
               resolveAutoMovieHumanoidSurfaces.place(
                 socket,

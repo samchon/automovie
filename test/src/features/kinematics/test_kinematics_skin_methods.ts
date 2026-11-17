@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  skinAutoMovieMesh,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMesh,
-  IAutoMovieMeshSkin,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieMesh, IAutoMovieMeshSkin, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { skinAutoMovieMesh } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkinnedTubeMesh } from "../internal/createSkinnedTubeMesh";

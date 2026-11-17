@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieSchedule,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import type { AutoMovieMotionHumanChannel, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSegment, IAutoMovieResolveSchedule, IAutoMovieSchedule } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import { HumanSegment } from "./HumanSegment";
 
 /**
  * The instants of a performance and the windows of its layers: an instant
@@ -29,17 +22,17 @@ export namespace HumanPerformanceLayers {
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
   export function instant(
-    self: HumanPerformanceState,
-    at: IHumanLayer.Instant,
+    self: IAutoMovieMotionHumanPerformanceState,
+    at: IAutoMovieMotionHumanLayer.Instant,
   ): number {
     if (typeof at === "number") return at;
     const placed = self.anchors.get(at.of);
     // A layer's instants are known once its window is placed; a layer later
     // in a person's list, or one that waits for an action, is not placed
     // yet when an earlier window asks for it.
-    const waiting: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+    const waiting: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
       self.layered.get(at.of);
-    const track: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+    const track: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
       self.cues[at.of] ??
       (waiting === undefined || waiting.length === 0 ? undefined : waiting);
     if (placed === undefined && track === undefined)
@@ -56,13 +49,13 @@ export namespace HumanPerformanceLayers {
               .filter(
                 ([, cues]: [
                   string,
-                  readonly resolveAutoMovieSchedule.ICue[],
+                  readonly IAutoMovieResolveSchedule.ICue[],
                 ]): boolean => cues.length !== 0,
               )
               .map(
                 ([name]: [
                   string,
-                  readonly resolveAutoMovieSchedule.ICue[],
+                  readonly IAutoMovieResolveSchedule.ICue[],
                 ]): string => name,
               ),
           ],
@@ -84,7 +77,7 @@ export namespace HumanPerformanceLayers {
           );
     if (placed !== undefined && at.event === undefined)
       return (entry?.contact ?? placed.entryTime) + (at.offset ?? 0);
-    const events: readonly resolveAutoMovieSchedule.ICue[] =
+    const events: readonly IAutoMovieResolveSchedule.ICue[] =
       placed === undefined
         ? track!
         : [
@@ -101,8 +94,8 @@ export namespace HumanPerformanceLayers {
                   : (self.clipped.get(entry.index) ?? entry.end),
             },
           ];
-    const found: resolveAutoMovieSchedule.ICue | undefined = events.filter(
-      (e: resolveAutoMovieSchedule.ICue): boolean => e.name === at.event,
+    const found: IAutoMovieResolveSchedule.ICue | undefined = events.filter(
+      (e: IAutoMovieResolveSchedule.ICue): boolean => e.name === at.event,
     )[at.index ?? 0];
     if (found === undefined)
       throw new HumanRefusal({
@@ -114,7 +107,7 @@ export namespace HumanPerformanceLayers {
           kind: "alternatives",
           values: [
             ...new Set(
-              events.map((e: resolveAutoMovieSchedule.ICue): string => e.name),
+              events.map((e: IAutoMovieResolveSchedule.ICue): string => e.name),
             ),
           ],
         },
@@ -134,7 +127,7 @@ export namespace HumanPerformanceLayers {
     from: number,
     to: number,
     fade: number | undefined,
-  ): resolveAutoMovieSchedule.ICue[] {
+  ): IAutoMovieResolveSchedule.ICue[] {
     const ramp: number = Math.max(0, Math.min(fade ?? 0.3, (to - from) / 2));
     return [
       { name: "onset", seconds: from },
@@ -146,10 +139,10 @@ export namespace HumanPerformanceLayers {
 
   /** A scheduled layer's window in film seconds, refused where one of the person's actions holds a channel it writes. */
   export function window(
-    self: HumanPerformanceState,
-    person: HumanSegment.IPerson,
-    scheduled: IHumanLayer.IScheduled,
-  ): HumanSegment.ILayered {
+    self: IAutoMovieMotionHumanPerformanceState,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    scheduled: IAutoMovieMotionHumanLayer.IScheduled,
+  ): IAutoMovieMotionHumanSegment.ILayered {
     const from: number =
       scheduled.from === undefined
         ? 0
@@ -158,11 +151,11 @@ export namespace HumanPerformanceLayers {
       scheduled.to === undefined
         ? self.schedule.duration
         : HumanPerformanceLayers.instant(self, scheduled.to);
-    const layer: IHumanLayer =
+    const layer: IAutoMovieMotionHumanLayer =
       typeof scheduled.layer === "function"
         ? scheduled.layer({ from, to })
         : scheduled.layer;
-    const located = (refusal: HumanRefusal.IProps): HumanRefusal =>
+    const located = (refusal: IAutoMovieMotionHumanRefusal.IProps): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({ performer: person.performer.subject, ...refusal });
     if (!(to > from))
       throw located({

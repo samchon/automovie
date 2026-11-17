@@ -1,4 +1,4 @@
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
+import type { IAutoMoviePhysicalReleasedQuality, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalReleasedQuality } from "./physicalReleasedQuality";
 
@@ -15,8 +15,8 @@ import { physicalReleasedQuality } from "./physicalReleasedQuality";
  */
 export function configurePhysicalBodyQuality(
   bound: Bound,
-  input: Simulation.IInput,
-  body: Simulation.IBody,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
   released: boolean,
 ): void {
   if (
@@ -24,7 +24,7 @@ export function configurePhysicalBodyQuality(
     bound.reflexQuality.has(body.id) === released
   )
     return;
-  const budget: ReturnType<typeof physicalReleasedQuality> =
+  const budget: IAutoMoviePhysicalReleasedQuality.IResult =
     physicalReleasedQuality({
       quality: body.releasedQuality,
       released,

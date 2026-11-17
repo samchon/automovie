@@ -1,10 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkFoot, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
@@ -56,16 +52,16 @@ export namespace walkReachStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    foot: walkFoot.IFoot,
+    foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     h: IAutoMovieVector3,
     yaw: number,
     pivoted: number,
     rocker: number,
     course?: number,
   ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
-    let placement: HumanFoot.IPlacement = foot.placement;
+    let placement: IAutoMovieMotionHumanFoot.IPlacement = foot.placement;
     const heading: number = HumanFoot.heading(placement.rotation);
     let pitch: number = HumanFoot.pitch(placement.rotation);
     const about: "heel" | "mtp" = pitch > 1e-6 ? "heel" : "mtp";
@@ -75,7 +71,7 @@ export namespace walkReachStance {
       about,
       placement,
     );
-    const at = (degrees: number): HumanFoot.IPlacement =>
+    const at = (degrees: number): IAutoMovieMotionHumanFoot.IPlacement =>
       HumanFoot.pivot(body, side, about, pivot, heading, degrees);
     // The heel rises about the ball once the shank leans past the ankle's
     // dorsal limit: the forefoot rocker begins where the ankle can bend no

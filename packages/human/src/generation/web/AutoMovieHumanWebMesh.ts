@@ -1,15 +1,18 @@
-import type { IAutoMovieHumanConstructionPath } from "../IAutoMovieHumanConstructionPath";
-import type { IAutoMovieHumanWebChild } from "./IAutoMovieHumanWebChild";
-import type { IAutoMovieHumanWebColumn } from "./IAutoMovieHumanWebColumn";
-import type { IAutoMovieHumanWebColumns } from "./IAutoMovieHumanWebColumns";
-import type { IAutoMovieHumanWebCrests } from "./IAutoMovieHumanWebCrests";
-import type { IAutoMovieHumanWebInput } from "./IAutoMovieHumanWebInput";
-import type { IAutoMovieHumanWebResult } from "./IAutoMovieHumanWebResult";
-import type { IAutoMovieHumanWebSurface } from "./IAutoMovieHumanWebSurface";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanConstructionPath, IAutoMovieHumanWebChild, IAutoMovieHumanWebColumn, IAutoMovieHumanWebColumns, IAutoMovieHumanWebCrests, IAutoMovieHumanWebInput, IAutoMovieHumanWebResult, IAutoMovieHumanWebSurface } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, plus: add, scale, smooth }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 
 /**

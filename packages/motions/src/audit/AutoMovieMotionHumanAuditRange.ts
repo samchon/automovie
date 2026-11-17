@@ -1,15 +1,16 @@
+import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import type {
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMovieScanJointRom,
+} from "@automovie/interface";
+
 import {
   ANKLE_DORSIFLEXION,
   DEFAULT_HUMANOID_ROM,
   scanJointRom,
 } from "@automovie/engine";
-import type {
-  IAutoMovieJointConstraint,
-  IAutoMoviePose,
-} from "@automovie/interface";
-
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every joint of a displayed motion stays inside its anatomical
@@ -35,45 +36,6 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  */
 export namespace AutoMovieMotionHumanAuditRange {
   /**
-   * A motion as this audit reads it: a person's displayed pose at any film
-   * second. `HumanPerformance` is one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and which producer satisfies it.
-   * @evidence contracts/development/design.md#principled-representation Clinical angles live on the pose, not on the resolved bones the other audits read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, a structural subset of `HumanPerformance`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's pose; no cast or optional member.
-   */
-  export interface IPosed {
-    /** The motion's length, film seconds. */
-    readonly duration: number;
-
-    /**
-     * A person's displayed pose.
-     *
-     * @param subject The person.
-     * @param seconds Film seconds, within the motion.
-     * @returns The pose, joints in clinical degrees.
-     */
-    pose(subject: string, seconds: number): IAutoMoviePose;
-  }
-
-  /**
-   * What the reading found.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what it is read on.
-   * @evidence contracts/development/design.md#principled-representation The worst overshoot and the one share it cannot tell.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IResult {
-    /** The farthest a joint stands past its range, degrees, with the bone and the axis (`flexion`, `abduction`, `twist` or `swing`); `Infinity` for a non-finite angle. */
-    overshoot: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The part of the grid's instants at which some joint is past its range, in [0, 1]. */
-    share: number;
-  }
-
-  /**
    * Read one person's joints over a motion.
    *
    * @param motion The motion.
@@ -91,19 +53,15 @@ export namespace AutoMovieMotionHumanAuditRange {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
-    motion: IPosed,
+    motion: IAutoMovieMotionHumanAuditRange.IPosed,
     subject: string,
     rate: number = 24,
-  ): IResult {
-    const out: IResult = {
+  ): IAutoMovieMotionHumanAuditRange.IResult {
+    const out: IAutoMovieMotionHumanAuditRange.IResult = {
       overshoot: { value: 0, seconds: 0, where: "none" },
       share: 0,
     };
-    const frames: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+    const frames: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     let past: number = 0;
     for (const t of frames) {
       let faulted: boolean = false;
@@ -115,7 +73,7 @@ export namespace AutoMovieMotionHumanAuditRange {
           joint,
           constraint,
           (
-            part: scanJointRom.Part,
+            part: IAutoMovieScanJointRom.Part,
             _actual: number,
             overshoot: number | undefined,
           ): void => {
@@ -166,21 +124,17 @@ export namespace AutoMovieMotionHumanAuditRange {
    */
   export function unloaded(
     motion: IAutoMovieMotionHumanAuditMotion,
-    posed: IPosed,
+    posed: IAutoMovieMotionHumanAuditRange.IPosed,
     subject: string,
     rate: number = 24,
-  ): IResult {
-    const out: IResult = {
+  ): IAutoMovieMotionHumanAuditRange.IResult {
+    const out: IAutoMovieMotionHumanAuditRange.IResult = {
       overshoot: { value: 0, seconds: 0, where: "none" },
       share: 0,
     };
-    const frames: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      posed.duration,
-      rate,
-    );
+    const frames: number[] = HumanAuditMotion.grid(0, posed.duration, rate);
     const plants: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      IAutoMovieMotionHumanAuditMotion.windows(motion, subject).filter(
+      HumanAuditMotion.windows(motion, subject).filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
           w.contact.kind === "plant" && w.contact.support.kind === "ground",
       );

@@ -1,23 +1,13 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieCurlChainUntilContact, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { resolvePose } from "./resolvePose";
 
 /**
@@ -76,8 +66,8 @@ import { resolvePose } from "./resolvePose";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned pose and records belong to the caller.
  */
 export function curlChainUntilContact(
-  input: curlChainUntilContact.IInput,
-): curlChainUntilContact.IResult {
+  input: IAutoMovieCurlChainUntilContact.IInput,
+): IAutoMovieCurlChainUntilContact.IResult {
   const step: number = input.step ?? 1;
   if (!(step > 0)) throw new Error("A curl step must be positive");
   for (const collider of input.colliders) validate(collider.shape);
@@ -92,7 +82,7 @@ export function curlChainUntilContact(
     ...input.pose,
     joints: [...joints.values()],
   });
-  const reports: curlChainUntilContact.IChainResult[] = [];
+  const reports: IAutoMovieCurlChainUntilContact.IChainResult[] = [];
 
   for (const chain of input.chains) {
     if (!(chain.radius > 0))
@@ -235,78 +225,10 @@ export namespace curlChainUntilContact {
   export function resolution(reach: number, lever: number): number {
     return (ROM_TOLERANCE * reach) / lever;
   }
-  /** The curl request. */
-  export interface IInput {
-    /** The rig, whose range of motion caps every flexion. */
-    skeleton: IAutoMovieSkeleton;
-
-    /** The pose to curl; only the chains' flexions change. */
-    pose: IAutoMoviePose;
-
-    /** Chains in closing order, each proximal to distal. */
-    chains: readonly IChain[];
-
-    /** The object's colliders, placed in the pose's world frame. */
-    colliders: readonly ICollider[];
-
-    /** Search step, degrees; 1 when absent. */
-    step?: number;
-
-    /** Clinical axes, as `resolvePose` takes them. */
-    jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-    /** Clinical rest frames, as `resolvePose` takes them. */
-    restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-    /** Topology of the same skeleton, reused across evaluations. */
-    topology?: IAutoMovieSkeletonTopology;
-  }
-
-  /** One closing chain, a digit. */
-  export interface IChain {
-    /** Its bones from proximal to distal, each the parent of the next. */
-    bones: readonly AutoMovieHumanoidBone[];
-
-    /** The distal phalanx's end in the last bone's rest frame relative to its joint, metres. */
-    tip: IAutoMovieVector3;
-
-    /** The phalanges' capsule radius, metres; positive. */
-    radius: number;
-  }
-
-  /** One collider of the object, in world metres. */
-  export interface ICollider {
-    /** The shape; its own `transform` is relative to `frame`. */
-    shape: P.IShape;
-
-    /** The shape owner's world frame. */
-    frame: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-  }
-
-  /** The curl. */
-  export interface IResult {
-    /** The pose with every chain closed. */
-    pose: IAutoMoviePose;
-
-    /** Each chain's outcome, in input order. */
-    chains: IChainResult[];
-  }
-
-  /** One chain's outcome. */
-  export interface IChainResult {
-    /** Its bones. */
-    bones: readonly AutoMovieHumanoidBone[];
-
-    /** Each joint's final flexion, degrees. */
-    flexion: number[];
-
-    /** The least gap of any of its phalanges to the object, metres: about zero when it touches, positive when the range of motion stopped it first. */
-    gap: number;
-  }
 }
 
 /** Refuse a shape whose dimensions cannot give a distance. */
-function validate(shape: P.IShape): void {
+function validate(shape: IAutoMoviePhysicalProfile.IShape): void {
   let ok: boolean;
   if (shape.kind === "sphere") ok = shape.radius > 0;
   else if (shape.kind === "capsule")

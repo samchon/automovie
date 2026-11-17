@@ -1,4 +1,5 @@
-import { AutoMovieNaturalSpline as S, AutoMovieViewOutline as O, AutoMovieViewAxis, AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieViewPart as V } from "@automovie/engine";
+import type { IAutoMovieNaturalSpline, IAutoMovieViewLoft, IAutoMovieViewOutline, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieNaturalSpline as S, AutoMovieViewOutline as O, AutoMovieViewAxis, AutoMovieViewLoft as L, AutoMovieViewChain as Q } from "@automovie/engine";
 import type { PartConicTypes as T } from "./PartConicTypes";
 import { PartConicProfile as P } from "./PartConicProfile";
 
@@ -19,14 +20,14 @@ export namespace PartConicFields {
     /** One station knot vector shared by every scalar field, in millimetres. */
     knots: number[];
     /** Value and normalized first/second jet at each shared knot, grouped by field. */
-    fields: V.IKnot[][];
+    fields: IAutoMovieViewPart.IKnot[][];
   }
   /** Complete numeric experiment evidence, separate from any visual acceptance claim. */
   export interface Result {
     /** Independently reconstructible coefficient record. */
     coefficients: Coefficients;
     /** Actual existing view-loft result, not a mesh fitted afterward. */
-    loft: L.IResult;
+    loft: IAutoMovieViewLoft.IResult;
     /** Maximum source-to-direct-conic sampled radial discrepancy before station compression, in millimetres. */
     intrinsicMaximumMm: number;
     /** Maximum final sampled radial discrepancy on fitting planes, in millimetres. */
@@ -49,20 +50,20 @@ export namespace PartConicFields {
     const rows: T.Row[] = part.rows.filter((row: T.Row): boolean => !row.heldout);
     const values: number[][] = rows.map((row: T.Row): number[] => P.measure(row.points, pieces));
     const xs: number[] = rows.map((row: T.Row): number => row.s);
-    const dense: S.ISpline[] = values[0]!.map((_: number, field: number): S.ISpline => S.create(xs, values.map((value: number[]): number => value[field]!)));
+    const dense: IAutoMovieNaturalSpline.ISpline[] = values[0]!.map((_: number, field: number): IAutoMovieNaturalSpline.ISpline => S.create(xs, values.map((value: number[]): number => value[field]!)));
     const retained: Set<number> = new Set([0, rows.length - 1]);
     const span: number = xs.at(-1)! - xs[0]!;
     let coefficients: Coefficients;
-    let prepared: O.IOutline[] = [];
+    let prepared: IAutoMovieViewOutline.IOutline[] = [];
     for (let iteration: number = 0; ; ++iteration) {
       if (iteration > rows.length) throw new Error("Finite shared-knot refinement failed to terminate.");
       const indices: number[] = [...retained].sort((a: number, b: number): number => a - b);
-      const fields: V.IKnot[][] = dense.map((spline: S.ISpline): V.IKnot[] => indices.map((index: number): V.IKnot => {
+      const fields: IAutoMovieViewPart.IKnot[][] = dense.map((spline: IAutoMovieNaturalSpline.ISpline): IAutoMovieViewPart.IKnot[] => indices.map((index: number): IAutoMovieViewPart.IKnot => {
         const jet: [number, number, number] = S.read(spline, xs[index]!);
         return { site: "source-plane-" + index, station: xs[index]!, value: jet[0], jet: { first: jet[1] * span, second: jet[2] * span * span } };
       }));
       coefficients = { name: part.name + ".conic-" + pieces * 4, origin: [...part.origin], u: [...part.u], v: [...part.v], piecesPerQuarter: pieces, knots: indices.map((index: number): number => xs[index]!), fields };
-      prepared = fields.map((knots: V.IKnot[]): O.IOutline => {
+      prepared = fields.map((knots: IAutoMovieViewPart.IKnot[]): IAutoMovieViewOutline.IOutline => {
         const outline: ReturnType<typeof O.create> = O.create({ knots });
         if ("contract" in outline) throw new Error(outline.detail);
         return outline;
@@ -89,7 +90,7 @@ export namespace PartConicFields {
 
     // Rebuild from serialized numeric coefficients before any final geometry is evaluated.
     coefficients = JSON.parse(JSON.stringify(coefficients)) as Coefficients;
-    const loft: L.IResult = create(coefficients, part.rows.map((row: T.Row): number => row.s));
+    const loft: IAutoMovieViewLoft.IResult = create(coefficients, part.rows.map((row: T.Row): number => row.s));
     if (loft.chain === null) throw new Error("View-loft admission: " + JSON.stringify(loft.diagnostics));
     let intrinsicMaximumMm: number = 0;
     for (let i: number = 0; i < rows.length; ++i) intrinsicMaximumMm = Math.max(intrinsicMaximumMm, P.error(rows[i]!.points, values[i]!, pieces));
@@ -101,15 +102,15 @@ export namespace PartConicFields {
   }
 
   /** Generate actual existing conic loft geometry from numeric family fields alone, in the original absolute pose. */
-  export function create(coefficients: Coefficients, stations: number[]): L.IResult {
-    const outline = (field: number): V.IOutline => ({ knots: coefficients.fields[field]! });
-    const shoulders: V.IQuarters<V.IOutline> = [outline(8), outline(9), outline(10), outline(11)];
-    const touch: V.IQuarters<V.IOutline> = [outline(4), outline(5), outline(6), outline(7)];
-    const part: V = { name: coefficients.name, axis: AutoMovieViewAxis.straight(coefficients.origin, coefficients.u, coefficients.v), stations,
+  export function create(coefficients: Coefficients, stations: number[]): IAutoMovieViewLoft.IResult {
+    const outline = (field: number): IAutoMovieViewPart.IOutline => ({ knots: coefficients.fields[field]! });
+    const shoulders: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline> = [outline(8), outline(9), outline(10), outline(11)];
+    const touch: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline> = [outline(4), outline(5), outline(6), outline(7)];
+    const part: IAutoMovieViewPart = { name: coefficients.name, axis: AutoMovieViewAxis.straight(coefficients.origin, coefficients.u, coefficients.v), stations,
       front: { positive: outline(0), negative: outline(1) }, side: { positive: outline(2), negative: outline(3) },
-      fullness: { kind: "top", shoulders, touch, ...(coefficients.piecesPerQuarter === 2 ? { splits: [0, 1, 2, 3].map((q: number): V.ISplit => ({ u: outline(12 + 4 * q), v: outline(13 + 4 * q), angle: outline(14 + 4 * q), shoulder: outline(15 + 4 * q) })) as V.IQuarters<V.ISplit> } : {}) }, order: 32, samples: 128 };
+      fullness: { kind: "top", shoulders, touch, ...(coefficients.piecesPerQuarter === 2 ? { splits: [0, 1, 2, 3].map((q: number): IAutoMovieViewPart.ISplit => ({ u: outline(12 + 4 * q), v: outline(13 + 4 * q), angle: outline(14 + 4 * q), shoulder: outline(15 + 4 * q) })) as IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.ISplit> } : {}) }, order: 32, samples: 128 };
     return L.create(part);
   }
   /** Evaluate the prepared scalar owner, preserving its real failure rather than substituting a value. */
-  function read(fields: O.IOutline[], s: number): number[] { return fields.map((field: O.IOutline): number => { const value: number | string = O.value(field, s); if (typeof value === "string") throw new Error(value); return value; }); }
+  function read(fields: IAutoMovieViewOutline.IOutline[], s: number): number[] { return fields.map((field: IAutoMovieViewOutline.IOutline): number => { const value: number | string = O.value(field, s); if (typeof value === "string") throw new Error(value); return value; }); }
 }

@@ -1,7 +1,5 @@
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePrimitiveShape, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 
@@ -34,7 +32,7 @@ interface ILocal {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned scalar record retains no input, resource or cache.
  */
 export function ArchetypeMassPrimitive(
-  shape: AutoMoviePrimitiveShape,
+  shape: IAutoMoviePrimitiveShape,
 ): ILocal | null {
   for (const [name, value] of Object.entries(shape))
     if (
@@ -68,7 +66,7 @@ export function ArchetypeMassPrimitive(
 }
 
 /** Uniform-solid formulas in the primitive's axes. */
-function evaluate(shape: AutoMoviePrimitiveShape): ILocal | null {
+function evaluate(shape: IAutoMoviePrimitiveShape): ILocal | null {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   switch (shape.type) {
     case "box":

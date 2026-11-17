@@ -1,6 +1,8 @@
+import type { IAutoMovieHumanHeadNoseFrame, IAutoMovieHumanHeadPrior } from "@automovie/interface";
+
+
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-import type { AutoMovieHumanHeadNoseFrame } from "./AutoMovieHumanHeadNoseFrame";
-import type { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
+
 
 /**
  * The alar lobules as a relief window in the nose's frame: two rounded wings,
@@ -27,8 +29,8 @@ export namespace AutoMovieHumanHeadNoseAla {
    * @returns Height in millimetres.
    */
   export function lobes(
-    frame: AutoMovieHumanHeadNoseFrame.IFrame,
-    ala: AutoMovieHumanHeadPrior.IFace["ala"],
+    frame: IAutoMovieHumanHeadNoseFrame.IFrame,
+    ala: IAutoMovieHumanHeadPrior.IFace["ala"],
     y: number,
     a: number,
   ): number {

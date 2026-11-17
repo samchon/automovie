@@ -1,25 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieInteractionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanBlast } from "./HumanBlast";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropOutcome } from "./HumanPropOutcome";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * The hit record of a performance: every contact that strikes a person or a
@@ -57,7 +45,7 @@ export namespace HumanPerformanceHits {
    * @returns The hits.
    */
   export function hits(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject?: string,
   ): readonly IAutoMovieInteractionEvent[] {
     let all: readonly IAutoMovieInteractionEvent[] | undefined = self.resolving
@@ -81,9 +69,9 @@ export namespace HumanPerformanceHits {
   }
 
   /** The melee stops. */
-  function melee(self: HumanPerformanceState): IAutoMovieInteractionEvent[] {
+  function melee(self: IAutoMovieMotionHumanPerformanceState): IAutoMovieInteractionEvent[] {
     return self.strikes.map(
-      (strike: HumanPerformanceState.IStrike): IAutoMovieInteractionEvent => {
+      (strike: IAutoMovieMotionHumanPerformanceState.IStrike): IAutoMovieInteractionEvent => {
         const t: number = strike.seconds;
         const point: IAutoMovieVector3 = strike.weapon.path(t);
         const end: IAutoMovieVector3 = strike.weapon.tail?.(t) ?? point;
@@ -95,7 +83,7 @@ export namespace HumanPerformanceHits {
           1 / (2 * HumanPerformanceContacts.STEP),
         );
         const struck = person(self, strike.against, t, point, end);
-        const striker: IHumanBody = HumanPerformanceRead.person(
+        const striker: IAutoMovieMotionHumanBody = HumanPerformanceRead.person(
           self,
           strike.subject,
         ).performer.body;
@@ -132,7 +120,7 @@ export namespace HumanPerformanceHits {
   }
 
   /** The blasts' hits. */
-  function blasts(self: HumanPerformanceState): IAutoMovieInteractionEvent[] {
+  function blasts(self: IAutoMovieMotionHumanPerformanceState): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const blast of self.blasts) {
       const t: number = HumanPerformanceLayers.instant(self, blast.at);
@@ -169,13 +157,13 @@ export namespace HumanPerformanceHits {
   }
 
   /** The flights' first contacts, with what each did and the velocity it left with. */
-  function flights(self: HumanPerformanceState): IAutoMovieInteractionEvent[] {
+  function flights(self: IAutoMovieMotionHumanPerformanceState): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const prop of self.props.values())
       for (const f of HumanPropFlight.flights(self, prop.subject)) {
-        const c: HumanPropFlight.IContact | undefined = f.contact;
+        const c: IAutoMovieMotionHumanPropFlight.IContact | undefined = f.contact;
         if (c === undefined) continue;
-        const next: HumanPropOutcome.ILeg | undefined = f.legs?.[0];
+        const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined = f.legs?.[0];
         const region: AutoMovieHumanoidRegion | undefined =
           c.struck.kind === "person"
             ? nearestRegion(
@@ -215,7 +203,7 @@ export namespace HumanPerformanceHits {
 
   /** Where a segment meets a person at a second: the bone, the surface point, its normal and the nearest region. */
   function person(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     a: IAutoMovieVector3,
@@ -227,7 +215,7 @@ export namespace HumanPerformanceHits {
     normal: IAutoMovieVector3;
     region?: AutoMovieHumanoidRegion;
   } {
-    const who: HumanSegment.IPerson = HumanPerformanceRead.person(
+    const who: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
       self,
       subject,
     );
@@ -244,14 +232,14 @@ export namespace HumanPerformanceHits {
 
   /** The body's named region whose point lies nearest a world point. */
   function nearestRegion(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     point: IAutoMovieVector3,
   ): AutoMovieHumanoidRegion | undefined {
     let best: { region: AutoMovieHumanoidRegion; distance: number } | undefined;
     for (const [region, frame] of Object.entries(body.surfaces.regions) as [
       AutoMovieHumanoidRegion,
-      resolveAutoMovieHumanoidSurfaces.IFrame,
+      IAutoMovieHumanoidSurfaces.IFrame,
     ][]) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
       if (bone === undefined) continue;
@@ -268,7 +256,7 @@ export namespace HumanPerformanceHits {
 
   /** The hits kept per placed performance. */
   const KEPT: WeakMap<
-    HumanPerformanceState,
+    IAutoMovieMotionHumanPerformanceState,
     readonly IAutoMovieInteractionEvent[]
   > = new WeakMap();
 }

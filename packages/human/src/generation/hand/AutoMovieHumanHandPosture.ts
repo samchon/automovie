@@ -1,5 +1,7 @@
-import type { IAutoMovieHumanHandFingerPosture } from "./IAutoMovieHumanHandFingerPosture";
-import type { IAutoMovieHumanHandThumbPosture } from "./IAutoMovieHumanHandThumbPosture";
+import type { IAutoMovieHumanHandFingerPosture, IAutoMovieHumanHandPosture, IAutoMovieHumanHandThumbPosture } from "@automovie/interface";
+
+
+
 
 /**
  * The bind's relaxed hand: a pose convention of the captured standing
@@ -40,7 +42,7 @@ export namespace AutoMovieHumanHandPosture {
   };
 
   /** Flexion ranges, degrees, AAOS (`docs/anatomy/joint-range.md`): finger MCP, finger PIP, thumb MCP, thumb IP. */
-  export const RANGE: { fingerMcp: number; fingerPip: number; thumbMcp: number; thumbIp: number } = {
+  export const RANGE: IAutoMovieHumanHandPosture.IRange = {
     fingerMcp: 80,
     fingerPip: 90,
     thumbMcp: 50,
@@ -57,7 +59,7 @@ export namespace AutoMovieHumanHandPosture {
    * 22 degrees from the hand's axis; a single reading is no rule, so it is a
    * check and not an input.
    */
-  export function thumbRest(): { mcp: number; ip: number } {
+  export function thumbRest(): IAutoMovieHumanHandPosture.IThumbRestResult {
     const mean = (v: readonly number[]): number => v.reduce((s: number, x: number): number => s + x, 0) / v.length;
 
     return {

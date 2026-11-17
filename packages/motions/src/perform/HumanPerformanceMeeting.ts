@@ -1,12 +1,8 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting } from "@automovie/interface";
+
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * The action context's meeting reader (`IHumanActionContext.meeting`): one
@@ -42,32 +38,32 @@ export namespace HumanPerformanceMeeting {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The state keeps each record for as long as the performance does.
    */
   export function reader(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-    body: IHumanBody,
-    entry: IHumanEntryState,
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
     start: number,
-  ): IHumanActionContext["meeting"] {
+  ): IAutoMovieMotionHumanActionContext["meeting"] {
     return (
-      kind: AutoMovieMotionMeeting.IKind,
+      kind: IAutoMovieMotionMeeting.IKind,
       role: string,
       partner?:
-        | IHumanActionContext.IPartner
-        | readonly IHumanActionContext.IPartner[],
-      window?: AutoMovieMotionMeeting.IWindow,
-    ): AutoMovieMotionMeeting.IMeeting => {
+        | IAutoMovieMotionHumanActionContext.IPartner
+        | readonly IAutoMovieMotionHumanActionContext.IPartner[],
+      window?: IAutoMovieMotionMeeting.IWindow,
+    ): IAutoMovieMotionMeeting.IMeeting => {
       const context: { start: number } = { start };
-      const own: AutoMovieMotionMeeting.IRole = {
+      const own: IAutoMovieMotionMeeting.IRole = {
         name: role,
         subject,
         body,
         posture: entry.posture,
         bones: poseBones(body, entry.pose),
         seated: entry.supports.some(
-          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
         ),
       };
-      const others: readonly IHumanActionContext.IPartner[] =
+      const others: readonly IAutoMovieMotionHumanActionContext.IPartner[] =
         partner === undefined ? [] : "subject" in partner ? [partner] : partner;
       if (others.length === 0)
         return AutoMovieMotionMeeting.of(kind, [own], context, window);
@@ -78,7 +74,7 @@ export namespace HumanPerformanceMeeting {
       const key: string = `${kind.name}|${[
         subject,
         ...others.map(
-          (other: IHumanActionContext.IPartner): string => other.subject,
+          (other: IAutoMovieMotionHumanActionContext.IPartner): string => other.subject,
         ),
       ]
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -90,15 +86,15 @@ export namespace HumanPerformanceMeeting {
         kept.meeting.instants.relax > start
       )
         return kept.meeting;
-      const meeting: AutoMovieMotionMeeting.IMeeting =
+      const meeting: IAutoMovieMotionMeeting.IMeeting =
         AutoMovieMotionMeeting.of(
           kind,
           [
             own,
             ...others.map(
               (
-                other: IHumanActionContext.IPartner,
-              ): AutoMovieMotionMeeting.IRole => ({
+                other: IAutoMovieMotionHumanActionContext.IPartner,
+              ): IAutoMovieMotionMeeting.IRole => ({
                 name: other.role,
                 subject: other.subject,
                 body: HumanPerformanceRead.person(self, other.subject).performer
@@ -141,12 +137,12 @@ export namespace HumanPerformanceMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function seated(
-    segments: readonly HumanSegment.ISegment[],
+    segments: readonly IAutoMovieMotionHumanSegment.ISegment[],
     seconds: number,
   ): boolean {
-    const active: HumanSegment.ISegment | undefined =
+    const active: IAutoMovieMotionHumanSegment.ISegment | undefined =
       segments.find(
-        (s: HumanSegment.ISegment): boolean =>
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
           s.entryTime <= seconds && seconds < s.end,
       ) ?? segments[segments.length - 1];
     if (active === undefined) return false;
@@ -155,7 +151,7 @@ export namespace HumanPerformanceMeeting {
       Math.max(0, (seconds - active.start) / active.plan.duration),
     );
     return active.plan.contacts.some(
-      (w: IHumanContactWindow): boolean =>
+      (w: IAutoMovieMotionHumanContactWindow): boolean =>
         w.kind === "seat" && w.from <= share && share <= w.to,
     );
   }

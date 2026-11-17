@@ -1,7 +1,5 @@
-import { IAutoMovieSubdivisionCage } from "./IAutoMovieSubdivisionCage";
-import { IAutoMovieSubdivisionCrease } from "./IAutoMovieSubdivisionCrease";
-import { ISubdivisionLevel } from "./ISubdivisionLevel";
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
+import type { IAutoMovieSubdivisionCage, IAutoMovieSubdivisionCrease, IAutoMovieSubdivisionLevel, IAutoMovieSubdivisionTopology } from "@automovie/interface";
+
 import { buildSubdivisionTopology } from "./buildSubdivisionTopology";
 
 /**
@@ -30,7 +28,7 @@ import { buildSubdivisionTopology } from "./buildSubdivisionTopology";
  */
 export const admitSubdivisionCage = (
   cage: IAutoMovieSubdivisionCage,
-): ISubdivisionLevel => {
+): IAutoMovieSubdivisionLevel => {
   const positions: number[] = cage.positions.slice();
   if (positions.length === 0 || positions.length % 3 !== 0)
     throw new Error(
@@ -93,7 +91,7 @@ export const admitSubdivisionCage = (
       sharpness.set(key(crease.from, crease.to), crease.sharpness);
     },
   );
-  const topology: ISubdivisionTopology = buildSubdivisionTopology(
+  const topology: IAutoMovieSubdivisionTopology = buildSubdivisionTopology(
     vertexCount,
     faceOffsets,
     faceVertices,

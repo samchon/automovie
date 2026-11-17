@@ -1,5 +1,5 @@
-import { IAutoMovieMesh } from "../model/IAutoMovieMesh";
-import { IAutoMovieFluidSurfaceBounds } from "./IAutoMovieFluidSurfaceBounds";
+import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
+import type { IAutoMovieFluidSurfaceBounds } from "./IAutoMovieFluidSurfaceBounds";
 
 /**
  * The derived free-surface geometry of one fluid state.

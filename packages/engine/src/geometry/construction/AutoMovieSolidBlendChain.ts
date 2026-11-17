@@ -1,15 +1,9 @@
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieSolidBlendChain, IAutoMovieSolidJoin } from "@automovie/interface";
+
 import { AutoMovieLoftJet } from "./AutoMovieLoftJet";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-
-/** World point or derivative in the producing surface chart. */
-type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * A join's blend published as a lofted chain, so the skin, its normals, its
@@ -43,60 +37,6 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBlendChain {
-  /**
-   * A two-layer blend chain and the column-aligned trim/measurement records
-   * used by Body and Clip. Chain station is w*length in mm; chain phase phi
-   * names trace parameter seed+phi. Layer frame/zero-jet records are shared
-   * factory objects, so mutating them can affect other published blends.
-   *
-   * @evidence contracts/development/design.md#principled-representation One column ordering ties the interpolated ribbon chain to its two rail charts, direction observations, intersection points and width readings; between-column interpolation is not an exact analytic-surface certificate.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A data record publishes geometry and its source correspondence without retaining the join's query API or another tessellated representation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type proves neither regular G2 contact nor global orientation/trim correctness. The producer's shared mutable frame records remain an ownership gap, not a guarantee of detached output.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the station/phase mapping, physical units, loop correspondence and shared-frame mutation consequence.
-   */
-  export interface IBlend {
-    /** The chain. */
-    chain: IAutoMovieLoftChain;
-
-    /** Its station span `L`, mm: the share `w` is `station / L`. */
-    length: number;
-
-    /** The curve parameter of the chain's phase 0, radians (`AutoMovieSolidIntersection.IPoint.t`). */
-    seed: number;
-
-    /** The host's rail at the columns, as a trim of the host's face. */
-    host: AutoMovieSolidMesh.ILoopChart;
-
-    /** The part's rail at the columns, as a trim of the part's face. */
-    part: AutoMovieSolidMesh.ILoopChart;
-
-    /**
-     * The host's chart direction at each column from the curve's preimage
-     * toward its rail, of unit world speed: the host continues past its rail
-     * at `host.chart[k] + sigma across[k]`, `sigma > 0` in millimetres.
-     */
-    across: [number, number][];
-
-    /**
-     * The part's chart direction at each column from the curve's preimage
-     * toward its rail, of unit world speed at the preimage
-     * (`AutoMovieSolidRail.IRail.partAcross`): the part continues past its
-     * rail along it.
-     */
-    partAcross: [number, number][];
-
-    /** The intersection curve's point at each column, mm. */
-    curve: [number, number, number][];
-
-    /** The declared chords at each column, mm (`AutoMovieSolidJoin.IJoin.widths`); the part's null where its rail is one fixed station. */
-    widths: { host: number[]; part: (number | null)[] };
-
-    /** The kind of the curve's parameter (`AutoMovieSolidIntersection.Parameter`). */
-    parameter: AutoMovieSolidIntersection.Parameter["kind"];
-
-    /** The part's kept side in its station: the part continues past its rail at `s + sigma d`, `d > 0` (the phase parameter). */
-    sigma: 1 | -1;
-  }
 
   /**
    * Publish a join's blend.
@@ -116,19 +56,19 @@ export namespace AutoMovieSolidBlendChain {
    */
   export function of(
     name: string,
-    join: AutoMovieSolidJoin.IJoin,
+    join: IAutoMovieSolidJoin.IJoin,
     count: number,
-  ): IBlend | null {
+  ): IAutoMovieSolidBlendChain.IBlend | null {
     if (!Number.isInteger(count) || count < 8 || count % 4 !== 0) return null;
     const seed: number = join.curve.points[0]!.t;
-    const columns: AutoMovieSolidJoin.IColumn[] = [];
+    const columns: IAutoMovieSolidJoin.IColumn[] = [];
 
     /** Each published ribbon component and outward source must have finite arithmetic. */
     const finite: (v: readonly number[]) => boolean = (
       v: readonly number[],
     ): boolean => v.every(Number.isFinite);
     for (let k: number = 0; k < count; k++) {
-      const c: AutoMovieSolidJoin.IColumn | null = join.column(
+      const c: IAutoMovieSolidJoin.IColumn | null = join.column(
         seed + (2 * Math.PI * k) / count,
       );
       if (c === null) return null;
@@ -151,7 +91,7 @@ export namespace AutoMovieSolidBlendChain {
       columns.push(c);
     }
 
-    const r0: AutoMovieSolidJoin.IColumn = columns[0]!;
+    const r0: IAutoMovieSolidJoin.IColumn = columns[0]!;
     const published: { chain: IAutoMovieLoftChain; length: number } | null =
       strip(name, columns, r0.outward);
     if (published === null) return null;
@@ -164,7 +104,7 @@ export namespace AutoMovieSolidBlendChain {
     // hole). Taken as a hole always, a part whose kept skin lay inside was
     // drawn turned inside out, a pit where it should stand out.
     const partChart: [number, number][] = columns.map(
-      (c: AutoMovieSolidJoin.IColumn): [number, number] => [
+      (c: IAutoMovieSolidJoin.IColumn): [number, number] => [
         c.rail.s,
         c.rail.phi,
       ],
@@ -198,27 +138,27 @@ export namespace AutoMovieSolidBlendChain {
               ? "start"
               : "end",
         chart: columns.map(
-          (c: AutoMovieSolidJoin.IColumn): [number, number] => [
+          (c: IAutoMovieSolidJoin.IColumn): [number, number] => [
             c.rail.host[0],
             c.rail.host[1],
           ],
         ),
         faces: columns.map(
-          (c: AutoMovieSolidJoin.IColumn): number => c.rail.hostFace,
+          (c: IAutoMovieSolidJoin.IColumn): number => c.rail.hostFace,
         ),
       },
-      across: columns.map((c: AutoMovieSolidJoin.IColumn): [number, number] => [
+      across: columns.map((c: IAutoMovieSolidJoin.IColumn): [number, number] => [
         c.rail.across[0],
         c.rail.across[1],
       ]),
       partAcross: columns.map(
-        (c: AutoMovieSolidJoin.IColumn): [number, number] => [
+        (c: IAutoMovieSolidJoin.IColumn): [number, number] => [
           c.rail.partAcross[0],
           c.rail.partAcross[1],
         ],
       ),
       curve: columns.map(
-        (c: AutoMovieSolidJoin.IColumn): [number, number, number] => [
+        (c: IAutoMovieSolidJoin.IColumn): [number, number, number] => [
           c.rail.curve.point[0],
           c.rail.curve.point[1],
           c.rail.curve.point[2],
@@ -226,11 +166,11 @@ export namespace AutoMovieSolidBlendChain {
       ),
       widths: {
         host: columns.map(
-          (_: AutoMovieSolidJoin.IColumn, k: number): number =>
+          (_: IAutoMovieSolidJoin.IColumn, k: number): number =>
             join.widths(seed + (2 * Math.PI * k) / count).host,
         ),
         part: columns.map(
-          (_: AutoMovieSolidJoin.IColumn, k: number): number | null =>
+          (_: IAutoMovieSolidJoin.IColumn, k: number): number | null =>
             join.widths(seed + (2 * Math.PI * k) / count).part,
         ),
       },
@@ -279,13 +219,10 @@ export namespace AutoMovieSolidBlendChain {
    */
   export function strip(
     name: string,
-    columns: readonly {
-      start: { point: Vec3; first: Vec3; second: Vec3 };
-      end: { point: Vec3; first: Vec3; second: Vec3 };
-    }[],
-    outward: Vec3,
-    inner: readonly { t: number; jets: readonly [Vec3, Vec3, Vec3][] }[] = [],
-  ): { chain: IAutoMovieLoftChain; length: number } | null {
+    columns: IAutoMovieSolidBlendChain.IStripColumns,
+    outward: AutoMovieVector3Tuple,
+    inner: IAutoMovieSolidBlendChain.IStripInner = [],
+  ): IAutoMovieSolidBlendChain.IStripResult {
     const count: number = columns.length;
 
     // The station span: the mean chord between the rails.
@@ -302,10 +239,10 @@ export namespace AutoMovieSolidBlendChain {
     /** Every layer uses the same physical chord clock, with station derivatives scaled by L; `rows` holds each column's point and its two cross derivatives. */
     const layer: (
       y: number,
-      rows: readonly (readonly [Vec3, Vec3, Vec3])[],
+      rows: readonly (readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple])[],
     ) => IAutoMovieLoftChain.ILayer = (
       y: number,
-      rows: readonly (readonly [Vec3, Vec3, Vec3])[],
+      rows: readonly (readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple])[],
     ): IAutoMovieLoftChain.ILayer => {
       /** World X/Z ribbon components in the level storage plane. */
       const plane: (k: 0 | 1 | 2, by: number) => number[] = (
@@ -313,7 +250,7 @@ export namespace AutoMovieSolidBlendChain {
         by: number,
       ): number[] =>
         AutoMovieSplineCurve.interpolate(
-          rows.map((r: readonly [Vec3, Vec3, Vec3]): [number, number] => [
+          rows.map((r: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple]): [number, number] => [
             r[k][0] * by,
             r[k][2] * by,
           ]),
@@ -325,7 +262,7 @@ export namespace AutoMovieSolidBlendChain {
         by: number,
       ): number[] =>
         AutoMovieSplineCurve.interpolate(
-          rows.map((r: readonly [Vec3, Vec3, Vec3]): [number, number] => [
+          rows.map((r: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple]): [number, number] => [
             r[k][1] * by,
             0,
           ]),
@@ -352,19 +289,19 @@ export namespace AutoMovieSolidBlendChain {
       layers: [
         layer(
           0,
-          columns.map((c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
+          columns.map((c: (typeof columns)[number]): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
             c.start.point,
             c.start.first,
             c.start.second,
           ]),
         ),
         ...inner.map(
-          (section: { t: number; jets: readonly [Vec3, Vec3, Vec3][] }): IAutoMovieLoftChain.ILayer =>
+          (section: { t: number; jets: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple][] }): IAutoMovieLoftChain.ILayer =>
             layer(section.t * L, section.jets),
         ),
         layer(
           L,
-          columns.map((c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
+          columns.map((c: (typeof columns)[number]): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
             c.end.point,
             c.end.first,
             c.end.second,
@@ -377,7 +314,7 @@ export namespace AutoMovieSolidBlendChain {
     // Its rail continues the start surface's oriented surface. A regular
     // connected strip keeps that sign; one anchor is not a global
     // certificate for the periodic interpolation between columns.
-    const edge: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, 0, 0);
+    const edge: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, 0, 0);
     const facing: number = AutoMovieSolidVector.dot(
       AutoMovieSolidVector.cross(edge.s, edge.t),
       outward,
@@ -389,14 +326,14 @@ export namespace AutoMovieSolidBlendChain {
 }
 
 /** The world's level frame: `u = +X`, `v = +Z`, normal `v x u = +Y`. */
-const LEVEL: AutoMovieLoftFrame.IFrame = {
+const LEVEL: IAutoMovieLoftFrame.IFrame = {
   origin: [0, 0, 0],
   u: [1, 0, 0],
   v: [0, 0, 1],
 };
 
 /** A frame that does not move with station. */
-const STILL: AutoMovieLoftFrame.IFrame = {
+const STILL: IAutoMovieLoftFrame.IFrame = {
   origin: [0, 0, 0],
   u: [0, 0, 0],
   v: [0, 0, 0],

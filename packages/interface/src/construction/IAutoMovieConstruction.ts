@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 import type { IAutoMovieConstructionFill } from "./IAutoMovieConstructionFill";
 
 /**
@@ -16,7 +16,7 @@ export interface IAutoMovieConstruction {
   name: string;
 
   /** The whole solid: one node whose children are its parts and groups. */
-  root: AutoMovieConstructionNode;
+  root: IAutoMovieConstructionNode;
 
   /** Discs of the realized skin faired into G1 patches once it is drawn (`IAutoMovieConstructionFill`); absent, none. */
   fills?: IAutoMovieConstructionFill[];

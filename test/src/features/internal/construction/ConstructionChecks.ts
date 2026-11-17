@@ -1,11 +1,6 @@
-import type {
-  AutoMovieSolidBlendChain,
-  AutoMovieSolidIntersection,
-  AutoMovieSolidJoin,
-  AutoMovieSolidTrim,
-  IAutoMovieSolidSurface,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSolidBlendChain, IAutoMovieSolidIntersection, IAutoMovieSolidJoin, IAutoMovieSolidSurface, IAutoMovieSolidTrim, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import type { ConstructionShapes } from "./ConstructionShapes";
 import { ConstructionSurfaceComparison } from "./ConstructionSurfaceComparison";
@@ -184,18 +179,18 @@ export namespace ConstructionChecks {
    * curve's point (`AutoMovieConstructionWidth`).
    */
   export function chords(
-    join: AutoMovieSolidJoin.IJoin,
+    join: IAutoMovieSolidJoin.IJoin,
     part: (t: number) => number,
     host: (t: number) => number,
     tol: number,
   ): string[] {
     const out: string[] = [];
     for (const point of join.curve.points) {
-      const rail: ReturnType<AutoMovieSolidJoin.IJoin["rail"]> = join.rail(
+      const rail: ReturnType<IAutoMovieSolidJoin.IJoin["rail"]> = join.rail(
         point.t,
       );
       if (rail === null) {
-        const back: AutoMovieSolidIntersection.IPoint | null = join.curve.at(
+        const back: IAutoMovieSolidIntersection.IPoint | null = join.curve.at(
           point.t,
         );
         out.push(
@@ -236,7 +231,7 @@ export namespace ConstructionChecks {
    * @param bend Largest normal-curvature jump, 1 per metre.
    */
   export function rails(
-    blend: AutoMovieSolidBlendChain.IBlend,
+    blend: IAutoMovieSolidBlendChain.IBlend,
     surface: IAutoMovieSolidSurface,
     host: IAutoMovieSolidSurface,
     part: IAutoMovieSolidSurface,
@@ -262,14 +257,14 @@ export namespace ConstructionChecks {
    * to {@link chords} as the expected width.
    */
   export function fold(
-    join: AutoMovieSolidJoin.IJoin,
+    join: IAutoMovieSolidJoin.IJoin,
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidSurface,
     radius: number,
     cap: number,
   ): (t: number) => number {
     return (t: number): number => {
-      const point: ReturnType<AutoMovieSolidJoin.IJoin["curve"]["at"]> =
+      const point: ReturnType<IAutoMovieSolidJoin.IJoin["curve"]["at"]> =
         join.curve.at(t);
       if (point === null) return NaN;
       const a: IAutoMovieSolidSurface.IJet = part.jet(point.s, point.phi);
@@ -368,7 +363,7 @@ export namespace ConstructionChecks {
 
   /** A trim's loop at its knots on its landmarks' feet: each `trim.at(2 pi m / M)` evaluated on the face against the landmark's foot. */
   export function feet(
-    trim: AutoMovieSolidTrim.ITrim,
+    trim: IAutoMovieSolidTrim.ITrim,
     surface: IAutoMovieSolidSurface,
     foot: (m: number) => V3,
     tol: number,

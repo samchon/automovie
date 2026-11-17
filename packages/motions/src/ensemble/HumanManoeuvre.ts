@@ -1,17 +1,14 @@
+import type { IAutoMovieMotionHumanChainCore, IAutoMovieMotionHumanCrowd, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanManoeuvre, IAutoMovieMotionHumanManoeuvreWheel, IAutoMovieVector3 } from "@automovie/interface";
+
 import { AutoMovieGravity } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { run } from "../actions/run";
 import { walk } from "../actions/walk";
-import type { HumanChainCore } from "../chain/HumanChainCore";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanGait } from "../lexicon/HumanGait";
 import { HUMAN_MANOEUVRES } from "./HUMAN_MANOEUVRES";
 import { HumanCrowd } from "./HumanCrowd";
-import type { HumanEnsemble } from "./HumanEnsemble";
 import { HumanFormation } from "./HumanFormation";
-import type { IHumanFormation } from "./IHumanFormation";
-import type { IHumanManoeuvre } from "./IHumanManoeuvre";
 import { manoeuvreWheel } from "./manoeuvreWheel";
 
 /**
@@ -57,14 +54,14 @@ export namespace HumanManoeuvre {
    * @throws {HumanRefusal} When the target holds too few slots, a deployment's column has more blocks than its line, a wheel's target is not its formation turned about the pivot, or two ways cross under a rule that does not steer, naming both members, the instant and the distance.
    */
   export function plan(
-    ensemble: HumanEnsemble.IEnsemble,
-    manoeuvre: IHumanManoeuvre,
-  ): IHumanManoeuvre.IPart[] {
-    const rule: IHumanManoeuvre.IRule =
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    manoeuvre: IAutoMovieMotionHumanManoeuvre,
+  ): IAutoMovieMotionHumanManoeuvre.IPart[] {
+    const rule: IAutoMovieMotionHumanManoeuvre.IRule =
       typeof manoeuvre.rule === "string"
         ? HUMAN_MANOEUVRES[manoeuvre.rule]
         : manoeuvre.rule;
-    const members: readonly HumanEnsemble.IMember[] = ensemble.members;
+    const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members;
     const at: number = manoeuvre.at;
     if (
       (rule.path === "oblique" || rule.path === "flank") &&
@@ -86,7 +83,7 @@ export namespace HumanManoeuvre {
 
     // Where each member stands, and the slot it takes.
     const starts: IAutoMovieVector3[] = members.map(
-      (m: HumanEnsemble.IMember): IAutoMovieVector3 =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 =>
         HumanFormation.slot(manoeuvre.from, m.index, at).at,
     );
     const slots: number[] = HumanFormation.assign(
@@ -95,14 +92,14 @@ export namespace HumanManoeuvre {
       rule.assign,
       at,
     );
-    const ends: IHumanFormation.ISlot[] = slots.map(
-      (s: number): IHumanFormation.ISlot =>
+    const ends: IAutoMovieMotionHumanFormation.ISlot[] = slots.map(
+      (s: number): IAutoMovieMotionHumanFormation.ISlot =>
         HumanFormation.slot(manoeuvre.to, s, at),
     );
 
     // Each way: a wheel's arcs with the stations that keep its line straight, steered, straight, or none.
     const speeds: number[] = travelSpeeds(members, manoeuvre);
-    const wheel: manoeuvreWheel.IWheel | null =
+    const wheel: IAutoMovieMotionHumanManoeuvreWheel.IWheel | null =
       rule.path === "arc"
         ? manoeuvreWheel(ensemble, manoeuvre, starts, ends, speeds)
         : null;
@@ -112,7 +109,7 @@ export namespace HumanManoeuvre {
         : rule.path === "steered"
           ? steered(ensemble, manoeuvre, starts, ends)
           : members.map(
-              (_: HumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
+              (_: IAutoMovieMotionHumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
                 rule.path === "inPlace"
                   ? [starts[i]!]
                   : rule.path === "flank"
@@ -122,7 +119,7 @@ export namespace HumanManoeuvre {
 
     // Who steps off when: by block for the deployments, by rank in turn, or together.
     const blocks: number[] = members.map(
-      (m: HumanEnsemble.IMember): number =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
         HumanFormation.local(manoeuvre.from, m.index).block,
     );
     const length = (way: readonly IAutoMovieVector3[]): number =>
@@ -145,7 +142,7 @@ export namespace HumanManoeuvre {
       )
       .map((e: [number, number]): number => e[0]);
     const delays: number[] = members.map(
-      (m: HumanEnsemble.IMember, i: number): number =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): number =>
         rule.order === "together"
           ? 0
           : rule.order === "byRank"
@@ -155,11 +152,11 @@ export namespace HumanManoeuvre {
 
     // A unit keeps together: each member marches its straight way at the slowest member's pace, keeping its own place on it as a station, so the parallel ways of a block stay parallel whatever each body's own step.
     const pace: number = Math.min(...speeds);
-    const stations: (IHumanFormation.IStation | undefined)[] = members.map(
+    const stations: (IAutoMovieMotionHumanFormation.IStation | undefined)[] = members.map(
       (
-        _: HumanEnsemble.IMember,
+        _: IAutoMovieMotionHumanEnsemble.IMember,
         i: number,
-      ): IHumanFormation.IStation | undefined =>
+      ): IAutoMovieMotionHumanFormation.IStation | undefined =>
         wheel !== null && wheel.stations !== null
           ? wheel.stations[i]!
           : (rule.path === "straight" ||
@@ -182,9 +179,9 @@ export namespace HumanManoeuvre {
     );
 
     // What each member does on arrival, by its new rank.
-    const parts: IHumanManoeuvre.IPart[] = members.map(
-      (m: HumanEnsemble.IMember, i: number): IHumanManoeuvre.IPart => {
-        const place: HumanFormation.ILocal = HumanFormation.local(
+    const parts: IAutoMovieMotionHumanManoeuvre.IPart[] = members.map(
+      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): IAutoMovieMotionHumanManoeuvre.IPart => {
+        const place: IAutoMovieMotionHumanFormation.ILocal = HumanFormation.local(
           manoeuvre.to,
           slots[i]!,
         );
@@ -221,10 +218,10 @@ export namespace HumanManoeuvre {
    * @param manoeuvre The manoeuvre.
    * @returns The chain.
    */
-  export function append<C extends HumanChainCore>(
+  export function append<C extends IAutoMovieMotionHumanChainCore>(
     chain: C,
-    part: IHumanManoeuvre.IPart,
-    manoeuvre: IHumanManoeuvre,
+    part: IAutoMovieMotionHumanManoeuvre.IPart,
+    manoeuvre: IAutoMovieMotionHumanManoeuvre,
   ): C {
     const gait: string =
       manoeuvre.gait === "double"
@@ -267,7 +264,7 @@ export namespace HumanManoeuvre {
  * after Dundas 1792).
  */
 function flanked(
-  manoeuvre: IHumanManoeuvre,
+  manoeuvre: IAutoMovieMotionHumanManoeuvre,
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieVector3[] {
@@ -290,7 +287,7 @@ function flanked(
 }
 
 /** The block of one member a stationed straight way is read on: its one slot stands at the block's origin. */
-const ALONE: IHumanFormation.IBlock = {
+const ALONE: IAutoMovieMotionHumanFormation.IBlock = {
   layout: {
     kind: "line",
     ranks: 1,
@@ -301,7 +298,7 @@ const ALONE: IHumanFormation.IBlock = {
 };
 
 /** The last rank of a block of a formation. */
-function lastRank(formation: IHumanFormation, block: number): number {
+function lastRank(formation: IAutoMovieMotionHumanFormation, block: number): number {
   let first: number = 0;
   for (let b: number = 0; b < block; ++b) first += formation.blocks[b]!.count;
   let last: number = 0;
@@ -312,10 +309,10 @@ function lastRank(formation: IHumanFormation, block: number): number {
 
 /** Each member's speed in the manoeuvre's travel at its leg length, m/s: the walk's or the run's Froude speed, or the drill's step times its cadence. */
 function travelSpeeds(
-  members: readonly HumanEnsemble.IMember[],
-  manoeuvre: IHumanManoeuvre,
+  members: readonly IAutoMovieMotionHumanEnsemble.IMember[],
+  manoeuvre: IAutoMovieMotionHumanManoeuvre,
 ): number[] {
-  return members.map((m: HumanEnsemble.IMember): number => {
+  return members.map((m: IAutoMovieMotionHumanEnsemble.IMember): number => {
     const l: number = m.body.measure.hipHeight;
     if (manoeuvre.gait === "walk")
       return Math.sqrt(walk.FROUDE.normal * AutoMovieGravity.STANDARD * l);
@@ -332,14 +329,14 @@ function travelSpeeds(
  * travel's speed from its delay, every 1/24 s, against every other.
  */
 function crossings(
-  ensemble: HumanEnsemble.IEnsemble,
-  parts: readonly IHumanManoeuvre.IPart[],
+  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  parts: readonly IAutoMovieMotionHumanManoeuvre.IPart[],
   speeds: readonly number[],
   at: number,
 ): void {
-  const members: readonly HumanEnsemble.IMember[] = ensemble.members;
+  const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members;
   const lengths: number[][] = parts.map(
-    (p: IHumanManoeuvre.IPart): number[] => {
+    (p: IAutoMovieMotionHumanManoeuvre.IPart): number[] => {
       const out: number[] = [0];
       for (let k: number = 1; k < p.via.length; ++k)
         out.push(
@@ -353,7 +350,7 @@ function crossings(
     },
   );
   const where = (i: number, t: number): IAutoMovieVector3 => {
-    const p: IHumanManoeuvre.IPart = parts[i]!;
+    const p: IAutoMovieMotionHumanManoeuvre.IPart = parts[i]!;
     if (p.station !== undefined)
       return HumanFormation.slot(p.station.formation, p.station.slot, at + t)
         .at;
@@ -372,7 +369,7 @@ function crossings(
   };
   const end: number = Math.max(
     0,
-    ...parts.map((p: IHumanManoeuvre.IPart, i: number): number =>
+    ...parts.map((p: IAutoMovieMotionHumanManoeuvre.IPart, i: number): number =>
       p.station === undefined
         ? p.delay + lengths[i]![lengths[i]!.length - 1]! / speeds[i]!
         : (HumanFormation.end(p.station.formation) ?? at) - at,
@@ -398,7 +395,7 @@ function crossings(
   }
   for (let t: number = 0; t <= end + 1e-9; t += 1 / 24) {
     const points: IAutoMovieVector3[] = parts.map(
-      (_: IHumanManoeuvre.IPart, i: number): IAutoMovieVector3 => where(i, t),
+      (_: IAutoMovieMotionHumanManoeuvre.IPart, i: number): IAutoMovieVector3 => where(i, t),
     );
     for (let i: number = 0; i < n; ++i)
       for (let j: number = i + 1; j < n; ++j) {
@@ -427,10 +424,10 @@ function crossings(
  * takes at the slowest member's walk, which leaves room to go round.
  */
 function steered(
-  ensemble: HumanEnsemble.IEnsemble,
-  manoeuvre: IHumanManoeuvre,
+  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  manoeuvre: IAutoMovieMotionHumanManoeuvre,
   starts: readonly IAutoMovieVector3[],
-  ends: readonly IHumanFormation.ISlot[],
+  ends: readonly IAutoMovieMotionHumanFormation.ISlot[],
 ): IAutoMovieVector3[][] {
   const longest: number = Math.max(
     1e-3,
@@ -439,7 +436,7 @@ function steered(
     ),
   );
   const slowest: number = Math.min(
-    ...ensemble.members.map((m: HumanEnsemble.IMember): number =>
+    ...ensemble.members.map((m: IAutoMovieMotionHumanEnsemble.IMember): number =>
       Math.sqrt(
         walk.FROUDE.normal *
           AutoMovieGravity.STANDARD *
@@ -449,30 +446,30 @@ function steered(
   );
   const until: number =
     manoeuvre.at + (HumanManoeuvre.SPAN * longest) / slowest;
-  const placed: HumanEnsemble.IEnsemble = {
+  const placed: IAutoMovieMotionHumanEnsemble.IEnsemble = {
     ...ensemble,
     members: ensemble.members.map(
-      (m: HumanEnsemble.IMember, i: number): HumanEnsemble.IMember => ({
+      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): IAutoMovieMotionHumanEnsemble.IMember => ({
         ...m,
         place: { at: starts[i]!, yaw: m.place.yaw },
       }),
     ),
   };
-  const result: HumanCrowd.IResult = HumanCrowd.steer(placed, {
-    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ends[m.index]!.at,
+  const result: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(placed, {
+    goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ends[m.index]!.at,
     gait: manoeuvre.gait === "run" ? "run" : "walk",
     start: manoeuvre.at,
     until,
   });
   return result.frames.map(
-    (frame: IHumanFormation.ICourse, i: number): IAutoMovieVector3[] => {
+    (frame: IAutoMovieMotionHumanFormation.ICourse, i: number): IAutoMovieVector3[] => {
       const way: IAutoMovieVector3[] = frame.samples
         .filter(
-          (_: IHumanFormation.ISample, k: number): boolean =>
+          (_: IAutoMovieMotionHumanFormation.ISample, k: number): boolean =>
             k % Math.max(1, Math.round(HumanManoeuvre.STEERED * 24)) === 0,
         )
         .map(
-          (s: IHumanFormation.ISample): IAutoMovieVector3 => ({
+          (s: IAutoMovieMotionHumanFormation.ISample): IAutoMovieVector3 => ({
             x: s.x,
             y: 0,
             z: s.z,

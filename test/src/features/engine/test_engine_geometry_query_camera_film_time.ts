@@ -1,13 +1,6 @@
+import type { IAutoMovieGeometryQuery, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFilmTimelineSegment, IAutoMovieProductionDesign, IAutoMovieSceneNode, IAutoMovieShotContract } from "@automovie/interface";
 import { measureAutoMovieGeometry } from "@automovie/engine";
-import type {
-  AutoMovieGeometryQuery,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieFilmTimeline,
-  IAutoMovieFilmTimelineSegment,
-  IAutoMovieProductionDesign,
-  IAutoMovieSceneNode,
-  IAutoMovieShotContract,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";
@@ -143,7 +136,7 @@ const CLOSING: IAutoMovieFilmTimelineSegment = segment({
 });
 
 function measure(props: {
-  request: AutoMovieGeometryQuery;
+  request: IAutoMovieGeometryQuery;
   compiled?: ReadonlyMap<string, IAutoMovieCompiledShotSource>;
   contracts?: ReadonlyMap<
     string,
@@ -180,11 +173,11 @@ const camera: (
   subjects: string[],
   time?: number,
   shot?: string,
-) => AutoMovieGeometryQuery = (
+) => IAutoMovieGeometryQuery = (
   subjects: string[],
   time: number = 1,
   shot: string = "look",
-): AutoMovieGeometryQuery => ({
+): IAutoMovieGeometryQuery => ({
   query: "camera",
   shot,
   time,
@@ -193,9 +186,9 @@ const camera: (
 
 const at: (
   value: { frame: number } | { seconds: number },
-) => AutoMovieGeometryQuery = (
+) => IAutoMovieGeometryQuery = (
   value: { frame: number } | { seconds: number },
-): AutoMovieGeometryQuery => ({
+): IAutoMovieGeometryQuery => ({
   query: "film-time",
   at: value,
 });

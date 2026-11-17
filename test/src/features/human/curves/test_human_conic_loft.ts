@@ -1,4 +1,5 @@
-import { AutoMovieLoftChain, type AutoMovieViewLoft } from "@automovie/engine";
+import type { IAutoMovieHumanConicLoft, IAutoMovieViewLoft } from "@automovie/interface";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/human";
 
 /**
@@ -25,7 +26,7 @@ export function test_human_conic_loft(): void {
   const failures: string[] = [];
   const stations: number[] = Array.from({ length: 51 }, (_: unknown, i: number): number => 2 * i);
   const ellipse: number = Math.SQRT2 - 1;
-  const cylinder: AutoMovieHumanConicLoft.IFamily = {
+  const cylinder: IAutoMovieHumanConicLoft.IFamily = {
     name: "probe",
     centres: [[0, 0, 0], [0, 100, 0]],
     halves: [],
@@ -34,15 +35,15 @@ export function test_human_conic_loft(): void {
     knots: [0, 50, 100],
     values: [[20, 20, 20], [0, 0, 0], [0, 0, 0], [20, 20, 20], [-20, -20, -20], [0, 0, 0], [0, 0, 0], [-20, -20, -20], ...[0, 1, 2, 3].map((): number[] => [ellipse, ellipse, ellipse])],
   };
-  const lofted = (family: AutoMovieHumanConicLoft.IFamily, label: string): NonNullable<AutoMovieViewLoft.IResult["chain"]> | null => {
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
+  const lofted = (family: IAutoMovieHumanConicLoft.IFamily, label: string): NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null => {
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
     if (loft.chain === null || loft.diagnostics.length > 0) failures.push(`${label}: not lofted cleanly: ${JSON.stringify(loft.diagnostics).slice(0, 300)}`);
     return loft.chain;
   };
   const phases: number[] = Array.from({ length: 24 }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.31)) / 24);
 
   // 1. Every point of the cylinder is 20 mm from the course, the y axis.
-  const tube: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(cylinder, "cylinder");
+  const tube: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(cylinder, "cylinder");
   if (tube !== null)
     for (const s of [0, 31, 100])
       for (const phi of phases) {
@@ -51,14 +52,14 @@ export function test_human_conic_loft(): void {
       }
 
   // 2. The twin of a slanted, off-centre, unevenly full family.
-  const slanted: AutoMovieHumanConicLoft.IFamily = {
+  const slanted: IAutoMovieHumanConicLoft.IFamily = {
     ...cylinder,
     name: "slanted",
     centres: [[5, 0, 10], [8, 100, 30]],
     values: [[22, 21, 19], [3, 4, 2], [-2, -1, 0], [17, 18, 16], [-25, -24, -23], [-3, -2, -1], [4, 3, 2], [-14, -15, -16], [0.31, 0.33, 0.35], [0.47, 0.45, 0.44], [0.55, 0.5, 0.52], [0.4, 0.42, 0.38]],
   };
-  const one: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(slanted, "slanted");
-  const two: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(slanted, "slanted.mirror"), "twin");
+  const one: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(slanted, "slanted");
+  const two: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(slanted, "slanted.mirror"), "twin");
   if (one !== null && two !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {
@@ -69,8 +70,8 @@ export function test_human_conic_loft(): void {
       }
 
   // 3. A cylinder closed 12 mm past station 80: the cap with no slope and no bend at its start, r^2 = 400 (1 - u^3) with u = (s - 80) / 12.
-  const capped: AutoMovieHumanConicLoft.IFamily = { ...cylinder, name: "capped", tips: [null, { from: 80, tip: 92 }] };
-  const closed: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(capped, "capped");
+  const capped: IAutoMovieHumanConicLoft.IFamily = { ...cylinder, name: "capped", tips: [null, { from: 80, tip: 92 }] };
+  const closed: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(capped, "capped");
   if (closed !== null) {
     const pole: number[] | undefined = closed.pole?.point;
     if (closed.pole?.end !== "top" || pole === undefined || !(Math.hypot(pole[0]!, pole[1]! - 92, pole[2]!) <= 1e-9)) failures.push(`capped: pole ${JSON.stringify(closed.pole?.point)} at the ${closed.pole?.end}, expected (0, 92, 0) at the top`);
@@ -91,10 +92,10 @@ export function test_human_conic_loft(): void {
   // curvature there is 5^2 / 40 = 0.6 mm). Uniform, its 48 phases (the least count; girth 4 mm apart asks fewer) turn by more than
   // 0.3 rad between neighbours there; with `turn` 0.1 the part declares its phases, `samples` of them from 0, strictly increasing, and
   // its lofted rings turn by at most 0.12 rad between neighbours (the spacing reads the rings on 1024 phases, finer than the end).
-  const flat: AutoMovieHumanConicLoft.IFamily = { ...cylinder, name: "flat", values: [[40, 40, 40], [0, 0, 0], [0, 0, 0], [5, 5, 5], [-40, -40, -40], [0, 0, 0], [0, 0, 0], [-5, -5, -5], ...[0, 1, 2, 3].map((): number[] => [ellipse, ellipse, ellipse])] };
-  const widest = (family: AutoMovieHumanConicLoft.IFamily): { turn: number; phases: number[] | undefined; samples: number } => {
+  const flat: IAutoMovieHumanConicLoft.IFamily = { ...cylinder, name: "flat", values: [[40, 40, 40], [0, 0, 0], [0, 0, 0], [5, 5, 5], [-40, -40, -40], [0, 0, 0], [0, 0, 0], [-5, -5, -5], ...[0, 1, 2, 3].map((): number[] => [ellipse, ellipse, ellipse])] };
+  const widest = (family: IAutoMovieHumanConicLoft.IFamily): { turn: number; phases: number[] | undefined; samples: number } => {
     const made = AutoMovieHumanConicLoft.part(family, stations);
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(family, family.name);
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(family, family.name);
     const ring: number[] = made.phases ?? Array.from({ length: made.samples }, (_: unknown, k: number): number => (2 * Math.PI * k) / made.samples);
     let turn: number = 0;
     if (chain !== null)
@@ -119,14 +120,14 @@ export function test_human_conic_loft(): void {
 
   // 6. The twin of a grooved family: the slanted family with a groove after its +u extreme (`inflected(0, [0])`), two inflections and the
   // groove's floor; reflected, the order of its anchors reverses, so each inflection's neighbours swap.
-  const grooved: AutoMovieHumanConicLoft.IFamily = {
+  const grooved: IAutoMovieHumanConicLoft.IFamily = {
     ...slanted,
     name: "grooved",
     layout: AutoMovieHumanConicSection.inflected(0, [0]),
     values: [[22, 21, 19], [3, 4, 2], [0.3, 0.3, 0.3], [0.4, 0.4, 0.4], [0.4, 0.4, 0.4], [0.75, 0.75, 0.75], [-0.4, -0.4, -0.4], [-2, -1, 0], [17, 18, 16], [-25, -24, -23], [-3, -2, -1], [4, 3, 2], [-14, -15, -16], ...[0, 1, 2, 3, 4, 5, 6].map((): number[] => [ellipse, ellipse, ellipse])],
   };
-  const three: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(grooved, "grooved");
-  let four: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = null;
+  const three: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(grooved, "grooved");
+  let four: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = null;
   try {
     four = lofted(AutoMovieHumanConicLoft.mirror(grooved, "grooved.mirror"), "grooved twin");
   } catch (error: unknown) {
@@ -143,7 +144,7 @@ export function test_human_conic_loft(): void {
 
   // 7. The twin of a featured family: the slanted family with a feature point between its +u and +v extremes, at (14, 13) heading 2.5 rad
   // from +u toward +v, about the direction of travel from the one extreme to the other (atan2(14, -24) = 2.61).
-  const featured: AutoMovieHumanConicLoft.IFamily = {
+  const featured: IAutoMovieHumanConicLoft.IFamily = {
     ...slanted,
     name: "featured",
     layout: { mirror: false, anchors: [...AutoMovieHumanConicSection.limb(0).anchors.slice(0, 1), { kind: "f" }, ...AutoMovieHumanConicSection.limb(0).anchors.slice(1)] },
@@ -154,8 +155,8 @@ export function test_human_conic_loft(): void {
       return [[22, 21, 19], [3, 4, 2], plane.map((n: number[]): number => n[0]!), plane.map((n: number[]): number => n[1]!), plane.map((n: number[]): number => n[2]!), [-2, -1, 0], [17, 18, 16], [-25, -24, -23], [-3, -2, -1], [4, 3, 2], [-14, -15, -16], ...[0, 1, 2, 3, 4].map((): number[] => [ellipse, ellipse, ellipse])];
     })(),
   };
-  const five: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(featured, "featured");
-  const six: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(featured, "featured.mirror"), "featured twin");
+  const five: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(featured, "featured");
+  const six: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(featured, "featured.mirror"), "featured twin");
   if (five !== null && six !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {
@@ -170,7 +171,7 @@ export function test_human_conic_loft(): void {
   // v = u x t = +z, and the flat section's long end (its +u extreme, phase 0) lies 40 mm along it. The angle is the natural cubic's
   // closed form: with equal spacing h = 50 and natural ends, `M0 + 4 M1 + M2 = 6 (a0 - 2 a1 + a2) / h^2` gives the middle second
   // derivative M1 = 1.5 (a0 - 2 a1 + a2) / h^2, and each piece is the cubic whose second derivative runs linearly between its ends'.
-  const rolled: AutoMovieHumanConicLoft.IFamily = { ...flat, name: "flat.rolled", roll: { knots: [0, 50, 100], values: [0, 0.6, -0.3] } };
+  const rolled: IAutoMovieHumanConicLoft.IFamily = { ...flat, name: "flat.rolled", roll: { knots: [0, 50, 100], values: [0, 0.6, -0.3] } };
   const middle: number = (1.5 * (0 - 2 * 0.6 + -0.3)) / 2500;
   const angle = (s: number): number => {
     const [x0, a0, a1, m0, m1]: number[] = s <= 50 ? [0, 0, 0.6, 0, middle] : [50, 0.6, -0.3, middle, 0];
@@ -178,7 +179,7 @@ export function test_human_conic_loft(): void {
     const h: number = 50;
     return a0! + ((a1! - a0!) / h - (h * (2 * m0! + m1!)) / 6) * t + (m0! / 2) * t * t + ((m1! - m0!) / (6 * h)) * t * t * t;
   };
-  const ends: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(rolled, "rolled");
+  const ends: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(rolled, "rolled");
   if (ends !== null)
     for (const s of [0, 20, 50, 77, 100]) {
       const p: number[] = AutoMovieLoftChain.point(ends, s, 0);
@@ -203,9 +204,9 @@ export function test_human_conic_loft(): void {
           if (!(Math.abs(jet.first[key][k]! - first) <= 1e-6 && Math.abs(jet.second[key][k]! - second) <= 1e-3)) failures.push(`rolled jet at station ${s}, ${key}[${k}]: ${jet.first[key][k]} and ${jet.second[key][k]}, differences ${first} and ${second}`);
         }
   }
-  const leaning: AutoMovieHumanConicLoft.IFamily = { ...slanted, name: "slanted.rolled", roll: { knots: [0, 100], values: [0.2, -0.5] } };
-  const seven: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(leaning, "slanted.rolled");
-  const eight: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(leaning, "slanted.rolled.mirror"), "rolled twin");
+  const leaning: IAutoMovieHumanConicLoft.IFamily = { ...slanted, name: "slanted.rolled", roll: { knots: [0, 100], values: [0.2, -0.5] } };
+  const seven: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(leaning, "slanted.rolled");
+  const eight: NonNullable<IAutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(leaning, "slanted.rolled.mirror"), "rolled twin");
   if (seven !== null && eight !== null)
     for (const s of [0, 44, 100])
       for (const phi of phases) {

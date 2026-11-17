@@ -1,23 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchDrink,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
+import { AutoMovieMotionHumanTouchDrink, HumanChain, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,14 +37,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why one body is enough and the 3 scenarios with their bounds, sources and sampling.
  */
 export function test_human_motion_prop_held_walk(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
   const complaints: string[] = [];
 
   // 1. The sip rides the walk with the glass the hand holds.
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "held-walk",
@@ -90,7 +75,7 @@ export function test_human_motion_prop_held_walk(): void {
         })
         .walk({ to: { x: 0, y: 0, z: 2 } })
         .over(
-          (u: HumanChain): HumanChain =>
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             u.handToFace({ task: "sip", prop: "glass" }),
         ).node,
     });
@@ -104,13 +89,13 @@ export function test_human_motion_prop_held_walk(): void {
   }
 
   // 2. The rim at the mouth, the glass upright.
-  const sip: HumanSegment.IOverlay = performance.overlays("a")[0]!;
+  const sip: IAutoMovieMotionHumanSegment.IOverlay = performance.overlays("a")[0]!;
   const seconds: number =
     sip.start +
     (sip.plan.events.find((e): boolean => e.name === "atMouth")?.share ?? NaN) *
       sip.plan.duration;
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
-  const frame: IHumanProp.IFrame = performance.prop("glass", seconds);
+  const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("glass", seconds);
   const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
     x: 0,
     y: 1,
@@ -156,7 +141,7 @@ export function test_human_motion_prop_held_walk(): void {
     );
 
   // 3. The glass stays in the hand.
-  const pick: HumanSegment.ISegment = performance.segments("a")[0]!;
+  const pick: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
   const from: number =
     pick.start +
     (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??

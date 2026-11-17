@@ -1,6 +1,6 @@
-import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
-import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
-import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
+import type { IAutoMovieHumanShoulderGirdle, IAutoMovieHumanTrunkSection } from "@automovie/interface";
+
+
 
 /**
  * The shoulder girdle: the clavicle, the acromion and the scapular spine's
@@ -17,14 +17,7 @@ import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
  * clavicle's line (G1) and the cap at the shoulder point (G2).
  */
 export namespace AutoMovieHumanShoulderGirdle {
-  /** What the girdle reads. */
-  export interface IInput {
-    /** The torso's column through the shoulders. */
-    column: AutoMovieHumanTrunkColumn.IColumn;
-
-    /** The trapezius line, from the shoulder point to the neck's ring. */
-    line: IAutoMovieHumanShoulderOutline;
-  }
+  
 
   /**
    * The girdle's section measures at a height: the column's, with the half
@@ -34,7 +27,7 @@ export namespace AutoMovieHumanShoulderGirdle {
    * @param y Height, mm.
    * @returns The measures.
    */
-  export function section(input: IInput, y: number): IAutoMovieHumanTrunkSection {
+  export function section(input: IAutoMovieHumanShoulderGirdle.IInput, y: number): IAutoMovieHumanTrunkSection {
     const s: IAutoMovieHumanTrunkSection = input.column.at(y);
 
     return y >= input.line.from ? { ...s, width: input.line.at(Math.min(y, input.line.to)).value } : s;

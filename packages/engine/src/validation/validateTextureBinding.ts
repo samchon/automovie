@@ -1,4 +1,4 @@
-import { ViolationCollector } from "./ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 
 /**
@@ -16,12 +16,12 @@ export const validateTextureBinding: (
   binding: unknown,
   path: string,
   expectedColorSpace: "srgb" | "linear",
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   binding: unknown,
   path: string,
   expectedColorSpace: "srgb" | "linear",
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (binding === undefined || binding === null) return;
   if (typeof binding === "string") {
@@ -181,13 +181,13 @@ const finiteVector2: (
   value: unknown,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   nonZero: boolean,
 ) => void = (
   value: unknown,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   nonZero: boolean,
 ): void => {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -229,13 +229,13 @@ const enumValue: (
   allowed: readonly string[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: unknown,
   allowed: readonly string[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (typeof value !== "string" || !allowed.includes(value))
     collector.push(

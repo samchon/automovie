@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { gesture } from "../everyday/gesture";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { touch } from "../touch/touch";
@@ -20,7 +22,7 @@ import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
  */
 export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */
-  export const reachHolster = HumanActionRow.of("reachHolster", touch, {
+  export const reachHolster: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["firearm"]["reachHolster"]> = HumanActionRow.of("reachHolster", touch, {
     target: { kind: "self", region: "hipRight" },
     with: "palm",
     kind: "hold",
@@ -29,35 +31,35 @@ export namespace HumanFirearm {
   });
 
   /** Level the weapon at the target and hold the aim. */
-  export const takeAim = HumanActionRow.of(
+  export const takeAim: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["firearm"]["takeAim"]> = HumanActionRow.of(
     "takeAim",
     HumanWeaponFirearm.present,
     { carriage: "aim" },
   );
 
   /** Low ready: the weapon before the body, the muzzle down ahead. */
-  export const lowReady = HumanActionRow.of(
+  export const lowReady: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["firearm"]["lowReady"]> = HumanActionRow.of(
     "lowReady",
     HumanWeaponFirearm.present,
     { carriage: "lowReady" },
   );
 
   /** High ready: the weapon before the chest, the muzzle up. */
-  export const highReady = HumanActionRow.of(
+  export const highReady: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["firearm"]["highReady"]> = HumanActionRow.of(
     "highReady",
     HumanWeaponFirearm.present,
     { carriage: "highReady" },
   );
 
   /** One shot: the trigger's press, the muzzle's rise and its return. */
-  export const recoil = HumanActionRow.of(
+  export const recoil: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["firearm"]["recoil"]> = HumanActionRow.of(
     "recoil",
     HumanWeaponFirearm.fire,
     {},
   );
 
   /** Hands up at gunpoint. */
-  export const surrender = HumanActionRow.of("surrender", gesture, {
+  export const surrender: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["firearm"]["surrender"]> = HumanActionRow.of("surrender", gesture, {
     kind: "cheer",
     hold: 2,
   });

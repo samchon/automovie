@@ -1,20 +1,12 @@
-import {
-  IAutoMovieProductionAcousticResponse,
-  IAutoMovieProductionDialogueLine,
-  IAutoMovieProductionFrameRate,
-  IAutoMovieProductionSoundAnalysis,
-  IAutoMovieProductionSoundCue,
-  IAutoMovieProductionSoundEvent,
-  IAutoMovieProductionSoundPlan,
-} from "@automovie/interface";
+import { type IAutoMovieRandom, type IAutoMovieRenderedProductionSound, type IAutoMovieRenderProductionSound, IAutoMovieProductionAcousticResponse, IAutoMovieProductionDialogueLine, IAutoMovieProductionFrameRate, IAutoMovieProductionSoundAnalysis, IAutoMovieProductionSoundCue, IAutoMovieProductionSoundEvent, IAutoMovieProductionSoundPlan } from "@automovie/interface";
+
+
 
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
-import type { IAutoMovieRandom } from "../random/IAutoMovieRandom";
 import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
 import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
-import { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 import { productionSoundEventTone } from "./productionSoundEventTone";
 
@@ -29,37 +21,7 @@ import { productionSoundEventTone } from "./productionSoundEventTone";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Cue ranges are calculated once, adopted buffers are validated once per referenced id and per-event gains are shared across samples; the selected tone owner evaluates only the event's expression rather than every palette formula per sample.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh master/analysis; dry, responded, fitted and loudness arrays leave scope after completion/failure, with film-duration-driven storage and no decoder, process, audio device or completed-mix cache.
  */
-export const renderProductionSound: (props: {
-  plan: IAutoMovieProductionSoundPlan;
-  dialogue?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined;
-  assets?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined;
-}) => IAutoMovieRenderedProductionSound = (props: {
-  /** Sound plan being rendered. */
-  plan: IAutoMovieProductionSoundPlan;
-  /** Synthesized mono dialogue keyed by line id. */
-  dialogue?: ReadonlyMap<string, Float32Array>;
-  /**
-   * Decoded mono samples for the assets the plan's cues name, at the plan's own
-   * sample rate, keyed by asset id.
-   *
-   * Supplied rather than read, for the reason dialogue already is: decoding a
-   * container is I/O and a codec, and neither belongs inside a mix that has to
-   * produce the same bytes on every machine. A cue whose asset is absent falls
-   * back to the bus stand-in, so a film mixes at every stage of its authoring
-   * and a missing asset is silence-shaped rather than a crash.
-   *
-   * A supplied generation is the asset's audio laid on the plan's sample clock
-   * from its first sample; its declared extent is the cue's complete
-   * `sourceDurationFrames`. Whether the generation is that asset is settled
-   * where the source clock is known, by digest and sample count at planning,
-   * because a resampled generation ends within one sample of the declared
-   * frame boundary and the mix clock alone cannot tell that from a wrong one.
-   * The mix owns what it can decide exactly: every sample is finite, every
-   * read stays inside the cue's trim and the generation, and a tick the
-   * generation does not reach is silent.
-   */
-  assets?: ReadonlyMap<string, Float32Array>;
-}): IAutoMovieRenderedProductionSound => {
+export const renderProductionSound: (props: IAutoMovieRenderProductionSound.IProps) => IAutoMovieRenderedProductionSound = (props: IAutoMovieRenderProductionSound.IProps): IAutoMovieRenderedProductionSound => {
   // Every cue is placed on the sample clock before any sample is mixed, so a
   // cue that contradicts its own source is refused before the work it would
   // have wasted, and each placement is computed once for the mix that follows.

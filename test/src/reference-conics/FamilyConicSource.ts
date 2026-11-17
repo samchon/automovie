@@ -1,6 +1,7 @@
+import type { IAutoMovieLoftFrame, IAutoMovieMeshExtract } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieMeshExtract as M, type AutoMovieLoftFrame } from "@automovie/engine";
+import { AutoMovieMeshExtract as M } from "@automovie/engine";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**
@@ -17,13 +18,13 @@ export namespace FamilyConicSource {
   /** The loaded reference. */
   export interface ISource {
     /** Native body skin, exact positional aliases merged so cuts chain into loops. */
-    body: M.IMesh;
+    body: IAutoMovieMeshExtract.IMesh;
 
     /** Native head skin, likewise. */
-    head: M.IMesh;
+    head: IAutoMovieMeshExtract.IMesh;
 
     /** Body and head skins as one mesh, positions shared where the two meet, so a cut through the neck seam still closes. */
-    all: M.IMesh;
+    all: IAutoMovieMeshExtract.IMesh;
 
     /** Native bind joint centres by name, mm. */
     joints: Map<string, V>;
@@ -49,7 +50,7 @@ export namespace FamilyConicSource {
     // Native joints are centimetres in the native chart; the reference frame is (10 z, 10 y, -10 x) of it, as the earlier part study established against the saved limb planes.
     const joints: Map<string, V> = new Map(observations.skeleton.joints.map((joint): [string, V] => [joint.name, [10 * joint.bindNativeTranslation[2], 10 * joint.bindNativeTranslation[1], -10 * joint.bindNativeTranslation[0]]]));
     const model: { parts: { id: string; geometry: { mesh: { positions: number[]; indices: number[] } } }[] } = await read("test/.shots/f1/reference-model.json");
-    const mesh = (keys: string[]): M.IMesh => {
+    const mesh = (keys: string[]): IAutoMovieMeshExtract.IMesh => {
       const positions: number[] = [];
       const indices: number[] = [];
       const alias: Map<string, number> = new Map();
@@ -81,11 +82,11 @@ export namespace FamilyConicSource {
    *
    * @param bridge Longest gap between open chains' ends the outer boundary closes where no closed loop winds round the origin, mm.
    */
-  export function cut(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame, bridge: number = 3): ICut {
+  export function cut(mesh: IAutoMovieMeshExtract.IMesh, frame: IAutoMovieLoftFrame.IFrame, bridge: number = 3): ICut {
     const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-    const place: M.IFrame = { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] };
-    const section: M.ISection = M.outline(mesh, place, [0], 0, 0.5, 0)[0]!;
-    const closed = (loops: readonly M.ILoop[]): C.P[][] => loops.filter((loop: M.ILoop): boolean => loop.closed && winds(loop.points)).map((loop: M.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
+    const place: IAutoMovieMeshExtract.IFrame = { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] };
+    const section: IAutoMovieMeshExtract.ISection = M.outline(mesh, place, [0], 0, 0.5, 0)[0]!;
+    const closed = (loops: readonly IAutoMovieMeshExtract.ILoop[]): C.P[][] => loops.filter((loop: IAutoMovieMeshExtract.ILoop): boolean => loop.closed && winds(loop.points)).map((loop: IAutoMovieMeshExtract.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
     let round: C.P[][] = closed(section.loops);
 
     // Where the body and head skins meet their rims do not share vertices, so a cut through the seam chains into open pieces; the extractor's own bridging joins ends up to 3 mm apart into the outer boundary.
@@ -96,10 +97,10 @@ export namespace FamilyConicSource {
   }
 
   /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */
-  export function loops(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): C.P[][] {
+  export function loops(mesh: IAutoMovieMeshExtract.IMesh, frame: IAutoMovieLoftFrame.IFrame): C.P[][] {
     const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
-    return section.loops.filter((loop: M.ILoop): boolean => loop.closed).map((loop: M.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
+    const section: IAutoMovieMeshExtract.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
+    return section.loops.filter((loop: IAutoMovieMeshExtract.ILoop): boolean => loop.closed).map((loop: IAutoMovieMeshExtract.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
   }
 
   /**

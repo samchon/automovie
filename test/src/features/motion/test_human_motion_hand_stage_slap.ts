@@ -1,14 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
-  touch,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanSignature, touch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,14 +27,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 3 scenarios with their bounds.
  */
 export function test_human_motion_hand_stage_slap(): void {
-  const partner: IHumanBody = motionHumanBody("m-average");
+  const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     try {
       // 1. It plans, with no contact on the hand.
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "stage",
         performers: [
           {
@@ -71,10 +63,10 @@ export function test_human_motion_hand_stage_slap(): void {
           })
           .with(HumanChain.subject("b").stand({ seconds: 3 })).node,
       });
-      const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
       if (
         placed.plan.contacts.some(
-          (c: IHumanContactWindow): boolean => c.part === "rightHand",
+          (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === "rightHand",
         )
       )
         complaints.push(
@@ -82,7 +74,7 @@ export function test_human_motion_hand_stage_slap(): void {
         );
 
       // 2, 3. Near but never on.
-      const theirs: HumanSignature.IReader = HumanSignature.of(
+      const theirs: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "b",
         partner,

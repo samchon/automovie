@@ -1,11 +1,8 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import { poseBones } from "../../posture/poseBones";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -30,7 +27,7 @@ export namespace everydayCaseKit {
     man: humanPolygonMan.IPolygonMan;
 
     /** Its body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The case names' suffix; empty for one body. */
     suffix: string;
@@ -46,17 +43,17 @@ export namespace everydayCaseKit {
    */
   export const one = (
     c: IContext,
-    chain: HumanChain,
-    props: readonly IHumanProp[] = [],
-  ): HumanPerformance =>
+    chain: IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
+  ): IAutoMovieMotionHumanPerformance =>
     perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain, props);
 
   /** A performance of polygon men at places and headings, the first `a` and the second `b`, among the scene's props. */
   export function perform(
     people: [humanPolygonMan.IPolygonMan, IAutoMovieVector3, number][],
-    chain: HumanChain,
-    props: readonly IHumanProp[] = [],
-  ): HumanPerformance {
+    chain: IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
+  ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
       seed: "everyday",
       props: [...props],
@@ -73,7 +70,7 @@ export namespace everydayCaseKit {
 
   /** A drawn performer. */
   export function figure(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     man: humanPolygonMan.IPolygonMan,
     color?: number,
@@ -89,7 +86,7 @@ export namespace everydayCaseKit {
 
   /** The film second of an event of a person's n-th action. */
   export function event(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     index: number,
     name: string,
@@ -118,8 +115,8 @@ export namespace everydayCaseKit {
 
   /** A neutral aiming frame, for reading person targets; its own bones are the body at rest. */
   export function frame(
-    body: IHumanBody,
-  ): Parameters<HumanPerformance["aim"]>[2] {
+    body: IAutoMovieMotionHumanBody,
+  ): Parameters<IAutoMovieMotionHumanPerformance["aim"]>[2] {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,

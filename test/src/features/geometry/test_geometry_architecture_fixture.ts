@@ -1,10 +1,6 @@
-import {
-  IAutoMovieMeshAssembly,
-  buildAutoMovieWall,
-  inspectAutoMovieMeshTopology,
-  mergeAutoMovieMeshParts,
-} from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
+import { type IAutoMovieMeshAssembly, IAutoMovieMesh } from "@automovie/interface";
+import { buildAutoMovieWall, inspectAutoMovieMeshTopology, mergeAutoMovieMeshParts } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { arch } from "../internal/arch";

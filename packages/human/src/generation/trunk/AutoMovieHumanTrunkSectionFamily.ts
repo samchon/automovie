@@ -1,48 +1,22 @@
-import {
-  type AutoMovieLoftContract,
-  AutoMovieViewSection,
-} from "@automovie/engine";
+import type { IAutoMovieViewSection, IAutoMovieHumanTrunkSectionFamily, IAutoMovieHumanTrunkViews } from "@automovie/interface";
 
-import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
+
+
+import { AutoMovieViewSection } from "@automovie/engine";
+
 
 /** Common world-Y section definitions, authored before the trunk and its differently oriented attached originals. */
 export namespace AutoMovieHumanTrunkSectionFamily {
-  /** The actual independent scalar constraint result, including its unchanged admission failures. */
-  export interface IFullness {
-    /** Null preserves a failed original section rather than selecting another shoulder. */
-    fullness: { shoulder: number } | null;
-    /** Original section-solve diagnostics, with the same source/site producer. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
+  
 
-  /** One named measurement plane and its caller-owned four-support source. */
-  export interface IPlane {
-    /** Original anatomical site name, independent of output sampling. */
-    site: string;
-    /** World-Y station in calibration millimetres. */
-    y: number;
-    /** Section origin in world X/Z, calibration millimetres. */
-    origin: [number, number];
-    /** Independent original posterior profile value, retained without subtractive reconstruction. */
-    back: number;
-    /** The same original support box consumed by the trunk's view construction. */
-    box: AutoMovieViewSection.IBox;
-    /** Original independent fullness input; a changed tape requires a new family. */
-    fullness: IAutoMovieHumanTrunkViews.ISite["fullness"];
-    /** Solve this unchanged box/tape once at its first original-source demand. */
-    resolve(): IFullness;
-    /** Evaluate that original plane's conic family at the actual candidate shoulder. */
-    section(shoulder: number): AutoMovieViewSection.ISection;
-    /** Admit this exact support box's native shoulder reach once, including a null refusal. */
-    range(): AutoMovieViewSection.IRange | null;
-  }
+  
 
   /** Retain each original site, sharing only an exactly equal native box/fullness input from this caller's previous trial. */
   export function define(
     views: IAutoMovieHumanTrunkViews,
-    previous?: ReadonlyMap<string, IPlane>,
-  ): ReadonlyMap<string, IPlane> {
-    const planes: Map<string, IPlane> = new Map();
+    previous?: ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane>,
+  ): ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane> {
+    const planes: Map<string, IAutoMovieHumanTrunkSectionFamily.IPlane> = new Map();
     for (const site of views.sites) {
       if (planes.has(site.site))
         throw new Error(
@@ -56,10 +30,10 @@ export namespace AutoMovieHumanTrunkSectionFamily {
   /** A moved plane keeps its new frame; only identical local box/fullness data may share a scalar solve or its original failure. */
   export function at(
     site: IAutoMovieHumanTrunkViews.ISite,
-    previous?: IPlane,
-  ): IPlane {
+    previous?: IAutoMovieHumanTrunkSectionFamily.IPlane,
+  ): IAutoMovieHumanTrunkSectionFamily.IPlane {
     const depth: number = (site.front - site.back) / 2;
-    const box: AutoMovieViewSection.IBox = site.sectionBox === undefined ? {
+    const box: IAutoMovieViewSection.IBox = site.sectionBox === undefined ? {
       extents: [depth, site.half, depth, site.half],
     } : { extents: [...site.sectionBox.extents] };
     const sameBox: boolean =
@@ -75,10 +49,10 @@ export namespace AutoMovieHumanTrunkSectionFamily {
           site.fullness.shoulder === previous.fullness.shoulder
         : "girth" in previous.fullness &&
           site.fullness.girth === previous.fullness.girth);
-    let prior: IPlane | undefined = equivalent ? previous : undefined;
-    const priorRange: IPlane["range"] | undefined = sameBox ? previous?.range : undefined;
-    let reach: AutoMovieViewSection.IRange | null | undefined;
-    let resolved: IFullness | undefined;
+    let prior: IAutoMovieHumanTrunkSectionFamily.IPlane | undefined = equivalent ? previous : undefined;
+    const priorRange: IAutoMovieHumanTrunkSectionFamily.IPlane["range"] | undefined = sameBox ? previous?.range : undefined;
+    let reach: IAutoMovieViewSection.IRange | null | undefined;
+    let resolved: IAutoMovieHumanTrunkSectionFamily.IFullness | undefined;
     return {
       site: site.site,
       y: site.y,
@@ -86,12 +60,12 @@ export namespace AutoMovieHumanTrunkSectionFamily {
       back: site.back,
       box,
       fullness: site.fullness,
-      range: priorRange ?? ((): AutoMovieViewSection.IRange | null => {
+      range: priorRange ?? ((): IAutoMovieViewSection.IRange | null => {
         if (reach === undefined)
           reach = AutoMovieViewSection.range(box);
         return reach;
       }),
-      resolve(): IFullness {
+      resolve(): IAutoMovieHumanTrunkSectionFamily.IFullness {
         if (resolved !== undefined) return resolved;
         if (prior !== undefined) {
           resolved = prior.resolve();
@@ -101,7 +75,7 @@ export namespace AutoMovieHumanTrunkSectionFamily {
         if ("shoulder" in site.fullness)
           resolved = { fullness: site.fullness, diagnostics: [] };
         else {
-          const solved: AutoMovieViewSection.ISolved =
+          const solved: IAutoMovieViewSection.ISolved =
             AutoMovieViewSection.solve(
               `view.trunk ${site.site}`,
               box,
@@ -129,7 +103,7 @@ export namespace AutoMovieHumanTrunkSectionFamily {
         }
         return resolved;
       },
-      section(shoulder: number): AutoMovieViewSection.ISection {
+      section(shoulder: number): IAutoMovieViewSection.ISection {
         return AutoMovieViewSection.bare(box, [
           shoulder,
           shoulder,

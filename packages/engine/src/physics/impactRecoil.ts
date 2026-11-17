@@ -1,15 +1,8 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import type { IAutoMovieRecoilPush, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+
 
 import { clampJointRom } from "../rom/clampJointRom";
 import { getConstraint } from "../rom/getConstraint";
-import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 
 /**
  * Scale one input deflection down the recoil chain. An absent or zero push is

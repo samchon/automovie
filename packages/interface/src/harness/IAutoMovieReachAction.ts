@@ -1,5 +1,5 @@
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
-import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
 
 /**
  * Reach one hand with a compatible articulated arm. The paw gesture names a creature intent but has no reference motion; a pawing movement needs a host synthesizer or authored enact clip.

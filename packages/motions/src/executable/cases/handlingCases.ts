@@ -1,27 +1,12 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Transform,
-  Vector3,
-  closestPointsBetweenSegments,
-  jointRomOvershoot,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, closestPointsBetweenSegments, jointRomOvershoot, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanGrip } from "../../handling/HumanGrip";
 import { handshake } from "../../handling/handshake";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -81,13 +66,13 @@ export function handlingCases(
   if (family === undefined || family === "grasp")
     for (const name of ["f-small", "m-average", "m-tall"]) {
       const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
-      const body: IHumanBody = createHumanBody(
+      const body: IAutoMovieMotionHumanBody = createHumanBody(
         man.body.skeleton,
         man.body.profile,
       );
       // The shoulders the pick up and the put down start from: the same stand
       // and walk performed without the bottle, read at each action's entry.
-      const rehearsal: HumanPerformance = new HumanPerformance({
+      const rehearsal: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: `handling-grasp-${name}`,
         performers: [
           {
@@ -140,7 +125,7 @@ export function handlingCases(
           Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
         ),
       );
-      const bottle: IHumanProp = {
+      const bottle: IAutoMovieMotionHumanProp = {
         subject: "bottle",
         frame: { position: place, rotation: Quaternion.identity() },
         points: {},
@@ -168,7 +153,7 @@ export function handlingCases(
           },
         ],
       };
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: `handling-grasp-${name}`,
         performers: [
           {
@@ -230,12 +215,12 @@ export function handlingCases(
       const gaps: number[] = ["Thumb", "Index", "Middle", "Ring", "Little"].map(
         (digit: string): number =>
           Math.min(
-            ...HumanGrip.bones("right", digit as HumanGrip.Digit).map(
+            ...HumanGrip.bones("right", digit as IAutoMovieMotionHumanGrip.Digit).map(
               (bone: AutoMovieHumanoidBone): number => {
                 const c = HumanGrip.chain(
                   body,
                   "right",
-                  digit as HumanGrip.Digit,
+                  digit as IAutoMovieMotionHumanGrip.Digit,
                 );
                 const r: IAutoMovieResolvedBone = bones.get(bone)!;
                 const shape = body.profile.segments
@@ -437,11 +422,11 @@ export function handlingCases(
     ] as const) {
       const one: humanPolygonMan.IPolygonMan = MotionBodies.population(first);
       const two: humanPolygonMan.IPolygonMan = MotionBodies.population(second);
-      const a: IHumanBody = createHumanBody(
+      const a: IAutoMovieMotionHumanBody = createHumanBody(
         one.body.skeleton,
         one.body.profile,
       );
-      const b: IHumanBody = createHumanBody(
+      const b: IAutoMovieMotionHumanBody = createHumanBody(
         two.body.skeleton,
         two.body.profile,
       );
@@ -471,7 +456,7 @@ export function handlingCases(
         grip: "power",
         aperture: 0.07,
       });
-      const bottle: IHumanProp = {
+      const bottle: IAutoMovieMotionHumanProp = {
         subject: "bottle",
         frame: {
           position: { x: shoulder.x, y: a.measure.hipHeight, z: 0.3 },
@@ -497,7 +482,7 @@ export function handlingCases(
         handshake.gap(a, b) +
         handshake.stance(a).sternum +
         handshake.stance(b).sternum;
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: `handling-handover-${first}-${second}`,
         performers: [
           {
@@ -549,7 +534,7 @@ export function handlingCases(
       };
       const sternum = (
         subject: string,
-        body: IHumanBody,
+        body: IAutoMovieMotionHumanBody,
         t: number,
       ): IAutoMovieVector3 =>
         resolveAutoMovieHumanoidSurfaces.place(

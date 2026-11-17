@@ -1,15 +1,9 @@
-import {
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import { type IAutoMovieRestFrame, type AutoMovieClinicalAxis, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
 
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
-
-type AutoMovieClinicalAxis = "flexion" | "abduction" | "twist";
 /**
  * Convert a joint's clinical flexion, abduction and twist, in degrees, into
  * one bone-local rotation quaternion.

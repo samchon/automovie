@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieRecoveryArchiveInput,
-  type IAutoMovieRecoveryArchivedModel,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryArchiveInput, IAutoMovieRecoveryArchivedModel } from "@automovie/interface";
+
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";

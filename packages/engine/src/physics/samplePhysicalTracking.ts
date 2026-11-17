@@ -1,9 +1,5 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicalSimulationInput } from "./AutoMoviePhysicalSimulationInput";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /** Dense authored-relative joint errors at any cached film second, without retaining film-sized diagnostics.
@@ -21,17 +17,17 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 9 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalTracking(
-  input: Simulation.IInput,
-  cache: Cache,
-  diagnostics: readonly Simulation.IDiagnostic[],
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  cache: IAutoMoviePhysicsCache,
+  diagnostics: readonly IAutoMoviePhysicalSimulationInput.IDiagnostic[],
   seconds: number,
-): Simulation.IDiagnostic[] {
-  const frame: Cache.IFrame = cache.at(seconds);
+): IAutoMoviePhysicalSimulationInput.IDiagnostic[] {
+  const frame: IAutoMoviePhysicsCache.IFrame = cache.at(seconds);
   const sample: number = seconds * input.rate;
   const before: number = Math.floor(sample);
   const after: number = Math.ceil(sample);
   const completed: number = before / input.rate;
-  const forecasts: Map<string, Simulation.IDiagnostic["saturated"]> = new Map(
+  const forecasts: Map<string, IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"]> = new Map(
     diagnostics
       .filter(
         (entry: (typeof diagnostics)[number]): boolean =>
@@ -39,20 +35,20 @@ export function samplePhysicalTracking(
       )
       .map(
         (
-          entry: AutoMoviePhysicalSimulationInput.IDiagnostic,
-        ): [string, Simulation.IDiagnostic["saturated"]] => [
+          entry: IAutoMoviePhysicalSimulationInput.IDiagnostic,
+        ): [string, IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"]] => [
           JSON.stringify([entry.body, entry.joint]),
           entry.saturated,
         ],
       ),
   );
-  const result: Simulation.IDiagnostic[] = [];
+  const result: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
   for (const body of input.bodies) {
-    const goals: Record<string, P.ITransform> = Object.fromEntries(
+    const goals: Record<string, IAutoMoviePhysicalProfile.ITransform> = Object.fromEntries(
       body.profile.segments.map(
         (
           segment: (typeof body.profile.segments)[number],
-        ): [string, P.ITransform] => [
+        ): [string, IAutoMoviePhysicalProfile.ITransform] => [
           segment.bone,
           samplePhysicalTarget(
             body.targets[before]!.segments[segment.bone]!,
@@ -65,10 +61,10 @@ export function samplePhysicalTracking(
     );
     for (const joint of body.profile.joints) {
       const relative: (
-        poses: Readonly<Record<string, P.ITransform>>,
-      ) => P.ITransform["rotation"] = (
-        poses: Readonly<Record<string, P.ITransform>>,
-      ): P.ITransform["rotation"] =>
+        poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+      ) => IAutoMoviePhysicalProfile.ITransform["rotation"] = (
+        poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+      ): IAutoMoviePhysicalProfile.ITransform["rotation"] =>
         Quaternion.multiply(
           Quaternion.inverse(
             Quaternion.multiply(
@@ -81,14 +77,14 @@ export function samplePhysicalTracking(
             joint.childFrame.rotation,
           ),
         );
-      const delta: P.ITransform["rotation"] = Quaternion.multiply(
+      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
         relative(goals),
         Quaternion.inverse(relative(frame.bodies[body.id]!)),
       );
       const error: number =
         2 *
         Math.atan2(Math.hypot(delta.x, delta.y, delta.z), Math.abs(delta.w));
-      const saturated: Simulation.IDiagnostic["saturated"] =
+      const saturated: IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"] =
         forecasts.get(JSON.stringify([body.id, joint.id])) ?? [];
       result.push({
         seconds,

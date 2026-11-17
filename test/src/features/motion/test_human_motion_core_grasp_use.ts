@@ -1,36 +1,12 @@
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createDrinkware,
   createSmoking,
   createSword,
 } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanBase,
-  AutoMovieMotionHumanBend,
-  AutoMovieMotionHumanTiming,
-  HumanChain,
-  HumanGraspUse,
-  HumanObject,
-  HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanEntryState,
-  type IHumanPosture,
-  type IHumanProp,
-  StrikingHeld,
-  StrikingRoll,
-  composeAutoMovieMotionHumanAction,
-  poseBones,
-} from "@automovie/motions";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanArm, AutoMovieMotionHumanBase, AutoMovieMotionHumanBend, AutoMovieMotionHumanTiming, HumanChain, HumanGraspUse, HumanObject, HumanPerformance, StrikingHeld, StrikingRoll, composeAutoMovieMotionHumanAction, poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -107,19 +83,19 @@ export function test_human_motion_core_grasp_use(): void {
       180) /
     Math.PI;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
 
     // Presents the held sword on a line risen by `rise` degrees from level
     // ahead, and holds it there.
-    const present = (rise: number): IHumanActionLaw<never> => ({
+    const present = (rise: number): IAutoMovieMotionHumanActionLaw<never> => ({
       name: "present",
       interrupts: {},
-      plan: (context: IHumanActionContext<never>): IHumanActionPlan => {
+      plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
         // The held sword as the striking owner reads it, and the place its
         // grip is presented at, the one the grasp is judged at
         // (`HumanGraspUse.place`).
-        const tool: StrikingHeld.ITool = StrikingHeld.of(
+        const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
           context,
           "right",
           "sword",
@@ -141,7 +117,7 @@ export function test_human_motion_core_grasp_use(): void {
         // (`StrikingRoll.hand`, the shared chooser judged by the fitted
         // arm), so the arm a law presents with is the arm the grasp is
         // judged with.
-        const frame: StrikingHeld.IHandFrame = StrikingRoll.hand(
+        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
           context,
           tool,
           back,
@@ -150,14 +126,14 @@ export function test_human_motion_core_grasp_use(): void {
           0,
           context.entry.posture,
         );
-        const asked: IHumanPosture.IGoal = StrikingHeld.goal(
+        const asked: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,
           frame,
           back,
           at,
         );
-        const goal: IHumanPosture.IGoal = {
+        const goal: IAutoMovieMotionHumanPosture.IGoal = {
           ...asked,
           bend: AutoMovieMotionHumanBend.solve({
             body,
@@ -170,11 +146,11 @@ export function test_human_motion_core_grasp_use(): void {
             fallback: "hang",
           }),
         };
-        const contacts: IHumanActionPlan["contacts"] = [
+        const contacts: IAutoMovieMotionHumanActionPlan["contacts"] = [
           ...context.entry.supports.map(
             (
-              support: IHumanEntryState.ISupport,
-            ): IHumanActionPlan["contacts"][number] => ({
+              support: IAutoMovieMotionHumanEntryState.ISupport,
+            ): IAutoMovieMotionHumanActionPlan["contacts"][number] => ({
               ...support,
               from: 0,
               to: 1,
@@ -187,7 +163,7 @@ export function test_human_motion_core_grasp_use(): void {
         // pick-up leaves it (`AutoMovieMotionHumanArm.carried` over a span)
         // in the aimed movement time (`AutoMovieMotionHumanTiming.aimed`),
         // as a law that presents a held tool reaches.
-        const clock: AutoMovieMotionClock.IClock =
+        const clock: IAutoMovieMotionClock.IClock =
           AutoMovieMotionClock.sequence([
             {
               name: "reaching",
@@ -201,7 +177,7 @@ export function test_human_motion_core_grasp_use(): void {
             { name: "ready", seconds: 0.3 },
           ]);
         const ready: number = clock.at("ready");
-        const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+        const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
           base: AutoMovieMotionHumanBase.still(
             clock.duration,
             context.entry.posture,
@@ -222,7 +198,7 @@ export function test_human_motion_core_grasp_use(): void {
                 relax: clock.duration,
                 end: clock.duration,
               },
-              goal: (): IHumanPosture.IGoal => goal,
+              goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
             }),
           ],
         });
@@ -238,7 +214,7 @@ export function test_human_motion_core_grasp_use(): void {
     // The angle between the displayed sword's line and the asked one at the
     // end of the presenting action, degrees.
     const off = (rise: number, use: object): number => {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "grasp",
         laws: [present(rise)],
         performers: [
@@ -261,8 +237,8 @@ export function test_human_motion_core_grasp_use(): void {
           .registered("pickUp", { prop: "sword", handle: "grip", ...use })
           .registered("present").node,
       });
-      const frame: IHumanProp.IFrame = film.prop("sword", film.duration);
-      const points: IHumanProp["points"] = HumanObject.prop("sword", sword, {
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("sword", film.duration);
+      const points: IAutoMovieMotionHumanProp["points"] = HumanObject.prop("sword", sword, {
         at: { x: 0, y: 0, z: 0 },
         yaw: 0,
       }).points;

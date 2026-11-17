@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieQuaternion } from "@automovie/interface";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -6,12 +7,8 @@ import {
   jointToQuaternion,
   skeletonJointAxes,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
-import { type IHumanBody, blendHumanJoint } from "@automovie/motions";
+
+import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,7 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the invariant, the defect it guards and the 3 scenarios.
  */
 export function test_human_motion_core_shoulder_blend(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const bone: AutoMovieHumanoidBone = "rightUpperArm";
   const axes: IAutoMovieJointAxes | undefined = skeletonJointAxes(
     body.skeleton,

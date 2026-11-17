@@ -1,27 +1,10 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieBalanceOutcome,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanPosture, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieGravity, Quaternion, Vector3, minimumJerk, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanForce } from "../perform/HumanForce";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
@@ -69,27 +52,6 @@ import { HumanForceThrow } from "./HumanForceThrow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No outcome is reached by a scripted angle: each refuses when the forces cannot produce it.
  */
 export namespace HumanForceResponse {
-  /** A response a pull can be met with. */
-  export type Outcome = "resist" | "yield" | "thrown";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The author's outcome and, for a throw, the thrower and the fulcrum region it turns over.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members; the outcome is the author's through `perturb`, and the pull is the force input, never a parameter.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A throw's fulcrum is named, not guessed from the bodies.
-   */
-  export interface IParams {
-    /** The thrower's subject id, for `thrown`. */
-    by?: string;
-
-    /** The thrower's region the body turns over (a hip, a shoulder), for `thrown`. */
-    fulcrum?: AutoMovieHumanoidRegion;
-
-    /** The thrown body's region that lies on the fulcrum; `abdomen` when absent, a hip throw's front over the thrower's hip. */
-    on?: AutoMovieHumanoidRegion;
-  }
 
   /**
    * Plan the response.
@@ -109,24 +71,24 @@ export namespace HumanForceResponse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the swing's and the flight's trajectories for as long as the performance does.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-    chosen: Outcome,
-    outcome: resolveAutoMovieBalanceOutcome.IOutcome,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
+    chosen: IAutoMovieMotionHumanForceResponse.Outcome,
+    outcome: IAutoMovieResolveBalanceOutcome.IOutcome,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       GymnasticsFlight.model(body);
     const w: number = resolveAutoMovieCenterOfMass.frequency(
       resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );
 
     // The pull open at the start.
-    const open: HumanForce.ISustained[] = (context.forces?.(0, 0) ?? []).filter(
-      (f: HumanForce.IForce): f is HumanForce.ISustained =>
+    const open: IAutoMovieMotionHumanForce.ISustained[] = (context.forces?.(0, 0) ?? []).filter(
+      (f: IAutoMovieMotionHumanForce.IForce): f is IAutoMovieMotionHumanForce.ISustained =>
         f.kind === "sustained",
     );
     const sum: IAutoMovieVector3 = open.reduce(
-      (s: IAutoMovieVector3, f: HumanForce.ISustained): IAutoMovieVector3 =>
+      (s: IAutoMovieVector3, f: IAutoMovieMotionHumanForce.ISustained): IAutoMovieVector3 =>
         Vector3.add(s, HumanForce.at(f, context.start)),
       { x: 0, y: 0, z: 0 },
     );
@@ -146,11 +108,11 @@ export namespace HumanForceResponse {
       z: sum.z / force,
     };
     const span: number =
-      Math.min(...open.map((f: HumanForce.ISustained): number => f.to)) -
+      Math.min(...open.map((f: IAutoMovieMotionHumanForce.ISustained): number => f.to)) -
       context.start;
 
     // The centre, the planted base and the pivot at the ankles.
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       context.entry.pose,
@@ -179,15 +141,15 @@ export namespace HumanForceResponse {
     // is read in the posture's own root frame, so no tip is the posture
     // itself and the root never jumps when the response begins.
     const tipped = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       along: IAutoMovieVector3,
       degrees: number,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       const own: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(resolveHumanPosture.heading(posture)),
         Vector3.subtract(pivot, posture.root),
       );
-      const turned: IHumanPosture = {
+      const turned: IAutoMovieMotionHumanPosture = {
         ...posture,
         pitch: posture.pitch + degrees * Vector3.dot(along, forward),
         roll: posture.roll + degrees * Vector3.dot(along, right),
@@ -230,11 +192,11 @@ export namespace HumanForceResponse {
       );
     })();
     const drawn = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       along: IAutoMovieVector3,
       offset: number,
-    ): IHumanPosture => {
-      const tip: IHumanPosture = tipped(
+    ): IAutoMovieMotionHumanPosture => {
+      const tip: IAutoMovieMotionHumanPosture = tipped(
         posture,
         forward,
         lean(offset * Vector3.dot(along, forward)),
@@ -250,7 +212,7 @@ export namespace HumanForceResponse {
 
     // The grips' mean height, where the pull acts.
     const sites: number[] = open.map(
-      (f: HumanForce.ISustained): number =>
+      (f: IAutoMovieMotionHumanForce.ISustained): number =>
         HumanForceThrow.site(body, bones, f.at).y,
     );
     const grip: number =
@@ -297,14 +259,14 @@ export namespace HumanForceResponse {
           fix: "pull with less force, or let the body yield",
         });
       const duration: number = Math.max(span, 1 / w);
-      const plan: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      const plan: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
         context,
         duration,
       );
       return {
         ...plan,
         events: [{ name: "braced", share: Math.min(1, 1 / w / duration) }],
-        posture: (seconds: number): IHumanPosture =>
+        posture: (seconds: number): IAutoMovieMotionHumanPosture =>
           drawn(
             plan.posture(seconds),
             back,
@@ -343,11 +305,11 @@ export namespace HumanForceResponse {
         reason: `a pull of ${force.toFixed(0)} N for ${span.toFixed(2)} s breaks the base only after ${broken.toFixed(2)} s`,
         fix: "pull harder or for longer, or let the body resist",
       });
-    const yielded: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+    const yielded: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       broken,
     );
-    const yieldAt = (seconds: number): IHumanPosture =>
+    const yieldAt = (seconds: number): IAutoMovieMotionHumanPosture =>
       drawn(
         yielded.posture(Math.min(broken, seconds)),
         direction,
@@ -361,7 +323,7 @@ export namespace HumanForceResponse {
     const plant = (
       part: "leftFoot" | "rightFoot",
       to: number,
-    ): IHumanContactWindow => ({
+    ): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,

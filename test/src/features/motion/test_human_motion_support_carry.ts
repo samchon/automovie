@@ -1,10 +1,7 @@
+import type { IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanSupportCarry,
-  type IHumanPosture,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanSupportCarry } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -30,11 +27,11 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios.
  */
 export function test_human_motion_support_carry(): void {
-  const moving = (t: number): IHumanProp.IFrame => ({
+  const moving = (t: number): IAutoMovieMotionHumanProp.IFrame => ({
     position: { x: 0, y: 0, z: 2 * t },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10 * t),
   });
-  const still = (): IHumanProp.IFrame => ({
+  const still = (): IAutoMovieMotionHumanProp.IFrame => ({
     position: { x: 1, y: 0, z: 1 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   });
@@ -72,7 +69,7 @@ export function test_human_motion_support_carry(): void {
   );
 
   // 4. A posture.
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 1, z: 0 },
     yaw: 5,
     pitch: 0,
@@ -99,7 +96,7 @@ export function test_human_motion_support_carry(): void {
       },
     },
   };
-  const carried: IHumanPosture = HumanSupportCarry.posture(carry, posture);
+  const carried: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(carry, posture);
   TestValidator.predicate(
     "the root and the heading are carried",
     close(carried.root, carry.point(posture.root)) &&
@@ -126,8 +123,8 @@ export function test_human_motion_support_carry(): void {
   );
   TestValidator.equals("joint angles stay", carried.joints, posture.joints);
   for (const limb of ["rightArm", "rightLeg"] as const) {
-    const before: IHumanPosture.IGoal = posture.limbs[limb]!;
-    const after: IHumanPosture.IGoal = carried.limbs[limb]!;
+    const before: IAutoMovieMotionHumanPosture.IGoal = posture.limbs[limb]!;
+    const after: IAutoMovieMotionHumanPosture.IGoal = carried.limbs[limb]!;
     TestValidator.equals(
       `${limb}'s contact stays joint-local`,
       after.contact,

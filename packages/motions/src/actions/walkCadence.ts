@@ -1,9 +1,8 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanWalkCadence, IAutoMovieResolveSchedule } from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**
@@ -32,17 +31,6 @@ import { HumanSkill } from "../skill/HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No strike is snapped onto its beat: each lands where the model puts it.
  */
 export namespace walkCadence {
-  /** A walk's cadence: the beat track it keeps step to. */
-  export interface ICadence {
-    /** The cue track's name (`HumanCue.beats`), each `beat` a step. */
-    cue: string;
-
-    /** The foot that strikes on beat `index`; the left when absent, by drill custom. */
-    foot?: "left" | "right";
-
-    /** The beat the `foot`'s first strike answers; the beat nearest it when absent. */
-    index?: number;
-  }
 
   /**
    * The film seconds a walker's heel strikes land at, entrained to a beat
@@ -55,9 +43,9 @@ export namespace walkCadence {
    * @throws {HumanRefusal} When the beat's period lies more than a fifth from the walk's own step, which the time warp cannot carry.
    */
   export function strikes(
-    context: IHumanActionContext,
-    cadence: ICadence,
-    strikes: readonly { seconds: number; side: "left" | "right" }[],
+    context: IAutoMovieMotionHumanActionContext,
+    cadence: IAutoMovieMotionHumanWalkCadence.ICadence,
+    strikes: IAutoMovieMotionHumanWalkCadence.IStrikesStrikes,
   ): number[] | null {
     if (strikes.length < 2) return null;
     const lock: number = HumanAttribute.effect(
@@ -135,17 +123,17 @@ export namespace walkCadence {
    * @returns The beats in order.
    */
   export function beats(
-    context: IHumanActionContext,
-    cadence: ICadence,
+    context: IAutoMovieMotionHumanActionContext,
+    cadence: IAutoMovieMotionHumanWalkCadence.ICadence,
   ): number[] {
-    const track: readonly resolveAutoMovieSchedule.ICue[] = context.cue(
+    const track: readonly IAutoMovieResolveSchedule.ICue[] = context.cue(
       cadence.cue,
     );
-    const named: readonly resolveAutoMovieSchedule.ICue[] = track.filter(
-      (c: resolveAutoMovieSchedule.ICue): boolean => c.name === "beat",
+    const named: readonly IAutoMovieResolveSchedule.ICue[] = track.filter(
+      (c: IAutoMovieResolveSchedule.ICue): boolean => c.name === "beat",
     );
     return (named.length === 0 ? track : named).map(
-      (c: resolveAutoMovieSchedule.ICue): number => c.seconds,
+      (c: IAutoMovieResolveSchedule.ICue): number => c.seconds,
     );
   }
 

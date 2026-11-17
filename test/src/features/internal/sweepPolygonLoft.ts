@@ -1,8 +1,6 @@
-import { type IAutoMovieSweep, meshAutoMovieSweep } from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieSweep, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { meshAutoMovieSweep } from "@automovie/engine";
+
 
 /**
  * Loft polygon sections along a path with `meshAutoMovieSweep`, the way the

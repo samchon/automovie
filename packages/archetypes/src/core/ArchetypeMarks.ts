@@ -1,9 +1,6 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMark, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeFrame } from "./ArchetypeFrame";

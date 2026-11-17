@@ -1,8 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMeasurePhysicalMotionConstraint, IAutoMoviePhysicsCache, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /** Measure authored endpoint, separation and bend promises from displayed bone frames.
  * No clinical catalogue, species, actor or screenplay window is selected here.
@@ -18,19 +18,19 @@ import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function measurePhysicalMotionConstraint(
-  constraint: measurePhysicalMotionConstraint.IConstraint,
-  states: Readonly<Record<string, Cache.ISegment>>,
+  constraint: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint,
+  states: Readonly<Record<string, IAutoMoviePhysicsCache.ISegment>>,
   seconds: number,
 ): number {
   const point: (
-    anchor: measurePhysicalMotionConstraint.IAnchor,
+    anchor: IAutoMovieMeasurePhysicalMotionConstraint.IAnchor,
   ) => IAutoMovieVector3 = (
-    anchor: measurePhysicalMotionConstraint.IAnchor,
+    anchor: IAutoMovieMeasurePhysicalMotionConstraint.IAnchor,
   ): IAutoMovieVector3 => {
-    const frame: Cache.ISegment | undefined = states[anchor.bone];
+    const frame: IAutoMoviePhysicsCache.ISegment | undefined = states[anchor.bone];
     if (!frame) throw new Error(`Motion audit point missing: ${anchor.bone}`);
     if (anchor.blend) {
-      const other: Cache.ISegment | undefined = states[anchor.blend.other];
+      const other: IAutoMoviePhysicsCache.ISegment | undefined = states[anchor.blend.other];
       if (
         !other ||
         !Number.isFinite(anchor.blend.weight) ||
@@ -47,7 +47,7 @@ export function measurePhysicalMotionConstraint(
       );
     }
     if (anchor.ray) {
-      const from: Cache.ISegment | undefined = states[anchor.ray.from];
+      const from: IAutoMoviePhysicsCache.ISegment | undefined = states[anchor.ray.from];
       if (
         !from ||
         !(anchor.ray.distance >= 0) ||
@@ -101,71 +101,5 @@ export function measurePhysicalMotionConstraint(
         ),
       ),
     )
-  );
-}
-
-/**
- * Production-neutral point descriptors and time-windowed numerical promises.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Production-neutral point descriptors and time-windowed numerical promises) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Production-neutral point descriptors and time-windowed numerical promises: companion namespace of 2 members (`IAnchor`, `IConstraint`); units and frames named in its text: local, metres, radians, second, seconds. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `measurePhysicalMotionConstraint` in packages/engine/src/physics/measurePhysicalMotionConstraint.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace measurePhysicalMotionConstraint {
-  /** A rigid local witness or an extension along two actual joint centres. */
-  export type IAnchor = { /** Endpoint bone id. */ bone: string } & (
-    | {
-        /** Bone-local metres. */ localPoint?: IAutoMovieVector3;
-        /** Mutually exclusive with a rigid offset. */ ray?: never;
-        /** Mutually exclusive with a rigid offset. */ blend?: never;
-      }
-    | {
-        /** Extension beyond bone along from -> bone, metres. */ ray: {
-          /** Ray origin bone. */ from: string;
-          /** Nonnegative extension. */ distance: number;
-        };
-        /** A ray already defines the point. */ localPoint?: never;
-        /** A ray already defines the point. */ blend?: never;
-      }
-    | {
-        /** Interpolation between actual segment origins. */ blend: {
-          /** Other actual segment. */ other: string;
-          /** Share toward other, in [0,1]. */ weight: number;
-        };
-        /** A blend already defines the point. */ localPoint?: never;
-        /** A blend already defines the point. */ ray?: never;
-      }
-  );
-  /** Limits are metres except for bend angles, which use radians (straight = zero). */
-  export type IConstraint = {
-    /** Caller-owned measurement identity. */ label: string;
-    /** Inclusive first film second. */ start: number;
-    /** Inclusive last film second. */ end: number;
-    /** Inclusive lower acceptance limit; omitted means unbounded. */ minimum?: number;
-    /** Inclusive upper acceptance limit; omitted means unbounded. */ maximum?: number;
-    /** A caller-declared phase predicate; for example, fixed support is not promised during an actual recovery swing. */ enabled?: (
-      seconds: number,
-    ) => boolean;
-  } & (
-    | {
-        /** Euclidean endpoint error. */ kind: "goal";
-        /** Actual displayed witness. */ point: IAnchor;
-        /** Desired world point at this film second. */ target: (
-          seconds: number,
-        ) => IAutoMovieVector3;
-      }
-    | {
-        /** Pairwise separation, including support-to-root spread. */ kind: "distance";
-        /** First witness. */ from: IAnchor;
-        /** Second witness. */ to: IAnchor;
-        /** Ignore vertical separation when true. */ horizontal?: boolean;
-      }
-    | {
-        /** Bend from a straight three-point chain. */ kind: "angle";
-        /** Proximal witness. */ from: IAnchor;
-        /** Joint centre. */ pivot: IAnchor;
-        /** Distal witness. */ to: IAnchor;
-      }
   );
 }

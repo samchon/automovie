@@ -1,3 +1,4 @@
+import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieRationalBernsteinScalar64, IAutoMovieRationalBernsteinVector64 } from "@automovie/interface";
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinSubdivision64 as D } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
@@ -25,11 +26,11 @@ export namespace AutoMovieBernsteinRational64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both coefficient families use one identical three-domain partition.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned record owns its new numerator and denominator arrays.
    */
-  export function thirdsR(r: B.RecordV): B.RecordV[] {
-    const ns: B.Poly[] = D.thirds(r.numerator),
+  export function thirdsR(r: IAutoMovieRationalBernsteinVector64): IAutoMovieRationalBernsteinVector64[] {
+    const ns: AutoMovieBernsteinPolynomial64[] = D.thirds(r.numerator),
       qs: number[][] = D.thirdsS(r.denominator);
     return ns.map(
-      (n: B.Poly, i: number): B.RecordV => ({
+      (n: AutoMovieBernsteinPolynomial64, i: number): IAutoMovieRationalBernsteinVector64 => ({
         numerator: n,
         denominator: qs[i]!,
       }),
@@ -47,11 +48,11 @@ export namespace AutoMovieBernsteinRational64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the new result triple escapes local numerator/denominator calculations.
    */
   export function evaluateR(
-    r: B.RecordV,
+    r: IAutoMovieRationalBernsteinVector64,
     t: number,
     derivative: boolean = false,
-  ): B.Vec {
-    const n: B.Vec = B.value(r.numerator, t),
+  ): AutoMovieVector3Tuple {
+    const n: AutoMovieVector3Tuple = B.value(r.numerator, t),
       q: number = B.scalar(r.denominator, t);
     if (!(q > 0)) throw new Error("Nonpositive actual rational denominator");
     return derivative
@@ -76,7 +77,7 @@ export namespace AutoMovieBernsteinRational64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one scalar returns; coefficient and derivative scratch arrays are not retained.
    */
   export function evaluateS(
-    r: B.RecordS,
+    r: IAutoMovieRationalBernsteinScalar64,
     t: number,
     derivative: boolean = false,
   ): number {
@@ -105,7 +106,7 @@ export namespace AutoMovieBernsteinRational64 {
     b: number,
     da: number,
     db: number,
-  ): B.RecordS {
+  ): IAutoMovieRationalBernsteinScalar64 {
     if (!(a > 0 && b > 0))
       throw new Error("Positive transition endpoints required");
     const p: number = da > 0 ? 2 * a : da < 0 ? a / 2 : a,

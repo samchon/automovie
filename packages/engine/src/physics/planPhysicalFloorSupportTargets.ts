@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMoviePlanPhysicalFloorSupportTargets, IAutoMoviePlanPhysicalSupportTargets, IAutoMovieSolvePhysicalFloorChainTarget, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { physicalShapeBounds } from "./physicalShapeBounds";
@@ -26,31 +23,7 @@ import { solvePhysicalFloorChainTarget } from "./solvePhysicalFloorChainTarget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalFloorSupportTargets(input: {
-  /** Admitted fixed-pivot profile. */ profile: P;
-  /** Arbitrary support chains and patch owners. */ pattern: IAutoMovieFootfallPattern;
-  /** Already admitted native motor placements. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Authored endpoint goals, in world metres. */ goals: Readonly<
-    Record<string, IAutoMovieVector3>
-  >;
-  /** Endpoints whose declared patches must touch the plane. */ planted: readonly string[];
-  /** Explicit world endpoint heights retained alongside floor nonpenetration. Omission preserves the plane-fitting contract. */ endpointHeights?: Readonly<
-    Record<string, number>
-  >;
-  /** World plane height, metres. */ floor: number;
-  /** Total permitted root lowering across all passes, metres. */ maximumRootDrop: number;
-  /** Bounded outer orientation/height passes, 1..16. */ passes: number;
-  /** Per-chain IK iterations, 1..64. */ iterations: number;
-  /** Metre endpoint and floor early-out threshold. */ tolerance: number;
-}): {
-  targets: Record<string, P.ITransform>;
-  goals: Record<string, IAutoMovieVector3>;
-  residuals: Record<string, number>;
-  floorErrors: Record<string, number>;
-  rootDrop: number;
-} {
+export function planPhysicalFloorSupportTargets(input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput): IAutoMoviePlanPhysicalFloorSupportTargets.IResult {
   if (
     !Number.isSafeInteger(input.passes) ||
     input.passes < 1 ||
@@ -77,7 +50,7 @@ export function planPhysicalFloorSupportTargets(input: {
     )
   )
     throw new Error("Invalid floor-support fitting policy");
-  let targets: Record<string, P.ITransform> = structuredClone(input.targets);
+  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = structuredClone(input.targets);
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     input.pattern.limbs.map(
       (
@@ -116,7 +89,7 @@ export function planPhysicalFloorSupportTargets(input: {
         physicalSupportPoint(targets[limb.bone]!, limb.localPoint).y +
           planes[limb.bone]! -
           minimum(limb);
-    const result: ReturnType<typeof planPhysicalSupportTargets> =
+    const result: IAutoMoviePlanPhysicalSupportTargets.IResult =
       planPhysicalSupportTargets({
         ...input,
         targets,
@@ -126,7 +99,7 @@ export function planPhysicalFloorSupportTargets(input: {
     targets = result.targets;
     rootDrop += result.rootDrop;
     for (const limb of input.pattern.limbs) {
-      const fitted: ReturnType<typeof solvePhysicalFloorChainTarget> =
+      const fitted: IAutoMovieSolvePhysicalFloorChainTarget.IResult =
         solvePhysicalFloorChainTarget({
           profile: input.profile,
           targets,
@@ -164,13 +137,13 @@ export function planPhysicalFloorSupportTargets(input: {
   function minimum(limb: IAutoMovieFootfallPattern["limbs"][number]): number {
     const heights: number[] = (limb.contacts ?? [limb.bone]).flatMap(
       (bone: string): number[] => {
-        const segment: P.ISegment | undefined = input.profile.segments.find(
-          (candidate: P.ISegment): boolean => candidate.bone === bone,
+        const segment: IAutoMoviePhysicalProfile.ISegment | undefined = input.profile.segments.find(
+          (candidate: IAutoMoviePhysicalProfile.ISegment): boolean => candidate.bone === bone,
         );
         if (!segment || !targets[bone])
           throw new Error(`Missing support patch ${bone}`);
         return segment.shapes.map(
-          (shape: P.IShape): number =>
+          (shape: IAutoMoviePhysicalProfile.IShape): number =>
             physicalShapeBounds(targets[bone]!, shape).min.y,
         );
       },

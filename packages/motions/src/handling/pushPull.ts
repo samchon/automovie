@@ -1,11 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPushPull, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanHand } from "../posture/HumanHand";
 import { pushPullLean } from "./pushPullLean";
 import { pushSled } from "./pushSled";
 import { pushSledHandles } from "./pushSledHandles";
@@ -49,49 +44,12 @@ import { pushSledStance } from "./pushSledStance";
  */
 export namespace pushPull {
   /** The action's name. */
-  export const name: HumanActionName = "pushPull";
+  export const name: AutoMovieMotionHumanActionName = "pushPull";
 
   /** Cancel table: the haul may be left at any time, the load staying where the hands left it. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
-
-  /** How the load is moved. */
-  export type Way = "push" | "pull" | "drag";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The load, its handles, the way, where to, the load level and whether it moves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The handles are named affordances of the prop; the load is a declared level, not a typed lean.
-   */
-  export interface IParams {
-    /** The moved prop's subject id. */
-    prop: string;
-
-    /** How the load is moved. */
-    way: Way;
-
-    /** Where the walk goes, world metres; required unless the load does not move. */
-    to?: IAutoMovieVector3;
-
-    /** The handle the left hand takes, an affordance id; `left` when absent. */
-    left?: string;
-
-    /** The handle the right hand takes, an affordance id; `right` when absent. */
-    right?: string;
-
-    /** The load's declared level (`pushPullLean.Load`); `moderate` when absent. */
-    load?: pushPullLean.Load;
-
-    /** Whether the load moves; `false` presses it standing in place for `seconds`; `true` when absent. */
-    moves?: boolean;
-
-    /** Seconds the hands press a load that does not move; required then, and read only then. */
-    seconds?: number;
-  }
 
   /**
    * Plan a haul.
@@ -109,9 +67,9 @@ export namespace pushPull {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the push's plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPushPull.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanPushPull.IParams = context.params;
     const moves: boolean = p.moves ?? true;
     if (moves && p.to === undefined)
       throw new HumanRefusal({
@@ -135,7 +93,7 @@ export namespace pushPull {
     const right: string = p.right ?? "right";
 
     // The lean for the declared load at the handles' height above the floor.
-    const handles: Record<HumanHand.Side, pushSledHandles.IHandle> =
+    const handles: Record<IAutoMovieMotionHumanHand.Side, pushSledHandles.IHandle> =
       pushSledHandles.of(context, p.prop, left, right);
     const height: number =
       (handles.left.frame.point.y + handles.right.frame.point.y) / 2 -

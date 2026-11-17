@@ -1,8 +1,9 @@
+import type { AutoMovieVector3Tuple, IAutoMovieConstructionNode, IAutoMovieHumanConicLoft, IAutoMovieHumanConicSection, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftChain, AutoMovieViewChain as Q, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+import { AutoMovieLoftChain, AutoMovieViewChain as Q, realizeAutoMovieConstruction } from "@automovie/engine";
+
 import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection as S } from "@automovie/human";
 import { FamilyConicFair as F } from "./FamilyConicFair";
 import { FamilyConicLayout as L } from "./FamilyConicLayout";
@@ -423,13 +424,13 @@ export namespace FamilyConicConvert {
   /** A region's course, as the Human package's family reads it (`AutoMovieHumanConicLoft.IFamily`), and its sections' stations on it. */
   export interface ICourse {
     /** The course's first end, joints and last end, mm (`AutoMovieViewAxis.jointed`). */
-    centres: H.V3[];
+    centres: AutoMovieVector3Tuple[];
 
     /** Each joint's half turn arclength, mm (`AutoMovieViewAxis.jointed`). */
     halves: number[];
 
     /** The chart's first axis at the first segment (`AutoMovieViewAxis.jointed`). */
-    up: H.V3;
+    up: AutoMovieVector3Tuple;
 
     /** A section's station on this course, from its own `s`. */
     station: (s: number) => number;
@@ -637,7 +638,7 @@ export namespace FamilyConicConvert {
     text.push(`bridge for the fit tool's featured family (one family over the domain): ${bridgeFile}`);
     if (course === undefined) return { families };
     // One family's steps 4 to 7: layout, read, smoothing, admission and the engine's loft.
-    const build = async (tag: string, range: IStation[], lineOf: L.ILine[]): Promise<{ chain: AutoMovieViewLoft.IResult["chain"]; r0: number; r1: number; family: H.IFamily; summary: object }> => {
+    const build = async (tag: string, range: IStation[], lineOf: L.ILine[]): Promise<{ chain: IAutoMovieViewLoft.IResult["chain"]; r0: number; r1: number; family: IAutoMovieHumanConicLoft.IFamily; summary: object }> => {
       text.push("", `### family ${tag}: stations ${range[0]!.s}-${range.at(-1)!.s} (${range.length}), ${lineOf.length} groove line(s)`);      // Where a kept line's groove is not seen, its phases between the nearest stations that see it, linearly in the station; past its ends, held.
       const held: [number, number, number][][] = lineOf.map((line: L.ILine): [number, number, number][] =>
         line.phases.map((x, i: number): [number, number, number] => {
@@ -671,7 +672,7 @@ export namespace FamilyConicConvert {
       const ends: [number, number, number, number][] = range.map((st: IStation): [number, number, number, number] => L.extremes(st.arcs));
       const plan = L.layout(course.depth, lineOf, ends);
       text.push(`extremes (u+, v+, u-, v-) deg, first and last station: ${ends[0]!.map((x: number): string => degrees(x).toFixed(0)).join(",")} / ${ends.at(-1)!.map((x: number): string => degrees(x).toFixed(0)).join(",")}`);
-      text.push(`layout: limb(${course.depth}) with ${plan.runs.length} groove run(s) after base anchors ${plan.runs.map((r: S.IFeatureRun): number => r.after).join(",") || "-"}: ${plan.layout.anchors.length} anchors, ${S.units(plan.layout).length} fields; ${plan.outside.length} station(s) where a line leaves its quarter${plan.outside.length > 0 ? ": " + plan.outside.slice(0, 8).join(", ") : ""}`);
+      text.push(`layout: limb(${course.depth}) with ${plan.runs.length} groove run(s) after base anchors ${plan.runs.map((r: IAutoMovieHumanConicSection.IFeatureRun): number => r.after).join(",") || "-"}: ${plan.layout.anchors.length} anchors, ${S.units(plan.layout).length} fields; ${plan.outside.length} station(s) where a line leaves its quarter${plan.outside.length > 0 ? ": " + plan.outside.slice(0, 8).join(", ") : ""}`);
       // Every station's fields read off its own chain, and how far that layout chain lies from the converted chain.
       const rows: number[][] = [];
       let missed: number = 0;
@@ -694,7 +695,7 @@ export namespace FamilyConicConvert {
       // Its phase pitch a quarter of the region's narrowest kept wavelength, the fairing cutoff (lofting.md: "An edge with a roll is resolved
       // only when every sampling across it ... is at most a quarter of the roll"), and no coarser than the bands' columns that join it: at a
       // quarter alone (2.6 mm) the nose's two long families were tessellated 2.4 mm round against their bands' 0.5 mm and read as fluting.
-      const family: H.IFamily = { name: "convert." + tag, centres: course.centres, halves: course.halves, up: course.up, pitch: Math.min(fairMm / 4, girthOf(range) / JOIN.count), layout: plan.layout, knots, values: values.map((field: number[], f: number): number[] => field.map((y: number): number => (S.units(plan.layout)[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4))) };
+      const family: IAutoMovieHumanConicLoft.IFamily = { name: "convert." + tag, centres: course.centres, halves: course.halves, up: course.up, pitch: Math.min(fairMm / 4, girthOf(range) / JOIN.count), layout: plan.layout, knots, values: values.map((field: number[], f: number): number[] => field.map((y: number): number => (S.units(plan.layout)[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4))) };
       await fs.writeFile(path.join(out, tag + ".family.json"), JSON.stringify(family));
       text.push(`smooth: ${knots.length} knots ${f2(knots[0]!)}..${f2(knots.at(-1)!)} mm, ${values.length} fields, ${knots.length * values.length} stored numbers`);
       // The smoothed family against the source at every station: each source point to the family's section.
@@ -724,7 +725,7 @@ export namespace FamilyConicConvert {
         const smoothed: number[] = L.stored(reader(course.station(st.s)), plan.layout);
         const readChain = S.resolve(rows[i]!, plan.layout).input, smoothChain = S.resolve(smoothed, plan.layout).input;
         const cells: string[] = [];
-        plan.layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+        plan.layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
           if (anchor.kind !== "f") return;
           const off = (chain: typeof readChain): number => {
             const p = chain.points[k]!, t = chain.tangents[k]!;
@@ -752,7 +753,7 @@ export namespace FamilyConicConvert {
       // The loft alone, through the engine, over the family's whole span; where the engine refuses a station, the frames are drawn over the
       // longest stretch the admission passes, and the refusal stays in the admission line above.
       const every = (a: number, b: number): number[] => Array.from({ length: Math.round((b - a) / 0.5) + 1 }, (_: unknown, k: number): number => a + k * 0.5);
-      let lofted: AutoMovieViewLoft.IResult = H.create(family, every(s0, s1));
+      let lofted: IAutoMovieViewLoft.IResult = H.create(family, every(s0, s1));
       text.push(`engine loft over ${f2(s0)}..${f2(s1)}: ${lofted.chain === null ? "no chain" : "chain"}; diagnostics ${lofted.diagnostics.length}${lofted.diagnostics.length > 0 ? ": " + JSON.stringify(lofted.diagnostics.slice(0, 3)).slice(0, 400) : ""}`);
       let [r0, r1]: [number, number] = [s0, s1];
       if (lofted.chain === null && constructed.at.length > 0) {
@@ -790,11 +791,11 @@ export namespace FamilyConicConvert {
     // Neighbouring families' sections carry other layouts, so each is continued across a band (`IAutoMovieConstructionContinuation.band`),
     // as the hand continues the arm: from the host's last ring to a rail inside the part, G2 to both, the part keeping its stations past it.
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    let root: AutoMovieConstructionNode | null = null;
+    let root: IAutoMovieConstructionNode | null = null;
     shown.forEach((piece, k: number): void => {
       const stationsOf: number[] = Array.from({ length: Math.round((piece.s1 - piece.s0) / 0.5) + 1 }, (_: unknown, i: number): number => piece.s0 + i * 0.5);
       sources.set(piece.family.name, H.part(piece.family, stationsOf));
-      const leaf: AutoMovieConstructionNode = { type: "source", name: piece.family.name, source: piece.family.name };
+      const leaf: IAutoMovieConstructionNode = { type: "source", name: piece.family.name, source: piece.family.name };
       if (root === null) root = leaf;
       else {
         const rail: number = Math.min(JOIN.rail, (piece.s1 - piece.s0) / 2);
@@ -855,7 +856,7 @@ export namespace FamilyConicConvert {
     knotMm: number;
 
     /** `featured(limb(1), runs)`: one groove run (inflection, concave floor, inflection) per kept line, each anchor's window its measured share range. */
-    layout: S.ILayout;
+    layout: IAutoMovieHumanConicSection.ILayout;
 
     /** Each kept line, in the layout's run order: the stations it is present over, and its three phases at each station of the domain (null where unseen). */
     lines: { span: [number, number]; phases: ([number, number, number] | null)[] }[];
@@ -886,7 +887,7 @@ export namespace FamilyConicConvert {
       return sum;
     };
     let outside: number = 0;
-    const runs: S.IFeatureRun[] = plan.runs.map((run: S.IFeatureRun, r: number): S.IFeatureRun => {
+    const runs: IAutoMovieHumanConicSection.IFeatureRun[] = plan.runs.map((run: IAutoMovieHumanConicSection.IFeatureRun, r: number): IAutoMovieHumanConicSection.IFeatureRun => {
       const line: L.ILine = lineOf[plan.order[r]!]!;
       const quarter: number = run.after / 2;
       const shares: number[][] = [[], [], []];
@@ -1024,7 +1025,7 @@ export namespace FamilyConicConvert {
    * @param joined The families realized joined by their continuations, metres: drawn as the clay in place of the separate families, its
    *   closure told apart by each vertex's station on the straight course and its phase in that station's chart.
    */
-  async function render(name: string, lofted: readonly { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; s0: number; s1: number; family: H.IFamily }[], course: ICourse, out: string, closureAt: (s: number) => readonly (readonly [number, number])[], joined?: { positions: readonly number[]; indices: readonly number[] }, owners: readonly IOwner[] = []): Promise<string[]> {
+  async function render(name: string, lofted: readonly { chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]>; s0: number; s1: number; family: IAutoMovieHumanConicLoft.IFamily }[], course: ICourse, out: string, closureAt: (s: number) => readonly (readonly [number, number])[], joined?: { positions: readonly number[]; indices: readonly number[] }, owners: readonly IOwner[] = []): Promise<string[]> {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const reference: N.Mesh[] = [source.body, source.head].map((mesh, i: number): N.Mesh => ({ id: "reference." + i, positions: Array.from(mesh.positions, (x: number): number => x / 1000), indices: Array.from(mesh.indices), colour: [0.64, 0.65, 0.67] }));
     const near: N.Point[] = [];

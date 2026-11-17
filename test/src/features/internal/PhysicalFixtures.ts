@@ -1,5 +1,6 @@
-import type { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
+
 
 /** Explicit SI fixtures shared by independent physical behavior cases. */
 export namespace PhysicalFixtures {
@@ -59,14 +60,14 @@ export namespace PhysicalFixtures {
     profile: P,
     duration: number,
     pose?: P.ITransform,
-  ): Simulation.IBody {
+  ): IAutoMoviePhysicalSimulationInput.IBody {
     return {
       id,
       profile,
       mode: { kind: "simulated" },
       targets: Array.from(
         { length: Math.round(duration * 120) + 1 },
-        (): Simulation.ITarget => ({
+        (): IAutoMoviePhysicalSimulationInput.ITarget => ({
           strength: 0,
           segments: Object.fromEntries(
             profile.segments.map(
@@ -89,9 +90,9 @@ export namespace PhysicalFixtures {
   }
   /** Fixed 120 Hz native simulation with bounded work and no gravitational drift. */
   export function input(
-    bodies: Simulation.IBody[],
+    bodies: IAutoMoviePhysicalSimulationInput.IBody[],
     duration: number,
-  ): Simulation.IInput {
+  ): IAutoMoviePhysicalSimulationInput.IInput {
     return {
       bodies,
       duration,

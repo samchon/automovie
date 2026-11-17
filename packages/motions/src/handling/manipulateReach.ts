@@ -1,11 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { typeText } from "../everyday/typeText";
 import { HumanHand } from "../posture/HumanHand";
 
@@ -41,15 +36,15 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function manipulateReach(
-  body: IHumanBody,
-  side: HumanHand.Side,
+  body: IAutoMovieMotionHumanBody,
+  side: IAutoMovieMotionHumanHand.Side,
   digit: string,
   site: IAutoMovieVector3,
   normal: IAutoMovieVector3,
   depth: number,
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  const surface: HumanHand.Surface = `${digit}Tip` as HumanHand.Surface;
+  const surface: IAutoMovieMotionHumanHand.Surface = `${digit}Tip` as IAutoMovieMotionHumanHand.Surface;
   const name: string = `${digit[0]!.toUpperCase()}${digit.slice(1)}`;
   const first: AutoMovieHumanoidBone = `${side}${name}${
     digit === "thumb" ? "Metacarpal" : "Proximal"

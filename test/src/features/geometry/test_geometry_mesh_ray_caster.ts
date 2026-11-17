@@ -1,9 +1,6 @@
-import {
-  type IAutoMovieMeshRayCaster,
-  type IAutoMovieMeshRayHit,
-  createAutoMovieMeshRayCaster,
-} from "@automovie/engine";
-import { type IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMeshRayCaster, IAutoMovieMeshRayHit, IAutoMovieMesh } from "@automovie/interface";
+import { createAutoMovieMeshRayCaster } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

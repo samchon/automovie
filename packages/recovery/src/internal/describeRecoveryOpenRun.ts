@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryOpenRunDescriptionOperation } from "@automovie/interface";
+
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
@@ -15,16 +16,9 @@ import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned scalar metadata belongs to the run caller; no curve buffers, cache or external resources are retained.
  */
 export function describeRecoveryOpenRun(
-  bundle: IAutoMovieRecoveryMeshSections,
-  nodes: readonly { section: number; arc: number }[],
-): {
-  curves: string[];
-  diagnostics: string[];
-  fitTargetMisses: number;
-  unqualifiedFitMetadata: number;
-  fitPolylineUpperEstimateMaximumMm: number | null;
-  sourceSpans: number | null;
-} {
+  bundle: Parameters<IAutoMovieRecoveryOpenRunDescriptionOperation.Operation>[0],
+  nodes: Parameters<IAutoMovieRecoveryOpenRunDescriptionOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryOpenRunDescriptionOperation.Operation> {
   const curves: string[] = [];
   const diagnostics: string[] = [];
   let fitTargetMisses: number = 0;
@@ -79,6 +73,5 @@ export function describeRecoveryOpenRun(
     fitTargetMisses,
     unqualifiedFitMetadata,
     fitPolylineUpperEstimateMaximumMm,
-    sourceSpans,
-  };
+    sourceSpans };
 }

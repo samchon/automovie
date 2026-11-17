@@ -1,7 +1,5 @@
-import { IAutoMovieSequence, IAutoMovieTransition } from "@automovie/interface";
+import { type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackSample, IAutoMovieSequence, IAutoMovieTransition } from "@automovie/interface";
 
-import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 
 /**
  * Turn one live timeline entry into the on-screen sample at an output instant.

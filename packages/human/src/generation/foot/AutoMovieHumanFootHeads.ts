@@ -1,8 +1,10 @@
-import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
-import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootHeads, IAutoMovieHumanFootPrior } from "@automovie/interface";
 
-type Vec3 = G.Vec3;
+
+
+
+import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
+
 
 /**
  * The metatarsal heads: the five joints the toes start from, and their mean,
@@ -13,22 +15,15 @@ type Vec3 = G.Vec3;
  * medians.
  */
 export namespace AutoMovieHumanFootHeads {
-  /** The heads and their mean. */
-  export interface IHeads {
-    /** Head centres, hallux first, left frame. */
-    heads: Vec3[];
-
-    /** Mean of the heads, left frame. */
-    ball: Vec3;
-  }
+  
 
   /**
    * The heads of a foot.
    *
    * @param frame The foot's frame.
    */
-  export function of(frame: AutoMovieHumanFootFrame.IFrame): IHeads {
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+  export function of(frame: IAutoMovieHumanFootFrame.IFrame): IAutoMovieHumanFootHeads.IHeads {
+    const prior: IAutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
 
     // Maestro's cascade, in millimetres of his reference foot, scales with the
     // foot's length; the second head leads the first, the rest trail it.
@@ -37,12 +32,12 @@ export namespace AutoMovieHumanFootHeads {
     for (let k: number = 1; k < prior.cascade.length; k++)
       along.push(along[along.length - 1]! - (prior.cascade[k]! * scale) / frame.L);
 
-    const heads: Vec3[] = prior.toes.map(
-      (t: AutoMovieHumanFootPrior.IToe, k: number): Vec3 => frame.at(along[k]!, t.head, t.height * frame.L),
+    const heads: AutoMovieVector3Tuple[] = prior.toes.map(
+      (t: IAutoMovieHumanFootPrior.IToe, k: number): AutoMovieVector3Tuple => frame.at(along[k]!, t.head, t.height * frame.L),
     );
-    const ball: Vec3 = [0, 1, 2].map(
-      (i: number): number => heads.reduce((sum: number, p: Vec3): number => sum + p[i]!, 0) / heads.length,
-    ) as Vec3;
+    const ball: AutoMovieVector3Tuple = [0, 1, 2].map(
+      (i: number): number => heads.reduce((sum: number, p: AutoMovieVector3Tuple): number => sum + p[i]!, 0) / heads.length,
+    ) as AutoMovieVector3Tuple;
 
     return { heads, ball };
   }

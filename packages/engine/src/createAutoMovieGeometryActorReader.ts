@@ -1,15 +1,8 @@
-import {
-  IAutoMovieCompiledShotSource,
-  IAutoMovieGeometrySelector,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-  IAutoMovieWorldDesign,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, type IAutoMovieGeometryActorReader, type IAutoMovieSampledChannel, IAutoMovieCompiledShotSource, IAutoMovieGeometrySelector, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3, IAutoMovieWorldDesign } from "@automovie/interface";
+
+
 
 import { placeTransformedPoint } from "./film/placeTransformedPoint";
-import { IAutoMovieResolvedBone } from "./kinematics/IAutoMovieResolvedBone";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "./kinematics/resolvePose";
 import { sampleMotion } from "./motion/sampleMotion";
@@ -29,37 +22,14 @@ import { Transform } from "./math/Transform";
  */
 export function createAutoMovieGeometryActorReader(
   shots: ReadonlyMap<string, IAutoMovieCompiledShotSource>,
-): {
-  /** Resolve an authored point, landmark or actor/bone selector. */
-  selector: (
-    selector: IAutoMovieGeometrySelector,
-    world: Pick<IAutoMovieWorldDesign, "landmarks"> | null,
-    options?: { shot?: string; time?: number },
-  ) => IAutoMovieVector3;
-
-  /** Find exactly one actor and its model, optionally within one shot. */
-  find: (actor: string, shot?: string) => ICompiledActor;
-
-  /** Read node motion and pose-root placement at shot-local seconds. */
-  spatial: typeof actorSpatialAt;
-
-  /** Read the exact composed root position without flattening an affine basis. */
-  position: typeof actorPositionAt;
-
-  /** Summarize an actor's pose and root position at one time. */
-  pose: (
-    actor: string,
-    shot: string | undefined,
-    time: number,
-  ) => Record<string, number | string | boolean>;
-} {
+): IAutoMovieGeometryActorReader {
   return {
     selector: (
       selector: IAutoMovieGeometrySelector,
       world: Pick<IAutoMovieWorldDesign, "landmarks"> | null,
       options?: { shot?: string; time?: number },
     ): IAutoMovieVector3 => resolveSelector(selector, world, shots, options),
-    find: (actor: string, shot?: string): ICompiledActor =>
+    find: (actor: string, shot?: string): IAutoMovieGeometryActorReader.ICompiledActor =>
       findCompiledActor(shots, actor, shot),
     spatial: actorSpatialAt,
     position: actorPositionAt,
@@ -95,12 +65,12 @@ const resolveSelector: (
       );
     return landmark.position;
   }
-  const actor: ICompiledActor = findCompiledActor(
+  const actor: IAutoMovieGeometryActorReader.ICompiledActor = findCompiledActor(
     shots,
     selector.actor,
     options.shot,
   );
-  const spatial: IActorSpatialSample = actorSpatialAt(
+  const spatial: IAutoMovieGeometryActorReader.ISpatialSample = actorSpatialAt(
     actor.compiled,
     selector.actor,
     options.time ?? 0,
@@ -132,26 +102,15 @@ const resolveSelector: (
   return placeTransformedPoint(spatial.nodeTransform, rootPoint);
 };
 
-interface ICompiledActor {
-  /** Shot snapshot owning both the node and model. */
-  compiled: IAutoMovieCompiledShotSource;
-
-  /** Scene placement and authored pose/motion reference. */
-  node: IAutoMovieCompiledShotSource["scene"]["nodes"][number];
-
-  /** Resident model supplying the optional rig. */
-  model: IAutoMovieCompiledShotSource["models"][number];
-}
-
 const findCompiledActor: (
   shots: ReadonlyMap<string, IAutoMovieCompiledShotSource>,
   actor: string,
   shotId?: string,
-) => ICompiledActor = (
+) => IAutoMovieGeometryActorReader.ICompiledActor = (
   shots: ReadonlyMap<string, IAutoMovieCompiledShotSource>,
   actor: string,
   shotId?: string,
-): ICompiledActor => {
+): IAutoMovieGeometryActorReader.ICompiledActor => {
   const candidates: IAutoMovieCompiledShotSource[] =
     shotId === undefined
       ? [...shots.values()]
@@ -160,14 +119,14 @@ const findCompiledActor: (
             value: IAutoMovieCompiledShotSource | undefined,
           ): value is IAutoMovieCompiledShotSource => value !== undefined,
         );
-  const matches: ICompiledActor[] = [];
+  const matches: IAutoMovieGeometryActorReader.ICompiledActor[] = [];
   for (const compiled of candidates) {
-    const node: ICompiledActor["node"] | undefined = compiled.scene.nodes.find(
-      (item: ICompiledActor["node"]): boolean => item.id === actor,
+    const node: IAutoMovieGeometryActorReader.ICompiledActor["node"] | undefined = compiled.scene.nodes.find(
+      (item: IAutoMovieGeometryActorReader.ICompiledActor["node"]): boolean => item.id === actor,
     );
     if (node === undefined) continue;
-    const model: ICompiledActor["model"] | undefined = compiled.models.find(
-      (item: ICompiledActor["model"]): boolean => item.id === node.model,
+    const model: IAutoMovieGeometryActorReader.ICompiledActor["model"] | undefined = compiled.models.find(
+      (item: IAutoMovieGeometryActorReader.ICompiledActor["model"]): boolean => item.id === node.model,
     );
     if (model === undefined)
       throw new Error(
@@ -178,7 +137,7 @@ const findCompiledActor: (
   if (matches.length > 1)
     throw new Error(
       `Actor "${actor}" appears in multiple compiled shots (${matches
-        .map((match: ICompiledActor): string => match.compiled.shot.id)
+        .map((match: IAutoMovieGeometryActorReader.ICompiledActor): string => match.compiled.shot.id)
         .join(
           ", ",
         )}). Supply the shot id so geometry never depends on file order.`,
@@ -213,8 +172,8 @@ const actorPoseAt: (
     root: null,
     joints: [],
   });
-  const node: ICompiledActor["node"] = compiled.scene.nodes.find(
-    (item: ICompiledActor["node"]): boolean => item.id === actor,
+  const node: IAutoMovieGeometryActorReader.ICompiledActor["node"] = compiled.scene.nodes.find(
+    (item: IAutoMovieGeometryActorReader.ICompiledActor["node"]): boolean => item.id === actor,
   )!;
   const performance:
     | IAutoMovieCompiledShotSource["shot"]["performances"][number]
@@ -243,36 +202,22 @@ const actorPoseAt: (
   ).pose;
 };
 
-interface IActorSpatialSample {
-  /** Sampled pose with root removed, ready for model-frame FK. */
-  pose: IAutoMoviePose;
-
-  /** World root point after node and rigid pose-root placement. */
-  position: IAutoMovieVector3;
-
-  /** Authored node TRS overridden by sampled object channels. */
-  nodeTransform: IAutoMovieTransform;
-
-  /** Sampled root's translation/rotation; root scale does not affect FK. */
-  poseRoot: IAutoMovieTransform | null;
-}
-
 const actorSpatialAt: (
   compiled: IAutoMovieCompiledShotSource,
   actor: string,
   time: number,
   skeleton: IAutoMovieSkeleton | null,
-) => IActorSpatialSample = (
+) => IAutoMovieGeometryActorReader.ISpatialSample = (
   compiled: IAutoMovieCompiledShotSource,
   actor: string,
   time: number,
   skeleton: IAutoMovieSkeleton | null,
-): IActorSpatialSample => {
+): IAutoMovieGeometryActorReader.ISpatialSample => {
   const pose: IAutoMoviePose = actorPoseAt(compiled, actor, time, skeleton);
-  const node: ICompiledActor["node"] = compiled.scene.nodes.find(
-    (item: ICompiledActor["node"]): boolean => item.id === actor,
+  const node: IAutoMovieGeometryActorReader.ICompiledActor["node"] = compiled.scene.nodes.find(
+    (item: IAutoMovieGeometryActorReader.ICompiledActor["node"]): boolean => item.id === actor,
   )!;
-  const sampled: ReturnType<typeof sampleClipSequence> = sampleClipSequence(
+  const sampled: Map<string, IAutoMovieSampledChannel> = sampleClipSequence(
     compiled.shot.objectMotions,
     time,
   );
@@ -326,7 +271,7 @@ const actorPositionAt: (
   actor: string,
   time: number,
 ): IAutoMovieVector3 => {
-  const found: ICompiledActor = findCompiledActor(
+  const found: IAutoMovieGeometryActorReader.ICompiledActor = findCompiledActor(
     new Map([[compiled.shot.id, compiled]]),
     actor,
     compiled.shot.id,
@@ -345,7 +290,7 @@ const sampleActorPose: (
   shotId: string | undefined,
   time: number,
 ): Record<string, number | string | boolean> => {
-  const found: ICompiledActor = findCompiledActor(shots, actor, shotId);
+  const found: IAutoMovieGeometryActorReader.ICompiledActor = findCompiledActor(shots, actor, shotId);
   const performance:
     | IAutoMovieCompiledShotSource["shot"]["performances"][number]
     | undefined = found.compiled.shot.performances.find(
@@ -353,7 +298,7 @@ const sampleActorPose: (
       item: IAutoMovieCompiledShotSource["shot"]["performances"][number],
     ): boolean => item.node === actor,
   );
-  const spatial: IActorSpatialSample = actorSpatialAt(
+  const spatial: IAutoMovieGeometryActorReader.ISpatialSample = actorSpatialAt(
     found.compiled,
     actor,
     time,

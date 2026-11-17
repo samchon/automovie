@@ -1,9 +1,1 @@
-/**
- * Cartesian triple in the caller's declared physical frame and units.
- *
- * @evidence contracts/development/design.md#principled-representation A structural V3 declaration exposes its documented geometric or observation quantities without runtime conversion.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This file owns only the named data boundary; computation remains in its explicit producers and consumers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration is erased and contains no specimen-specific geometry or executable fallback.
- * @evidence contracts/development/common.md#meaningful-documentation Describes the quantity, private-data boundary or physical frame needed to interpret its members.
- */
-export type V3 = [number, number, number];
+export type { AutoMovieVector3Tuple as V3 } from "@automovie/interface";

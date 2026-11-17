@@ -1,4 +1,6 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
+
+
 
 type Row = { a: number; b: number; face: number };
 type Topology = {
@@ -9,7 +11,7 @@ type Topology = {
   faceComponent: Int32Array;
   cycles: number[][];
   areas: number[];
-  normals: C.Vector[];
+  normals: Readonly<AutoMovieVector3Tuple>[];
 };
 
 /**
@@ -27,14 +29,14 @@ export function RecoveryFeatureChartCutsTopology(
   fail: (reason: string) => never,
   edge: (a: number, b: number) => string,
 ): (
-  vertices: readonly C.Vector[],
+  vertices: readonly Readonly<AutoMovieVector3Tuple>[],
   triangles: readonly (readonly [number, number, number])[],
 ) => Topology {
   const analyze: (
-    vertices: readonly C.Vector[],
+    vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
   ) => Topology = (
-    vertices: readonly C.Vector[],
+    vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
   ): Topology => {
     const edges: Map<string, Row[]> = new Map(),
@@ -47,7 +49,7 @@ export function RecoveryFeatureChartCutsTopology(
       adjacent: number[][] = Array.from(triangles, (): number[] => []),
       words: Set<string> = new Set();
     const areas: number[] = [],
-      normals: C.Vector[] = [];
+      normals: Readonly<AutoMovieVector3Tuple>[] = [];
     triangles.forEach(
       (t: readonly [number, number, number], face: number): void => {
         if (
@@ -64,12 +66,12 @@ export function RecoveryFeatureChartCutsTopology(
           .join(":");
         if (words.has(word)) fail("duplicate triangles are unsupported");
         words.add(word);
-        const a: C.Vector = vertices[t[0]]!,
-          b: C.Vector = vertices[t[1]]!,
-          c: C.Vector = vertices[t[2]]!;
+        const a: Readonly<AutoMovieVector3Tuple> = vertices[t[0]]!,
+          b: Readonly<AutoMovieVector3Tuple> = vertices[t[1]]!,
+          c: Readonly<AutoMovieVector3Tuple> = vertices[t[2]]!;
         const u: number[] = b.map((x: number, k: number): number => x - a[k]!),
           v: number[] = c.map((x: number, k: number): number => x - a[k]!);
-        const n: C.Vector = [
+        const n: Readonly<AutoMovieVector3Tuple> = [
             u[1]! * v[2]! - u[2]! * v[1]!,
             u[2]! * v[0]! - u[0]! * v[2]!,
             u[0]! * v[1]! - u[1]! * v[0]!,
@@ -110,8 +112,8 @@ export function RecoveryFeatureChartCutsTopology(
       const row: Row = rows[0]!;
       vertexEdges[row.a]!.push(key);
       vertexEdges[row.b]!.push(key);
-      const p: C.Vector = vertices[row.a]!,
-        q: C.Vector = vertices[row.b]!,
+      const p: Readonly<AutoMovieVector3Tuple> = vertices[row.a]!,
+        q: Readonly<AutoMovieVector3Tuple> = vertices[row.b]!,
         length: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
       if (!(length > 0 && Number.isFinite(length)))
         fail("an edge length is collapsed or unrepresentable");
@@ -197,8 +199,7 @@ export function RecoveryFeatureChartCutsTopology(
       faceComponent,
       cycles,
       areas,
-      normals,
-    };
+      normals };
   };
 
   return analyze;

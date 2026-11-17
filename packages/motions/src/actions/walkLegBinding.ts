@@ -1,15 +1,11 @@
+import type { IAutoMovieMotionHumanColliders, IAutoMoviePhysicalHullFaces, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   physicalHullFaces,
   physicalShapeSegmentDistance,
   Quaternion,
   Vector3,
 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import type { HumanColliders } from "../posture/HumanColliders";
 import { walkLegCapsules } from "./walkLegCapsules";
 
 /**
@@ -45,7 +41,7 @@ export namespace walkLegBinding {
     shape: number;
 
     /** The face plane the probe lies least inside, in the hull's frame; none for a shape that is not a hull. */
-    face: physicalHullFaces.IFace | undefined;
+    face: IAutoMoviePhysicalHullFaces.IFace | undefined;
 
     /** The probe's reference depth there, metres. */
     reference: number;
@@ -54,8 +50,8 @@ export namespace walkLegBinding {
   /** A probe of segment `a` in segment `b`'s frame, as the audit carries it (`AutoMovieMotionHumanAuditTangleModel.depths`). */
   export function relative(
     probe: IAutoMovieVector3,
-    a: HumanColliders.IPlaced,
-    b: HumanColliders.IPlaced,
+    a: IAutoMovieMotionHumanColliders.IPlaced,
+    b: IAutoMovieMotionHumanColliders.IPlaced,
   ): IAutoMovieVector3 {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
     return Vector3.add(
@@ -77,10 +73,10 @@ export namespace walkLegBinding {
    * other shape by the engine's shape distance.
    */
   export function inside(
-    shape: HumanColliders.IPlaced["shapes"][number],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
     local: IAutoMovieVector3,
     floor: number,
-  ): { depth: number; face: physicalHullFaces.IFace | undefined } {
+  ): { depth: number; face: IAutoMoviePhysicalHullFaces.IFace | undefined } {
     if (shape.kind !== "hull")
       return {
         depth: Math.max(
@@ -94,11 +90,11 @@ export namespace walkLegBinding {
       Vector3.subtract(local, shape.transform.position),
     );
     // A point outside the sphere about the hull's vertices lies outside it.
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
     if (Vector3.length(Vector3.subtract(point, hull.centre)) >= hull.radius)
       return { depth: 0, face: undefined };
     let depth: number = Infinity;
-    let face: physicalHullFaces.IFace | undefined;
+    let face: IAutoMoviePhysicalHullFaces.IFace | undefined;
     for (const f of hull.faces) {
       const d: number = f.offset - Vector3.dot(f.normal, point);
       if (d < depth) {
@@ -112,9 +108,9 @@ export namespace walkLegBinding {
 
   /** How far a point lies inside one face plane of a hull, metres, negative outside. */
   export function planar(
-    shape: HumanColliders.IPlaced["shapes"][number],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
     local: IAutoMovieVector3,
-    face: physicalHullFaces.IFace,
+    face: IAutoMoviePhysicalHullFaces.IFace,
   ): number {
     const point: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(shape.transform.rotation),

@@ -1,7 +1,5 @@
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionSplit,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionSplit } from "@automovie/interface";
+
 
 /**
  * A construction tree's structural admission before work: every node of the closed union, every name used once, and every seed, continuation and trim naming a face of the right subtree. Declared views and explicit native source leaves produce chain part faces. Original profile leaves reserve qualified family/piece faces for atlas hosts and trims; chain-specific part joins and continuation remain restricted to chain leaves. Runtime availability is admitted at each leaf.
@@ -35,10 +33,10 @@ export namespace AutoMovieConstructionAdmission {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes each subtree's two sets once and reuses them for reference checks and the parent union rather than rewalking that subtree per reference.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The seen set, returned child sets, union temporaries and recursion stack are owned by this synchronous call and become unreachable on return/throw; no tree or name cache survives.
    */
-  export function admit(root: AutoMovieConstructionNode): void {
+  export function admit(root: IAutoMovieConstructionNode): void {
     const seen: Set<string> = new Set();
     /** Check this node before returning the faces structurally produced below it. */
-    function check(node: AutoMovieConstructionNode): Names {
+    function check(node: IAutoMovieConstructionNode): Names {
       const name: string = (node as { name?: unknown }).name as string;
       if (typeof name !== "string")
         throw new Error("realizeAutoMovieConstruction: a node has no name");

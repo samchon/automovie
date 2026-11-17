@@ -1,10 +1,15 @@
-import { AutoMovieViewAxis, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieViewPart, IAutoMovieHumanHeadEyeOpening, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadPrior } from "@automovie/interface";
+
+
+
+
+import { AutoMovieViewAxis, AutoMovieViewSection } from "@automovie/engine";
 
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
+
+
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /**
@@ -55,7 +60,7 @@ export namespace AutoMovieHumanHeadEyeParts {
    */
   export function of(plan: IAutoMovieHumanHeadLayout): IAutoMovieViewPart[] {
     const k: number = plan.scale;
-    const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
+    const face: IAutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
     const seat: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) - face.eyeRecess * k;
     const fissures: { part: IAutoMovieViewPart; pupil: [number, number, number] }[] = openings(plan, seat);
     const globes: IAutoMovieViewPart[] = (["left", "right"] as const).map((side: "left" | "right", index: number): IAutoMovieViewPart => {

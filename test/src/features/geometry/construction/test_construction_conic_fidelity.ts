@@ -1,7 +1,5 @@
-import {
-  type AutoMoviePolarSector,
-  AutoMovieViewSection,
-} from "@automovie/engine";
+import type { IAutoMoviePolarSector, IAutoMovieViewSection } from "@automovie/interface";
+import { AutoMovieViewSection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -35,7 +33,7 @@ export function test_construction_conic_fidelity(): void {
       for (const scale of [0.001, 1, 1000]) {
         const a: number = scale * (swap ? aspect : 1);
         const b: number = scale * (swap ? 1 : aspect);
-        const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+        const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
           { extents: [a, b, a, b] },
           shoulder,
         );
@@ -45,7 +43,7 @@ export function test_construction_conic_fidelity(): void {
         let nonfinite: number = 0;
         for (let i: number = 0; i < 512; i++) {
           const phi: number = (2 * Math.PI * (i + 0.37)) / 512;
-          const jet: AutoMoviePolarSector.Jet = AutoMovieViewSection.radius(
+          const jet: IAutoMoviePolarSector.Jet = AutoMovieViewSection.radius(
             section,
             phi,
           );
@@ -53,7 +51,7 @@ export function test_construction_conic_fidelity(): void {
             nonfinite++;
             continue;
           }
-          const [r, first, second]: AutoMoviePolarSector.Jet = jet;
+          const [r, first, second]: IAutoMoviePolarSector.Jet = jet;
           const cosine: number = Math.cos(phi);
           const sine: number = Math.sin(phi);
           const expected: number = 1 / Math.hypot(cosine / a, sine / b);
@@ -106,7 +104,7 @@ export function test_construction_conic_fidelity(): void {
     station: number,
   ): number => {
     const extents: [number, number, number, number] = [1, 1 + station, 1, 1];
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
       { extents },
       shoulder,
     );
@@ -139,7 +137,7 @@ export function test_construction_conic_fidelity(): void {
       );
   }
 
-  const asymmetric: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+  const asymmetric: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
     { extents: [20, 20, 20, 20] },
     [0.55, 0.4, 0.35, 0.25],
   );
@@ -149,9 +147,9 @@ export function test_construction_conic_fidelity(): void {
     1 / (40 * firstWeight ** 2),
     1 / (40 * lastWeight ** 2),
   );
-  const limit: AutoMoviePolarSector.Jet = [20, 0, 20 - 400 * kappa];
+  const limit: IAutoMoviePolarSector.Jet = [20, 0, 20 - 400 * kappa];
   for (const step of [1e-20, 1e-30, 1e-100]) {
-    const actual: AutoMoviePolarSector.Jet = AutoMovieViewSection.radius(
+    const actual: IAutoMoviePolarSector.Jet = AutoMovieViewSection.radius(
       asymmetric,
       -step,
     );

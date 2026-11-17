@@ -1,6 +1,5 @@
-import { IAutoMovieChannel } from "@automovie/interface";
+import { type IAutoMovieNodeChannel, IAutoMovieChannel } from "@automovie/interface";
 
-import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
 
 type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
 

@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanGrammar } from "@automovie/interface";
+
 /**
  * The composition grammar as data: the axes an action is decided on and the
  * operators that join actions, each with the surface that carries it. A
@@ -109,4 +111,4 @@ export const HUMAN_GRAMMAR = {
       says: "an action timed to another instant",
     },
   ],
-} as const;
+} as const satisfies IAutoMovieMotionHumanGrammar;

@@ -1,4 +1,5 @@
-import type { AutoMovieHumanPolygon } from "@automovie/render";
+import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+
 
 import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
 import type { SceneTrack } from "../../scenes/SceneTrack";
@@ -44,6 +45,6 @@ export namespace ITake {
     body: string;
 
     /** The body's rest bones, which the polygon man is built from. */
-    bones: AutoMovieHumanPolygon.IBone[];
+    bones: IAutoMovieHumanSkeleton.IBone[];
   }
 }

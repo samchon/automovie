@@ -1,15 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanQuadraticProgram, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
-import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 
 /**
  * Hard task points carried by an effector, read identically by the trajectory
@@ -58,7 +53,7 @@ export namespace HumanArmTrajectoryLimits {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares P.pad and the already located site across the merit, model and configuration check.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns geometric values and retains nothing.
    */
-  export function of(site: M.ISite, at: P.ILocated, own: G.IPlaced): IRead[] {
+  export function of(site: M.ISite, at: P.ILocated, own: IAutoMovieMotionHumanArmGeometry.IPlaced): IRead[] {
     if (site.limits === undefined) return [];
     const rotation: IAutoMovieQuaternion | undefined =
       at.rotation ?? site.rotation;
@@ -114,11 +109,11 @@ export namespace HumanArmTrajectoryLimits {
     site: M.ISite,
     weight: number,
     index: (a: number, k: number, f: number) => number,
-  ): QP.IRow[] {
+  ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
     if (site.limits === undefined) return [];
     const located: P.ILocated = P.located(c, at.placed, a, k, site);
     return of(site, located, at.placed[a]![k]!).flatMap(
-      (limit: IRead, i: number): QP.IRow[] => {
+      (limit: IRead, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
         if (limit.distance <= 1e-6) return [];
         const dir: IAutoMovieVector3 = Vector3.scale(
           Vector3.subtract(limit.contact, limit.point),

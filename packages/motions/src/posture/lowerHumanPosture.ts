@@ -1,7 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
@@ -21,15 +19,15 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * @returns The posture, its root lowered when needed.
  */
 export function lowerHumanPosture(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   knee: number = resolveHumanPosture.KNEE,
-): IHumanPosture {
+): IAutoMovieMotionHumanPosture {
   // Only world-anchored plants are lowered for: a leg goal attached to a
   // bone moves with that bone, so the root cannot be solved against it here.
   const legs: { side: "left" | "right"; goal: IAutoMovieVector3 }[] = [];
   for (const side of ["left", "right"] as const) {
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs[`${side}Leg`];
+    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[`${side}Leg`];
     if (goal?.planted === true && goal.on === undefined)
       legs.push({ side, goal: goal.point });
   }
@@ -68,7 +66,7 @@ export namespace lowerHumanPosture {
    *   reach, which no lowering helps.
    */
   export function short(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     knee: number,

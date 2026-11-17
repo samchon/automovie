@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieRecoverySectionsInput,
-  type IAutoMovieRecoverySlabObservation,
-  type IAutoMovieRecoverySourceLineage,
-  observeAutoMovieRecoverySections,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoverySectionsInput, IAutoMovieRecoverySlabObservation, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
+import { observeAutoMovieRecoverySections } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -283,7 +279,7 @@ export function test_recovery_source_slabs(): void {
     },
     {
       curveFormat: "hermite",
-      signal: controller.signal,
+      cancelled: (): boolean => controller.signal.aborted,
       onSourceSlab: (): void => {
         delivered++;
         controller.abort();

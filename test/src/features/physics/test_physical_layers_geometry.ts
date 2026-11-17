@@ -1,8 +1,9 @@
+import type { IAutoMovieAuditPhysicalOutcomes, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   auditPhysicalOutcomes,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /** Physical geometry behavior.
@@ -17,7 +18,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Exercise actual public inputs and compare physical quantities.).
  */
 export async function test_physical_layers_geometry(): Promise<void> {
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const sphere: P.IShape = {
     kind: "sphere",
     id: "surface",
@@ -28,16 +29,16 @@ export async function test_physical_layers_geometry(): Promise<void> {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     },
   };
-  const collider: (body: string, x: number) => Geometry.ICollider = (
+  const collider: (body: string, x: number) => IAutoMoviePreparePhysicalGeometry.ICollider = (
     body: string,
     x: number,
-  ): Geometry.ICollider => ({
+  ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
     body,
     bone: "root",
     shape: sphere,
     pose: { position: { x, y: 1, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
   });
-  const hit: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
+  const hit: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
     collider("a", 0),
     collider("b", 0.15),
     1,
@@ -50,7 +51,7 @@ export async function test_physical_layers_geometry(): Promise<void> {
       hit.impulse === null &&
       geometry.contact(collider("a", 0), collider("b", 0.25), 1) === null,
   );
-  const box: Geometry.ICollider = {
+  const box: IAutoMoviePreparePhysicalGeometry.ICollider = {
     body: "box",
     bone: "root",
     shape: {
@@ -65,7 +66,7 @@ export async function test_physical_layers_geometry(): Promise<void> {
       rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
     },
   };
-  const floor: Geometry.ICollider = {
+  const floor: IAutoMoviePreparePhysicalGeometry.ICollider = {
     body: "floor",
     bone: "root",
     shape: {
@@ -80,7 +81,7 @@ export async function test_physical_layers_geometry(): Promise<void> {
       rotation: sphere.transform.rotation,
     },
   };
-  const clearance: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
+  const clearance: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
     box,
     floor,
     0,
@@ -95,7 +96,7 @@ export async function test_physical_layers_geometry(): Promise<void> {
       clearance.impulse === null &&
       geometry.contact(box, floor, 0) === null,
   );
-  const outcome: auditPhysicalOutcomes.IFinding[] = auditPhysicalOutcomes({
+  const outcome: IAutoMovieAuditPhysicalOutcomes.IFinding[] = auditPhysicalOutcomes({
     actions: [
       {
         id: "planned-hit",

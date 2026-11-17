@@ -1,12 +1,6 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieProjectile,
-  projectileAt,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanThrowObjectLaunch, IAutoMovieProjectile, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { AutoMovieGravity, projectileAt } from "@automovie/engine";
 
 /**
  * A thrown object's launch and the drag-free path it flies afterwards. Written
@@ -24,27 +18,6 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace throwObjectLaunch {
-  /**
-   * A launch: where and when the object leaves the hand and at what velocity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The initial state of a drag-free ballistic path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by a catcher and the capture.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain vectors and seconds.
-   */
-  export interface ILaunch {
-    /** The release point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The launch velocity, world metres per second. */
-    velocity: IAutoMovieVector3;
-
-    /** Seconds since the action's start of the release. */
-    seconds: number;
-
-    /** The target point the path passes through, world metres. */
-    target: IAutoMovieVector3;
-  }
 
   /**
    * The grip window that carries a thrown prop in the throwing hand from the
@@ -59,7 +32,7 @@ export namespace throwObjectLaunch {
     prop: string | undefined,
     side: "left" | "right",
     release: number,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     return prop === undefined
       ? []
       : [
@@ -86,8 +59,8 @@ export namespace throwObjectLaunch {
   export function launches(
     prop: string | undefined,
     attitude: IAutoMovieProjectile.Attitude | undefined,
-    launch: ILaunch,
-  ): IHumanActionPlan.ILaunch[] {
+    launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,
+  ): IAutoMovieMotionHumanActionPlan.ILaunch[] {
     return prop === undefined
       ? []
       : [
@@ -148,7 +121,7 @@ export namespace throwObjectLaunch {
    * @param seconds Seconds after the release.
    * @returns World metres.
    */
-  export function path(launch: ILaunch, seconds: number): IAutoMovieVector3 {
+  export function path(launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch, seconds: number): IAutoMovieVector3 {
     return projectileAt(
       {
         origin: launch.point,

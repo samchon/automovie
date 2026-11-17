@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanLegHull } from "@automovie/interface";
+
 /**
  * The taut tape round a leg section: the perimeter of the convex hull of its
  * points in the section plane (Andrew's monotone chain), which is what a tape
@@ -10,7 +12,7 @@ export namespace AutoMovieHumanLegHull {
    * @param points Section points `[x, z]`, mm, in any order.
    * @returns Perimeter of their convex hull, mm; 0 for fewer than three points.
    */
-  export function girth(points: readonly (readonly [number, number])[]): number {
+  export function girth(points: IAutoMovieHumanLegHull.GirthPoints): number {
     const p: (readonly [number, number])[] = [...points].sort((u: readonly [number, number], v: readonly [number, number]): number => u[0] - v[0] || u[1] - v[1]);
     if (p.length < 3) return 0;
     const turn: (o: readonly [number, number], a: readonly [number, number], b: readonly [number, number]) => number = (

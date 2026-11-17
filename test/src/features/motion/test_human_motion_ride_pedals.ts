@@ -1,23 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createBicycle, rideBicycle } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFoot,
-  HumanFrame,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  HumanRide,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanFoot, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanRide, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,7 +40,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_ride_pedals(): void {
   const complaints: string[] = [];
   const WAIT: number = 6;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const bicycle: ReturnType<typeof createBicycle> = createBicycle({});
   const cycling: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, {
     start: { x: 0, z: 0, heading: 0 },
@@ -64,14 +49,14 @@ export function test_human_motion_ride_pedals(): void {
     acceleration: 1.5,
     deceleration: 2,
   });
-  const known: Map<number, IHumanProp.IFrame> = new Map();
-  const placed = (seconds: number): IHumanProp.IFrame => {
-    const kept: IHumanProp.IFrame | undefined = known.get(seconds);
+  const known: Map<number, IAutoMovieMotionHumanProp.IFrame> = new Map();
+  const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
+    const kept: IAutoMovieMotionHumanProp.IFrame | undefined = known.get(seconds);
     if (kept !== undefined) return kept;
     const placement: IAutoMovieTransform = cycling.at(
       Math.max(0, seconds - WAIT),
     ).placement;
-    const frame: IHumanProp.IFrame = {
+    const frame: IAutoMovieMotionHumanProp.IFrame = {
       position: placement.translation,
       rotation: placement.rotation,
     };
@@ -85,8 +70,8 @@ export function test_human_motion_ride_pedals(): void {
       id as Parameters<typeof cycling.frame>[0],
       Math.max(0, seconds - WAIT),
     );
-  const seat: seated.ISeat = HumanObject.seat(bicycle, placed(0));
-  const perform = (left: string): HumanPerformance =>
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(bicycle, placed(0));
+  const perform = (left: string): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "pedals",
       laws: [HumanRide.ride],
@@ -133,7 +118,7 @@ export function test_human_motion_ride_pedals(): void {
     );
 
   // 1 to 4. The feet go round; the seat stays.
-  let performance: HumanPerformance | null = null;
+  let performance: IAutoMovieMotionHumanPerformance | null = null;
   try {
     performance = perform("leftPedal");
   } catch (error) {
@@ -142,8 +127,8 @@ export function test_human_motion_ride_pedals(): void {
     );
   }
   if (performance !== null) {
-    const ride: HumanSegment.ISegment = performance.segments("a")[1]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const ride: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
@@ -164,7 +149,7 @@ export function test_human_motion_ride_pedals(): void {
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       local(
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
         )!.point,
         part(`${side}Pedal`, t).translation,
         t,

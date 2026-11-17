@@ -1,10 +1,11 @@
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
+
 import { HUMAN_LEXICON_FAMILIES } from "./HUMAN_LEXICON_FAMILIES";
 
 /** The registered laws a namespace holds: its members that plan. */
-const rows = (space: object): readonly IHumanActionLaw<never>[] =>
+const rows = (space: object): readonly IAutoMovieMotionHumanActionLaw<never>[] =>
   Object.values(space).filter(
-    (value: unknown): value is IHumanActionLaw<never> =>
+    (value: unknown): value is IAutoMovieMotionHumanActionLaw<never> =>
       typeof value === "object" && value !== null && "plan" in value,
   );
 
@@ -20,12 +21,12 @@ const rows = (space: object): readonly IHumanActionLaw<never>[] =>
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No name is restated: the lists are read from the namespaces.
  */
 export const HUMAN_LEXICON: Readonly<
-  Record<string, readonly IHumanActionLaw<never>[]>
+  Record<string, readonly IAutoMovieMotionHumanActionLaw<never>[]>
 > = Object.fromEntries(
   Object.entries(HUMAN_LEXICON_FAMILIES).map(
     ([family, spaces]: [string, readonly object[]]): [
       string,
-      readonly IHumanActionLaw<never>[],
+      readonly IAutoMovieMotionHumanActionLaw<never>[],
     ] => [family, spaces.flatMap(rows)],
   ),
 );

@@ -1,15 +1,16 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMovieBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
   IAutoMoviePhysicalProfile,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { seated } from "../everyday/seated";
+import { Quaternion, Vector3 } from "@automovie/engine";
+
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * Attach actions to an object: an object says where a person meets it
@@ -29,38 +30,6 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is special-cased; a wrong or missing affordance is refused with the ids that fit.
  */
 export namespace HumanObject {
-  /** What is read of an object. */
-  export interface IModel {
-    /** Its contacts, in its own space. */
-    affordances?: readonly IAutoMovieAffordance[] | null;
-
-    /** Its colliders in its own space, for a hand to close on. */
-    shapes?(): IAutoMoviePhysicalProfile.IShape[];
-
-    /**
-     * The object with its articulations at stated travels, for an object
-     * whose parts move (an archetype's `articulate`); a rigid object has none.
-     *
-     * @param state Travel by articulation id.
-     * @returns The posed object.
-     */
-    articulate?(state: Readonly<Record<string, number>>): IModel;
-
-    /** Its physical data (an archetype's model body); none when absent or null. */
-    body?: IAutoMovieBody | null;
-  }
-
-  /**
-   * Where the scene puts an object: a rigid world frame, or the floor point
-   * under its origin and the heading its own `+Z` faces, degrees about +Y;
-   * `fixed` sets it as a fixture, which hands grip and never carry
-   * (`IHumanProp.fixed`).
-   */
-  export type Placement = (
-    | IHumanProp.IFrame
-    | { at: IAutoMovieVector3; yaw: number }
-  ) & { fixed?: boolean };
-
   /**
    * A placement as a rigid world frame.
    *
@@ -75,7 +44,9 @@ export namespace HumanObject {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function frame(placement: Placement): IHumanProp.IFrame {
+  export function frame(
+    placement: IAutoMovieMotionHumanObject.Placement,
+  ): IAutoMovieMotionHumanProp.IFrame {
     return "position" in placement
       ? { position: placement.position, rotation: placement.rotation }
       : {
@@ -113,12 +84,12 @@ export namespace HumanObject {
    */
   export function prop(
     subject: string,
-    model: IModel,
-    placement: Placement,
-    motion?: (seconds: number) => Placement,
+    model: IAutoMovieMotionHumanObject.IModel,
+    placement: IAutoMovieMotionHumanObject.Placement,
+    motion?: (seconds: number) => IAutoMovieMotionHumanObject.Placement,
     contact?: (id: string, seconds: number) => IAutoMovieTransform,
-    tracks?: readonly IHumanProp.ITrack[],
-  ): IHumanProp {
+    tracks?: readonly IAutoMovieMotionHumanProp.ITrack[],
+  ): IAutoMovieMotionHumanProp {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
     const ids: ReadonlySet<string> = new Set(
@@ -158,8 +129,9 @@ export namespace HumanObject {
         : {
             articulate: (
               state: Readonly<Record<string, number>>,
-            ): IHumanProp.IPosed => {
-              const posed: IModel = model.articulate!(state);
+            ): IAutoMovieMotionHumanProp.IPosed => {
+              const posed: IAutoMovieMotionHumanObject.IModel =
+                model.articulate!(state);
               const moved: IAutoMoviePhysicalProfile.IShape[] | undefined =
                 posed.shapes?.();
               return {
@@ -171,7 +143,7 @@ export namespace HumanObject {
       ...(motion === undefined
         ? {}
         : {
-            motion: (seconds: number): IHumanProp.IFrame =>
+            motion: (seconds: number): IAutoMovieMotionHumanProp.IFrame =>
               frame(motion(seconds)),
           }),
       ...(contact === undefined
@@ -218,10 +190,10 @@ export namespace HumanObject {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function seat(
-    model: IModel,
-    placement: Placement,
+    model: IAutoMovieMotionHumanObject.IModel,
+    placement: IAutoMovieMotionHumanObject.Placement,
     id?: string,
-  ): seated.ISeat {
+  ): IAutoMovieMotionHumanSeated.ISeat {
     const seats: IAutoMovieAffordance[] = (model.affordances ?? []).filter(
       (affordance: IAutoMovieAffordance): boolean => affordance.kind === "seat",
     );
@@ -252,7 +224,7 @@ export namespace HumanObject {
               : `the object has ${seats.length} seats, and none is named`,
         fix: "name one of the object's seats, or sit on an object that has one",
       });
-    const world: IHumanProp.IFrame = frame(placement);
+    const world: IAutoMovieMotionHumanProp.IFrame = frame(placement);
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
@@ -286,7 +258,7 @@ export namespace HumanObject {
   function footrests(
     affordances: readonly IAutoMovieAffordance[],
     seat: IAutoMovieAffordance,
-    world: IHumanProp.IFrame,
+    world: IAutoMovieMotionHumanProp.IFrame,
   ): Partial<Record<"left" | "right", IAutoMovieVector3>> {
     const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
       seat.frame.rotation,

@@ -1,12 +1,9 @@
-import {
-  IAutoMovieEditEntry,
-  IAutoMovieEditPlan,
-  IAutoMovieSequenceEntry,
-  IAutoMovieShot,
-} from "@automovie/interface";
+import type { IAutoMovieCut, IAutoMovieEditPlan, IAutoMovieSequenceEntry, IAutoMovieShot, IAutoMovieViolationCollector } from "@automovie/interface";
+
+
+
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieCut } from "./IAutoMovieCut";
 
 /**
  * A built shot with the index it was first supplied at.
@@ -38,7 +35,7 @@ export function cutSequence(
   assemble: IAutoMovieEditPlan,
   shots: IAutoMovieShot[],
 ): IAutoMovieCut {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const byId: Map<string, IBuiltShot> = new Map();
   shots.forEach((shot: IAutoMovieShot, index: number): void => {
     const existing: IBuiltShot | undefined = byId.get(shot.id);
@@ -87,7 +84,7 @@ export function cutSequence(
   let runtime: number = 0;
   let previousPlayed: number | null = null;
   let previousIncomingTransition: number = 0;
-  assemble.entries.forEach((entry: IAutoMovieEditEntry, i: number): void => {
+  assemble.entries.forEach((entry: IAutoMovieSequenceEntry, i: number): void => {
     validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
     const found: IBuiltShot | undefined = byId.get(entry.shot);
     if (found === undefined) {
@@ -223,7 +220,7 @@ export function cutSequence(
       id: assemble.sequence.id,
       name: assemble.sequence.name,
       shots: assemble.entries.map(
-        (entry: IAutoMovieEditEntry): IAutoMovieSequenceEntry => ({
+        (entry: IAutoMovieSequenceEntry): IAutoMovieSequenceEntry => ({
           shot: entry.shot,
           trim: entry.trim,
           transition: entry.transition,

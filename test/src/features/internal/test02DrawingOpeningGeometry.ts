@@ -1,23 +1,6 @@
-import {
-  type IAutoMovieDrawingTriangle,
-  autoMovieBoundaryFacePoint,
-  autoMovieBoundaryShellTriangles,
-  autoMovieOpeningArea,
-  autoMovieOpeningExtent,
-  autoMovieOpeningFillExtent,
-  autoMovieOpeningHasArc,
-  autoMovieOpeningOutlinePoints,
-  deriveAutoMovieDrawing,
-  deriveAutoMovieDrawingSchedule,
-  triangulateAutoMoviePolygon,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieDrawingGap,
-  IAutoMovieDrawingSchedule,
-  IAutoMovieOpeningProfile,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
+import type { IAutoMovieDrawingTriangle, IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieDrawingSchedule, IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
+import { autoMovieBoundaryFacePoint, autoMovieBoundaryShellTriangles, autoMovieOpeningArea, autoMovieOpeningExtent, autoMovieOpeningFillExtent, autoMovieOpeningHasArc, autoMovieOpeningOutlinePoints, deriveAutoMovieDrawing, deriveAutoMovieDrawingSchedule, triangulateAutoMoviePolygon } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingView } from "./drawingFixtures";

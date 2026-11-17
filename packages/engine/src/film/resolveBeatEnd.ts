@@ -1,6 +1,5 @@
-import { IAutoMovieBeatEndState } from "@automovie/interface";
+import { type IAutoMovieResolveBeatProps, IAutoMovieBeatEndState } from "@automovie/interface";
 
-import { IResolveBeatProps } from "./IResolveBeatProps";
 import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
 
 /**
@@ -22,7 +21,7 @@ import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned state, whose ownership `resolveBeatSnapshot` answers.
  */
 export function resolveBeatEnd(
-  props: IResolveBeatProps,
+  props: IAutoMovieResolveBeatProps,
 ): IAutoMovieBeatEndState {
   return resolveBeatSnapshot(props, props.shot.duration);
 }

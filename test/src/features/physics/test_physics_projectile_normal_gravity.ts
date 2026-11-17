@@ -1,9 +1,6 @@
-import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  projectileContinue,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileContinue, IAutoMovieVector3 } from "@automovie/interface";
+import { projectileContinue } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -45,13 +42,13 @@ export function test_physics_projectile_normal_gravity(): void {
     normal: { x: 0, y: -1, z: 0 },
     collider: "ceiling",
   };
-  const bounce: projectileContinue.Outcome = {
+  const bounce: IAutoMovieProjectileContinue.Outcome = {
     kind: "bounce",
     restitution: 1,
     friction: 0,
     roll: { radius: 0.1, resistance: 0.1 },
   };
-  const departed: projectileContinue.Segment = projectileContinue(
+  const departed: IAutoMovieProjectileContinue.Segment = projectileContinue(
     ceiling,
     hit,
     bounce,
@@ -63,7 +60,7 @@ export function test_physics_projectile_normal_gravity(): void {
       projectileContinue.at(departed, 1).position.y < 10,
   );
 
-  const floor: projectileContinue.Segment = projectileContinue(
+  const floor: IAutoMovieProjectileContinue.Segment = projectileContinue(
     { origin: zero, velocity: { x: 0, y: -0.1, z: 0 }, gravity },
     { ...hit, point: zero, normal: { x: 0, y: 1, z: 0 }, collider: "floor" },
     bounce,
@@ -73,7 +70,7 @@ export function test_physics_projectile_normal_gravity(): void {
     floor.kind === "roll" && nclose(floor.deceleration, 0.1 * 9.80665, 0),
   );
 
-  const neutral: projectileContinue.Segment = projectileContinue(
+  const neutral: IAutoMovieProjectileContinue.Segment = projectileContinue(
     { ...ceiling, gravity: zero },
     hit,
     bounce,
@@ -94,7 +91,7 @@ export function test_physics_projectile_normal_gravity(): void {
     refused,
   );
 
-  const rolling: projectileContinue.Segment = projectileContinue(
+  const rolling: IAutoMovieProjectileContinue.Segment = projectileContinue(
     { ...ceiling, gravity: zero, velocity: { x: 2, y: 0, z: 0 } },
     hit,
     { kind: "roll", resistance: 0.1 },

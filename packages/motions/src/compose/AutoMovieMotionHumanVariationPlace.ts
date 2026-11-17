@@ -1,10 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanVariation, IAutoMovieMotionHumanVariationPlace, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
+import { Vector3 } from "@automovie/engine";
 import { HumanSkill } from "../skill/HumanSkill";
-import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
@@ -25,24 +22,6 @@ import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariati
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The offset is added to the place's own share record, so no second place type or frame enters.
  */
 export namespace AutoMovieMotionHumanVariationPlace {
-  /**
-   * How a hand arrives on a place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member states its unit, its frame and its value when absent.
-   * @evidence contracts/development/design.md#principled-representation The distance and the time of the arriving phase, the two inputs of the impulse variability law, and the direction the end point's ellipse is longest along.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `vary`; the phrase that arrives already has all three.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The direction is stated in the nudge frame the offset is read in, so no second frame enters.
-   */
-  export interface ITravel {
-    /** The distance the hand travels in the arriving phase, metres. */
-    distance: number;
-
-    /** The length of the arriving phase, seconds; positive. */
-    seconds: number;
-
-    /** The direction of arrival in the nudge frame (`out`, `up`, `forward`); forward when absent. */
-    direction?: AutoMovieMotionHumanTargetGrid.INudge;
-  }
 
   /**
    * A place of the air with its offset.
@@ -75,13 +54,13 @@ export namespace AutoMovieMotionHumanVariationPlace {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function vary(
-    source: AutoMovieMotionHumanVariation.ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
-    body: Pick<IHumanBody, "measure">,
-    side: HumanHand.Side,
-    record: AutoMovieMotionHumanTarget.IDefault,
-    travel?: ITravel,
-  ): AutoMovieMotionHumanTarget.IDefault {
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    side: IAutoMovieMotionHumanHand.Side,
+    record: IAutoMovieMotionHumanTarget.IDefault,
+    travel?: IAutoMovieMotionHumanVariationPlace.ITravel,
+  ): IAutoMovieMotionHumanTarget.IDefault {
     if (source === undefined) return record;
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
@@ -124,7 +103,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
           record.height,
           AutoMovieMotionHumanVariationDraw.cell(
             AutoMovieMotionHumanTargetGrid.HEIGHTS.map(
-              (name: AutoMovieMotionHumanTargetGrid.Height): number =>
+              (name: IAutoMovieMotionHumanTargetGrid.Height): number =>
                 AutoMovieMotionHumanTargetGrid.height(body, name),
             ),
             record.height,

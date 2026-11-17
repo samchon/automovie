@@ -1,7 +1,8 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 
 /**
  * The arm trajectory's hard joint-domain rows: its shoulder chart disc and
@@ -38,8 +39,8 @@ export namespace HumanArmTrajectoryRanges {
     k: number,
     v: readonly number[],
     index: (a: number, k: number, f: number) => number,
-  ): QP.IRow[] {
-    const rows: QP.IRow[] = [];
+  ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
+    const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
     const xy: number = Math.hypot(v[0]!, v[1]!);
     if (xy > 0.6 * G.SCALE)
       rows.push({

@@ -1,6 +1,10 @@
-import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
+import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanNeutralBody } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
-import type { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
+
 
 /**
  * The ankle's neutral: the foot keeps the floor and points straight ahead.
@@ -22,9 +26,9 @@ export namespace AutoMovieHumanNeutralAnkle {
    * @param side Which foot.
    * @returns The turn about the vertical from the bind heading to straight ahead.
    */
-  export function derive(body: IAutoMovieHumanNeutralBody, side: "left" | "right"): Math3D.Quaternion {
-    const d: Math3D.Vector = body.direction(`${side}Foot`);
-    const heading: Math3D.Vector = [d[0], 0, d[2]];
+  export function derive(body: IAutoMovieHumanNeutralBody, side: "left" | "right"): AutoMovieQuaternionTuple {
+    const d: AutoMovieVector3Tuple = body.direction(`${side}Foot`);
+    const heading: AutoMovieVector3Tuple = [d[0], 0, d[2]];
     if (!(Math.hypot(heading[0], heading[2]) > 1e-9)) return [0, 0, 0, 1];
     return Turn.arc(heading, Turn.FORWARD);
   }

@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieRasterImage,
-  decodeAutoMovieRasterPng,
-  encodeAutoMovieRasterPng,
-} from "@automovie/render";
+import type { IAutoMovieRasterImage } from "@automovie/interface";
+import { decodeAutoMovieRasterPng, encodeAutoMovieRasterPng } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import zlib from "node:zlib";
 

@@ -1,9 +1,5 @@
-import {
-  IAutoMovieRenderReport,
-  IAutoMovieRenderTarget,
-} from "@automovie/interface";
+import type { IAutoMovieRenderTargetDrift, IAutoMovieRenderTargetSummary } from "@automovie/interface";
 
-import type { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift";
 import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
 
 /** Read the reported and current digests, for a one-line staleness log.
@@ -16,13 +12,7 @@ import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The completed comparison is used once for both freshness choice and drift text; no equality result is cached across mutable targets.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a string escapes; temporary drift rows belong to the call and no assets, renderer handle or running task are retained.
  */
-export const autoMovieRenderTargetSummary: (props: {
-  report: IAutoMovieRenderReport;
-  current: IAutoMovieRenderTarget;
-}) => string = (props: {
-  report: IAutoMovieRenderReport;
-  current: IAutoMovieRenderTarget;
-}): string => {
+export const autoMovieRenderTargetSummary: (props: IAutoMovieRenderTargetSummary.IProps) => string = (props: IAutoMovieRenderTargetSummary.IProps): string => {
   const {
     fresh,
     drift,

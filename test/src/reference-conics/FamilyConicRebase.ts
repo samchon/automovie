@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Frames, AutoMovieHumanF1Joints, AutoMovieHumanF1Landmarks, AutoMovieHumanSegmentFrame as F } from "@automovie/human";
@@ -25,8 +26,8 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Frames, Auto
  * the fit tool's `joints.world.json` and `<module>.placing.json`).
  */
 namespace FamilyConicRebase {
-  type V3 = F.V3;
-  type IFamily = AutoMovieHumanConicLoft.IFamily;
+  type V3 = AutoMovieVector3Tuple;
+  type IFamily = IAutoMovieHumanConicLoft.IFamily;
 
   /** One stored quantity: its segment, its value there, and what the tool notes about the choice. */
   interface IPlaced {
@@ -37,7 +38,7 @@ namespace FamilyConicRebase {
 
   /** The stored tables as the package module holds them. */
   interface ITables {
-    chain: F.IJoint[];
+    chain: IAutoMovieHumanSegmentFrame.IJoint[];
     points: Record<string, IPlaced>;
     directions: Record<string, IPlaced>;
     courses: Record<string, string[]>;
@@ -294,19 +295,19 @@ namespace FamilyConicRebase {
     }
 
     // The chain: the rules applied to the present landmarks; the stored one is kept while the rules still return it within rounding.
-    const ruled: F.IJoint[] = F.chain(AutoMovieHumanF1Frames.segments(laid(AutoMovieHumanF1Joints), laid(AutoMovieHumanF1Landmarks)));
-    const kept: boolean = before !== null && before.chain.length === ruled.length && ruled.every((joint: F.IJoint, i: number): boolean => before.chain[i]!.name === joint.name && before.chain[i]!.parent === joint.parent && far(before.chain[i]!.offset, joint.offset) <= KEEP_MM && far(before.chain[i]!.rotation.flat(), joint.rotation.flat()) <= KEEP_MM);
+    const ruled: IAutoMovieHumanSegmentFrame.IJoint[] = F.chain(AutoMovieHumanF1Frames.segments(laid(AutoMovieHumanF1Joints), laid(AutoMovieHumanF1Landmarks)));
+    const kept: boolean = before !== null && before.chain.length === ruled.length && ruled.every((joint: IAutoMovieHumanSegmentFrame.IJoint, i: number): boolean => before.chain[i]!.name === joint.name && before.chain[i]!.parent === joint.parent && far(before.chain[i]!.offset, joint.offset) <= KEEP_MM && far(before.chain[i]!.rotation.flat(), joint.rotation.flat()) <= KEEP_MM);
     let zeroed: number = 0;
     const zero = (v: readonly number[], limit: number): number[] =>
       v.map((x: number): number => {
         if (x !== 0 && Math.abs(x) < limit) ++zeroed;
         return Math.abs(x) < limit ? 0 : x;
       });
-    const chain: F.IJoint[] = (kept ? before!.chain : ruled).map((joint: F.IJoint): F.IJoint => ({ name: joint.name, parent: joint.parent, offset: zero(joint.offset, ZERO.point) as V3, rotation: joint.rotation.map((row: V3): V3 => zero(row, ZERO.direction) as V3) as F.M3 }));
+    const chain: IAutoMovieHumanSegmentFrame.IJoint[] = (kept ? before!.chain : ruled).map((joint: IAutoMovieHumanSegmentFrame.IJoint): IAutoMovieHumanSegmentFrame.IJoint => ({ name: joint.name, parent: joint.parent, offset: zero(joint.offset, ZERO.point) as V3, rotation: joint.rotation.map((row: V3): V3 => zero(row, ZERO.direction) as V3) as IAutoMovieHumanSegmentFrame.M3 }));
     for (const [i, joint] of chain.entries()) if (far(joint.offset, ruled[i]!.offset) > KEEP_MM || far(joint.rotation.flat(), ruled[i]!.rotation.flat()) > KEEP_MM) throw new Error("the chain's " + joint.name + " leaves its rule beyond rounding");
-    const frames: Map<string, F.IFrame> = F.world(chain, (): undefined => undefined);
-    const frame = (name: string): F.IFrame => {
-      const found: F.IFrame | undefined = frames.get(name);
+    const frames: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = F.world(chain, (): undefined => undefined);
+    const frame = (name: string): IAutoMovieHumanSegmentFrame.IFrame => {
+      const found: IAutoMovieHumanSegmentFrame.IFrame | undefined = frames.get(name);
       if (found === undefined) throw new Error("the tree has no segment " + name);
       return found;
     };
@@ -314,7 +315,7 @@ namespace FamilyConicRebase {
     const receipt: string[] = ["f1 re-based placing: every quantity in its segment's frame; mm; chain " + (kept ? "kept as stored" : "from the rules"), ""];
     const worst: { point: number; direction: number } = { point: 0, direction: 0 };
     const place = (kind: "point" | "direction", name: string, segment: string, value: V3, previous: IPlaced | undefined, note?: string): IPlaced => {
-      const f: F.IFrame = frame(segment);
+      const f: IAutoMovieHumanSegmentFrame.IFrame = frame(segment);
       const back = (q: V3): V3 => (kind === "point" ? F.toWorld(f, q) : F.toWorldDirection(f, q));
       const carried: boolean = previous !== undefined && previous.frame === segment && far(back(previous.local), value) <= KEEP_MM;
       const local: V3 = zero(carried ? previous!.local : kind === "point" ? F.toLocal(f, value) : F.toLocalDirection(f, value), ZERO[kind]) as V3;
@@ -393,7 +394,7 @@ namespace FamilyConicRebase {
       "",
       "  /** The chain, parent first: each segment's origin in its parent's frame, mm, and its reference rotation `A_parent^T A_child` by rows. */",
       "  export const CHAIN: AutoMovieHumanSegmentFrame.IJoint[] = [",
-      ...chain.map((joint: F.IJoint, i: number): string => "    " + row(joint) + (i + 1 < chain.length ? "," : "")),
+      ...chain.map((joint: IAutoMovieHumanSegmentFrame.IJoint, i: number): string => "    " + row(joint) + (i + 1 < chain.length ? "," : "")),
       "  ];",
       "",
       "  /** Every datum and course centre: a joint centre reads `[0, 0, 0]` in the segment whose origin it is; a polyline's centres are `<name>.<index>`. */",
@@ -514,7 +515,7 @@ namespace FamilyConicRebase {
     };
     await fs.writeFile(path.join(out, name + ".json"), JSON.stringify(data));
     process.stdout.write("snapshot " + path.join(out, name + ".json") + "\n");
-    const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
+    const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
     await fs.writeFile(path.join(out, name + ".construction.json"), JSON.stringify({ root: declared.root, fills: declared.fills, sources: Object.fromEntries(declared.sources) }));
     process.stdout.write("snapshot " + path.join(out, name + ".construction.json") + "\n");
   }

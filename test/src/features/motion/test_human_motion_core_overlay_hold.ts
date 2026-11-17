@@ -1,16 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditContinuity,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanPosture,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion } from "@automovie/engine";
+
+import { AutoMovieMotionHumanAuditContinuity, HumanChain, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,7 +50,7 @@ export function test_human_motion_core_overlay_hold(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
   for (const name of ["m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     // At waist height, a sixth of the stature ahead: well inside the arm's
     // reach. At hip height and 0.23 of the stature, a straight arm's length
     // away, the average man's pick-up itself stepped 145 mm at 0.18 s
@@ -69,7 +61,7 @@ export function test_human_motion_core_overlay_hold(): void {
       y: 0.58 * body.measure.stature,
       z: 0.17 * body.measure.stature,
     };
-    const perform = (chain: HumanChain): HumanPerformance =>
+    const perform = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "overlay-hold",
         performers: [
@@ -89,7 +81,7 @@ export function test_human_motion_core_overlay_hold(): void {
         ],
         composition: chain.node,
       });
-    const taking = (): HumanChain =>
+    const taking = (): IAutoMovieMotionHumanChain =>
       HumanChain.subject("a")
         .pickUp({
           prop: "glass",
@@ -100,7 +92,7 @@ export function test_human_motion_core_overlay_hold(): void {
         .walk({ to: { x: 0, y: 0, z: 2 } });
 
     // 1. The drink over the walk plans.
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = perform(
         taking().over((u) =>
@@ -119,7 +111,7 @@ export function test_human_motion_core_overlay_hold(): void {
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;
-      const glass: IHumanProp.IFrame = film.prop("glass", seconds);
+      const glass: IAutoMovieMotionHumanProp.IFrame = film.prop("glass", seconds);
       return Quaternion.rotateVector(Quaternion.inverse(hand.worldRotation), {
         x: glass.position.x - hand.worldPosition.x,
         y: glass.position.y - hand.worldPosition.y,
@@ -144,7 +136,7 @@ export function test_human_motion_core_overlay_hold(): void {
       );
 
     // 3. The glass reaches where a mouth is.
-    const shown: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+    const shown: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
     const start: number =
       film.prop("glass", taken).position.y -
       HumanSignature.joint(shown, taken, "neck").y;
@@ -178,7 +170,7 @@ export function test_human_motion_core_overlay_hold(): void {
       if (jump.value > 0.005) {
         // The right arm's joint angles at the readings 1/120 s apart around
         // the jump, so the row says which joint changed and by how much.
-        const arm = (seconds: number, of: HumanPerformance = film): string =>
+        const arm = (seconds: number, of: IAutoMovieMotionHumanPerformance = film): string =>
           (["rightUpperArm", "rightLowerArm", "rightHand"] as const)
             .map((bone): string => {
               const joint = of
@@ -190,7 +182,7 @@ export function test_human_motion_core_overlay_hold(): void {
         // The same reading on two films that each leave one thing out, so a
         // failing row says which part the step belongs to: the walk with
         // the held glass and no drink, and the drink over standing still.
-        const apart = (other: HumanPerformance): string => {
+        const apart = (other: IAutoMovieMotionHumanPerformance): string => {
           const read: ReturnType<
             typeof AutoMovieMotionHumanAuditContinuity.measure
           >["jump"] = AutoMovieMotionHumanAuditContinuity.measure(
@@ -212,7 +204,7 @@ export function test_human_motion_core_overlay_hold(): void {
             -1, 0, 1, 2,
           ]
             .map((k: number): string => {
-              const written: IHumanPosture = other.posture(
+              const written: IAutoMovieMotionHumanPosture = other.posture(
                 "a",
                 read.seconds + k / 120,
               );

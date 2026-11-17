@@ -1,12 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanFrame,
-  HumanPerformance,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HUMAN_LEXICON, HumanChain, HumanFrame, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -70,19 +64,19 @@ export function test_human_motion_travel_pursuit(): void {
     ["m-average", "f-small"],
     ["f-small", "m-average"],
   ] as const) {
-    const bodies: readonly [IHumanBody, IHumanBody] = [
+    const bodies: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] = [
       motionHumanBody(names[0]),
       motionHumanBody(names[1]),
     ];
     const arms: number = bodies
       .map(
-        (b: IHumanBody): number =>
+        (b: IAutoMovieMotionHumanBody): number =>
           b.measure.upperArm + b.measure.forearm + b.measure.hand,
       )
       .reduce((sum: number, arm: number): number => sum + arm, 0);
     for (const row of rows) {
       const label: string = `${names[0]} in ${row.name} of ${names[1]}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "pursuit",
@@ -122,13 +116,13 @@ export function test_human_motion_travel_pursuit(): void {
         continue;
       }
       const end: number = performance.segments("a")[1]!.end;
-      const a: HumanSignature.IReader = HumanSignature.of(
+      const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         bodies[0],
         0,
       );
-      const b: HumanSignature.IReader = HumanSignature.of(
+      const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "b",
         bodies[1],
@@ -153,7 +147,7 @@ export function test_human_motion_travel_pursuit(): void {
         );
 
       // The side, in the pursued person's frame: 0 ahead of them, 90 at their left, 180 behind.
-      const hips = (reader: HumanSignature.IReader): IAutoMovieVector3 => {
+      const hips = (reader: IAutoMovieMotionHumanSignature.IReader): IAutoMovieVector3 => {
         const l: IAutoMovieVector3 = HumanSignature.joint(
           reader,
           end,
@@ -219,11 +213,11 @@ export function test_human_motion_travel_pursuit(): void {
     ["f-small", "m-average"],
   ] as const) {
     const label: string = `${names[0]} fleeing ${names[1]}`;
-    const bodies: readonly [IHumanBody, IHumanBody] = [
+    const bodies: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] = [
       motionHumanBody(names[0]),
       motionHumanBody(names[1]),
     ];
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "pursuit",
@@ -259,7 +253,7 @@ export function test_human_motion_travel_pursuit(): void {
       continue;
     }
     const end: number = performance.segments("a")[1]!.end;
-    const a: HumanSignature.IReader = HumanSignature.of(
+    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       bodies[0],

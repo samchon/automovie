@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,16 +14,16 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A real soft floor contact balances mg/k, respects its rigid core and resumes with an independent fixed floor) as stated in this comment.
  */
 export async function test_physical_soft_floor(): Promise<void> {
-  const body: Simulation.IBody = PhysicalFixtures.body(
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "soft",
     PhysicalFixtures.sphere(0.1, 0.001),
     2,
   );
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 2);
+  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 2);
   input.floor = 0;
   input.gravity.y = -9.81;
-  const baseline: Simulation = await Simulation.compute(input);
-  const edited: Simulation.IInput = structuredClone(input);
+  const baseline: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
   edited.impulses.push({
     step: 180,
     body: "soft",
@@ -30,8 +31,8 @@ export async function test_physical_soft_floor(): Promise<void> {
     point: { x: 0, y: 0.09019, z: 0 },
     impulse: { x: 0.1, y: 0, z: 0 },
   });
-  const resumed: Simulation = await Simulation.compute(edited, baseline);
-  const fresh: Simulation = await Simulation.compute(edited);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(edited, baseline);
+  const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
   const finalHeight: number =
     baseline.cache.at(2).bodies.soft!.root!.position.y;
   const maximumCompression: number = Math.max(

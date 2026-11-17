@@ -1,8 +1,6 @@
-import type { IAutoMovieFormationPlacement } from "@automovie/engine";
-import type {
-  IAutoMovieFormationMotion,
-  IAutoMovieSpace,
-} from "@automovie/interface";
+import type { IAutoMovieFormationPlacement, IAutoMovieFormationMotion, IAutoMovieSpace } from "@automovie/interface";
+
+
 
 /** One square floor centred on the origin, walkable everywhere. */
 function field(half: number): IAutoMovieSpace {

@@ -1,16 +1,6 @@
-import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanFoot,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HUMAN_LEXICON, HumanChain, HumanFoot, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -92,16 +82,16 @@ export function test_human_motion_travel_styles(): void {
     uneven: number;
   }
   const read = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     name: string,
     row: string | null,
     params: object = {},
   ): IReading | null => {
-    const standing: HumanChain = HumanChain.subject("a").stand({
+    const standing: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
       seconds: 0.3,
     });
     const to: IAutoMovieVector3 = { x: 0, y: 0, z: 6 };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "styles",
@@ -126,8 +116,8 @@ export function test_human_motion_travel_styles(): void {
       );
       return null;
     }
-    const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
@@ -229,7 +219,7 @@ export function test_human_motion_travel_styles(): void {
         body,
         HumanSignature.bones(reader, m.seconds),
         m.side,
-      ).find((s: HumanFoot.ISocket): boolean => s.socket === socket)!.point.y;
+      ).find((s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === socket)!.point.y;
     const fore: number[] = ts.map(
       (t: number): number =>
         HumanSignature.joint(reader, t, "leftHand").z - hips(t).z,
@@ -303,8 +293,8 @@ export function test_human_motion_travel_styles(): void {
   const expect = (ok: boolean, message: string): void => {
     if (!ok) complaints.push(message);
   };
-  const man: IHumanBody = motionHumanBody("m-average");
-  const woman: IHumanBody = motionHumanBody("f-small");
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const woman: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const walks: Record<"man" | "woman", IReading | null> = {
     man: read(man, "m-average", null),
     woman: read(woman, "f-small", null),

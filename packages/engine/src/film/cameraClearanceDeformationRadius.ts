@@ -1,4 +1,5 @@
-import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieCameraClearanceDeformationRadius, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+
 
 /**
  * A pose-independent radius about a model's origin that contains its supplied portable part geometry in any pose of its rig, in model-space metres. External bytes and renderer-only deformation are outside this bound.
@@ -17,7 +18,7 @@ import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
  */
 export function cameraClearanceDeformationRadius(
   model: IAutoMovieModel,
-  extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
+  extent: IAutoMovieCameraClearanceDeformationRadius.IExtent,
 ): number {
   const radius: number = originRadius(extent) + 2 * maximumRigReach(model);
   if (!Number.isFinite(radius))

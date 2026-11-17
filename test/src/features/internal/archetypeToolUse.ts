@@ -1,25 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanToolWork, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { createTool, createVessel } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
-  type useTool,
-} from "@automovie/motions";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -51,11 +34,11 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
   const pan: ReturnType<typeof createVessel> = createVessel({
     kind: "saucepan",
   });
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const bench: number =
     body.measure.shoulderHeight - body.measure.upperArm - 0.15;
   const potAt: IAutoMovieVector3 = { x: 0, y: bench, z: 0.4 };
-  const kinds: [useTool.Kind, IAutoMovieVector3][] = [
+  const kinds: [IAutoMovieMotionHumanToolWork.Kind, IAutoMovieVector3][] = [
     ["hammer", { x: -0.2, y: bench, z: 0.5 }],
     ["saw", { x: -0.2, y: bench, z: 0.5 }],
     [
@@ -69,19 +52,19 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
     const tool: ReturnType<typeof createTool> = createTool({
       kind: kind === "stir" ? "spoon" : kind,
     });
-    const props: IHumanProp[] = [
+    const props: IAutoMovieMotionHumanProp[] = [
       HumanObject.prop("tool", tool, {
         position: { x: body.rest.get("rightUpperArm")!.x, y: bench, z: 0.3 },
         rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
       }),
       HumanObject.prop("pot", pan, { at: potAt, yaw: 0 }),
     ];
-    const on: AutoMovieMotionTarget =
+    const on: IAutoMovieMotionTarget =
       kind === "stir"
         ? { kind: "prop", subject: "pot", point: "inside" }
         : { kind: "point", at: point, frame: "world" };
-    const work = (taken: boolean): HumanPerformance => {
-      const start: HumanChain = HumanChain.subject("a").stand({
+    const work = (taken: boolean): IAutoMovieMotionHumanPerformance => {
+      const start: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
         seconds: 0.3,
       });
       return new HumanPerformance({
@@ -115,7 +98,7 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
     };
 
     // 1. It plans.
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = work(true);
     } catch (error) {
@@ -124,11 +107,11 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
       );
       continue;
     }
-    const act: HumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "useTool")!;
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "useTool")!;
     const face = (seconds: number): IAutoMovieVector3 => {
-      const frame: IHumanProp.IFrame = film.prop("tool", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("tool", seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(
@@ -163,11 +146,11 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
 
     // 3. The tool rides the hand rigidly.
     const inHand = (seconds: number): IAutoMovieVector3 => {
-      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = film.bones(
         "a",
         seconds,
       );
-      const socket: IHumanBody["surfaces"]["sockets"]["gripRight"] =
+      const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripRight"] =
         body.surfaces.sockets.gripRight;
       const hand: IAutoMovieResolvedBone = bones.get(socket.bone)!;
       return Quaternion.rotateVector(

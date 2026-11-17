@@ -1,14 +1,18 @@
-import type { IAutoMovieIntent, IAutoMovieSchedule } from "@automovie/engine";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
+import type {
+  AutoMovieMotionHumanActionKey,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * A planned action placed over its carrier: the channels it claims checked
@@ -31,19 +35,19 @@ export namespace HumanPerformanceOverlays {
    */
   export interface IPlanned {
     /** The action's name. */
-    name: HumanActionKey;
+    name: AutoMovieMotionHumanActionKey;
 
     /** The parameters it was planned from. */
     params: object;
 
     /** Its law. */
-    law: IHumanActionLaw<never>;
+    law: IAutoMovieMotionHumanActionLaw<never>;
 
     /** The context it was planned in. */
-    context: IHumanActionContext<never>;
+    context: IAutoMovieMotionHumanActionContext<never>;
 
     /** Its plan. */
-    plan: IHumanActionPlan;
+    plan: IAutoMovieMotionHumanActionPlan;
 
     /** Film second it starts. */
     start: number;
@@ -70,9 +74,9 @@ export namespace HumanPerformanceOverlays {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The overlay record is owned by its performer.
    */
   export function place(
-    self: HumanPerformanceState,
-    person: HumanSegment.IPerson,
-    carrier: HumanSegment.ISegment,
+    self: IAutoMovieMotionHumanPerformanceState,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    carrier: IAutoMovieMotionHumanSegment.ISegment,
     intent: IAutoMovieIntent,
     entries: readonly IAutoMovieSchedule.IEntry[],
     planned: IPlanned,
@@ -93,7 +97,7 @@ export namespace HumanPerformanceOverlays {
     // hand itself yielded, not one of its digits.
     const kept: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
       (c: AutoMovieMotionHumanChannel.Claim): boolean =>
-        !AutoMovieMotionHumanChannel.claims(yielded, c),
+        !HumanChannels.claims(yielded, c),
     );
     if (kept.length !== 0)
       throw new HumanRefusal({
@@ -111,9 +115,9 @@ export namespace HumanPerformanceOverlays {
       // its digits, or the same digit twice; two digits of one hand do not.
       const shared: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
         (c: AutoMovieMotionHumanChannel.Claim): boolean =>
-          AutoMovieMotionHumanChannel.claims(other.channels, c) ||
+          HumanChannels.claims(other.channels, c) ||
           other.channels.some((o: AutoMovieMotionHumanChannel.Claim): boolean =>
-            AutoMovieMotionHumanChannel.claims([c], o),
+            HumanChannels.claims([c], o),
           ),
       );
       if (shared.length !== 0)
@@ -125,7 +129,7 @@ export namespace HumanPerformanceOverlays {
           fix: `give one of them the other hand, or let ${other.name} end first (put ${name} after it in the same overlay)`,
         });
     }
-    const overlay: HumanSegment.IOverlay = {
+    const overlay: IAutoMovieMotionHumanSegment.IOverlay = {
       index: person.overlays.length,
       entry: entries.length,
       id: intent.anchor ?? name,

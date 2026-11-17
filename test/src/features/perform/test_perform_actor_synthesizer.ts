@@ -1,20 +1,6 @@
-import {
-  IAutoMovieActorContext,
-  Quaternion,
-  compilePerformance,
-  makeActorSynthesizer,
-  resolveActorWorldFrame,
-  sampleMotion,
-} from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieGait,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActorContext, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieGait, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, compilePerformance, makeActorSynthesizer, resolveActorWorldFrame, sampleMotion } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, makePose } from "../internal/fixtures";

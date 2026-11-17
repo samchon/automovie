@@ -1,12 +1,16 @@
+import type { AutoMovieVector3Tuple, IAutoMovieArcLengthJet, IAutoMovieHumanArmPrior, IAutoMovieHumanHandHeel } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
-import type { IAutoMovieHumanSeam } from "../../lofting/IAutoMovieHumanSeam";
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
 import { AutoMovieHumanHandStar } from "./AutoMovieHumanHandStar";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+
 const { smooth, smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { omega }: typeof AutoMovieHumanHandForm = AutoMovieHumanHandForm;
 const { wholeSkin }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
@@ -39,21 +43,7 @@ const { wholeSkin }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
  * hand's skin untouched.
  */
 export namespace AutoMovieHumanHandHeel {
-  /** A heel's fixed inputs. */
-  export interface IInput {
-    /** The hand form, shared by every person. */
-    form: IAutoMovieHumanHandForm;
-
-    /** The hand's map from the form's axes to the left frame, origin placed on the forearm's wrist. */
-    map: (q: readonly [number, number, number]) => Vec3;
-
-    /**
-     * The bone tube's point at a station `a` of the hand's axis and a phase
-     * `t` of the arm's section, left frame, mm: the arm's cut, or the wrist
-     * span's end section copied (the heel starts from it).
-     */
-    bone: (a: number, t: number) => Vec3;
-  }
+  
 
   /** Step of the phase for the crease jet's derivatives, radians. */
   const PHASE_STEP: number = 1e-3;
@@ -65,12 +55,12 @@ export namespace AutoMovieHumanHandHeel {
    * @param a Station along the hand's axis, mm of the form, from the crease to the branch.
    * @param t The arm section's phase, radians.
    */
-  export function point(input: IInput, a: number, t: number): Vec3 {
-    const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
-    const whole: Vec3 = wholeSkin(input.form.whole, a, omega() - t);
+  export function point(input: IAutoMovieHumanHandHeel.IInput, a: number, t: number): AutoMovieVector3Tuple {
+    const prior: IAutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+    const whole: AutoMovieVector3Tuple = wholeSkin(input.form.whole, a, omega() - t);
     const closing: number = smooth((a - prior.branch + prior.thenar.reach) / prior.thenar.reach);
-    const opening: Vec3 = input.form.opening(a, t);
-    const skin: Vec3 = input.map([
+    const opening: AutoMovieVector3Tuple = input.form.opening(a, t);
+    const skin: AutoMovieVector3Tuple = input.map([
       a,
       whole[1] + closing * (opening[1] - whole[1]),
       whole[2] + closing * (opening[2] - whole[2]),
@@ -78,7 +68,7 @@ export namespace AutoMovieHumanHandHeel {
     const v: number = smoother((a - prior.crease) / (prior.branch - prior.crease));
     if (v === 1) return skin;
 
-    const bone: Vec3 = input.bone(a, t);
+    const bone: AutoMovieVector3Tuple = input.bone(a, t);
     return [bone[0] + v * (skin[0] - bone[0]), bone[1] + v * (skin[1] - bone[1]), bone[2] + v * (skin[2] - bone[2])];
   }
 
@@ -90,11 +80,11 @@ export namespace AutoMovieHumanHandHeel {
    * @param input The heel's inputs.
    * @param t The arm section's phase, radians.
    */
-  export function creaseJet(input: IInput, t: number): IAutoMovieHumanSeam.IArcJet {
+  export function creaseJet(input: IAutoMovieHumanHandHeel.IInput, t: number): IAutoMovieArcLengthJet {
     const crease: number = AutoMovieHumanArmPrior.PRIOR.hand.crease;
-    const before: Vec3 = point(input, crease, t - PHASE_STEP);
-    const at: Vec3 = point(input, crease, t);
-    const after: Vec3 = point(input, crease, t + PHASE_STEP);
+    const before: AutoMovieVector3Tuple = point(input, crease, t - PHASE_STEP);
+    const at: AutoMovieVector3Tuple = point(input, crease, t);
+    const after: AutoMovieVector3Tuple = point(input, crease, t + PHASE_STEP);
     const d1: number[] = at.map((_: number, k: number): number => (after[k]! - before[k]!) / (2 * PHASE_STEP));
     const d2: number[] = at.map((v: number, k: number): number => (before[k]! - 2 * v + after[k]!) / (PHASE_STEP * PHASE_STEP));
 

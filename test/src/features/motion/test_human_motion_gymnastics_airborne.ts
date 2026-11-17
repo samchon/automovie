@@ -1,20 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createPlyoBox } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanGymnastics,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+
+import { HumanChain, HumanGymnastics, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -65,12 +53,12 @@ export function test_human_motion_gymnastics_airborne(): void {
   const depth: number = box.dimensions.depth!;
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const perform = (
       row: "frontHandspring" | "handspringVault",
       place?: IAutoMovieVector3,
-    ): HumanPerformance =>
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "handspring",
         laws: [HumanGymnastics[row]],
@@ -100,19 +88,19 @@ export function test_human_motion_gymnastics_airborne(): void {
     // Read one film; returns the hands' middle at `handsDown` and the hips at the end.
     const read = (
       label: string,
-      film: HumanPerformance,
+      film: IAutoMovieMotionHumanPerformance,
       row: string,
       surface: number,
     ): { hands: IAutoMovieVector3; hips: IAutoMovieVector3 } => {
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         body,
         0,
       );
-      const segment: HumanSegment.ISegment = film
+      const segment: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
       const at = (event: string): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -133,7 +121,7 @@ export function test_human_motion_gymnastics_airborne(): void {
           );
       }
       for (const window of segment.plan.contacts.filter(
-        (w: IHumanContactWindow): boolean => w.part.endsWith("Hand"),
+        (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Hand"),
       )) {
         const bone: AutoMovieHumanoidBone =
           window.part as AutoMovieHumanoidBone;

@@ -1,15 +1,6 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanArm,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanContactWindow,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanArmPhrase, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanArm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -70,7 +61,7 @@ export function test_motion_compose_arm_transport(): void {
     z: number,
     e: number = 1e-9,
   ): boolean => close(g.x, x, e) && close(g.y, y, e) && close(g.z, z, e);
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     rest: new Map<string, IAutoMovieVector3>(),
     surfaces: {
       sockets: {
@@ -88,7 +79,7 @@ export function test_motion_compose_arm_transport(): void {
         },
       },
     },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const quarter: IAutoMovieQuaternion = {
     x: 0,
@@ -100,7 +91,7 @@ export function test_motion_compose_arm_transport(): void {
   const standing = (
     yaw: number = 0,
     root: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
-  ): IHumanPosture => ({
+  ): IAutoMovieMotionHumanPosture => ({
     root,
     yaw,
     pitch: 0,
@@ -114,8 +105,8 @@ export function test_motion_compose_arm_transport(): void {
     (
       point: IAutoMovieVector3,
       rotation: IAutoMovieQuaternion = identity,
-    ): AutoMovieMotionHumanArm.Frame =>
-    (): AutoMovieMotionHumanArm.ITarget => ({
+    ): IAutoMovieMotionHumanArmTarget.Frame =>
+    (): IAutoMovieMotionHumanArmTarget.ITarget => ({
       surface: "wrist",
       shape: "relaxed",
       point,
@@ -125,13 +116,13 @@ export function test_motion_compose_arm_transport(): void {
   const goal = (
     primitive: IAutoMovieMotionHumanPrimitive,
     seconds: number,
-    posture: IHumanPosture = standing(),
+    posture: IAutoMovieMotionHumanPosture = standing(),
     side: "left" | "right" = "right",
-  ): IHumanPosture.IGoal =>
+  ): IAutoMovieMotionHumanPosture.IGoal =>
     primitive.write(posture, seconds).limbs[`${side}Arm`]!;
 
   // 1. An origin's world point.
-  const carried: AutoMovieMotionHumanArm.IOrigin = {
+  const carried: IAutoMovieMotionHumanArmTarget.IOrigin = {
     point: { x: -0.2, y: 1, z: 0.3 },
     rotation: identity,
   };
@@ -157,8 +148,8 @@ export function test_motion_compose_arm_transport(): void {
     side: "left" | "right" = "right",
     origin: IAutoMovieVector3 = { x: -0.2, y: 1, z: 0 },
     to: IAutoMovieVector3 = { x: -0.2, y: 1, z: 0.4 },
-    posture: IHumanPosture = standing(),
-  ): IHumanPosture.IGoal =>
+    posture: IAutoMovieMotionHumanPosture = standing(),
+  ): IAutoMovieMotionHumanPosture.IGoal =>
     goal(
       AutoMovieMotionHumanArm.move({
         body,
@@ -174,7 +165,7 @@ export function test_motion_compose_arm_transport(): void {
       posture,
       side,
     );
-  const half: IHumanPosture.IGoal = blend(0.5);
+  const half: IAutoMovieMotionHumanPosture.IGoal = blend(0.5);
   TestValidator.predicate(
     "a move is on its origin at 0, on its target at 1 and half way between",
     at(blend(0).point, -0.2, 1, 0) &&
@@ -272,7 +263,7 @@ export function test_motion_compose_arm_transport(): void {
   );
 
   // 4. The clocked weights.
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -281,8 +272,8 @@ export function test_motion_compose_arm_transport(): void {
     retract: 0.25,
   });
   const window = ["ready", "strokeStart"] as const;
-  const far: AutoMovieMotionHumanArm.Frame = target({ x: -0.2, y: 1, z: 0.4 });
-  const start: AutoMovieMotionHumanArm.IOrigin = {
+  const far: IAutoMovieMotionHumanArmTarget.Frame = target({ x: -0.2, y: 1, z: 0.4 });
+  const start: IAutoMovieMotionHumanArmTarget.IOrigin = {
     point: { x: -0.2, y: 1, z: 0 },
     rotation: identity,
   };
@@ -317,7 +308,7 @@ export function test_motion_compose_arm_transport(): void {
     clock,
     "right",
     window,
-    (_: IHumanPosture, seconds: number): AutoMovieMotionHumanArm.ITarget => ({
+    (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanArmTarget.ITarget => ({
       surface: "wrist",
       shape: "relaxed",
       point: { x: seconds, y: 1, z: 0.4 },
@@ -335,7 +326,7 @@ export function test_motion_compose_arm_transport(): void {
   );
 
   // 5. The contact window.
-  const contact: Pick<IHumanContactWindow, "kind" | "support"> = {
+  const contact: Pick<IAutoMovieMotionHumanContactWindow, "kind" | "support"> = {
     kind: "grip",
     support: { kind: "prop", subject: "rail" },
   };
@@ -369,7 +360,7 @@ export function test_motion_compose_arm_transport(): void {
   // 6. The stroke's phases.
   const read: number[] = [];
   const stroke = (
-    more: Partial<AutoMovieMotionHumanArm.IPhrase> = {},
+    more: Partial<IAutoMovieMotionHumanArmPhrase.IPhrase> = {},
   ): IAutoMovieMotionHumanPrimitive =>
     AutoMovieMotionHumanArm.stroke({
       body,
@@ -378,10 +369,10 @@ export function test_motion_compose_arm_transport(): void {
       origin: start,
       ...more,
       path: (
-        _: IHumanPosture,
+        _: IAutoMovieMotionHumanPosture,
         __: number,
         progress: number,
-      ): AutoMovieMotionHumanArm.ITarget => {
+      ): IAutoMovieMotionHumanArmTarget.ITarget => {
         read.push(progress);
         return {
           surface: "wrist",

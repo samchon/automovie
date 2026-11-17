@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * A through-cut in one face of a solid: an opening (an eye fissure, the oral fissure, a nostril, a vent) as a closed trim loop in the face's own chart, the face kept outside it.
@@ -21,7 +21,7 @@ export interface IAutoMovieConstructionTrim {
   name: string;
 
   /** The solid the opening is cut in. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The face the margin lies on: a view part's or a join's name in the host's subtree. */
   face: string;

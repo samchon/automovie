@@ -1,14 +1,15 @@
-import type { RecoveryOpenSlabGraph as O } from "./RecoveryOpenSlabGraph";
+import type { IAutoMovieRecoveryOpenSlabGraph, IAutoMovieRecoverySlabGraph } from "@automovie/interface";
+
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 
 /** Private source admission record shared structurally with the public observer. */
-type Source = O.Source;
+type Source = IAutoMovieRecoveryOpenSlabGraph.Source;
 /** Private query record; original face ownership stays observation-only. */
-type Query = O.Query;
+type Query = IAutoMovieRecoveryOpenSlabGraph.Query;
 /** Local saved-arc continuation result. */
-type Result = O.Result;
+type Result = IAutoMovieRecoveryOpenSlabGraph.Result;
 /** One private saved-arc support. */
-type Arc = O.Arc;
+type Arc = IAutoMovieRecoveryOpenSlabGraph.Arc;
 
 /**
  * Prepare ordinary open-slab observations without exposing original mesh addresses.
@@ -54,7 +55,7 @@ export function prepareRecoveryOpenSlabGraph(
         "Open slab aliases must have identical positions and scalar heights",
       );
   }
-  const sheet: ReturnType<typeof G.prepare> = G.prepare(source);
+  const sheet: ReturnType<IAutoMovieRecoverySlabGraph.Prepare> = G.prepare(source);
   const invalid: Set<number> = new Set();
   const invalidVertices: Set<number> = new Set();
   const invalidEdges: Set<string> = new Set();
@@ -104,8 +105,7 @@ export function prepareRecoveryOpenSlabGraph(
           a: Math.min(at, next),
           b: Math.max(at, next),
           faces: [],
-          sign: 0,
-        });
+          sign: 0 });
       const edge: NonNullable<ReturnType<typeof edges.get>> = edges.get(key)!;
       edge.faces.push(ti);
       edge.sign += at < next ? 1 : at > next ? -1 : 0;
@@ -287,8 +287,7 @@ export function prepareRecoveryOpenSlabGraph(
           degrees: new Map(),
           edges: 0,
           before: 0,
-          after: 0,
-        });
+          after: 0 });
       }
       const component: (typeof components)[number] =
         components[ordinal.get(r)!]!;
@@ -339,7 +338,7 @@ export function prepareRecoveryOpenSlabGraph(
       );
       return found.size === 1 ? found.values().next().value : undefined;
     };
-    const groups: G.Group[] = sheet({
+    const groups: IAutoMovieRecoverySlabGraph.Group[] = sheet({
       beforeMm: input.beforeMm,
       afterMm: input.afterMm,
       before: input.before.map((arc: Arc): ReadonlySet<number> => arc.faces),
@@ -349,8 +348,7 @@ export function prepareRecoveryOpenSlabGraph(
       probes: components.map(
         (component: (typeof components)[number]): ReadonlySet<number> =>
           component.faces,
-      ),
-    });
+      ) });
     const result: Result = {
       pairs: [],
       unresolved: [],
@@ -358,8 +356,7 @@ export function prepareRecoveryOpenSlabGraph(
         ? [
             `Source material orientation is inconsistent on ${orientationWarnings} candidate faces; generated parameter normals do not establish source outwardness.`,
           ]
-        : [],
-    };
+        : [] };
     for (const group of groups) {
       let reason: string | null = group.supported
         ? null
@@ -401,14 +398,12 @@ export function prepareRecoveryOpenSlabGraph(
           result.pairs.push({
             before: group.before[0]!,
             after: group.after[0]!,
-            reverseAfter: false,
-          });
+            reverseAfter: false });
         else if (a === d && b === c)
           result.pairs.push({
             before: group.before[0]!,
             after: group.after[0]!,
-            reverseAfter: true,
-          });
+            reverseAfter: true });
         else
           reason =
             "Open endpoint transport does not preserve its two boundary paths";
@@ -417,8 +412,7 @@ export function prepareRecoveryOpenSlabGraph(
         result.unresolved.push({
           before: [...group.before],
           after: [...group.after],
-          reason,
-        });
+          reason });
     }
     result.pairs.sort(
       (a: Result["pairs"][number], b: Result["pairs"][number]): number =>

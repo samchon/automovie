@@ -1,3 +1,4 @@
+import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
 /**
  * Population hand anthropometry: each digit's breadth and girth at its two
  * joints nearest the tip, and the sample's mean hand length, the table both
@@ -23,27 +24,12 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts One table for every reader, so the figure and the objects it handles never disagree.
  */
 export namespace AutoMovieHandAnthropometry {
-  /**
-   * One joint's caliper breadth and tape girth, mm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's measure and unit.
-   * @evidence contracts/development/design.md#principled-representation The paper's two measures of one joint, in its millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two figures a digit's or an object's reader takes, owned by the table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member, so every joint states both.
-   */
-  export interface IJoint {
-    /** Breadth across the joint, mm. */
-    breadth: number;
-
-    /** Circumference round the joint, mm. */
-    girth: number;
-  }
 
   /**
    * Digits 1 (thumb) to 5 (little), each `[first joint, second joint]` from
    * the tip, women then men (means).
    */
-  export const JOINTS: readonly [readonly (readonly [IJoint, IJoint])[], readonly (readonly [IJoint, IJoint])[]] = [
+  export const JOINTS: readonly [readonly (readonly [IAutoMovieHandAnthropometry.IJoint, IAutoMovieHandAnthropometry.IJoint])[], readonly (readonly [IAutoMovieHandAnthropometry.IJoint, IAutoMovieHandAnthropometry.IJoint])[]] = [
     [
       [{ breadth: 18.41, girth: 60.61 }, { breadth: 20.07, girth: 68.52 }],
       [{ breadth: 14.09, girth: 50.09 }, { breadth: 16.48, girth: 58.32 }],

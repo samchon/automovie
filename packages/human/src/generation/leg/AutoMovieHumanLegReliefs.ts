@@ -1,4 +1,10 @@
-import type { AutoMovieLoftContract, IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftContract, IAutoMovieLoftRelief, IAutoMovieHumanLegReliefWindow, IAutoMovieHumanLegReliefs, IAutoMovieHumanLegStations } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanLegReliefWindow } from "./AutoMovieHumanLegReliefWindow";
 import { AutoMovieHumanLegReliefWindows } from "./AutoMovieHumanLegReliefWindows";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
@@ -25,23 +31,23 @@ export namespace AutoMovieHumanLegReliefs {
    * @param furrow The person's gluteal furrow height, mm: a window anchored at the crotch stands there when it lies inside the leg, the fold being where the furrow is.
    */
   export function of(
-    bones: AutoMovieHumanLegStations.IBones,
-    girth: (s: number) => number,
-    span: readonly [number, number],
+    bones: IAutoMovieHumanLegStations.IBones,
+    girth: IAutoMovieHumanLegReliefs.OfGirth,
+    span: IAutoMovieHumanLegReliefs.OfSpan,
     crotchReach?: number,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
     furrow?: number,
   ): IAutoMovieLoftRelief[] {
-    const centre: (w: AutoMovieHumanLegReliefWindow.IWindow) => number = (w: AutoMovieHumanLegReliefWindow.IWindow): number =>
+    const centre: (w: IAutoMovieHumanLegReliefWindow.IWindow) => number = (w: IAutoMovieHumanLegReliefWindow.IWindow): number =>
       w.anchor === "crotch" && furrow !== undefined && furrow > span[0] && furrow < span[1]
         ? furrow
         : w.anchor === "crotch" && crotchReach !== undefined
         ? span[1] - crotchReach
         : AutoMovieHumanLegStations.heightAt(bones, w.segment, w.share);
-    return AutoMovieHumanLegReliefWindows.ALL.filter((w: AutoMovieHumanLegReliefWindow.IWindow): boolean => {
+    return AutoMovieHumanLegReliefWindows.ALL.filter((w: IAutoMovieHumanLegReliefWindow.IWindow): boolean => {
       const at: number = centre(w);
       return at > span[0] && at < span[1];
-    }).flatMap((w: AutoMovieHumanLegReliefWindow.IWindow): IAutoMovieLoftRelief[] => {
+    }).flatMap((w: IAutoMovieHumanLegReliefWindow.IWindow): IAutoMovieLoftRelief[] => {
       const at: number = centre(w);
       try {
         return [AutoMovieHumanLegReliefWindow.create(w, { bones, radius: girth(at) / (2 * Math.PI), at })];

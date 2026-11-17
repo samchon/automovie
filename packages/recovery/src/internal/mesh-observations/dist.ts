@@ -1,4 +1,5 @@
-import { V3 } from "./V3";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
+
 import { len } from "./len";
 import { sub } from "./sub";
 
@@ -13,5 +14,5 @@ import { sub } from "./sub";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary and result scalars become unreachable after return.
  */
-export const dist: (a: V3, b: V3) => number = (a: V3, b: V3): number =>
+export const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
   len(sub(a, b));

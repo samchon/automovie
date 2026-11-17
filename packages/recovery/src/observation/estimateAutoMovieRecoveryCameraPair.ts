@@ -1,13 +1,14 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type { AutoMovieRecoveryOperator, IAutoMovieRecoveryCameraPairAdmissionOperation, IAutoMovieRecoveryCameraPairEstimate, IAutoMovieRecoveryImageFeaturesExtractionOperation, IAutoMovieRecoveryImageFeaturesMatchingOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+
 
 import { admitRecoveryCameraPair } from "../internal/admitRecoveryCameraPair";
 import { createRecoveryCameraEstimate } from "../internal/createRecoveryCameraEstimate";
 import { extractRecoveryImageFeatures } from "../internal/extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "../internal/matchRecoveryImageFeatures";
-import type { IAutoMovieRecoveryCameraPairEstimate } from "../structures/image/IAutoMovieRecoveryCameraPairEstimate";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { AutoMovieRecoveryOperator } from "../typings/AutoMovieRecoveryOperator";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
+
+
 
 /**
  * Observe automatic image correspondences and estimate a calibrated relative pose.
@@ -21,7 +22,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  * relative pose or record every camera refusal, and neither outcome recovers a
  * surface or physical scale. Cancelled, invalid and failed computations publish
  * no artifact. Cancellation is cooperative at progress checkpoints; a blocked
- * synchronous event loop cannot receive a later abort. Caller callbacks may
+ * synchronous event loop cannot receive a later event-loop cancellation. Caller callbacks may
  * request cancellation but cannot change the admitted policy or provenance.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Closed preallocation admission and representable supplied charts establish a conditional calibrated two-view problem. Automatic local appearance proposes material correspondences; original-design robust fitting, analytic five-coordinate refinement and independent pixel/depth/parallax/planar gates qualify only a relative unit-baseline camera, never hidden shape or correspondence truth.
@@ -34,7 +35,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  */
 export function estimateAutoMovieRecoveryCameraPair(
   input: IAutoMovieRecoveryCameraPairInput,
-  options: Pick<IAutoMovieRecoveryOptions, "signal" | "onProgress"> = {},
+  options: Pick<IAutoMovieRecoveryOptions, "cancelled" | "onProgress"> = {},
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryCameraPairEstimate> {
   const operator: AutoMovieRecoveryOperator = "calibrated-image-pair-v1";
   let admitted: boolean = false,
@@ -49,23 +50,27 @@ export function estimateAutoMovieRecoveryCameraPair(
       Array.isArray(options) ||
       Reflect.ownKeys(options).some(
         (key: string | symbol): boolean =>
-          key !== "signal" && key !== "onProgress",
+          key !== "cancelled" && key !== "onProgress",
       ) ||
       (options.onProgress !== undefined &&
         typeof options.onProgress !== "function") ||
-      (options.signal !== undefined &&
-        (options.signal === null ||
-          typeof options.signal !== "object" ||
-          Array.isArray(options.signal) ||
-          typeof options.signal.aborted !== "boolean"))
+      (options.cancelled !== undefined && typeof options.cancelled !== "function")
     )
       throw new Error(
-        "invalid-camera-options: only signal and synchronous progress observer are supported",
+        "invalid-camera-options: only cancellation callback and synchronous progress observer are supported",
       );
-    const signal: AbortSignal | undefined = options.signal;
+    const probe: typeof options.cancelled = options.cancelled;
     const observer: typeof options.onProgress = options.onProgress;
-    if (signal?.aborted) throw cancellation;
-    const prepared: ReturnType<typeof admitRecoveryCameraPair> =
+    const cancelled: () => boolean = (): boolean => {
+      callback = true;
+      const requested: boolean | undefined = probe?.();
+      if (probe !== undefined && typeof requested !== "boolean")
+        throw new Error("Cancellation callback must return a boolean synchronously");
+      callback = false;
+      return requested === true;
+    };
+    if (cancelled()) throw cancellation;
+    const prepared: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =
       admitRecoveryCameraPair(input);
     const stable: IAutoMovieRecoveryCameraPairInput = {
       ...input,
@@ -77,24 +82,21 @@ export function estimateAutoMovieRecoveryCameraPair(
           camera: {
             ...view.camera,
             focalPx: [...view.camera.focalPx],
-            principalPointPx: [...view.camera.principalPointPx],
-          },
-        }),
-      ),
-    };
+            principalPointPx: [...view.camera.principalPointPx] } }),
+      ) };
     admitted = true;
     const checkpoint: (
       phase: string,
       completed: number,
       total: number,
     ) => void = (phase: string, completed: number, total: number): void => {
-      if (signal?.aborted) throw cancellation;
+      if (cancelled()) throw cancellation;
       callback = true;
       observer?.(phase, completed, total);
       callback = false;
-      if (signal?.aborted) throw cancellation;
+      if (cancelled()) throw cancellation;
     };
-    const features: ReturnType<typeof extractRecoveryImageFeatures>[] = [];
+    const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] = [];
     checkpoint("image-features", 0, 2);
     for (const view of stable.views) {
       features.push(
@@ -103,7 +105,7 @@ export function estimateAutoMovieRecoveryCameraPair(
       checkpoint("image-features", features.length, 2);
     }
     checkpoint("descriptor-matching", 0, 1);
-    const matches: ReturnType<typeof matchRecoveryImageFeatures> =
+    const matches: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> =
       matchRecoveryImageFeatures(
         features[0]!.points,
         features[1]!.points,
@@ -130,19 +132,16 @@ export function estimateAutoMovieRecoveryCameraPair(
           : `Camera refused: ${value.refusalReasons.join(", ")}`,
         "Supplied intrinsics and scene rigidity are assertions; metric scale, unseen geometry and a recovered surface remain unobserved",
         "Deterministic sampling targets and local fit residuals do not establish physical correspondence truth or estimated covariance",
-      ],
-    };
+      ] };
   } catch (error: unknown) {
     if (error === cancellation && !callback)
       return {
         operator,
         status: "cancelled",
-        diagnostics: [cancellation.message],
-      };
+        diagnostics: [cancellation.message] };
     return {
       operator,
       status: admitted || callback ? "failed" : "refused",
-      diagnostics: [error instanceof Error ? error.message : String(error)],
-    };
+      diagnostics: [error instanceof Error ? error.message : String(error)] };
   }
 }

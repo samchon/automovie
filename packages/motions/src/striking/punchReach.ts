@@ -1,6 +1,4 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { StrikingReach } from "./StrikingReach";
+import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * A punch's reach on one goal of the fist, and one correction of the
@@ -30,7 +28,7 @@ export namespace punchReach {
     shoulder: IAutoMovieVector3;
 
     /** The arm's solution at contact. */
-    solved: StrikingReach.ISolution;
+    solved: IAutoMovieMotionHumanStrikingReach.ISolution;
 
     /** The elbow's hint point at contact. */
     hint: IAutoMovieVector3;

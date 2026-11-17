@@ -1,7 +1,5 @@
-import {
-  type AutoMovieExternalMotionAdoptionDecision,
-  adoptAutoMovieExternalMotion,
-} from "@automovie/ingest";
+import type { IAutoMovieExternalMotionAdoptionDecision, IAutoMovieExternalMotionAdoptionReceipt } from "@automovie/interface";
+import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
 
 import { throwsError } from "../predicates";
 import type { ITest12MotionAdoptionContext } from "./ITest12MotionAdoptionContext";
@@ -59,7 +57,7 @@ export function test12MotionAdoptionRefusalFacts2(
       "missingMotion",
       (): boolean =>
         throwsError(
-          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
+          (): IAutoMovieExternalMotionAdoptionReceipt =>
             adoptAutoMovieExternalMotion({
               inspection: { ...inspection, motion: undefined },
               source,
@@ -72,7 +70,7 @@ export function test12MotionAdoptionRefusalFacts2(
       "motionProfileIsRequired",
       (): boolean =>
         throwsError(
-          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
+          (): IAutoMovieExternalMotionAdoptionReceipt =>
             adoptAutoMovieExternalMotion({
               inspection: { ...inspection, profile: "gltf-static-v1" },
               source,
@@ -85,7 +83,7 @@ export function test12MotionAdoptionRefusalFacts2(
       "motionInterpretationIsRequired",
       (): boolean =>
         throwsError(
-          (): import("@automovie/ingest").IAutoMovieExternalMotionAdoption =>
+          (): IAutoMovieExternalMotionAdoptionReceipt =>
             adoptAutoMovieExternalMotion({
               inspection: {
                 ...inspection,
@@ -171,7 +169,7 @@ export function test12MotionAdoptionRefusalFacts2(
           {
             mode: "automatic",
             take: "clip_0",
-          } as unknown as AutoMovieExternalMotionAdoptionDecision,
+          } as unknown as IAutoMovieExternalMotionAdoptionDecision,
           "Unsupported external motion adoption mode",
         ),
     ],

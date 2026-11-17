@@ -1,14 +1,9 @@
-import {
-  IAutoMovieHeightRule,
-  IAutoMovieSurface,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFootprint, type IAutoMovieTessellation, IAutoMovieHeightRule, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieFootprint } from "../space/IAutoMovieFootprint";
+
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { surfaceFootprint } from "../space/surfaceFootprint";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
-import { ITessellation } from "./ITessellation";
 
 /** Plan distance, in metres, within which a point counts as on a clip edge or a lattice cut as on the footprint's edge. */
 const CLIP_EPSILON: number = 1e-10;
@@ -48,9 +43,9 @@ const CLIP_EPSILON: number = 1e-10;
  */
 export const tessellateSurface: (
   surface: IAutoMovieSurface,
-) => ITessellation | null = (
+) => IAutoMovieTessellation | null = (
   surface: IAutoMovieSurface,
-): ITessellation | null => {
+): IAutoMovieTessellation | null => {
   const footprint: IAutoMovieFootprint = surfaceFootprint(surface);
   const pieces: IAutoMovieVector3[][] = footprintConvexPieces(footprint);
   if (pieces.length === 0) return null;
@@ -171,10 +166,10 @@ const edgeDistance: (
 const tessellatePolygons: (
   surface: IAutoMovieSurface,
   polygons: IAutoMovieVector3[][],
-) => ITessellation = (
+) => IAutoMovieTessellation = (
   surface: IAutoMovieSurface,
   polygons: IAutoMovieVector3[][],
-): ITessellation => {
+): IAutoMovieTessellation => {
   const positions: number[] = [];
   const indices: number[] = [];
   const vertexByPlan: Map<string, number> = new Map();

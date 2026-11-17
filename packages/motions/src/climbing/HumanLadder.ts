@@ -1,13 +1,9 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
@@ -26,33 +22,6 @@ export namespace HumanLadder {
 
   /** The most the rungs' line may lean from upright, degrees (provisional): a fixed ladder's. */
   export const UPRIGHT: number = 5;
-  /**
-   * A ladder as the plan resolved it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The rungs' plane and spacing in the ladder's own floor frame, read off its prop at the start.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rung` and the capture.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers, each the prop's own.
-   */
-  export interface ILadder {
-    /** The ladder's floor frame: origin at its foot under the rungs' middle, the heading the climber faces it by. */
-    frame: HumanFrame.IFrame;
-
-    /** The rungs' distance ahead in that frame, metres: 0, the frame's origin lying in their plane. */
-    ahead: number;
-
-    /** The rung spacing, metres. */
-    spacing: number;
-
-    /** How many rungs the ladder has. */
-    count: number;
-
-    /** A rung's radius, metres. */
-    radius: number;
-
-    /** The rungs' clear width between the rails, metres; unbounded when the rung declares no length. */
-    width: number;
-  }
 
   /**
    * The ladder a prop declares, where it stands at a film second.
@@ -71,10 +40,10 @@ export namespace HumanLadder {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
-  ): ILadder {
-    const read: IHumanActionContext.IProp = context.prop(subject);
+  ): IAutoMovieMotionHumanLadder.ILadder {
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
     if (read.prop.fixed !== true)
       throw new HumanRefusal({
         kind: "affordance",
@@ -84,7 +53,7 @@ export namespace HumanLadder {
         reason: `${subject} is not a fixture, so the hands that grip its rungs would carry it off`,
         fix: "place the ladder as a fixture (`fixed: true`)",
       });
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
     const rungs: IAutoMovieAffordance[] = (read.prop.affordances ?? [])
       .filter((a: IAutoMovieAffordance): boolean => /^rung\d+$/.test(a.id))
       .sort(
@@ -146,7 +115,7 @@ export namespace HumanLadder {
    * @returns World metres.
    */
   export function rung(
-    ladder: ILadder,
+    ladder: IAutoMovieMotionHumanLadder.ILadder,
     index: number,
     x: number,
   ): IAutoMovieVector3 {

@@ -1,8 +1,5 @@
-import {
-  IAutoMovieClip,
-  IAutoMovieQuaternion,
-  IAutoMovieTrack,
-} from "@automovie/interface";
+import { type IAutoMovieClipShapeFault, type IAutoMovieSampledChannel, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieTrack } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
@@ -10,8 +7,6 @@ import { segmentIndex } from "../math/segmentIndex";
 import { clipDurationFault } from "../validation/clipDurationFault";
 import { clipLoopFault } from "../validation/clipLoopFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
-import type { IAutoMovieClipShapeFault } from "./../validation/IAutoMovieClipShapeFault";
-import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
 

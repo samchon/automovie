@@ -1,6 +1,4 @@
-import { IPerformShotFrameJob } from "./IPerformShotFrameJob";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
-
+import type { IAutoMovieEnginePerformShotGateContext, IAutoMoviePerformShotFrameJob } from "@automovie/interface";
 /**
  * Sort the live camera's frame moves by start, in place, and refuse moves that double-book the camera.
  *
@@ -18,16 +16,16 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Reorders the caller's list and appends findings to the caller's collector, retaining no state after return. The host's sort may allocate temporary workspace during the call.
  */
 export function gatePerformShotFrameOverlaps(
-  context: IPerformShotGateContext,
-  frames: IPerformShotFrameJob[],
+  context: IAutoMovieEnginePerformShotGateContext,
+  frames: IAutoMoviePerformShotFrameJob[],
 ): void {
   frames.sort(
-    (a: IPerformShotFrameJob, b: IPerformShotFrameJob): number =>
+    (a: IAutoMoviePerformShotFrameJob, b: IAutoMoviePerformShotFrameJob): number =>
       a.action.start - b.action.start,
   );
   for (let i: number = 0; i + 1 < frames.length; ++i) {
-    const move: IPerformShotFrameJob = frames[i]!;
-    const next: IPerformShotFrameJob = frames[i + 1]!;
+    const move: IAutoMoviePerformShotFrameJob = frames[i]!;
+    const next: IAutoMoviePerformShotFrameJob = frames[i + 1]!;
     const path: string = `${context.base}[${next.index}].start`;
     if (next.action.start <= move.action.start + 1e-9) {
       context.out.push(

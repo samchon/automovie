@@ -1,8 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSurfaceFrame, IAutoMovieSweepFrame, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieSurfaceFrame } from "./IAutoMovieSurfaceFrame";
-import type { IAutoMovieSweepFrame } from "./sweep/IAutoMovieSweepFrame";
 
 /**
  * Admit a surface request and construct its right-handed orthonormal basis in

@@ -1,14 +1,7 @@
-import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMeshAttachmentCap, IAutoMovieMeshQueryHierarchy, IAutoMovieMeshSeparationAttachment, IAutoMovieMeshSeparationOptions, IAutoMovieMeshSeparationQuery, IAutoMovieMeshSeparationResult, IAutoMovieMeshSeparationVerdict, IAutoMovieTriangleAttachmentContactBound, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieTrianglePoint";
-import type { IAutoMovieMeshAttachmentCap } from "./IAutoMovieMeshAttachmentCap";
-import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
-import type { IAutoMovieMeshSeparationAttachment } from "./IAutoMovieMeshSeparationAttachment";
-import type { IAutoMovieMeshSeparationOptions } from "./IAutoMovieMeshSeparationOptions";
-import type { IAutoMovieMeshSeparationQuery } from "./IAutoMovieMeshSeparationQuery";
-import type { IAutoMovieMeshSeparationResult } from "./IAutoMovieMeshSeparationResult";
-import type { IAutoMovieMeshSeparationVerdict } from "./IAutoMovieMeshSeparationVerdict";
-import type { IAutoMovieTriangleAttachmentContactBound } from "./IAutoMovieTriangleAttachmentContactBound";
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";

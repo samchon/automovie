@@ -1,18 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanSignature,
-  HumanSportCarry,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain, HumanPerformance, HumanSignature, HumanSportCarry } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,9 +38,9 @@ export function test_human_motion_sport_sled(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const height: number = 0.55 * body.measure.stature;
-    const sled: IHumanProp = {
+    const sled: IAutoMovieMotionHumanProp = {
       subject: "sled",
       frame: {
         position: { x: 0, y: 0, z: 0.55 },
@@ -69,7 +58,7 @@ export function test_human_motion_sport_sled(): void {
         extent: null,
       })),
     };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "sled",
@@ -101,7 +90,7 @@ export function test_human_motion_sport_sled(): void {
       (placed.plan.events.find((e): boolean => e.name === "gripped")?.share ??
         NaN) *
         placed.plan.duration;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
@@ -116,7 +105,7 @@ export function test_human_motion_sport_sled(): void {
       seconds <= placed.end;
       seconds += 0.25
     ) {
-      const frame: IHumanProp.IFrame = performance.prop("sled", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("sled", seconds);
       for (const side of ["left", "right"] as const) {
         const handle: IAutoMovieVector3 = Vector3.add(
           frame.position,
@@ -125,11 +114,11 @@ export function test_human_motion_sport_sled(): void {
             sled.affordances!.find((a) => a.id === side)!.frame.translation,
           ),
         );
-        const bones: ReturnType<HumanPerformance["bones"]> = performance.bones(
+        const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = performance.bones(
           "a",
           seconds,
         );
-        const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+        const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
           body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
         const fist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
           socket,
@@ -179,7 +168,7 @@ export function test_human_motion_sport_sled(): void {
       complaints.push(
         `${name}: the trunk leans only ${upright.toFixed(1)} degrees from vertical, at least 15 expected`,
       );
-    const end: IHumanProp.IFrame = performance.prop("sled", placed.end);
+    const end: IAutoMovieMotionHumanProp.IFrame = performance.prop("sled", placed.end);
     if (!(end.position.z - 0.55 >= 2))
       complaints.push(
         `${name}: the sled moves ${mm(end.position.z - 0.55)} mm forward, at least 2000 mm expected`,

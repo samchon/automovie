@@ -1,14 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, closestPointsBetweenSegments } from "@automovie/engine";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
@@ -71,8 +63,8 @@ export namespace HumanFitPairs {
    * @param body The body.
    * @returns The pairs.
    */
-  export function of(body: IHumanBody): IPair[] {
-    const m: IHumanBody["measure"] = body.measure;
+  export function of(body: IAutoMovieMotionHumanBody): IPair[] {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const sides = ["left", "right"] as const;
     const capsule = (
       bone: AutoMovieHumanoidBone,
@@ -161,10 +153,10 @@ export namespace HumanFitPairs {
       row: {
         key: `pair:${pair.a.bone}:${pair.b.bone}`,
         index: step.motions.map(
-          (_: HumanJacobian.IMotion, i: number): number => i,
+          (_: IAutoMovieMotionHumanJacobian.IMotion, i: number): number => i,
         ),
         coef: step.motions.map(
-          (motion: HumanJacobian.IMotion, i: number): number =>
+          (motion: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
             Vector3.dot(
               Vector3.subtract(
                 HumanJacobian.velocity(motion, pair.a.bone, g.a),

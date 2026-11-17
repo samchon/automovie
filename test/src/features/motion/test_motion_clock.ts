@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionClock } from "@automovie/interface";
 import { AutoMovieMotionClock } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +29,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motion_clock(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-12;
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
     { name: "prepare", seconds: 0.2 },
     { name: "strokeStart", seconds: 0.3 },
     { name: "contact", seconds: 0 },
@@ -84,7 +85,7 @@ export function test_motion_clock(): void {
       .events()
       .every((e, i: number): boolean => close(e.share, [0, 0.2, 0.5, 0.5][i]!)),
   );
-  const unordered: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(2, [
+  const unordered: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(2, [
     { name: "late", seconds: 1.5 },
     { name: "early", seconds: 0.5 },
   ]);

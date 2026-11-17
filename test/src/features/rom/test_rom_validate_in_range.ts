@@ -1,3 +1,4 @@
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import {
   ViolationCollector,
   getConstraint,
@@ -20,7 +21,7 @@ import { joint } from "../internal/fixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: An elbow at 90-degree flexion inside [0,150], with zero on its immobile abduction axis, yields an empty violation list.).
  */
 export function test_rom_validate_in_range(): void {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", { flexion: 90, abduction: 0 }),
     constraint: getConstraint("leftLowerArm", null)!,

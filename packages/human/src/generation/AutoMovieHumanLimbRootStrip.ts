@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanLimbRootStrip } from "@automovie/interface";
+
+
 /**
  * A limb's root strip: the skin between the trunk's ring, which the trunk owns,
  * and the limb's first own section, shared by the arm at its scye and the leg
@@ -18,42 +21,13 @@
  * where its own sections end.
  */
 export namespace AutoMovieHumanLimbRootStrip {
-  /** A point or direction, mm. */
-  export type Vec3 = [number, number, number];
+  
 
-  /**
-   * One end of a column: its point and its derivatives along the strip's run,
-   * the run counted from the trunk's ring into the limb.
-   */
-  export interface IJet {
-    /** The point, mm. */
-    point: Vec3;
+  
 
-    /** First derivative along the run, mm per mm. */
-    first: Vec3;
+  
 
-    /** Second derivative along the run, per mm. */
-    second: Vec3;
-  }
-
-  /** What the strip is built from. */
-  export interface IInputs {
-    /** The trunk's ring at the limb's phases with its jet down across the ring. */
-    start: IJet[];
-
-    /** The limb's own section at the strip's far end with its law's jet, one per phase. */
-    end: IJet[];
-  }
-
-  /** The strip. */
-  export interface IStrip {
-    /**
-     * Points at a share of the run, one per phase: 0 the ring, 1 the limb's
-     * own section. A share outside `[0, 1]` reads the columns' polynomials
-     * past their ends, as the chains' station differences do.
-     */
-    ring(w: number): Vec3[];
-  }
+  
 
   /**
    * The strip from the trunk's ring to the limb's own section.
@@ -61,8 +35,8 @@ export namespace AutoMovieHumanLimbRootStrip {
    * @param input The two ends' jets and the run.
    * @returns The strip.
    */
-  export function strip(input: IInputs): IStrip {
-    const { start, end }: IInputs = input;
+  export function strip(input: IAutoMovieHumanLimbRootStrip.IInputs): IAutoMovieHumanLimbRootStrip.IStrip {
+    const { start, end }: IAutoMovieHumanLimbRootStrip.IInputs = input;
     if (start.length !== end.length) throw new Error("A root strip needs one end per start");
 
     // Each column's ends are reparametrized so that its speed there is its
@@ -70,9 +44,9 @@ export namespace AutoMovieHumanLimbRootStrip {
     // `lambda = chord / |f|`, which keeps the owner's tangent and curvature
     // vector (G2) whatever the owner's own speed, where the skin lies nearly
     // in the ring's plane and its station derivative grows without bound.
-    const columns: { c: IJet; a: IJet; lc: number; la: number }[] = start.map(
-      (c: IJet, m: number): { c: IJet; a: IJet; lc: number; la: number } => {
-        const a: IJet = end[m]!;
+    const columns: { c: IAutoMovieHumanLimbRootStrip.IJet; a: IAutoMovieHumanLimbRootStrip.IJet; lc: number; la: number }[] = start.map(
+      (c: IAutoMovieHumanLimbRootStrip.IJet, m: number): { c: IAutoMovieHumanLimbRootStrip.IJet; a: IAutoMovieHumanLimbRootStrip.IJet; lc: number; la: number } => {
+        const a: IAutoMovieHumanLimbRootStrip.IJet = end[m]!;
         const chord: number = length(a.point, c.point);
 
         return { c, a, lc: speed(chord, c.first), la: speed(chord, a.first) };
@@ -80,10 +54,10 @@ export namespace AutoMovieHumanLimbRootStrip {
     );
 
     return {
-      ring: (w: number): Vec3[] => {
+      ring: (w: number): AutoMovieVector3Tuple[] => {
         const h: number[] = basis(w);
 
-        return columns.map(({ c, a, lc, la }: { c: IJet; a: IJet; lc: number; la: number }): Vec3 =>
+        return columns.map(({ c, a, lc, la }: { c: IAutoMovieHumanLimbRootStrip.IJet; a: IAutoMovieHumanLimbRootStrip.IJet; lc: number; la: number }): AutoMovieVector3Tuple =>
           [0, 1, 2].map(
             (k: number): number =>
               h[0]! * c.point[k]! +
@@ -92,7 +66,7 @@ export namespace AutoMovieHumanLimbRootStrip {
               h[3]! * la * la * a.second[k]! +
               h[4]! * la * a.first[k]! +
               h[5]! * a.point[k]!,
-          ) as Vec3,
+          ) as AutoMovieVector3Tuple,
         );
       },
     };
@@ -105,7 +79,7 @@ export namespace AutoMovieHumanLimbRootStrip {
    * @param first The owner's first derivative there.
    * @returns The scale, the chord itself where the derivative vanishes.
    */
-  function speed(chord: number, first: Vec3): number {
+  function speed(chord: number, first: AutoMovieVector3Tuple): number {
     const f: number = Math.hypot(first[0], first[1], first[2]);
 
     return f > 0 ? chord / f : chord;
@@ -118,7 +92,7 @@ export namespace AutoMovieHumanLimbRootStrip {
    * @param b The other, mm.
    * @returns The distance, mm.
    */
-  function length(a: Vec3, b: Vec3): number {
+  function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
@@ -136,21 +110,21 @@ export namespace AutoMovieHumanLimbRootStrip {
    * @param toward A point of the limb's own section.
    * @returns The jet at the crossing; the first jet where no edge is crossed.
    */
-  export function under(centre: Vec3, ring: readonly IJet[], toward: Vec3): IJet {
+  export function under(centre: AutoMovieVector3Tuple, ring: readonly IAutoMovieHumanLimbRootStrip.IJet[], toward: AutoMovieVector3Tuple): IAutoMovieHumanLimbRootStrip.IJet {
     const dx: number = toward[0] - centre[0];
     const dz: number = toward[2] - centre[2];
     const l: number = Math.hypot(dx, dz) || 1;
     const ux: number = dx / l;
     const uz: number = dz / l;
     const n: number = ring.length;
-    const mix: (a: Vec3, b: Vec3, f: number) => Vec3 = (a: Vec3, b: Vec3, f: number): Vec3 => [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1]), a[2] + f * (b[2] - a[2])];
+    const mix: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, f: number) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, f: number): AutoMovieVector3Tuple => [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1]), a[2] + f * (b[2] - a[2])];
     let best: number = -1;
-    let found: IJet = ring[0]!;
+    let found: IAutoMovieHumanLimbRootStrip.IJet = ring[0]!;
 
     for (let i: number = 0; i < n; i++) {
-      const a: IJet = ring[i]!;
-      const b: IJet = ring[(i + 1) % n]!;
-      const p: Vec3 = a.point;
+      const a: IAutoMovieHumanLimbRootStrip.IJet = ring[i]!;
+      const b: IAutoMovieHumanLimbRootStrip.IJet = ring[(i + 1) % n]!;
+      const p: AutoMovieVector3Tuple = a.point;
       const ex: number = b.point[0] - p[0];
       const ez: number = b.point[2] - p[2];
       const den: number = ux * ez - uz * ex;
@@ -202,15 +176,15 @@ export namespace AutoMovieHumanLimbRootStrip {
    * @param step Half the span the differences are read over, mm.
    * @returns The point and its first and second derivatives per mm.
    */
-  export function jet(at: (run: number) => Vec3, run: number, step: number): IJet {
-    const p: Vec3 = at(run);
-    const a: Vec3 = at(run - step);
-    const b: Vec3 = at(run + step);
+  export function jet(at: IAutoMovieHumanLimbRootStrip.JetAt, run: number, step: number): IAutoMovieHumanLimbRootStrip.IJet {
+    const p: AutoMovieVector3Tuple = at(run);
+    const a: AutoMovieVector3Tuple = at(run - step);
+    const b: AutoMovieVector3Tuple = at(run + step);
 
     return {
       point: p,
-      first: [0, 1, 2].map((k: number): number => (b[k]! - a[k]!) / (2 * step)) as Vec3,
-      second: [0, 1, 2].map((k: number): number => (b[k]! - 2 * p[k]! + a[k]!) / (step * step)) as Vec3,
+      first: [0, 1, 2].map((k: number): number => (b[k]! - a[k]!) / (2 * step)) as AutoMovieVector3Tuple,
+      second: [0, 1, 2].map((k: number): number => (b[k]! - 2 * p[k]! + a[k]!) / (step * step)) as AutoMovieVector3Tuple,
     };
   }
 
@@ -223,16 +197,16 @@ export namespace AutoMovieHumanLimbRootStrip {
    * @param step Step of the differences, mm, signed into the curve.
    * @returns The point and its first and second derivatives per mm.
    */
-  export function edge(at: (run: number) => Vec3, run: number, step: number): IJet {
-    const p: Vec3 = at(run);
-    const a: Vec3 = at(run + step);
-    const b: Vec3 = at(run + 2 * step);
-    const c: Vec3 = at(run + 3 * step);
+  export function edge(at: IAutoMovieHumanLimbRootStrip.EdgeAt, run: number, step: number): IAutoMovieHumanLimbRootStrip.IJet {
+    const p: AutoMovieVector3Tuple = at(run);
+    const a: AutoMovieVector3Tuple = at(run + step);
+    const b: AutoMovieVector3Tuple = at(run + 2 * step);
+    const c: AutoMovieVector3Tuple = at(run + 3 * step);
 
     return {
       point: p,
-      first: [0, 1, 2].map((k: number): number => (-11 * p[k]! + 18 * a[k]! - 9 * b[k]! + 2 * c[k]!) / (6 * step)) as Vec3,
-      second: [0, 1, 2].map((k: number): number => (2 * p[k]! - 5 * a[k]! + 4 * b[k]! - c[k]!) / (step * step)) as Vec3,
+      first: [0, 1, 2].map((k: number): number => (-11 * p[k]! + 18 * a[k]! - 9 * b[k]! + 2 * c[k]!) / (6 * step)) as AutoMovieVector3Tuple,
+      second: [0, 1, 2].map((k: number): number => (2 * p[k]! - 5 * a[k]! + 4 * b[k]! - c[k]!) / (step * step)) as AutoMovieVector3Tuple,
     };
   }
 }

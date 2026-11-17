@@ -1,4 +1,9 @@
-import type { IAutoMovieHumanArmRootArc } from "./IAutoMovieHumanArmRootArc";
+import type { IAutoMovieHumanArmRootArc, IAutoMovieHumanTrunkAssembly, IAutoMovieHumanTrunkGuides, IAutoMovieHumanTrunkSection } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanTrunkAssembly } from "./AutoMovieHumanTrunkAssembly";
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
@@ -14,13 +19,13 @@ import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
  */
 export namespace AutoMovieHumanTrunkRing {
   /** The left side's guides in knot order, front midline to back midline. */
-  const GUIDES: readonly AutoMovieHumanTrunkGuides.Guide[] = AutoMovieHumanTrunkGuides.ORDER;
+  const GUIDES: readonly IAutoMovieHumanTrunkGuides.Guide[] = AutoMovieHumanTrunkGuides.ORDER;
 
   /** The left side's sectors, each after the guide of the same index. */
-  const SECTORS: readonly AutoMovieHumanTrunkGuides.ISector[] = AutoMovieHumanTrunkGuides.SECTORS;
+  const SECTORS: readonly IAutoMovieHumanTrunkGuides.ISector[] = AutoMovieHumanTrunkGuides.SECTORS;
 
   /** Each guide's knot. */
-  const KNOT: Readonly<Record<AutoMovieHumanTrunkGuides.Guide, number>> = AutoMovieHumanTrunkGuides.KNOT;
+  const KNOT: Readonly<Record<IAutoMovieHumanTrunkGuides.Guide, number>> = AutoMovieHumanTrunkGuides.KNOT;
 
   /**
    * The speed of every guide of the left side, mm per radian.
@@ -29,8 +34,8 @@ export namespace AutoMovieHumanTrunkRing {
    * @param arc The arm's arc, which replaces the two flank sectors; absent, the torso's own flanks.
    * @returns One speed per guide, midline to midline.
    */
-  export function speeds(s: AutoMovieHumanTrunkQuadrant.ISection, arc?: IAutoMovieHumanArmRootArc): number[] {
-    const rates: number[] = SECTORS.map((sector: AutoMovieHumanTrunkGuides.ISector, i: number): number => {
+  export function speeds(s: IAutoMovieHumanTrunkSection, arc?: IAutoMovieHumanArmRootArc): number[] {
+    const rates: number[] = SECTORS.map((sector: IAutoMovieHumanTrunkGuides.ISector, i: number): number => {
       const [a, b]: [number, number] = sector.shares(s);
       const span: number = AutoMovieHumanTrunkQuadrant.phase(KNOT[GUIDES[i + 1]!] - KNOT[GUIDES[i]!]);
       const own: number = AutoMovieHumanTrunkQuadrant.arclength(s, sector.side, a, b) / span;
@@ -63,19 +68,19 @@ export namespace AutoMovieHumanTrunkRing {
    * @param arc The arm's arc, which replaces the anterior, lateral and posterior guides and the two flank sectors between them.
    * @returns The 256-control section.
    */
-  export function controls(s: AutoMovieHumanTrunkQuadrant.ISection, arc?: IAutoMovieHumanArmRootArc): number[] {
-    const section: AutoMovieHumanTrunkQuadrant.ISection =
+  export function controls(s: IAutoMovieHumanTrunkSection, arc?: IAutoMovieHumanArmRootArc): number[] {
+    const section: IAutoMovieHumanTrunkSection =
       arc === undefined ? s : { ...s, anterior: arc.anterior, posterior: arc.posterior };
     const v: number[] = speeds(section, arc);
-    const guides: AutoMovieHumanTrunkAssembly.IGuide[] = GUIDES.map(
-      (g: AutoMovieHumanTrunkGuides.Guide, j: number): AutoMovieHumanTrunkAssembly.IGuide => ({
+    const guides: IAutoMovieHumanTrunkAssembly.IGuide[] = GUIDES.map(
+      (g: IAutoMovieHumanTrunkGuides.Guide, j: number): IAutoMovieHumanTrunkAssembly.IGuide => ({
         knot: KNOT[g],
         jet: arc !== undefined && j >= 2 && j <= 4 ? arc.guides[j - 2]! : AutoMovieHumanTrunkGuides.jet(g, section),
         speed: v[j]!,
       }),
     );
-    const sectors: AutoMovieHumanTrunkAssembly.Sector[] = SECTORS.map(
-      (sector: AutoMovieHumanTrunkGuides.ISector, j: number): AutoMovieHumanTrunkAssembly.Sector => {
+    const sectors: IAutoMovieHumanTrunkAssembly.Sector[] = SECTORS.map(
+      (sector: IAutoMovieHumanTrunkGuides.ISector, j: number): IAutoMovieHumanTrunkAssembly.Sector => {
         if (arc !== undefined && j === 2) return arc.front([v[j]!, v[j + 1]!]);
         if (arc !== undefined && j === 3) return arc.back([v[j]!, v[j + 1]!]);
 

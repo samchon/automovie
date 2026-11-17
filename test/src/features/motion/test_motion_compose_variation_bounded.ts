@@ -1,11 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanBend,
-  type AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanVariation,
-  AutoMovieMotionHumanVariationForm,
-  AutoMovieMotionHumanVariationPlace,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanVariation, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanBend, AutoMovieMotionHumanVariation, AutoMovieMotionHumanVariationForm, AutoMovieMotionHumanVariationPlace } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_VARIATION_BODIES } from "../internal/MOTION_VARIATION_BODIES";
@@ -55,7 +50,7 @@ import { motionVariationSource } from "../internal/motionVariationSource";
 export function test_motion_compose_variation_bounded(): void {
   const COUNT: number = 1024;
   const repeats = <T>(
-    read: (source: AutoMovieMotionHumanVariation.ISource) => T,
+    read: (source: IAutoMovieMotionHumanVariation.ISource) => T,
     skill: number = 0,
     count: number = COUNT,
   ): T[] =>
@@ -74,7 +69,7 @@ export function test_motion_compose_variation_bounded(): void {
 
   // 1. A place.
   const body = MOTION_VARIATION_BODIES[0]!;
-  const chest: AutoMovieMotionHumanTarget.IDefault = {
+  const chest: IAutoMovieMotionHumanTarget.IDefault = {
     height: 1.25 / 1.7,
     range: 0.8,
     lateral: 0,
@@ -186,7 +181,7 @@ export function test_motion_compose_variation_bounded(): void {
       scatter: 0.03,
       along: { up: 1, out: 1 },
     }),
-  ).map((t: AutoMovieMotionHumanVariation.ITangent): number =>
+  ).map((t: IAutoMovieMotionHumanVariation.ITangent): number =>
     Math.hypot(t.up, t.out),
   );
   TestValidator.predicate(
@@ -211,7 +206,7 @@ export function test_motion_compose_variation_bounded(): void {
   );
 
   // 8. Skill narrows the spread.
-  const ahead: AutoMovieMotionHumanTarget.IDefault = {
+  const ahead: IAutoMovieMotionHumanTarget.IDefault = {
     height: 0.72,
     range: 0.8,
     facing: "performer",
@@ -239,7 +234,7 @@ export function test_motion_compose_variation_bounded(): void {
   const rig = motionArmRig();
   const shoulder: IAutoMovieVector3 = { x: 0.2, y: 1.4, z: 0 };
   const wrist: IAutoMovieVector3 = { x: 0.35, y: 1.2, z: 0.3 };
-  const props: AutoMovieMotionHumanBend.ISolve = {
+  const props: IAutoMovieMotionHumanBend.ISolve = {
     body: rig,
     posture: { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
     side: "left",

@@ -1,3 +1,4 @@
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -36,7 +37,7 @@ export async function inspectAutoMovie(props: {
     readAutoMovieInspectHostOptions(
       render.readAutoMovieCaptureArguments(props.args),
     );
-  const request: Render.IAutoMovieCapturePlanRequest =
+  const request: IAutoMovieCapturePlanRequest =
     render.parseAutoMovieCapturePlanRequest(options.request);
 
   // The module's props, read before anything is served.

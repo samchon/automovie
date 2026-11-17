@@ -1,34 +1,7 @@
+import type { IAutoMovieLoftChain, IAutoMovieLoftSectionSource, IAutoMovieLoftSectionSourceBinding, IAutoMovieLoftSectionSourceFamily, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource } from "@automovie/interface";
+
+
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
-import type { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-
-/** The exact compatibility rows whose legitimate producer admitted a source. */
-interface Binding {
-  station: number;
-  value: number[];
-  slope: number[];
-  curvature: number[] | null;
-  unavailable: string | null;
-}
-
-/** A complete actual boundary function in one of the two supported families. */
-type Family =
-  | { kind: "native"; inputs: AutoMovieLoftViewRead.IJets }
-  | {
-      kind: "basis";
-      order: number;
-      rows: readonly [number[], number[], number[]];
-    };
-
-/** A chain remains structurally usable before the public interface acquires this source field. */
-type Chain = IAutoMovieLoftChain & {
-  nativeSource?: AutoMovieLoftSectionSource.ISource;
-};
-
-/** Explicit endpoint metadata belongs to the layer that its producer re-expressed. */
-type Layer = IAutoMovieLoftChain.ILayer & {
-  sectionSource?: AutoMovieLoftSectionSource.IEndpoint;
-};
 
 /**
  * Explicit original scalar ownership and numeric binding snapshots.
@@ -39,46 +12,6 @@ type Layer = IAutoMovieLoftChain.ILayer & {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftSectionSource {
-  /**
-   * Original scalar field and the compatibility rows published beside it.
-   *
-   * @evidence contracts/development/design.md#principled-representation Retains the actual prepared scalar functions independently of their approximate principal coefficient projection.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One discriminator, scalar source and ordered binding list define admission.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing physical jet is a diagnostic status rather than a fabricated tuple or lost finite value.
-   * @evidence contracts/development/common.md#meaningful-documentation Data is immutable and value-copyable; the frame owner's callable serialization limit is separate.
-   */
-  export interface ISource {
-    /** A broken present discriminator never means source absence. */
-    kind: "view";
-
-    /** Original scalar functions and existing effective cap law. */
-    data: AutoMovieLoftViewSource.ISource;
-
-    /** Independent snapshots; a later coefficient rewrite must explicitly re-express ownership. */
-    rows: readonly Binding[];
-  }
-
-  /**
-   * Actual endpoint family with an independent transformed-layer binding.
-   *
-   * @evidence contracts/development/design.md#principled-representation Complete native scalar2 or actual basis coefficient2 determines the endpoint's whole phase function.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Family and transformed numeric layer snapshot remain explicit plain records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A composed non-native function is not fitted into eight native scalars, and no missing derivative row is supplied as zero.
-   * @evidence contracts/development/common.md#meaningful-documentation Station direction and chart reflection are applied before binding this record to its new layer.
-   */
-  export interface IEndpoint {
-    /** Explicit boundary discriminator. */
-    kind: "endpoint";
-
-    /** Actual complete endpoint generating family, already oriented into the receiver. */
-    field: Family;
-
-    /** The changed layer's compatibility arrays and station. */
-    binding: Binding;
-
-    /** Independent plain field snapshot, preserving value copies and detecting stale edits. */
-    snapshot: Family;
-  }
 
   /**
    * Bind original scalar ownership after ordinary/frame coefficient preparation.
@@ -92,12 +25,12 @@ export namespace AutoMovieLoftSectionSource {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one shallow chain copy and linear snapshots, with no global source registry.
    */
   export function retain(
-    chain: Chain,
-    data: AutoMovieLoftViewSource.ISource,
-  ): Chain {
-    const rows: Binding[] = chain.layers.map(
-      (layer: IAutoMovieLoftChain.ILayer): Binding => {
-        const jets: AutoMovieLoftViewRead.IJets | string =
+    chain: IAutoMovieLoftChain,
+    data: IAutoMovieLoftViewSource.ISource,
+  ): IAutoMovieLoftChain {
+    const rows: IAutoMovieLoftSectionSourceBinding[] = chain.layers.map(
+      (layer: IAutoMovieLoftChain.ILayer): IAutoMovieLoftSectionSourceBinding => {
+        const jets: IAutoMovieLoftViewRead.IJets | string =
           AutoMovieLoftViewRead.jets(data, layer.y);
         return remember(layer, typeof jets === "string" ? jets : null);
       },
@@ -117,11 +50,11 @@ export namespace AutoMovieLoftSectionSource {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no chain or query after returning.
    */
   export function validate(
-    chain: Chain,
+    chain: IAutoMovieLoftChain,
     lo: number,
     hi: number,
-  ): ISource | null {
-    const source: ISource | undefined = chain.nativeSource;
+  ): IAutoMovieLoftSectionSource.ISource | null {
+    const source: IAutoMovieLoftSectionSource.ISource | undefined = chain.nativeSource;
     for (const index of [lo, hi])
       endpoint(chain.layers[index]!, 2 * chain.order);
     if (source === undefined) return null;
@@ -138,9 +71,9 @@ export namespace AutoMovieLoftSectionSource {
         `The present native source of ${chain.name} is malformed or has a changed basis/rule.`,
       );
     for (const index of [lo, hi]) {
-      const layer: Layer = chain.layers[index]!;
+      const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
       if (layer.sectionSource !== undefined) continue;
-      const binding: Binding | null = find(source.rows, layer.y);
+      const binding: IAutoMovieLoftSectionSourceBinding | null = find(source.rows, layer.y);
       if (binding === null || !fits(layer, binding, 2 * chain.order))
         throw new Error(
           `Native compatibility rows of ${chain.name} at ${layer.y} were rewritten without re-expressing their source.`,
@@ -161,10 +94,10 @@ export namespace AutoMovieLoftSectionSource {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable record and retains nothing globally.
    */
   export function endpoint(
-    layer: Layer,
+    layer: IAutoMovieLoftChain.ILayer,
     expectedWidth?: number,
-  ): IEndpoint | null {
-    const source: IEndpoint | undefined = layer.sectionSource;
+  ): IAutoMovieLoftSectionSource.IEndpoint | null {
+    const source: IAutoMovieLoftSectionSource.IEndpoint | undefined = layer.sectionSource;
     if (source === undefined) return null;
     if (
       source === null ||
@@ -190,7 +123,7 @@ export namespace AutoMovieLoftSectionSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The retained endpoint is shared by both adjoining field readers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent plain data and retains no host chain or callable owner.
    */
-  export function bind(layer: Layer, field: Family): IEndpoint {
+  export function bind(layer: IAutoMovieLoftChain.ILayer, field: IAutoMovieLoftSectionSourceFamily): IAutoMovieLoftSectionSource.IEndpoint {
     if (!family(field))
       throw new Error(
         "A native boundary needs an actual complete generating family.",
@@ -214,8 +147,8 @@ export namespace AutoMovieLoftSectionSource {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure predicate creates no cached availability authority.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
-  export function regular(chain: Chain): boolean {
-    const source: ISource | undefined = chain.nativeSource;
+  export function regular(chain: IAutoMovieLoftChain): boolean {
+    const source: IAutoMovieLoftSectionSource.ISource | undefined = chain.nativeSource;
     if (source === undefined) return true;
     if (
       source === null ||
@@ -224,7 +157,7 @@ export namespace AutoMovieLoftSectionSource {
     )
       throw new Error("The present native availability record is malformed.");
     return chain.layers.every(
-      (layer: Layer, index: number): boolean =>
+      (layer: IAutoMovieLoftChain.ILayer, index: number): boolean =>
         layer.sectionSource !== undefined ||
         (source.rows[index]?.station === layer.y
           ? source.rows[index]!.unavailable === null
@@ -237,7 +170,7 @@ export namespace AutoMovieLoftSectionSource {
 function remember(
   layer: IAutoMovieLoftChain.ILayer,
   unavailable: string | null,
-): Binding {
+): IAutoMovieLoftSectionSourceBinding {
   return {
     station: layer.y,
     value: [...layer.coefficients],
@@ -250,7 +183,7 @@ function remember(
 /** Compare ordinary rows in their original getter order; every row must be dense finite data at the same output width. */
 function fits(
   layer: IAutoMovieLoftChain.ILayer,
-  binding: Binding,
+  binding: IAutoMovieLoftSectionSourceBinding,
   expectedWidth?: number,
 ): boolean {
   if (binding === null || binding === undefined || binding.station !== layer.y)
@@ -283,7 +216,7 @@ function fits(
 }
 
 /** Ordered original bindings permit clipping without changing source evaluation. */
-function find(rows: readonly Binding[], station: number): Binding | null {
+function find(rows: readonly IAutoMovieLoftSectionSourceBinding[], station: number): IAutoMovieLoftSectionSourceBinding | null {
   let low: number = 0;
   let high: number = rows.length;
   while (low < high) {
@@ -295,7 +228,7 @@ function find(rows: readonly Binding[], station: number): Binding | null {
 }
 
 /** Whole phase functions require either eight native source2 inputs or complete basis2 rows. */
-function family(value: Family): boolean {
+function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
     return (

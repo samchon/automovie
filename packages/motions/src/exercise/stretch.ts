@@ -1,8 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanStretch, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -15,17 +13,10 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { stretchCrossBody } from "./stretchCrossBody";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
@@ -68,27 +59,19 @@ import { stretchQuadriceps } from "./stretchQuadriceps";
  */
 export namespace stretch {
   /** The action's name. */
-  export const name: HumanActionName = "stretch";
+  export const name: AutoMovieMotionHumanActionName = "stretch";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       stretch: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The poses. */
-  export type Kind =
-    | "neckSide"
-    | "crossBody"
-    | "overheadSide"
-    | "quadriceps"
-    | "tree";
-
   /** How far into the range: `mild` half and `moderate` deep. */
   export const INTENSITY: Readonly<
-    Record<"mild" | "moderate", AutoMovieMotionHumanRange.Level>
+    Record<"mild" | "moderate", IAutoMovieMotionHumanRange.Level>
   > = { mild: "half", moderate: "deep" };
 
   /** The entry's and the release's seconds (provisional). */
@@ -99,31 +82,6 @@ export namespace stretch {
 
   /** The bent knee's least flexion in the quadriceps stretch, degrees (provisional). */
   export const KNEE: number = 130;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The pose, the side, the hold and the intensity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The intensity is a closed union.
-   */
-  export interface IParams {
-    /** The pose. */
-    kind: Kind;
-
-    /** The side stretched or lifted; `right` when absent. */
-    side?: "left" | "right";
-
-    /** Seconds held; `HOLD` when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How far into the range; `moderate` when absent. */
-    intensity?: "mild" | "moderate";
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /**
    * Plan a stretch.
@@ -141,18 +99,18 @@ export namespace stretch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanStretch.IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const hold: number = p.seconds ?? HOLD;
     HumanBound.least("seconds", hold, 0, "s");
-    const level: AutoMovieMotionHumanRange.Level =
+    const level: IAutoMovieMotionHumanRange.Level =
       INTENSITY[p.intensity ?? "moderate"];
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
         attack: 0,
@@ -161,7 +119,7 @@ export namespace stretch {
       }),
       modifiers,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -172,11 +130,11 @@ export namespace stretch {
     );
     const weight = (seconds: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const side: "left" | "right" = p.side ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
     const sign: number = side === "left" ? 1 : -1;
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw: entry.yaw,
     };
@@ -190,7 +148,7 @@ export namespace stretch {
       y: 0,
       z: 0,
     });
-    const stance: Record<"left" | "right", HumanFoot.IPlacement> = {
+    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -200,12 +158,12 @@ export namespace stretch {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const rest = (s: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
+    const rest = (s: "left" | "right"): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
     const facing = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point(
@@ -228,7 +186,7 @@ export namespace stretch {
       channels: ["root"],
       from: 0,
       to: clock.duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(
           posture.root,
@@ -240,14 +198,14 @@ export namespace stretch {
       }),
     });
     const lifted = (
-      placement: HumanFoot.IPlacement,
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanLeg.place({
         body,
         side,
         from: 0,
         to: clock.duration,
-        placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
+        placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
           AutoMovieMotionHumanLegPhrase.between(
             stance[side],
             placement,
@@ -255,7 +213,7 @@ export namespace stretch {
           ),
         planted: (seconds: number): boolean => weight(seconds) <= 0,
       });
-    const standingOn = (standing: "left" | "right"): IHumanContactWindow[] => [
+    const standingOn = (standing: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
       {
         part: `${standing}Foot`,
         kind: "plant",
@@ -321,7 +279,7 @@ export namespace stretch {
               to: clock.duration,
               rest: rest(s),
               weight,
-              place: (posture: IHumanPosture) => {
+              place: (posture: IAutoMovieMotionHumanPosture) => {
                 const ride = (point: IAutoMovieVector3): IAutoMovieVector3 =>
                   AutoMovieMotionHumanPlaced.carried(
                     body,
@@ -366,7 +324,7 @@ export namespace stretch {
           forward,
           least: KNEE,
         });
-        const placement: HumanFoot.IPlacement = {
+        const placement: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle,
           rotation: HumanFoot.rotation(entry.yaw, -60),
         };
@@ -382,7 +340,7 @@ export namespace stretch {
             weight,
             surface: "grip",
             shape: "fist",
-            place: (posture: IHumanPosture) => ({
+            place: (posture: IAutoMovieMotionHumanPosture) => ({
               point: ankle,
               facing: facing(posture, { x: 0, y: 0, z: -1 }),
             }),
@@ -398,7 +356,7 @@ export namespace stretch {
           y: 0.6 * m.shank,
           z: 0,
         });
-        const placement: HumanFoot.IPlacement = {
+        const placement: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: Vector3.add(
             calf,
             Vector3.scale(leftward, sign * (m.shankRadius + m.ankleHeight)),
@@ -422,7 +380,7 @@ export namespace stretch {
               to: clock.duration,
               rest: rest(s),
               weight,
-              place: (posture: IHumanPosture) => ({
+              place: (posture: IAutoMovieMotionHumanPosture) => ({
                 point: Vector3.add(
                   AutoMovieMotionHumanPlaced.grid(body, posture, s, {
                     height: "chest",

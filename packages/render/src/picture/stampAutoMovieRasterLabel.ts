@@ -1,4 +1,7 @@
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage, IAutoMovieRasterPoint } from "@automovie/interface";
+
+
+
 
 /**
  * Burn a short caption, such as a film second or a mark's label, into a
@@ -23,7 +26,7 @@ export function stampAutoMovieRasterLabel(
   raster: IAutoMovieRasterImage,
   text: string,
   scale: number,
-  at: { x: number; y: number } = { x: 0, y: 0 },
+  at: IAutoMovieRasterPoint = { x: 0, y: 0 },
 ): void {
   if (!Number.isSafeInteger(scale) || scale <= 0)
     throw new Error("Label scale must be a positive integer");

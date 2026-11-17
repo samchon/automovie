@@ -1,15 +1,16 @@
-import { AutoMoviePrimitiveShape, IAutoMovieModel } from "@automovie/interface";
+import { type IAutoMoviePrimitiveShape, IAutoMovieModel } from "@automovie/interface";
+
 
 import { canonicalDrawingMaterial as drawingMaterial } from "./canonicalDrawingMaterial";
 
 /** One unskinned primitive part bound to the caller's shape and material id. */
 export const canonicalDrawingBoxModel: (props: {
   id: string;
-  shape: AutoMoviePrimitiveShape;
+  shape: IAutoMoviePrimitiveShape;
   material: string;
 }) => IAutoMovieModel = (props: {
   id: string;
-  shape: AutoMoviePrimitiveShape;
+  shape: IAutoMoviePrimitiveShape;
   material: string;
 }): IAutoMovieModel => ({
   id: props.id,

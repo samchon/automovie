@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { gesture } from "../everyday/gesture";
 import { HumanActionRow } from "../law/HumanActionRow";
 
@@ -13,123 +15,123 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanGestureRows {
   /** `gesture` of kind `wave`. */
-  export const gestureWave = HumanActionRow.of("gestureWave", gesture, {
+  export const gestureWave: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureWave"]> = HumanActionRow.of("gestureWave", gesture, {
     kind: "wave",
   });
 
   /** `gesture` of kind `raiseHand`. */
-  export const gestureRaiseHand = HumanActionRow.of(
+  export const gestureRaiseHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureRaiseHand"]> = HumanActionRow.of(
     "gestureRaiseHand",
     gesture,
     { kind: "raiseHand" },
   );
 
   /** `gesture` of kind `cheer`. */
-  export const gestureCheer = HumanActionRow.of("gestureCheer", gesture, {
+  export const gestureCheer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureCheer"]> = HumanActionRow.of("gestureCheer", gesture, {
     kind: "cheer",
   });
 
   /** `gesture` of kind `stopPalm`. */
-  export const gestureStopPalm = HumanActionRow.of("gestureStopPalm", gesture, {
+  export const gestureStopPalm: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureStopPalm"]> = HumanActionRow.of("gestureStopPalm", gesture, {
     kind: "stopPalm",
   });
 
   /** `gesture` of kind `point`. */
-  export const gesturePoint = HumanActionRow.of("gesturePoint", gesture, {
+  export const gesturePoint: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePoint"]> = HumanActionRow.of("gesturePoint", gesture, {
     kind: "point",
   });
 
   /** `gesture` of kind `palmsUp`. */
-  export const gesturePalmsUp = HumanActionRow.of("gesturePalmsUp", gesture, {
+  export const gesturePalmsUp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePalmsUp"]> = HumanActionRow.of("gesturePalmsUp", gesture, {
     kind: "palmsUp",
   });
 
   /** `gesture` of kind `beckon`. */
-  export const gestureBeckon = HumanActionRow.of("gestureBeckon", gesture, {
+  export const gestureBeckon: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureBeckon"]> = HumanActionRow.of("gestureBeckon", gesture, {
     kind: "beckon",
   });
 
   /** `gesture` of kind `clap`. */
-  export const gestureClap = HumanActionRow.of("gestureClap", gesture, {
+  export const gestureClap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureClap"]> = HumanActionRow.of("gestureClap", gesture, {
     kind: "clap",
   });
 
   /** `gesture` of kind `rubHands`. */
-  export const gestureRubHands = HumanActionRow.of("gestureRubHands", gesture, {
+  export const gestureRubHands: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureRubHands"]> = HumanActionRow.of("gestureRubHands", gesture, {
     kind: "rubHands",
   });
 
   /** `gesture` of kind `palmsTogether`. */
-  export const gesturePalmsTogether = HumanActionRow.of(
+  export const gesturePalmsTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePalmsTogether"]> = HumanActionRow.of(
     "gesturePalmsTogether",
     gesture,
     { kind: "palmsTogether" },
   );
 
   /** `gesture` of kind `thumbsDown`. */
-  export const gestureThumbsDown = HumanActionRow.of(
+  export const gestureThumbsDown: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureThumbsDown"]> = HumanActionRow.of(
     "gestureThumbsDown",
     gesture,
     { kind: "thumbsDown" },
   );
 
   /** `gesture` of kind `touchFace`. */
-  export const gestureTouchFace = HumanActionRow.of(
+  export const gestureTouchFace: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureTouchFace"]> = HumanActionRow.of(
     "gestureTouchFace",
     gesture,
     { kind: "touchFace" },
   );
 
   /** `gesture` of kind `pushGlasses`. */
-  export const gesturePushGlasses = HumanActionRow.of(
+  export const gesturePushGlasses: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePushGlasses"]> = HumanActionRow.of(
     "gesturePushGlasses",
     gesture,
     { kind: "pushGlasses" },
   );
 
   /** `gesture` of kind `scratchHead`. */
-  export const gestureScratchHead = HumanActionRow.of(
+  export const gestureScratchHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureScratchHead"]> = HumanActionRow.of(
     "gestureScratchHead",
     gesture,
     { kind: "scratchHead" },
   );
 
   /** `gesture` of kind `shrug`. */
-  export const gestureShrug = HumanActionRow.of("gestureShrug", gesture, {
+  export const gestureShrug: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureShrug"]> = HumanActionRow.of("gestureShrug", gesture, {
     kind: "shrug",
   });
 
   /** `gesture` of kind `nod`. */
-  export const gestureNod = HumanActionRow.of("gestureNod", gesture, {
+  export const gestureNod: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureNod"]> = HumanActionRow.of("gestureNod", gesture, {
     kind: "nod",
   });
 
   /** `gesture` of kind `shakeHead`. */
-  export const gestureShakeHead = HumanActionRow.of(
+  export const gestureShakeHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureShakeHead"]> = HumanActionRow.of(
     "gestureShakeHead",
     gesture,
     { kind: "shakeHead" },
   );
 
   /** `gesture` of kind `bow`. */
-  export const gestureBow = HumanActionRow.of("gestureBow", gesture, {
+  export const gestureBow: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureBow"]> = HumanActionRow.of("gestureBow", gesture, {
     kind: "bow",
   });
 
   /** `gesture` of kind `chinLift`. */
-  export const gestureChinLift = HumanActionRow.of("gestureChinLift", gesture, {
+  export const gestureChinLift: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureChinLift"]> = HumanActionRow.of("gestureChinLift", gesture, {
     kind: "chinLift",
   });
 
   /** `gesture` of kind `squareShoulders`. */
-  export const gestureSquareShoulders = HumanActionRow.of(
+  export const gestureSquareShoulders: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureSquareShoulders"]> = HumanActionRow.of(
     "gestureSquareShoulders",
     gesture,
     { kind: "squareShoulders" },
   );
 
   /** `gesture` of kind `slump`. */
-  export const gestureSlump = HumanActionRow.of("gestureSlump", gesture, {
+  export const gestureSlump: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureSlump"]> = HumanActionRow.of("gestureSlump", gesture, {
     kind: "slump",
   });
 }

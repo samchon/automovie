@@ -1,20 +1,8 @@
-import {
-  type AutoMovieComposition,
-  Vector3,
-  physicalShapeBounds,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieComposition, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
+import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -47,7 +35,7 @@ export namespace FamilyCaseKit {
     man: humanPolygonMan.IPolygonMan;
 
     /** The body the laws read. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
   }
 
   /**
@@ -78,13 +66,13 @@ export namespace FamilyCaseKit {
     seed: string,
     performers: readonly {
       subject: string;
-      body: IHumanBody;
+      body: IAutoMovieMotionHumanBody;
       at?: IAutoMovieVector3;
       yaw?: number;
     }[],
-    composition: AutoMovieComposition | HumanChain,
-    props: readonly IHumanProp[] = [],
-  ): HumanPerformance {
+    composition: IAutoMovieComposition | IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
+  ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
       seed,
       performers: performers.map((p) => ({
@@ -108,7 +96,7 @@ export namespace FamilyCaseKit {
    * @returns The figure.
    */
   export function figure(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     man: humanPolygonMan.IPolygonMan,
     id: string = "a",
   ): IMotionCaptureCase.IPerformer {
@@ -129,7 +117,7 @@ export namespace FamilyCaseKit {
    * @throws {Error} When no action of the subject has the event.
    */
   export function event(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     name: string,
     subject: string = "a",
   ): number {
@@ -150,7 +138,7 @@ export namespace FamilyCaseKit {
    * @returns The instants.
    */
   export function times(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     step: number,
     named: [number, string][],
   ): IMotionCaptureCase.ITime[] {
@@ -178,7 +166,7 @@ export namespace FamilyCaseKit {
    * @returns Degrees; 0 for a joint the pose leaves neutral.
    */
   export function angle(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     seconds: number,
     bone: string,
@@ -209,8 +197,8 @@ export namespace FamilyCaseKit {
    * @returns World height, metres; `Infinity` when no bone is selected.
    */
   export function lowest(
-    performance: HumanPerformance,
-    body: IHumanBody,
+    performance: IAutoMovieMotionHumanPerformance,
+    body: IAutoMovieMotionHumanBody,
     subject: string,
     seconds: number,
     of: (bone: string) => boolean,
@@ -237,9 +225,9 @@ export namespace FamilyCaseKit {
    * @returns The least margin, metres, and its second.
    */
   export function stability(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     from: number,
     to: number,
   ): { value: number; at: number } {
@@ -303,7 +291,7 @@ export namespace FamilyCaseKit {
    * @returns Metres.
    */
   export function drift(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     bone: AutoMovieHumanoidBone,
     point: IAutoMovieVector3 | ((seconds: number) => IAutoMovieVector3),

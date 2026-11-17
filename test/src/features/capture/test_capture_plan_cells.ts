@@ -1,10 +1,5 @@
-import {
-  type IAutoMovieCaptureCell,
-  type IAutoMovieCapturePlan,
-  type IAutoMovieCaptureSubject,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-} from "@automovie/render";
+import type { IAutoMovieCaptureCell, IAutoMovieCapturePlan, IAutoMovieCaptureSubject } from "@automovie/interface";
+import { parseAutoMovieCapturePlanRequest, planAutoMovieCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** A subject of four seconds at 30 fps, 1280 by 720, with two named views, three objects and one mark kind. */

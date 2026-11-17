@@ -1,19 +1,6 @@
-import {
-  DEFAULT_SUBJECT_HEIGHT,
-  IAutoMovieResolvedCamera,
-  formationMemberExtent,
-  formationSubjectBox,
-  framedBoxOf,
-  intersectsPerspectiveFrustumBox,
-  intersectsPerspectiveFrustumSegment,
-  pointSubjectBox,
-  unionSubjectBoxes,
-} from "@automovie/engine";
-import {
-  IAutoMovieCompiledFormation,
-  IAutoMovieFormationMotion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedCamera, IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieVector3 } from "@automovie/interface";
+import { DEFAULT_SUBJECT_HEIGHT, formationMemberExtent, formationSubjectBox, framedBoxOf, intersectsPerspectiveFrustumBox, intersectsPerspectiveFrustumSegment, pointSubjectBox, unionSubjectBoxes } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";

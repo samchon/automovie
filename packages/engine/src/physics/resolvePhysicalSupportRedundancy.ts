@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMovieResolvePhysicalSupportRedundancy, IAutoMovieSingularDecomposition, IAutoMovieVector3, IAutoMovieFootfallPattern } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
@@ -45,32 +43,12 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 19 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function resolvePhysicalSupportRedundancy(input: {
-  /** Parent-first, run-owned tree order. */ order: readonly P.ISegment[];
-  /** Declared parent joints, indexed by child bone. */ joints: ReadonlyMap<
-    string,
-    P.IJoint
-  >;
-  /** Exact descendant lists, indexed by subtree root bone. */ descendants: ReadonlyMap<
-    string,
-    readonly string[]
-  >;
-  /** Coordinates owned by the support fit. */ selected: ReadonlySet<string>;
-  /** Support endpoints and their optional planted witnesses. */ pattern: IAutoMovieFootfallPattern;
-  /** Endpoints whose declared floor witnesses join the task. */ planted: ReadonlySet<string>;
-  /** Current authored placements, the null-space anchor. */ authored: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** The fit's own metre residual early-out; returned directions may move the task by at most this much. */ tolerance: number;
-  /** Warm seed placements; borrowed, never mutated. */ seed: Readonly<
-    Record<string, P.ITransform>
-  >;
-}): Record<string, P.ITransform> {
+export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysicalSupportRedundancy.IInput): Record<string, IAutoMoviePhysicalProfile.ITransform> {
   if (!(input.tolerance > 0) || !Number.isFinite(input.tolerance))
     throw new Error("Invalid support redundancy tolerance");
-  const coordinates: { joint: P.IJoint; axis: P.IAxis }[] = [];
+  const coordinates: { joint: IAutoMoviePhysicalProfile.IJoint; axis: IAutoMoviePhysicalProfile.IAxis }[] = [];
   for (const segment of input.order) {
-    const joint: P.IJoint | undefined = input.joints.get(segment.bone);
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.joints.get(segment.bone);
     if (!joint || !input.selected.has(segment.bone)) continue;
     for (const axis of joint.axes)
       if (axis.maximum > axis.minimum) coordinates.push({ joint, axis });
@@ -81,7 +59,7 @@ export function resolvePhysicalSupportRedundancy(input: {
 
   // Admitted coordinates of the warm seed and of the authored anchor.
   const seed: number[] = coordinates.map(
-    ({ joint, axis }: { joint: P.IJoint; axis: P.IAxis }): number =>
+    ({ joint, axis }: { joint: IAutoMoviePhysicalProfile.IJoint; axis: IAutoMoviePhysicalProfile.IAxis }): number =>
       angle(
         projectPhysicalJointRotation(
           joint,
@@ -91,7 +69,7 @@ export function resolvePhysicalSupportRedundancy(input: {
       ),
   );
   const authored: number[] = coordinates.map(
-    ({ joint, axis }: { joint: P.IJoint; axis: P.IAxis }): number =>
+    ({ joint, axis }: { joint: IAutoMoviePhysicalProfile.IJoint; axis: IAutoMoviePhysicalProfile.IAxis }): number =>
       angle(
         projectPhysicalJointRotation(
           joint,
@@ -122,7 +100,7 @@ export function resolvePhysicalSupportRedundancy(input: {
   const design: number[][] = baseline.map((_: number, row: number): number[] =>
     columns.map((column: number[]): number => column[row]!),
   );
-  const decomposition: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+  const decomposition: IAutoMovieSingularDecomposition =
     decomposeAutoMovieSingularMatrix(design, physicalSingularBudget);
   // Each right singular direction k moves the linearized task by
   // sigma_k * |v_k . d| along an orthonormal left direction, so returning a
@@ -167,10 +145,10 @@ export function resolvePhysicalSupportRedundancy(input: {
   );
 
   // Rebuild changed joints parent-first; the ROM projection admits each result.
-  const result: Record<string, P.ITransform> = { ...input.seed };
+  const result: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.seed };
   const owned: Set<string> = new Set();
   for (const segment of input.order) {
-    const joint: P.IJoint | undefined = input.joints.get(segment.bone);
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.joints.get(segment.bone);
     if (
       !joint ||
       !coordinates.some(
@@ -195,10 +173,10 @@ export function resolvePhysicalSupportRedundancy(input: {
   return result;
 
   /** Endpoint XYZ for every limb, plus each planted floor witness height. */
-  function rows(poses: Readonly<Record<string, P.ITransform>>): number[] {
+  function rows(poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>): number[] {
     return input.pattern.limbs.flatMap(
       (limb: IAutoMovieFootfallPattern["limbs"][number]): number[] => {
-        const endpoint: ReturnType<typeof physicalSupportPoint> =
+        const endpoint: IAutoMovieVector3 =
           physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
         return [
           endpoint.x,
@@ -207,7 +185,7 @@ export function resolvePhysicalSupportRedundancy(input: {
           ...(input.planted.has(limb.bone) ? (limb.floorPoints ?? []) : []).map(
             (point: {
               bone: string;
-              localPoint: P.ITransform["position"];
+              localPoint: IAutoMoviePhysicalProfile.ITransform["position"];
             }): number =>
               physicalSupportPoint(poses[point.bone]!, point.localPoint).y,
           ),
@@ -221,12 +199,12 @@ export function resolvePhysicalSupportRedundancy(input: {
     base: readonly number[],
     index: number,
     delta: number,
-  ): Record<string, P.ITransform> {
+  ): Record<string, IAutoMoviePhysicalProfile.ITransform> {
     const values: number[] = [...base];
     values[index] = values[index]! + delta;
-    const joint: P.IJoint = coordinates[index]!.joint;
+    const joint: IAutoMoviePhysicalProfile.IJoint = coordinates[index]!.joint;
     const descendants: readonly string[] = input.descendants.get(joint.child)!;
-    const poses: Record<string, P.ITransform> = { ...input.seed };
+    const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.seed };
     for (const bone of descendants) poses[bone] = { ...poses[bone]! };
     setPhysicalTargetJointRotation(
       poses,
@@ -239,9 +217,9 @@ export function resolvePhysicalSupportRedundancy(input: {
 
   /** Native twist-coordinate rotation of one joint; locked axes keep their admitted value. */
   function rotation(
-    joint: P.IJoint,
+    joint: IAutoMoviePhysicalProfile.IJoint,
     values: readonly number[],
-  ): P.ITransform["rotation"] {
+  ): IAutoMoviePhysicalProfile.ITransform["rotation"] {
     const tangent: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
     for (const axis of joint.axes) {
       const index: number = coordinates.findIndex(
@@ -257,7 +235,7 @@ export function resolvePhysicalSupportRedundancy(input: {
 }
 
 /** Independent twist coordinate of one admitted joint rotation. */
-function angle(rotation: P.ITransform["rotation"], axis: P.IAxis): number {
+function angle(rotation: IAutoMoviePhysicalProfile.ITransform["rotation"], axis: IAutoMoviePhysicalProfile.IAxis): number {
   const sign: number = rotation.w < 0 ? -1 : 1;
   return 2 * Math.atan2(rotation[axis.axis] * sign, Math.abs(rotation.w));
 }

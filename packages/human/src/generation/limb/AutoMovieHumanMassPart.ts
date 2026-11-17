@@ -1,16 +1,15 @@
-import {
-  type AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-  AutoMovieSolidVector,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieSolidSurface, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanMassPart, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
+
+
+
+
+import { AutoMovieLoftViewWorldJet, AutoMovieSolidVector } from "@automovie/engine";
 
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanMassSource } from "./AutoMovieHumanMassSource";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+
 const {
   add,
   cross,
@@ -79,70 +78,9 @@ const {
  * exact G2 at a pole or a successful final join.
  */
 export namespace AutoMovieHumanMassPart {
-  /** What a mass is built from. */
-  export interface IInput {
-    /** Chain name, such as `breast.left`. */
-    name: string;
-    /** Actual shared whole-parent root/contact; the old curvature estimate only retains the old exterior clock. */
-    connection?: AutoMovieHumanMassSource.IConnection;
+  
 
-    /** Retained standalone host reader; production originals use originalSource instead. */
-    host?: IAutoMovieSolidSurface;
-    /** Identical original parent and its admitted scalar owner, with declared outward orientation. */
-    originalSource?: {
-      part: IAutoMovieViewPart;
-      source: AutoMovieLoftViewSource.ISource;
-      orientation: 1 | -1;
-    };
-
-    /** The mass's centre on the host, its chart point `[u, v]`. */
-    centre: [number, number];
-
-    /** The caller's up direction, made square to the host's normal for the chart's `u`. */
-    up: Vec3;
-
-    /**
-     * Whether the axis is the host's normal levelled (its vertical component
-     * dropped): a mass whose target is the skin's extreme along the depth
-     * (the bust point, the buttock's most posterior point) has a level normal
-     * there on the finished skin, whatever slope the base has under it.
-     * Absent, the axis is the host's normal.
-     */
-    level?: boolean;
-
-    /** Optional original-source wall point in calibration mm and unit anatomical axis. The host jet then supplies embedding curvature only; its sampled position/normal does not move the visible source placement. */
-    sourceFrame?: { origin: Vec3; normal: Vec3 };
-
-    /** The caller's lateral direction, which picks the side `+v` takes; any vector off the up direction. */
-    lateral: Vec3;
-
-    /** Footprint edges from the centre at the host's surface, mm, positive: up, lateral, down and medial. */
-    footprint: [number, number, number, number];
-
-    /** Height of the apex over the host's surface, mm, positive. */
-    amplitude: number;
-
-    /** The profile law: shares of the amplitude in `(0, 1)` rising, each with the share of every footprint edge (up, lateral, down, medial) left there in `(0, 1]`. */
-    profile: { at: number; shares: [number, number, number, number] }[];
-
-    /** The sourced conic shoulder of the sections, or the ellipse's (`AutoMovieViewSection.ELLIPSE`), the least-information conic. */
-    shoulder: number;
-
-    /** Control points of every section, a multiple of 4. */
-    order: number;
-
-    /** Uniform phases of the chain's rings. */
-    samples: number;
-
-    /** Widest spacing between layers, mm. */
-    gap: number;
-  }
-
-  /** Original mass and its consumed whole-parent connection, before raw lofting. */
-  export interface IDefinition extends AutoMovieHumanSiteViewPart.IDefinition {
-    /** Actual placement owner; absent only for retained standalone legacy callers. */
-    massConnection?: AutoMovieHumanMassSource.IConnection;
-  }
+  
 
   /**
    * Build the mass.
@@ -150,16 +88,16 @@ export namespace AutoMovieHumanMassPart {
    * @param input The host, the centre, the footprint, the amplitude and the profile.
    * @returns The part, its loft and the diagnostics; a degenerate host normal or a malformed profile gives none.
    */
-  export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
+  export function create(input: IAutoMovieHumanMassPart.IInput): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
   /** Prepare the same original scalar/axis/parent definition without drawing a raw mass loft. */
-  export function define(input: IInput): IDefinition {
+  export function define(input: IAutoMovieHumanMassPart.IInput): IAutoMovieHumanMassPart.IDefinition {
     const producer: string = `mass.${input.name}`;
-    const fail: (detail: string) => IDefinition = (
+    const fail: (detail: string) => IAutoMovieHumanMassPart.IDefinition = (
       detail: string,
-    ): IDefinition => ({
+    ): IAutoMovieHumanMassPart.IDefinition => ({
       part: null,
       view: null,
       diagnostics: [{ producer, level: 3, contract: "mass", detail }],
@@ -186,13 +124,13 @@ export namespace AutoMovieHumanMassPart {
       input.originalSource?.orientation ?? input.host?.orientation;
     if (orientation === undefined)
       return fail("The actual parent has no outward chart orientation");
-    const raw: Vec3 | null = unit(cross(j.u, j.v));
+    const raw: AutoMovieVector3Tuple | null = unit(cross(j.u, j.v));
     if (raw === null)
       return fail(
         `the host's chart degenerates at [${input.centre.join(", ")}]`,
       );
-    const normal: Vec3 = scale(raw, orientation);
-    const levelled: Vec3 | null =
+    const normal: AutoMovieVector3Tuple = scale(raw, orientation);
+    const levelled: AutoMovieVector3Tuple | null =
       input.sourceFrame !== undefined
         ? unit(input.sourceFrame.normal)
         : input.level === true
@@ -200,14 +138,14 @@ export namespace AutoMovieHumanMassPart {
           : normal;
     if (levelled === null)
       return fail("the requested mass axis has no finite nonzero direction");
-    const n: Vec3 = levelled;
-    const origin: Vec3 = input.sourceFrame?.origin ?? j.p;
+    const n: AutoMovieVector3Tuple = levelled;
+    const origin: AutoMovieVector3Tuple = input.sourceFrame?.origin ?? j.p;
     if (!origin.every(Number.isFinite))
       return fail("the source wall origin is not finite");
-    const u: Vec3 | null = unit(sub(input.up, scale(n, dot(input.up, n))));
+    const u: AutoMovieVector3Tuple | null = unit(sub(input.up, scale(n, dot(input.up, n))));
     if (u === null)
       return fail("the up direction lies along the host's normal");
-    const v: Vec3 = cross(u, n);
+    const v: AutoMovieVector3Tuple = cross(u, n);
     const lean: number = dot(v, input.lateral);
     if (lean === 0 || !Number.isFinite(lean))
       return fail(
@@ -229,7 +167,7 @@ export namespace AutoMovieHumanMassPart {
         `amplitude ${input.amplitude} mm, footprint [${input.footprint.join(", ")}] mm`,
       );
     for (let k: number = 0; k < input.profile.length; k++) {
-      const p: IInput["profile"][number] = input.profile[k]!;
+      const p: IAutoMovieHumanMassPart.IInput["profile"][number] = input.profile[k]!;
       if (
         !(p.at > 0 && p.at < 1) ||
         (k > 0 && !(p.at > input.profile[k - 1]!.at)) ||
@@ -261,13 +199,13 @@ export namespace AutoMovieHumanMassPart {
       );
     const sagitta: number = Math.max(
       ...[u, v, scale(u, -1), scale(v, -1)].map(
-        (d: Vec3, q: number): number => {
+        (d: AutoMovieVector3Tuple, q: number): number => {
           const du: number = dot(d, j.u);
           const dv: number = dot(d, j.v);
           const a: number = (G * du - F * dv) / det;
           const b: number = (E * dv - F * du) / det;
-          const along: Vec3 = add(scale(j.u, a), scale(j.v, b));
-          const second: Vec3 = add(
+          const along: AutoMovieVector3Tuple = add(scale(j.u, a), scale(j.v, b));
+          const second: AutoMovieVector3Tuple = add(
             add(scale(j.uu, a * a), scale(j.uv, 2 * a * b)),
             scale(j.vv, b * b),
           );
@@ -302,7 +240,7 @@ export namespace AutoMovieHumanMassPart {
         -footprint[3] * shares[3],
       ];
     };
-    const sites: AutoMovieHumanSiteViewPart.ISite[] = [
+    const sites: IAutoMovieHumanSiteViewPart.ISite[] = [
       {
         site: "embedded",
         station: 0,
@@ -317,9 +255,9 @@ export namespace AutoMovieHumanMassPart {
       },
       ...input.profile.map(
         (
-          p: IInput["profile"][number],
+          p: IAutoMovieHumanMassPart.IInput["profile"][number],
           k: number,
-        ): AutoMovieHumanSiteViewPart.ISite => ({
+        ): IAutoMovieHumanSiteViewPart.ISite => ({
           site: `profile ${k}`,
           station: embed + p.at * input.amplitude,
           edges: edges(p.shares),
@@ -328,9 +266,9 @@ export namespace AutoMovieHumanMassPart {
       ),
     ];
     const top: number = embed + input.amplitude;
-    const poleJets: NonNullable<AutoMovieHumanSiteViewPart.IInput["poleJets"]> =
+    const poleJets: NonNullable<IAutoMovieHumanSiteViewPart.IInput["poleJets"]> =
       radialJets(sites, top);
-    const definition: AutoMovieHumanSiteViewPart.IDefinition =
+    const definition: IAutoMovieHumanSiteViewPart.IDefinition =
       AutoMovieHumanSiteViewPart.define({
         name: input.name,
         axis: {
@@ -358,7 +296,7 @@ export namespace AutoMovieHumanMassPart {
         gap: input.gap,
       });
     try {
-      const result: AutoMovieHumanSiteViewPart.IDefinition =
+      const result: IAutoMovieHumanSiteViewPart.IDefinition =
         input.connection === undefined
           ? definition
           : AutoMovieHumanMassSource.rebase(definition, input.connection);
@@ -380,20 +318,20 @@ export namespace AutoMovieHumanMassPart {
    * not replacements for unavailable parent derivatives or a pole-G2 claim.
    */
   function radialJets(
-    sites: AutoMovieHumanSiteViewPart.ISite[],
+    sites: IAutoMovieHumanSiteViewPart.ISite[],
     top: number,
-  ): NonNullable<AutoMovieHumanSiteViewPart.IInput["poleJets"]> {
+  ): NonNullable<IAutoMovieHumanSiteViewPart.IInput["poleJets"]> {
     const parameters: number[] = [
       ...sites.map(
-        (site: AutoMovieHumanSiteViewPart.ISite): number =>
+        (site: IAutoMovieHumanSiteViewPart.ISite): number =>
           -Math.sqrt(top - site.station),
       ),
       0,
     ];
     const span: number = -parameters[0]!;
-    const jets: NonNullable<AutoMovieHumanSiteViewPart.ISite["jets"]>[] =
+    const jets: NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]>[] =
       parameters.map(
-        (): NonNullable<AutoMovieHumanSiteViewPart.ISite["jets"]> => [
+        (): NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> => [
           { first: 0, second: 0 },
           { first: 0, second: 0 },
           { first: 0, second: 0 },
@@ -403,7 +341,7 @@ export namespace AutoMovieHumanMassPart {
     for (const quarter of [0, 1, 2, 3] as const) {
       const values: number[] = [
         ...sites.map(
-          (site: AutoMovieHumanSiteViewPart.ISite): number =>
+          (site: IAutoMovieHumanSiteViewPart.ISite): number =>
             site.edges[quarter],
         ),
         0,
@@ -426,7 +364,7 @@ export namespace AutoMovieHumanMassPart {
       }
     }
     sites.forEach(
-      (site: AutoMovieHumanSiteViewPart.ISite, index: number): void => {
+      (site: IAutoMovieHumanSiteViewPart.ISite, index: number): void => {
         site.jets = jets[index]!;
       },
     );

@@ -1,12 +1,9 @@
+import type { IAutoMovieAdvancePhysicalBalance, IAutoMovieCollectPhysicalSupports, IAutoMoviePhysicalProfile as P, IAutoMovieFootfallPattern as Pattern, IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
 import {
   advancePhysicalBalance as Balance,
   collectPhysicalSupports,
 } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieFootfallPattern as Pattern,
-  IAutoMovieContactReceipt as Receipt,
-} from "@automovie/interface";
+
 import RAPIER, {
   type Collider,
   type RigidBody,
@@ -82,7 +79,7 @@ export async function test_physical_landing_authority(): Promise<void> {
         { body: "floor", bone: "floor", shape: "floor", material: "floor" },
       ],
     ]);
-    const state: Balance.IState = {
+    const state: IAutoMovieAdvancePhysicalBalance.IState = {
       last: "recovery",
       steps: [],
       offsets: {},
@@ -117,7 +114,7 @@ export async function test_physical_landing_authority(): Promise<void> {
       assert.ok(supports[0]!.samples.length > 0);
       assert.ok(
         supports[0]!.samples.every(
-          (point: collectPhysicalSupports.IPoint): boolean =>
+          (point: IAutoMovieCollectPhysicalSupports.IPoint): boolean =>
             point.carrier === "root",
         ),
       );

@@ -1,3 +1,4 @@
+import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
@@ -6,7 +7,7 @@ import {
   planPhysicalContactTargets,
   setPhysicalTargetJointRotation,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
@@ -26,7 +27,7 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  */
 export async function test_physical_self_avoidance(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const targets: Record<string, P.ITransform> = Object.fromEntries(
     profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
       segment.bone,

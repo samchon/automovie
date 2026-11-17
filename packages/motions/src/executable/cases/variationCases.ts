@@ -1,16 +1,13 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanVariation, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../../compose/AutoMovieMotionHumanVariationPlace";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import { HumanSkill } from "../../skill/HumanSkill";
@@ -93,7 +90,7 @@ interface IRepeat {
 
 /** The names `wave` and `stopPalm` state. */
 const PLACES: Readonly<
-  Record<"wave" | "stopPalm", AutoMovieMotionHumanTargetGrid.IGrid>
+  Record<"wave" | "stopPalm", IAutoMovieMotionHumanTargetGrid.IGrid>
 > = {
   wave: { height: "eye", lateral: "outside", distance: "near" },
   stopPalm: { height: "shoulder", lateral: "inside", distance: "far" },
@@ -102,11 +99,11 @@ const PLACES: Readonly<
 /** Build one body's case. */
 function build(name: string, who: string): IMotionCaptureCase {
   const man: humanPolygonMan.IPolygonMan = MotionBodies.population(who);
-  const body: IHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
+  const body: IAutoMovieMotionHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
   const partner: string =
     who === "m-tall" ? "f-small" : who === "f-small" ? "m-tall" : "m-average";
   const other: humanPolygonMan.IPolygonMan = MotionBodies.population(partner);
-  const struck: IHumanBody = createHumanBody(
+  const struck: IAutoMovieMotionHumanBody = createHumanBody(
     other.body.skeleton,
     other.body.profile,
   );
@@ -115,7 +112,7 @@ function build(name: string, who: string): IMotionCaptureCase {
   const targets: { at: IAutoMovieVector3; radius: number; color: number }[] =
     [];
   const metrics: Record<string, unknown> = { partner };
-  let drawn: HumanPerformance | undefined;
+  let drawn: IAutoMovieMotionHumanPerformance | undefined;
   const times: IMotionCaptureCase.ITime[] = [];
 
   for (const kind of ["wave", "stopPalm"] as const) {
@@ -209,7 +206,7 @@ function build(name: string, who: string): IMotionCaptureCase {
   metrics.strike = strike.metrics;
 
   if (drawn === undefined) throw new Error("The wave was not performed");
-  const performance: HumanPerformance = drawn;
+  const performance: IAutoMovieMotionHumanPerformance = drawn;
   return {
     name,
     times,
@@ -228,21 +225,21 @@ function build(name: string, who: string): IMotionCaptureCase {
 
 /** The repeats of one gesture in a row, read at each stroke's middle. */
 function gestures(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   kind: "wave" | "stopPalm",
   manner: { variation: number; proficiency: number } | undefined,
-): { performance: HumanPerformance; repeats: IRepeat[]; middles: number[] } {
-  let chain: HumanChain = HumanChain.subject("a");
+): { performance: IAutoMovieMotionHumanPerformance; repeats: IRepeat[]; middles: number[] } {
+  let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   for (let i: number = 0; i < VariationSeries.REPEATS; i++)
     chain = chain.gesture({
       kind,
       ...(manner === undefined ? {} : { manner }),
     });
-  const performance: HumanPerformance = VariationSeries.perform(body, chain);
+  const performance: IAutoMovieMotionHumanPerformance = VariationSeries.perform(body, chain);
   const middles: number[] = [];
   const repeats: IRepeat[] = performance
     .segments("a")
-    .map((g: HumanSegment.ISegment): IRepeat => {
+    .map((g: IAutoMovieMotionHumanSegment.ISegment): IRepeat => {
       const at = (name: string): number =>
         g.start +
         g.plan.events.find((e) => e.name === name)!.share * g.plan.duration;
@@ -284,12 +281,12 @@ function gestures(
  * owner's place for the right hand arriving from where it hangs.
  */
 function reached(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   index: number,
   variation: number,
 ): IAutoMovieVector3 {
   const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
-  const record: AutoMovieMotionHumanTarget.IDefault =
+  const record: IAutoMovieMotionHumanTarget.IDefault =
     AutoMovieMotionHumanTarget.DEFAULTS.ahead;
   const named: IAutoMovieVector3 = AutoMovieMotionHumanTarget.fallback(
     body,
@@ -303,8 +300,8 @@ function reached(
       y: shoulder.y - body.measure.upperArm - body.measure.forearm,
     }),
   );
-  const skill: HumanSkill.ISkill = HumanSkill.resolve({ p: 0 }, "variation");
-  const source: AutoMovieMotionHumanVariation.ISource | undefined =
+  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve({ p: 0 }, "variation");
+  const source: IAutoMovieMotionHumanVariation.ISource | undefined =
     AutoMovieMotionHumanVariation.of(
       {
         skill,

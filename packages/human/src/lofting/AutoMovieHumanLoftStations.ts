@@ -1,4 +1,5 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain } from "@automovie/interface";
+import { AutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * Tessellation stations of a chain: where its rings are generated.

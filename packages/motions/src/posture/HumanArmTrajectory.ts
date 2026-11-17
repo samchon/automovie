@@ -1,12 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
@@ -43,13 +38,13 @@ export namespace HumanArmTrajectory {
     /** The arm. */
     side: "left" | "right";
     /** The arm at the first waypoint, and at the last unless `back` is given. */
-    rest: HumanArmClearance.IArm;
+    rest: IAutoMovieMotionHumanArmClearance.IArm;
     /** The arm at the last waypoint, where it returns to another arm than it left (a gesture that leaves from the entry and returns to the rest); `rest` when absent. */
-    back?: HumanArmClearance.IArm;
+    back?: IAutoMovieMotionHumanArmClearance.IArm;
     /** Its site at each waypoint, on the hold. */
     sites: readonly (ISite | undefined)[];
     /** The arm the goal's own solution gives at the hold's start, where its inverse kinematics starts first (`HumanArmSeed`). */
-    guess?: HumanArmClearance.IArm;
+    guess?: IAutoMovieMotionHumanArmClearance.IArm;
     /** Its segments' declared rests over the hold (M.IRest). */
     rests?: readonly M.IRest[];
     /** Its segments that grasp one object with the other arm over the action (`M.IContext.grasped`). */
@@ -59,7 +54,7 @@ export namespace HumanArmTrajectory {
   /** The problem. */
   export interface IProblem {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
     /** The waypoints' seconds, in time order. */
     times: readonly number[];
     /** What every arm is read against at each waypoint, the arms of the problem left out. */
@@ -69,9 +64,6 @@ export namespace HumanArmTrajectory {
     /** The share of the reach made at a second of the reach, and of the return left at a second of the return: 0 at rest, 1 on the hold. */
     share: (seconds: number) => number;
   }
-
-  /** An arm at any second of the span. */
-  export type Trajectory = (seconds: number) => HumanArmClearance.IArm;
 
   /**
    * Solve the problem, its waypoints refined where they do not bound what
@@ -91,7 +83,7 @@ export namespace HumanArmTrajectory {
   export function solve(
     read: (times: readonly number[]) => IProblem,
     times: readonly number[],
-  ): Trajectory[] {
+  ): IAutoMovieMotionHumanArmTrajectory.Trajectory[] {
     const first: IProblem = read(times);
     const reading: (times: readonly number[]) => IProblem = leftFirst(first)
       ? (t: readonly number[]): IProblem => mirrored(read(t))
@@ -196,10 +188,10 @@ export namespace HumanArmTrajectory {
             ? "give the action more time"
             : "put the hand on a site its arm reaches with the body clear",
       });
-    const setups: G.ISetup[] = context.setups;
+    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = context.setups;
     return problem.arms.map(
-      (_: IArm, a: number): Trajectory =>
-        (seconds: number): HumanArmClearance.IArm =>
+      (_: IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+        (seconds: number): IAutoMovieMotionHumanArmClearance.IArm =>
           G.arm(setups[a]!, HumanArmRefine.hermite(at, x[a]!, seconds)),
     );
   }
@@ -213,12 +205,12 @@ export namespace HumanArmTrajectory {
     let most: number = 1;
     x.forEach((arm: readonly (readonly number[])[], a: number): void => {
       for (let k: number = 0; k + 1 < c.n; ++k) {
-        const now: G.IPlaced = G.placed(
+        const now: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
           c.setups[a]!,
           c.frames[a]![k]!,
           arm[k]!,
         );
-        const next: G.IPlaced = G.placed(
+        const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
           c.setups[a]!,
           c.frames[a]![k + 1]!,
           arm[k + 1]!,

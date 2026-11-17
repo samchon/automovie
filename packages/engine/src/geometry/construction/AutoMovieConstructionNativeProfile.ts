@@ -1,11 +1,12 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type { IAutoMovieConstructionNativeProfile, IAutoMovieConstructionProfile, IAutoMovieConstructionProfileSource, IAutoMovieLoftSectionJet, IAutoMovieLoftSectionPhase, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart } from "@automovie/interface";
+
+
+
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** One caller-owned actual station preparation, independent of output density. */
 interface Station {
@@ -14,11 +15,11 @@ interface Station {
   /** Existing numeric Point0 closure; a collapsed original has no regular curve. */
   point: ((phase: number) => [number, number]) | null;
   /** Same immutable original values for the independently requested phase capability. */
-  values: AutoMovieLoftViewRead.IValues;
+  values: IAutoMovieLoftViewRead.IValues;
   /** Lazy original phase2 does not require physical station2. */
-  phase: ReturnType<typeof AutoMovieLoftSectionNative.phase> | undefined;
+  phase: ((phi: number) => IAutoMovieLoftSectionPhase) | undefined;
   /** Lazily prepared actual physical2; failures are never cached as success. */
-  jet: ReturnType<typeof AutoMovieLoftSectionNative.jet> | undefined;
+  jet: ((phi: number) => IAutoMovieLoftSectionJet) | undefined;
 }
 
 /**
@@ -39,11 +40,7 @@ interface Station {
  */
 export function AutoMovieConstructionNativeProfile(
   part: IAutoMovieViewPart,
-  identity: {
-    material: string;
-    binding: string;
-    revisions: IAutoMovieConstructionProfile["revisions"];
-  },
+  identity: IAutoMovieConstructionNativeProfile.IIdentity,
 ): IAutoMovieConstructionProfileSource {
   if (
     !identity.material ||
@@ -55,13 +52,13 @@ export function AutoMovieConstructionNativeProfile(
     throw new AutoMovieLoftAdmissionError(
       "Native profile requires actual material/binding owners and source dependency identities.",
     );
-  const prepared: AutoMovieLoftViewSource.IResult | null =
+  const prepared: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
   if (prepared === null || prepared.source === null)
     throw new AutoMovieLoftAdmissionError(
       `Native profile needs its actual direct scalar source: ${JSON.stringify(prepared?.diagnostics ?? [])}`,
     );
-  const source: AutoMovieLoftViewSource.ISource = prepared.source;
+  const source: IAutoMovieLoftViewSource.ISource = prepared.source;
   const curveId: string = `${part.name}.native`;
   const domain: [number, number] = [
     source.domain[0] / 1000,
@@ -120,7 +117,7 @@ export function AutoMovieConstructionNativeProfile(
         "Native profile query is outside its actual source domain.",
       );
     if (latest?.at === station) return latest;
-    const values: AutoMovieLoftViewRead.IValues | string =
+    const values: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(source, station);
     if (typeof values === "string")
       throw new AutoMovieLoftAdmissionError(values);
@@ -158,7 +155,7 @@ export function AutoMovieConstructionNativeProfile(
       const current: Station = at(station);
       if (current.point === null) return null;
       if (current.jet === undefined) {
-        const inputs: AutoMovieLoftViewRead.IJets | string =
+        const inputs: IAutoMovieLoftViewRead.IJets | string =
           AutoMovieLoftViewRead.jets(source, station);
         if (typeof inputs === "string") return null;
         current.jet = AutoMovieLoftSectionNative.jet(inputs);

@@ -1,10 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionMeeting,
-  HumanRefusal,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionMeeting, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionClock, AutoMovieMotionMeeting, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -51,13 +47,13 @@ export function test_motion_compose_meeting(): void {
       upperArm: 0.25,
       forearm: 0.25,
     },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
   const role = (
     subject: string,
     z: number,
     yaw: number,
     name: string = "shaker",
-  ): AutoMovieMotionMeeting.IRole => ({
+  ): IAutoMovieMotionMeeting.IRole => ({
     name,
     subject,
     body,
@@ -66,11 +62,11 @@ export function test_motion_compose_meeting(): void {
   });
   const a = role("a", 0, 0);
   const b = role("b", 1, 180);
-  const kind: AutoMovieMotionMeeting.IKind = {
+  const kind: IAutoMovieMotionMeeting.IKind = {
     name: "handshake",
     roles: ["shaker", "shaker"],
     contacts: { palm: { height: 0.5, range: 0.5, facing: "performer" } },
-    timing: (r: AutoMovieMotionMeeting.IRole) =>
+    timing: (r: IAutoMovieMotionMeeting.IRole) =>
       r.subject === "a"
         ? { ready: 0.25, stroke: 0.5, relax: 1 }
         : { ready: 0.5, stroke: 0.75, relax: 0.875 },
@@ -143,7 +139,7 @@ export function test_motion_compose_meeting(): void {
   ]);
 
   // 4. A kind that places its contacts.
-  const placing: AutoMovieMotionMeeting.IKind = {
+  const placing: IAutoMovieMotionMeeting.IKind = {
     ...kind,
     place: () => ({ palm: { x: 0.125, y: 1.25, z: 0.5 } }),
   };

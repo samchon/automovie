@@ -1,13 +1,7 @@
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicalContactSupportRows, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-import type { advancePhysicalBalance as Balance } from "./advancePhysicalBalance";
-import type { physicalContactSupportRows } from "./physicalContactSupportRows";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -24,16 +18,16 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 13 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalContactSupportGoals(
-  body: Simulation.IBody,
-  target: Simulation.ITarget,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  target: IAutoMoviePhysicalSimulationInput.ITarget,
   floor: number,
   tolerance: number,
   seconds: number,
   rate: number,
   step: number,
-  state?: Balance.IState,
-): physicalContactSupportRows.ISupport[] {
-  const result: physicalContactSupportRows.ISupport[] = [];
+  state?: IAutoMovieAdvancePhysicalBalance.IState,
+): IAutoMoviePhysicalContactSupportRows.ISupport[] {
+  const result: IAutoMoviePhysicalContactSupportRows.ISupport[] = [];
   const identities: Set<string> = new Set();
   const patterns: IAutoMovieFootfallPattern[] = [
     ...(state && body.balance ? [body.balance.pattern] : []),
@@ -87,12 +81,12 @@ export function physicalContactSupportGoals(
         : Math.abs(
             Math.min(
               ...body.profile.segments
-                .filter((segment: P.ISegment): boolean =>
+                .filter((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
                   contacts.includes(segment.bone),
                 )
-                .flatMap((segment: P.ISegment): number[] =>
+                .flatMap((segment: IAutoMoviePhysicalProfile.ISegment): number[] =>
                   segment.shapes.map(
-                    (shape: P.IShape): number =>
+                    (shape: IAutoMoviePhysicalProfile.IShape): number =>
                       physicalShapeBounds(target.segments[segment.bone]!, shape)
                         .min.y + shift.y,
                   ),

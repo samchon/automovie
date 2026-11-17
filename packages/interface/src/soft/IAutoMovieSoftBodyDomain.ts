@@ -1,10 +1,10 @@
-import { IAutoMovieSoftAnchor } from "./IAutoMovieSoftAnchor";
-import { IAutoMovieSoftCollider } from "./IAutoMovieSoftCollider";
-import { IAutoMovieSoftContact } from "./IAutoMovieSoftContact";
-import { IAutoMovieSoftLattice } from "./IAutoMovieSoftLattice";
-import { IAutoMovieSoftNamedState } from "./IAutoMovieSoftNamedState";
-import { IAutoMovieSoftSolver } from "./IAutoMovieSoftSolver";
-import { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
+import type { IAutoMovieSoftAnchor } from "./IAutoMovieSoftAnchor";
+import type { IAutoMovieSoftCollider } from "./IAutoMovieSoftCollider";
+import type { IAutoMovieSoftContact } from "./IAutoMovieSoftContact";
+import type { IAutoMovieSoftLattice } from "./IAutoMovieSoftLattice";
+import type { IAutoMovieSoftNamedState } from "./IAutoMovieSoftNamedState";
+import type { IAutoMovieSoftSolver } from "./IAutoMovieSoftSolver";
+import type { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
 
 /**
  * Independent fixed-lattice, fixed-step position-based cloth domain.

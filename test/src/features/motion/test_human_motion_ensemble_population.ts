@@ -1,21 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPopulation, IAutoMovieMotionHumanSegment, IAutoMovieFormationDesign, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { formationSlotPosition } from "@automovie/engine";
-import type {
-  IAutoMovieFormationDesign,
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanEnsemble,
-  HumanFormation,
-  HumanPerformance,
-  HumanPopulation,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanFormation,
-} from "@automovie/motions";
+
+import { HUMAN_LEXICON, HumanEnsemble, HumanFormation, HumanPerformance, HumanPopulation, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,8 +38,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_ensemble_population(): void {
   const findings: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const formation = (heading: number): IHumanFormation => ({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const formation = (heading: number): IAutoMovieMotionHumanFormation => ({
     blocks: [
       {
         layout: {
@@ -74,8 +60,8 @@ export function test_human_motion_ensemble_population(): void {
 
   // 1. The design's slots.
   for (const heading of [0, 53]) {
-    const f: IHumanFormation = formation(heading);
-    const e: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    const f: IAutoMovieMotionHumanFormation = formation(heading);
+    const e: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: "p",
       seed: "population",
       count: 12,
@@ -88,7 +74,7 @@ export function test_human_motion_ensemble_population(): void {
       model: "soldier",
     });
     for (const m of e.members.filter(
-      (m: HumanEnsemble.IMember): boolean => m.detail === "population",
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "population",
     )) {
       const engine: IAutoMovieVector3 = formationSlotPosition(design, m.index);
       const own: IAutoMovieVector3 = HumanFormation.slot(f, m.index, 0).at;
@@ -105,7 +91,7 @@ export function test_human_motion_ensemble_population(): void {
   }
 
   // 2 and 3. A template's cycle.
-  const e: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  const e: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
     id: "p",
     seed: "population",
     count: 12,
@@ -113,19 +99,19 @@ export function test_human_motion_ensemble_population(): void {
     formation: formation(0),
     detail: rear,
   });
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "population",
     laws: [...HUMAN_LEXICON.gait!],
     performers: HumanEnsemble.performers(e),
     composition: HumanEnsemble.chains(
       e,
-      (m: HumanEnsemble.IMember, chain: HumanChain) =>
+      (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
         chain.stand({ seconds: 0.5 }).registered("march", {
           to: { x: m.place.at.x, y: 0, z: m.place.at.z + 6 },
         }),
     ),
   });
-  const segment: HumanSegment.ISegment = performance.segments("p.0")[1]!;
+  const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("p.0")[1]!;
   const strikes: { seconds: number; side: string }[] = segment.plan.events
     .filter((ev: IAutoMovieMotionEvent): boolean =>
       /^(left|right)HeelStrike\d+$/.test(ev.name),
@@ -139,7 +125,7 @@ export function test_human_motion_ensemble_population(): void {
         a.seconds - b.seconds,
     );
   const from: number = strikes[2]!.seconds - 1e-6;
-  const cycle: HumanPopulation.ICycle = HumanPopulation.cycle(
+  const cycle: IAutoMovieMotionHumanPopulation.ICycle = HumanPopulation.cycle(
     performance,
     "p.0",
     from,
@@ -188,7 +174,7 @@ export function test_human_motion_ensemble_population(): void {
       );
   }
   // A population over two blocks, the second faced about and set back: every population member's designed slot is its own.
-  const twoBlocks: IHumanFormation = {
+  const twoBlocks: IAutoMovieMotionHumanFormation = {
     ...formation(37),
     blocks: [
       {
@@ -217,7 +203,7 @@ export function test_human_motion_ensemble_population(): void {
       },
     ],
   };
-  const split: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  const split: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
     id: "q",
     seed: "population",
     count: 12,

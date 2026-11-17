@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieRecoveryFeasibleJointOptions,
-  admitRecoveryCameraScene,
-  createRecoveryCameraScene,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryFeasibleJointOptions } from "@automovie/interface";
+import { admitRecoveryCameraScene, createRecoveryCameraScene } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";

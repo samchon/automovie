@@ -1,28 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  carriedRate,
-  minimumJerk,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsWheel, IAutoMovieMotionHumanHandspring, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
+
+import { Vector3, carriedRate, minimumJerk } from "@automovie/engine";
 import { jump } from "../actions/jump";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -76,10 +61,10 @@ import { salto } from "./salto";
  */
 export namespace handspring {
   /** The action's name. */
-  export const name: HumanActionKey = "handspring";
+  export const name: AutoMovieMotionHumanActionKey = "handspring";
 
   /** Cancel table: from the end, into standing, walking, another handspring or a salto. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
@@ -116,43 +101,6 @@ export namespace handspring {
   const STEP: number = 5;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The leading leg.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The value the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union.
-   */
-  export interface IParams {
-    /** The leg that lunges; `left` when absent. */
-    lead?: "left" | "right";
-  }
-
-  /**
-   * What the hands land on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A height, a support frame and a check of the place.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the vault gives the plan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface ISurface {
-    /** The surface's height, world metres. */
-    height: number;
-
-    /** What the hands bear on. */
-    support: IHumanContactWindow.Support;
-
-    /**
-     * Refuse a place for the hands' middle off the surface.
-     *
-     * @param point The hands' middle as they come down, world metres.
-     * @throws {HumanRefusal} When the point is off the surface.
-     */
-    within(point: IAutoMovieVector3): void;
-  }
-
-  /**
    * Plan a front handspring on the floor.
    *
    * @param context The action's context.
@@ -168,8 +116,8 @@ export namespace handspring {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandspring.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     return over(context, {
       height: 0,
       support: { kind: "ground" },
@@ -194,25 +142,25 @@ export namespace handspring {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the table and the mass model.
    */
   export function over(
-    context: IHumanActionContext<IParams>,
-    surface: ISurface,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const model: GymnasticsFlight.Model = GymnasticsFlight.model(body);
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandspring.IParams>,
+    surface: IAutoMovieMotionHumanHandspring.ISurface,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
     const left: boolean = context.params.lead !== "right";
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = standing.yaw;
     const ease = (x: number): number => minimumJerk(x).s;
-    const reached: ExerciseKey.IKey = left
+    const reached: IAutoMovieMotionHumanExerciseKey.IKey = left
       ? lunged(body)
       : ExerciseKey.mirror(lunged(body));
-    const line: ExerciseKey.IKey = arched(body);
-    const stood: ExerciseKey.IKey = ExerciseKey.standing(body);
+    const line: IAutoMovieMotionHumanExerciseKey.IKey = arched(body);
+    const stood: IAutoMovieMotionHumanExerciseKey.IKey = ExerciseKey.standing(body);
 
     // The shape at an angle of forward tip.
-    const shaped = (angle: number): IHumanPosture => ({
+    const shaped = (angle: number): IAutoMovieMotionHumanPosture => ({
       ...ExerciseKey.posed(
         angle <= REACH
           ? ExerciseKey.blend(stood, reached, ease(angle / REACH))
@@ -233,8 +181,8 @@ export namespace handspring {
       (entered.get("leftFoot")!.worldPosition.y +
         entered.get("rightFoot")!.worldPosition.y) /
       2;
-    const ground: IHumanContactWindow.Support = { kind: "ground" };
-    const spokes: GymnasticsWheel.ISpoke[] = [
+    const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+    const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
       {
         bones: [left ? "leftFoot" : "rightFoot"],
@@ -253,7 +201,7 @@ export namespace handspring {
       },
     ];
     const hands: number = 3;
-    const wheel: GymnasticsWheel.IWheel = GymnasticsWheel.roll({
+    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel = GymnasticsWheel.roll({
       body,
       shaped,
       spokes,
@@ -261,14 +209,14 @@ export namespace handspring {
       until: RELEASE,
       step: STEP,
     });
-    const placedAt = (angle: number): IHumanPosture => ({
+    const placedAt = (angle: number): IAutoMovieMotionHumanPosture => ({
       ...shaped(angle),
       root: wheel.root(angle),
     });
 
     // The hands must bear by the release, on the surface.
-    const down: GymnasticsWheel.IRow | undefined = wheel.rows.find(
-      (row: GymnasticsWheel.IRow): boolean => row.bears === hands,
+    const down: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = wheel.rows.find(
+      (row: IAutoMovieMotionHumanGymnasticsWheel.IRow): boolean => row.bears === hands,
     );
     if (down === undefined || wheel.rows.at(-1)!.bears !== hands)
       throw new HumanRefusal({
@@ -301,7 +249,7 @@ export namespace handspring {
 
     // The landing's centre height: the arched body at `LAND` stood on its
     // ankles.
-    const landing: IHumanPosture = {
+    const landing: IAutoMovieMotionHumanPosture = {
       ...ExerciseKey.posed(line, yaw),
       pitch: LAND,
     };
@@ -309,7 +257,7 @@ export namespace handspring {
       "leftFoot",
       "rightFoot",
     ]);
-    const standingOn: IHumanPosture = {
+    const standingOn: IAutoMovieMotionHumanPosture = {
       ...landing,
       root: { x: 0, y: ankle - feet.y, z: 0 },
     };
@@ -375,7 +323,7 @@ export namespace handspring {
       (support * Math.sqrt(angle / RELEASE)) / duration;
 
     // The flight posture at seconds since the release.
-    const flying = (t: number): IHumanPosture =>
+    const flying = (t: number): IAutoMovieMotionHumanPosture =>
       GymnasticsFlight.placed(
         body,
         model,
@@ -385,7 +333,7 @@ export namespace handspring {
 
     // The landing: feet where they came down, the root carrying the
     // touchdown's velocity out to the standing place over them.
-    const touched: IHumanPosture = flying(flight);
+    const touched: IAutoMovieMotionHumanPosture = flying(flight);
     const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       StrikingBody.trunk(body, touched);
     const landed: Record<"left" | "right", IAutoMovieVector3> = {
@@ -414,14 +362,14 @@ export namespace handspring {
       y: 0,
       z: Math.cos((yaw * Math.PI) / 180),
     };
-    const after = (t: number): IHumanPosture => {
+    const after = (t: number): IAutoMovieMotionHumanPosture => {
       const span: number = jump.ABSORB + jump.RISE;
       const u: number = ease(t / span);
       const root: IAutoMovieVector3 = Vector3.add(
         Vector3.lerp(rootDown, rootUp, u),
         Vector3.scale(rootSpeed, carriedRate(span, t)),
       );
-      const limbs: IHumanPosture["limbs"] = {};
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = {
           point: landed[side],
@@ -446,10 +394,10 @@ export namespace handspring {
       });
     };
 
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...GymnasticsWheel.contacts(wheel, spokes, share),
       ...(["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: touchdown / duration,
@@ -470,7 +418,7 @@ export namespace handspring {
       events,
       contacts,
       contact: touchdown,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t < support) return placedAt(angleAt(t));
         if (t < touchdown) return flying(t - support);

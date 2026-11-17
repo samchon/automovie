@@ -1,4 +1,5 @@
-import { IAutoMovieWorldSurface } from "@automovie/interface";
+import { type IAutoMovieGroundQueryPoint, IAutoMovieWorldSurface } from "@automovie/interface";
+
 
 import { worldSurfaceContains } from "./worldSurfaceContains";
 
@@ -15,10 +16,10 @@ import { worldSurfaceContains } from "./worldSurfaceContains";
  */
 export const worldGroundSurface: (
   surfaces: readonly IAutoMovieWorldSurface[],
-  point: { x: number; z: number },
+  point: IAutoMovieGroundQueryPoint,
 ) => IAutoMovieWorldSurface | null = (
   surfaces: readonly IAutoMovieWorldSurface[],
-  point: { x: number; z: number },
+  point: IAutoMovieGroundQueryPoint,
 ): IAutoMovieWorldSurface | null =>
   surfaces.find((surface: IAutoMovieWorldSurface): boolean =>
     worldSurfaceContains(surface, point),

@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieCapturePlanRequest,
-  type IAutoMovieCaptureRecord,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord } from "@automovie/interface";
+import { parseAutoMovieCapturePlanRequest, readAutoMovieCaptureArguments } from "@automovie/render";
 import {
   AutoMovieCaptureHost,
   loadAutoMovieProductionModule,

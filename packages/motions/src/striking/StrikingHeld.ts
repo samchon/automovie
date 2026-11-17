@@ -1,16 +1,9 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingRoll } from "./StrikingRoll";
 
@@ -39,66 +32,6 @@ import { StrikingRoll } from "./StrikingRoll";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: the points are affordance ids the caller gives, and a missing one is refused with the ids the prop has.
  */
 export namespace StrikingHeld {
-  /** A held thing in the hand's grip frame. */
-  export interface ITool {
-    /** The prop's subject id; absent when the bare hand is the effector. */
-    prop?: string;
-
-    /** The holding hand. */
-    side: HumanHand.Side;
-
-    /** The working point from the grip socket, in the hand bone's frame, metres. */
-    tip: IAutoMovieVector3;
-
-    /** The unit direction the tool runs toward its working point, hand frame. */
-    axis: IAutoMovieVector3;
-
-    /** The unit direction the tool cuts or sights along, square to the axis, hand frame. */
-    edge: IAutoMovieVector3;
-
-    /** Whether the tool has no edge of its own: a prop that declares no edge affordance (a bat, a club), whose `edge` is then only a direction square to the axis, so its roll about its own line is free to the arm. False for the bare hand, whose edge is the little finger's side. */
-    rolls: boolean;
-
-    /** The working length behind the point along the axis, metres: the distance from an explicit `from`, otherwise the grip's projection behind the tip; 0 for the bare hand. */
-    length: number;
-
-    /**
-     * The run of the tool's edge along its axis, metres behind the working
-     * point: its end by the point, then its end by the hand, read from the
-     * edge affordance's centre and `length` (a sword's true edge, the length
-     * of its blade). Null when the tool declares no such edge: its working
-     * point is then all that strikes (a racket's `sweetSpot`, a club's
-     * `strike`, the bare hand's grip).
-     */
-    span: readonly [number, number] | null;
-
-    /** The prop as the hand holds it; absent for the bare hand. */
-    held?: AutoMovieMotionHumanHeld.IHeld;
-
-    /** What the plan publishes of the held tool; absent for the bare hand. */
-    wields?: IHumanActionPlan.ITool;
-  }
-
-  /** The affordance ids read of a prop. */
-  export interface IPoints {
-    /** The working point's affordance, whose `+Y` runs out of the tool. */
-    tip: string;
-
-    /** The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies the line. Surface normals keep their contact meaning. */
-    from?: string;
-
-    /** The affordance whose `+Y` is the edge's direction; absent, any direction square to the axis. */
-    edge?: string;
-  }
-
-  /** A hand's grip frame in the world: the grip socket's point and the hand bone's rotation. */
-  export interface IHandFrame {
-    /** The grip socket, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The hand's world rotation from its rest. */
-    rotation: IAutoMovieQuaternion;
-  }
 
   /**
    * Read what a hand holds at an action's entry.
@@ -119,11 +52,11 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "subject">,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
+    side: IAutoMovieMotionHumanHand.Side,
     prop?: string,
-    points: IPoints = { tip: "point", edge: "edge" },
-  ): ITool {
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
     if (prop === undefined) return bare(context.body, side);
     // The prop as the hand holds it, read by the one owner of that frame.
     return read(AutoMovieMotionHumanHeld.of(context, side, prop), points);
@@ -145,8 +78,8 @@ export namespace StrikingHeld {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by of and the supporting-hand goal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function bare(body: IHumanBody, side: HumanHand.Side): ITool {
-    const grip: HumanHand.IFrame = HumanHand.offset(body, side, "grip");
+  export function bare(body: IAutoMovieMotionHumanBody, side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanStrikingHeld.ITool {
+    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "grip");
     const axis: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
     return {
       side,
@@ -178,9 +111,9 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(
-    held: AutoMovieMotionHumanHeld.IHeld,
-    points: IPoints = { tip: "point", edge: "edge" },
-  ): ITool {
+    held: IAutoMovieMotionHumanHeld.IHeld,
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeldFrame.read(held, points);
   }
 
@@ -204,12 +137,12 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hand(
-    tool: ITool,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     back: number,
     at: IAutoMovieVector3,
     axis: IAutoMovieVector3,
     edge: IAutoMovieVector3,
-  ): IHandFrame {
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
     const rotation: IAutoMovieQuaternion = HumanHand.align(
       { normal: tool.axis, forward: tool.edge },
@@ -241,8 +174,8 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
-    tool: ITool,
-    frame: IHandFrame,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number = 0,
   ): IAutoMovieVector3 {
     return Vector3.add(
@@ -273,9 +206,9 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function strayed(
-    tool: ITool,
-    fitted: IHandFrame,
-    asked: IHandFrame,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    fitted: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    asked: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
   ): number {
     const off = (behind: number): number =>
@@ -296,7 +229,7 @@ export namespace StrikingHeld {
    * @param tool The tool.
    * @param frame The hand's grip frame asked.
    * @param back The point of the tool that must stay where the frame puts it, metres behind the working point.
-   * @param bend The elbow's place where no place of the arm is legal, world metres; elsewhere the elbow is left to the body (`IHumanPosture.IGoal.elbow`).
+   * @param bend The elbow's place where no place of the arm is legal, world metres; elsewhere the elbow is left to the body (`HumanPosture.IGoal.elbow`).
    * @returns The goal for the holding arm, with both working-line points bounded by the same miss the action judges.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the goal holds and which point stays when the turn gives way.
@@ -308,12 +241,12 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function goal(
-    context: Pick<IHumanActionContext, "body">,
-    tool: ITool,
-    frame: IHandFrame,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
     bend: IAutoMovieVector3,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieMotionHumanPosture.IGoal {
     const grip: IAutoMovieVector3 = HumanHand.offset(
       context.body,
       tool.side,
@@ -329,14 +262,14 @@ export namespace StrikingHeld {
 
       // The elbow is left to the body: the fit takes the least hand error,
       // then the reference's side where the law gives one, then the least
-      // strain (`IHumanPosture.IGoal.elbow`), the one place an elbow is chosen.
+      // strain (`HumanPosture.IGoal.elbow`), the one place an elbow is chosen.
       elbow: "strain",
       contact: Vector3.add(grip, placed(tool, back)),
       ...(tool.prop === undefined
         ? {}
         : {
             limits: [back > 0 ? back : tool.length, 0].map(
-              (behind: number): IHumanPosture.IPointLimit => ({
+              (behind: number): IAutoMovieMotionHumanPosture.IPointLimit => ({
                 contact: Vector3.add(grip, placed(tool, behind)),
                 bound: StrikingRoll.MISS,
               }),
@@ -361,7 +294,7 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grips(tool: ITool): IHumanContactWindow[] {
+  export function grips(tool: IAutoMovieMotionHumanStrikingHeld.ITool): IAutoMovieMotionHumanContactWindow[] {
     return tool.held === undefined
       ? []
       : [AutoMovieMotionHumanHeld.grip(tool.held)];
@@ -384,16 +317,16 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function holds(
-    context: Pick<IHumanActionContext, "entry">,
-    tool: ITool,
-  ): IHumanActionPlan.IHold[] {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+  ): IAutoMovieMotionHumanActionPlan.IHold[] {
     return tool.held === undefined
       ? []
       : [AutoMovieMotionHumanHeld.hold(context, tool.held)];
   }
 
   /** A point of the tool from the grip socket, hand frame. */
-  const placed = (tool: ITool, back: number): IAutoMovieVector3 =>
+  const placed = (tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): IAutoMovieVector3 =>
     Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back));
 
   /** The perpendicular axis construction shared with the held-point reader. */

@@ -1,14 +1,6 @@
-import {
-  AutoMovieConstructionViews,
-  type AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  AutoMovieViewParallelAxis,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionOutlineParameter,
-  IAutoMovieConstructionParallelAxis,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import { AutoMovieConstructionViews, AutoMovieViewOutline, AutoMovieViewParallelAxis } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionSourceParameterSubset } from "../../internal/construction/ConstructionSourceParameterSubset";
@@ -44,12 +36,12 @@ export function test_construction_source_parameters(): void {
   const reading = (
     curve: IAutoMovieViewPart.IOutline,
     station: number,
-  ): AutoMovieViewOutline.IReading => {
+  ): IAutoMovieViewOutline.IReading => {
     const source:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(curve);
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(curve);
     if ("detail" in source) throw new Error(source.detail);
-    const value: AutoMovieViewOutline.IReading | string =
+    const value: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(source, station);
     if (typeof value === "string") throw new Error(value);
     return value;
@@ -62,7 +54,7 @@ export function test_construction_source_parameters(): void {
     );
     for (const station of [0, 0.25, 1, 2.5, 4]) {
       const d: number = end === "bottom" ? station : 4 - station;
-      const actual: AutoMovieViewOutline.IReading = reading(curve, station);
+      const actual: IAutoMovieViewOutline.IReading = reading(curve, station);
       near(`${end} value ${station}`, actual.value, 10 + Math.sqrt(d));
       if (d === 0) {
         if (
@@ -99,7 +91,7 @@ export function test_construction_source_parameters(): void {
     return 10 + (3 * theta) / Math.PI - (4 * theta ** 3) / Math.PI ** 3;
   };
   for (const s of [0, 1e-300, 0.5, 1, 2, 3.5, 4]) {
-    const actual: AutoMovieViewOutline.IReading = reading(angle, s);
+    const actual: IAutoMovieViewOutline.IReading = reading(angle, s);
     near(`angle coordinate ${s}`, actual.value, ordinate(s));
     if (s === 0 || s === 4) {
       if (
@@ -130,8 +122,8 @@ export function test_construction_source_parameters(): void {
     }
   }
   const preparedAngle:
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(angle);
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(angle);
   if ("detail" in preparedAngle) throw new Error(preparedAngle.detail);
   for (const s of [-1, 5, NaN, Infinity])
     if (
@@ -141,8 +133,8 @@ export function test_construction_source_parameters(): void {
       failures.push(`angle outside query ${s} was not refused by both readers`);
   for (const end of ["bottom", "top"] as const) {
     const source:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       outline(
         [1, 3],
         end === "bottom" ? [11, 10 + Math.sqrt(3)] : [10 + Math.sqrt(3), 11],
@@ -156,7 +148,7 @@ export function test_construction_source_parameters(): void {
       typeof AutoMovieViewOutline.at(source, outside) !== "string"
     )
       failures.push(`${end} outside parameter domain was admitted`);
-    const endpoint: AutoMovieViewOutline.IReading | string =
+    const endpoint: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(source, end === "bottom" ? 0 : 4);
     if (typeof endpoint === "string") failures.push(endpoint);
     else {
@@ -187,7 +179,7 @@ export function test_construction_source_parameters(): void {
         ),
       },
     };
-    const axis: AutoMovieViewAxis.IAxis | string =
+    const axis: IAutoMovieViewAxis.IAxis | string =
       AutoMovieConstructionViews.frame(record);
     if (typeof axis === "string") {
       failures.push(axis);
@@ -203,7 +195,7 @@ export function test_construction_source_parameters(): void {
       failures.push("actual source parameter declaration was not retained");
       continue;
     }
-    const replay: AutoMovieViewAxis.IAxis | string =
+    const replay: IAutoMovieViewAxis.IAxis | string =
       AutoMovieConstructionViews.frame(original);
     if (typeof replay === "string") {
       failures.push(replay);
@@ -212,10 +204,10 @@ export function test_construction_source_parameters(): void {
     original.origin.x.knots[0]!.value = -999;
     original.u.y = -1;
     for (const s of [0, 0.5, 1, 2.5, 4]) {
-      const actual: ReturnType<AutoMovieViewAxis.IAxis["at"]> = axis.at(
+      const actual: ReturnType<IAutoMovieViewAxis.IAxis["at"]> = axis.at(
         s * scale,
       );
-      const second: ReturnType<AutoMovieViewAxis.IAxis["at"]> = replay.at(
+      const second: ReturnType<IAutoMovieViewAxis.IAxis["at"]> = replay.at(
         s * scale,
       );
       const expected: number[] = [
@@ -239,13 +231,13 @@ export function test_construction_source_parameters(): void {
       );
     }
   }
-  const closing: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const closing: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create(angle, { bottom: 0, top: 4 });
   if (!("detail" in closing) || closing.contract !== "pole knot")
     failures.push("radial zero closure was weakened for world parameters");
   const mismatched:
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
     outline([0, 4], [0, 2], { type: "root", pole: 4, end: "top" }),
     { bottom: 0 },
   );
@@ -253,7 +245,7 @@ export function test_construction_source_parameters(): void {
     failures.push("an incompatible radial pole parameter was accepted");
   if (
     AutoMovieViewParallelAxis.source({
-      at: (): ReturnType<AutoMovieViewAxis.IAxis["at"]> => ({
+      at: (): ReturnType<IAutoMovieViewAxis.IAxis["at"]> => ({
         origin: [0, 0, 0],
         u: [1, 0, 0],
         v: [0, 0, 1],
@@ -267,10 +259,10 @@ export function test_construction_source_parameters(): void {
     { type: "root", pole: NaN, end: "bottom" },
     { type: "angle", bottom: 1, top: 1 },
     { type: "angle", bottom: 0, top: Infinity },
-  ] as AutoMovieConstructionOutlineParameter[]) {
+  ] as IAutoMovieConstructionOutlineParameter[]) {
     const invalid:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
       ...angle,
       parameter: p,
     });
@@ -287,7 +279,7 @@ export function test_construction_source_parameters(): void {
 function outline(
   stations: readonly number[],
   values: readonly number[],
-  parameter?: AutoMovieConstructionOutlineParameter,
+  parameter?: IAutoMovieConstructionOutlineParameter,
 ): IAutoMovieViewPart.IOutline {
   return {
     knots: stations.map(

@@ -1,7 +1,7 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type { IAutoMovieConstructionProfileSource, IAutoMovieConstructionProfile } from "@automovie/interface";
+
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
 
 /**
  * Admit explicit original end roles and exact periodic source-chart capability.

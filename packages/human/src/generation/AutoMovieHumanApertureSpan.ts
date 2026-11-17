@@ -1,7 +1,11 @@
+import type { IAutoMovieLoftChain, IAutoMovieHumanApertureSpan, IAutoMovieHumanBodyApertures, IAutoMovieHumanBodyCalibration } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import { AutoMovieLoftChain } from "@automovie/engine";
+
 
 /**
  * The chains an opening is trimmed from, and its trim loop in each of their
@@ -34,32 +38,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * one-sided at its ends, so no read leaves the chain.
  */
 export namespace AutoMovieHumanApertureSpan {
-  /** A rim point on its chain, with its chart on the neighbour where it lies on their shared ring. */
-  export interface IPoint {
-    /** The chain the point is evaluated on. */
-    chain: string;
+  
 
-    /** Station, mm. */
-    s: number;
-
-    /** Phase, radians, on the branch the loop runs on. */
-    t: number;
-
-    /** The same point in the neighbour's chart, for a point on the shared ring. */
-    also?: { chain: string; s: number; t: number };
-  }
-
-  /** An opening's trim on one or two chains. */
-  export interface ISpan {
-    /** The chains, the one holding the most points first. */
-    chains: string[];
-
-    /** The rim: the feet of the kept margin points, in margin order. */
-    points: IPoint[];
-
-    /** Each chain's polygon `[station, phase]` for the cells it leaves out, closed past the shared ring. */
-    loops: Map<string, [number, number][]>;
-  }
+  
 
   /**
    * The key of the one hole the chains of a spanning opening leave their
@@ -80,10 +61,10 @@ export namespace AutoMovieHumanApertureSpan {
    * @param events The calibration's events, which name the owner of a shared ring.
    */
   export function of(
-    prepared: AutoMovieHumanBodyApertures.IPrepared,
+    prepared: IAutoMovieHumanBodyApertures.IPrepared,
     chains: readonly IAutoMovieLoftChain[],
     events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
-  ): ISpan | string {
+  ): IAutoMovieHumanApertureSpan.ISpan | string {
     const margin: readonly [number, number, number][] = prepared.edge;
     const range: [number, number] = AutoMovieHumanLoftAperture.range(margin);
     const tolerance: number = prepared.aperture.depth;
@@ -135,17 +116,17 @@ export namespace AutoMovieHumanApertureSpan {
     const byName: Map<string, IAutoMovieLoftChain> = new Map(
       chains.map((c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [c.name, c]),
     );
-    const at = (i: number): IPoint => {
+    const at = (i: number): IAutoMovieHumanApertureSpan.IPoint => {
       const name: string = owners[i]!;
       const f: IFoot = feet.get(name)![i]!;
       return { chain: name, s: f.s, t: f.t };
     };
     if (names.length === 1) {
-      const points: IPoint[] = kept.map(at);
+      const points: IAutoMovieHumanApertureSpan.IPoint[] = kept.map(at);
       return {
         chains: names,
         points,
-        loops: new Map([[names[0]!, points.map((p: IPoint): [number, number] => [p.s, p.t])]]),
+        loops: new Map([[names[0]!, points.map((p: IAutoMovieHumanApertureSpan.IPoint): [number, number] => [p.s, p.t])]]),
       };
     }
     if (names.length !== 2) return `margin on ${names.length} chains: ${names.join(", ")}`;
@@ -159,14 +140,14 @@ export namespace AutoMovieHumanApertureSpan {
     // The loop with a crossing on the ring between every two kept points on
     // different chains: the owner's ring point nearest the margin's chord
     // there, copied by the neighbour.
-    const sequence: IPoint[] = [];
+    const sequence: IAutoMovieHumanApertureSpan.IPoint[] = [];
     for (let k: number = 0; k < kept.length; k++) {
       const i: number = kept[k]!;
       const j: number = kept[(k + 1) % kept.length]!;
-      const p: IPoint = at(i);
+      const p: IAutoMovieHumanApertureSpan.IPoint = at(i);
       sequence.push(p);
       if (owners[j] === owners[i]) continue;
-      const q: IPoint = at(j);
+      const q: IAutoMovieHumanApertureSpan.IPoint = at(j);
       const a: [number, number, number] = margin[i]!;
       const b: [number, number, number] = margin[j]!;
       const t: number = nearest(owner, ring.station, (x: readonly number[]): number => chord(x, a, b), (p.chain === ring.owner ? p : q).t);
@@ -186,15 +167,15 @@ export namespace AutoMovieHumanApertureSpan {
     for (const name of names) {
       const away: number = name === ring.lower ? 1 : -1;
       const polygon: [number, number][] = [];
-      const chart = (p: IPoint): [number, number] | null =>
+      const chart = (p: IAutoMovieHumanApertureSpan.IPoint): [number, number] | null =>
         p.chain === name ? [p.s, p.t] : p.also?.chain === name ? [p.also.s, p.also.t] : null;
-      const start: number = sequence.findIndex((p: IPoint): boolean => p.chain === name && p.also === undefined);
+      const start: number = sequence.findIndex((p: IAutoMovieHumanApertureSpan.IPoint): boolean => p.chain === name && p.also === undefined);
       for (let k: number = 0; k < sequence.length; k++) {
-        const p: IPoint = sequence[(start + k) % sequence.length]!;
+        const p: IAutoMovieHumanApertureSpan.IPoint = sequence[(start + k) % sequence.length]!;
         const c: [number, number] | null = chart(p);
         if (c === null) continue;
-        const before: IPoint = sequence[(start + k - 1 + sequence.length) % sequence.length]!;
-        const after: IPoint = sequence[(start + k + 1) % sequence.length]!;
+        const before: IAutoMovieHumanApertureSpan.IPoint = sequence[(start + k - 1 + sequence.length) % sequence.length]!;
+        const after: IAutoMovieHumanApertureSpan.IPoint = sequence[(start + k + 1) % sequence.length]!;
         if (p.also !== undefined && chart(before) === null) polygon.push([ring.station + away * PAST, c[1]]);
         polygon.push(c);
         if (p.also !== undefined && chart(after) === null) polygon.push([ring.station + away * PAST, c[1]]);

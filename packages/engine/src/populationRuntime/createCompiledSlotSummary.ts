@@ -1,7 +1,5 @@
-import {
-  IAutoMovieFormationBounds,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieCreateCompiledSlotSummary, IAutoMovieFormationBounds, IAutoMovieVector3 } from "@automovie/interface";
+
 
 /**
  * Create a call-owned bounds and running-mean fold for ascending slot points.
@@ -14,16 +12,7 @@ import {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Range and chunk owners share the same fold implementation; each accumulator represents its own ordered point sequence and is never reused across mutable population inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the closure until finish returns its vectors; it holds no handles, callbacks or point history, and failures leave only ordinary collectable objects.
  */
-export function createCompiledSlotSummary(): {
-  /** Fold one borrowed finite position; no reference to the point is retained. */
-  add: (point: IAutoMovieVector3) => void;
-
-  /** Transfer the current vectors; the caller stops adding after this call. */
-  finish: () => {
-    bounds: IAutoMovieFormationBounds;
-    centroid: IAutoMovieVector3;
-  };
-} {
+export function createCompiledSlotSummary(): IAutoMovieCreateCompiledSlotSummary.IResult {
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
   const centroid: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

@@ -1,5 +1,5 @@
-import { AutoMovieInterpolation } from "./AutoMovieInterpolation";
-import { IAutoMovieChannel } from "./IAutoMovieChannel";
+import type { AutoMovieInterpolation } from "./AutoMovieInterpolation";
+import type { IAutoMovieChannel } from "./IAutoMovieChannel";
 
 /**
  * One animation track: a stream of keyframes driving a single channel over time. It mirrors a glTF animation channel and sampler pair, generalized to node TRS, morph weights or a pointer-addressed property.

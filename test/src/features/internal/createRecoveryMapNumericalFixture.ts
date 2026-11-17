@@ -1,8 +1,6 @@
-import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
-import type {
-  IAutoMovieRecoveryMapPose,
-  extractRecoveryImageFeatures,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryMapPose, IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
+
+import type { extractRecoveryImageFeatures } from "@automovie/recovery";
 
 /** Independently prescribed nonplanar coordinates, scalar pinhole projections and artificial uniquely separated feature identities for numerical seams, not detector or photographic truth. */
 export function createRecoveryMapNumericalFixture(): {

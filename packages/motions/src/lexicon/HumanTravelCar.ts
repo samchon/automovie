@@ -1,21 +1,10 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanTravelCar, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { seated } from "../everyday/seated";
 import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
 /**
@@ -51,17 +40,6 @@ import { carryHumanPosture } from "../posture/carryHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No car is special-cased; the headroom is the opening's own and the duck is solved against it for each body.
  */
 export namespace HumanTravelCar {
-  /** Parameters of getting in. */
-  export interface IParams {
-    /** The seat sat on, as `HumanObject.seat` reads it from the car. */
-    seat: seated.ISeat;
-
-    /** The door's opening, as `HumanObstacle.apertures` reads it from the car. */
-    through: HumanObstacle.IAperture;
-
-    /** Seconds of the sitting down; `sit`'s own when absent. */
-    seconds?: number;
-  }
 
   /** Seconds the seated body takes to swing round to face the seat's way (provisional). */
   export const SWING: number = 1.2;
@@ -82,13 +60,13 @@ export namespace HumanTravelCar {
   export const SAMPLES: number = 48;
 
   /** Get into a car seat through its door. */
-  export const getIn: IHumanActionLaw<IParams> = {
+  export const getIn: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelCar.IParams> = {
     name: "getIn",
     interrupts: {},
     yields: ["leftHand", "rightHand", "leftArm", "rightArm"],
-    plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
-      const { seat, through }: IParams = context.params;
-      const body: IHumanBody = context.body;
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelCar.IParams>): IAutoMovieMotionHumanActionPlan => {
+      const { seat, through }: IAutoMovieMotionHumanTravelCar.IParams = context.params;
+      const body: IAutoMovieMotionHumanBody = context.body;
       if (through.width < body.measure.chestBreadth)
         throw new HumanRefusal({
           kind: "reach",
@@ -127,7 +105,7 @@ export namespace HumanTravelCar {
       const outward: number = (Math.atan2(out.x, out.z) * 180) / Math.PI;
 
       // Sit down sideways, facing out of the door.
-      const aside: seated.ISeat = {
+      const aside: IAutoMovieMotionHumanSeated.ISeat = {
         ...seat,
         at: {
           ...Vector3.add(centre, Vector3.scale(out, depth / 2)),
@@ -136,7 +114,7 @@ export namespace HumanTravelCar {
         yaw: outward,
         depth,
       };
-      const down: IHumanActionPlan = sit.plan({
+      const down: IAutoMovieMotionHumanActionPlan = sit.plan({
         ...context,
         params: {
           seat: aside,
@@ -147,10 +125,10 @@ export namespace HumanTravelCar {
       });
       const sat: number = down.duration;
       const duration: number = sat + SWING;
-      const end: IHumanPosture = down.posture(sat);
+      const end: IAutoMovieMotionHumanPosture = down.posture(sat);
       const turn: number = ((((seat.yaw - outward) % 360) + 540) % 360) - 180;
       const pivot: IAutoMovieVector3 = { ...centre, y: seat.at.y };
-      const swung = (u: number): IHumanPosture =>
+      const swung = (u: number): IAutoMovieMotionHumanPosture =>
         carryHumanPosture(
           end,
           { position: pivot, rotation: HumanFrame.turn(0) },
@@ -159,15 +137,15 @@ export namespace HumanTravelCar {
             rotation: HumanFrame.turn(turn * minimumJerk(Math.min(1, u)).s),
           },
         );
-      const undocked = (t: number): IHumanPosture =>
+      const undocked = (t: number): IAutoMovieMotionHumanPosture =>
         t <= sat ? down.posture(t) : swung((t - sat) / SWING);
 
       // The duck each sampled instant needs, by bisection on the spine's added flexion.
       const top: number = through.at.y + through.height - CLEAR;
       const ducked = (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         degrees: number,
-      ): IHumanPosture => {
+      ): IAutoMovieMotionHumanPosture => {
         const spine: readonly [number, number, number] = posture.joints
           .spine ?? [0, 0, 0];
         return degrees === 0
@@ -180,7 +158,7 @@ export namespace HumanTravelCar {
               },
             };
       };
-      const over = (posture: IHumanPosture): number => {
+      const over = (posture: IAutoMovieMotionHumanPosture): number => {
         const crown: IAutoMovieVector3 = HumanTrunk.region(
           body,
           posture,
@@ -193,7 +171,7 @@ export namespace HumanTravelCar {
       const needs: { at: number; degrees: number }[] = [];
       for (let k: number = 0; k <= SAMPLES; ++k) {
         const t: number = (k / SAMPLES) * duration;
-        const posture: IHumanPosture = undocked(t);
+        const posture: IAutoMovieMotionHumanPosture = undocked(t);
         if (!(over(posture) > 0)) continue;
         if (over(ducked(posture, DUCK)) > 0)
           throw new HumanRefusal({
@@ -250,8 +228,8 @@ export namespace HumanTravelCar {
         ),
         { name: "swung", share: 1 },
       ];
-      const contacts: IHumanContactWindow[] = down.contacts.map(
-        (c: IHumanContactWindow): IHumanContactWindow =>
+      const contacts: IAutoMovieMotionHumanContactWindow[] = down.contacts.map(
+        (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow =>
           c.part === "seat" && c.to >= 1 - 1e-9
             ? { ...c, from: share(c.from), to: 1 }
             : { ...c, from: share(c.from), to: share(c.to) },
@@ -262,7 +240,7 @@ export namespace HumanTravelCar {
         contacts,
         ...(down.contact === undefined ? {} : { contact: down.contact }),
         base: { kind: "seated", seat },
-        posture: (t: number): IHumanPosture => {
+        posture: (t: number): IAutoMovieMotionHumanPosture => {
           const at: number = Math.min(duration, Math.max(0, t));
           return ducked(undocked(at), duck(at));
         },

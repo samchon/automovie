@@ -1,9 +1,6 @@
-import type { IAutoMovieSchedule } from "@automovie/engine";
+import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanInterruptRow, IAutoMovieMotionHumanSegment, IAutoMovieSchedule } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -31,13 +28,13 @@ export namespace HumanSegmentCut {
    */
   export function row(
     subject: string,
-    previous: HumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
     before: IAutoMovieSchedule.IEntry | undefined,
-    name: HumanActionKey,
+    name: AutoMovieMotionHumanActionKey,
     start: number,
-    accepts: IHumanActionLaw["accepts"] = {},
-    family: HumanActionKey = name,
-  ): IHumanInterruptRow | undefined {
+    accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {},
+    family: AutoMovieMotionHumanActionKey = name,
+  ): IAutoMovieMotionHumanInterruptRow | undefined {
     if (previous === undefined || before === undefined) return undefined;
 
     // An action aligned to an instant may start while the previous one still
@@ -53,7 +50,7 @@ export namespace HumanSegmentCut {
     // The source's row for this action, then what the entered action accepts
     // from this source, then either side's rule for every action. A row of
     // an action is read under its own name first and its family's after.
-    const rows: readonly IHumanInterruptRow[] =
+    const rows: readonly IAutoMovieMotionHumanInterruptRow[] =
       previous.law.interrupts[name] ??
       previous.law.interrupts[family] ??
       accepts[previous.name] ??
@@ -61,8 +58,8 @@ export namespace HumanSegmentCut {
       previous.law.interrupts.any ??
       accepts.any ??
       [];
-    const found: IHumanInterruptRow | undefined = rows.find(
-      (r: IHumanInterruptRow): boolean => {
+    const found: IAutoMovieMotionHumanInterruptRow | undefined = rows.find(
+      (r: IAutoMovieMotionHumanInterruptRow): boolean => {
         const [a, b] = r.window.map((w: number | string): number =>
           HumanSegment.share(w, previous.plan),
         );
@@ -75,7 +72,7 @@ export namespace HumanSegmentCut {
         ? "none declared"
         : rows
             .map(
-              (r: IHumanInterruptRow): string =>
+              (r: IAutoMovieMotionHumanInterruptRow): string =>
                 `[${r.window.join(", ")}] (${r.kind})`,
             )
             .join(", ");
@@ -88,7 +85,7 @@ export namespace HumanSegmentCut {
       feasible: {
         kind: "alternatives",
         values: rows.map(
-          (r: IHumanInterruptRow): string => `[${r.window.join(", ")}]`,
+          (r: IAutoMovieMotionHumanInterruptRow): string => `[${r.window.join(", ")}]`,
         ),
       },
       reason: `${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)} of itself; its legal windows into ${name}: ${legal}`,

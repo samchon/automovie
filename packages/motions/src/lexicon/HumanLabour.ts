@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { carry } from "../carrying/carry";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { useTool } from "../tasks/useTool";
@@ -15,55 +17,55 @@ import { throwObject } from "../throwing/throwObject";
  */
 export namespace HumanLabour {
   /** Carry a box in both hands. */
-  export const carryBox = HumanActionRow.of("carryBox", carry, {
+  export const carryBox: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["carryBox"]> = HumanActionRow.of("carryBox", carry, {
     how: "twoHands",
   });
 
   /** Carry a bag or a case in one hand. */
-  export const carryBag = HumanActionRow.of("carryBag", carry, {
+  export const carryBag: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["carryBag"]> = HumanActionRow.of("carryBag", carry, {
     how: "oneHand",
   });
 
   /** Carry a load on the hip, as a basket or a child is carried. */
-  export const carryOnHip = HumanActionRow.of("carryOnHip", carry, {
+  export const carryOnHip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["carryOnHip"]> = HumanActionRow.of("carryOnHip", carry, {
     how: "hip",
   });
 
   /** Push a cart, a pram or a trolley ahead. */
-  export const pushCart = HumanActionRow.of("pushCart", carry, { how: "push" });
+  export const pushCart: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["pushCart"]> = HumanActionRow.of("pushCart", carry, { how: "push" });
 
   /** Haul a heavy load slowly in both hands (the load is a quarter of the body's mass, the most a carry accepts). */
-  export const haul = HumanActionRow.of("haul", carry, {
+  export const haul: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["haul"]> = HumanActionRow.of("haul", carry, {
     how: "twoHands",
     pace: "slow",
     load: 0.25,
   });
 
   /** Drive nails: a hammer swung four times. */
-  export const hammer = HumanActionRow.of("hammer", useTool, {
+  export const hammer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["hammer"]> = HumanActionRow.of("hammer", useTool, {
     tool: "hammer",
     cycles: 4,
   });
 
   /** Saw through a board. */
-  export const saw = HumanActionRow.of("saw", useTool, { tool: "saw" });
+  export const saw: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["saw"]> = HumanActionRow.of("saw", useTool, { tool: "saw" });
 
   /** Stir a pot. */
-  export const stir = HumanActionRow.of("stir", useTool, { tool: "stir" });
+  export const stir: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["stir"]> = HumanActionRow.of("stir", useTool, { tool: "stir" });
 
   /** Drive a screw. */
-  export const screw = HumanActionRow.of("screw", useTool, {
+  export const screw: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["screw"]> = HumanActionRow.of("screw", useTool, {
     tool: "screwdriver",
   });
 
   /** Scrub a surface: six passes of the cloth. */
-  export const scrub = HumanActionRow.of("scrub", wipe, { cycles: 6 });
+  export const scrub: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["scrub"]> = HumanActionRow.of("scrub", wipe, { cycles: 6 });
 
   /** Toss something lightly to a place or a person. */
-  export const toss = HumanActionRow.of("toss", throwObject, { style: "toss" });
+  export const toss: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["toss"]> = HumanActionRow.of("toss", throwObject, { style: "toss" });
 
   /** Hurl something overarm. */
-  export const hurl = HumanActionRow.of("hurl", throwObject, {
+  export const hurl: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["labour"]["hurl"]> = HumanActionRow.of("hurl", throwObject, {
     style: "overarm",
   });
 }

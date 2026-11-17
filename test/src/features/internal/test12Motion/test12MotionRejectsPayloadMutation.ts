@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { throwsError } from "../predicates";
 import type { ITest12MotionDocument } from "./ITest12MotionDocument";
 import { test12MotionFixture } from "./test12MotionFixture";
@@ -18,7 +19,7 @@ export function test12MotionRejectsPayloadMutation(
   } = test12MotionFixture();
   mutate(fixture.payload);
   return throwsError(
-    (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+    (): IAutoMovieExternalModelInspection =>
       test12MotionInspect(fixture),
     message,
   );

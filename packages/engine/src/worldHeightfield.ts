@@ -1,4 +1,5 @@
-import { IAutoMovieWorldSurface } from "@automovie/interface";
+import { type IAutoMovieWorldHeightfield, IAutoMovieWorldSurface } from "@automovie/interface";
+
 
 /**
  * Bake a supplied height callback into a row-major terrain lattice.
@@ -11,30 +12,7 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every lattice point is sampled once and the result serves future queries; effectful callbacks are not memoized or retried and changed terrain needs a new bake.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh sample buffer, rule and copied polygon; the callback and input footprint are not retained after success or failure, with no background sampler.
  */
-export const worldHeightfield: (input: {
-  id: string;
-  polygon: { x: number; z: number }[];
-  origin: { x: number; z: number };
-  spacing: { x: number; z: number };
-  columns: number;
-  rows: number;
-  height: (point: { x: number; z: number }) => number;
-  walkable: boolean;
-}) => IAutoMovieWorldSurface = (input: {
-  id: string;
-  polygon: IAutoMovieWorldSurface["polygon"];
-  /** World XZ of sample column and row zero. */
-  origin: { x: number; z: number };
-  /** Column and row pitch in meters, both strictly above zero. */
-  spacing: { x: number; z: number };
-  /** Sample columns along +X; at least two. */
-  columns: number;
-  /** Sample rows along +Z; at least two. */
-  rows: number;
-  /** Surface height in meters at one lattice point. */
-  height: (point: { x: number; z: number }) => number;
-  walkable: boolean;
-}): IAutoMovieWorldSurface => {
+export const worldHeightfield: (input: IAutoMovieWorldHeightfield.IInput) => IAutoMovieWorldSurface = (input: IAutoMovieWorldHeightfield.IInput): IAutoMovieWorldSurface => {
   assertText(input.id, "World heightfield id");
   if (
     Number.isFinite(input.spacing.x) === false ||

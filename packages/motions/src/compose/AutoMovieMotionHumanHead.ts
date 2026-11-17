@@ -1,6 +1,7 @@
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Head phrases: the head moved on the neck by joint angles, with no target
@@ -37,7 +38,7 @@ export namespace AutoMovieMotionHumanHead {
   export function share(
     axis: 0 | 1 | 2,
     degrees: number,
-  ): AutoMovieMotionHumanJoints.Angles {
+  ): IAutoMovieMotionHumanJoints.Angles {
     const of = (part: number): [number, number, number] => {
       const out: [number, number, number] = [0, 0, 0];
       out[axis] = part * degrees;
@@ -49,7 +50,7 @@ export namespace AutoMovieMotionHumanHead {
   /** An oscillation of one head angle over a window. */
   const oscillate = (
     axis: 0 | 1 | 2,
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock.IClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -58,7 +59,7 @@ export namespace AutoMovieMotionHumanHead {
       channels: ["head"],
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      delta: (seconds: number): AutoMovieMotionHumanJoints.Angles =>
+      delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
         share(
           axis,
           degrees * AutoMovieMotionClock.wave(clock, window, cycles, seconds),
@@ -83,7 +84,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function nod(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock.IClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -109,7 +110,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shake(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock.IClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -135,7 +136,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function tilt(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock.IClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     degrees: number,

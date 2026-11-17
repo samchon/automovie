@@ -1,3 +1,4 @@
+import type { IAutoMovieLoftContract } from "@automovie/interface";
 /**
  * Checked values chains and seams exchange; failed checks throw a message
  * naming the producer and the violated local premise.
@@ -26,61 +27,6 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftContract {
-  /**
-   * A contract an optional piece broke, recorded instead of aborting the
-   * figure: the piece is replaced by its base (no piece over the base
-   * envelope; an aperture that cannot close one loop leaves the mouth closed).
-   *
-   * @evidence contracts/development/design.md#principled-representation A producer, construction level, contract name and detail identify a rejected local construction for the realization's rollback/reporting path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four plain fields carry the failure without coupling the record to an exception class or renderer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record reports a failure rather than treating partial geometry as successful; it does not itself enforce rollback.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the failed piece, construction level and explanatory numerical detail, with fallback owned by the producing operation.
-   */
-  export interface IDiagnostic {
-    /** The piece that broke the contract, such as `human.mouth`. */
-    producer: string;
-
-    /** Its construction level (`construction-levels.md`). */
-    level: number;
-
-    /** The contract it broke. */
-    contract: string;
-
-    /** The message with its numbers. */
-    detail: string;
-  }
-
-  /**
-   * Borrowed stations checked for finiteness and the constructor's minimum rise, mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation The intersection brand identifies the stations checker boundary on a read-only number array.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The original array remains the value rather than gaining a runtime wrapper or duplicate table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The brand neither freezes storage nor prevents an explicit cast; callers must preserve the checked ordering and values.
-   * @evidence contracts/development/common.md#meaningful-documentation States physical units, the minimum-rise check and borrowed ownership.
-   */
-  export type Stations = readonly number[] & { readonly contract: "stations" };
-
-  /**
-   * Borrowed numbers checked against the caller's magnitude bound, finite when that bound is finite.
-   *
-   * @evidence contracts/development/design.md#principled-representation The jet brand marks an array that passed elementwise magnitude comparisons with a supplied bound.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A type intersection preserves the numerical array layout used by interpolation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This type does not record the bound or prevent later alias mutation/casting; it cannot independently certify finiteness.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a finite caller bound from a guarantee supplied by the alias itself.
-   */
-  export type Jet = readonly number[] & { readonly contract: "jet" };
-
-  /**
-   * Borrowed finite points whose X/Z shoelace sum is nonzero, in mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation The ring brand names the finite-coordinate and nonzero projected-sum check performed by ring.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The point sequence remains a plain read-only tuple array used directly by loft producers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The brand does not certify simplicity, planarity, orientation or a finite accumulated area, and aliases/casts can invalidate its intended premise.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the horizontal projection and units rather than implying a complete geometric ring validator.
-   */
-  export type Ring = readonly (readonly [number, number, number])[] & {
-    readonly contract: "ring";
-  };
 
   /**
    * Stations checked against their contract.
@@ -103,7 +49,7 @@ export namespace AutoMovieLoftContract {
     producer: string,
     values: readonly number[],
     least: number,
-  ): Stations {
+  ): IAutoMovieLoftContract.Stations {
     if (!(least > 0))
       throw new Error(
         `${producer}: a station list needs a positive least step, not ${least}`,
@@ -123,7 +69,7 @@ export namespace AutoMovieLoftContract {
           `${producer}: layer ${k} stands ${v - values[k - 1]!} mm over layer ${k - 1}; stations must rise by at least ${least} mm`,
         );
     }
-    return values as Stations;
+    return values as IAutoMovieLoftContract.Stations;
   }
 
   /**
@@ -147,13 +93,13 @@ export namespace AutoMovieLoftContract {
     producer: string,
     values: readonly number[],
     bound: number,
-  ): Jet {
+  ): IAutoMovieLoftContract.Jet {
     for (let i: number = 0; i < values.length; i++)
       if (!(Math.abs(values[i]!) <= bound))
         throw new Error(
           `${producer}: entry ${i} is ${values[i]}, outside the finite bound ${bound}`,
         );
-    return values as Jet;
+    return values as IAutoMovieLoftContract.Jet;
   }
 
   /**
@@ -178,7 +124,7 @@ export namespace AutoMovieLoftContract {
     producer: string,
     layer: number,
     points: readonly (readonly [number, number, number])[],
-  ): Ring {
+  ): IAutoMovieLoftContract.Ring {
     let area: number = 0;
     for (let i: number = 0; i < points.length; i++) {
       const p: readonly [number, number, number] = points[i]!;
@@ -200,7 +146,7 @@ export namespace AutoMovieLoftContract {
       throw new Error(
         `${producer}: layer ${layer}'s ring of ${points.length} points encloses no area`,
       );
-    return points as Ring;
+    return points as IAutoMovieLoftContract.Ring;
   }
 
   /**

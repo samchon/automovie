@@ -1,5 +1,4 @@
-import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
-
+import type { IAutoMovieSpringState } from "@automovie/interface";
 /** A fresh, empty spring state.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Create separate empty maps for previous joint positions, previous centre/chain translations and post-spring reseeding, establishing first-step history absence explicitly.

@@ -1,0 +1,103 @@
+import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
+import type { IAutoMovieLoftFrame } from "./IAutoMovieLoftFrame";
+import type { IAutoMovieViewAxisJet } from "./IAutoMovieViewAxisJet";
+
+/** Data and callback contracts shared by the ViewAxis operations. */
+export namespace IAutoMovieViewAxis {
+  /**
+     * A source section plane with optional analytic station derivatives.
+     *
+     * @evidence contracts/development/design.md#principled-representation at reads the actual source plane; jet, when supplied, differentiates that same source instead of a resampled frame spline.
+     * @evidence contracts/development/design.md#minimal-and-owned-surface Value-only axes remain supported and analytic owners add one explicitly optional callback.
+     * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing analytic derivatives remain absent; a numerical minimal-rotation frame does not acquire an exact jet guarantee.
+     * @evidence contracts/development/common.md#meaningful-documentation Callers must keep source data immutable; jet may return null at a singular or unrepresentable station.
+     */
+    export interface IAxis {
+      /**
+       * The section plane at a station.
+       *
+       * @param station Station along the part, mm.
+       * @returns Origin on the axis and orthonormal chart axes, world mm.
+       *
+       * @evidence contracts/development/implementation.md#principled-implementation Evaluates the actual source plane at the requested station.
+       * @evidence contracts/development/implementation.md#clear-and-simple-structure One value callback supports both analytic and numerical source owners.
+       * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Values do not imply an available finite station jet.
+       * @evidence contracts/development/common.md#meaningful-documentation States source-plane output and kernel station units.
+       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; its builder states actual query cost.
+       * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls share the axis's immutable preparation.
+       * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned vectors belong to the caller; the axis retains its prepared source.
+       */
+      at(station: number): IAutoMovieLoftFrame.IFrame;
+  
+      /**
+       * Analytic value and two derivatives in station or the explicitly selected coordinate, whose endpoints use kernel mm; null at a singular/nonfinite query, absent on numerical frame-value owners.
+       *
+       * @evidence contracts/development/implementation.md#principled-implementation Differentiates the same source law rather than resampled frame values.
+       * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional support and nullable singular readings are distinct states.
+       * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite derivative is invented at a parameter pole.
+       * @evidence contracts/development/common.md#meaningful-documentation States absence, singularity and derivative-coordinate meaning.
+       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; the actual source chooses its analytic evaluation.
+       * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the immutable source used by at.
+       * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned jet vectors belong to the caller; the callback owns no separate cache.
+       */
+      jet?(
+        station: number,
+        parameter?: IAutoMovieConstructionOutlineParameter,
+      ): IAutoMovieViewAxisJet.IJet | null;
+    }
+
+  /**
+     * One source point of a curved axis in world mm.
+     *
+     * @evidence contracts/development/design.md#principled-representation A station/point pair defines an original natural-curve datum.
+     * @evidence contracts/development/design.md#minimal-and-owned-surface One scalar and one triple carry each knot.
+     * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame derivative is inferred by the record itself.
+     * @evidence contracts/development/common.md#meaningful-documentation Members state units and increasing station order.
+     */
+    export interface IAxisKnot {
+      /** Station, mm, strictly increasing over the knots. */
+      station: number;
+  
+      /** The axis point there, world mm. */
+      point: AutoMovieVector3Tuple;
+    }
+
+  /**
+     * One mm-valued source offset at a mm station.
+     *
+     * @evidence contracts/development/design.md#principled-representation A scalar knot specifies one original level-course offset.
+     * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers carry the scalar source datum.
+     * @evidence contracts/development/design.md#prohibited-design-shortcuts The record neither validates station order nor invents derivative data.
+     * @evidence contracts/development/common.md#meaningful-documentation Both members state kernel mm units.
+     */
+    export interface IAxisKnot1 {
+      /** Station, mm, strictly increasing over the knots. */
+      station: number;
+  
+      /** The value there, mm. */
+      value: number;
+    }
+
+  /**
+     * One segment's straight run on a jointed axis: where along the segment the course runs on its line, and the stations there. Outside the run the course is in a turn and cuts the corner inside the segment's line.
+     *
+     * @evidence contracts/development/design.md#principled-representation A point at a distance along a segment's straight run stands at the run's start station plus that distance past the run's start, because the course is the segment's own line there and its station is arclength.
+     * @evidence contracts/development/design.md#minimal-and-owned-surface Four numbers: the run's two ends as distances from the segment's first centre and as stations.
+     * @evidence contracts/development/design.md#prohibited-design-shortcuts A point inside a turn has no station on the segment's line; the run says where that begins rather than guessing one.
+     * @evidence contracts/development/common.md#meaningful-documentation States each field, its unit and what lies outside the run.
+     */
+    export interface IRun {
+      /** Distance from the segment's first centre where the run starts, mm: the previous turn's set-back, 0 on the first segment. */
+      from: number;
+  
+      /** Distance from the segment's first centre where the run ends, mm: the segment's length less the next turn's set-back. */
+      to: number;
+  
+      /** The station at `from`, mm. */
+      start: number;
+  
+      /** The station at `to`, mm. */
+      end: number;
+    }
+}

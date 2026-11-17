@@ -1,9 +1,6 @@
-import type {
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieSolvedChainPlant, IAutoMovieFitChainToTargetProps, IAutoMovieHingedArticulation, IAutoMoviePreparedChainPlant, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
@@ -15,11 +12,8 @@ import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import { fitHingedRotationError } from "./fitHingedRotationError";
-import type { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
@@ -71,8 +65,8 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function fitHingedChainCandidate(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
   axes: IAutoMovieJointAxes,
   rotation?: IAutoMovieQuaternion,
 ): IAutoMovieSolvedChainPlant | null {
@@ -239,7 +233,7 @@ export function fitHingedChainCandidate(
         lowerWorld: IAutoMovieQuaternion,
       ) => number)
     | undefined = props.strain;
-  const solved: ReturnType<typeof hingedArmArticulation> =
+  const solved: (IAutoMovieHingedArticulation | null) =
     hingedArmArticulation({
       upper: prepared.upper,
       midOffset: prepared.lowerOffset,
@@ -353,8 +347,8 @@ export function fitHingedChainCandidate(
  * @returns The range, or null when the joint has no flexion range to keep or the reading is degenerate.
  */
 function hingeRange(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
   axes: IAutoMovieJointAxes,
   basis: IAutoMovieJointAxes,
 ): { min: number; max: number } | null {
@@ -410,8 +404,8 @@ function hingeRange(
  * @returns The end's displacement, model metres.
  */
 function posedSwing(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
   axes: IAutoMovieJointAxes,
 ): IAutoMovieVector3 {
   const posed = (bone: IAutoMovieJointPose["bone"]): IAutoMovieJointPose =>

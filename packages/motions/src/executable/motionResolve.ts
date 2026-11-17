@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanResolve } from "@automovie/interface";
+
 import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionHumanResolve } from "../compose/AutoMovieMotionHumanResolve";
 import { MotionBodies } from "./MotionBodies";
@@ -26,7 +28,7 @@ const main = (): void => {
   console.log(
     AutoMovieMotionHumanResolve.table(
       men.map(
-        (man: humanPolygonMan.IPolygonMan): AutoMovieMotionHumanResolve.IBody => ({
+        (man: humanPolygonMan.IPolygonMan): IAutoMovieMotionHumanResolve.IBody => ({
           name: man.id,
           body: man,
         }),

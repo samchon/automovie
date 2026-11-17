@@ -1,10 +1,8 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type { IAutoMovieConstructionProfileSource, IAutoMovieConstructionProfileBody, IAutoMovieConstructionProfileRealize, IAutoMovieConstructionState, IAutoMoviePreparedConstructionProfile, IAutoMovieSolidBody } from "@automovie/interface";
 
 import { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfile";
 import { AutoMovieConstructionProfileBody } from "./AutoMovieConstructionProfileBody";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
 
 /**
  * Resolve one pure profile leaf to its actual invocation-owned original family.
@@ -25,13 +23,13 @@ import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructi
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation context is borrowed; retained prepared readers transfer to realization on success, while failed appends and source references are released by checkpoint rollback with no global registry.
  */
 export function AutoMovieConstructionProfileRealize(
-  node: IAutoMovieConstructionProfile & { type: "profile" },
+  node: IAutoMovieConstructionProfileRealize.INode,
   context: ReadonlyMap<string, IAutoMovieConstructionProfileSource> | undefined,
-  body: AutoMovieSolidBody.IBody,
-  state: AutoMovieConstructionState.IState,
+  body: IAutoMovieSolidBody.IBody,
+  state: IAutoMovieConstructionState.IState,
   tolerance: number,
 ): void {
-  const snapshot: AutoMovieConstructionState.ISnapshot =
+  const snapshot: IAutoMovieConstructionState.ISnapshot =
     AutoMovieConstructionState.snap(body, state);
   try {
     const source: IAutoMovieConstructionProfileSource | undefined =
@@ -41,9 +39,9 @@ export function AutoMovieConstructionProfileRealize(
       throw new Error(
         "The invocation has no matching complete original profile declaration.",
       );
-    const prepared: AutoMovieConstructionProfile.IPrepared =
+    const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
       AutoMovieConstructionProfile.create(source);
-    const ends: AutoMovieConstructionProfileBody.IEnd[] =
+    const ends: IAutoMovieConstructionProfileBody.IEnd[] =
       AutoMovieConstructionProfileBody.append(body, prepared, tolerance);
     for (let index: number = snapshot.faces; index < body.faces.length; index++)
       state.faces.set(body.faces[index]!.surface.name, index);

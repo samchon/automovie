@@ -1,7 +1,8 @@
+import type { IAutoMovieCurve64, IAutoMovieLocalHermiteStream64, IAutoMovieRecoveryLocalRunReport, IAutoMovieRecoveryOpenContinuation, IAutoMovieRecoveryTensorConstruction, IAutoMovieRecoveryTensorFamiliesInput, IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 /** Host-only adaptation of the retained reference-experiments realization, SHA-256 5859b65144d933c1393344f3834e60582b6b8a0e8b70fb947dc3a7895905c13b. Numerical owners, options, ordering and coefficient evaluation are unchanged. */
-import { type IAutoMovieCurve64 as C, tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { restoreRecoveryCurveBasis, prepareRecoveryLocalContinuation, normalizeRecoveryCourse, describeRecoveryOpenRun, describeRecoveryNamedDomains, reconstructRecovery, realizeAutoMovieRecoveryAnalyticDomains, type IAutoMovieRecoveryTensorFamiliesInput, type IAutoMovieRecoveryOpenContinuation, type IAutoMovieRecoveryTensorConstruction, type RecoveryLocalRunReport } from "@automovie/recovery";
+import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
+
+import { restoreRecoveryCurveBasis, prepareRecoveryLocalContinuation, normalizeRecoveryCourse, describeRecoveryOpenRun, describeRecoveryNamedDomains, reconstructRecovery, realizeAutoMovieRecoveryAnalyticDomains } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {
@@ -57,7 +58,7 @@ export async function ReferenceRuledRealization(savedCurves: unknown, graph: IAu
     counts: { vertices: number; triangles: number; openVertices: number; openTriangles: number; chunks: number };
     closed: { diagnostics: number; diagnosticExamples: string[]; unresolved: ReturnType<typeof histogram>; strips: ReturnType<typeof histogram>; primitives: number; interactions: ReturnType<typeof histogram>; tensorReports: ReturnType<typeof reconstructRecovery>["tensorReports"]; analyticReports: ReturnType<typeof reconstructRecovery>["analyticReports"]; named: { members: ReturnType<typeof describeRecoveryNamedDomains>["members"]; diagnostics: string[] } };
     graph: { diagnostics: readonly string[]; pairs: number; completedPairs: number; failedRunPairs: number; omittedIntervals: number; unsupportedGroups: number; unsupportedGroupsWithOpenArcs: number };
-    runs: RecoveryLocalRunReport[];
+    runs: IAutoMovieRecoveryLocalRunReport[];
     omittedMetadata: readonly string[];
   };
 }> {
@@ -92,7 +93,7 @@ export async function ReferenceRuledRealization(savedCurves: unknown, graph: IAu
   const mesh: IAutoMovieMesh = { positions: [], normals: [], indices: [], uvs: null, skin: null };
   base.model.parts.push({ id: "recovery.local-open", name: null, geometry: { type: "mesh", mesh }, material: null, attachedBone: null, transform: null });
   let vertices: number = 0, triangles: number = 0, chunks: number = 0, completedPairs: number = 0, failedRunPairs: number = 0, omittedIntervals: number = 0;
-  const runs: RecoveryLocalRunReport[] = [];
+  const runs: IAutoMovieRecoveryLocalRunReport[] = [];
   const starters: { edge: Edge; openOnlySpanMm: number }[] = [];
   for (const edge of outgoing.values()) {
     if (incoming.has(key(edge.before))) continue;
@@ -111,7 +112,7 @@ export async function ReferenceRuledRealization(savedCurves: unknown, graph: IAu
     while (current) { const previous:boolean=reversals.at(-1)!;nodes.push(current.after); reversals.push(previous !== current.reverse); current = outgoing.get(key(current.after)); }
     const id: string = "recovery.local." + key(nodes[0]!);
     const metadata: ReturnType<typeof describeRecoveryOpenRun> = describeRecoveryOpenRun(bundle, nodes);
-    const record: RecoveryLocalRunReport = {
+    const record: IAutoMovieRecoveryLocalRunReport = {
       id, firstSection: nodes[0]!.section, lastSection: nodes.at(-1)!.section, curves: metadata.curves,
       generated: false, reason: null, intervals: nodes.length - 1, omittedIntervals: 0, vertices: 0, triangles: 0,
       unqualifiedSourceOrientations: nodes.filter((n: Node, i: number): boolean => graph.orientations[n.section]![n.arc] === null || (graph.orientations[n.section]![n.arc]! < 0) !== reversals[i]).length,
@@ -119,15 +120,15 @@ export async function ReferenceRuledRealization(savedCurves: unknown, graph: IAu
       fitPolylineUpperEstimateMaximumMm: metadata.fitPolylineUpperEstimateMaximumMm,
     };
     runs.push(record);
-    let iterator: Generator<T.Chunk, T.Summary, void> | undefined;
+    let iterator: Generator<IAutoMovieLocalHermiteStream64.Chunk, IAutoMovieLocalHermiteStream64.Summary, void> | undefined;
     let consumerOperation: boolean = false;
     try {
-      const courses: C.Cubic[] = nodes.map((n: Node, i: number): C.Cubic => normalizeRecoveryCourse(bundle.reports[n.section]!.open[n.arc]!.curve, reversals[i]!));
+      const courses: IAutoMovieCurve64.Cubic[] = nodes.map((n: Node, i: number): IAutoMovieCurve64.Cubic => normalizeRecoveryCourse(bundle.reports[n.section]!.open[n.arc]!.curve, reversals[i]!));
       iterator = T({ name: id, topologyDomain: id, stations: nodes.map((n: Node): number => bundle.loft.sections[n.section]!.coordinateMm), courses,
         stationInterpolation: "ruled", toleranceMm: bundle.policy.toleranceMm, maxCellsPerInterval: 200_000, maxVerticesPerChunk: 32_768, vertexOffset: vertices });
-      let result: IteratorResult<T.Chunk, T.Summary> = iterator.next();
+      let result: IteratorResult<IAutoMovieLocalHermiteStream64.Chunk, IAutoMovieLocalHermiteStream64.Summary> = iterator.next();
       while (!result.done) {
-        const chunk: T.Chunk = result.value;
+        const chunk: IAutoMovieLocalHermiteStream64.Chunk = result.value;
         consumerOperation = true;
         append(chunk);
         consumerOperation = false;
@@ -158,7 +159,7 @@ export async function ReferenceRuledRealization(savedCurves: unknown, graph: IAu
   };
 
   /** Preserve the Node spool's append admission and unchanged engine units/indexing. */
-  function append(chunk: T.Chunk): void {
+  function append(chunk: IAutoMovieLocalHermiteStream64.Chunk): void {
     const count: number = chunk.positions.length / 3;
     if (chunk.vertexStart !== vertices || !Number.isSafeInteger(count) || chunk.normals.length !== chunk.positions.length || chunk.physicalVertexIds.length !== count || chunk.indices.length % 3 || chunk.positions.some((x: number): boolean => !Number.isFinite(x)) || chunk.normals.some((x: number): boolean => !Number.isFinite(x)) || chunk.indices.some((x: number): boolean => !Number.isSafeInteger(x) || x < 0 || x >= vertices + count))
       throw new Error("Engine stream violated append-only indexed mesh admission");

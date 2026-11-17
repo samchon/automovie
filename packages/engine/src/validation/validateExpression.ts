@@ -1,7 +1,5 @@
-import {
-  IAutoMovieBlendshapeChannel,
-  IAutoMovieExpression,
-} from "@automovie/interface";
+import { type IAutoMovieValidateExpression, type IAutoMovieViolationCollector, IAutoMovieBlendshapeChannel, IAutoMovieExpression } from "@automovie/interface";
+
 
 import { ViolationCollector } from "./ViolationCollector";
 import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
@@ -18,29 +16,16 @@ import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_P
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Closed vocabularies remain shared; the seen set is rebuilt for changed expression contents.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A supplied or fresh collector owns diagnostics; no face, morph buffer or animation handle is retained.
  */
-export const validateExpression: (props: {
-  expression: IAutoMovieExpression;
-  path?: string;
-  collector?: ViolationCollector;
-}) => ViolationCollector = (props: {
-  /** Borrowed preset and optional blendshape weights with inclusive 0..1 magnitudes. */
-  expression: IAutoMovieExpression;
-
-  /** Base diagnostic address, defaulting to $input. */
-  path?: string;
-
-  /** Optional caller-owned sink advanced by this validation. */
-  collector?: ViolationCollector;
-}): ViolationCollector => {
+export const validateExpression: (props: IAutoMovieValidateExpression.IProps) => IAutoMovieViolationCollector = (props: IAutoMovieValidateExpression.IProps): IAutoMovieViolationCollector => {
   const path: string = props.path ?? "$input";
-  const collector: ViolationCollector =
+  const collector: IAutoMovieViolationCollector =
     props.collector ?? new ViolationCollector();
   const {
     expression,
   }: {
     expression: IAutoMovieExpression;
     path?: string;
-    collector?: ViolationCollector;
+    collector?: IAutoMovieViolationCollector;
   } = props;
 
   if (!AUTOMOVIE_EXPRESSION_PRESETS.has(expression.preset))

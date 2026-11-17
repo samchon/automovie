@@ -1,13 +1,5 @@
-import {
-  AutoMovieAnalysisDomain,
-  IAutoMovieAnalysisDomainRollup,
-  IAutoMovieAnalysisGap,
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisReport,
-  IAutoMovieAnalysisRun,
-  IAutoMovieConstraintViolation,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieSummarizeAnalysis, AutoMovieAnalysisDomain, IAutoMovieAnalysisDomainRollup, IAutoMovieAnalysisGap, IAutoMovieAnalysisMetric, IAutoMovieAnalysisReport, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
+
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { withArticle } from "../text/withArticle";
@@ -51,27 +43,7 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call folds the runs it is handed into one report; no validation verdict or digest is kept across calls because the runs may have been edited since.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Listed gaps are retained only up to the bound and later ones are counted, so gap memory is O(maxGaps) rather than O(total gaps); the id set grows with run count and the rollup map is fixed at six rows, all call-local except the returned report, which keeps the rows and the listed slice.
  */
-export const summarizeAutoMovieAnalysis: (props: {
-  runs: readonly IAutoMovieAnalysisRun[];
-  revision: string;
-  required: readonly AutoMovieAnalysisDomain[];
-  maxGaps?: number;
-}) => IAutoMovieAnalysisReport = (props: {
-  /** Runs to roll up; each is validated before it is counted. */
-  runs: readonly IAutoMovieAnalysisRun[];
-
-  /** Non-blank design revision the report is a verdict about. */
-  revision: string;
-
-  /** Domains the production requires an answer for; at least one, all known. */
-  required: readonly AutoMovieAnalysisDomain[];
-
-  /**
-   * Positive safe-integer bound on listed gaps; defaults to
-   * `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS`.
-   */
-  maxGaps?: number;
-}): IAutoMovieAnalysisReport => {
+export const summarizeAutoMovieAnalysis: (props: IAutoMovieSummarizeAnalysis.IProps) => IAutoMovieAnalysisReport = (props: IAutoMovieSummarizeAnalysis.IProps): IAutoMovieAnalysisReport => {
   if (props.revision.trim().length === 0)
     throw new Error(
       "an analysis report must state the design revision it is about",

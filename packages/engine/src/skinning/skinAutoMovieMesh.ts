@@ -1,13 +1,5 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieMesh,
-  IAutoMovieMeshMorphTarget,
-  IAutoMovieMeshSkin,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieMesh, IAutoMovieMeshMorphTarget, IAutoMovieMeshSkin, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { Quaternion } from "../math/Quaternion";
 
 /**

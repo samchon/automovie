@@ -1,14 +1,15 @@
-import type { IAutoMovieRecoveryInput } from "@automovie/interface";
+import type { AutoMovieRecoveryCurveData, AutoMovieRecoveryCurveFormat, IAutoMovieRecoveryDefaultObservationOptions, IAutoMovieRecoveryMeshSections, IAutoMovieRecoveryObservationOptions, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoverySourceLineage, IAutoMovieRecoveryInput } from "@automovie/interface";
+
 
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
-import type { IAutoMovieRecoveryDefaultObservationOptions } from "../structures/operation/IAutoMovieRecoveryDefaultObservationOptions";
-import type { IAutoMovieRecoveryObservationOptions } from "../structures/operation/IAutoMovieRecoveryObservationOptions";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
+
+
+
+
+
+
 import { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
 
 /**
@@ -61,12 +62,25 @@ export function observeAutoMovieRecovery(
 ): IAutoMovieRecoveryResult<unknown> {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "legacy-contour-v1";
-  if (options.signal?.aborted)
+  let cancellationRequested: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error("Cancellation callback must return a boolean synchronously");
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
+  try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+
+  if (cancelled())
     return {
       operator,
       status: "cancelled",
-      diagnostics: ["Cancelled before observation"],
-    };
+      diagnostics: ["Cancelled before observation"] };
   if (
     !input ||
     !Array.isArray(input.verticesMm) ||
@@ -77,9 +91,8 @@ export function observeAutoMovieRecovery(
       status: "refused",
       diagnostics: [
         "Registered millimetre vertices and oriented triangle arrays are required",
-      ],
-    };
-  try {
+      ] };
+  
     if (
       options.onSourceLineage !== undefined &&
       typeof options.onSourceLineage !== "function"
@@ -87,32 +100,30 @@ export function observeAutoMovieRecovery(
       return {
         operator,
         status: "refused",
-        diagnostics: ["Source lineage observer must be a function"],
-      };
+        diagnostics: ["Source lineage observer must be a function"] };
     const value: IAutoMovieRecoveryMeshSections =
       AutoMovieRecoveryMeshSections.extract(
         input,
         (phase: string, completed: number, total: number): void => {
-          if (options.signal?.aborted) throw new Error("Observation cancelled");
+          if (cancelled()) throw new Error("Observation cancelled");
           options.onProgress?.(phase, completed, total);
         },
         options.sectionLimit,
         options.onSourceLineage === undefined
           ? undefined
           : (observation: IAutoMovieRecoverySourceLineage): void => {
-              if (options.signal?.aborted)
+              if (cancelled())
                 throw new Error("Observation cancelled");
               options.onSourceLineage!(observation);
-              if (options.signal?.aborted)
+              if (cancelled())
                 throw new Error("Observation cancelled");
             },
       );
-    if (options.signal?.aborted)
+    if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before publication"],
-      };
+        diagnostics: ["Cancelled before publication"] };
     const partial: boolean =
       value.coverage?.complete === false ||
       value.topologyGaps.length > 0 ||
@@ -130,15 +141,13 @@ export function observeAutoMovieRecovery(
         options.curveFormat === undefined || options.curveFormat === "bezier"
           ? value
           : convertAutoMovieRecoveryCurves(value, options.curveFormat),
-      diagnostics: value.diagnostics.slice(),
-    };
+      diagnostics: value.diagnostics.slice() };
   } catch (failure: unknown) {
     return {
       operator,
-      status: options.signal?.aborted ? "cancelled" : "failed",
+      status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ],
-    };
+      ] };
   }
 }

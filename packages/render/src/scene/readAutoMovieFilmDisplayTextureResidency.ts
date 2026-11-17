@@ -1,3 +1,6 @@
+import type { IAutoMovieFilmDisplayTextureResidency } from "@automovie/interface";
+
+
 import type * as THREE from "three";
 
 import { AutoMovieDissolveCompositorState } from "./AutoMovieDissolveCompositorState.js";
@@ -18,19 +21,9 @@ import { AutoMovieFadeCompositorState } from "./AutoMovieFadeCompositorState.js"
  */
 export const readAutoMovieFilmDisplayTextureResidency: (
   renderer: THREE.WebGLRenderer,
-) => Array<{
-  owner: "film-fade" | "film-dissolve";
-  width: number;
-  height: number;
-  copies: 3;
-}> = (
+) => Array<IAutoMovieFilmDisplayTextureResidency> = (
   renderer: THREE.WebGLRenderer,
-): Array<{
-  owner: "film-fade" | "film-dissolve";
-  width: number;
-  height: number;
-  copies: 3;
-}> => {
+): Array<IAutoMovieFilmDisplayTextureResidency> => {
   const rows: Array<{
     owner: "film-fade" | "film-dissolve";
     width: number;

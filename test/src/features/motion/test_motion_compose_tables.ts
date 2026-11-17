@@ -1,20 +1,6 @@
-import {
-  type IAutoMovieRandom,
-  createAutoMovieRandom,
-} from "@automovie/engine";
-import {
-  AutoMovieMotionHumanClearance,
-  AutoMovieMotionHumanCourse,
-  AutoMovieMotionHumanInterrupt,
-  AutoMovieMotionHumanRange,
-  AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanTargetGrid,
-  AutoMovieMotionHumanTiming,
-  AutoMovieMotionHumanVariation,
-  AutoMovieMotionHumanVariationDraw,
-  AutoMovieMotionManner,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanTargetGrid, IAutoMovieRandom } from "@automovie/interface";
+import { createAutoMovieRandom } from "@automovie/engine";
+import { AutoMovieMotionHumanClearance, AutoMovieMotionHumanCourse, AutoMovieMotionHumanInterrupt, AutoMovieMotionHumanRange, AutoMovieMotionHumanTarget, AutoMovieMotionHumanTargetGrid, AutoMovieMotionHumanTiming, AutoMovieMotionHumanVariation, AutoMovieMotionHumanVariationDraw, AutoMovieMotionManner } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -142,7 +128,7 @@ export function test_motion_compose_tables(): void {
   // 4. Target.
   const G = AutoMovieMotionHumanTargetGrid;
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const m = body.measure;
     const heights: number[] = G.HEIGHTS.map((h) => G.height(body, h));
     complaints.check(
@@ -162,7 +148,7 @@ export function test_motion_compose_tables(): void {
           G.OVERHEAD,
         ),
     );
-    const base: AutoMovieMotionHumanTargetGrid.IGrid = {
+    const base: IAutoMovieMotionHumanTargetGrid.IGrid = {
       height: "chest",
       lateral: "inside",
       distance: "mid",

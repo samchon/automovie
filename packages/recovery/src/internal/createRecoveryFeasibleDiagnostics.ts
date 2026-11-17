@@ -1,5 +1,6 @@
-import type { IAutoMovieRecoveryFeasibleDiagnostics } from "../structures/image/IAutoMovieRecoveryFeasibleDiagnostics";
-import type { IAutoMovieRecoveryFeasibleFit } from "../structures/internal/IAutoMovieRecoveryFeasibleFit";
+import type { IAutoMovieRecoveryFeasibleDiagnostics, IAutoMovieRecoveryFeasibleFit } from "@automovie/interface";
+
+
 import { encodeRecoveryDiagnosticNumber } from "./encodeRecoveryDiagnosticNumber";
 
 /**
@@ -87,8 +88,7 @@ export function createRecoveryFeasibleDiagnostics(
             roundoffLimited: direction.roundoffLimited,
             certified: direction.certified,
             iterations: encodeRecoveryDiagnosticNumber(direction.iterations),
-            work: encodeRecoveryDiagnosticNumber(direction.work),
-          },
+            work: encodeRecoveryDiagnosticNumber(direction.work) },
     lastSqp:
       sqp === null
         ? null
@@ -156,11 +156,9 @@ export function createRecoveryFeasibleDiagnostics(
                         : encodeRecoveryDiagnosticNumber(
                             tightening.multiplierPrice,
                           ),
-                    reason: tightening.reason,
-                  },
+                    reason: tightening.reason },
             correctionFailure: sqp.correctionFailure,
-            work: encodeRecoveryDiagnosticNumber(sqp.work),
-          },
+            work: encodeRecoveryDiagnosticNumber(sqp.work) },
     trials: {
       baseline: encodeRecoveryDiagnosticNumber(trials.baseline),
       nominal: encodeRecoveryDiagnosticNumber(trials.nominal),
@@ -174,7 +172,5 @@ export function createRecoveryFeasibleDiagnostics(
       nondecreasing: encodeRecoveryDiagnosticNumber(trials.nondecreasing),
       armijo: encodeRecoveryDiagnosticNumber(trials.armijo),
       lastFailure: trials.lastFailure,
-      work: encodeRecoveryDiagnosticNumber(trials.work),
-    },
-  };
+      work: encodeRecoveryDiagnosticNumber(trials.work) } };
 }

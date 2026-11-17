@@ -1,4 +1,4 @@
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import type { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 
 /**
  * Declared and resident-content extents kept separate in one stated coordinate basis.

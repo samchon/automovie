@@ -1,18 +1,7 @@
-import {
-  IAutoMovieActionCall,
-  IAutoMovieClip,
-  IAutoMovieInteractionEvent,
-  IAutoMovieQuaternion,
-  IAutoMovieTrack,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActionSynthesizer, type IAutoMovieLaunchResult, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieEnginePerformShotGateContext, type IAutoMoviePerformShotLaunchJob, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieQuaternion, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
+
 import { compilePerformance } from "../perform/compilePerformance";
-import { IAutoMovieLaunchResult } from "./IAutoMovieLaunchResult";
-import { IPerformShotActionPlan } from "./IPerformShotActionPlan";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
-import { IPerformShotLaunchJob } from "./IPerformShotLaunchJob";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { compileLaunch } from "./compileLaunch";
 import { performShotActors } from "./performShotActors";
@@ -42,11 +31,11 @@ import { performShotActors } from "./performShotActors";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The probe performances are dropped after each solve; the caller owns the returned clips and events, one flight per launch.
  */
 export function compilePerformShotLaunches(
-  context: IPerformShotGateContext,
-  plan: IPerformShotActionPlan,
+  context: IAutoMovieEnginePerformShotGateContext,
+  plan: IAutoMovieEnginePerformShotActionPlan,
   synthesize: IAutoMovieActionSynthesizer,
   rotations: ReadonlyMap<string, IAutoMovieQuaternion>,
-): { clips: IAutoMovieClip[]; events: IAutoMovieInteractionEvent[] } {
+): IAutoMovieCompilePerformShotLaunches.IResult {
   const duration: number = context.performance.duration;
   const clips: IAutoMovieClip[] = [];
   const events: IAutoMovieInteractionEvent[] = [];
@@ -112,13 +101,13 @@ export function compilePerformShotLaunches(
 
 /** Where a launch's target is over time, or undefined for a static aim. */
 function leadOf(
-  context: IPerformShotGateContext,
-  plan: IPerformShotActionPlan,
-  job: IPerformShotLaunchJob,
+  context: IAutoMovieEnginePerformShotGateContext,
+  plan: IAutoMovieEnginePerformShotActionPlan,
+  job: IAutoMoviePerformShotLaunchJob,
   synthesize: IAutoMovieActionSynthesizer,
   rotations: ReadonlyMap<string, IAutoMovieQuaternion>,
 ): ((seconds: number) => IAutoMovieVector3) | undefined {
-  const targetAt: IPerformShotGateContext["targetAt"] = context.targetAt;
+  const targetAt: IAutoMovieEnginePerformShotGateContext["targetAt"] = context.targetAt;
   if (job.action.at.kind === "bone" && targetAt !== undefined)
     return (seconds: number): IAutoMovieVector3 =>
       targetAt(job.action.at, seconds) ?? job.target;

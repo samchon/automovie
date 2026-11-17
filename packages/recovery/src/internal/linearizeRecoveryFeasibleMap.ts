@@ -1,12 +1,13 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
+import type { IAutoMovieRecoveryFeasibleMapLinearization, IAutoMovieRecoveryMapJointStepSolutionOperation, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapState, IAutoMovieSimplexAtom, IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryFeasibleMapLinearization } from "../structures/internal/IAutoMovieRecoveryFeasibleMapLinearization";
-import type { IAutoMovieRecoveryMapState } from "../structures/internal/IAutoMovieRecoveryMapState";
+
+
+
+
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
-import type { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";
+
 
 /**
  * Linearize the unchanged robust objective and every unweighted pixel disk.
@@ -38,17 +39,16 @@ export function linearizeRecoveryFeasibleMap(
     );
   if (tangent === null)
     throw new Error("camera-map-chart: nonrepresentable seed differential");
-  const blocks: Parameters<typeof solveRecoveryMapJointStep>[0][number][] = [];
+  const blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0][number][] = [];
   for (let point: number = 0; point < state.landmarks.length; point++) {
     const landmark: (typeof state.landmarks)[number] = state.landmarks[point]!;
     const block: (typeof blocks)[number] = {
       pointRows: [],
       cameraRows: [],
-      right: [],
-    };
+      right: [] };
     for (const observation of landmark.observations) {
       const view: number = observation.viewIndex;
-      const projection: ReturnType<typeof projectRecoveryMapPoint> =
+      const projection: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
         projectRecoveryMapPoint(
           state.poses[view]!,
           landmark.point,
@@ -130,9 +130,7 @@ export function linearizeRecoveryFeasibleMap(
           (_: unknown, axis: number): number => axis,
         ),
         values: gradient,
-        offset: 0,
-      },
+        offset: 0 },
       ...constraints,
-    ],
-  };
+    ] };
 }

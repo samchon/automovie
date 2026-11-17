@@ -1,7 +1,7 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieAffordanceKind } from "./AutoMovieAffordanceKind";
-import { AutoMovieGripKind } from "./AutoMovieGripKind";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieAffordanceKind } from "./AutoMovieAffordanceKind";
+import type { AutoMovieGripKind } from "./AutoMovieGripKind";
 
 /**
  * A semantic contact point an object declares in its **own model-local frame**, where another body may rest, grab, plug, or hang, independent of any bone.

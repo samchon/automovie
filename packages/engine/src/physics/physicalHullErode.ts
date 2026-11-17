@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMoviePhysicalHullFaces, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "./physicalHullFaces";
@@ -30,10 +31,10 @@ export function physicalHullErode(
   points: readonly IAutoMovieVector3[],
   depth: number,
 ): IAutoMovieVector3[] {
-  const hull: physicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   if (!(depth < hull.depth))
     throw new Error("A hull's erosion must leave a volume");
-  const faces: physicalHullFaces.IFace[] = hull.faces;
+  const faces: IAutoMoviePhysicalHullFaces.IFace[] = hull.faces;
   const out: IAutoMovieVector3[] = [];
   for (let i: number = 0; i < faces.length; i++)
     for (let j: number = i + 1; j < faces.length; j++)
@@ -57,7 +58,7 @@ export function physicalHullErode(
         );
         if (
           faces.every(
-            (face: physicalHullFaces.IFace): boolean =>
+            (face: IAutoMoviePhysicalHullFaces.IFace): boolean =>
               Vector3.dot(face.normal, point) - (face.offset - depth) <=
               hull.tolerance,
           ) &&

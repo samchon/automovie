@@ -1,15 +1,8 @@
+import type { IAutoMovieComposition, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionTarget } from "@automovie/interface";
 import { createHeavyBag } from "@automovie/archetypes";
 import { AutoMovieComposition } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanDefence,
-  HumanObject,
-  HumanPerformance,
-  HumanStrike,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanDefence, HumanObject, HumanPerformance, HumanStrike } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,26 +28,26 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the three numbered scenarios.
  */
 export function test_human_motion_strike_matrix(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const reach: number = body.measure.upperArm + body.measure.forearm;
   const bag: ReturnType<typeof createHeavyBag> = createHeavyBag();
-  const rows: IHumanActionLaw<never>[] = [
+  const rows: IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanStrike.jab,
     HumanStrike.rearHook,
     HumanStrike.roundKick,
     HumanStrike.pushKick,
     HumanStrike.leadKnee,
     HumanStrike.cross,
-  ] as IHumanActionLaw<never>[];
-  const targets: [string, AutoMovieMotionTarget | undefined][] = [
+  ] as IAutoMovieMotionHumanActionLaw<never>[];
+  const targets: [string, IAutoMovieMotionTarget | undefined][] = [
     ["person", { kind: "person", subject: "b", region: "chin" }],
     ["prop", { kind: "prop", subject: "bag", point: "target" }],
-    ["none", { kind: "none" } as AutoMovieMotionTarget],
+    ["none", { kind: "none" } as IAutoMovieMotionTarget],
   ];
-  const perform = (composition: AutoMovieComposition): HumanPerformance =>
+  const perform = (composition: IAutoMovieComposition): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "matrix",
-      laws: [...rows, HumanDefence.parry as IHumanActionLaw<never>],
+      laws: [...rows, HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>],
       props: [
         HumanObject.prop("bag", bag, {
           at: { x: 1.2, y: 0, z: reach + 0.25 },
@@ -105,7 +98,7 @@ export function test_human_motion_strike_matrix(): void {
 
   // 2. A jab and a parry by outcome.
   for (const outcome of ["inTime", "late", "fail"] as const) {
-    let performance: HumanPerformance | undefined;
+    let performance: IAutoMovieMotionHumanPerformance | undefined;
     let reason: string = "";
     try {
       performance = perform(
@@ -143,7 +136,7 @@ export function test_human_motion_strike_matrix(): void {
   }
 
   // 3. An undefended cross lands.
-  let landed: HumanPerformance | undefined;
+  let landed: IAutoMovieMotionHumanPerformance | undefined;
   try {
     landed = perform(
       AutoMovieComposition.parallel(

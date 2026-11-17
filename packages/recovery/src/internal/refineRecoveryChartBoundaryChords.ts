@@ -1,4 +1,6 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryChordsRefinementOperation } from "@automovie/interface";
+
+
 
 /**
  * Subdivide private interior edges whose fixed endpoints share one square side.
@@ -18,19 +20,9 @@ import type { IAutoMovieCurve64 as C } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One incidence registry selects all original chords and physical endpoint keys determine the same midpoint identity on duplicated cut occurrences.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All registries are local; only copied private observations and a scalar subdivision count escape, and original input arrays remain immutable.
  */
-export function refineRecoveryChartBoundaryChords(input: {
-  verticesMm: readonly C.Vector[];
-  triangles: readonly (readonly [number, number, number])[];
-  vertexKeys: readonly string[];
-  sides: readonly (readonly number[])[];
-}): {
-  verticesMm: C.Vector[];
-  triangles: [number, number, number][];
-  vertexKeys: string[];
-  subdividedChords: number;
-} {
-  const verticesMm: C.Vector[] = input.verticesMm.map(
-      (point: C.Vector): C.Vector => [...point],
+export function refineRecoveryChartBoundaryChords(input: Parameters<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation> {
+  const verticesMm: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
+      (point: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...point],
     ),
     vertexKeys: string[] = [...input.vertexKeys];
   let triangles: [number, number, number][] = input.triangles.map(
@@ -75,9 +67,9 @@ export function refineRecoveryChartBoundaryChords(input: {
       const first: number =
           vertexKeys[edge.a]! < vertexKeys[edge.b]! ? edge.a : edge.b,
         second: number = first === edge.a ? edge.b : edge.a;
-      const a: C.Vector = verticesMm[first]!,
-        b: C.Vector = verticesMm[second]!,
-        point: C.Vector = [
+      const a: Readonly<AutoMovieVector3Tuple> = verticesMm[first]!,
+        b: Readonly<AutoMovieVector3Tuple> = verticesMm[second]!,
+        point: Readonly<AutoMovieVector3Tuple> = [
           a[0] + (b[0] - a[0]) / 2,
           a[1] + (b[1] - a[1]) / 2,
           a[2] + (b[2] - a[2]) / 2,
@@ -127,6 +119,5 @@ export function refineRecoveryChartBoundaryChords(input: {
     verticesMm,
     triangles,
     vertexKeys,
-    subdividedChords: midpoints.size,
-  };
+    subdividedChords: midpoints.size };
 }

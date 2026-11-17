@@ -1,4 +1,6 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation } from "@automovie/interface";
+
+
 
 /**
  * Analyze coherent private surface incidence and complete boundary cycles.
@@ -12,18 +14,12 @@ import type { IAutoMovieCurve64 as C } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All maps and walks are call-local; returned private incidence belongs to one cut-chart operation.
  */
 export function analyzeRecoveryMultiBoundarySurface(
-  vertices: readonly C.Vector[],
-  triangles: readonly (readonly [number, number, number])[],
-  fail: (reason: string) => never,
-  edgeKey: (a: number, b: number) => string,
-): {
-  edges: Map<string, { a: number; b: number; face: number }[]>;
-  adjacency: Map<number, number>[];
-  incident: number[][];
-  cycles: number[][];
-  areaMm2: number;
-} {
-  const edges: ReturnType<typeof analyzeRecoveryMultiBoundarySurface>["edges"] =
+  vertices: Parameters<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>[0],
+  triangles: Parameters<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>[1],
+  fail: Parameters<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>[2],
+  edgeKey: Parameters<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation> {
+  const edges: ReturnType<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>["edges"] =
       new Map(),
     adjacency: Map<number, number>[] = Array.from(
       vertices,
@@ -53,9 +49,9 @@ export function analyzeRecoveryMultiBoundarySurface(
         .join(":");
       if (faces.has(word)) fail("duplicate triangles are unsupported");
       faces.add(word);
-      const a: C.Vector = vertices[triangle[0]]!,
-        b: C.Vector = vertices[triangle[1]]!,
-        c: C.Vector = vertices[triangle[2]]!;
+      const a: Readonly<AutoMovieVector3Tuple> = vertices[triangle[0]]!,
+        b: Readonly<AutoMovieVector3Tuple> = vertices[triangle[1]]!,
+        c: Readonly<AutoMovieVector3Tuple> = vertices[triangle[2]]!;
       const ux: number = b[0] - a[0],
         uy: number = b[1] - a[1],
         uz: number = b[2] - a[2],
@@ -78,8 +74,8 @@ export function analyzeRecoveryMultiBoundarySurface(
           rows: { a: number; b: number; face: number }[] = edges.get(key) ?? [];
         rows.push({ a: from, b: to, face });
         edges.set(key, rows);
-        const p: C.Vector = vertices[from]!,
-          q: C.Vector = vertices[to]!,
+        const p: Readonly<AutoMovieVector3Tuple> = vertices[from]!,
+          q: Readonly<AutoMovieVector3Tuple> = vertices[to]!,
           length: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
         if (!(length > 0 && Number.isFinite(length)))
           fail("an edge length is collapsed or unrepresentable");

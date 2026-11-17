@@ -1,15 +1,8 @@
+import type { IAutoMoviePatternCandidate, IAutoMoviePatternExclusion, IAutoMoviePatternPlacement, IAutoMoviePatternPoint, IAutoMoviePatternQuantities, IAutoMoviePatternZoneQuantities, IAutoMovieSurfacePattern, IAutoMovieSurfacePatternResult, IAutoMovieSurfacePatternZone, IAutoMovieGenerateSurfacePattern } from "@automovie/interface";
+
 import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { seededValue } from "../math/seededValue";
-import { IAutoMoviePatternCandidate } from "./IAutoMoviePatternCandidate";
-import { IAutoMoviePatternExclusion } from "./IAutoMoviePatternExclusion";
-import { IAutoMoviePatternPlacement } from "./IAutoMoviePatternPlacement";
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
-import { IAutoMoviePatternQuantities } from "./IAutoMoviePatternQuantities";
-import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantities";
-import { IAutoMovieSurfacePattern } from "./IAutoMovieSurfacePattern";
-import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
-import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
 import { autoMoviePatternFindings } from "./autoMoviePatternFindings";
 import { autoMoviePatternPolygonArea } from "./autoMoviePatternPolygonArea";
 import { canonicalAutoMoviePatternPolygon } from "./canonicalAutoMoviePatternPolygon";
@@ -66,11 +59,7 @@ interface IPatternSpan {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Lays one declaration per call; the generator is the author's code and may not be pure, so no earlier run's placements are reused.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Placements/outlines and the run-wide occurrence-id set grow with survivors; each zone's seen-id set grows with all generated candidates including discarded ones. Findings can grow quadratically and callback output has no fixed cap. Local sets/clip arrays are released after use; the caller owns returned records.
  */
-export const generateAutoMovieSurfacePattern: (props: {
-  pattern: IAutoMovieSurfacePattern;
-}) => IAutoMovieSurfacePatternResult = (props: {
-  pattern: IAutoMovieSurfacePattern;
-}): IAutoMovieSurfacePatternResult => {
+export const generateAutoMovieSurfacePattern: (props: IAutoMovieGenerateSurfacePattern.IProps) => IAutoMovieSurfacePatternResult = (props: IAutoMovieGenerateSurfacePattern.IProps): IAutoMovieSurfacePatternResult => {
   const { pattern }: { pattern: IAutoMovieSurfacePattern } = props;
   const exclusions: IAutoMoviePatternPoint[][] = validatePattern(pattern);
   const regions: IAutoMoviePatternPoint[][] = pattern.zones.map(

@@ -1,18 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  HumanPursuit,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanPursuit, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,13 +44,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_pursuit_moves(): void {
   const complaints: string[] = [];
-  const man: IHumanBody = motionHumanBody("m-average");
-  const woman: IHumanBody = motionHumanBody("f-small");
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const woman: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const perform = (
-    composition: HumanPerformance.IInput["composition"],
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
     b: { at: IAutoMovieVector3; yaw: number },
-    layers?: HumanPerformance.IInput["layers"],
-  ): HumanPerformance =>
+    layers?: IAutoMovieMotionHumanPerformance.IInput["layers"],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "pursuit-moves",
       laws: [...HUMAN_LEXICON.pursuit!],
@@ -84,10 +73,10 @@ export function test_human_motion_travel_pursuit_moves(): void {
       composition,
       ...(layers === undefined ? {} : { layers }),
     });
-  const reading = (performance: HumanPerformance): HumanSignature.IReader =>
+  const reading = (performance: IAutoMovieMotionHumanPerformance): IAutoMovieMotionHumanSignature.IReader =>
     HumanSignature.of(performance, "a", man, 0);
   const pelvis = (
-    reader: HumanSignature.IReader,
+    reader: IAutoMovieMotionHumanSignature.IReader,
     t: number,
   ): IAutoMovieVector3 => {
     const l: IAutoMovieVector3 = HumanSignature.joint(
@@ -102,7 +91,7 @@ export function test_human_motion_travel_pursuit_moves(): void {
     );
     return { x: (l.x + r.x) / 2, y: 0, z: (l.z + r.z) / 2 };
   };
-  const target: AutoMovieMotionTarget = {
+  const target: IAutoMovieMotionTarget = {
     kind: "person",
     subject: "b",
     region: "sternum",
@@ -110,7 +99,7 @@ export function test_human_motion_travel_pursuit_moves(): void {
 
   // 1. The follower takes the leader's turn.
   try {
-    const turning: HumanPerformance = perform(
+    const turning: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("b")
         .stand({ seconds: 0.3 })
         .walk({ to: { x: 3, y: 0, z: 5 }, via: [{ x: 0, y: 0, z: 5 }] })
@@ -121,9 +110,9 @@ export function test_human_motion_travel_pursuit_moves(): void {
         ).node,
       { at: { x: 0, y: 0, z: 2 }, yaw: 0 },
     );
-    const follow: HumanSegment.ISegment = turning.segments("a")[1]!;
-    const reader: HumanSignature.IReader = reading(turning);
-    const led: HumanSignature.IReader = HumanSignature.of(
+    const follow: IAutoMovieMotionHumanSegment.ISegment = turning.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = reading(turning);
+    const led: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       turning,
       "b",
       woman,
@@ -169,8 +158,8 @@ export function test_human_motion_travel_pursuit_moves(): void {
       at: { x: 0, y: 0, z: 5 },
       yaw: 180,
     };
-    const chase = (cut: boolean): HumanPerformance => {
-      const chasing: HumanChain = HumanChain.subject("a")
+    const chase = (cut: boolean): IAutoMovieMotionHumanPerformance => {
+      const chasing: IAutoMovieMotionHumanChain = HumanChain.subject("a")
         .stand({ seconds: 0.3 })
         .registered("chase", { target });
       return perform(
@@ -188,9 +177,9 @@ export function test_human_motion_travel_pursuit_moves(): void {
         standing,
       );
     };
-    const whole: HumanSegment.ISegment = chase(false).segments("a")[1]!;
-    const broken: HumanPerformance = chase(true);
-    const cut: HumanSegment.ISegment = broken.segments("a")[1]!;
+    const whole: IAutoMovieMotionHumanSegment.ISegment = chase(false).segments("a")[1]!;
+    const broken: IAutoMovieMotionHumanPerformance = chase(true);
+    const cut: IAutoMovieMotionHumanSegment.ISegment = broken.segments("a")[1]!;
     if (!(cut.end < whole.end - 1 / 24))
       complaints.push(
         `a chase cut by proximity ends at ${cut.end.toFixed(2)} s and the uncut one at ${whole.end.toFixed(2)} s, earlier expected`,
@@ -223,7 +212,7 @@ export function test_human_motion_travel_pursuit_moves(): void {
   // 3. A flight looks back.
   try {
     const glance: number = 1.3;
-    const fleeing: HumanPerformance = perform(
+    const fleeing: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("b")
         .stand({ seconds: 0.3 })
         .with(
@@ -234,7 +223,7 @@ export function test_human_motion_travel_pursuit_moves(): void {
       { at: { x: 0, y: 0, z: -2 }, yaw: 0 },
       { a: [HumanPursuit.glances("b", [glance])] },
     );
-    const reader: HumanSignature.IReader = reading(fleeing);
+    const reader: IAutoMovieMotionHumanSignature.IReader = reading(fleeing);
 
     // The angle between the head's facing and the direction to the pursuer, degrees.
     const off = (t: number): number => {

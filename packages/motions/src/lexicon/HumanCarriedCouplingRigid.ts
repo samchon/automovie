@@ -1,22 +1,8 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  fitRigidMeshTransform,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingFit, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3, fitRigidMeshTransform } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanCarried } from "./HumanCarried";
-import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -52,18 +38,18 @@ export namespace HumanCarriedCouplingRigid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure operation; the returned map closes over two points and one quaternion.
    */
   export function fit(
-    bearer: IHumanBody,
+    bearer: IAutoMovieMotionHumanBody,
     theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    borne: IHumanBody,
-    row: HumanCarried.IRow,
+    borne: IAutoMovieMotionHumanBody,
+    row: IAutoMovieMotionHumanCarried.IRow,
     held: readonly [
       AutoMovieHumanoidRegion | null,
       AutoMovieHumanoidRegion | null,
     ],
     legs: readonly [number, number, number],
     stance: { incline: number; depth: number },
-  ): HumanCarriedCouplingFit.IFit {
-    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row, legs);
+  ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
+    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(row, legs);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
@@ -80,7 +66,7 @@ export namespace HumanCarriedCouplingRigid {
     const to: IAutoMovieVector3[] = [];
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
-        const hold: HumanCarried.IHold | null = row.holds[index] ?? null;
+        const hold: IAutoMovieMotionHumanCarried.IHold | null = row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
         if (hold === null || region0 === null) return;
         const target: IAutoMovieVector3 = Vector3.add(

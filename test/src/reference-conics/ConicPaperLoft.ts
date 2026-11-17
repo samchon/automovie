@@ -1,3 +1,4 @@
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -51,11 +52,11 @@ export namespace ConicPaperLoft {
     for (const loop of packet.loops) {
       const record: F.Record | undefined = byKey.get(loop.key);
       if (fitted !== undefined && record?.status !== "complete") { ++result.unavailableRings; continue; }
-      const points: C.Point[] = [];
+      const points: IAutoMovieConicApproximation.Point[] = [];
       const count: number = fitted === undefined ? loop.curve.spans.length : record!.arcs.length;
       for (let i: number = 0; i < count; ++i) {
-        const evaluate = (u: number): C.Point => fitted === undefined ? I.value(loop.curve.spans[i]!, u, 0) : C.evaluate(record!.arcs[i]!, u);
-        const samples: C.Point[] = sample(evaluate);
+        const evaluate = (u: number): IAutoMovieConicApproximation.Point => fitted === undefined ? I.value(loop.curve.spans[i]!, u, 0) : C.evaluate(record!.arcs[i]!, u);
+        const samples: IAutoMovieConicApproximation.Point[] = sample(evaluate);
         points.push(...samples.slice(0, -1));
       }
       if (points.length > 512) { ++result.overSamplingBudget; continue; }
@@ -135,13 +136,13 @@ export namespace ConicPaperLoft {
   }
 
   /** Adaptive rational or polynomial evaluation; a fixed 0.25 mm midpoint/quarter chord test is sampled evidence. */
-  function sample(evaluate: (u: number) => C.Point): C.Point[] {
-    const output: C.Point[] = [evaluate(0)];
-    const visit = (a: number, b: number, p: C.Point, q: C.Point, depth: number): void => {
+  function sample(evaluate: (u: number) => IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point[] {
+    const output: IAutoMovieConicApproximation.Point[] = [evaluate(0)];
+    const visit = (a: number, b: number, p: IAutoMovieConicApproximation.Point, q: IAutoMovieConicApproximation.Point, depth: number): void => {
       const m: number = (a + b) / 2;
-      const middle: C.Point = evaluate(m);
+      const middle: IAutoMovieConicApproximation.Point = evaluate(m);
       const error: number = Math.max(...[0.25, 0.5, 0.75].map((fraction: number): number => {
-        const point: C.Point = evaluate(a + (b - a) * fraction);
+        const point: IAutoMovieConicApproximation.Point = evaluate(a + (b - a) * fraction);
         const dx: number = q[0] - p[0];
         const dy: number = q[1] - p[1];
         const square: number = dx * dx + dy * dy;

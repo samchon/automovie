@@ -1,3 +1,4 @@
+import { type IAutoMovieViolationCollector, IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
 import {
   ViolationCollector,
   appendBuiltRegionDefects,
@@ -6,10 +7,7 @@ import {
   pointInPolygon,
   polygonInside,
 } from "@automovie/engine";
-import {
-  IAutoMovieOpeningProfile,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -141,7 +139,7 @@ export function test_architecture_polygon_containment(): void {
     bulges: [0.5, 0, 0, 0, 0, 0],
   };
   const hull: IAutoMoviePlanarPoint[] = outlineHull(profile);
-  const admitted: ViolationCollector = new ViolationCollector();
+  const admitted: IAutoMovieViolationCollector = new ViolationCollector();
   builtOutlineIsClosed(
     profile.outline,
     2,

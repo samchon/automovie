@@ -1,4 +1,5 @@
-import type { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
+import type { IAutoMovieHumanLegSectionRows } from "@automovie/interface";
+
 
 /**
  * The landmark rows of the leg's section, as one table: the eight guides'
@@ -19,35 +20,12 @@ import type { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
  * value from the median of the other three.
  */
 export namespace AutoMovieHumanLegSectionRows {
-  /** A guide: its section angle (0 forward, increasing toward lateral on the left leg) and its rows. */
-  export interface IGuide {
-    /** The guide's name. */
-    name: string;
+  
 
-    /** Section angle, radians. */
-    angle: number;
-
-    /** The landmark rows, `[rho, rho_theta, rho_thetatheta]`. */
-    rows: readonly AutoMovieHumanLegProfile.IRow[];
-  }
-
-  /** A sector after a guide: its thigh and its shank compartment's rows, `[fullness]`. */
-  export interface ISector {
-    /** The thigh compartment's name. */
-    thigh: string;
-
-    /** The shank compartment's name. */
-    shank: string;
-
-    /** The thigh compartment's rows. */
-    thighRows: readonly AutoMovieHumanLegProfile.IRow[];
-
-    /** The shank compartment's rows. */
-    shankRows: readonly AutoMovieHumanLegProfile.IRow[];
-  }
+  
 
   /** The eight guides by increasing angle, 0 to 315 degrees; each owns its point, tangent and curvature in every section it crosses, which both neighbouring sectors copy (G2 across the guide). */
-  export const GUIDES: readonly IGuide[] = [
+  export const GUIDES: readonly IAutoMovieHumanLegSectionRows.IGuide[] = [
     // anterior, 0 degrees: the rectus femoris crest on the thigh and the tibial crest, the anterior border on the shank; held-out deviation 0.0129 to 0.0615 (thigh), 0.0211 to 0.0799 (shank).
     {
       name: "anterior",
@@ -234,7 +212,7 @@ export namespace AutoMovieHumanLegSectionRows {
   ];
 
   /** The eight sectors, sector `j` following guide `j`; each owns 33 of the section's 264 knot spans. */
-  export const SECTORS: readonly ISector[] = [
+  export const SECTORS: readonly IAutoMovieHumanLegSectionRows.ISector[] = [
     // thigh quadricepsAnterior: rectus femoris with the front of the vastus lateralis, between the anterior (0 degrees) and the anterolateral guide (45 degrees); held-out deviation 0.0014 to 0.0117.
     // shank tibialisAnterior: front of the anterior compartment beside the tibial crest, between the anterior (0 degrees) and the anterolateral guide (45 degrees); held-out deviation 0.002 to 0.018.
     {

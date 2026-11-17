@@ -1,10 +1,6 @@
+import { type IAutoMovieWaterFeatureFrame, IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMovieFluidSpray, IAutoMovieWaterFeature } from "@automovie/interface";
 import { lowerWaterFeature, validateWaterFeatures } from "@automovie/engine";
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieFluidDomain,
-  IAutoMovieFluidSpray,
-  IAutoMovieWaterFeature,
-} from "@automovie/interface";
+
 import {
   applyRenderMode,
   buildFluidSprayObject,
@@ -385,12 +381,12 @@ export function test_viewer_water_feature_passes(): void {
     (
       feature: IAutoMovieWaterFeature,
       index: number,
-    ): import("@automovie/engine").IAutoMovieWaterFeatureFrame =>
+    ): IAutoMovieWaterFeatureFrame =>
       lowerWaterFeature({ feature, domain: domains[index], time }),
   );
   const waters: ReturnType<typeof buildFluidSurfaceObject>[] = frames.map(
     (
-      frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+      frame: IAutoMovieWaterFeatureFrame,
       index: number,
     ): import("@automovie/render").IAutoMovieFluidSurfaceObject =>
       buildFluidSurfaceObject({
@@ -400,7 +396,7 @@ export function test_viewer_water_feature_passes(): void {
   );
   const sprays: ReturnType<typeof buildFluidSprayObject>[] = frames.map(
     (
-      frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+      frame: IAutoMovieWaterFeatureFrame,
     ): import("@automovie/render").IAutoMovieFluidSprayObject =>
       buildFluidSprayObject({ sample: frame.spray }),
   );
@@ -413,7 +409,7 @@ export function test_viewer_water_feature_passes(): void {
         (): boolean =>
           frames.every(
             (
-              frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+              frame: IAutoMovieWaterFeatureFrame,
             ): boolean => frame.surface.bounds !== null,
           ),
       ],
@@ -422,7 +418,7 @@ export function test_viewer_water_feature_passes(): void {
         (): boolean =>
           frames.every(
             (
-              frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+              frame: IAutoMovieWaterFeatureFrame,
             ): boolean => (frame.surface.mesh.indices ?? []).length >= 6,
           ),
       ],
@@ -455,7 +451,7 @@ export function test_viewer_water_feature_passes(): void {
             .slice(1)
             .every(
               (
-                frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+                frame: IAutoMovieWaterFeatureFrame,
               ): boolean => frame.state.step === solvedStep,
             ),
       ],
@@ -464,7 +460,7 @@ export function test_viewer_water_feature_passes(): void {
         (): boolean =>
           frames.every(
             (
-              frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
+              frame: IAutoMovieWaterFeatureFrame,
             ): boolean => frame.surface.step === frame.state.step,
           ),
       ],

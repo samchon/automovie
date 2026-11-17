@@ -1,8 +1,6 @@
+import type { IAutoMovieMotionHumanStrikingContact, IAutoMovieMotionHumanStrikingStroke, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3, superposeMinimumJerk } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 import { StrikingContact, StrikingStroke } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -117,7 +115,7 @@ export function test_motion_striking_stroke(): void {
   );
 
   const wall: number = 0.45;
-  const make = (): StrikingStroke.IStroke =>
+  const make = (): IAutoMovieMotionHumanStrikingStroke.IStroke =>
     StrikingStroke.create({
       origin,
       units: straight,
@@ -162,7 +160,7 @@ export function test_motion_striking_stroke(): void {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
-  const capsule: StrikingContact.ICollider = {
+  const capsule: IAutoMovieMotionHumanStrikingContact.ICollider = {
     name: "c",
     pose: still,
     shape: {
@@ -174,7 +172,7 @@ export function test_motion_striking_stroke(): void {
       halfLength: 0.5,
     },
   };
-  const sphere: StrikingContact.ICollider = {
+  const sphere: IAutoMovieMotionHumanStrikingContact.ICollider = {
     name: "s",
     pose: still,
     shape: {
@@ -185,7 +183,7 @@ export function test_motion_striking_stroke(): void {
       radius: 0.2,
     },
   };
-  const box: StrikingContact.ICollider = {
+  const box: IAutoMovieMotionHumanStrikingContact.ICollider = {
     name: "b",
     pose,
     shape: {
@@ -196,7 +194,7 @@ export function test_motion_striking_stroke(): void {
       halfExtents: { x: 0.5, y: 0.2, z: 0.1 },
     },
   };
-  const hull: StrikingContact.ICollider = {
+  const hull: IAutoMovieMotionHumanStrikingContact.ICollider = {
     name: "h",
     pose,
     shape: {

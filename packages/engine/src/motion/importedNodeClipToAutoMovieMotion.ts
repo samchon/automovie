@@ -1,14 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieInterpolation,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieImportedNodeBoneMapping, IAutoMovieImportedNodeMotionProps, IAutoMovieResolvedJointAngles, IAutoMovieSampledChannel, AutoMovieHumanoidBone, AutoMovieInterpolation, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
@@ -18,8 +10,6 @@ import { sampleClip } from "../resolve/sampleClip";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneMapping";
-import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
 import { Transform } from "../math/Transform";
 
 /**
@@ -183,7 +173,7 @@ export const importedNodeClipToAutoMovieMotion: (
     duration: props.clip.duration,
     loop: props.clip.loop,
     keyframes: keyTimes.map((time: number): IAutoMovieKeyframe => {
-      const sampled: ReturnType<typeof sampleClip> = sampleClip(
+      const sampled: Map<string, IAutoMovieSampledChannel> = sampleClip(
         props.clip,
         time,
       );
@@ -217,7 +207,7 @@ export const importedNodeClipToAutoMovieMotion: (
                 Quaternion.inverse(rest),
                 quaternion,
               );
-              const angles: ReturnType<typeof decomposeJointRotation> =
+              const angles: IAutoMovieResolvedJointAngles =
                 decomposeJointRotation(
                   relative,
                   sourceBones.get(entry.bone)!.axes ??

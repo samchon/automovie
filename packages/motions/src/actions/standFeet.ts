@@ -1,21 +1,8 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupportCarry, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanSupportCarry } from "../carrier/HumanSupportCarry";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { stand } from "./stand";
 
@@ -43,10 +30,10 @@ export namespace standFeet {
     offset(share: number): IAutoMovieVector3;
     /** Write the feet and toes at a share, optionally carried by their support. */
     write(
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       share: number,
-      carry?: HumanSupportCarry.ICarry,
-    ): IHumanPosture;
+      carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
+    ): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -60,7 +47,7 @@ export namespace standFeet {
     /** The foot. */
     side: "left" | "right";
     /** The ankle and rotation at a share. */
-    at(share: number): HumanFoot.IPlacement;
+    at(share: number): IAutoMovieMotionHumanFoot.IPlacement;
     /** Toe flexion, degrees, at a share. */
     toes(share: number): number;
     /** The bearing offset in the foot's frame. */
@@ -83,8 +70,8 @@ export namespace standFeet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures retain only the current body and two entry contacts for the plan's lifetime.
    */
   export function of(
-    body: IHumanBody,
-    entry: IHumanEntryState,
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
     yaw: number,
   ): ICourse {
     const sides: readonly ["left", "right"] = ["left", "right"];
@@ -101,7 +88,7 @@ export namespace standFeet {
         : Math.min(
             ...planted.flatMap((side: "left" | "right"): number[] =>
               HumanFoot.sockets(body, bones, side).map(
-                (s: HumanFoot.ISocket): number => s.point.y,
+                (s: IAutoMovieMotionHumanFoot.ISocket): number => s.point.y,
               ),
             ),
           );
@@ -109,7 +96,7 @@ export namespace standFeet {
       const heading: number =
         yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-      const fallback: HumanFoot.IPlacement = {
+      const fallback: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: HumanFrame.point(
           { origin: { ...entry.posture.root, y: floor }, yaw },
           rest,
@@ -119,14 +106,14 @@ export namespace standFeet {
       if (!entry.feet[side].planted)
         return {
           side,
-          at: (_: number): HumanFoot.IPlacement => fallback,
+          at: (_: number): IAutoMovieMotionHumanFoot.IPlacement => fallback,
           toes: (_: number): number => 0,
           contact: (_: number): IAutoMovieVector3 =>
             HumanFoot.offset(body, side, "mtp"),
         };
-      const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
-      const pivot: HumanFoot.ISocket = sockets.reduce(
-        (a: HumanFoot.ISocket, b: HumanFoot.ISocket): HumanFoot.ISocket =>
+      const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+      const pivot: IAutoMovieMotionHumanFoot.ISocket = sockets.reduce(
+        (a: IAutoMovieMotionHumanFoot.ISocket, b: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieMotionHumanFoot.ISocket =>
           b.point.y < a.point.y ? b : a,
       );
       const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
@@ -143,7 +130,7 @@ export namespace standFeet {
         flexion * (1 - share);
       return {
         side,
-        at: (share: number): HumanFoot.IPlacement =>
+        at: (share: number): IAutoMovieMotionHumanFoot.IPlacement =>
           HumanFoot.pivot(
             body,
             side,
@@ -180,25 +167,25 @@ export namespace standFeet {
           0.5,
         ),
       write: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         share: number,
-        carry?: HumanSupportCarry.ICarry,
-      ): IHumanPosture => {
+        carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
+      ): IAutoMovieMotionHumanPosture => {
         const feet: ICourse["flat"] = Object.fromEntries(
           plans.map((p: IPlan): [IPlan["side"], IAutoMovieVector3] => [
             p.side,
             carry?.point(p.at(share).ankle) ?? p.at(share).ankle,
           ]),
         ) as ICourse["flat"];
-        const limbs: IHumanPosture["limbs"] = stand.legs(
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
           body,
           posture.root,
           posture.yaw,
           feet,
         );
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
         for (const p of plans) {
-          const goal: IHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
+          const goal: IAutoMovieMotionHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
           limbs[`${p.side}Leg`] = {
             ...goal,
             rotation:

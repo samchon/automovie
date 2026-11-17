@@ -1,13 +1,7 @@
-import {
-  IAutoMoviePropBox,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSegment,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMoviePropBox, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment } from "@automovie/interface";
+
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 import { serviceSegmentClashes } from "./serviceSegmentClashes";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
@@ -25,7 +19,7 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
 export function appendServiceNetworkInterference(
   network: IAutoMovieServiceNetwork,
   root: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const segmentIndex: Map<string, number> = new Map(
     network.segments.map(

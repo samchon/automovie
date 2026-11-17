@@ -1,12 +1,8 @@
+import type { IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import type { Archetype } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 
 import { archetypeExtent } from "./archetypeExtent";
 import { motionHumanBody } from "./motionHumanBody";
@@ -26,14 +22,14 @@ export function archetypePlaced(
   rows: readonly archetypePlaced.IRow[],
 ): string[] {
   const findings: string[] = [];
-  const props: IHumanProp[] = rows.map(
-    (row: archetypePlaced.IRow, index: number): IHumanProp =>
+  const props: IAutoMovieMotionHumanProp[] = rows.map(
+    (row: archetypePlaced.IRow, index: number): IAutoMovieMotionHumanProp =>
       HumanObject.prop(row.name, row.archetype, {
         at: { x: 3 * index, y: row.on ?? 0, z: 0 },
         yaw: row.yaw ?? 0,
       }),
   );
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "placed",
@@ -56,7 +52,7 @@ export function archetypePlaced(
     ];
   }
   rows.forEach((row: archetypePlaced.IRow, index: number): void => {
-    const placed: IHumanProp.IFrame = performance.prop(row.name, 1);
+    const placed: IAutoMovieMotionHumanProp.IFrame = performance.prop(row.name, 1);
     const at: IAutoMovieVector3 = { x: 3 * index, y: row.on ?? 0, z: 0 };
 
     // 1. Where it was put.
@@ -74,7 +70,7 @@ export function archetypePlaced(
       );
 
     // 3. Its contacts as the prop's named points, in the world.
-    const prop: IHumanProp = props[index]!;
+    const prop: IAutoMovieMotionHumanProp = props[index]!;
     for (const affordance of row.archetype.affordances) {
       const point:
         | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }

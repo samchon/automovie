@@ -1,9 +1,7 @@
+import type { IAutoMovieBodyMeasure, IAutoMovieHumanCanonicalBody, IAutoMovieHumanParameters } from "@automovie/interface";
+
 import { measureAutoMovieHumanoidBody } from "@automovie/engine";
-import {
-  AutoMovieHumanCanonicalBody,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
-import type { IAutoMovieBodyMeasure } from "@automovie/interface";
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import { createHash } from "node:crypto";
 import {
   existsSync,
@@ -62,11 +60,11 @@ export function humanPolygonMan(
     "polygon",
   );
   const file: string = path.join(directory, `${id}-${key}.json`);
-  let body: AutoMovieHumanCanonicalBody.IBody;
+  let body: IAutoMovieHumanCanonicalBody.IBody;
   if (existsSync(file))
     body = JSON.parse(
       readFileSync(file, "utf8"),
-    ) as AutoMovieHumanCanonicalBody.IBody;
+    ) as IAutoMovieHumanCanonicalBody.IBody;
   else {
     body = AutoMovieHumanCanonicalBody.prepare(params, { mass, id });
     mkdirSync(directory, { recursive: true });
@@ -94,7 +92,7 @@ export namespace humanPolygonMan {
     id: string;
 
     /** The canonical body. */
-    body: AutoMovieHumanCanonicalBody.IBody;
+    body: IAutoMovieHumanCanonicalBody.IBody;
 
     /** Its measure. */
     measure: IAutoMovieBodyMeasure;

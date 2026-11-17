@@ -1,12 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The feet of a crawl on the knees: each tucked on its toes behind its knee
@@ -59,13 +57,13 @@ export namespace crawlFeet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rolled(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    standing: HumanFoot.IPlacement,
+    standing: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     lift: number,
     share: number,
-  ): { placement: HumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } {
+  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } {
     const from: number = HumanFoot.heading(standing.rotation);
     const extension: number = Math.min(
       lift,
@@ -80,7 +78,7 @@ export namespace crawlFeet {
       toes: number,
     ) => {
       const rotation = HumanFoot.rotation(turned(q), -q);
-      const placement: HumanFoot.IPlacement = {
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: Vector3.subtract(
           at,
           Quaternion.rotateVector(
@@ -132,17 +130,17 @@ export namespace crawlFeet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function planted(
-    body: IHumanBody,
-    standing: IHumanPosture,
-    measured: HumanFrame.IFrame,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
+    measured: IAutoMovieMotionHumanFrame.IFrame,
     knees: Record<"left" | "right", IAutoMovieVector3>,
     ahead: number,
-  ): { frame: HumanFrame.IFrame; tucks: Record<"left" | "right", ITuck> } {
+  ): { frame: IAutoMovieMotionHumanFrame.IFrame; tucks: Record<"left" | "right", ITuck> } {
     const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
     const feet = sides.map((side: "left" | "right") => {
-      const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
-      const placement: HumanFoot.IPlacement = {
+      const goal: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(measured.yaw),
       };

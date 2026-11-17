@@ -1,10 +1,9 @@
-import {
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanFootConnection, IAutoMovieHumanToeVertical } from "@automovie/interface";
 
-import type { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnection";
+
+
+import { AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
+
 
 /** Source value with first/second physical-station derivatives. */
 type Scalar = [number, number, number];
@@ -21,23 +20,7 @@ type Scalar = [number, number, number];
  * @evidence contracts/performance.md#bound-retention-and-release-resources A toe definition owns four finite outlines, their prepared readers and two parent contacts; no persistent cache or handle exists.
  */
 export namespace AutoMovieHumanToeVertical {
-  /** Full original vertical curves plus their actual parent contact authority. */
-  export interface ISource {
-    /** Original world-height axis curve, mm. */
-    height: IAutoMovieViewPart.IOutline;
-    /** Positive dorsal and negative plantar radial source curves, mm. */
-    upper: IAutoMovieViewPart.IOutline;
-    /** Negative radial source; height+lower equals plantar under the same clock. */
-    lower: IAutoMovieViewPart.IOutline;
-    /** Nonnegative absolute plantar source, not a bound on a moving relative edge. */
-    plantar: IAutoMovieViewPart.IOutline;
-    /** Actual parent local chord at the named skin root. */
-    root: AutoMovieHumanFootConnection.IChord;
-    /** Actual parent local chord at the hidden closing point. */
-    hidden: AutoMovieHumanFootConnection.IChord;
-    /** Read the four same-clock values without preparing another source. */
-    at: (station: number) => [number, number, number, number];
-  }
+  
 
   /**
    * Author root contact and retained distal depth together; unavailable parent jets are not invented.
@@ -52,10 +35,10 @@ export namespace AutoMovieHumanToeVertical {
    */
   export function create(
     stations: readonly number[],
-    root: AutoMovieHumanFootConnection.IChord,
-    hidden: AutoMovieHumanFootConnection.IChord,
+    root: IAutoMovieHumanFootConnection.IChord,
+    hidden: IAutoMovieHumanFootConnection.IChord,
     distal: number,
-  ): ISource {
+  ): IAutoMovieHumanToeVertical.ISource {
     const total: number = stations.at(-1)!;
     const parameter: NonNullable<IAutoMovieViewPart.IOutline["parameter"]> = {
       type: "angle",
@@ -106,10 +89,10 @@ export namespace AutoMovieHumanToeVertical {
       parameter,
       range: { minimum: 0, maximum: null },
     };
-    const r: AutoMovieViewOutline.IOutline = prepare(radius, true);
+    const r: IAutoMovieViewOutline.IOutline = prepare(radius, true);
     const plantarKnots: IAutoMovieViewPart.IKnot[] = stations.map(
       (station: number, index: number): IAutoMovieViewPart.IKnot => {
-        const radialAt: AutoMovieViewOutline.IReading = read(r, station);
+        const radialAt: IAutoMovieViewOutline.IReading = read(r, station);
         const height: Scalar =
           index === 0
             ? [
@@ -154,7 +137,7 @@ export namespace AutoMovieHumanToeVertical {
         };
       },
     );
-    const p: AutoMovieViewOutline.IOutline = prepare(
+    const p: IAutoMovieViewOutline.IOutline = prepare(
       { knots: plantarKnots, parameter, range: { minimum: 0, maximum: null } },
       false,
     );
@@ -163,8 +146,8 @@ export namespace AutoMovieHumanToeVertical {
     const lowerKnots: IAutoMovieViewPart.IKnot[] = [];
     const finalP: IAutoMovieViewPart.IKnot[] = [];
     for (const station of stations) {
-      const rv: AutoMovieViewOutline.IReading = read(r, station);
-      const pv: AutoMovieViewOutline.IReading = read(p, station);
+      const rv: IAutoMovieViewOutline.IReading = read(r, station);
+      const pv: IAutoMovieViewOutline.IReading = read(p, station);
       const site: string = radial.find(
         (knot: IAutoMovieViewPart.IKnot): boolean => knot.station === station,
       )!.site!;
@@ -202,7 +185,7 @@ export namespace AutoMovieHumanToeVertical {
     const upper: IAutoMovieViewPart.IOutline = { knots: upperKnots, parameter };
     const lower: IAutoMovieViewPart.IOutline = { knots: lowerKnots, parameter };
     const plantar: IAutoMovieViewPart.IOutline = { knots: finalP, parameter };
-    const values: AutoMovieViewOutline.IOutline[] = [
+    const values: IAutoMovieViewOutline.IOutline[] = [
       prepare(height, false),
       prepare(upper, true),
       prepare(lower, true),
@@ -217,7 +200,7 @@ export namespace AutoMovieHumanToeVertical {
       hidden,
       at: (station: number): [number, number, number, number] =>
         values.map(
-          (value: AutoMovieViewOutline.IOutline): number =>
+          (value: IAutoMovieViewOutline.IOutline): number =>
             read(value, station).value,
         ) as [number, number, number, number],
     };
@@ -250,7 +233,7 @@ function convert(
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
   radial: boolean,
-): AutoMovieViewOutline.IOutline {
+): IAutoMovieViewOutline.IOutline {
   const parameter: Extract<
     NonNullable<IAutoMovieViewPart.IOutline["parameter"]>,
     { type: "angle" }
@@ -258,7 +241,7 @@ function prepare(
     NonNullable<IAutoMovieViewPart.IOutline["parameter"]>,
     { type: "angle" }
   >;
-  const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+  const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create(
       outline,
       radial ? { bottom: parameter.bottom, top: parameter.top } : {},
@@ -269,10 +252,10 @@ function prepare(
 
 /** Read original parameter jets; physical pole derivatives remain absent. */
 function read(
-  source: AutoMovieViewOutline.IOutline,
+  source: IAutoMovieViewOutline.IOutline,
   station: number,
-): AutoMovieViewOutline.IReading {
-  const value: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
+): IAutoMovieViewOutline.IReading {
+  const value: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
     source,
     station,
   );

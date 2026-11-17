@@ -1,7 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IMotionCaptureOverlays } from "./IMotionCaptureOverlays";
+import type { IAutoMovieMark, IAutoMovieMotionHumanMotionCaptureOverlays, IAutoMovieVector3 } from "@automovie/interface";
 
 /** Colour of the drift kind: a violet no case overlay uses and the inspection reserves for nothing. */
 const DRIFT: number = 0x7b4fa8;
@@ -23,7 +20,7 @@ const DRIFT: number = 0x7b4fa8;
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
 export function markMotionCaptureCase(
-  props: IMotionCaptureOverlays,
+  props: IAutoMovieMotionHumanMotionCaptureOverlays,
 ): IAutoMovieMark[] {
   // A kind per colour, labelled by the overlays drawn in it.
   const uses: Map<number, Set<string>> = new Map();
@@ -50,7 +47,7 @@ export function markMotionCaptureCase(
 
   const marks: IAutoMovieMark[] = [];
   props.trails.forEach(
-    (trail: IMotionCaptureOverlays["trails"][number], index: number): void => {
+    (trail: IAutoMovieMotionHumanMotionCaptureOverlays["trails"][number], index: number): void => {
       if (trail.points.length === 0) return;
       marks.push({
         path: `case/trail/${index}`,
@@ -65,7 +62,7 @@ export function markMotionCaptureCase(
     },
   );
   props.targets.forEach(
-    (target: IMotionCaptureOverlays["targets"][number], index: number): void => {
+    (target: IAutoMovieMotionHumanMotionCaptureOverlays["targets"][number], index: number): void => {
       marks.push({
         path: `case/target/${index}`,
         ...kind(target.color),
@@ -76,7 +73,7 @@ export function markMotionCaptureCase(
     },
   );
   props.drift.forEach(
-    (set: IMotionCaptureOverlays["drift"][number], index: number): void => {
+    (set: IAutoMovieMotionHumanMotionCaptureOverlays["drift"][number], index: number): void => {
       for (const beyond of [false, true]) {
         const samples: IAutoMovieVector3[] = set.samples
           .filter(

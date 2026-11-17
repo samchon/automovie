@@ -1,9 +1,6 @@
-import type {
-  AutoMovieExternalMotionAdoptionDecision,
-  IAutoMovieExternalMotionNativeDecision,
-  IAutoMovieExternalMotionRetargetDecision,
-} from "@automovie/ingest";
-import type { IAutoMovieSkeleton } from "@automovie/interface";
+import type { IAutoMovieExternalMotionAdoptionDecision, IAutoMovieExternalMotionNativeDecision, IAutoMovieExternalMotionRetargetDecision, IAutoMovieSkeleton } from "@automovie/interface";
+
+
 
 import { test12MotionInspect } from "./test12MotionInspect";
 
@@ -32,7 +29,7 @@ export interface ITest12MotionAdoptionContext {
   /** Invoke actual adoption and observe the requested source/decision refusal. */
   rejectsAdoption: (
     source: ITest12MotionAdoptionContext["source"],
-    decision: AutoMovieExternalMotionAdoptionDecision,
+    decision: IAutoMovieExternalMotionAdoptionDecision,
     message: string,
   ) => boolean;
 

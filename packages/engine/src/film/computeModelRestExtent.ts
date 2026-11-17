@@ -1,9 +1,5 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieModel,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieComputeModelRestExtent, AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { Quaternion } from "../math/Quaternion";
@@ -30,7 +26,7 @@ import { skeletonRestFrames } from "./skeletonRestFrames";
  */
 export function computeModelRestExtent(
   model: IAutoMovieModel,
-): { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null {
+): IAutoMovieComputeModelRestExtent.IResult {
   const frames: ReadonlyMap<
     AutoMovieHumanoidBone,
     Pick<IAutoMovieTransform, "translation" | "rotation">

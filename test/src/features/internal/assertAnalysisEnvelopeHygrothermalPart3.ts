@@ -1,15 +1,6 @@
-import {
-  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
-  type IAutoMovieEnvelopeAssembly,
-  type IAutoMovieEnvelopeLayer,
-  type IAutoMovieEnvelopeRequest,
-  type IAutoMovieSpaceAirRequest,
-  autoMovieDewPoint,
-} from "@automovie/engine";
-import type {
-  IAutoMovieAnalysisRun,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieEnvelopeAssembly, IAutoMovieEnvelopeLayer, IAutoMovieEnvelopeRequest, IAutoMovieSpaceAirRequest, IAutoMovieAnalysisRun, IAutoMovieVector3 } from "@automovie/interface";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES, autoMovieDewPoint } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { analysisContext } from "./analysisFixtures";

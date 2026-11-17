@@ -1,27 +1,7 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  getConstraint,
-  jointToQuaternion,
-  skeletonJointAxes,
-  swingTwistRange,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanTrunk,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieSwingTwistRange, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, getConstraint, jointToQuaternion, skeletonJointAxes, swingTwistRange } from "@automovie/engine";
+
+import { HumanTrunk, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,8 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, where the angles come from and the 3 scenarios with their bounds.
  */
 export function test_human_motion_core_arm_readings(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const base: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const frames: readonly (readonly [
     readonly [number, number, number],
     readonly [number, number, number],
@@ -74,7 +54,7 @@ export function test_human_motion_core_arm_readings(): void {
     ],
   ];
   const bone: AutoMovieHumanoidBone = "rightUpperArm";
-  const joint: swingTwistRange.IJoint = {
+  const joint: IAutoMovieSwingTwistRange.IJoint = {
     axes: skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]!,
     frame: HUMANOID_REST_FRAME[bone],
   };
@@ -85,7 +65,7 @@ export function test_human_motion_core_arm_readings(): void {
         ?.constraint ?? null,
     )!;
   const complaints: string[] = [];
-  const posture = (frame: (typeof frames)[number]): IHumanPosture => {
+  const posture = (frame: (typeof frames)[number]): IAutoMovieMotionHumanPosture => {
     const { rightArm: _, ...limbs } = base.limbs;
     void _;
     return {

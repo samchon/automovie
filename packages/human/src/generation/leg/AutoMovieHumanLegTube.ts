@@ -1,12 +1,18 @@
+import type { IAutoMoviePolarSector, IAutoMovieHumanChordArc, IAutoMovieHumanLegGuides, IAutoMovieHumanLegTube, IAutoMovieHumanSeamKnot } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanGuidePublish } from "../../lofting/AutoMovieHumanGuidePublish";
 import { AutoMovieHumanChordArc } from "../../lofting/AutoMovieHumanChordArc";
-import { AutoMoviePolarSector, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanSeamCarve } from "../../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamKnot } from "../../lofting/AutoMovieHumanSeamKnot";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanLegGuides } from "./AutoMovieHumanLegGuides";
 import { AutoMovieHumanLegHull } from "./AutoMovieHumanLegHull";
-import type { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
+
 
 /**
  * The leg's tube: the section at a station, in the section's own chart about
@@ -27,35 +33,9 @@ import type { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
  * (AutoMovieHumanSeamCarve.dent).
  */
 export namespace AutoMovieHumanLegTube {
-  /** What the tube is placed from. */
-  export interface IInput {
-    /** The joints' heights, which place the landmark rows. */
-    bones: AutoMovieHumanLegStations.IBones;
+  
 
-    /** The girth the section asks for at a station, mm. */
-    girth: (s: number) => number;
-
-    /** The reliefs, their windows on the chart (station in mm, phase in radians) and their axes in the section frame. */
-    reliefs: readonly IAutoMovieLoftRelief[];
-
-    /** The neighbours' rings as the shape's first and last rows. */
-    ends?: AutoMovieHumanLegGuides.IEnds;
-  }
-
-  /** One station's section. */
-  export interface ISection {
-    /** The scale from the unit shape to millimetres. */
-    scale: number;
-
-    /** The taut girth of the section, mm. */
-    girth: number;
-
-    /** The 264 knot points `[x, z]`, mm. */
-    points: [number, number][];
-
-    /** The spline section's coefficients `[x_0 .. x_263, z_0 .. z_263]`, mm. */
-    controls: number[];
-  }
+  
 
   /** Control points of the section: eight sectors of 33 knot spans. */
   export const COUNT: number = 264;
@@ -69,13 +49,13 @@ export namespace AutoMovieHumanLegTube {
    * @param input The joints, the girth law and the reliefs.
    * @returns The section at a station.
    */
-  export function of(input: IInput): (s: number) => ISection {
-    const shape: (s: number) => AutoMovieHumanLegGuides.IShape = AutoMovieHumanLegGuides.shape(input.bones, input.ends);
+  export function of(input: IAutoMovieHumanLegTube.IInput): IAutoMovieHumanLegTube.OfResult {
+    const shape: (s: number) => IAutoMovieHumanLegGuides.IShape = AutoMovieHumanLegGuides.shape(input.bones, input.ends);
     const h: number = (2 * Math.PI) / COUNT;
-    return (s: number): ISection => {
-      const own: AutoMovieHumanLegGuides.IShape = shape(s);
-      const ends: AutoMovieHumanChordArc.IEnd[] = own.guides.map(
-        (g: AutoMoviePolarSector.IGuide): AutoMovieHumanChordArc.IEnd => AutoMovieHumanGuidePublish.publish(g),
+    return (s: number): IAutoMovieHumanLegTube.ISection => {
+      const own: IAutoMovieHumanLegGuides.IShape = shape(s);
+      const ends: IAutoMovieHumanChordArc.IEnd[] = own.guides.map(
+        (g: IAutoMoviePolarSector.IGuide): IAutoMovieHumanChordArc.IEnd => AutoMovieHumanGuidePublish.publish(g),
       );
       const count: number = ends.length;
 
@@ -128,7 +108,7 @@ export namespace AutoMovieHumanLegTube {
         const b: readonly number[] = ends[(j + 1) % count]!.point;
         return Math.hypot(b[0]! - a[0]!, b[1]! - a[1]!);
       };
-      const guides: AutoMovieHumanSeamKnot.IGuide[] = ends.map((e: AutoMovieHumanChordArc.IEnd, j: number): AutoMovieHumanSeamKnot.IGuide => ({
+      const guides: IAutoMovieHumanSeamKnot.IGuide[] = ends.map((e: IAutoMovieHumanChordArc.IEnd, j: number): IAutoMovieHumanSeamKnot.IGuide => ({
         knot: j * SPANS,
         jet: {
           point: e.point.map((v: number): number => scale * v),
@@ -137,11 +117,11 @@ export namespace AutoMovieHumanLegTube {
         },
         speed: (scale * (chord(j) + chord((j + count - 1) % count))) / 2 / (SPANS * h),
       }));
-      const sectors: AutoMovieHumanSeamKnot.ISector[] = ends.map((_: AutoMovieHumanChordArc.IEnd, j: number): AutoMovieHumanSeamKnot.ISector => ({
+      const sectors: IAutoMovieHumanSeamKnot.ISector[] = ends.map((_: IAutoMovieHumanChordArc.IEnd, j: number): IAutoMovieHumanSeamKnot.ISector => ({
         name: `leg sector ${j}`,
-        jet: (t: number): AutoMovieHumanSeamKnot.Jet => {
+        jet: (t: number): IAutoMovieHumanSeamKnot.Jet => {
           const xi: number = (t - j * SPANS * h) / (SPANS * h);
-          const [p, d1, d2]: AutoMovieHumanChordArc.Jet = AutoMovieHumanChordArc.jet(ends[j]!, ends[(j + 1) % count]!, own.fullness[j]!, xi);
+          const [p, d1, d2]: IAutoMovieHumanChordArc.Jet = AutoMovieHumanChordArc.jet(ends[j]!, ends[(j + 1) % count]!, own.fullness[j]!, xi);
           const speed: number = SPANS * h;
           return [
             p.map((v: number): number => scale * v),

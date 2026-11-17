@@ -1,3 +1,4 @@
+import type { IAutoMovieSolveSoftBodyCompliantSweep } from "@automovie/interface";
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
@@ -39,25 +40,7 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each sweep reads the positions the last one left; nothing is cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's predicted and multiplier buffers.
  */
-export const solveSoftBodyCompliantSweep: (props: {
-  columns: number;
-  rows: number;
-  predicted: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  restLength: Float64Array<ArrayBufferLike>;
-  compliance: readonly number[];
-  lambda: Float64Array<ArrayBufferLike>;
-  dt: number;
-}) => void = (props: {
-  columns: number;
-  rows: number;
-  predicted: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  restLength: Float64Array<ArrayBufferLike>;
-  compliance: readonly number[];
-  lambda: Float64Array<ArrayBufferLike>;
-  dt: number;
-}): void => {
+export const solveSoftBodyCompliantSweep: (props: IAutoMovieSolveSoftBodyCompliantSweep.IProps) => void = (props: IAutoMovieSolveSoftBodyCompliantSweep.IProps): void => {
   const { columns, rows, predicted, inverseMass, lambda }: typeof props = props;
   const slots: number = SOFT_BODY_NEIGHBOURS.length;
   const scale: number = 1 / (props.dt * props.dt);

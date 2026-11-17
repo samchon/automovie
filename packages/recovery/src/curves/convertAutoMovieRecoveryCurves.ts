@@ -1,13 +1,12 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieCurveMath64 as M,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, AutoMovieRecoveryCurveData, AutoMovieRecoveryCurveFormat, IAutoMovieCurve64, IAutoMovieRecoveryHermiteCurve, IAutoMovieRecoveryHermiteSpan } from "@automovie/interface";
+
+import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 
 import { rebindRecoveryCurveAuthorities } from "../internal/rebindRecoveryCurveAuthorities";
-import type { IAutoMovieRecoveryHermiteCurve } from "../structures/curve/IAutoMovieRecoveryHermiteCurve";
-import type { IAutoMovieRecoveryHermiteSpan } from "../structures/curve/IAutoMovieRecoveryHermiteSpan";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
+
+
+
+
 
 /**
  * Copy a plain saved recovery artifact into the selected cubic coefficient basis.
@@ -91,8 +90,7 @@ export function convertAutoMovieRecoveryCurves<
         value: visit(descriptor.value),
         enumerable: true,
         writable: true,
-        configurable: true,
-      });
+        configurable: true });
     }
     const record: { [key: string]: unknown } = result as {
       [key: string]: unknown;
@@ -124,22 +122,22 @@ export function convertAutoMovieRecoveryCurves<
         throw new Error(
           "Finite cubic spans and their original positive phase widths are required",
         );
-      const curve: C.Cubic | IAutoMovieRecoveryHermiteCurve =
-        result as unknown as C.Cubic | IAutoMovieRecoveryHermiteCurve;
-      const vector: (point: unknown) => point is C.Vector = (
+      const curve: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve =
+        result as unknown as IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve;
+      const vector: (point: unknown) => point is Readonly<AutoMovieVector3Tuple> = (
         point: unknown,
-      ): point is C.Vector =>
+      ): point is Readonly<AutoMovieVector3Tuple> =>
         Array.isArray(point) &&
         point.length === 3 &&
         point.every(
           (component: unknown): boolean =>
             typeof component === "number" && Number.isFinite(component),
         );
-      const spans: (C.Span | IAutoMovieRecoveryHermiteSpan)[] = curve.spans.map(
+      const spans: (IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan)[] = curve.spans.map(
         (
-          span: C.Span | IAutoMovieRecoveryHermiteSpan,
+          span: IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan,
           index: number,
-        ): C.Span | IAutoMovieRecoveryHermiteSpan => {
+        ): IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan => {
           const width: number = curve.phaseIntervals[index]!;
           let endpoints: IAutoMovieRecoveryHermiteSpan;
           if (curve.type === "cubicBezier") {
@@ -151,8 +149,8 @@ export function convertAutoMovieRecoveryCurves<
               throw new Error(
                 "Four finite three-dimensional Bernstein controls are required",
               );
-            if (format === "bezier") return span as C.Span;
-            endpoints = M.toHermite(span as C.Span, width);
+            if (format === "bezier") return span as IAutoMovieCurve64.Span;
+            endpoints = M.toHermite(span as IAutoMovieCurve64.Span, width);
           } else {
             const saved: IAutoMovieRecoveryHermiteSpan =
               span as IAutoMovieRecoveryHermiteSpan;
@@ -182,7 +180,7 @@ export function convertAutoMovieRecoveryCurves<
               "Cubic basis conversion exceeds finite binary64 coefficients",
             );
           if (format === "hermite") return endpoints;
-          const controls: C.Span = M.hermite(
+          const controls: IAutoMovieCurve64.Span = M.hermite(
             M.clone(endpoints.start),
             M.clone(endpoints.end),
             M.clone(endpoints.startDerivative),
@@ -198,8 +196,7 @@ export function convertAutoMovieRecoveryCurves<
       );
       Object.assign(result, {
         type: format === "hermite" ? "cubicHermite" : "cubicBezier",
-        spans,
-      });
+        spans });
     }
     active.delete(value);
     return result;

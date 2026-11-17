@@ -1,15 +1,7 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeletonTopology, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../kinematics/resolvePose";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**
  * Index root-reachable FK results by humanoid bone name using the same clinical axes/rest frames as playback. Caller topology must describe the unchanged skeleton; omission builds it for this call. Rest and pose-root scale are ignored by resolvePose.

@@ -1,16 +1,11 @@
+import type { IAutoMovieBuiltPlacementSupportLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltPlacementOverlapResult, IAutoMovieBuiltSupportResult } from "@automovie/interface";
 import {
   builtEnvironmentPlacementBounds,
   builtEnvironmentPlacementOverlap,
   builtEnvironmentSupportStatus,
   validateBuiltEnvironment,
 } from "@automovie/engine";
-import type {
-  AutoMovieBuiltPlacementSupportLocator,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltPlacementBounds,
-  IAutoMovieBuiltPlacementOverlapResult,
-  IAutoMovieBuiltSupportResult,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { builtPlacementTestBody as body } from "../internal/builtPlacementTestBody";
@@ -229,11 +224,11 @@ export function test_architecture_built_environment_placement(): void {
 
   const bearing: (
     subjectId: string,
-    target?: AutoMovieBuiltPlacementSupportLocator,
+    target?: IAutoMovieBuiltPlacementSupportLocator,
     tolerance?: number,
   ) => IAutoMovieBuiltSupportResult = (
     subjectId: string,
-    target: AutoMovieBuiltPlacementSupportLocator = support("element", "slab"),
+    target: IAutoMovieBuiltPlacementSupportLocator = support("element", "slab"),
     tolerance?: number,
   ): IAutoMovieBuiltSupportResult =>
     builtEnvironmentSupportStatus({

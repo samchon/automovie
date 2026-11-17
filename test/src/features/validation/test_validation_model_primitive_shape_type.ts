@@ -1,10 +1,6 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
 import { validateModel } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";
@@ -23,11 +19,11 @@ import { hasViolation } from "../internal/hasViolation";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A primitive part carries an unknown torus shape with positive radius and height. Validation fails with a type violation on the shape...).
  */
 export function test_validation_model_primitive_shape_type(): void {
-  const unknownShape: AutoMoviePrimitiveShape = {
+  const unknownShape: IAutoMoviePrimitiveShape = {
     type: "torus",
     radius: 1,
     height: 1,
-  } as unknown as AutoMoviePrimitiveShape;
+  } as unknown as IAutoMoviePrimitiveShape;
   const base: IAutoMovieModel = createModel();
   const model: IAutoMovieModel = {
     ...base,

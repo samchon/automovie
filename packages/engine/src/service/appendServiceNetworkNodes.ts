@@ -1,12 +1,5 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSystem,
-} from "@automovie/interface";
+import { type IAutoMovieAppendServiceNetworkNodes, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSystem } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendServiceInsideSpace } from "./appendServiceInsideSpace";
 
 const DIRECTIONS: readonly ["in", "out", "bidirectional"] = [
@@ -40,29 +33,7 @@ const NODE_KINDS: readonly [
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Environment, element, system and first-port maps are shared from the current gate call instead of rebuilt for each node.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The supplied maps and collector own appended facts; temporary scalar and containment arguments release on return without retaining a second graph copy.
  */
-export function appendServiceNetworkNodes(props: {
-  network: IAutoMovieServiceNetwork;
-  environment: IAutoMovieBuiltEnvironment;
-  spaceIds: ReadonlySet<string>;
-  elementIds: ReadonlySet<string>;
-  systems: ReadonlyMap<string, IAutoMovieServiceSystem>;
-  portPaths: Map<string, string>;
-  seenPorts: Set<string>;
-  root: string;
-  out: ViolationCollector;
-  positive: (
-    value: number,
-    path: string,
-    label: string,
-    out: ViolationCollector,
-  ) => void;
-  nonNegative: (
-    value: number,
-    path: string,
-    label: string,
-    out: ViolationCollector,
-  ) => void;
-}): void {
+export function appendServiceNetworkNodes(props: IAutoMovieAppendServiceNetworkNodes.IProps): void {
   const {
     network,
     environment,

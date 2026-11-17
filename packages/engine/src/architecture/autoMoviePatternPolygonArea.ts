@@ -1,5 +1,4 @@
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
-
+import type { IAutoMoviePatternPoint } from "@automovie/interface";
 /**
  * The unsigned area, in square metres, a face-local outline encloses.
  *

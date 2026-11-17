@@ -1,8 +1,5 @@
-import type {
-  AutoMoviePerformanceMode,
-  IAutoMovieContactReceipt,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePerformanceMode, IAutoMoviePhysicalSimulationInput, IAutoMovieContactReceipt, IAutoMovieVector3 } from "@automovie/interface";
+
 import type {
   RigidBody,
   TempContactManifold,
@@ -10,7 +7,6 @@ import type {
 } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { recordPhysicalContact } from "./recordPhysicalContact";
@@ -29,7 +25,7 @@ import { visitPhysicalNative } from "./visitPhysicalNative";
  */
 export function collectPhysicalContacts(
   world: World,
-  input: AutoMoviePhysicalSimulation.IInput,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
   bound: Bound,
   seconds: number,
   contacts: IAutoMovieContactReceipt[],
@@ -87,7 +83,7 @@ export function collectPhysicalContacts(
               [a, -1],
               [b, 1],
             ] as const) {
-              const policy: AutoMoviePerformanceMode | undefined =
+              const policy: IAutoMoviePerformanceMode | undefined =
                 input.bodies.find(
                   (candidate: (typeof input.bodies)[number]): boolean =>
                     candidate.id === side.body,

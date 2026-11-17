@@ -1,14 +1,17 @@
-import {
-  type AutoMovieLoftContract,
-  AutoMovieViewParameter,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkAxis, IAutoMovieHumanTrunkSectionFamily, IAutoMovieHumanTrunkViewPart, IAutoMovieHumanTrunkViews } from "@automovie/interface";
+
+
+
+
+
+
+import { AutoMovieViewParameter } from "@automovie/engine";
 
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkAxis } from "./AutoMovieHumanTrunkAxis";
 import { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
 import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
-import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
+
 
 /**
  * The trunk base as a part lofted from its own views (campaign #3044,
@@ -55,21 +58,9 @@ export namespace AutoMovieHumanTrunkViewPart {
   /** Widest spacing between layers, mm: `AutoMovieHumanTrunkRows.MAX_GAP`, under the reference's densest mean section gap of 3.9 mm. */
   export const GAP: number = 3.5;
 
-  /** The part and its loft. */
-  export type IResult = AutoMovieHumanSiteViewPart.IResult;
+  
 
-  /**
-   * The trunk's retained upper scalar-support datum, on the head axis above
-   * the regular connection, in calibration millimetres. A shared connection
-   * excludes it from the actual part domain without changing the source clock.
-   */
-  export interface ITop {
-    /** Forward place of the head mass's axis, mm. */
-    x: number;
-
-    /** Height inside the head mass's neck domain, mm. */
-    y: number;
-  }
+  
 
   /**
    * Build the trunk base from its views.
@@ -88,23 +79,23 @@ export namespace AutoMovieHumanTrunkViewPart {
    */
   export function create(
     views: IAutoMovieHumanTrunkViews,
-    top?: ITop,
-  ): IResult {
+    top?: IAutoMovieHumanTrunkViewPart.ITop,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(views, top));
   }
 
   /** Prepare the identical original outlines, fullness, canonical neck and axis before raw lofting. */
   export function define(
     views: IAutoMovieHumanTrunkViews,
-    top?: ITop,
+    top?: IAutoMovieHumanTrunkViewPart.ITop,
     sections: ReadonlyMap<
       string,
-      AutoMovieHumanTrunkSectionFamily.IPlane
+      IAutoMovieHumanTrunkSectionFamily.IPlane
     > = AutoMovieHumanTrunkSectionFamily.define(views),
-  ): AutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
     // A site whose back stands at or before its front has no depth, and one
     // at or under the perineum no place above the pole.
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     if (views.sites.length < 2)
       diagnostics.push({
         producer: `view.${NAME}`,
@@ -128,7 +119,7 @@ export namespace AutoMovieHumanTrunkViewPart {
     const fullness: Map<string, { shoulder: number }> = new Map();
     let unavailable: boolean = false;
     for (const site of views.sites) {
-      const plane: AutoMovieHumanTrunkSectionFamily.IPlane | undefined =
+      const plane: IAutoMovieHumanTrunkSectionFamily.IPlane | undefined =
         sections.get(site.site);
       const depth: number = (site.front - site.back) / 2;
       const extents: readonly number[] = site.sectionBox?.extents ?? [depth, site.half, depth, site.half];
@@ -173,7 +164,7 @@ export namespace AutoMovieHumanTrunkViewPart {
         unavailable = true;
         continue;
       }
-      const solved: AutoMovieHumanTrunkSectionFamily.IFullness =
+      const solved: IAutoMovieHumanTrunkSectionFamily.IFullness =
         plane.resolve();
       diagnostics.push(...solved.diagnostics);
       if (solved.fullness === null) unavailable = true;
@@ -203,7 +194,7 @@ export namespace AutoMovieHumanTrunkViewPart {
 
     // The hidden cap's nonzero tangent is authored in normalized angle tau.
     // The shared map owns theta; no physical station jet is fabricated at a pole.
-    let poleJets: AutoMovieHumanSiteViewPart.IInput["poleJets"] = undefined;
+    let poleJets: IAutoMovieHumanSiteViewPart.IInput["poleJets"] = undefined;
     if (top !== undefined) {
       const theta: number = AutoMovieViewParameter.at(
         { type: "angle", bottom: views.perineum.y, top: top.y },
@@ -223,7 +214,7 @@ export namespace AutoMovieHumanTrunkViewPart {
     }
 
     const definition: Pick<
-      AutoMovieHumanSiteViewPart.IInput,
+      IAutoMovieHumanSiteViewPart.IInput,
       "sites" | "pole" | "poleJets" | "ranges" | "fullnessRange"
     > = {
       // Native shoulder values must stay in (0,1) between their named sites.
@@ -235,8 +226,8 @@ export namespace AutoMovieHumanTrunkViewPart {
       sites: views.sites.map(
         (
           s: IAutoMovieHumanTrunkViews.ISite,
-        ): AutoMovieHumanSiteViewPart.ISite => {
-          const plane: AutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
+        ): IAutoMovieHumanSiteViewPart.ISite => {
+          const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
           return {
@@ -265,7 +256,7 @@ export namespace AutoMovieHumanTrunkViewPart {
               { minimum: 0, maximum: null },
               { minimum: null, maximum: 0 },
               { minimum: null, maximum: 0 },
-            ] as NonNullable<AutoMovieHumanSiteViewPart.IInput["ranges"]>,
+            ] as NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]>,
           }),
     };
     const back: IAutoMovieViewPart.IOutline = {
@@ -299,7 +290,7 @@ export namespace AutoMovieHumanTrunkViewPart {
           a.station - b.station,
       ),
     };
-    const axis: AutoMovieHumanTrunkAxis.IResult | string =
+    const axis: IAutoMovieHumanTrunkAxis.IResult | string =
       AutoMovieHumanTrunkAxis.create(
         back,
         AutoMovieHumanSiteViewPart.outline(definition, 0),
@@ -322,7 +313,7 @@ export namespace AutoMovieHumanTrunkViewPart {
           },
         ],
       };
-    const built: AutoMovieHumanSiteViewPart.IDefinition =
+    const built: IAutoMovieHumanSiteViewPart.IDefinition =
       AutoMovieHumanSiteViewPart.define({
         name: NAME,
         axis: axis.axis,
@@ -331,7 +322,7 @@ export namespace AutoMovieHumanTrunkViewPart {
         samples: SAMPLES,
         gap: GAP,
       });
-    const prepared: AutoMovieHumanSiteViewPart.IDefinition = {
+    const prepared: IAutoMovieHumanSiteViewPart.IDefinition = {
       ...built,
       diagnostics: [...diagnostics, ...built.diagnostics],
     };

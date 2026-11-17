@@ -1,4 +1,5 @@
-import type { IAutoMovieProductionRenderLayer } from "@automovie/engine";
+import type { IAutoMovieProductionRenderLayer } from "@automovie/interface";
+
 
 import { nclose } from "./nclose";
 

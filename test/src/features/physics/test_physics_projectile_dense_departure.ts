@@ -1,10 +1,6 @@
-import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  projectileAt,
-  projectileFirstContact,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileFirstContact, IAutoMovieVector3 } from "@automovie/interface";
+import { projectileAt, projectileFirstContact } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -42,7 +38,7 @@ export function test_physics_projectile_dense_departure(): void {
   const later: number = projectileAt(launch, 0.75 * step).position.y;
   const velocity: number = projectileAt(launch, from).velocity.y;
   const normal: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const plane: projectileFirstContact.ICollider = projectileFirstContact.plane(
+  const plane: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
     "dense-turn",
     start,
     normal,

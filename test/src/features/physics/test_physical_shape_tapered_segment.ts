@@ -1,8 +1,6 @@
+import type { IAutoMoviePhysicalShapeNearest, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { Quaternion, physicalShapeNearest } from "@automovie/engine";
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -102,7 +100,7 @@ export function test_physical_shape_tapered_segment(): void {
     (h - half) * Math.sqrt(1 - k * k) - r0 - k * (0.5 - half);
   const at: number = 0.5 + (k * h) / Math.sqrt(1 - k * k);
   for (const [name, shape] of Object.entries(shapes)) {
-    const read: physicalShapeNearest.IResult = physicalShapeNearest(
+    const read: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
       still,
       shape,
       a,

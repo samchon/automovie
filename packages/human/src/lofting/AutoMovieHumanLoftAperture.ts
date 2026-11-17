@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanLoftAperture } from "./IAutoMovieHumanLoftAperture";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanLoftAperture, IAutoMovieHumanLoftApertureConstruction } from "@automovie/interface";
+
+
+
 
 /**
  * Openings in the lofted skin, bounded by a closed world curve.
@@ -30,8 +33,7 @@ import type { IAutoMovieHumanLoftAperture } from "./IAutoMovieHumanLoftAperture"
  * traces the margin to the mesh resolution.
  */
 export namespace AutoMovieHumanLoftAperture {
-  /** Point `[x, y, z]` in mm. */
-  export type Point = [number, number, number];
+  
 
   /**
    * World point of the margin at phase t.
@@ -42,9 +44,9 @@ export namespace AutoMovieHumanLoftAperture {
   export function evaluate(
     aperture: IAutoMovieHumanLoftAperture,
     t: number,
-  ): Point {
+  ): AutoMovieVector3Tuple {
     const w: number = 2 * aperture.order + 1;
-    const out: Point = [0, 0, 0];
+    const out: AutoMovieVector3Tuple = [0, 0, 0];
     for (let axis: number = 0; axis < 3; axis++) {
       const c: number[] = aperture.coefficients;
       let v: number = c[axis * w]!;
@@ -58,16 +60,16 @@ export namespace AutoMovieHumanLoftAperture {
   }
 
   /** Dense margin polyline, used for the range, crossings and the inside test. */
-  export function polyline(aperture: IAutoMovieHumanLoftAperture): Point[] {
+  export function polyline(aperture: IAutoMovieHumanLoftAperture): AutoMovieVector3Tuple[] {
     return Array.from(
       { length: SAMPLES },
-      (_: unknown, i: number): Point =>
+      (_: unknown, i: number): AutoMovieVector3Tuple =>
         evaluate(aperture, (2 * Math.PI * i) / SAMPLES),
     );
   }
 
   /** Lowest and highest world height of the margin, mm. */
-  export function range(margin: readonly Point[]): [number, number] {
+  export function range(margin: readonly AutoMovieVector3Tuple[]): IAutoMovieHumanLoftApertureConstruction.RangeResult {
     let lo: number = Infinity;
     let hi: number = -Infinity;
     for (const p of margin) {
@@ -77,54 +79,24 @@ export namespace AutoMovieHumanLoftAperture {
     return [lo, hi];
   }
 
-  /**
-   * The margin seen along the aperture's `forward` axis.
-   *
-   * Points are projected onto the plane perpendicular to `forward`, spanned
-   * by `lateral` and `up`, and keep their depth along `forward`. `lateral`
-   * is `forward x` world up (world +X for an opening facing within 25
-   * degrees of vertical, such as a nostril, where that product vanishes), and
-   * `up = lateral x forward`, which is world up for a horizontal `forward`.
-   */
-  export interface IOutline {
-    /** Unit direction the opening faces. */
-    forward: Point;
-
-    /** Unit lateral axis of the projection plane. */
-    lateral: Point;
-
-    /** Unit second axis of the projection plane, `lateral x forward`. */
-    up: Point;
-
-    /** Projected margin polyline `[lateral, up]`, mm. */
-    points: [number, number][];
-
-    /** Depth window along `forward`: the margin's own, widened by `depth`. */
-    window: [number, number];
-
-    /** Bounding box of `points`: `[lateral, up]` minimum then maximum. */
-    box: [number, number, number, number];
-
-    /** The segments of `points` by cell and by row, for {@link signed}. */
-    grid: IGrid;
-  }
+  
 
   /** Project a dense margin along the aperture's `forward` axis. */
   export function outline(
     aperture: IAutoMovieHumanLoftAperture,
-    margin: readonly Point[],
-  ): IOutline {
-    const f: Point = aperture.forward;
-    const cross = (a: Readonly<Point>, b: Readonly<Point>): Point => [
+    margin: readonly AutoMovieVector3Tuple[],
+  ): IAutoMovieHumanLoftApertureConstruction.IOutline {
+    const f: AutoMovieVector3Tuple = aperture.forward;
+    const cross = (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
       a[0] * b[1] - a[1] * b[0],
     ];
-    let lateral: Point = cross(f, [0, 1, 0]);
+    let lateral: AutoMovieVector3Tuple = cross(f, [0, 1, 0]);
     if (Math.hypot(...lateral) < 0.42) lateral = cross(f, [1, 0, 0]);
     const length: number = Math.hypot(...lateral);
     lateral = [lateral[0] / length, lateral[1] / length, lateral[2] / length];
-    const up: Point = cross(lateral, f);
+    const up: AutoMovieVector3Tuple = cross(lateral, f);
 
     let near: number = Infinity;
     let far: number = -Infinity;
@@ -135,7 +107,7 @@ export namespace AutoMovieHumanLoftAperture {
       -Infinity,
     ];
     const points: [number, number][] = margin.map(
-      (q: Readonly<Point>): [number, number] => {
+      (q: Readonly<AutoMovieVector3Tuple>): [number, number] => {
         const [u, v] = project(lateral, up, q);
         const depth: number = q[0] * f[0] + q[1] * f[1] + q[2] * f[2];
         near = Math.min(near, depth);
@@ -174,11 +146,11 @@ export namespace AutoMovieHumanLoftAperture {
    * @param reach Distance beyond the bounding box still measured, mm.
    */
   export function signed(
-    outline: IOutline,
-    p: Readonly<Point>,
+    outline: IAutoMovieHumanLoftApertureConstruction.IOutline,
+    p: Readonly<AutoMovieVector3Tuple>,
     reach: number,
   ): number {
-    const f: Point = outline.forward;
+    const f: AutoMovieVector3Tuple = outline.forward;
     const depth: number = p[0] * f[0] + p[1] * f[1] + p[2] * f[2];
     if (depth < outline.window[0] || depth > outline.window[1]) return Infinity;
     const [u, v] = project(outline.lateral, outline.up, p);
@@ -193,7 +165,7 @@ export namespace AutoMovieHumanLoftAperture {
 
     const points: [number, number][] = outline.points;
     const n: number = points.length;
-    const g: IGrid = outline.grid;
+    const g: IAutoMovieHumanLoftApertureConstruction.IGrid = outline.grid;
 
     // The even-odd ray test over the segments of the point's row band: a
     // segment the horizontal ray through `v` crosses has one end above `v`
@@ -237,31 +209,7 @@ export namespace AutoMovieHumanLoftAperture {
     return odd ? -Math.sqrt(nearest) : Math.sqrt(nearest);
   }
 
-  /**
-   * A square grid of cells over an outline's bounding box, each cell listing
-   * the segments whose bounding box overlaps it, and each row of cells (a
-   * band) listing the segments whose height range overlaps it. Segment `i`
-   * runs from point `i - 1` (the last for `i = 0`) to point `i`.
-   */
-  export interface IGrid {
-    /** Lower corner `[lateral, up]` of the first cell, mm. */
-    origin: [number, number];
-
-    /** Side of a cell, mm. */
-    size: number;
-
-    /** Cells across. */
-    columns: number;
-
-    /** Cells up. */
-    rows: number;
-
-    /** Segments per cell, row by row. */
-    cells: number[][];
-
-    /** Segments per row of cells. */
-    bands: number[][];
-  }
+  
 
   /**
    * The grid of an outline: about `sqrt(n)` cells along its longer side for
@@ -271,7 +219,7 @@ export namespace AutoMovieHumanLoftAperture {
    * @param points The projected margin.
    * @param box Its bounding box `[lateral, up]` minimum then maximum.
    */
-  function gridOf(points: readonly [number, number][], box: readonly [number, number, number, number]): IGrid {
+  function gridOf(points: readonly [number, number][], box: readonly [number, number, number, number]): IAutoMovieHumanLoftApertureConstruction.IGrid {
     const n: number = points.length;
     const side: number = Math.max(1, Math.ceil(Math.sqrt(n)));
     const size: number = Math.max(box[2] - box[0], box[3] - box[1], 1e-9) / side;
@@ -316,7 +264,7 @@ export namespace AutoMovieHumanLoftAperture {
    * @param outline Projected margin.
    * @param p Point in mm.
    */
-  export function snap(outline: IOutline, p: Readonly<Point>): Point {
+  export function snap(outline: IAutoMovieHumanLoftApertureConstruction.IOutline, p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     const [u, v] = project(outline.lateral, outline.up, p);
     let best: number = Infinity;
     let target: [number, number] = [u, v];
@@ -346,14 +294,14 @@ export namespace AutoMovieHumanLoftAperture {
     return [0, 1, 2].map(
       (k: number): number =>
         p[k]! + du * outline.lateral[k]! + dv * outline.up[k]!,
-    ) as Point;
+    ) as AutoMovieVector3Tuple;
   }
 
   /** In-plane coordinates `[lateral, up]` of a point. */
   function project(
-    lateral: Readonly<Point>,
-    up: Readonly<Point>,
-    p: Readonly<Point>,
+    lateral: Readonly<AutoMovieVector3Tuple>,
+    up: Readonly<AutoMovieVector3Tuple>,
+    p: Readonly<AutoMovieVector3Tuple>,
   ): [number, number] {
     return [
       p[0] * lateral[0] + p[1] * lateral[1] + p[2] * lateral[2],

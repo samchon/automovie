@@ -1,13 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanFoot,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HUMAN_LEXICON, HumanChain, HumanFoot, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -38,11 +31,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_base_flinch_poses(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const lifts: Record<string, number> = {};
     for (const row of ["startle", "wince"] as const) {
       const label: string = `${name} ${row}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "poses",
@@ -66,8 +59,8 @@ export function test_human_motion_base_flinch_poses(): void {
         );
         continue;
       }
-      const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
@@ -80,7 +73,7 @@ export function test_human_motion_base_flinch_poses(): void {
       ): number => HumanSignature.joint(reader, t, bone).y;
       const planted = (side: "left" | "right", t: number): IAutoMovieVector3 =>
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
         )!.point;
 
       // 1. No declared plant slips.

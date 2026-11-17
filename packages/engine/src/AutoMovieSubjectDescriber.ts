@@ -1,15 +1,5 @@
-import {
-  IAutoMovieBuildingUnit,
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieCompiledInstanceSet,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieSubjectArtifact,
-  IAutoMovieSubjectBox,
-  IAutoMovieSubjectDescription,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieModelPartPoints, IAutoMovieBuildingUnit, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieCompiledInstanceSet, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieSubjectArtifact, IAutoMovieSubjectBox, IAutoMovieSubjectDescription, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { builtEnvironmentPartBoxes } from "./architecture/builtEnvironmentPartBoxes";
 import { builtPointBounds } from "./architecture/builtPointBounds";
@@ -62,7 +52,7 @@ export class AutoMovieSubjectDescriber {
   private readonly elementChildren: Map<string, string[]> = new Map();
   private readonly geometry: Map<
     string,
-    ReturnType<typeof autoMovieModelPartPoints>
+    IAutoMovieModelPartPoints.IResult
   > = new Map();
   private readonly partBoxes: Map<string, Map<string, IAutoMovieSubjectBox[]>> =
     new Map();
@@ -479,8 +469,8 @@ export class AutoMovieSubjectDescriber {
 
   private geometryOf(
     model: IAutoMovieModel,
-  ): ReturnType<typeof autoMovieModelPartPoints> {
-    let geometry: ReturnType<typeof autoMovieModelPartPoints> | undefined =
+  ): IAutoMovieModelPartPoints.IResult {
+    let geometry: IAutoMovieModelPartPoints.IResult | undefined =
       this.geometry.get(model.id);
     if (geometry === undefined) {
       geometry = autoMovieModelPartPoints(model);

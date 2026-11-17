@@ -1,12 +1,19 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLegCrotchFillet, IAutoMovieHumanLegCrotchRoot, IAutoMovieHumanLimbRootStrip } from "@automovie/interface";
+
+
+
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEventJoinRing } from "../AutoMovieHumanEventJoinRing";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+
 import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanLegCrotchFillet } from "./AutoMovieHumanLegCrotchFillet";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-type Vec3 = AutoMovieHumanLegVector.Vec3;
+
 const { fifth, norm, sub } = AutoMovieHumanLegVector;
 
 /**
@@ -25,29 +32,7 @@ const { fifth, norm, sub } = AutoMovieHumanLegVector;
  * Owner: the trunk. Neighbour: the leg.
  */
 export namespace AutoMovieHumanLegCrotchRoot {
-  /** The crotch ring a leg takes, canonical: the trunk's arc, front pinch first. */
-  export interface IRoot {
-    /** The arc from the front pinch round the outside to the rear pinch. */
-    arc: Vec3[];
-
-    /** The trunk's station derivative at each point of the arc, per mm up. */
-    rates: Vec3[];
-
-    /** The trunk's second station derivative at each point of the arc, per mm squared. */
-    seconds: Vec3[];
-
-    /** Station of the ring. */
-    y: number;
-
-    /** Centre the ring's phases are read about, `[x, z]`. */
-    centre: [number, number];
-
-    /** The rounded ring at the leg's phases, with its normals and the trunk's derivatives. */
-    ring: AutoMovieHumanLegCrotchFillet.ILoop;
-
-    /** Corner size at the ring. */
-    corner: number;
-  }
+  
 
   /**
    * Step of the one-sided differences of the trunk at its bottom ring, mm:
@@ -62,14 +47,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
    */
   export const CORNER: number = 2;
 
-  /** The trunk and the phase arcs of its bottom ring that one leg takes. */
-  export interface IArcs {
-    /** The trunk chain, owner of the ring. */
-    trunk: IAutoMovieLoftChain;
-
-    /** The arcs `[from, to]` of the trunk's phases the leg takes, radians. */
-    arcs: [number, number][];
-  }
+  
 
   /**
    * The trunk and the arcs of its bottom ring a leg takes.
@@ -77,7 +55,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
    * @param calibration Calibration holding `trunk` and its downward event.
    * @param side The leg's side.
    */
-  export function arcs(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): IArcs {
+  export function arcs(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): IAutoMovieHumanLegCrotchRoot.IArcs {
     const trunk: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "trunk")!;
     const event: IAutoMovieHumanBodyCalibration.IEvent = calibration.events.find(
       (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "trunk" && e.direction === "down",
@@ -95,9 +73,9 @@ export namespace AutoMovieHumanLegCrotchRoot {
   }
 
   /** The arc of the trunk's bottom ring that a leg takes, world, in its own phase order. */
-  export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): Vec3[] {
-    const taken: IArcs = arcs(calibration, side);
-    return taken.arcs.flatMap(([from, to]: [number, number]): Vec3[] =>
+  export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): AutoMovieVector3Tuple[] {
+    const taken: IAutoMovieHumanLegCrotchRoot.IArcs = arcs(calibration, side);
+    return taken.arcs.flatMap(([from, to]: [number, number]): AutoMovieVector3Tuple[] =>
       AutoMovieLoftChain.ring(taken.trunk, taken.trunk.layers[0]!.y, phases(from, to)),
     );
   }
@@ -110,35 +88,35 @@ export namespace AutoMovieHumanLegCrotchRoot {
    * @param sign 1 for the left leg, -1 for the right's reflection.
    * @param centre Centre the ring's phases are read about, `[x, z]`: the law's own last centre.
    */
-  export function of(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right", sign: 1 | -1, centre: [number, number]): IRoot {
-    const taken: IArcs = arcs(calibration, side);
+  export function of(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right", sign: 1 | -1, centre: IAutoMovieHumanLegCrotchRoot.OfCentre): IAutoMovieHumanLegCrotchRoot.IRoot {
+    const taken: IAutoMovieHumanLegCrotchRoot.IArcs = arcs(calibration, side);
     const trunk: IAutoMovieLoftChain = taken.trunk;
     const y: number = trunk.layers[0]!.y;
     const ringPhases: number[] = taken.arcs.flatMap(([from, to]: [number, number]): number[] => phases(from, to));
 
     // The trunk's rings a run down from its bottom ring: a negative run reads
     // the trunk above it, where it exists.
-    const rows: Map<number, Vec3[]> = new Map<number, Vec3[]>();
-    const row: (run: number) => Vec3[] = (run: number): Vec3[] => {
-      let found: Vec3[] | undefined = rows.get(run);
+    const rows: Map<number, AutoMovieVector3Tuple[]> = new Map<number, AutoMovieVector3Tuple[]>();
+    const row: (run: number) => AutoMovieVector3Tuple[] = (run: number): AutoMovieVector3Tuple[] => {
+      let found: AutoMovieVector3Tuple[] | undefined = rows.get(run);
       if (found === undefined)
-        rows.set(run, (found = AutoMovieLoftChain.ring(trunk, y - run, ringPhases).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
+        rows.set(run, (found = AutoMovieLoftChain.ring(trunk, y - run, ringPhases).map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]])));
       return found;
     };
-    const jets: AutoMovieHumanLimbRootStrip.IJet[] = ringPhases.map(
-      (_: number, i: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.edge((run: number): Vec3 => row(run)[i]!, 0, -TRUNK_STEP),
+    const jets: IAutoMovieHumanLimbRootStrip.IJet[] = ringPhases.map(
+      (_: number, i: number): IAutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.edge((run: number): AutoMovieVector3Tuple => row(run)[i]!, 0, -TRUNK_STEP),
     );
-    const here: Vec3[] = jets.map((j: AutoMovieHumanLimbRootStrip.IJet): Vec3 => j.point);
-    const rates: Vec3[] = jets.map((j: AutoMovieHumanLimbRootStrip.IJet): Vec3 => [-j.first[0], -j.first[1], -j.first[2]]);
-    const seconds: Vec3[] = jets.map((j: AutoMovieHumanLimbRootStrip.IJet): Vec3 => j.second);
+    const here: AutoMovieVector3Tuple[] = jets.map((j: IAutoMovieHumanLimbRootStrip.IJet): AutoMovieVector3Tuple => j.point);
+    const rates: AutoMovieVector3Tuple[] = jets.map((j: IAutoMovieHumanLimbRootStrip.IJet): AutoMovieVector3Tuple => [-j.first[0], -j.first[1], -j.first[2]]);
+    const seconds: AutoMovieVector3Tuple[] = jets.map((j: IAutoMovieHumanLimbRootStrip.IJet): AutoMovieVector3Tuple => j.second);
 
     // Front pinch first: the front pinch stands ahead of the rear one.
     const forward: boolean = here[0]![0] >= here[here.length - 1]![0];
     const order: <T>(list: T[]) => T[] = <T>(list: T[]): T[] => (forward ? list : [...list].reverse());
-    const arc: Vec3[] = order(here);
+    const arc: AutoMovieVector3Tuple[] = order(here);
     let perimeter: number = norm(sub(arc[0]!, arc[arc.length - 1]!));
     for (let i: number = 1; i < arc.length; i++) perimeter += norm(sub(arc[i]!, arc[i - 1]!));
-    const root: IRoot = {
+    const root: IAutoMovieHumanLegCrotchRoot.IRoot = {
       arc,
       rates: order(rates),
       seconds: order(seconds),
@@ -159,13 +137,13 @@ export namespace AutoMovieHumanLegCrotchRoot {
    * @param root The crotch ring the leg takes.
    * @returns One jet per leg phase, per mm of station down.
    */
-  export function start(root: IRoot): AutoMovieHumanLimbRootStrip.IJet[] {
-    const loop: AutoMovieHumanLegCrotchFillet.ILoop = root.ring;
+  export function start(root: IAutoMovieHumanLegCrotchRoot.IRoot): IAutoMovieHumanLimbRootStrip.IJet[] {
+    const loop: IAutoMovieHumanLegCrotchFillet.ILoop = root.ring;
 
-    return loop.points.map((p: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => {
+    return loop.points.map((p: AutoMovieVector3Tuple, m: number): IAutoMovieHumanLimbRootStrip.IJet => {
       const w: number = fifth(loop.edges[m]! / AutoMovieHumanEventJoinRing.TAPER);
-      const r: Vec3 = loop.rates[m]!;
-      const e: Vec3 = loop.seconds[m]!;
+      const r: AutoMovieVector3Tuple = loop.rates[m]!;
+      const e: AutoMovieVector3Tuple = loop.seconds[m]!;
 
       return {
         point: p,

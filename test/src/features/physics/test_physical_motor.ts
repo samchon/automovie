@@ -1,8 +1,6 @@
+import type { IAutoMoviePhysicalJointMotorCommand, IAutoMovieQuaternion, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { Quaternion, physicalJointMotorCommand } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -44,7 +42,7 @@ export function test_physical_motor(): void {
   };
   const k: number = 20;
   const d: number = 1 + k * DT;
-  const plain: physicalJointMotorCommand.IOutput =
+  const plain: IAutoMoviePhysicalJointMotorCommand.IOutput =
     physicalJointMotorCommand(base);
   TestValidator.predicate(
     "implicit PD speed and declared cap",
@@ -56,7 +54,7 @@ export function test_physical_motor(): void {
   );
 
   // 350 degrees about z is -10 degrees on the short arc.
-  const around: physicalJointMotorCommand.IOutput = physicalJointMotorCommand({
+  const around: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
     ...base,
     target: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
   });
@@ -67,7 +65,7 @@ export function test_physical_motor(): void {
   );
 
   // A compound rotation of 0.4 rad about (1, 1, 0) / sqrt 2.
-  const compound: physicalJointMotorCommand.IOutput = physicalJointMotorCommand(
+  const compound: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand(
     {
       ...base,
       target: Quaternion.fromAxisAngle(
@@ -89,10 +87,10 @@ export function test_physical_motor(): void {
   );
 
   // Withdrawn strength keeps only passive damping.
-  const withdrawn: physicalJointMotorCommand.IOutput =
+  const withdrawn: IAutoMoviePhysicalJointMotorCommand.IOutput =
     physicalJointMotorCommand({ ...base, strength: 0 });
   const passive: P.IJoint = hinge(0.5);
-  const damped: physicalJointMotorCommand.IOutput = physicalJointMotorCommand({
+  const damped: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
     ...base,
     joint: passive,
     strength: 0,
@@ -107,7 +105,7 @@ export function test_physical_motor(): void {
   );
 
   // Feed-forward, target speed and saturation forecasts.
-  const fed: physicalJointMotorCommand.IOutput = physicalJointMotorCommand({
+  const fed: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
     ...base,
     feedForward: { x: 0, y: 0, z: 2 },
     targetVelocity: { x: 0, y: 0, z: 1.5 },
@@ -125,7 +123,7 @@ export function test_physical_motor(): void {
   );
 
   // At the +0.6 rad twist limit, a target beyond it commands no outward speed.
-  const limited: physicalJointMotorCommand.IOutput = physicalJointMotorCommand({
+  const limited: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
     ...base,
     current: Quaternion.fromAxisAngle(
       { x: 0, y: 0, z: 1 },
@@ -144,11 +142,11 @@ export function test_physical_motor(): void {
 
 /** One axis of a motor command. */
 function axis(
-  command: physicalJointMotorCommand.IOutput,
+  command: IAutoMoviePhysicalJointMotorCommand.IOutput,
   name: "x" | "y" | "z",
-): physicalJointMotorCommand.IAxis {
+): IAutoMoviePhysicalJointMotorCommand.IAxis {
   return command.axes.find(
-    (candidate: physicalJointMotorCommand.IAxis): boolean =>
+    (candidate: IAutoMoviePhysicalJointMotorCommand.IAxis): boolean =>
       candidate.axis === name,
   )!;
 }

@@ -1,16 +1,8 @@
-import {
-  type IAutoMovieProjectile,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanThrowObjectLever, IAutoMovieProjectile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 
@@ -44,35 +36,6 @@ import { throwObjectLaunch } from "./throwObjectLaunch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No implement's length is stated: it is the held prop's distance from the grip to its named point.
  */
 export namespace throwObjectLever {
-  /**
-   * An implement held in the throwing hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation A held prop and the affordance of its working point.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members read by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No implement kind is named; the point is the archetype's affordance id.
-   */
-  export interface IImplement {
-    /** The implement's subject id, held in the throwing hand at the throw's entry. */
-    prop: string;
-
-    /** The affordance the thrown prop rides: an atlatl's spur, a sling's pouch. */
-    point: string;
-  }
-
-  /**
-   * A spin the act chooses: the lever's rate rounded to whole half turns
-   * over the flight to the target ({@link spin}).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the act derives.
-   * @evidence contracts/development/design.md#principled-representation One tag beside the engine's attitudes, resolved to a `spin` before the launch is published.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The tag alone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The author types no rate or axis.
-   */
-  export interface ITurns {
-    /** Turns chosen by the act. */
-    kind: "turns";
-  }
 
   /**
    * The lever at the release.
@@ -118,14 +81,14 @@ export namespace throwObjectLever {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned closure.
    */
   export function of(props: {
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "subject">;
-    side: HumanHand.Side;
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">;
+    side: IAutoMovieMotionHumanHand.Side;
     shoulder: IAutoMovieVector3;
     release: IAutoMovieVector3;
     held: IAutoMovieQuaternion;
     target: IAutoMovieVector3;
     degrees: number;
-    implement?: IImplement;
+    implement?: IAutoMovieMotionHumanThrowObjectLever.IImplement;
   }): ILever | undefined {
     const tip: IAutoMovieVector3 =
       props.implement === undefined
@@ -207,8 +170,8 @@ export namespace throwObjectLever {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function spin(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "subject">,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
+    side: IAutoMovieMotionHumanHand.Side,
     prop: string,
     lever: ILever,
     target: IAutoMovieVector3,

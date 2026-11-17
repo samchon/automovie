@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
+import type { IAutoMovieHumanShoulderCap, IAutoMovieHumanShoulderOutline, IAutoMovieHumanTrunkSolve } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
@@ -39,17 +43,7 @@ export namespace AutoMovieHumanShoulderCap {
    */
   export const STRETCH: number = Math.hypot(HUMERUS[0]!, HUMERUS[1]!, HUMERUS[2]!) / -HUMERUS[1]!;
 
-  /** The arm's outer edge at the glenohumeral centre's height. */
-  export interface IEdge {
-    /** Height of the glenohumeral centre, mm. */
-    y: number;
-
-    /** Lateral place of the glenohumeral centre, mm. */
-    z: number;
-
-    /** The upper arm's girth radius, mm: the biceps tape over 2 pi. */
-    radius: number;
-  }
+  
 
   /**
    * The lateral extreme of the arm's horizontal ellipse at the centre's
@@ -59,7 +53,7 @@ export namespace AutoMovieHumanShoulderCap {
    * @param edge The arm's edge data.
    * @returns The extreme's lateral place, mm.
    */
-  export function extreme(edge: IEdge): number {
+  export function extreme(edge: IAutoMovieHumanShoulderCap.IEdge): number {
     return edge.z + edge.radius * STRETCH;
   }
 
@@ -72,12 +66,12 @@ export namespace AutoMovieHumanShoulderCap {
    * @returns The outline from the centre's height to the shoulder point's.
    */
   export function create(
-    line: AutoMovieHumanTrunkSolve.IJet,
+    line: IAutoMovieHumanTrunkSolve.IJet,
     shoulderY: number,
-    edge: IEdge,
+    edge: IAutoMovieHumanShoulderCap.IEdge,
   ): IAutoMovieHumanShoulderOutline {
     // The edge is straight: z falls by the abduction's tangent per mm of height.
-    const low: AutoMovieHumanTrunkSolve.IJet = {
+    const low: IAutoMovieHumanTrunkSolve.IJet = {
       value: extreme(edge),
       slope: -Math.tan(ABDUCTION),
       curvature: 0,
@@ -86,7 +80,7 @@ export namespace AutoMovieHumanShoulderCap {
     return {
       from: edge.y,
       to: shoulderY,
-      at: (y: number): AutoMovieHumanTrunkSolve.IJet =>
+      at: (y: number): IAutoMovieHumanTrunkSolve.IJet =>
         AutoMovieHumanTrunkSolve.quintic(low, line, edge.y, shoulderY, y),
     };
   }

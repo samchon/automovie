@@ -1,19 +1,13 @@
-import type { RecoveryEventRegion } from "./RecoveryEventRegion";
-import type { RecoveryEventRegionCells } from "./RecoveryEventRegionCells";
-import type { RecoveryEventRegionSource } from "./RecoveryEventRegionSource";
-import type { RecoveryEventRegionTopology } from "./RecoveryEventRegionTopology";
+import type { IAutoMovieRecoveryEventRegion, IAutoMovieRecoveryEventRegionCells, IAutoMovieRecoveryEventRegionPorts, IAutoMovieRecoveryEventRegionSource, IAutoMovieRecoveryEventRegionTopology } from "@automovie/interface";
 
-type Source = Parameters<typeof RecoveryEventRegion>[0];
-type Query = Parameters<ReturnType<typeof RecoveryEventRegion>>[0];
-type Result = ReturnType<ReturnType<typeof RecoveryEventRegion>>;
 
-type Node = Result["nodes"][number];
+type Node = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["nodes"][number];
 
-type Occurrence = Result["occurrences"][number];
+type Occurrence = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["occurrences"][number];
 
-type Issue = Result["issues"][number];
+type Issue = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["issues"][number];
 
-type PortReference = Query["ports"][number]["reference"];
+type PortReference = Parameters<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>[0]["ports"][number]["reference"];
 /**
  * Attach contact and port ownership evidence after component topology is complete.
  *
@@ -26,26 +20,24 @@ type PortReference = Query["ports"][number]["reference"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned records transfer to the query caller; all port and claim scratch is query-local.
  */
 export function RecoveryEventRegionPorts(
-  source: Source,
-  prepared: ReturnType<typeof RecoveryEventRegionSource>,
-  work: ReturnType<typeof RecoveryEventRegionCells>,
-  topology: ReturnType<typeof RecoveryEventRegionTopology>,
-  query: Query,
-): Result {
-  const { size, address, pair }: ReturnType<typeof RecoveryEventRegionSource> =
+  source: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[0],
+  prepared: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[1],
+  work: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[2],
+  topology: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[3],
+  query: Parameters<IAutoMovieRecoveryEventRegionPorts.Operation>[4],
+): ReturnType<IAutoMovieRecoveryEventRegionPorts.Operation> {
+  const { size, address, pair }: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> =
     prepared;
   const {
     result,
     faceCells,
     cellNodes,
-    issue,
-  }: ReturnType<typeof RecoveryEventRegionCells> = work;
+    issue }: ReturnType<IAutoMovieRecoveryEventRegionCells.Operation> = work;
   const {
     edges,
     cellOccurrences,
     vertexComponents,
-    vertexCells,
-  }: ReturnType<typeof RecoveryEventRegionTopology> = topology;
+    vertexCells }: ReturnType<IAutoMovieRecoveryEventRegionTopology.Operation> = topology;
   for (const [vertex, members] of vertexComponents)
     if (members.size > 1)
       issue("point-contact-between-edge-components", [
@@ -63,8 +55,7 @@ export function RecoveryEventRegionPorts(
                 ...(vertexComponents.get(p.incidenceId) ?? []),
               ]),
           ),
-        ].sort((a: number, b: number): number => a - b),
-      });
+        ].sort((a: number, b: number): number => a - b) });
   const portIds: Set<string> = new Set();
   for (const port of query.ports) {
     if (
@@ -141,7 +132,7 @@ export function RecoveryEventRegionPorts(
             : row.side === port.side) && edges.get(row.edge)!.length === 1,
       )
       .map((row: Occurrence): string => row.id);
-    const status: Result["ports"][number]["status"] =
+    const status: ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["ports"][number]["status"] =
       components.length > 1
         ? "ambiguous"
         : components.length === 1 && occurrences.length
@@ -158,8 +149,7 @@ export function RecoveryEventRegionPorts(
       cells,
       components,
       occurrences,
-      status,
-    });
+      status });
     if (status === "ambiguous" || status === "missing")
       issue(
         status === "ambiguous"

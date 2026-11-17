@@ -1,14 +1,6 @@
-import {
-  IAutoMovieForgedProp,
-  forgeProp,
-  placementChildNode,
-  sceneToNodes,
-} from "@automovie/engine";
-import {
-  IAutoMovieConstraintViolation,
-  IAutoMovieNode,
-  IAutoMoviePropSpec,
-} from "@automovie/interface";
+import { type IAutoMovieForgedProp, IAutoMovieConstraintViolation, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import { forgeProp, placementChildNode, sceneToNodes } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";

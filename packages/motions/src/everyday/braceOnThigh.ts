@@ -1,11 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -30,9 +27,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over its arguments only.
  */
 export function braceOnThigh(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
-  rest: AutoMovieMotionHumanArm.IAngles,
+  rest: IAutoMovieMotionHumanArmAngles.IAngles,
   duration: number,
   weight: (seconds: number) => number,
 ): IAutoMovieMotionHumanPrimitive {
@@ -43,7 +40,7 @@ export function braceOnThigh(
     to: duration,
     rest,
     weight,
-    goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
+    goal: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal => {
       const bones = poseBones(body, resolveHumanPosture(body, posture));
       const thigh = bones.get(`${side}UpperLeg`)!;
       const kneeAt: IAutoMovieVector3 = bones.get(

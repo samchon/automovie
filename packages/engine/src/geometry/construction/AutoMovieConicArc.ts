@@ -1,6 +1,6 @@
+import type { IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMoviePolarSector } from "@automovie/interface";
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
 /** The unchanged nearest-end inverse and physical normalization, without geometry. */
 interface Inverse {
@@ -23,39 +23,6 @@ interface Inverse {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicArc {
-  /**
-   * One numeric ray location shared with source derivative readers.
-   *
-   * @evidence contracts/development/design.md#principled-representation One selected native/projective clock and its geometric reading identify the actual source point.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Quadratic and G2 adapters share one location record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A descriptor does not claim source derivatives or retain a source callback.
-   * @evidence contracts/development/common.md#meaningful-documentation Point and tangent use the original quarter chart; radial derivatives increase polar angle; reverse identifies the chosen end chart.
-   */
-  export interface IRay {
-    /** Physical point in the original quarter chart. */
-    point: readonly [number, number];
-
-    /** Unit tangent in increasing original polar direction. */
-    tangent: readonly [number, number];
-
-    /** Actual radial phase jet. */
-    radial: AutoMoviePolarSector.Jet;
-
-    /** Logarithm of positive geometric curvature. */
-    logCurvature: number;
-
-    /** Selected first-half quadratic parameter, or null for a cubic. */
-    native: number | null;
-
-    /** Selected cubic log odds, or null at an endpoint or quadratic. */
-    clock: number | null;
-
-    /** Explicit endpoint identity; a null clock never implies an interior parameter. */
-    position: "first" | "interior" | "last";
-
-    /** Selected chart was reflected from the original quarter. */
-    reverse: boolean;
-  }
 
   /**
    * Endpoint geometric curvature at extent a across extent b.
@@ -122,7 +89,7 @@ export namespace AutoMovieConicArc {
     r: number,
     t: number,
     start: number = 0,
-  ): AutoMoviePolarSector.IGuide {
+  ): IAutoMoviePolarSector.IGuide {
     const scale: number = Math.max(a, b);
     const A: number = a / scale;
     const B: number = b / scale;
@@ -144,7 +111,7 @@ export namespace AutoMovieConicArc {
         slope: 0,
         curvature: (B - (B * B * B) / (2 * w * w * A * A)) * scale,
       };
-    const geometry: AutoMovieConicArcField.IGeometry<number> =
+    const geometry: IAutoMovieConicArcField.IGeometry<number> =
       AutoMovieConicArcField.evaluate(
         AutoMovieConicFieldJet.NUMBER,
         A,
@@ -164,7 +131,7 @@ export namespace AutoMovieConicArc {
     start: number,
     scale: number,
     C: readonly [number, number],
-  ): AutoMoviePolarSector.IGuide {
+  ): IAutoMoviePolarSector.IGuide {
     const s: number = 1 - t;
     const D: number = s * s + 2 * w * t * s + t * t;
     const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
@@ -214,7 +181,7 @@ export namespace AutoMovieConicArc {
     b: number,
     r: number,
     phi: number,
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     return locate(a, b, r, phi)?.radial ?? [NaN, NaN, NaN];
   }
 
@@ -231,7 +198,7 @@ export namespace AutoMovieConicArc {
    */
   export function polar(
     c: readonly [number, number, number, number, number, number],
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     const scale: number = Math.hypot(c[0], c[1]);
     if (!(Number.isFinite(scale) && scale > 0)) return [NaN, NaN, NaN];
     const normalized: readonly [
@@ -319,11 +286,11 @@ export namespace AutoMovieConicArc {
     b: number,
     r: number,
     phi: number,
-  ): IRay | null {
+  ): IAutoMovieConicArc.IRay | null {
     const selected: Inverse | null = inverse(a, b, r, phi);
     if (selected === null) return null;
     const { t, reverse, first, second, scale, x, y, w }: Inverse = selected;
-    const normalized: AutoMovieConicArcField.IGeometry<number> =
+    const normalized: IAutoMovieConicArcField.IGeometry<number> =
       AutoMovieConicArcField.evaluate(
         AutoMovieConicFieldJet.NUMBER,
         x,
@@ -331,11 +298,11 @@ export namespace AutoMovieConicArc {
         w,
         t,
       );
-    const guideValue: AutoMoviePolarSector.IGuide =
+    const guideValue: IAutoMoviePolarSector.IGuide =
       t === 0
         ? guide(first, second, r, t)
         : interiorGuide(x, y, w, t, 0, scale, normalized.point);
-    const geometry: AutoMovieConicArcField.IGeometry<number> =
+    const geometry: IAutoMovieConicArcField.IGeometry<number> =
       AutoMovieConicArcField.orient(
         AutoMovieConicFieldJet.NUMBER,
         {
@@ -355,7 +322,7 @@ export namespace AutoMovieConicArc {
       Math.log(2) -
       3 * Math.log(v) -
       Math.log(scale);
-    const radial: AutoMoviePolarSector.Jet = [
+    const radial: IAutoMoviePolarSector.Jet = [
       guideValue.value,
       reverse ? -guideValue.slope : guideValue.slope,
       guideValue.curvature,

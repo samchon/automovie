@@ -1,7 +1,13 @@
-import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanBindingLimb, IAutoMovieHumanBindingPlane, IAutoMovieHumanBodyCalibration, IAutoMovieHumanCrotchBinding } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieLoftChain } from "@automovie/engine";
-import type { IAutoMovieHumanBindingLimb } from "./IAutoMovieHumanBindingLimb";
-import type { IAutoMovieHumanBindingPlane } from "./IAutoMovieHumanBindingPlane";
+
+
 import { AutoMovieHumanLimbCapsule } from "./AutoMovieHumanLimbCapsule";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 import { AutoMovieHumanSkinStep } from "./AutoMovieHumanSkinStep";
@@ -24,14 +30,7 @@ export namespace AutoMovieHumanCrotchBinding {
   /** Least half of that release, in skin depths at the hip (convention). */
   export const CROTCH_RAMP: number = 0.6;
 
-  /** Where the release lies. */
-  export interface IRelease {
-    /** Point where the release is half done, metres. */
-    at: Math3D.Vector;
-
-    /** Half of the release, metres. */
-    half: number;
-  }
+  
 
   /**
    * The crotch's height: the trunk's lowest skin on the midline.
@@ -66,8 +65,8 @@ export namespace AutoMovieHumanCrotchBinding {
    * @returns The release's plane at its least half.
    */
   export function start(
-    hip: Math3D.Vector,
-    along: Math3D.Vector,
+    hip: AutoMovieVector3Tuple,
+    along: AutoMovieVector3Tuple,
     reach: number,
   ): IAutoMovieHumanBindingPlane {
     return {
@@ -96,7 +95,7 @@ export namespace AutoMovieHumanCrotchBinding {
     const knee: IAutoMovieHumanBindingLimb | undefined = limb.kids.find(
       (k: IAutoMovieHumanBindingLimb): boolean => k.planes.length !== 0,
     );
-    const moved: IRelease = release(
+    const moved: IAutoMovieHumanCrotchBinding.IRelease = release(
       limb.from,
       clear.normal,
       crotch,
@@ -122,18 +121,18 @@ export namespace AutoMovieHumanCrotchBinding {
    * @returns The release.
    */
   export function release(
-    hip: Math3D.Vector,
-    along: Math3D.Vector,
+    hip: AutoMovieVector3Tuple,
+    along: AutoMovieVector3Tuple,
     crotch: number,
     length: number,
     knee: number,
     ramp: number,
     least: number,
-  ): IRelease {
+  ): IAutoMovieHumanCrotchBinding.IRelease {
     // The crotch's distance down the thigh from the hip's centre, metres; the
     // release starts there (`below + half` is its middle) and its full width
     // fits between the crotch and the knee ramp's start (derived).
-    const r: Math3D.Vector = Math3D.sub([hip[0], crotch, 0], hip);
+    const r: AutoMovieVector3Tuple = Math3D.sub([hip[0], crotch, 0], hip);
     const below: number = r[0] * along[0] + r[1] * along[1] + r[2] * along[2];
     const room: number = (length - below - knee) / 2;
     const half: number = Math.max(least, Math.min(ramp, room));

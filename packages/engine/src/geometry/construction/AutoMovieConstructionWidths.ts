@@ -1,14 +1,10 @@
-import type { AutoMovieConstructionWidth } from "@automovie/interface";
+import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionWidth, IAutoMovieConstructionWidths, IAutoMovieSolidIntersection, IAutoMovieSolidJoin } from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { cross, dot, norm, scale } = AutoMovieSolidVector;
 
 /**
@@ -22,27 +18,6 @@ const { cross, dot, norm, scale } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionWidths {
-  /**
-   * The retained trace and surfaces from which fold/curvature laws read their knots.
-   *
-   * @evidence contracts/development/design.md#principled-representation Connects each traced chart point/tangent to the actual part/host jets and the merge/diff orientation convention.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One context shares the existing curve and sides across both width-law builders.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not validate curve closure, uniform parameters, nondegenerate jets or face indices; it relies on the trace owner's admitted output.
-   * @evidence contracts/development/common.md#meaningful-documentation Names part versus host atlas and the diff flag's inward kept-wall meaning.
-   */
-  export interface ITraced {
-    /** The traced curve. */
-    curve: AutoMovieSolidIntersection.ICurve;
-
-    /** The part's surface. */
-    part: IAutoMovieSolidSurface;
-
-    /** The host's faces. */
-    host: IAutoMovieSolidAtlas;
-
-    /** Whether the join is a diff, whose kept part wall faces into the part. */
-    diff: boolean;
-  }
 
   /**
    * Whether a width is read from the traced curve.
@@ -58,7 +33,7 @@ export namespace AutoMovieConstructionWidths {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This kind predicate coordinates no trace or law cache itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returning a boolean retains no width record or resource.
    */
-  export function traced(width: AutoMovieConstructionWidth): boolean {
+  export function traced(width: IAutoMovieConstructionWidth): boolean {
     return width.type === "fold" || width.type === "curvature";
   }
 
@@ -85,11 +60,11 @@ export namespace AutoMovieConstructionWidths {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned periodic closures own O(N) coefficients/start/count for the join's lifetime; chord closures borrow their input record/scale, and local sampled values/context are released after preparation.
    */
   export function create(
-    part: AutoMovieConstructionWidth,
-    host: AutoMovieConstructionWidth,
+    part: IAutoMovieConstructionWidth,
+    host: IAutoMovieConstructionWidth,
     phase: boolean,
-    curve: ITraced | null,
-  ): AutoMovieSolidJoin.IInput["width"] | string {
+    curve: IAutoMovieConstructionWidths.ITraced | null,
+  ): IAutoMovieSolidJoin.IInput["width"] | string {
     if (host.type === "station")
       return "a station width is the part's only, never the host's";
     if (part.type === "station" && !phase)
@@ -108,9 +83,9 @@ export namespace AutoMovieConstructionWidths {
 
   /** One side's law in millimetres. */
   function law(
-    width: Exclude<AutoMovieConstructionWidth, { type: "station" }>,
+    width: Exclude<IAutoMovieConstructionWidth, { type: "station" }>,
     side: "part" | "host",
-    curve: ITraced | null,
+    curve: IAutoMovieConstructionWidths.ITraced | null,
   ): ((t: number) => number) | string {
     const S: number = AutoMovieConstructionViews.SCALE;
     switch (width.type) {
@@ -134,7 +109,7 @@ export namespace AutoMovieConstructionWidths {
           return `the ${side} fold radius ${width.radius} m and cap ${width.cap} m must be positive`;
         if (curve === null) return "the fold width has no traced curve";
         const values: number[] = curve.curve.points.map(
-          (p: AutoMovieSolidIntersection.IPoint): number => {
+          (p: IAutoMovieSolidIntersection.IPoint): number => {
             const beta: number = turn(curve, p);
             return Math.min(width.cap, width.radius * Math.tan(beta / 2)) * S;
           },
@@ -148,7 +123,7 @@ export namespace AutoMovieConstructionWidths {
           return `the ${side} curvature end share ${width.end} must lie inside (0, 1)`;
         if (curve === null) return "the curvature width has no traced curve";
         const values: number[] = curve.curve.points.map(
-          (p: AutoMovieSolidIntersection.IPoint): number => {
+          (p: IAutoMovieSolidIntersection.IPoint): number => {
             const k: number =
               side === "part"
                 ? across(curve.part.jet(p.s, p.phi), p.tangent)
@@ -184,7 +159,7 @@ export namespace AutoMovieConstructionWidths {
    * @param p The point.
    * @returns The angle, radians in `[0, pi]`.
    */
-  function turn(curve: ITraced, p: AutoMovieSolidIntersection.IPoint): number {
+  function turn(curve: IAutoMovieConstructionWidths.ITraced, p: IAutoMovieSolidIntersection.IPoint): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
     const h: IAutoMovieSolidSurface.IJet = face.jet(p.y, p.theta);
     const q: IAutoMovieSolidSurface.IJet = curve.part.jet(p.s, p.phi);

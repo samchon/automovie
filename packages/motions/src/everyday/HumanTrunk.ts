@@ -1,22 +1,7 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Transform,
-  resolveAutoMovieHumanoidSurfaces,
-  resolvePose,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieJointPose,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTrunk, IAutoMovieMotionHumanTurnHumanPosture, IAutoMovieResolvedBone, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Transform, resolveAutoMovieHumanoidSurfaces, resolvePose } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
@@ -46,9 +31,9 @@ export namespace HumanTrunk {
    * @returns Resolved bones; the trunk, head, eyes and shoulder girdles are valid.
    */
   export function resolve(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    joints: IHumanPosture["joints"] = posture.joints,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const list: IAutoMovieJointPose[] = (
       Object.entries(joints) as [
@@ -70,7 +55,7 @@ export namespace HumanTrunk {
           // A whole-body rotation turns the root as the resolver turns it
           // (`turnHumanPosture`); the limb goals are not read here.
           root: ((): IAutoMovieTransform => {
-            const turned: turnHumanPosture.ITurned = turnHumanPosture({
+            const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({
               ...posture,
               limbs: {},
             });
@@ -114,17 +99,17 @@ export namespace HumanTrunk {
    * @returns The pelvis pitch, degrees, and the joints with the flexion added.
    */
   export function incline(
-    joints: IHumanPosture["joints"],
+    joints: IAutoMovieMotionHumanPosture["joints"],
     inclination: number,
     pelvisLimit: number = Infinity,
-  ): { pitch: number; joints: IHumanPosture["joints"] } {
+  ): IAutoMovieMotionHumanTrunk.IInclineResult {
     if (inclination <= 0) return { pitch: inclination, joints };
     const pelvis: number = Math.max(
       0,
       Math.min(RHYTHM.pelvis * inclination, pelvisLimit),
     );
     const spine: number = inclination - pelvis;
-    const out: IHumanPosture["joints"] = { ...joints };
+    const out: IAutoMovieMotionHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
     for (const [bone, part] of [
       ["spine", share],
@@ -154,7 +139,7 @@ export namespace HumanTrunk {
    * @returns Degrees, at least 0.
    */
   export function pelvisLimit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
     ankles: Record<"left" | "right", IAutoMovieVector3>,
@@ -205,10 +190,10 @@ export namespace HumanTrunk {
    * @returns The point (metres) and the unit normal.
    */
   export function region(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     region: AutoMovieHumanoidRegion,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanTrunk.IRegionResult {
     const frame = body.surfaces.regions[region];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       frame,
@@ -233,17 +218,17 @@ export namespace HumanTrunk {
    * @throws {Error} When the ray misses the trunk within two statures.
    */
   export function surface(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     from: IAutoMovieVector3,
     toward: IAutoMovieVector3,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanTrunk.ISurfaceResult {
     const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
       [...resolve(body, posture)].filter(
         ([bone]): boolean => !/^(left|right)/.test(bone),
       ),
     );
-    const hit: HumanColliders.IHit | undefined = HumanColliders.cast(
+    const hit: IAutoMovieMotionHumanColliders.IHit | undefined = HumanColliders.cast(
       body,
       midline,
       from,

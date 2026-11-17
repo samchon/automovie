@@ -1,3 +1,4 @@
+import type { IAutoMovieStepPlanner } from "@automovie/interface";
 import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,21 +19,21 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Caller edits to height and exposed step records do not change queries.).
  */
 export function test_physical_planner_ownership(): void {
-  const pattern: Planner.IInput["pattern"] = PhysicalSupportFixtures.body(
+  const pattern: IAutoMovieStepPlanner.IInput["pattern"] = PhysicalSupportFixtures.body(
     PhysicalModelFixtures.quadrupod(),
     0,
   ).balance!.pattern;
-  const input: Planner.IInput = {
+  const input: IAutoMovieStepPlanner.IInput = {
     pattern,
     start: 0,
     end: 2,
     rate: 120,
-    desired: (seconds: number): Record<string, Planner.IPlacement> =>
+    desired: (seconds: number): Record<string, IAutoMovieStepPlanner.IPlacement> =>
       Object.fromEntries(
         pattern.limbs.map(
           (
             limb: (typeof pattern.limbs)[number],
-          ): [string, Planner.IPlacement] => [
+          ): [string, IAutoMovieStepPlanner.IPlacement] => [
             limb.bone,
             {
               point: [seconds, limb.offset.left],
@@ -57,9 +58,9 @@ export function test_physical_planner_ownership(): void {
     pitchLever: 0,
     alternationWindow: 0,
   };
-  const planner: Planner = new Planner(input);
-  const step: Planner.IStep = planner.steps.find(
-    (entry: Planner.IStep): boolean => entry.kind === "swing",
+  const planner: IAutoMovieStepPlanner = new Planner(input);
+  const step: IAutoMovieStepPlanner.IStep = planner.steps.find(
+    (entry: IAutoMovieStepPlanner.IStep): boolean => entry.kind === "swing",
   )!;
   const seconds: number = (step.start + step.end) / 2;
   const before: string = JSON.stringify(planner.at(step.bone, seconds));
@@ -74,7 +75,7 @@ export function test_physical_planner_ownership(): void {
     JSON.stringify(planner.at(step.bone, seconds)),
     before,
   );
-  const flat: Planner.IPlacement = {
+  const flat: IAutoMovieStepPlanner.IPlacement = {
     point: [0, 0],
     yaw: 0,
     pitch: 0,

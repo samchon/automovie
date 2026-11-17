@@ -1,10 +1,16 @@
-import type { IAutoMovieHumanHandStarField } from "./IAutoMovieHumanHandStarField";
+import type { IAutoMovieNaturalSpline, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandStar, IAutoMovieHumanHandStarField } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+
 const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 
 /**
@@ -15,13 +21,13 @@ const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
  */
 export namespace AutoMovieHumanHandStar {
   /** Compile a star. */
-  export function star(field: AutoMovieHumanArmPrior.IStar): IAutoMovieHumanHandStarField {
+  export function star(field: IAutoMovieHumanArmPrior.IStar): IAutoMovieHumanHandStarField {
     const count: number = field.series[0]!.length;
     return {
       stations: field.stations,
       splines: Array.from(
         { length: count },
-        (_: unknown, k: number): AutoMovieNaturalSpline.ISpline =>
+        (_: unknown, k: number): IAutoMovieNaturalSpline.ISpline =>
           AutoMovieNaturalSpline.create(
             field.stations,
             field.series.map((row: readonly number[]): number => row[k]!),
@@ -35,13 +41,13 @@ export namespace AutoMovieHumanHandStar {
     field: IAutoMovieHumanHandStarField,
     a: number,
     theta: number,
-  ): [number, number] {
+  ): IAutoMovieHumanHandStar.StarPointResult {
     const held: number = Math.min(
       field.stations[field.stations.length - 1]!,
       Math.max(field.stations[0]!, a),
     );
     const v: number[] = field.splines.map(
-      (s: AutoMovieNaturalSpline.ISpline): number =>
+      (s: IAutoMovieNaturalSpline.ISpline): number =>
         AutoMovieNaturalSpline.evaluate(s, held),
     );
     let r: number = v[4]!;
@@ -57,7 +63,7 @@ export namespace AutoMovieHumanHandStar {
   function webbed(
     p: [number, number],
     a: number,
-    web: AutoMovieHumanArmPrior.IWeb,
+    web: IAutoMovieHumanArmPrior.IWeb,
   ): [number, number] {
     const g: number =
       web.depth *
@@ -67,13 +73,13 @@ export namespace AutoMovieHumanHandStar {
   }
 
   /** Heel skin at a station and angle. */
-  export function wholeSkin(field: IAutoMovieHumanHandStarField, a: number, theta: number): Vec3 {
+  export function wholeSkin(field: IAutoMovieHumanHandStarField, a: number, theta: number): AutoMovieVector3Tuple {
     const [b, c] = starPoint(field, a, theta);
     return [a, b, c];
   }
 
   /** Palm skin at a station and angle, with the valleys between the knuckles. */
-  export function palmSkin(field: IAutoMovieHumanHandStarField, a: number, theta: number): Vec3 {
+  export function palmSkin(field: IAutoMovieHumanHandStarField, a: number, theta: number): AutoMovieVector3Tuple {
     let p: [number, number] = starPoint(field, a, theta);
     for (const web of AutoMovieHumanArmPrior.PRIOR.hand.webs)
       p = webbed(p, a, web);
@@ -82,14 +88,14 @@ export namespace AutoMovieHumanHandStar {
 
   /** The finger roots' curve: its station at each place across the hand. */
   export function knuckle(b: number): number {
-    const prior: AutoMovieHumanArmPrior.IHandPrior =
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
     return AutoMovieHumanMonotoneCubic.interpolate(
       [
         [prior.ends[0]![0]!, prior.ends[0]![1]!],
         [prior.ends[1]![0]!, prior.ends[1]![1]!],
         ...prior.webs.map(
-          (w: AutoMovieHumanArmPrior.IWeb): [number, number] => [w.b, w.a],
+          (w: IAutoMovieHumanArmPrior.IWeb): [number, number] => [w.b, w.a],
         ),
       ],
       b,
@@ -97,7 +103,7 @@ export namespace AutoMovieHumanHandStar {
   }
 
   /** Palm skin on the family from the thumb's branch (0) to the finger roots (1). */
-  export function palmPoint(field: IAutoMovieHumanHandStarField, u: number, theta: number): Vec3 {
+  export function palmPoint(field: IAutoMovieHumanHandStarField, u: number, theta: number): AutoMovieVector3Tuple {
     const from: number = AutoMovieHumanArmPrior.PRIOR.hand.branch;
     let a: number = from + u * (knuckle(0) - from);
     for (let i: number = 0; i < 3; i++)

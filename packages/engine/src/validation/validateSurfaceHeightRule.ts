@@ -1,6 +1,5 @@
-import { IAutoMovieHeightRule } from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieHeightRule } from "@automovie/interface";
 
-import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Admit constant/plane finite parameters or a finite heightfield with positive pitch, safe dimensions>=2 and exact row-major count.
@@ -16,11 +15,11 @@ import { ViolationCollector } from "./ViolationCollector";
 export const validateSurfaceHeightRule: (
   rule: IAutoMovieHeightRule,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   rule: IAutoMovieHeightRule,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (rule.kind === "constant") {
     finiteHeight(rule.value, `${path}.value`, "constant height", collector);
@@ -122,12 +121,12 @@ const finiteHeight: (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (Number.isFinite(value) === false)
     collector.push(
@@ -157,12 +156,12 @@ const positiveSpacing: (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (Number.isFinite(value) === false || value <= 0)
     collector.push(

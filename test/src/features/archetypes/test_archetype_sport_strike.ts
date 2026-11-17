@@ -1,16 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createBall, createRacket } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSportSwing,
-  HumanSportThrow,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSportSwing, HumanSportThrow } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,16 +43,16 @@ export function test_archetype_sport_strike(): void {
   const radius: number = football.affordance("grip").aperture! / 2;
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
-  const contact = (film: HumanPerformance, row: string): number => {
-    const act: HumanSegment.ISegment = film
+  const contact = (film: IAutoMovieMotionHumanPerformance, row: string): number => {
+    const act: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
     return act.start + (act.plan.contact ?? Number.NaN);
   };
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: HumanPerformance.IInput["performers"][number] = {
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] = {
       subject: "a",
       body,
       at: { x: 0, y: 0, z: 0 },
@@ -75,7 +67,7 @@ export function test_archetype_sport_strike(): void {
         y: 0.5 * stature,
         z: 0.45 * stature,
       };
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "forehand",
         laws: [HumanSportSwing.forehand],
         performers: [performer],
@@ -108,7 +100,7 @@ export function test_archetype_sport_strike(): void {
           }).node,
       });
       const at: number = contact(film, "forehand");
-      const frame: IHumanProp.IFrame = film.prop("racket", at);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("racket", at);
       // The ball's centre in the racket's own frame.
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(frame.rotation),
@@ -135,7 +127,7 @@ export function test_archetype_sport_strike(): void {
     try {
       const rest: IAutoMovieVector3 = { x: -0.06, y: 0, z: 0.45 };
       const centre: IAutoMovieVector3 = Vector3.add(rest, footballCentre);
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "kick",
         laws: [HumanSportThrow.kickRight],
         performers: [performer],

@@ -1,7 +1,8 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanConicPose, IAutoMovieHumanF1, IAutoMovieViewJointedCourse, IAutoMovieViewLoft } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, AutoMovieViewJointedCourse, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewJointedCourse, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicPose as Q, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing as T } from "@automovie/human";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
@@ -34,7 +35,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  * phase, or the refusal that stopped it, and whether the armscye's and the breast's loops' boxes stay apart.
  */
 namespace FamilyConicNeutral {
-  type IFamily = AutoMovieHumanConicLoft.IFamily;
+  type IFamily = IAutoMovieHumanConicLoft.IFamily;
 
   /** Write the pre-check. */
   export async function main(): Promise<void> {
@@ -43,8 +44,8 @@ namespace FamilyConicNeutral {
     await fs.mkdir(out, { recursive: true });
     const n = (x: number, digits: number = 2): string => x.toFixed(digits);
     const degrees = (r: number): string => ((r * 180) / Math.PI).toFixed(1);
-    const reference: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const neutral: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(P.NEUTRAL);
+    const reference: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+    const neutral: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(P.NEUTRAL);
     const lines: string[] = ["f1 neutral pre-check: every joint's rotation the identity; mm and degrees; reference -> neutral", ""];
     const premises: string[] = [];
 
@@ -55,9 +56,9 @@ namespace FamilyConicNeutral {
     for (const [i, stored] of reference.families.entries()) {
       const posed: IFamily = neutral.families[i]!;
       if (stored.centres.length < 3) continue;
-      const [a, b]: Q.ICourse[] = [Q.course(stored.centres, stored.halves), Q.course(posed.centres, posed.halves)];
+      const [a, b]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(stored.centres, stored.halves), Q.course(posed.centres, posed.halves)];
       const segments: string[] = P.runs(stored.name);
-      const admitted: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(posed.centres, posed.halves);
+      const admitted: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(posed.centres, posed.halves);
       lines.push(stored.name + ": engine " + (typeof admitted === "string" ? "REFUSES: " + admitted : "admits the neutral course") + "; arclength " + n(a!.total) + " -> " + n(b!.total));
       if (typeof admitted === "string") premises.push(stored.name + ": the engine refuses the neutral course: " + admitted);
       a!.lengths.forEach((length: number, k: number): void => {
@@ -80,8 +81,8 @@ namespace FamilyConicNeutral {
     // The stations the bands' rails and the web's fine layers read, beside the first turn of their course.
     lines.push("rails and reaches read along a posed family, each carried by the station map (`IAssembly.station`): station at the reference -> at neutral; the course's first turn at the reference -> at neutral");
     const reads: [string, string, number, number][] = [
-      ...reference.digits.filter((digit: AutoMovieHumanF1.IDigit): boolean => digit.knuckle).map((digit: AutoMovieHumanF1.IDigit): [string, string, number, number] => ["band rail 3 mm", digit.family.name, digit.family.knots[0]!, 3]),
-      ["web reach 12 mm", "finger.thumb", reference.digits.find((digit: AutoMovieHumanF1.IDigit): boolean => digit.family.name === "finger.thumb")!.family.knots[0]!, 12],
+      ...reference.digits.filter((digit: IAutoMovieHumanF1.IDigit): boolean => digit.knuckle).map((digit: IAutoMovieHumanF1.IDigit): [string, string, number, number] => ["band rail 3 mm", digit.family.name, digit.family.knots[0]!, 3]),
+      ["web reach 12 mm", "finger.thumb", reference.digits.find((digit: IAutoMovieHumanF1.IDigit): boolean => digit.family.name === "finger.thumb")!.family.knots[0]!, 12],
       ["band rail 6 mm", "leg", reference.body.leg.knots[0]!, 6],
       ["wrist rail 10 mm", "hand", reference.body.hand.knots[0]!, 10],
       ["face end 445 mm", "arm", 445, 0],
@@ -89,7 +90,7 @@ namespace FamilyConicNeutral {
     for (const [what, name, from, length] of reads) {
       const stored: IFamily = reference.families.find((family: IFamily): boolean => family.name === name)!;
       const posed: IFamily = neutral.families.find((family: IFamily): boolean => family.name === name)!;
-      const [a, b]: Q.ICourse[] = [Q.course(stored.centres, stored.halves), Q.course(posed.centres, posed.halves)];
+      const [a, b]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(stored.centres, stored.halves), Q.course(posed.centres, posed.halves)];
       const where: string = from + length < a!.starts[0]! ? "before the first turn" : from + length <= a!.starts[0]! + 2 * a!.halves[0]! ? "INSIDE the first turn" : "past the first turn";
       lines.push("  " + name + ", " + what + ": " + n(from + length) + " -> " + n(neutral.station(name, from + length)) + " (length " + n(length) + " -> " + n(neutral.station(name, from, length), 3) + "); first turn " + n(a!.starts[0]!) + ".." + n(a!.starts[0]! + 2 * a!.halves[0]!) + " -> " + n(b!.starts[0]!) + ".." + n(b!.starts[0]! + 2 * b!.halves[0]!) + "; " + where);
     }
@@ -99,15 +100,15 @@ namespace FamilyConicNeutral {
     const trunk: IFamily = reference.body.trunk;
     lines.push("port loops on the trunk's chart (trunk knots " + trunk.knots[0] + ".." + trunk.knots.at(-1) + " mm); centre and half extents, station mm and phase degrees:");
     const boxes: Map<string, [number, number, number, number]> = new Map();
-    const loops: [string, (placed: AutoMovieHumanF1.IAssembly) => { centre: [number, number]; semi: [number, number] }][] = [
-      ["armscye +z", (placed: AutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.armscye(1, placed)],
-      ["armscye -z", (placed: AutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.armscye(-1, placed)],
-      ["mammary +z", (placed: AutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.mammary(1, placed)],
-      ["mammary -z", (placed: AutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.mammary(-1, placed)],
-      ["nostril", (placed: AutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.nostril(placed)],
+    const loops: [string, (placed: IAutoMovieHumanF1.IAssembly) => { centre: [number, number]; semi: [number, number] }][] = [
+      ["armscye +z", (placed: IAutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.armscye(1, placed)],
+      ["armscye -z", (placed: IAutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.armscye(-1, placed)],
+      ["mammary +z", (placed: IAutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.mammary(1, placed)],
+      ["mammary -z", (placed: IAutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.mammary(-1, placed)],
+      ["nostril", (placed: IAutoMovieHumanF1.IAssembly) => AutoMovieHumanF1.nostril(placed)],
     ];
     for (const [name, read] of loops)
-      for (const [pose, placed] of [["reference", reference], ["neutral", neutral]] as [string, AutoMovieHumanF1.IAssembly][]) {
+      for (const [pose, placed] of [["reference", reference], ["neutral", neutral]] as [string, IAutoMovieHumanF1.IAssembly][]) {
         try {
           const loop: { centre: [number, number]; semi: [number, number] } = read(placed);
           const [s, t, ds, dt]: number[] = [loop.centre[0] * 1000, loop.centre[1], loop.semi[0] * 1000, loop.semi[1]];
@@ -138,12 +139,12 @@ namespace FamilyConicNeutral {
   /** A lofted wall to read distances against: its course and its chain. */
   interface IWall {
     family: IFamily;
-    chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>;
+    chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
   }
 
   /** Loft a family at its own knots; a family the engine refuses is refused here with its rule. */
   function wall(family: IFamily): IWall {
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
     if (loft.chain === null) throw new Error(family.name + " does not loft: " + JSON.stringify(loft.diagnostics).slice(0, 200));
     return { family, chain: loft.chain };
   }
@@ -198,10 +199,10 @@ namespace FamilyConicNeutral {
   }
 
   /** `--measure`: the joints' premises on the lofted walls at both poses. */
-  async function measure(out: string, reference: AutoMovieHumanF1.IAssembly, neutral: AutoMovieHumanF1.IAssembly): Promise<void> {
+  async function measure(out: string, reference: IAutoMovieHumanF1.IAssembly, neutral: IAutoMovieHumanF1.IAssembly): Promise<void> {
     const n = (x: number, digits: number = 1): string => (Number.isFinite(x) ? x.toFixed(digits) : "none");
     const lines: string[] = ["f1 joints measured on the lofted walls, reference and neutral; mm; a signed distance is positive outside the wall", ""];
-    const poses: [string, AutoMovieHumanF1.IAssembly][] = [["reference", reference], ["neutral", neutral]];
+    const poses: [string, IAutoMovieHumanF1.IAssembly][] = [["reference", reference], ["neutral", neutral]];
     // A station line's points; a station the chain cannot be read at (a pole, a section the engine refuses) is left out and named.
     const line = (chain: IWall["chain"], stations: number[], phase: number): [number, number[] | string][] =>
       stations.map((s: number): [number, number[] | string] => {
@@ -224,7 +225,7 @@ namespace FamilyConicNeutral {
     // 10 mm behind its first joint, to its tip), against the hand's wall.
     lines.push("thumb (`web.finger.thumb`): the capsule's station line at phase 0, capsule station: signed distance from the hand's wall (at the hand's station)");
     for (const [pose, placed] of poses) {
-      const thumb: IFamily = placed.digits.find((digit: AutoMovieHumanF1.IDigit): boolean => digit.family.name === "finger.thumb")!.family;
+      const thumb: IFamily = placed.digits.find((digit: IAutoMovieHumanF1.IDigit): boolean => digit.family.name === "finger.thumb")!.family;
       const capsule: IWall = wall({ ...thumb, tips: [{ from: thumb.knots[0]!, tip: -10, covered: true }, thumb.tips?.[1] ?? null] });
       const hand: IWall = wall({ ...placed.body.hand, tips: undefined });
       const end: number = thumb.knots.at(-1)!;
@@ -279,12 +280,12 @@ namespace FamilyConicNeutral {
   const CELL_MM: number = 30;
 
   /** `--realize`: the neutral figure realized once, its diagnostics, frames and folds. */
-  async function realize(out: string, neutral: AutoMovieHumanF1.IAssembly): Promise<void> {
+  async function realize(out: string, neutral: IAutoMovieHumanF1.IAssembly): Promise<void> {
     const message = (error: unknown): string => (error instanceof Error ? (error.stack ?? error.message) : String(error));
     const started: number = performance.now();
     let real: ReturnType<typeof realizeAutoMovieConstruction>;
     try {
-      const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction(undefined, P.NEUTRAL);
+      const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction(undefined, P.NEUTRAL);
       real = realizeAutoMovieConstruction({ name: "f1.neutral", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
     } catch (error) {
       await fs.writeFile(path.join(out, "realization.json"), JSON.stringify({ realized: false, refusal: message(error) }, null, 2));

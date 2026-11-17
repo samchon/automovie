@@ -1,7 +1,6 @@
+import type { IAutoMovieAssemblyReveal, IAutoMovieResolvedLayer, IAutoMovieAssemblyOpeningReveal } from "@automovie/interface";
+
 import { positive } from "../geometry/positive";
-import { IAutoMovieAssemblyReveal } from "./IAutoMovieAssemblyReveal";
-import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
-import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
 
 /**
  * Report what a build-up finishes an opening at.
@@ -32,17 +31,7 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure computation over one resolved assembly and one opening that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned reveal, whose layer list is bounded by the assembly's layer count.
  */
-export const autoMovieAssemblyOpeningReveal: (props: {
-  resolved: IAutoMovieResolvedAssembly;
-  width: number;
-  height: number;
-}) => IAutoMovieAssemblyReveal = (props: {
-  resolved: IAutoMovieResolvedAssembly;
-  /** Structural opening width in metres before lining, strictly above zero. */
-  width: number;
-  /** Structural opening height in metres before lining, strictly above zero. */
-  height: number;
-}): IAutoMovieAssemblyReveal => {
+export const autoMovieAssemblyOpeningReveal: (props: IAutoMovieAssemblyOpeningReveal.IProps) => IAutoMovieAssemblyReveal = (props: IAutoMovieAssemblyOpeningReveal.IProps): IAutoMovieAssemblyReveal => {
   positive(props.width, "opening width");
   positive(props.height, "opening height");
   const layers: readonly IAutoMovieResolvedLayer[] = props.resolved.layers;

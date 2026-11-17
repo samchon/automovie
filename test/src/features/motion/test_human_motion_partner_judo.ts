@@ -1,13 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanBalance,
-  HumanChain,
-  HumanPartner,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanBalance, HumanChain, HumanPartner, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,12 +32,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, what is left to the follow-up and the 4 scenarios with their bounds.
  */
 export function test_human_motion_partner_judo(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
 
   // 1. It plans.
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "judo",
@@ -69,13 +62,13 @@ export function test_human_motion_partner_judo(): void {
     );
     return;
   }
-  const broken: HumanSegment.ISegment = performance.segments("u")[1]!;
+  const broken: IAutoMovieMotionHumanSegment.ISegment = performance.segments("u")[1]!;
   const at = (event: string): number =>
     broken.start +
     (broken.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       broken.plan.duration;
   const held: number = (at("broken") + at("relax")) / 2;
-  const reader: HumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     performance,
     "u",
     body,

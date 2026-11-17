@@ -1,4 +1,5 @@
-import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
+import type { IAutoMovieLoftRelief, AutoMovieVector3Tuple } from "@automovie/interface";
+
 
 /**
  * Evaluation of a relief's height field over its window.
@@ -177,14 +178,14 @@ export namespace AutoMovieLoftRelief {
   export function direction(
     relief: IAutoMovieLoftRelief,
     t: number,
-  ): [V3, V3, V3] {
-    const a: V3 = relief.axis;
+  ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] {
+    const a: AutoMovieVector3Tuple = relief.axis;
     if (relief.turn === undefined) return [a, [0, 0, 0], [0, 0, 0]];
-    const b: V3 = relief.turn;
+    const b: AutoMovieVector3Tuple = relief.turn;
     const x: number = t - (relief.phases[0] + width(relief) / 2);
     const c: number = Math.cos(x);
     const s: number = Math.sin(x);
-    const e: V3 = [c * a[0] + s * b[0], c * a[1] + s * b[1], c * a[2] + s * b[2]];
+    const e: AutoMovieVector3Tuple = [c * a[0] + s * b[0], c * a[1] + s * b[1], c * a[2] + s * b[2]];
     return [
       e,
       [c * b[0] - s * a[0], c * b[1] - s * a[1], c * b[2] - s * a[2]],
@@ -208,9 +209,6 @@ export namespace AutoMovieLoftRelief {
     return w === 0 ? 2 * Math.PI : w;
   }
 }
-
-/** A world vector. */
-type V3 = [number, number, number];
 
 /** Phase reduced to `[0, 2 pi)`. */
 function wrap(t: number): number {

@@ -1,7 +1,8 @@
+import type { AutoMovieVector2Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanConicSection, IAutoMovieLoftFrame, IAutoMovieLoftRelief, IAutoMovieViewAxis, IAutoMovieViewChain, IAutoMovieViewLoft } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, type AutoMovieViewAxis, AutoMovieViewChain, type AutoMovieViewLoft, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieLoftRelief, AutoMovieViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicRelief, AutoMovieHumanConicSection as S, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import { FamilyConicLoft as K } from "./FamilyConicLoft";
@@ -28,10 +29,10 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  * `FamilyConicFit` itself.
  */
 namespace FamilyConicLowerTrunk {
-  type P2 = S.P;
+  type P2 = AutoMovieVector2Tuple;
   type V3 = [number, number, number];
-  type Family = H.IFamily;
-  type Chain = NonNullable<AutoMovieViewLoft.IResult["chain"]>;
+  type Family = IAutoMovieHumanConicLoft.IFamily;
+  type Chain = NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
 
   /** The stretch's first station, mm: the trunk's first knot, where its wall begins (`AutoMovieHumanF1Trunk.knots[0]`). */
   const FROM: number = 28;
@@ -110,20 +111,20 @@ namespace FamilyConicLowerTrunk {
    * front extreme on the median line is the groove's floor where it has one: the linea alba and the navel's groove. Windows are shares of
    * the run's arclength where a section's seed seeks each feature, the fit tool's trunk entry's (`FamilyConicBody`, `TRUNK_RUNS`).
    */
-  const FRONT_MEDIAN: S.IAnchor[] = [
+  const FRONT_MEDIAN: IAutoMovieHumanConicSection.IAnchor[] = [
     { kind: "f", feature: "inflection", window: [0.02, 0.25] },
     { kind: "f", feature: "convex", window: [0.05, 0.4] },
   ];
 
   /** The off-axis groove after the front median's crest: an inflection, its floor and an inflection: the inguinal fold and the abdomen's side. */
-  const OFF_AXIS: S.IAnchor[] = [
+  const OFF_AXIS: IAutoMovieHumanConicSection.IAnchor[] = [
     { kind: "f", feature: "inflection", window: [0.2, 0.6] },
     { kind: "f", feature: "concave", window: [0.3, 0.8] },
     { kind: "f", feature: "inflection", window: [0.45, 0.95] },
   ];
 
   /** The back median line before the back extreme (anchor 4): a crest and an inflection, the back extreme the floor: the spinal furrow and the natal cleft. */
-  const BACK_MEDIAN: S.IAnchor[] = [
+  const BACK_MEDIAN: IAutoMovieHumanConicSection.IAnchor[] = [
     { kind: "f", feature: "convex", window: [0.3, 0.9] },
     { kind: "f", feature: "inflection", window: [0.6, 0.97] },
   ];
@@ -137,7 +138,7 @@ namespace FamilyConicLowerTrunk {
     title: string;
 
     /** The feature runs inserted into `bilateral(1)`. */
-    runs: S.IFeatureRun[];
+    runs: IAutoMovieHumanConicSection.IFeatureRun[];
 
     /** The medians of `bilateral(1)` turned into feature anchors: each one next to a run, so the stored wall converts exactly (`S.featured`). */
     freed: number[];
@@ -154,12 +155,12 @@ namespace FamilyConicLowerTrunk {
    * A spec's layout: `featured(bilateral(1), runs, freed)`, every freed median given the seed window the fit tool's trunk entry gives it
    * (`FamilyConicBody`, `TRUNK_LINED`: before the side extreme 0.6 to 0.95 of its run, after it 0.05 to 0.5).
    */
-  function layoutOf(spec: ISpec): S.ILayout {
-    const base: S.ILayout = S.bilateral(1);
+  function layoutOf(spec: ISpec): IAutoMovieHumanConicSection.ILayout {
+    const base: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
     if (spec.runs.length === 0) return base;
-    const made: S.ILayout = S.featured(base, spec.runs, spec.freed);
-    const side: number = made.anchors.findIndex((a: S.IAnchor): boolean => a.kind === "v");
-    return { ...made, anchors: made.anchors.map((a: S.IAnchor, k: number): S.IAnchor => (a.kind === "f" && a.window === undefined ? { ...a, window: k < side ? [0.6, 0.95] : [0.05, 0.5] } : a)) };
+    const made: IAutoMovieHumanConicSection.ILayout = S.featured(base, spec.runs, spec.freed);
+    const side: number = made.anchors.findIndex((a: IAutoMovieHumanConicSection.IAnchor): boolean => a.kind === "v");
+    return { ...made, anchors: made.anchors.map((a: IAutoMovieHumanConicSection.IAnchor, k: number): IAutoMovieHumanConicSection.IAnchor => (a.kind === "f" && a.window === undefined ? { ...a, window: k < side ? [0.6, 0.95] : [0.05, 0.5] } : a)) };
   }
 
   /** The stored trunk. */
@@ -189,7 +190,7 @@ namespace FamilyConicLowerTrunk {
    */
   function converted(spec: ISpec, at: readonly number[], form: "raw" | "read"): number[][] {
     const wall: Family = stored();
-    const layout: S.ILayout = layoutOf(spec);
+    const layout: IAutoMovieHumanConicSection.ILayout = layoutOf(spec);
     const resampled: number[][] = F.resample(wall.values, wall.knots, at);
     const values: number[][] =
       spec.runs.length === 0
@@ -352,7 +353,7 @@ namespace FamilyConicLowerTrunk {
     chain: Chain;
 
     /** The trunk's course. */
-    axis: AutoMovieViewAxis.IAxis;
+    axis: IAutoMovieViewAxis.IAxis;
 
     /** The course's unit direction: the trunk's course is one straight segment, so every section plane is normal to it. */
     along: V3;
@@ -370,10 +371,10 @@ namespace FamilyConicLowerTrunk {
     const family: Family = stored();
     const grid: number[] = [];
     for (let s: number = FROM; s <= TO + REACH_MM + 1e-9; s += GRID_MM) grid.push(s);
-    const loft: AutoMovieViewLoft.IResult = H.create(family, grid);
+    const loft: IAutoMovieViewLoft.IResult = H.create(family, grid);
     if (loft.chain === null) throw new Error("the stored trunk did not loft: " + JSON.stringify(loft.diagnostics).slice(0, 400));
     const chain: Chain = loft.chain;
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const o0: number[] = axis.at(FROM).origin as number[];
     const o1: number[] = axis.at(TO).origin as number[];
     const length: number = Math.hypot(o1[0]! - o0[0]!, o1[1]! - o0[1]!, o1[2]! - o0[2]!);
@@ -388,7 +389,7 @@ namespace FamilyConicLowerTrunk {
       const key: number = Math.round(s * 1000);
       const hit = cache.get(key);
       if (hit !== undefined) return hit;
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+      const frame: IAutoMovieLoftFrame.IFrame = axis.at(s);
       const origin: number[] = frame.origin as number[];
       const height = (p: readonly number[]): number => (p[0]! - origin[0]!) * along[0] + (p[1]! - origin[1]!) * along[1] + (p[2]! - origin[2]!) * along[2];
       const points: P2[] = [];
@@ -472,15 +473,15 @@ namespace FamilyConicLowerTrunk {
   }
 
   /** Values as a module stores them: millimetres to 0.01, shares and angles to 1e-4 (`FamilyConicFit`, `stored`). */
-  function rounded(values: readonly (readonly number[])[], layout: S.ILayout): number[][] {
-    const units: S.Unit[] = S.units(layout);
+  function rounded(values: readonly (readonly number[])[], layout: IAutoMovieHumanConicSection.ILayout): number[][] {
+    const units: IAutoMovieHumanConicSection.Unit[] = S.units(layout);
     return values.map((field: readonly number[], f: number): number[] => field.map((y: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4)));
   }
 
-  function admission(at: readonly number[], values: readonly (readonly number[])[], layout: S.ILayout, margin: number, range: [number, number] = [at[0]!, at.at(-1)!]): IAdmission {
+  function admission(at: readonly number[], values: readonly (readonly number[])[], layout: IAutoMovieHumanConicSection.ILayout, margin: number, range: [number, number] = [at[0]!, at.at(-1)!]): IAdmission {
     const basis: (s: number) => number[] = F.basisOf(at);
-    const units: S.Unit[] = S.units(layout);
-    const shares: number[] = units.map((u: S.Unit, f: number): number => (u === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
+    const units: IAutoMovieHumanConicSection.Unit[] = S.units(layout);
+    const shares: number[] = units.map((u: IAutoMovieHumanConicSection.Unit, f: number): number => (u === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
     const store: number[][] = rounded(values, layout);
     const out: IAdmission = { refused: 0, read: 0, first: null, least: Infinity, leastAt: "" };
     for (let s: number = range[0]; s <= range[1] + 1e-9; s += 0.25) {
@@ -565,7 +566,7 @@ namespace FamilyConicLowerTrunk {
   const argument = (name: string): string | undefined => process.argv.find((a: string): boolean => a.startsWith("--" + name + "="))?.slice(name.length + 3);
 
   /** The world height of a station's course point, mm. */
-  const heightOf = (axis: AutoMovieViewAxis.IAxis, s: number): number => (axis.at(s).origin as number[])[1]!;
+  const heightOf = (axis: IAutoMovieViewAxis.IAxis, s: number): number => (axis.at(s).origin as number[])[1]!;
 
   /** Max, 99th percentile and root mean square of absolute values. */
   function stats(values: readonly number[]): { max: number; p99: number; rms: number; n: number } {
@@ -589,7 +590,7 @@ namespace FamilyConicLowerTrunk {
         fold += section.folds;
         drop += section.dropped;
         const read: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(bare, s);
-        const frame: AutoMovieLoftFrame.IFrame = t.axis.at(s);
+        const frame: IAutoMovieLoftFrame.IFrame = t.axis.at(s);
         const ring: P2[] = Array.from({ length: RING }, (_: unknown, j: number): P2 => {
           const p: number[] = read((2 * Math.PI * j) / RING);
           const d: number[] = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
@@ -614,7 +615,7 @@ namespace FamilyConicLowerTrunk {
   interface IRow {
     name: string;
     title: string;
-    layout: S.ILayout;
+    layout: IAutoMovieHumanConicSection.ILayout;
     fields: number;
     knots: number[];
     wallNumbers: number;
@@ -643,7 +644,7 @@ namespace FamilyConicLowerTrunk {
   async function commandFit(out: string, name: string): Promise<void> {
     const spec: ISpec | undefined = SPECS.find((x: ISpec): boolean => x.name === name);
     if (spec === undefined) throw new Error("no layout " + name);
-    const layout: S.ILayout = layoutOf(spec);
+    const layout: IAutoMovieHumanConicSection.ILayout = layoutOf(spec);
     const at: number[] = knots();
     const t: ITarget = target();
     const log = (what: string, data: unknown): void => void process.stdout.write(JSON.stringify({ at: new Date().toISOString(), what, layout: name, ...(data as object) }) + "\n");
@@ -692,8 +693,8 @@ namespace FamilyConicLowerTrunk {
     // largest change at the window's inside knots, and its end values against the held wall's at the window's two end knots. A refusal
     // after the fit is placed by these: the fit's admission read the window, the join then moved it.
     const windowAdmission: IAdmission = admission(at, window.values, layout, margin, [START, TO]);
-    const units: S.Unit[] = S.units(layout);
-    const change: { field: number; unit: S.Unit; inside: number; ends: [number, number] }[] = START === FROM ? [] : window.values.map((field: number[], f: number) => {
+    const units: IAutoMovieHumanConicSection.Unit[] = S.units(layout);
+    const change: { field: number; unit: IAutoMovieHumanConicSection.Unit; inside: number; ends: [number, number] }[] = START === FROM ? [] : window.values.map((field: number[], f: number) => {
       const inside: number = Math.max(0, ...joined.knots.map((k: number, i: number): number => {
         const m: number = at.findIndex((x: number): boolean => Math.abs(x - k) < 1e-9);
         return m > 0 && m < at.length - 1 ? Math.abs(joined.values[f]![i]! - field[m]!) : 0;
@@ -705,7 +706,7 @@ namespace FamilyConicLowerTrunk {
     const spend: ReturnType<typeof storedSpend> = storedSpend(at);
 
     // Measured back: the stored wall's values lofted through the engine and read along every target point's ray.
-    const loft: AutoMovieViewLoft.IResult = H.create(family, stations(GRID_MM));
+    const loft: IAutoMovieViewLoft.IResult = H.create(family, stations(GRID_MM));
     if (loft.chain === null) {
       // Refused after the fit: the row records where and by which premise, and the measurements that place it, with no residual.
       const refusal: string = loft.diagnostics.map((d): string => d.detail).find((d: string): boolean => d.length > 0) ?? "no chain";
@@ -716,7 +717,7 @@ namespace FamilyConicLowerTrunk {
     const chain: Chain = loft.chain;
     const ringAt = (s: number): { ring: P2[]; read: (t: number) => P2 } => {
       const read: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, s);
-      const frame: AutoMovieLoftFrame.IFrame = t.axis.at(s);
+      const frame: IAutoMovieLoftFrame.IFrame = t.axis.at(s);
       const chart = (p: readonly number[]): P2 => {
         const d: number[] = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
         return [dot(d, frame.u), dot(d, frame.v)];
@@ -1006,7 +1007,7 @@ namespace FamilyConicLowerTrunk {
       const residual: Map<number, number[]> = new Map();
       for (const s of stations(DENSE_MM)) {
         const read: (phase: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, s);
-        const frame: AutoMovieLoftFrame.IFrame = t.axis.at(s);
+        const frame: IAutoMovieLoftFrame.IFrame = t.axis.at(s);
         const ring: P2[] = Array.from({ length: RING }, (_: unknown, j: number): P2 => {
           const p: number[] = read((2 * Math.PI * j) / RING);
           const d: number[] = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
@@ -1052,7 +1053,7 @@ namespace FamilyConicLowerTrunk {
    */
   async function commandBottom(out: string, at: number[]): Promise<void> {
     const t: ITarget = target();
-    const layout: S.ILayout = S.bilateral(1);
+    const layout: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
     const storedRead: (s: number) => number[] = H.reader(stored());
     const rows: F.IRow[] = at.map((s: number): F.IRow => ({ s, points: t.at(s).points, heldout: false }));
     const l0: IRow = JSON.parse(await fs.readFile(path.join(out, "L0.json"), "utf8")) as IRow;
@@ -1062,7 +1063,7 @@ namespace FamilyConicLowerTrunk {
       return { s: row.s, max: round3(result.training.maximumMm), mean: round3(result.training.meanMm), least: result.fault === null ? round3(Math.min(...F.leastMeetings(result.values.map((f: number[]): number => f[0]!), layout))) : NaN, fault: result.fault };
     });
     const sections = rows.map((row: F.IRow, i: number) => {
-      const wall: AutoMovieViewChain.ISection = S.chain(storedRead(row.s), layout);
+      const wall: IAutoMovieViewChain.ISection = S.chain(storedRead(row.s), layout);
       const bins: { deg: number; gapMax: number; gapMean: number }[] = Array.from({ length: 36 }, (_: unknown, k: number) => ({ deg: k * 10, gapMax: 0, gapMean: 0 }));
       const counts: number[] = new Array<number>(36).fill(0);
       for (const p of row.points) {

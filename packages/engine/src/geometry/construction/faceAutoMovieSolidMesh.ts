@@ -1,6 +1,5 @@
+import type { IAutoMovieGridSolidMeshGrid, IAutoMovieOpenSolidMeshResult, IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { gridAutoMovieSolidMesh } from "./gridAutoMovieSolidMesh";
@@ -25,14 +24,14 @@ import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local state includes grid G, triangles T, split edges S and provenance P. One incidence ledger per mesh, O(E_existing) pair and directed-edge counts and a copy of the index buffer, is held in a WeakMap keyed by the mesh and is released with it; it is brought to the buffer's actual contents on every call, so a truncated or refilled buffer is never read stale. Otherwise only actual mesh owners, vertex/index numbers and caller-owned open records survive.
  */
 export function faceAutoMovieSolidMesh(
-  mesh: AutoMovieSolidMesh.IMesh,
-  input: AutoMovieSolidMesh.IFace,
-): AutoMovieSolidMesh.IOpen[] {
-  const prepared: ReturnType<typeof gridAutoMovieSolidMesh> =
+  mesh: IAutoMovieSolidMesh.IMesh,
+  input: IAutoMovieSolidMesh.IFace,
+): IAutoMovieSolidMesh.IOpen[] {
+  const prepared: (IAutoMovieGridSolidMeshGrid | null | string) =
     gridAutoMovieSolidMesh(mesh, input);
   if (prepared === null) return [];
   if (typeof prepared === "string") return refuse(input, prepared);
-  const constraints: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const constraints: IAutoMovieSolidMeshConstraints.ISegment[] = [
     ...prepared.trim,
     ...prepared.domain,
     ...prepared.boundary,
@@ -62,7 +61,7 @@ export function faceAutoMovieSolidMesh(
     reading.kept = kept;
     return kept;
   };
-  const plan: AutoMovieSolidMeshPlan.IPlan | string =
+  const plan: IAutoMovieSolidMeshPlan.IPlan | string =
     AutoMovieSolidMeshPlan.triangulate(
       active,
       constraints,
@@ -80,7 +79,7 @@ export function faceAutoMovieSolidMesh(
         : plan;
     return refuse(input, detail);
   }
-  const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [
+  const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [
     ...prepared.full,
     ...plan.triangles,
   ];
@@ -117,7 +116,7 @@ export function faceAutoMovieSolidMesh(
       projected.set(pair, turn);
     }
   }
-  const opened: ReturnType<typeof openAutoMovieSolidMesh> =
+  const opened: (IAutoMovieOpenSolidMeshResult | string) =
     openAutoMovieSolidMesh(
       prepared.chart,
       triangles,
@@ -152,7 +151,7 @@ export function faceAutoMovieSolidMesh(
     return assigned;
   };
   const indices: [number, number, number][] = triangles.map(
-    (triangle: AutoMovieSolidMeshPlan.ITriangle): [number, number, number] => [
+    (triangle: IAutoMovieSolidMeshPlan.ITriangle): [number, number, number] => [
       resolve(triangle.vertices[0]),
       resolve(triangle.vertices[1]),
       resolve(triangle.vertices[2]),
@@ -177,8 +176,8 @@ export function faceAutoMovieSolidMesh(
     (a: [number, number, number], b: [number, number, number]): number =>
       a[0] - b[0] || a[1] - b[1] || a[2] - b[2],
   );
-  const open: AutoMovieSolidMesh.IOpen[] = opened.cycles.map(
-    (cycle: AutoMovieSolidMesh.IOpen): AutoMovieSolidMesh.IOpen => ({
+  const open: IAutoMovieSolidMesh.IOpen[] = opened.cycles.map(
+    (cycle: IAutoMovieSolidMesh.IOpen): IAutoMovieSolidMesh.IOpen => ({
       ...cycle,
       vertices: cycle.vertices.map(resolve),
     }),
@@ -239,7 +238,7 @@ interface ILedger {
 }
 
 /** One ledger per mesh, released with the mesh. */
-const LEDGERS: WeakMap<AutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
+const LEDGERS: WeakMap<IAutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
 
 /**
  * The edge incidence of every triangle a mesh holds now.
@@ -250,7 +249,7 @@ const LEDGERS: WeakMap<AutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
  * restore truncates the buffer and later faces refill it, and reads the triangles the buffer now holds from there. The comparison is one
  * pass of numbers; only changed triangles cost keys.
  */
-function incidence(mesh: AutoMovieSolidMesh.IMesh): ILedger {
+function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
   let ledger: ILedger | undefined = LEDGERS.get(mesh);
   if (ledger === undefined) {
     ledger = { seen: [], occupied: new Set(), pairs: new Map(), directed: new Map() };
@@ -293,28 +292,28 @@ function incidence(mesh: AutoMovieSolidMesh.IMesh): ILedger {
 
 /** Explain a failed reading against the unchanged polyline source, without another surface jet or altered admission. */
 function membership(
-  input: AutoMovieSolidMesh.IFace,
+  input: IAutoMovieSolidMesh.IFace,
   source: (u: number, v: number) => boolean,
   u: number,
   v: number,
 ): string {
   const loops: {
     index: number;
-    kind: AutoMovieSolidMesh.ILoop["kind"];
+    kind: IAutoMovieSolidMesh.ILoop["kind"];
     kept: boolean;
     centre: [number, number];
-    foot: AutoMovieSolidCycle.IFoot | null;
+    foot: IAutoMovieSolidCycle.IFoot | null;
     edge: [number, number][];
   }[] = input.loops.map(
     (
-      loop: AutoMovieSolidMesh.ILoop,
+      loop: IAutoMovieSolidMesh.ILoop,
       index: number,
     ): {
       index: number;
-      kind: AutoMovieSolidMesh.ILoop["kind"];
+      kind: IAutoMovieSolidMesh.ILoop["kind"];
       kept: boolean;
       centre: [number, number];
-      foot: AutoMovieSolidCycle.IFoot | null;
+      foot: IAutoMovieSolidCycle.IFoot | null;
       edge: [number, number][];
     } => {
       const kept: boolean = AutoMovieSolidCycle.kept(
@@ -323,7 +322,7 @@ function membership(
         v,
         input.surface.period,
       );
-      const foot: AutoMovieSolidCycle.IFoot | null = kept
+      const foot: IAutoMovieSolidCycle.IFoot | null = kept
         ? null
         : AutoMovieSolidCycle.foot(loop, u, v, input.surface.period);
       return {
@@ -358,9 +357,9 @@ function membership(
 
 /** Named planning refusal differs from arbitrary user/source callback exceptions. */
 function refuse(
-  input: AutoMovieSolidMesh.IFace,
+  input: IAutoMovieSolidMesh.IFace,
   detail: string,
-): AutoMovieSolidMesh.IOpen[] {
+): IAutoMovieSolidMesh.IOpen[] {
   if (input.onFailure === undefined)
     throw new Error(`${input.surface.name}: ${detail}`);
   input.onFailure(detail);

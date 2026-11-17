@@ -1,20 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type pushPull,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPushPull, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, ROM_TOLERANCE, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -68,19 +55,19 @@ export function test_human_motion_haul_push_pull(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const arm: number = body.measure.upperArm + body.measure.forearm;
     const heights: Record<"hip" | "elbow", number> = {
       hip: body.measure.hipHeight,
       elbow: body.measure.shoulderHeight - body.measure.upperArm,
     };
     const stagings: {
-      way: pushPull.Way;
+      way: IAutoMovieMotionHumanPushPull.Way;
       label: string;
       height: number;
       ahead: number;
     }[] = [
-      ...(["push", "pull"] as const).flatMap((way: pushPull.Way) =>
+      ...(["push", "pull"] as const).flatMap((way: IAutoMovieMotionHumanPushPull.Way) =>
         Object.entries(heights).map(([label, height]) => ({
           way,
           label,
@@ -104,8 +91,8 @@ export function test_human_motion_haul_push_pull(): void {
           y: 0,
           z: way === "pull" ? -2 : 3,
         };
-        const prop: IHumanProp = crate(ahead, height);
-        const built: HumanPerformance | string | HumanRefusal = perform(
+        const prop: IAutoMovieMotionHumanProp = crate(ahead, height);
+        const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = perform(
           body,
           prop,
           {
@@ -169,8 +156,8 @@ export function test_human_motion_haul_push_pull(): void {
       // A load that does not move.
       for (const way of ["push", "pull"] as const) {
         const tag: string = `${name} ${way} at the ${label} not moving`;
-        const prop: IHumanProp = crate(0.6 * arm, height);
-        const built: HumanPerformance | string | HumanRefusal = perform(
+        const prop: IAutoMovieMotionHumanProp = crate(0.6 * arm, height);
+        const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = perform(
           body,
           prop,
           {
@@ -200,11 +187,11 @@ export function test_human_motion_haul_push_pull(): void {
     // The refusals.
     const refused = (
       label: string,
-      params: pushPull.IParams,
-      kind: HumanRefusal.Kind,
+      params: IAutoMovieMotionHumanPushPull.IParams,
+      kind: IAutoMovieMotionHumanRefusal.Kind,
       axis: string,
     ): void => {
-      const built: HumanPerformance | string | HumanRefusal = perform(
+      const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = perform(
         body,
         crate(0.6 * arm, heights.elbow),
         params,
@@ -271,7 +258,7 @@ interface IRead {
 }
 
 /** A load on the floor `ahead` metres along +Z with two handles 0.5 m apart at `height`. */
-function crate(ahead: number, height: number): IHumanProp {
+function crate(ahead: number, height: number): IAutoMovieMotionHumanProp {
   return {
     subject: "crate",
     frame: {
@@ -294,11 +281,11 @@ function crate(ahead: number, height: number): IHumanProp {
 
 /** Build a one-haul performance, or the error's message (or the refusal, when asked). */
 function perform(
-  body: IHumanBody,
-  prop: IHumanProp,
-  params: pushPull.IParams,
+  body: IAutoMovieMotionHumanBody,
+  prop: IAutoMovieMotionHumanProp,
+  params: IAutoMovieMotionHumanPushPull.IParams,
   refusal: boolean = false,
-): HumanPerformance | string | HumanRefusal {
+): IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal {
   try {
     return new HumanPerformance({
       seed: "haul",
@@ -322,9 +309,9 @@ function perform(
 
 /** Read a haul from its grip to its end, every quarter of a second. */
 function readHaul(
-  performance: HumanPerformance,
-  body: IHumanBody,
-  prop: IHumanProp,
+  performance: IAutoMovieMotionHumanPerformance,
+  body: IAutoMovieMotionHumanBody,
+  prop: IAutoMovieMotionHumanProp,
 ): IRead {
   const placed = performance.segments("a")[0]!;
   const gripped: number =
@@ -332,14 +319,14 @@ function readHaul(
     (placed.plan.events.find((e): boolean => e.name === "gripped")?.share ??
       NaN) *
       placed.plan.duration;
-  const reader: HumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     performance,
     "a",
     body,
     0,
   );
   const fist = (seconds: number, side: "left" | "right"): IAutoMovieVector3 => {
-    const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+    const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
       body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
     return resolveAutoMovieHumanoidSurfaces.place(
       socket,
@@ -350,7 +337,7 @@ function readHaul(
     seconds: number,
     side: "left" | "right",
   ): IAutoMovieVector3 => {
-    const frame: IHumanProp.IFrame = performance.prop("crate", seconds);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("crate", seconds);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(
@@ -367,9 +354,9 @@ function readHaul(
   const first: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
   const start: number = gripped + 0.05;
   for (let seconds: number = start; seconds <= placed.end; seconds += 0.25) {
-    const frame: IHumanProp.IFrame = performance.prop("crate", seconds);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("crate", seconds);
     lowest = Math.min(lowest, frame.position.y - prop.frame.position.y);
-    const bones: ReturnType<HumanPerformance["bones"]> = performance.bones(
+    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = performance.bones(
       "a",
       seconds,
     );
@@ -381,7 +368,7 @@ function readHaul(
           prop.affordances!.find((a) => a.id === side)!.frame.translation,
         ),
       );
-      const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+      const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
         body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
       const fist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
         socket,
@@ -447,11 +434,11 @@ function readHaul(
 
 /** The mean speed of an unloaded walk over the same path and facing, m/s, at the walk's own pace: a pull's backpedal keeps +Z facing, so it is compared with a free backpedal rather than a turn followed by forward walking. */
 function freeSpeed(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   to: IAutoMovieVector3,
-  way: pushPull.Way,
+  way: IAutoMovieMotionHumanPushPull.Way,
 ): number {
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "haul",
     performers: [
       {

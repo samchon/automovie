@@ -1,4 +1,4 @@
-import { ISubdivisionVertexMask } from "./ISubdivisionVertexMask";
+import type { IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 
 /**
@@ -31,9 +31,9 @@ import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 export const subdivisionVertexMask = (
   sharpness: readonly number[],
   faceCount: number,
-): ISubdivisionVertexMask => {
+): IAutoMovieSubdivisionVertexMask => {
   const child: number[] = sharpness.map(decaySubdivisionSharpness);
-  const parentMask: ISubdivisionVertexMask = ruleMask(sharpness, faceCount);
+  const parentMask: IAutoMovieSubdivisionVertexMask = ruleMask(sharpness, faceCount);
   const sharpParent: number = countSharp(sharpness);
   const sharpChild: number = countSharp(child);
   if (rank(sharpParent) === rank(sharpChild)) return parentMask;
@@ -46,7 +46,7 @@ export const subdivisionVertexMask = (
     }
   });
   const weight: number = Math.min(1, sum / count);
-  const childMask: ISubdivisionVertexMask = ruleMask(child, faceCount);
+  const childMask: IAutoMovieSubdivisionVertexMask = ruleMask(child, faceCount);
   return {
     vertex: weight * parentMask.vertex + (1 - weight) * childMask.vertex,
     edges: parentMask.edges.map(
@@ -77,10 +77,10 @@ const rank: (sharp: number) => number = (sharp: number): number =>
 const ruleMask: (
   sharpness: readonly number[],
   faceCount: number,
-) => ISubdivisionVertexMask = (
+) => IAutoMovieSubdivisionVertexMask = (
   sharpness: readonly number[],
   faceCount: number,
-): ISubdivisionVertexMask => {
+): IAutoMovieSubdivisionVertexMask => {
   const sharp: number = countSharp(sharpness);
   const edges: number[] = new Array<number>(sharpness.length).fill(0);
   const faces: number[] = new Array<number>(faceCount).fill(0);

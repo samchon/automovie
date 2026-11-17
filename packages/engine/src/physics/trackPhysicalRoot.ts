@@ -1,19 +1,13 @@
-import type {
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieVector3 as V,
-} from "@automovie/interface";
+import type { IAutoMovieCollectPhysicalSupports, IAutoMovieDistributePhysicalSupportWrench, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget, IAutoMovieVector3 } from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
-import type { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
 import { physicalJointInertia } from "./physicalJointInertia";
 import { physicalNativeVector } from "./physicalNativeVector";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Realize one bounded root demand through an external wrench or feasible actual-support joint torques.
@@ -45,11 +39,11 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     dt,
   }: trackPhysicalRoot.IInput = input;
   const rootStrength: number = target.strength;
-  const rootGoal: V = Vector3.add(
+  const rootGoal: IAutoMovieVector3 = Vector3.add(
     rootIntent.pose.position,
     rootShift ?? { x: 0, y: 0, z: 0 },
   );
-  let force: V = rootDynamic
+  let force: IAutoMovieVector3 = rootDynamic
     ? Tracking.force(
         Vector3.subtract(rootGoal, base.translation()),
         Vector3.subtract(
@@ -80,10 +74,10 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         (body.maximumRootForce * rootStrength) / magnitude,
       );
   }
-  let rootTorque: V = { x: 0, y: 0, z: 0 };
+  let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   if (rootDynamic && body.rootTorque && rootStrength > 0) {
-    const axes: P.IAxis[] = (["x", "y", "z"] as const).map(
-      (axis: "x" | "y" | "z"): P.IAxis => ({
+    const axes: IAutoMoviePhysicalProfile.IAxis[] = (["x", "y", "z"] as const).map(
+      (axis: "x" | "y" | "z"): IAutoMoviePhysicalProfile.IAxis => ({
         axis,
         minimum: -Math.PI,
         maximum: Math.PI,
@@ -91,7 +85,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         ...body.rootTorque!,
       }),
     );
-    const torque: V = Vector3.add(
+    const torque: IAutoMovieVector3 = Vector3.add(
       Tracking.torque(
         base.rotation(),
         rootIntent.pose.rotation,
@@ -112,20 +106,20 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
   }
   if (actuation && rootDynamic) {
     const limbs: NonNullable<
-      Simulation.IBody["supportTracking"]
+      IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
     >["pattern"]["limbs"] = (
       body.supportTracking?.pattern ?? body.balance!.pattern
     ).limbs.filter(
       (
         limb: NonNullable<
-          Simulation.IBody["supportTracking"]
+          IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
         >["pattern"]["limbs"][number],
       ): boolean =>
         limb.bone !== recoveryBone &&
         !target.unavailableSupports?.includes(limb.bone) &&
         (target.supportStrength?.[limb.bone] ?? 1) > 0,
     );
-    const points: (collectPhysicalSupports.IPoint & { bone: string })[] =
+    const points: (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =
       supports
         .filter((support: (typeof supports)[number]): boolean =>
           limbs.some(
@@ -136,17 +130,17 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         .flatMap(
           (
             support: (typeof supports)[number],
-          ): (collectPhysicalSupports.IPoint & { bone: string })[] =>
+          ): (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =>
             support.samples.map(
               (
                 sample: (typeof support.samples)[number],
-              ): collectPhysicalSupports.IPoint & { bone: string } => ({
+              ): IAutoMovieCollectPhysicalSupports.IPoint & { bone: string } => ({
                 bone: support.bone,
                 ...sample,
               }),
             ),
         );
-    const allocated: ReturnType<typeof distributePhysicalSupportWrench> =
+    const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
       distributePhysicalSupportWrench({
         origin: base.worldCom(),
         force,
@@ -203,24 +197,20 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
 export namespace trackPhysicalRoot {
   /** The same pre-integration state used by endpoint and joint controllers. */
   export interface IInput {
-    /** Admitted global physical settings. */ settings: Simulation.IInput;
-    /** Admitted provider and controller. */ body: Simulation.IBody;
+    /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
+    /** Admitted provider and controller. */ body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Transient native maps and prediction destination. */ bound: Bound;
     /** Native root wrapper. */ base: RigidBody;
     /** Whether the root is currently dynamically owned. */ rootDynamic: boolean;
-    /** Independent root motor intent captured before actual-root fitting. */ rootIntent: ReturnType<
-      typeof samplePhysicalTarget
-    >;
-    /** Effective effort after physical balance assessment. */ target: Simulation.ITarget;
-    /** Recovery's bounded virtual root-position intent. */ rootShift?: V;
-    /** Declared gravity-compensation moment about the root. */ gravity: V;
+    /** Independent root motor intent captured before actual-root fitting. */ rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
+    /** Effective effort after physical balance assessment. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
+    /** Recovery's bounded virtual root-position intent. */ rootShift?: IAutoMovieVector3;
+    /** Declared gravity-compensation moment about the root. */ gravity: IAutoMovieVector3;
     /** Internal Cartesian moments accumulate into bounded joint motors. */ actuation?: Map<
       string,
-      V
+      IAutoMovieVector3
     >;
-    /** Actual solved floor witnesses and friction. */ supports: ReturnType<
-      typeof collectPhysicalSupports
-    >;
+    /** Actual solved floor witnesses and friction. */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
     /** Endpoint currently owned by recovery. */ recoveryBone?: string;
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;

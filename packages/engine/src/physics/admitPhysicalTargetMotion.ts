@@ -1,6 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -18,17 +16,17 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalTargetMotion(
-  input: Simulation.IInput,
-  body: Simulation.IBody,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   const native: boolean = input.bodies.some(
-    (candidate: Simulation.IBody): boolean =>
+    (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
       candidate.mode.kind !== "kinematic",
   );
   for (const [step, target] of body.targets.entries()) {
     for (const segment of body.profile.segments) {
-      const pose: P.ITransform = target.segments[segment.bone]!;
-      const motion: ReturnType<typeof samplePhysicalTarget> =
+      const pose: IAutoMoviePhysicalProfile.ITransform = target.segments[segment.bone]!;
+      const motion: IAutoMovieSamplePhysicalTarget.IResult =
         samplePhysicalTarget(
           step === 0 ? pose : body.targets[step - 1]!.segments[segment.bone]!,
           step === 0 ? body.targets[1]!.segments[segment.bone]! : pose,
@@ -56,7 +54,7 @@ export function admitPhysicalTargetMotion(
         [joint.parent, joint.parentFrame],
         [joint.child, joint.childFrame],
       ] as const) {
-        const anchor: P.ITransform["position"] = physicalSupportPoint(
+        const anchor: IAutoMoviePhysicalProfile.ITransform["position"] = physicalSupportPoint(
           target.segments[bone]!,
           frame.position,
         );
@@ -70,7 +68,7 @@ export function admitPhysicalTargetMotion(
   const dt: number = Math.fround(1 / (input.rate * input.substeps!));
   for (const joint of body.profile.joints) {
     const strength: number = body.targets.reduce(
-      (maximum: number, target: Simulation.ITarget): number =>
+      (maximum: number, target: IAutoMoviePhysicalSimulationInput.ITarget): number =>
         Math.max(
           maximum,
           target.jointStrength?.[joint.id] ?? target.strength,

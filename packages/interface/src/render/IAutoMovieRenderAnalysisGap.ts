@@ -1,5 +1,5 @@
-import { AutoMovieRenderAnalysisStatus } from "./AutoMovieRenderAnalysisStatus";
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { AutoMovieRenderAnalysisStatus } from "./AutoMovieRenderAnalysisStatus";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 
 /**
  * One render-cost analysis gap with its owning metric, cause and recovery requirement.

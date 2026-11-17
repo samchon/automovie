@@ -1,5 +1,4 @@
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
-import { ISubdivisionVertexMask } from "./ISubdivisionVertexMask";
+import type { IAutoMovieSubdivisionTopology, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
@@ -17,7 +16,7 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one sparse row per refined vertex; temporary local maps become result rows and no module state is retained.
  */
 export function refineSubdivisionStencils(
-  topology: ISubdivisionTopology,
+  topology: IAutoMovieSubdivisionTopology,
   source: ReadonlyArray<ReadonlyMap<number, number>>,
 ): Array<Map<number, number>> {
   const count: number = topology.vertexCount;
@@ -81,7 +80,7 @@ export function refineSubdivisionStencils(
       topology.fanCornerOffsets[v],
       topology.fanCornerOffsets[v + 1],
     );
-    const mask: ISubdivisionVertexMask = subdivisionVertexMask(
+    const mask: IAutoMovieSubdivisionVertexMask = subdivisionVertexMask(
       fanEdges.map((e: number): number => topology.edgeSharpness[e]!),
       corners.length,
     );

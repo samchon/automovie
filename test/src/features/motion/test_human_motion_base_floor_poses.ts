@@ -1,11 +1,5 @@
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature } from "@automovie/interface";
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -54,10 +48,10 @@ export function test_human_motion_base_floor_poses(): void {
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
   rows.forEach((row: string, r: number): void => {
     const name: "m-average" | "f-small" = names[r % 2]!;
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const label: string = `${name} ${row}`;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "poses",
@@ -81,8 +75,8 @@ export function test_human_motion_base_floor_poses(): void {
       );
       return;
     }
-    const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,

@@ -1,16 +1,8 @@
-import type { RecoveryEventRegion } from "./RecoveryEventRegion";
-import type { RecoveryEventRegionSource } from "./RecoveryEventRegionSource";
+import type { IAutoMovieRecoveryEventRegion, IAutoMovieRecoveryEventRegionCells, IAutoMovieRecoveryEventRegionSource } from "@automovie/interface";
 
-type Source = Parameters<typeof RecoveryEventRegion>[0];
-type Query = Parameters<ReturnType<typeof RecoveryEventRegion>>[0];
-type Result = ReturnType<ReturnType<typeof RecoveryEventRegion>>;
 
-type Triangle = Source["triangles"][number];
-type Node = Result["nodes"][number];
-type Cell = Result["cells"][number];
-
-type Issue = Result["issues"][number];
-type IssueCode = Issue["code"];
+type Triangle = Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
+type Cell = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["cells"][number];
 
 /**
  * Clip one ordered candidate population into fresh private query cells.
@@ -24,42 +16,27 @@ type IssueCode = Issue["code"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every call allocates fresh result and issue state; no query state is retained by source preparation.
  */
 export function RecoveryEventRegionCells(
-  source: Source,
-  prepared: ReturnType<typeof RecoveryEventRegionSource>,
-  query: Query,
-): {
-  result: Result;
-  lower: number;
-  upper: number;
-  nodeMap: Map<string, Node>;
-  cellNodes: Map<number, Node[]>;
-  faceCells: Map<number, number>;
-  issue: (
-    code: IssueCode,
-    cells: number[],
-    occurrences?: string[],
-    ports?: string[],
-  ) => number;
-} {
+  source: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[0],
+  prepared: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[1],
+  query: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[2],
+): ReturnType<IAutoMovieRecoveryEventRegionCells.Operation> {
   const {
     address,
     pair,
     ranks,
     collapsed,
-    duplicate,
-  }: ReturnType<typeof RecoveryEventRegionSource> = prepared;
+    duplicate }: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> = prepared;
   const lower: number = query.beforeMm,
     upper: number = query.afterMm;
   if (!Number.isFinite(lower) || !Number.isFinite(upper) || !(lower < upper))
     throw new Error("Finite increasing event-region bounds are required");
-  const result: Result = {
+  const result: ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>> = {
     incidence: source.incidence,
     boundsMm: [lower, upper],
     coverage: {
       candidateFaces: query.candidates.length,
       outsideCandidates: 0,
-      completeness: "caller-premise",
-    },
+      completeness: "caller-premise" },
     nodes: [],
     aliases: [],
     cells: [],
@@ -67,18 +44,17 @@ export function RecoveryEventRegionCells(
     components: [],
     contacts: [],
     ports: [],
-    issues: [],
-  };
-  const nodeMap: Map<string, Node> = new Map(),
-    cellNodes: Map<number, Node[]> = new Map(),
+    issues: [] };
+  const nodeMap: Map<string, IAutoMovieRecoveryEventRegionCells.Node> = new Map(),
+    cellNodes: Map<number, IAutoMovieRecoveryEventRegionCells.Node[]> = new Map(),
     faceCells: Map<number, number> = new Map();
   const issue: (
-    code: IssueCode,
+    code: IAutoMovieRecoveryEventRegionCells.IssueCode,
     cells: number[],
     occurrences?: string[],
     ports?: string[],
   ) => number = (
-    code: IssueCode,
+    code: IAutoMovieRecoveryEventRegionCells.IssueCode,
     cells: number[],
     occurrences: string[] = [],
     ports: string[] = [],
@@ -91,25 +67,23 @@ export function RecoveryEventRegionCells(
         ...new Set(cells.map((i: number): number => result.cells[i].face)),
       ],
       occurrences,
-      ports,
-    });
+      ports });
     return id;
   };
-  const vertex: (id: number) => Node = (id: number): Node => ({
+  const vertex: (id: number) => IAutoMovieRecoveryEventRegionCells.Node = (id: number): IAutoMovieRecoveryEventRegionCells.Node => ({
     id: `v:${id}`,
     incidenceId: `v:${address(id)}`,
     vertices: [id],
-    scalar: source.heights[id],
-  });
-  const clip: (polygon: Node[], level: number, above: boolean) => Node[] = (
-    polygon: Node[],
+    scalar: source.heights[id] });
+  const clip: (polygon: IAutoMovieRecoveryEventRegionCells.Node[], level: number, above: boolean) => IAutoMovieRecoveryEventRegionCells.Node[] = (
+    polygon: IAutoMovieRecoveryEventRegionCells.Node[],
     level: number,
     above: boolean,
-  ): Node[] => {
-    const output: Node[] = [];
+  ): IAutoMovieRecoveryEventRegionCells.Node[] => {
+    const output: IAutoMovieRecoveryEventRegionCells.Node[] = [];
     for (let i: number = 0; i < polygon.length; i++) {
-      const a: Node = polygon[(i + polygon.length - 1) % polygon.length],
-        b: Node = polygon[i];
+      const a: IAutoMovieRecoveryEventRegionCells.Node = polygon[(i + polygon.length - 1) % polygon.length],
+        b: IAutoMovieRecoveryEventRegionCells.Node = polygon[i];
       const insideA: boolean = above ? a.scalar >= level : a.scalar <= level,
         insideB: boolean = above ? b.scalar >= level : b.scalar <= level;
       // On-plane endpoints are retained by their own corner occurrence, not emitted twice.
@@ -124,8 +98,7 @@ export function RecoveryEventRegionCells(
           id: `x:${pair(vertices[0], vertices[1])}:${level}`,
           incidenceId: `x:${pair(address(vertices[0]), address(vertices[1]))}:${level}`,
           vertices,
-          scalar: level,
-        });
+          scalar: level });
       }
       if (insideB) output.push(b);
     }
@@ -146,7 +119,7 @@ export function RecoveryEventRegionCells(
       heights: number[] = triangle.map(
         (v: number): number => source.heights[v],
       );
-    const polygon: Node[] = clip(
+    const polygon: IAutoMovieRecoveryEventRegionCells.Node[] = clip(
       clip(triangle.map(vertex), lower, true),
       upper,
       false,
@@ -191,10 +164,9 @@ export function RecoveryEventRegionCells(
         plane === undefined
           ? { kind: "open-slab", beforeMm: lower, afterMm: upper }
           : { kind: "plane", coordinateMm: plane },
-      nodes: polygon.map((p: Node): string => p.id),
+      nodes: polygon.map((p: IAutoMovieRecoveryEventRegionCells.Node): string => p.id),
       component: null,
-      orientationFlip: null,
-    };
+      orientationFlip: null };
     result.cells.push(cell);
     cellNodes.set(cell.id, polygon);
     faceCells.set(face, cell.id);
@@ -207,11 +179,10 @@ export function RecoveryEventRegionCells(
   }
   result.nodes = [...nodeMap.values()];
   result.aliases = result.nodes
-    .filter((node: Node): boolean => node.id !== node.incidenceId)
-    .map((node: Node): Result["aliases"][number] => ({
+    .filter((node: IAutoMovieRecoveryEventRegionCells.Node): boolean => node.id !== node.incidenceId)
+    .map((node: IAutoMovieRecoveryEventRegionCells.Node): ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["aliases"][number] => ({
       rawNode: node.id,
-      incidenceId: node.incidenceId,
-    }));
+      incidenceId: node.incidenceId }));
 
   return { result, lower, upper, nodeMap, cellNodes, faceCells, issue };
 }

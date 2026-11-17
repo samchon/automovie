@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieTwoBoneArticulation,
-  twoBoneChainArticulation,
-} from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieTwoBoneArticulation, IAutoMovieVector3 } from "@automovie/interface";
+import { twoBoneChainArticulation } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

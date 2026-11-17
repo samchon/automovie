@@ -1,26 +1,6 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  clampJointToSkeleton,
-  decomposeJointRotation,
-  getConstraint,
-  skeletonJointAxes,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "./HumanHand";
-import type { IHumanPosture } from "./IHumanPosture";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, decomposeJointRotation, getConstraint, skeletonJointAxes } from "@automovie/engine";
 import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
@@ -67,11 +47,11 @@ export namespace HumanHandAttitude {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function held(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: IAutoMovieMotionHumanHand.Side,
     rotation: IAutoMovieQuaternion,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
     const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
     const hand: AutoMovieHumanoidBone = `${side}Hand`;
@@ -82,12 +62,12 @@ export namespace HumanHandAttitude {
       );
       return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
     };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
     const written = (
       forearm: readonly [number, number, number],
       wrist: readonly [number, number, number],
-    ): IHumanPosture => ({
+    ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       joints: {
         ...posture.joints,
@@ -98,7 +78,7 @@ export namespace HumanHandAttitude {
       limbs,
     });
     const bones = (
-      at: IHumanPosture,
+      at: IAutoMovieMotionHumanPosture,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       poseBones(body, resolveHumanPosture(body, at));
     const forearm: [number, number, number] = read(lower);
@@ -169,7 +149,7 @@ export namespace HumanHandAttitude {
 
 /** The wrist's clinical angles that turn the hand to a world rotation under a forearm's world rotation: the local turn decomposed on the chart inside the wrist's range and clamped to it. */
 function wrist(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   hand: AutoMovieHumanoidBone,
   forearm: IAutoMovieQuaternion,
   rotation: IAutoMovieQuaternion,

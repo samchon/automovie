@@ -1,25 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanBodyFit,
-  HumanChain,
-  HumanHand,
-  HumanPerformance,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+
+import { HumanBodyFit, HumanChain, HumanHand, HumanPerformance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -75,19 +57,19 @@ export function test_human_motion_body_fit_goals(): void {
       Math.PI
     );
   };
-  const centre: (body: IHumanBody, bones: Bones) => IAutoMovieVector3 = (
-    body: IHumanBody,
+  const centre: (body: IAutoMovieMotionHumanBody, bones: Bones) => IAutoMovieVector3 = (
+    body: IAutoMovieMotionHumanBody,
     bones: Bones,
   ): IAutoMovieVector3 =>
     resolveAutoMovieCenterOfMass.place(
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
       bones,
     );
-  const bonesOf: (body: IHumanBody, posture: IHumanPosture) => Bones = (
-    body: IHumanBody,
-    posture: IHumanPosture,
+  const bonesOf: (body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture) => Bones = (
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
   ): Bones => poseBones(body, resolveHumanPosture(body, posture));
-  const elbow: NonNullable<HumanBodyFit.IProps["angles"]>[number] = {
+  const elbow: NonNullable<IAutoMovieMotionHumanBodyFitTypes.IProps["angles"]>[number] = {
     points: [
       [{ bone: "leftUpperArm" }],
       [{ bone: "leftLowerArm" }],
@@ -96,9 +78,9 @@ export function test_human_motion_body_fit_goals(): void {
     degrees: 120,
   };
   for (const name of ["f-small", "m-average", "m-short-armed"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const yaw: number = name === "m-short-armed" ? 90 : 0;
-    const entry: IHumanPosture = stand.posture(
+    const entry: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0.7, y: body.measure.stature, z: -0.4 },
       yaw,
@@ -108,7 +90,7 @@ export function test_human_motion_body_fit_goals(): void {
     // 1. Projection onto (1, 0, 1)/sqrt(2): its minimum-norm translation
     // has equal x and z components of 0.03/sqrt(2), independent of mass.
     const travel: number = 0.03;
-    const moved: HumanBodyFit.IResult = HumanBodyFit.fit({
+    const moved: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
       body,
       posture: entry,
       variables: [
@@ -138,7 +120,7 @@ export function test_human_motion_body_fit_goals(): void {
 
     // 2. All three landmarks ride one rigid head; averaging +/-z points
     // gives its exact origin, so every heading preserves a right triangle.
-    const rigid: HumanBodyFit.IResult = HumanBodyFit.fit({
+    const rigid: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
       body,
       posture: entry,
       variables: [{ kind: "place", axis: "z" }],
@@ -163,7 +145,7 @@ export function test_human_motion_body_fit_goals(): void {
 
     // 3. Both requested quantities are measured after the same fit. The
     // arm's changed segment mass positions are part of the centre reading.
-    const joint: HumanBodyFit.IResult = HumanBodyFit.fit({
+    const joint: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
       body,
       posture: entry,
       variables: [
@@ -198,7 +180,7 @@ export function test_human_motion_body_fit_goals(): void {
 
     // 4. A rigid root translation cannot change an elbow angle.
     if (name === "m-average") {
-      const interval: HumanBodyFit.IResult = HumanBodyFit.fit({
+      const interval: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
         body,
         posture: entry,
         variables: [{ kind: "angle", bone: "leftLowerArm", axis: 0 }],
@@ -214,7 +196,7 @@ export function test_human_motion_body_fit_goals(): void {
         `an angle interval preserves its nearest admissible boundary (${intervalAngle})`,
         interval.converged && Math.abs(intervalAngle - 130) <= degree,
       );
-      const impossible: HumanBodyFit.IResult = HumanBodyFit.fit({
+      const impossible: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
         body,
         posture: entry,
         variables: [{ kind: "place", axis: "z" }],
@@ -252,14 +234,14 @@ export function test_human_motion_body_fit_goals(): void {
     const at: IAutoMovieVector3 = { x: 0.8, y: 0, z: -0.6 };
     const sex: "female" | "male" = name.startsWith("f-") ? "female" : "male";
     try {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "sprint-set-goals",
         performers: [
           { subject: "a", body, at, yaw, proficiency: { level: "elite" } },
         ],
         composition: HumanChain.subject("a").athletics({ sex }).node,
       });
-      const segment: ReturnType<HumanPerformance["segments"]>[number] =
+      const segment: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>[number] =
         film.segments("a")[0]!;
       const set: number =
         segment.start +

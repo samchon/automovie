@@ -1,7 +1,5 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMeshCrossingGeometry, IAutoMovieMesh } from "@automovie/interface";
 
-import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
-import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { refitAutoMovieMeshQueryHierarchy } from "./refitAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
@@ -17,40 +15,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieMeshCrossingGeometry {
-  /**
-   * One original triangle, including degenerate triangles, in one snapshot.
-   *
-   * @evidence contracts/development/design.md#principled-representation Actual corners, component extrema and original ordinal supply the existing strict narrow phase and exact-box candidate walker without substituting a shape.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Extends the shared spatial entry with only its three XYZ corners; no second mesh or collision representation is introduced.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Area does not determine membership: every admitted source triple receives a record and keeps its ordinal.
-   * @evidence contracts/development/common.md#meaningful-documentation States original identity, current-snapshot geometry and degenerate membership; the inherited spatial entry defines box and partition-centre units.
-   */
-  export interface ITriangle extends IAutoMovieSpatialQueryEntry {
-    /** Three copied XYZ corners in the snapshot's common metre frame. */
-    readonly corners: number[][];
-  }
-
-  /**
-   * Internal immutable-layout/current-geometry pair held by one crossing query.
-   *
-   * @evidence contracts/development/design.md#principled-representation Copied fixed indices preserve original triangle identity while current independent corners and hierarchy bounds represent exactly one pose; empty index populations have no hierarchy.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Stores the layout cardinality, index run, original-order triangles and current tree needed by initial or refitted query construction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No previous mutable mesh, transform key or omitted active population is stored; degenerate source triples remain in triangles and tree.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents scalar cardinality including unused vertices, shared frozen indices, original-order records and undefined hierarchy semantics.
-   */
-  export interface ISnapshot {
-    /** Fixed XYZ scalar count, including positions not referenced by indices. */
-    readonly positionCount: number;
-
-    /** Copied frozen source index run; original triples determine ordinals. */
-    readonly indices: readonly number[];
-
-    /** Current copied triangles in original index-buffer order, without area filtering. */
-    readonly triangles: ITriangle[];
-
-    /** Current exact enclosing tree; undefined precisely for an empty index run. */
-    readonly hierarchy: IAutoMovieMeshQueryHierarchy<ITriangle> | undefined;
-  }
 
   /**
    * Admit and index one current subject without retaining its buffers.
@@ -63,7 +27,7 @@ export namespace AutoMovieMeshCrossingGeometry {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A current subject may change on every query, so no coordinate or admission verdict is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns O(T) fresh corner/box records and retains no mesh, source indices or caller positions after the call.
    */
-  export function index(mesh: IAutoMovieMesh): ITriangle[] {
+  export function index(mesh: IAutoMovieMesh): IAutoMovieMeshCrossingGeometry.ITriangle[] {
     return read(
       mesh.positions,
       triangleIndicesOf(mesh, "Mesh crossings (complete triangle buffers)"),
@@ -81,14 +45,14 @@ export namespace AutoMovieMeshCrossingGeometry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Produces the frozen source index run and hierarchy partition that later current-position snapshots can reuse; changed indices/cardinality require another preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers copied frozen indices and O(T) private triangle/tree state to the query owner, retaining no original mesh/position/index buffers.
    */
-  export function prepare(mesh: IAutoMovieMesh): ISnapshot {
+  export function prepare(mesh: IAutoMovieMesh): IAutoMovieMeshCrossingGeometry.ISnapshot {
     const indices: readonly number[] = Object.freeze(
       triangleIndicesOf(
         mesh,
         "Mesh crossings (complete triangle buffers)",
       ).slice(),
     );
-    const triangles: ITriangle[] = read(mesh.positions, indices);
+    const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(mesh.positions, indices);
     return {
       positionCount: mesh.positions.length,
       indices,
@@ -114,14 +78,14 @@ export namespace AutoMovieMeshCrossingGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh triangle/tree state plus the shared frozen index run and scalar count. It borrows positions synchronously, and neither the input buffer nor a chain of old snapshots is retained.
    */
   export function withPositions(
-    source: ISnapshot,
+    source: IAutoMovieMeshCrossingGeometry.ISnapshot,
     positions: readonly number[],
-  ): ISnapshot {
+  ): IAutoMovieMeshCrossingGeometry.ISnapshot {
     if (positions.length !== source.positionCount)
       throw new Error(
         "Mesh crossing refit needs the original XYZ position cardinality.",
       );
-    const triangles: ITriangle[] = read(positions, source.indices);
+    const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(positions, source.indices);
     return {
       positionCount: source.positionCount,
       indices: source.indices,
@@ -131,7 +95,7 @@ export namespace AutoMovieMeshCrossingGeometry {
           ? undefined
           : refitAutoMovieMeshQueryHierarchy(
               source.hierarchy,
-              (triangle: ITriangle): ITriangle => triangles[triangle.ordinal]!,
+              (triangle: IAutoMovieMeshCrossingGeometry.ITriangle): IAutoMovieMeshCrossingGeometry.ITriangle => triangles[triangle.ordinal]!,
             ),
     };
   }
@@ -141,7 +105,7 @@ export namespace AutoMovieMeshCrossingGeometry {
 function read(
   positions: readonly number[],
   indices: readonly number[],
-): AutoMovieMeshCrossingGeometry.ITriangle[] {
+): IAutoMovieMeshCrossingGeometry.ITriangle[] {
   for (let scalar: number = 0; scalar < positions.length; scalar++)
     if (!Number.isFinite(positions[scalar]))
       throw new Error("Mesh crossings need finite complete triangle buffers.");
@@ -150,7 +114,7 @@ function read(
     positions[vertex * 3 + 1]!,
     positions[vertex * 3 + 2]!,
   ];
-  const triangles: AutoMovieMeshCrossingGeometry.ITriangle[] = [];
+  const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = [];
   for (let t: number = 0; t < indices.length; t += 3) {
     const a: number[] = at(indices[t]!);
     const b: number[] = at(indices[t + 1]!);

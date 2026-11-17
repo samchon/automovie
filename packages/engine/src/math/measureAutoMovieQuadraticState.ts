@@ -1,16 +1,5 @@
-/*
- * Copyright 2022 University of Oxford Control Group
- * SPDX-License-Identifier: Apache-2.0
- *
- * Modified for AutoMovie: TypeScript specialization for diagonal PSD QPs
- * with zero/nonnegative cones and engine-owned numerical workspaces.
- * Adapted from Clarabel.rs 0.11.1, revision
- * 25540f559592068d0c8a80e46ded1b21760212a1.
- * Original source: src/solver/implementations/default/residuals.rs; src/solver/implementations/default/info.rs
- * License: ../../vendor/clarabel/licenses/clarabel-0.11.1/LICENSE.md
- */
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
-import { IAutoMovieQuadraticState } from "./IAutoMovieQuadraticState";
+import type { IAutoMovieQuadraticConicProgram, IAutoMovieQuadraticState, IAutoMovieMeasureQuadraticState } from "@automovie/interface";
+
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 
 /**
@@ -32,24 +21,7 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 export function measureAutoMovieQuadraticState(
   data: IAutoMovieQuadraticConicProgram,
   state: IAutoMovieQuadraticState,
-): {
-  rx: Float64Array;
-  rz: Float64Array;
-  rt: number;
-  qx: number;
-  bz: number;
-  sz: number;
-  xpx: number;
-  objective: number;
-  dualObjective: number;
-  primalResidual: number;
-  dualResidual: number;
-  primalInfeasibility: number;
-  dualInfeasibility: number;
-  gap: number;
-  relativeGap: number;
-  ratio: number;
-} {
+): IAutoMovieMeasureQuadraticState.IResult {
   const gradient: Float64Array = new Float64Array(2 * data.n);
   const constraints: Float64Array = new Float64Array(2 * data.m);
   for (let row: number = 0; row < data.m; row++)

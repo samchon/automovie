@@ -1,4 +1,4 @@
-import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
+import type { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 
 /**
  * One engine-compiled reusable prototype in a general instance set. Weight participates in seeded per-slot selection; projectionRadius is an unscaled source-radius estimate rather than a certified geometry bound.

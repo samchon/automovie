@@ -1,10 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMoviePhysicalProfile, IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -12,7 +8,6 @@ import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointInHull } from "../math/pointInHull";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
 
 /**
@@ -42,8 +37,8 @@ import { resolvePose } from "./resolvePose";
  */
 export function resolveAutoMovieCenterOfMass(
   skeleton: IAutoMovieSkeleton,
-  profile: P,
-): resolveAutoMovieCenterOfMass.IModel {
+  profile: IAutoMoviePhysicalProfile,
+): IAutoMovieResolveCenterOfMass.IModel {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
     resolvePose(
       { skeleton: skeleton.id, root: null, joints: [] },
@@ -54,9 +49,9 @@ export function resolveAutoMovieCenterOfMass(
       ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
-  const segments: resolveAutoMovieCenterOfMass.ISegment[] =
+  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
     profile.segments.map(
-      (s: P.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
+      (s: IAutoMoviePhysicalProfile.ISegment): IAutoMovieResolveCenterOfMass.ISegment => {
         const bone: IAutoMovieResolvedBone | undefined = rest.get(
           s.bone as AutoMovieHumanoidBone,
         );
@@ -91,7 +86,7 @@ export function resolveAutoMovieCenterOfMass(
       },
     );
   const mass: number = segments.reduce(
-    (sum: number, s: resolveAutoMovieCenterOfMass.ISegment): number =>
+    (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
       sum + s.mass,
     0,
   );
@@ -109,32 +104,6 @@ export function resolveAutoMovieCenterOfMass(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses resolved bones and the engine's hull routines.
  */
 export namespace resolveAutoMovieCenterOfMass {
-  /** A body's mass model. */
-  export interface IModel {
-    /** Total mass, kilograms. */
-    mass: number;
-
-    /** Every segment's mass point. */
-    segments: ISegment[];
-  }
-
-  /** One segment's mass point. */
-  export interface ISegment {
-    /** The bone it rides. */
-    bone: AutoMovieHumanoidBone;
-
-    /** Kilograms. */
-    mass: number;
-
-    /** Centre of mass relative to the bone's joint, in its rest frame, metres. */
-    point: IAutoMovieVector3;
-
-    /** Principal moments about the segment's centre, kg m², the profile's own. */
-    inertia: IAutoMovieVector3;
-
-    /** The rotation from the principal axes to the bone's rest frame, so a posed segment's axes are its bone's world rotation times this (`resolveAutoMovieMomentum.inertia`). */
-    axes: IAutoMovieQuaternion;
-  }
 
   /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `pendulum` takes its length from. */
   export const PENDULUM: number = 1.34;
@@ -180,7 +149,7 @@ export namespace resolveAutoMovieCenterOfMass {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function place(
-    model: IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
     let x: number = 0;

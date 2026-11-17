@@ -1,16 +1,6 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanLeg,
-  AutoMovieMotionHumanLegPhrase,
-  type HumanFoot,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanLeg, AutoMovieMotionHumanLegPhrase } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -55,14 +45,14 @@ export function test_motion_compose_leg_place(): void {
     Math.abs(a - b) <= e;
   const at = (g: IAutoMovieVector3, x: number, y: number, z: number): boolean =>
     close(g.x, x) && close(g.y, y) && close(g.z, z);
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     rest: new Map<string, IAutoMovieVector3>([
       ["leftLowerLeg", { x: 0.1, y: 0.5, z: 0 }],
       ["leftFoot", { x: 0.1, y: 0.08, z: 0 }],
       ["leftToes", { x: 0.1, y: 0.02, z: 0.12 }],
     ]),
     surfaces: { sockets: {} },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const quarter: IAutoMovieQuaternion = {
     x: 0,
@@ -70,7 +60,7 @@ export function test_motion_compose_leg_place(): void {
     z: 0,
     w: Math.SQRT1_2,
   };
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -80,17 +70,17 @@ export function test_motion_compose_leg_place(): void {
       rightArm: { point: { x: 9, y: 9, z: 9 }, bend: { x: 0, y: 0, z: 0 } },
     },
   };
-  const stance: HumanFoot.IPlacement = {
+  const stance: IAutoMovieMotionHumanFoot.IPlacement = {
     ankle: { x: 0.1, y: 0.08, z: 0 },
     rotation: identity,
   };
-  const ahead: HumanFoot.IPlacement = {
+  const ahead: IAutoMovieMotionHumanFoot.IPlacement = {
     ankle: { x: 0.1, y: 0.08, z: 0.4 },
     rotation: quarter,
   };
 
   // 1. The goal and its knee hint.
-  const free: IHumanPosture.IGoal = AutoMovieMotionHumanLeg.goal(
+  const free: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanLeg.goal(
     body,
     posture,
     "left",
@@ -126,7 +116,7 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 2. Planted against free.
-  const planted: IHumanPosture.IGoal = AutoMovieMotionHumanLeg.goal(
+  const planted: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanLeg.goal(
     body,
     posture,
     "left",
@@ -151,14 +141,14 @@ export function test_motion_compose_leg_place(): void {
     side: "left",
     from: 0.5,
     to: 2,
-    placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement => {
+    placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement => {
       asked.push(seconds);
       return { ankle: { x: 0.1, y: 0.08, z: seconds }, rotation: identity };
     },
     planted: (seconds: number): boolean => seconds >= 1.5,
   });
-  const early: IHumanPosture = placed.write(posture, 1);
-  const late: IHumanPosture = placed.write(posture, 1.5);
+  const early: IAutoMovieMotionHumanPosture = placed.write(posture, 1);
+  const late: IAutoMovieMotionHumanPosture = placed.write(posture, 1.5);
   TestValidator.equals(
     "a placed leg claims its leg over its span",
     [placed.channels, placed.from, placed.to],
@@ -177,7 +167,7 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 4. A planted foot.
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -198,7 +188,7 @@ export function test_motion_compose_leg_place(): void {
     close(plant.from, 0.25) &&
       close(plant.to, 0.375) &&
       [0.25, 0.3, 0.375].every((t: number): boolean => {
-        const g: IHumanPosture.IGoal = plant.write(posture, t).limbs.leftLeg!;
+        const g: IAutoMovieMotionHumanPosture.IGoal = plant.write(posture, t).limbs.leftLeg!;
         return at(g.point, 0.1, 0.08, 0.4) && g.planted === true;
       }),
   );
@@ -213,7 +203,7 @@ export function test_motion_compose_leg_place(): void {
     ahead,
     0.05,
   );
-  const leg = (t: number): IHumanPosture.IGoal =>
+  const leg = (t: number): IAutoMovieMotionHumanPosture.IGoal =>
     step.write(posture, t).limbs.leftLeg!;
   TestValidator.predicate(
     "a step leaves free, peaks at its clearance half way and lands planted",
@@ -263,17 +253,17 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 7. Between two placements.
-  const mid: HumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
+  const mid: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
     stance,
     ahead,
     0.5,
   );
-  const past: HumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
+  const past: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
     stance,
     ahead,
     1.5,
   );
-  const back: HumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
+  const back: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
     stance,
     ahead,
     -0.5,

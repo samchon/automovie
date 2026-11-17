@@ -1,8 +1,9 @@
-import type { IAutoMovieRecoveryDomainLedger } from "../structures/domain/IAutoMovieRecoveryDomainLedger";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryDomainLedger, IAutoMovieRecoveryDomainsDescriptionOperation, IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "@automovie/interface";
+
+
 import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-import type { reconstructRecovery } from "./reconstructRecovery";
+
 
 /**
  * Bind declared saved-domain identities to actual returned ownership records.
@@ -20,11 +21,11 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local indexes expire after returning the ledger; outputs own metadata only and hold no mesh buffers or external resources.
  */
 export function describeRecoveryDomains(
-  input: IAutoMovieRecoveryTensorFamiliesInput,
-  result: ReturnType<typeof reconstructRecovery>,
-): IAutoMovieRecoveryDomainLedger {
+  input: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[0],
+  result: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryDomainsDescriptionOperation.Operation> {
   type Member = IAutoMovieRecoveryDomainLedger["members"][number];
-  const named: ReturnType<typeof describeRecoveryNamedDomains> =
+  const named: ReturnType<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation> =
     describeRecoveryNamedDomains(input, result);
   const members: Member[] = named.members;
   const owners: Map<string, string> = named.owners;
@@ -66,8 +67,7 @@ export function describeRecoveryDomains(
         triangleCount: range.triangleCount,
         beforeMm: range.beforeMm,
         afterMm: range.afterMm,
-        group: range.group,
-      });
+        group: range.group });
       continue;
     }
     const key: string = `${interval}:${range.group}`;
@@ -76,8 +76,7 @@ export function describeRecoveryDomains(
       part: "recovery.curve-loft",
       firstTriangle: range.firstTriangle,
       triangleCount: range.triangleCount,
-      patch: null,
-    });
+      patch: null });
     ranges.set(key, list);
   }
   for (const [interval, slab] of (input.loft.intervals ?? []).entries()) {
@@ -148,8 +147,7 @@ export function describeRecoveryDomains(
               : null,
         delegatedTo,
         emitted,
-        diagnostics: local,
-      });
+        diagnostics: local });
     }
   }
   for (const [section, report] of input.reports.entries()) {
@@ -176,8 +174,7 @@ export function describeRecoveryDomains(
           ...(typeof name === "string" && name.length > 0
             ? []
             : ["The observed open course has no saved coefficient identity"]),
-        ],
-      });
+        ] });
     }
   }
   for (
@@ -230,14 +227,12 @@ export function describeRecoveryDomains(
               ...(typeof name === "string" && name.length > 0
                 ? []
                 : ["The saved boundary has no coefficient identity"]),
-            ],
-          });
+            ] });
       }
     }
   }
   return {
     members,
     unattributed,
-    diagnostics,
-  };
+    diagnostics };
 }

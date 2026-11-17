@@ -1,10 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFrame, IAutoMovieQuaternion } from "@automovie/interface";
 
-import type { IHumanProp } from "./IHumanProp";
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 /**
  * Rigid frames of position and rotation, composed and taken relative: a
@@ -26,9 +22,9 @@ export namespace HumanPropFrame {
    * @returns The world frame.
    */
   export function compose(
-    parent: IHumanProp.IFrame,
-    local: IHumanProp.IFrame,
-  ): IHumanProp.IFrame {
+    parent: IAutoMovieMotionHumanProp.IFrame,
+    local: IAutoMovieMotionHumanProp.IFrame,
+  ): IAutoMovieMotionHumanProp.IFrame {
     return {
       position: Vector3.add(
         parent.position,
@@ -48,9 +44,9 @@ export namespace HumanPropFrame {
    * @returns The frame in the parent's frame.
    */
   export function relative(
-    parent: IHumanProp.IFrame,
-    world: IHumanProp.IFrame,
-  ): IHumanProp.IFrame {
+    parent: IAutoMovieMotionHumanProp.IFrame,
+    world: IAutoMovieMotionHumanProp.IFrame,
+  ): IAutoMovieMotionHumanProp.IFrame {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(parent.rotation);
     return {
       position: Quaternion.rotateVector(
@@ -77,9 +73,9 @@ export namespace HumanPropFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function parent(
-    world: IHumanProp.IFrame,
-    local: IHumanProp.IFrame,
-  ): IHumanProp.IFrame {
+    world: IAutoMovieMotionHumanProp.IFrame,
+    local: IAutoMovieMotionHumanProp.IFrame,
+  ): IAutoMovieMotionHumanProp.IFrame {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(world.rotation, Quaternion.inverse(local.rotation)),
     );
@@ -98,10 +94,7 @@ export namespace HumanPropFrame {
    * @param bone The bone's world position and rotation.
    * @returns The frame.
    */
-  export function bone(bone: {
-    worldPosition: IAutoMovieVector3;
-    worldRotation: IAutoMovieQuaternion;
-  }): IHumanProp.IFrame {
+  export function bone(bone: IAutoMovieMotionHumanPropFrame.IBoneBone): IAutoMovieMotionHumanProp.IFrame {
     return { position: bone.worldPosition, rotation: bone.worldRotation };
   }
 }

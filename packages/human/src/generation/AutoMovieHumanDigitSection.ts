@@ -1,5 +1,9 @@
+import type { IAutoMovieArcLengthJet, IAutoMovieHumanDigitSection, IAutoMovieHumanSeamKnot } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanSeamKnot } from "../lofting/AutoMovieHumanSeamKnot";
-import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
+
 
 /**
  * A digit's section square to its bone: a palmar half and a dorsal half that
@@ -30,26 +34,7 @@ import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
  * is the sectors' own curves at their knots and C2 everywhere.
  */
 export namespace AutoMovieHumanDigitSection {
-  /** A section's shape, millimetres and normalised constants. */
-  export interface IShape {
-    /** Half width across the digit, from the bone to either side point. */
-    width: number;
-
-    /** Depth of the palmar half from the bone to its apex. */
-    palmar: number;
-
-    /** Depth of the dorsal half from the bone to its apex. */
-    dorsal: number;
-
-    /** Curvature at the side points times the half width, `kappa_s w`. */
-    side: number;
-
-    /** Palmar apex curvature over the half ellipse's, `rho_p`. */
-    palmarApex: number;
-
-    /** Dorsal apex curvature over the half ellipse's, `rho_d`. */
-    dorsalApex: number;
-  }
+  
 
   /**
    * The section's control points in its frame, `[b, n]` per control point,
@@ -57,7 +42,7 @@ export namespace AutoMovieHumanDigitSection {
    *
    * @param count Control points, a multiple of 2 with at least four spans per half.
    */
-  export function controls(shape: IShape, count: number): [number, number][] {
+  export function controls(shape: IAutoMovieHumanDigitSection.IShape, count: number): IAutoMovieHumanDigitSection.ControlsResult {
     if (count % 2 !== 0 || count < 8)
       throw new Error(`A digit section needs an even count of at least 8, not ${count}`);
     const w: number = shape.width;
@@ -65,9 +50,9 @@ export namespace AutoMovieHumanDigitSection {
     const lambda: number = Math.sqrt(w / kappa);
     const palmar: IHalf = half(shape.palmar, w, lambda, shape.palmarApex, "palmar");
     const dorsal: IHalf = half(shape.dorsal, w, lambda, shape.dorsalApex, "dorsal");
-    const guide = (knot: number, point: number[], tangent: number[], curvature: number[]): AutoMovieHumanSeamKnot.IGuide => ({
+    const guide = (knot: number, point: number[], tangent: number[], curvature: number[]): IAutoMovieHumanSeamKnot.IGuide => ({
       knot,
-      jet: { point, tangent, curvature } satisfies IAutoMovieHumanSeam.IArcJet,
+      jet: { point, tangent, curvature } satisfies IAutoMovieArcLengthJet,
       speed: lambda,
     });
     const flat: number[] = AutoMovieHumanSeamKnot.assemble(
@@ -77,8 +62,8 @@ export namespace AutoMovieHumanDigitSection {
         guide(count / 2, [-w, 0], [0, -1], [kappa, 0]),
       ],
       [
-        { name: "palmar", jet: (t: number): AutoMovieHumanSeamKnot.Jet => palmar.jet(t, 1) },
-        { name: "dorsal", jet: (t: number): AutoMovieHumanSeamKnot.Jet => dorsal.jet(t - Math.PI, -1) },
+        { name: "palmar", jet: (t: number): IAutoMovieHumanSeamKnot.Jet => palmar.jet(t, 1) },
+        { name: "dorsal", jet: (t: number): IAutoMovieHumanSeamKnot.Jet => dorsal.jet(t - Math.PI, -1) },
       ],
     );
     return Array.from({ length: count }, (_: unknown, m: number): [number, number] => [flat[m]!, flat[count + m]!]);
@@ -90,7 +75,7 @@ export namespace AutoMovieHumanDigitSection {
    * interpolating consumer reads it back, so the guides' jets survive the
    * interpolation exactly.
    */
-  export function knots(shape: IShape, count: number): [number, number][] {
+  export function knots(shape: IAutoMovieHumanDigitSection.IShape, count: number): IAutoMovieHumanDigitSection.KnotsResult {
     const p: [number, number][] = controls(shape, count);
     return p.map((q: [number, number], m: number): [number, number] => {
       const a: [number, number] = p[(m - 1 + count) % count]!;
@@ -103,7 +88,7 @@ export namespace AutoMovieHumanDigitSection {
    * The section's hull perimeter, mm, from its own curve sampled finely: the
    * tape a girth solve compares with its input.
    */
-  export function girth(shape: IShape): number {
+  export function girth(shape: IAutoMovieHumanDigitSection.IShape): number {
     const w: number = shape.width;
     const lambda: number = Math.sqrt(w / (shape.side / w));
     const palmar: IHalf = half(shape.palmar, w, lambda, shape.palmarApex, "palmar");
@@ -124,7 +109,7 @@ export namespace AutoMovieHumanDigitSection {
 /** One half's curve. */
 interface IHalf {
   /** Jet at its own angle in `[0, pi]`; `sign` 1 palmar, -1 dorsal (both axes turned). */
-  jet: (theta: number, sign: number) => AutoMovieHumanSeamKnot.Jet;
+  jet: (theta: number, sign: number) => IAutoMovieHumanSeamKnot.Jet;
 }
 
 /**
@@ -145,7 +130,7 @@ function half(h: number, w: number, lambda: number, rho: number, name: string): 
       throw new Error(`The ${name} half turns back: side speed ${lambda} over depth ${h} with apex share ${rho}`);
   }
   return {
-    jet: (theta: number, sign: number): AutoMovieHumanSeamKnot.Jet => {
+    jet: (theta: number, sign: number): IAutoMovieHumanSeamKnot.Jet => {
       const s: number = Math.sin(theta);
       const k: number = Math.cos(theta);
       const value: number = s + a * s * k * k + c * s * k ** 4;

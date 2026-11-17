@@ -1,6 +1,4 @@
-import type { IAutoMovieQrDesignBudget } from "./IAutoMovieQrDesignBudget";
-import type { IAutoMovieQrDesignReduction } from "./IAutoMovieQrDesignReduction";
-
+import type { IAutoMovieQrDesignBudget, IAutoMovieQrDesignReduction } from "@automovie/interface";
 /**
  * Compress original least-squares rows by streaming Givens rotations.
  * The returned upper design and transformed right side preserve the variable

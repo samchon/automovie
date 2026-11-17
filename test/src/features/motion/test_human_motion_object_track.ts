@@ -1,14 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createDoor } from "@automovie/archetypes";
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,8 +36,8 @@ export function test_human_motion_object_track(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const body: IHumanBody = motionHumanBody("m-average");
-  const performance: HumanPerformance = new HumanPerformance({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "track",
     props: [
       HumanObject.prop(

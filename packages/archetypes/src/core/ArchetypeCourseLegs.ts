@@ -1,5 +1,6 @@
+import type { IAutoMovieSpeedProfile, IAutoMovieQuaternion } from "@automovie/interface";
 import { Quaternion, speedProfile } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+
 
 import type { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeCoursePath } from "./ArchetypeCoursePath";
@@ -103,7 +104,7 @@ export namespace ArchetypeCourseLegs {
       if (!(Number.isFinite(value) && value >= 0))
         refuse(name, value, `${name} must be finite and not negative`);
     const marks: readonly number[] | undefined = course.speeds;
-    const stretches: speedProfile.Stretch[] = [];
+    const stretches: IAutoMovieSpeedProfile.Stretch[] = [];
     const legStretch: number[] = [];
     const reach = (
       from: number,
@@ -225,7 +226,7 @@ export namespace ArchetypeCourseLegs {
         before = mark;
       });
     }
-    const profile: speedProfile.IProfile = speedProfile({
+    const profile: IAutoMovieSpeedProfile.IProfile = speedProfile({
       start: at,
       speed: startSpeed,
       ...(course.acceleration === undefined
@@ -242,7 +243,7 @@ export namespace ArchetypeCourseLegs {
       { seconds: profile.start, label: "depart" },
     ];
     if (marks === undefined) {
-      const only: speedProfile.IStretch = profile.stretches[0]!;
+      const only: IAutoMovieSpeedProfile.IStretch = profile.stretches[0]!;
       if (only.level > 1e-9)
         instants.push({ seconds: only.start + only.up, label: "cruise" });
       instants.push({
@@ -254,7 +255,7 @@ export namespace ArchetypeCourseLegs {
     // Leg by leg, so instants that fall on one second read in the order they happen: a leg's start, its turn, its stop.
     const bends: ArchetypeCourse.IBend[] = [];
     rows.forEach((row: ArchetypeCoursePath.IRow, index: number): void => {
-      const own: speedProfile.IStretch | null =
+      const own: IAutoMovieSpeedProfile.IStretch | null =
         marks === undefined ? null : profile.stretches[legStretch[index]!]!;
       if (own !== null && index > 0)
         instants.push({ seconds: own.start, label: `leg${index + 1}Start` });
@@ -330,7 +331,7 @@ export namespace ArchetypeCourseLegs {
       legSpans,
       when: profile.when,
       at: (seconds: number): ArchetypeCourse.IState => {
-        const { distance, speed }: speedProfile.IState = profile.at(seconds);
+        const { distance, speed }: IAutoMovieSpeedProfile.IState = profile.at(seconds);
         let row: ArchetypeCoursePath.IRow = rows[0]!;
         for (const candidate of rows)
           if (distance >= candidate.from) row = candidate;

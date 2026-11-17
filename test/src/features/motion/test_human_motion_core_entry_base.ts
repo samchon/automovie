@@ -1,17 +1,7 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanBase,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanEntryState,
-  seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, seated } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -53,22 +43,22 @@ export function test_human_motion_core_entry_base(): void {
 
   // Keeps the entry posture on the entry's supports for half a second.
   const held = (
-    context: IHumanActionContext<object>,
-    base?: HumanBase,
-  ): IHumanActionPlan => ({
+    context: IAutoMovieMotionHumanActionContext<object>,
+    base?: IAutoMovieMotionHumanBase,
+  ): IAutoMovieMotionHumanActionPlan => ({
     duration: 0.5,
     events: [],
     contacts: [
       // The supports of the entry, kept unless the action stands the body.
       ...context.entry.supports
         .filter(
-          (support: IHumanEntryState.ISupport): boolean =>
+          (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
             base?.kind !== "standing" || support.kind !== "seat",
         )
         .map(
           (
-            support: IHumanEntryState.ISupport,
-          ): IHumanActionPlan["contacts"][number] => ({
+            support: IAutoMovieMotionHumanEntryState.ISupport,
+          ): IAutoMovieMotionHumanActionPlan["contacts"][number] => ({
             ...support,
             from: 0,
             to: 1,
@@ -90,18 +80,18 @@ export function test_human_motion_core_entry_base(): void {
         : []),
     ],
     ...(base === undefined ? {} : { base }),
-    posture: (): ReturnType<IHumanActionPlan["posture"]> =>
+    posture: (): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> =>
       context.entry.posture,
   });
-  const saddle: HumanBase.ISeat = {
+  const saddle: IAutoMovieMotionHumanBase.ISeat = {
     at: { x: 0.4, y: 1.1, z: -0.2 },
     yaw: 35,
     astride: true,
   };
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const seen: IHumanEntryState[] = [];
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const seen: IAutoMovieMotionHumanEntryState[] = [];
 
     // Where the glass stands: at waist height, a sixth of the stature
     // ahead, well within the arm's reach of both bodies.
@@ -110,11 +100,11 @@ export function test_human_motion_core_entry_base(): void {
       y: 0.58 * body.measure.stature,
       z: 0.17 * body.measure.stature,
     };
-    const laws: IHumanActionLaw<never>[] = [
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
       {
         name: "witness",
         interrupts: {},
-        plan: (context: IHumanActionContext<never>): IHumanActionPlan => {
+        plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
           seen.push(context.entry);
           return held(context);
         },
@@ -122,17 +112,17 @@ export function test_human_motion_core_entry_base(): void {
       {
         name: "mounted",
         interrupts: {},
-        plan: (context: IHumanActionContext<never>): IHumanActionPlan =>
+        plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan =>
           held(context, { kind: "seated", seat: saddle }),
       },
       {
         name: "dismounted",
         interrupts: {},
-        plan: (context: IHumanActionContext<never>): IHumanActionPlan =>
+        plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan =>
           held(context, { kind: "standing" }),
       },
     ];
-    const entries = (chain: HumanChain): IHumanEntryState[] => {
+    const entries = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanEntryState[] => {
       seen.length = 0;
       new HumanPerformance({
         seed: "base",
@@ -156,10 +146,10 @@ export function test_human_motion_core_entry_base(): void {
       });
       return [...seen];
     };
-    const start = (): HumanChain => HumanChain.subject("a");
+    const start = (): IAutoMovieMotionHumanChain => HumanChain.subject("a");
 
     // 1 and 2. Standing first, seated after sitting down.
-    const chair: seated.ISeat = {
+    const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
         y: seated.popliteal(body),
@@ -168,7 +158,7 @@ export function test_human_motion_core_entry_base(): void {
       yaw: 0,
       depth: 0.45,
     };
-    const sat: IHumanEntryState[] = entries(
+    const sat: IAutoMovieMotionHumanEntryState[] = entries(
       start().registered("witness").sit({ seat: chair }).registered("witness"),
     );
     if (
@@ -184,7 +174,7 @@ export function test_human_motion_core_entry_base(): void {
       );
 
     // 3 to 5. A declared seat, passed on and then replaced.
-    const ridden: IHumanEntryState[] = entries(
+    const ridden: IAutoMovieMotionHumanEntryState[] = entries(
       start()
         .registered("mounted")
         .registered("witness")
@@ -196,8 +186,8 @@ export function test_human_motion_core_entry_base(): void {
       [0, "after the action that declares the seat"],
       [1, "after an action that declares no base"],
     ] as const) {
-      const base: HumanBase | undefined = ridden[index]?.base;
-      const seat: HumanBase.ISeat | undefined =
+      const base: IAutoMovieMotionHumanBase | undefined = ridden[index]?.base;
+      const seat: IAutoMovieMotionHumanBase.ISeat | undefined =
         base?.kind === "seated" ? base.seat : undefined;
       if (
         seat === undefined ||
@@ -222,7 +212,7 @@ export function test_human_motion_core_entry_base(): void {
       );
 
     // 6. What the hands hold.
-    let carried: IHumanEntryState[] = [];
+    let carried: IAutoMovieMotionHumanEntryState[] = [];
     try {
       carried = entries(
         start()

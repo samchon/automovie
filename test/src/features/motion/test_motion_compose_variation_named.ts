@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanVariationPlace } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTarget,
   AutoMovieMotionHumanTargetGrid,
@@ -33,12 +34,12 @@ import { motionVariationSource } from "../internal/motionVariationSource";
  */
 export function test_motion_compose_variation_named(): void {
   const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
-  const travel: AutoMovieMotionHumanVariationPlace.ITravel = {
+  const travel: IAutoMovieMotionHumanVariationPlace.ITravel = {
     distance: 0.6,
     seconds: 0.3,
   };
   const strays = (
-    grid: AutoMovieMotionHumanTargetGrid.IGrid,
+    grid: IAutoMovieMotionHumanTargetGrid.IGrid,
     count: number,
   ): string[] => {
     const out: string[] = [];
@@ -81,10 +82,10 @@ export function test_motion_compose_variation_named(): void {
   for (const height of AutoMovieMotionHumanTargetGrid.HEIGHTS)
     for (const lateral of Object.keys(
       AutoMovieMotionHumanTargetGrid.LATERALS,
-    ) as AutoMovieMotionHumanTargetGrid.Lateral[])
+    ) as IAutoMovieMotionHumanTargetGrid.Lateral[])
       for (const distance of Object.keys(
         AutoMovieMotionHumanTargetGrid.DISTANCES,
-      ) as AutoMovieMotionHumanTargetGrid.Distance[])
+      ) as IAutoMovieMotionHumanTargetGrid.Distance[])
         grid.push(...strays({ height, lateral, distance }, 128));
   TestValidator.equals("every place of the grid keeps its names", grid, []);
 

@@ -1,15 +1,14 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartControlRelations, IAutoMovieRecoveryChartFitPrepare, IAutoMovieRecoveryChartFitReport, IAutoMovieRecoveryChartFitSolve, IAutoMovieRecoveryChartFitSystem } from "@automovie/interface";
 
-import { RecoveryChartControlRelations as R } from "./RecoveryChartControlRelations";
-import type { RecoveryChartFit } from "./RecoveryChartFit";
-import type { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";
+
+
+
+
+
 import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
-import type { RecoveryChartFitSolve } from "./RecoveryChartFitSolve";
-import type { RecoveryChartFitSystem } from "./RecoveryChartFitSystem";
-import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 
-type Input = RecoveryChartFit.Input;
-type Result = RecoveryChartFit.Result;
+
+import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 /**
  * Measure residuals, the first strict worst witness and optimality from the solved chart.
  *
@@ -22,11 +21,11 @@ type Result = RecoveryChartFit.Result;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the existing result and bounded worst-witness records escape; scratch remains owned by the fit call.
  */
 export function RecoveryChartFitReport(
-  input: Input,
-  prepared: ReturnType<typeof RecoveryChartFitPrepare>,
-  system: ReturnType<typeof RecoveryChartFitSystem>,
-  solution: ReturnType<typeof RecoveryChartFitSolve>,
-): Result {
+  input: Parameters<IAutoMovieRecoveryChartFitReport.Operation>[0],
+  prepared: Parameters<IAutoMovieRecoveryChartFitReport.Operation>[1],
+  system: Parameters<IAutoMovieRecoveryChartFitReport.Operation>[2],
+  solution: Parameters<IAutoMovieRecoveryChartFitReport.Operation>[3],
+): ReturnType<IAutoMovieRecoveryChartFitReport.Operation> {
   const {
     finite,
     lower,
@@ -38,8 +37,7 @@ export function RecoveryChartFitReport(
     unknowns,
     maximumRowBudget,
     totalWeight,
-    basis,
-  }: ReturnType<typeof RecoveryChartFitPrepare> = prepared;
+    basis }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
   const {
     hessian,
     rhs,
@@ -52,8 +50,7 @@ export function RecoveryChartFitReport(
     dataQrDiagonalRatio,
     rankTolerance,
     observationRank,
-    gramPivotRatio,
-  }: ReturnType<typeof RecoveryChartFitSystem> = system;
+    gramPivotRatio }: ReturnType<IAutoMovieRecoveryChartFitSystem.Operation> = system;
   const {
     lo,
     hi,
@@ -62,23 +59,22 @@ export function RecoveryChartFitReport(
     iterations,
     projectedGradient,
     controls,
-    dependentEnclosureViolationMm,
-  }: ReturnType<typeof RecoveryChartFitSolve> = solution;
+    dependentEnclosureViolationMm }: ReturnType<IAutoMovieRecoveryChartFitSolve.Operation> = solution;
   let squared: number = 0,
     maximumMm: number = 0,
     fixedSupportMaximumMm: number = 0,
     freeSupportMaximumMm: number = 0;
-  let maximumLocation: Result["maximumLocation"] = null;
-  let maximumSample: NonNullable<Input["validation"]>[number] | null = null;
+  let maximumLocation: IAutoMovieRecoveryChartFitReport.Result["maximumLocation"] = null;
+  let maximumSample: NonNullable<IAutoMovieRecoveryChartFitReport.Input["validation"]>[number] | null = null;
   const patchMaximumMm: number[] = input.patches.map((): number => 0);
-  const patchMaximumLocations: Result["patchMaximumLocations"] =
+  const patchMaximumLocations: IAutoMovieRecoveryChartFitReport.Result["patchMaximumLocations"] =
     input.patches.map((): null => null);
   const patchFreeSupportMaximumMm: number[] = input.patches.map(
     (): number => 0,
   );
   const residual: (
-    sample: NonNullable<Input["validation"]>[number],
-  ) => number = (sample: NonNullable<Input["validation"]>[number]): number => {
+    sample: NonNullable<IAutoMovieRecoveryChartFitReport.Input["validation"]>[number],
+  ) => number = (sample: NonNullable<IAutoMovieRecoveryChartFitReport.Input["validation"]>[number]): number => {
     if (
       !Number.isSafeInteger(sample.patch) ||
       sample.patch < 0 ||
@@ -101,7 +97,7 @@ export function RecoveryChartFitReport(
     for (let j: number = 0; j < 4; j++)
       for (let i: number = 0; i < 4; i++) {
         const id: number = input.patches[sample.patch]!.controlIds[4 * j + i]!,
-          p: C.Vector = controls[id]!;
+          p: Readonly<AutoMovieVector3Tuple> = controls[id]!;
         if (u[i]! * v[j]! > 0 && reduced.expressions[id]!.terms.length > 0)
           freeSupport = true;
         for (let k: number = 0; k < 3; k++)
@@ -123,8 +119,7 @@ export function RecoveryChartFitReport(
         patch: sample.patch,
         u: sample.u,
         v: sample.v,
-        fixedSupport: !freeSupport,
-      };
+        fixedSupport: !freeSupport };
       maximumSample = sample;
     }
     if (freeSupport) {
@@ -176,10 +171,10 @@ export function RecoveryChartFitReport(
           x[3 * i + k] === lo[k] || x[3 * i + k] === hi[k],
       ),
   ).filter(Boolean).length;
-  let maximumWitness: Result["maximumWitness"] = null;
+  let maximumWitness: IAutoMovieRecoveryChartFitReport.Result["maximumWitness"] = null;
   if (maximumSample) {
-    const sample: NonNullable<Input["validation"]>[number] = maximumSample;
-    const patch: Input["patches"][number] = input.patches[sample.patch]!;
+    const sample: NonNullable<IAutoMovieRecoveryChartFitReport.Input["validation"]>[number] = maximumSample;
+    const patch: IAutoMovieRecoveryChartFitReport.Input["patches"][number] = input.patches[sample.patch]!;
     const u: number[] = basis(sample.u),
       v: number[] = basis(sample.v);
     const coefficients: number[] = Array.from(
@@ -202,13 +197,13 @@ export function RecoveryChartFitReport(
           (terms.get(term.id) ?? 0) + coefficient * term.weight,
         );
     }
-    const row: { id: number; weight: number; valueMm: C.Vector }[] = [
+    const row: { id: number; weight: number; valueMm: Readonly<AutoMovieVector3Tuple> }[] = [
       ...terms,
     ].map(
       ([id, weight]: [number, number]): {
         id: number;
         weight: number;
-        valueMm: C.Vector;
+        valueMm: Readonly<AutoMovieVector3Tuple>;
       } => ({
         id,
         weight,
@@ -216,24 +211,23 @@ export function RecoveryChartFitReport(
           origin[0]! + scale * x[3 * slots[id]!]!,
           origin[1]! + scale * x[3 * slots[id]! + 1]!,
           origin[2]! + scale * x[3 * slots[id]! + 2]!,
-        ],
-      }),
+        ] }),
     );
     const bounds: readonly [number, number, number, number] | null =
       patch.parameterBounds ?? null;
-    const patchRows: Input["observations"][number][] =
+    const patchRows: IAutoMovieRecoveryChartFitReport.Input["observations"][number][] =
       input.observations.filter(
-        (row: Input["observations"][number]): boolean =>
+        (row: IAutoMovieRecoveryChartFitReport.Input["observations"][number]): boolean =>
           row.patch === sample.patch,
       );
-    const sampledRows: NonNullable<Result["maximumWitness"]>["sampledRows"] =
+    const sampledRows: NonNullable<IAutoMovieRecoveryChartFitReport.Result["maximumWitness"]>["sampledRows"] =
       Array.from(
         { length: Math.min(17, patchRows.length) },
         (
           _: unknown,
           i: number,
-        ): NonNullable<Result["maximumWitness"]>["sampledRows"][number] => {
-          const row: Input["observations"][number] =
+        ): NonNullable<IAutoMovieRecoveryChartFitReport.Result["maximumWitness"]>["sampledRows"][number] => {
+          const row: IAutoMovieRecoveryChartFitReport.Input["observations"][number] =
             patchRows[
               Math.floor(
                 (i * patchRows.length) / Math.min(17, patchRows.length),
@@ -243,17 +237,16 @@ export function RecoveryChartFitReport(
             u: row.u,
             v: row.v,
             targetMm: [...row.pointMm],
-            physicalJet: row.physicalJet ?? null,
-          };
+            physicalJet: row.physicalJet ?? null };
         },
       );
     const coefficientExpressions: NonNullable<
-      Result["maximumWitness"]
+      IAutoMovieRecoveryChartFitReport.Result["maximumWitness"]
     >["coefficientExpressions"] = patch.controlIds.map(
       (
         id: number,
       ): NonNullable<
-        Result["maximumWitness"]
+        IAutoMovieRecoveryChartFitReport.Result["maximumWitness"]
       >["coefficientExpressions"][number] => ({
         constant: [...reduced.expressions[id]!.constant],
         terms: reduced.expressions[id]!.terms.map(
@@ -261,8 +254,7 @@ export function RecoveryChartFitReport(
             id: number;
             weight: number;
           }): { id: number; weight: number } => ({ ...term }),
-        ),
-      }),
+        ) }),
     );
     maximumWitness = {
       patch: sample.patch,
@@ -279,7 +271,7 @@ export function RecoveryChartFitReport(
       fittedPointMm,
       controlIds: [...patch.controlIds],
       controlsMm: patch.controlIds.map(
-        (id: number): C.Vector => [...controls[id]!],
+        (id: number): Readonly<AutoMovieVector3Tuple> => [...controls[id]!],
       ),
       coefficients,
       coefficientExpressions,
@@ -295,10 +287,8 @@ export function RecoveryChartFitReport(
         upperMm: upper,
         targetMm: sample.pointMm,
         toleranceMm: input.toleranceMm,
-        maxTerms: maximumRowBudget,
-      }),
-      originalSourceFace: null,
-    };
+        maxTerms: maximumRowBudget }),
+      originalSourceFace: null };
   }
   let boxSupportGap: number = 0,
     gradientInfinity: number = 0;
@@ -315,21 +305,19 @@ export function RecoveryChartFitReport(
         gradient * (hi[k]! - value),
       );
     }
-  const optimality: Result["optimality"] = {
+  const optimality: IAutoMovieRecoveryChartFitReport.Result["optimality"] = {
     objective: solved.objective,
     leastSquaresConstant,
     boxSupportGap,
     gradientInfinity,
     physicalObjectiveGapUpperMm2: 2 * scale * scale * boxSupportGap,
     normalizationScaleMm: scale,
-    normalizationOriginMm: [origin[0]!, origin[1]!, origin[2]!],
-  };
+    normalizationOriginMm: [origin[0]!, origin[1]!, origin[2]!] };
   const {
     maximumTerms,
     maximumDepth,
     minimumWeight,
-    maximumWeightSumError,
-  }: ReturnType<typeof R> = reduced;
+    maximumWeightSumError }: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> = reduced;
   return {
     controls,
     qualified:
@@ -349,8 +337,7 @@ export function RecoveryChartFitReport(
       scaledLipschitz: solved.scaledLipschitz,
       minimumPositiveDiagonal: solved.minimumPositiveDiagonal,
       maximumDiagonal: solved.maximumDiagonal,
-      restarts: solved.restarts,
-    },
+      restarts: solved.restarts },
     maximumMm,
     maximumWitness,
     optimality,
@@ -373,13 +360,11 @@ export function RecoveryChartFitReport(
       maximumTerms,
       maximumDepth,
       minimumWeight,
-      maximumWeightSumError,
-    },
+      maximumWeightSumError },
     maximumRowTerms,
     hessianNonzeros: hessian.reduce(
       (sum: number, row: Map<number, number>): number => sum + row.size,
       0,
     ),
-    diagnostics,
-  };
+    diagnostics };
 }

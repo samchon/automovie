@@ -1,8 +1,14 @@
-import type { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieLoftChain, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodyRoots, IAutoMovieHumanLoftApertureConstruction, IAutoMovieHumanLoftMesh } from "@automovie/interface";
+
+
+
+
+
+
+import { AutoMovieLoftChain, AutoMovieSplineCurve } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyStrip } from "./AutoMovieHumanBodyStrip";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+
 
 /**
  * Root loops on a chain's chart and the transition strips that join an
@@ -25,7 +31,7 @@ export namespace AutoMovieHumanBodyRoots {
     root: readonly number[],
     u: number,
     winding: number = 0,
-  ): [number, number, number, number] {
+  ): IAutoMovieHumanBodyRoots.PointResult {
     const [s, t, ds, dt] = AutoMovieSplineCurve.evaluate(root, root.length / 2, u);
     return [s, t + winding * u, ds, dt + winding];
   }
@@ -35,7 +41,7 @@ export namespace AutoMovieHumanBodyRoots {
     root: readonly number[],
     n: number,
     winding: number = 0,
-  ): [number, number][] {
+  ): IAutoMovieHumanBodyRoots.PolygonResult {
     return Array.from({ length: n }, (_: unknown, i: number): [number, number] => {
       const p: [number, number, number, number] = point(
         root,
@@ -53,7 +59,7 @@ export namespace AutoMovieHumanBodyRoots {
    * loop's samples ordered by phase.
    */
   export function beyond(
-    loop: readonly [number, number][],
+    loop: IAutoMovieHumanBodyRoots.BeyondLoop,
     s: number,
     t: number,
     toward: number,
@@ -62,7 +68,7 @@ export namespace AutoMovieHumanBodyRoots {
   }
 
   /** A winding loop's station at a phase, between its samples ordered by phase. */
-  export function station(loop: readonly [number, number][], t: number): number {
+  export function station(loop: IAutoMovieHumanBodyRoots.StationLoop, t: number): number {
     // A loop never changes once built, so its samples are ordered by phase once.
     let sorted: [number, number][] | undefined = SORTED.get(loop);
     if (sorted === undefined) {
@@ -88,7 +94,7 @@ export namespace AutoMovieHumanBodyRoots {
    * taken on the branch nearest the loop's mean phase.
    */
   export function inside(
-    loop: readonly [number, number][],
+    loop: IAutoMovieHumanBodyRoots.InsideLoop,
     s: number,
     t: number,
   ): boolean {
@@ -143,7 +149,7 @@ export namespace AutoMovieHumanBodyRoots {
    * @param holeCharts Chart point `[s, t]` of each hole vertex.
    */
   export function join(
-    mesh: AutoMovieHumanLoftMesh.IContext,
+    mesh: IAutoMovieHumanLoftMesh.IContext,
     coordinates: number[],
     base: IAutoMovieLoftChain,
     baseIndex: number,
@@ -152,7 +158,7 @@ export namespace AutoMovieHumanBodyRoots {
     ring: readonly number[],
     phases: readonly number[],
     hole: readonly number[],
-    holeCharts: readonly [number, number][],
+    holeCharts: IAutoMovieHumanBodyRoots.JoinHoleCharts,
   ): void {
     // The loop's turning sense in the (phase, station) plane: the outward
     // normal is its tangent turned clockwise for a counter-clockwise loop.
@@ -223,9 +229,9 @@ export namespace AutoMovieHumanBodyRoots {
    */
   export function trim(
     chain: IAutoMovieLoftChain,
-    outline: AutoMovieHumanLoftAperture.IOutline,
-    heights: [number, number],
-  ): [number, number][] {
+    outline: IAutoMovieHumanLoftApertureConstruction.IOutline,
+    heights: IAutoMovieHumanBodyRoots.TrimHeights,
+  ): IAutoMovieHumanBodyRoots.TrimResult {
     const y0: number = chain.layers[0]!.y;
     const y1: number = chain.layers[chain.layers.length - 1]!.y;
     const project = (s: number, t: number): [number, number, number] => {
@@ -365,7 +371,7 @@ function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
  * away from the reference outward normal.
  */
 function oriented(
-  mesh: AutoMovieHumanLoftMesh.IContext,
+  mesh: IAutoMovieHumanLoftMesh.IContext,
   reference: V,
   emit: () => void,
 ): void {
@@ -399,7 +405,7 @@ function oriented(
  * `period` (a chain's), or not periodic for `Infinity` (an opening's plane).
  */
 function seam(
-  mesh: AutoMovieHumanLoftMesh.IContext,
+  mesh: IAutoMovieHumanLoftMesh.IContext,
   inner: readonly number[],
   innerCharts: readonly [number, number][],
   outer: readonly number[],
@@ -470,7 +476,7 @@ function seam(
  * in phase, then merged by the phase each has turned since its start.
  */
 function phaseSeam(
-  mesh: AutoMovieHumanLoftMesh.IContext,
+  mesh: IAutoMovieHumanLoftMesh.IContext,
   inner: readonly number[],
   innerCharts: readonly [number, number][],
   outer: readonly number[],

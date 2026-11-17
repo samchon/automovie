@@ -1,16 +1,5 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftFrame,
-  AutoMovieLoftJet,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
-  type AutoMovieLoftViewRead,
-  AutoMovieSeamStation,
-  AutoMovieSolidChain,
-  AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieLoftSectionSource, IAutoMovieLoftViewRead, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieLoftSectionConnect, AutoMovieLoftSectionSource, AutoMovieSeamStation, AutoMovieSolidChain, AutoMovieViewLoft } from "@automovie/engine";
 
 /** Source-aware coordinator questions, kept inside the existing final phase unit. */
 export namespace ConstructionLoftSectionAdapters {
@@ -43,7 +32,7 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
       { site: "end", station: 1, value: sign },
     ],
   });
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     ...input,
     stations: [0, 0.5, 1],
     front: { positive: outline(1), negative: outline(-1) },
@@ -100,12 +89,12 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
           "clipped source point",
           failures,
         );
-        const actual: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
           chain,
           s,
           phi,
         );
-        const expected: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const expected: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
           original,
           s,
           phi,
@@ -117,7 +106,7 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
 
 /** Complete endpoint families supply local2 without any projection-curvature field. */
 function endpoints(failures: string[]): void {
-  const inputs: AutoMovieLoftViewRead.IJets = {
+  const inputs: IAutoMovieLoftViewRead.IJets = {
     extents: [
       [1, 0, 0],
       [1, 0, 0],
@@ -198,11 +187,11 @@ function endpoints(failures: string[]): void {
 
 /** A present changed boundary without its declared adjoining law cannot quietly read the old base field. */
 function incomplete(failures: string[], input: IAutoMovieViewPart): void {
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
   if (result.chain === null)
     throw new Error(JSON.stringify(result.diagnostics));
   const original: IAutoMovieLoftChain = result.chain;
-  const field: AutoMovieLoftSectionSource.IEndpoint["field"] | string =
+  const field: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
     AutoMovieLoftSectionConnect.capture(original, 0);
   if (typeof field === "string") throw new Error(field);
   const first: IAutoMovieLoftChain.ILayer = { ...original.layers[0]! };

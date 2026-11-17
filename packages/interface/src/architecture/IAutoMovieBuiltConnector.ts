@@ -1,10 +1,10 @@
-import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
-import { IAutoMovieConnectorLanding } from "./IAutoMovieConnectorLanding";
-import { IAutoMovieConnectorOperation } from "./IAutoMovieConnectorOperation";
-import { IAutoMovieConnectorSection } from "./IAutoMovieConnectorSection";
-import { IAutoMovieConnectorSteps } from "./IAutoMovieConnectorSteps";
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
+import type { IAutoMovieConnectorLanding } from "./IAutoMovieConnectorLanding";
+import type { IAutoMovieConnectorOperation } from "./IAutoMovieConnectorOperation";
+import type { IAutoMovieConnectorSection } from "./IAutoMovieConnectorSection";
+import type { IAutoMovieConnectorSteps } from "./IAutoMovieConnectorSteps";
 
 /**
  * A navigable relation between logical spaces, and the shape it has.

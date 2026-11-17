@@ -1,27 +1,7 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanCrowd, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanManoeuvre, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { createLongGun } from "@automovie/archetypes";
-import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanCrowd,
-  HumanCue,
-  HumanEnsemble,
-  HumanFormation,
-  HumanManoeuvre,
-  HumanMusketDrill,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanEnsemble,
-  type IHumanFormation,
-  type IHumanManoeuvre,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HUMAN_LEXICON, HumanCrowd, HumanCue, HumanEnsemble, HumanFormation, HumanManoeuvre, HumanMusketDrill, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -71,12 +51,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_scene_line_infantry(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [
+  const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
     motionHumanBody("m-tall"),
   ];
-  const line: IHumanFormation = {
+  const line: IAutoMovieMotionHumanFormation = {
     blocks: [
       {
         layout: {
@@ -105,10 +85,10 @@ export function test_human_motion_scene_line_infantry(): void {
     (a: { id: string }): boolean => a.id === "cock",
   )!.travel!;
   const battalion = (
-    preset: IHumanEnsemble["preset"],
+    preset: IAutoMovieMotionHumanEnsemble["preset"],
     count: number = 24,
   ): IScene => {
-    const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: preset ?? "b",
       seed: "infantry",
       count,
@@ -140,15 +120,15 @@ export function test_human_motion_scene_line_infantry(): void {
       undefined,
       "discipline",
     );
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "infantry",
       laws: [
         ...HUMAN_LEXICON.gait!,
-        ...(Object.values(HumanMusketDrill) as IHumanActionLaw<never>[]),
+        ...(Object.values(HumanMusketDrill) as IAutoMovieMotionHumanActionLaw<never>[]),
       ],
       performers: HumanEnsemble.performers(ensemble),
       props: ensemble.members.map(
-        (m: HumanEnsemble.IMember): IHumanProp =>
+        (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanProp =>
           HumanObject.prop(m.prop("musket"), musket, {
             at: {
               x: m.place.at.x - m.body.measure.shoulderHalfWidth,
@@ -161,9 +141,9 @@ export function test_human_motion_scene_line_infantry(): void {
       cues: { drum: HumanCue.beats({ bpm: 76, count: 30, from: 1 }), orders },
       composition: HumanEnsemble.chains(
         ensemble,
-        (m: HumanEnsemble.IMember, chain: HumanChain) => {
+        (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) => {
           const gun: string = m.prop("musket");
-          const marched: HumanChain = chain
+          const marched: IAutoMovieMotionHumanChain = chain
             .registered("shoulderArms", { prop: gun })
             .registered("march", {
               to: { x: m.place.at.x, y: 0, z: m.place.at.z + 8 },
@@ -173,7 +153,7 @@ export function test_human_motion_scene_line_infantry(): void {
             })
             .registered("stand", { seconds: 1 })
             .sync({ of: "orders", event: "halt", latency: "reaction" });
-          const presented: HumanChain = marched
+          const presented: IAutoMovieMotionHumanChain = marched
             .registered("recover", {
               gun,
               target: {
@@ -182,7 +162,7 @@ export function test_human_motion_scene_line_infantry(): void {
                 at: { x: 0, y: 1.4, z: 60 },
               },
             })
-            .over((u: HumanChain) =>
+            .over((u: IAutoMovieMotionHumanChain) =>
               u.registered("makeReady", {
                 mechanism: {
                   kind: "hinge",
@@ -214,9 +194,9 @@ export function test_human_motion_scene_line_infantry(): void {
   const elite: IScene = battalion("elite");
   const militia: IScene = battalion("militia");
   const strikes = (scene: IScene, subject: string): number[] => {
-    const s: HumanSegment.ISegment = scene.performance
+    const s: IAutoMovieMotionHumanSegment.ISegment = scene.performance
       .segments(subject)
-      .find((x: HumanSegment.ISegment): boolean => x.name === "march")!;
+      .find((x: IAutoMovieMotionHumanSegment.ISegment): boolean => x.name === "march")!;
     return s.plan.events
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /^(left|right)HeelStrike\d+$/.test(e.name),
@@ -240,7 +220,7 @@ export function test_human_motion_scene_line_infantry(): void {
   };
   const spread = (scene: IScene): number =>
     sd(
-      scene.ensemble.members.flatMap((m: HumanEnsemble.IMember): number[] =>
+      scene.ensemble.members.flatMap((m: IAutoMovieMotionHumanEnsemble.IMember): number[] =>
         strikes(scene, m.subject)
           .slice(2, -2)
           .map(
@@ -272,7 +252,7 @@ export function test_human_motion_scene_line_infantry(): void {
   // 2. Dress at the last strike.
   const dress = (scene: IScene): number =>
     scene.ensemble.members.reduce(
-      (sum: number, m: HumanEnsemble.IMember): number => {
+      (sum: number, m: IAutoMovieMotionHumanEnsemble.IMember): number => {
         const s: number[] = strikes(scene, m.subject);
         const root: IAutoMovieVector3 = scene.performance.posture(
           m.subject,
@@ -298,19 +278,19 @@ export function test_human_motion_scene_line_infantry(): void {
   const answered = (scene: IScene): number[] => {
     const out: number[] = [];
     for (const m of scene.ensemble.members) {
-      const segments: readonly HumanSegment.ISegment[] =
+      const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
         scene.performance.segments(m.subject);
-      const halted: HumanSegment.ISegment = segments.find(
-        (s: HumanSegment.ISegment): boolean => s.name === "stand",
+      const halted: IAutoMovieMotionHumanSegment.ISegment = segments.find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "stand",
       )!;
       if (halted.entryTime < word("halt") + 0.1 - 1e-9)
         findings.push(`${m.subject} halts before the word`);
       // Make ready rides its recover as an overlay; the recover carries the body and answers the word.
-      const ready: HumanSegment.ISegment | undefined = segments.find(
-        (s: HumanSegment.ISegment): boolean => s.name === "recover",
+      const ready: IAutoMovieMotionHumanSegment.ISegment | undefined = segments.find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "recover",
       );
-      const presenting: HumanSegment.ISegment | undefined = segments.find(
-        (s: HumanSegment.ISegment): boolean => s.name === "presentMusket",
+      const presenting: IAutoMovieMotionHumanSegment.ISegment | undefined = segments.find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "presentMusket",
       );
       if (ready === undefined) findings.push(`${m.subject} does not make ready`);
       else if (ready.entryTime < word("ready") + 0.1 - 1e-9)
@@ -320,8 +300,8 @@ export function test_human_motion_scene_line_infantry(): void {
         !(ready.entryTime < presenting.entryTime)
       )
         findings.push(`${m.subject} presents before it makes ready`);
-      const fired: HumanSegment.ISegment | undefined = segments.find(
-        (s: HumanSegment.ISegment): boolean => s.name === "fireMusket",
+      const fired: IAutoMovieMotionHumanSegment.ISegment | undefined = segments.find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "fireMusket",
       );
       if (scene.misfires.includes(m.index)) {
         if (fired !== undefined)
@@ -344,7 +324,7 @@ export function test_human_motion_scene_line_infantry(): void {
     );
 
   // 5. Deploy.
-  const block = (lateral: number, depth: number): IHumanFormation.IBlock => ({
+  const block = (lateral: number, depth: number): IAutoMovieMotionHumanFormation.IBlock => ({
     layout: {
       kind: "line",
       ranks: 3,
@@ -354,20 +334,20 @@ export function test_human_motion_scene_line_infantry(): void {
     count: 24,
     offset: { lateral, depth },
   });
-  const fixed: IHumanFormation.Frame = {
+  const fixed: IAutoMovieMotionHumanFormation.Frame = {
     kind: "fixed",
     at: { x: 0, y: 0, z: 0 },
     heading: 0,
   };
-  const column: IHumanFormation = {
+  const column: IAutoMovieMotionHumanFormation = {
     blocks: [block(0, 0), block(0, 3), block(0, 6)],
     frame: fixed,
   };
-  const deployed: IHumanFormation = {
+  const deployed: IAutoMovieMotionHumanFormation = {
     blocks: [block(-5, 0), block(0, 0), block(5, 0)],
     frame: fixed,
   };
-  const regiment: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  const regiment: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
     id: "r",
     seed: "infantry",
     count: 72,
@@ -376,7 +356,7 @@ export function test_human_motion_scene_line_infantry(): void {
     formation: column,
   });
   try {
-    const manoeuvre: IHumanManoeuvre = {
+    const manoeuvre: IAutoMovieMotionHumanManoeuvre = {
       from: column,
       to: deployed,
       rule: "deploy",
@@ -398,14 +378,14 @@ export function test_human_motion_scene_line_infantry(): void {
     undefined,
     "morale",
   );
-  const breakers: HumanEnsemble.IEnsemble = {
+  const breakers: IAutoMovieMotionHumanEnsemble.IEnsemble = {
     ...militia.ensemble,
     members: routed.map(
-      (i: number): HumanEnsemble.IMember => militia.ensemble.members[i]!,
+      (i: number): IAutoMovieMotionHumanEnsemble.IMember => militia.ensemble.members[i]!,
     ),
   };
-  const flight: HumanCrowd.IResult = HumanCrowd.steer(breakers, {
-    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({
+  const flight: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(breakers, {
+    goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ({
       x: m.place.at.x,
       y: 0,
       z: m.place.at.z - 25,
@@ -422,7 +402,7 @@ export function test_human_motion_scene_line_infantry(): void {
   });
   for (let t: number = 13; t <= 30; t += 1 / 24) {
     const at: IAutoMovieVector3[] = flight.frames.map(
-      (f: IHumanFormation.ICourse): IAutoMovieVector3 =>
+      (f: IAutoMovieMotionHumanFormation.ICourse): IAutoMovieVector3 =>
         HumanFormation.frame({ blocks: [], frame: f }, t).at,
     );
     let crossed: boolean = false;
@@ -441,9 +421,9 @@ export function test_human_motion_scene_line_infantry(): void {
       }
     if (crossed) break;
   }
-  const mean = (members: readonly HumanEnsemble.IMember[]): number =>
+  const mean = (members: readonly IAutoMovieMotionHumanEnsemble.IMember[]): number =>
     members.reduce(
-      (s: number, m: HumanEnsemble.IMember): number =>
+      (s: number, m: IAutoMovieMotionHumanEnsemble.IMember): number =>
         s + (m.attributes.morale ?? 0.5),
       0,
     ) / members.length;
@@ -460,7 +440,7 @@ export function test_human_motion_scene_line_infantry(): void {
       JSON.stringify(elite.performance.posture(m.subject, 10))
     )
       findings.push(`${m.subject} does not replay`);
-  const grown: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+  const grown: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
     id: "elite",
     seed: "infantry",
     count: 27,
@@ -480,10 +460,10 @@ export function test_human_motion_scene_line_infantry(): void {
 /** A battalion performed: its ensemble, the performance and the members picked to misfire. */
 interface IScene {
   /** The ensemble. */
-  ensemble: HumanEnsemble.IEnsemble;
+  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble;
 
   /** The performance. */
-  performance: HumanPerformance;
+  performance: IAutoMovieMotionHumanPerformance;
 
   /** The members who do not fire. */
   misfires: readonly number[];

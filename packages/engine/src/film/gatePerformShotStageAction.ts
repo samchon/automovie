@@ -1,17 +1,11 @@
-import {
-  IAutoMovieActionCall,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieArmChainFault, type IAutoMovieClassifyLocomoteGroundDisplacement, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieViolationCollector, IAutoMovieActionCall, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { armChainFault } from "../kinematics/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { isRecord } from "../validation/isRecord";
-import { IPerformShotActionPlan } from "./IPerformShotActionPlan";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotId } from "./validatePerformShotId";
 
@@ -47,14 +41,14 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Appends at most one job to the caller's plan and retains nothing itself.
  */
 export function gatePerformShotStageAction(
-  context: IPerformShotGateContext,
-  plan: IPerformShotActionPlan,
+  context: IAutoMovieEnginePerformShotGateContext,
+  plan: IAutoMovieEnginePerformShotActionPlan,
   action: Exclude<IAutoMovieActionCall, { verb: "frame" }>,
   actors: readonly string[],
   index: number,
 ): void {
   const path: string = `${context.base}[${index}]`;
-  const out: ViolationCollector = context.out;
+  const out: IAutoMovieViolationCollector = context.out;
   switch (action.verb) {
     case "locomote": {
       if (context.gaits !== undefined)
@@ -89,9 +83,7 @@ export function gatePerformShotStageAction(
       for (const actor of actors) {
         if (!context.nodeIds.has(actor)) continue;
         const origin: IAutoMovieVector3 = context.nodePositions.get(actor)!;
-        const displacement: ReturnType<
-          typeof classifyLocomoteGroundDisplacement
-        > = classifyLocomoteGroundDisplacement({
+        const displacement: IAutoMovieClassifyLocomoteGroundDisplacement.IResult = classifyLocomoteGroundDisplacement({
           x: destination.x - origin.x,
           y: destination.y - origin.y,
           z: destination.z - origin.z,
@@ -335,7 +327,7 @@ export function gatePerformShotStageAction(
 
 /** Refuse an arm verb asked of a rig whose elbow cannot bend that arm. */
 function refuseUnbendableArm(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   side: "left" | "right",
   path: string,
   performers: readonly string[],
@@ -343,7 +335,7 @@ function refuseUnbendableArm(
   for (const performer of performers) {
     const rig: IAutoMovieSkeleton | null = context.skeleton(performer);
     if (rig === null) continue;
-    const fault: ReturnType<typeof armChainFault> = armChainFault(rig, side);
+    const fault: (IAutoMovieArmChainFault | null) = armChainFault(rig, side);
     if (fault === null) continue;
     context.out.push(
       "type",

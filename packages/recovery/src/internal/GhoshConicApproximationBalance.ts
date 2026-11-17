@@ -1,3 +1,4 @@
+import type { IAutoMovieGhoshConicApproximationBalance } from "@automovie/interface";
 import { GhoshConicApproximationDisplacement as displacement } from "./GhoshConicApproximationDisplacement";
 
 /**
@@ -22,22 +23,23 @@ import { GhoshConicApproximationDisplacement as displacement } from "./GhoshConi
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fit nodes and cached coordinates are bounded by exchanges and golden iterations, discarded on return, and never appear in the returned coefficients.
  */
 export function GhoshConicApproximationBalance(
-  sample: (
-    t: number,
-  ) => { value: readonly number[]; normal: readonly number[] } | undefined,
-  domain: readonly [number, number],
-  bounds: readonly [number, number],
-  maximumExchanges: number,
-  roundoffMm: number,
-): readonly [number, number] | undefined {
-  /** A cached source point/normal already expressed in the tangent triangle. */
+  sample: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[0],
+  domain: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[1],
+  bounds: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[2],
+  maximumExchanges: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[3],
+  roundoffMm: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[4],
+): ReturnType<IAutoMovieGhoshConicApproximationBalance.Operation> {
+ 
+ /** A cached source point/normal already expressed in the tangent triangle. */
   type Coordinate = { value: readonly number[]; normal: readonly number[] };
-  /** A fitting witness has a source parameter so its neighboring peaks can be bracketed. */
+ 
+ /** A fitting witness has a source parameter so its neighboring peaks can be bracketed. */
   interface Witness {
     t: number;
     coordinate: Coordinate;
   }
-  /** One observed normal displacement, signed in the source's orientation. */
+ 
+ /** One observed normal displacement, signed in the source's orientation. */
   interface Observation {
     t: number;
     d: number;
@@ -51,7 +53,8 @@ export function GhoshConicApproximationBalance(
     Number.EPSILON *
     Math.max(Math.abs(domain[0]), Math.abs(domain[1]), domain[1] - domain[0]);
 
-  /** Reuse deterministic borrowed callbacks, retaining only call-local snapshots. */
+ 
+ /** Reuse deterministic borrowed callbacks, retaining only call-local snapshots. */
   function coordinate(t: number): Coordinate | undefined {
     const existing: Coordinate | undefined = cache.get(t);
     if (existing !== undefined) return existing;
@@ -59,12 +62,14 @@ export function GhoshConicApproximationBalance(
     if (value !== undefined) cache.set(t, value);
     return value;
   }
-  /** Every candidate uses the same normal graph and triangle-branch admission. */
+ 
+ /** Every candidate uses the same normal graph and triangle-branch admission. */
   function observe(t: number, rho: number): number | undefined {
     const value: Coordinate | undefined = coordinate(t);
     return value === undefined ? undefined : displacement(value, rho);
   }
-  /** A signed-lobe sum vanishes precisely at the witnessed equioscillation. */
+ 
+ /** A signed-lobe sum vanishes precisely at the witnessed equioscillation. */
   function imbalance(rho: number): readonly [number, number] | undefined {
     let positive: number = 0;
     let negative: number = 0;
@@ -76,7 +81,8 @@ export function GhoshConicApproximationBalance(
     }
     return [positive + negative, Math.max(positive, -negative)];
   }
-  /** Refine an observed local absolute maximum without increasing a fixed grid. */
+ 
+ /** Refine an observed local absolute maximum without increasing a fixed grid. */
   function peak(
     a: Observation,
     center: Observation,

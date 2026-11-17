@@ -1,12 +1,6 @@
-import { type IAutoMovieStagedSet, stageScene } from "@automovie/engine";
-import type {
-  IAutoMovieCameraClearanceEnvelope,
-  IAutoMovieNodeTarget,
-  IAutoMoviePointTarget,
-  IAutoMovieStage,
-  IAutoMovieStageCamera,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieStagedSet, IAutoMovieCameraClearanceEnvelope, IAutoMovieNodeTarget, IAutoMoviePointTarget, IAutoMovieStage, IAutoMovieStageCamera, IAutoMovieVector3 } from "@automovie/interface";
+import { stageScene } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";

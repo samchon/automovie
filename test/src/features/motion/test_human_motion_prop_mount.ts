@@ -1,27 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Transform,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
-  type IHumanProp,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+
+import { HumanChain, HumanPerformance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -46,8 +26,8 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One polygon body and two in-memory performances; no viewer or external host.
  */
 export function test_human_motion_prop_mount(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const standing: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const standing: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const initial: IAutoMovieResolvedBone = poseBones(
     body,
     resolveHumanPosture(body, standing),
@@ -62,17 +42,17 @@ export function test_human_motion_prop_mount(): void {
     extent: null,
   };
   const placed = (
-    parent: IHumanProp.IFrame,
+    parent: IAutoMovieMotionHumanProp.IFrame,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, point),
     );
-  const law: IHumanActionLaw = {
+  const law: IAutoMovieMotionHumanActionLaw = {
     name: "mountParts",
     interrupts: {},
-    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => ({
       ...stand.plan({ ...context, params: { seconds: 1 } }),
       mounts: [
         { prop: "part", onto: "carrier", point: "socket", from: 0 },
@@ -81,14 +61,14 @@ export function test_human_motion_prop_mount(): void {
     }),
   };
   for (const worn of [false, true]) {
-    const moving = (seconds: number): IHumanProp.IFrame => ({
+    const moving = (seconds: number): IAutoMovieMotionHumanProp.IFrame => ({
       position: { x: seconds, y: 1, z: -seconds / 2 },
       rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30 * seconds),
     });
-    const before: IHumanProp.IFrame = worn
+    const before: IAutoMovieMotionHumanProp.IFrame = worn
       ? { position: initial.worldPosition, rotation: initial.worldRotation }
       : moving(0);
-    const part = (subject: string, depth: number): IHumanProp => ({
+    const part = (subject: string, depth: number): IAutoMovieMotionHumanProp => ({
       subject,
       frame: {
         position: placed(before, Vector3.scale(offset, depth)),
@@ -97,7 +77,7 @@ export function test_human_motion_prop_mount(): void {
       points: { tip: { point: tip, normal: { x: 0, y: 1, z: 0 } } },
       affordances: [socket],
     });
-    const film: HumanPerformance = new HumanPerformance({
+    const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "mounted-parts",
       laws: [law],
       performers: [
@@ -137,7 +117,7 @@ export function test_human_motion_prop_mount(): void {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         film.bones("a", seconds);
       const hips: IAutoMovieResolvedBone = bones.get("hips")!;
-      const parent: IHumanProp.IFrame = worn
+      const parent: IAutoMovieMotionHumanProp.IFrame = worn
         ? { position: hips.worldPosition, rotation: hips.worldRotation }
         : moving(seconds);
       const supplied: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -183,7 +163,7 @@ export function test_human_motion_prop_mount(): void {
           `${worn ? "worn" : "fixture"} ${subject} is aimed on the supplied body at ${seconds}`,
           vclose(aimed, worn ? Vector3.add(expected, displacement) : expected),
         );
-        const frame: IHumanProp.IFrame = film.prop(subject, seconds);
+        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(subject, seconds);
         TestValidator.predicate(
           `${worn ? "worn" : "fixture"} ${subject} follows its socket at ${seconds}`,
           vclose(placed(frame, tip), expected),

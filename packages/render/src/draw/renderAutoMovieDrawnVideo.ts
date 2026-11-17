@@ -1,9 +1,12 @@
-import type { IAutoMovieRenderSpec } from "@automovie/interface";
+import type { IAutoMovieDrawnVideoResult, IAutoMovieRasterImage, IAutoMovieRenderSpec } from "@automovie/interface";
+
+
+
 
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
 import { frameTimes } from "../frameTimes.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
@@ -44,13 +47,7 @@ export async function renderAutoMovieDrawnVideo(props: {
 
   /** Run FFmpeg with the arguments, resolving once it succeeded. */
   encode: (args: readonly string[]) => Promise<void>;
-}): Promise<{
-  /** The subject's frames, in order, each with its second, file and pixel hash. */
-  frames: { index: number; seconds: number; file: string; hash: string }[];
-
-  /** The arguments the encoder ran with. */
-  args: string[];
-}> {
+}): Promise<IAutoMovieDrawnVideoResult> {
   const { subject } = props.session;
   const spec: IAutoMovieRenderSpec = {
     ...props.spec,

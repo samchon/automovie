@@ -1,23 +1,11 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanTravelLeaf, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
@@ -52,20 +40,6 @@ import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased: the handle, its frame, its width and the leaf's colliders are the prop's own.
  */
 export namespace HumanTravelLeaf {
-  /** Parameters of opening a door. */
-  export interface IParams {
-    /** The door: its prop's subject id in the performance. */
-    door: string;
-
-    /** The handle taken: one of the prop's points, such as a door's `pull` or `push`. */
-    handle: string;
-
-    /** Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. */
-    seconds: number & tags.ExclusiveMinimum<0.6> & HumanUnit<"s">;
-
-    /** The hand; the right when absent. */
-    side?: "left" | "right";
-  }
 
   /** How far the arm's fit may leave the wrist from where the hold asks it, metres (the campaign's 5 mm contact bound). */
   export const HOLD: number = 0.005;
@@ -77,14 +51,14 @@ export namespace HumanTravelLeaf {
   export const REACH: number = 0.97;
 
   /** Open a door by its handle, standing. */
-  export const openDoor: IHumanActionLaw<IParams> = {
+  export const openDoor: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelLeaf.IParams> = {
     name: "openDoor",
     interrupts: {
       walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     },
     yields: ["head"],
-    plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
-      const body: IHumanBody = context.body;
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelLeaf.IParams>): IAutoMovieMotionHumanActionPlan => {
+      const body: IAutoMovieMotionHumanBody = context.body;
       const side: "left" | "right" = context.params.side ?? "right";
       const seconds: number = context.params.seconds;
       if (!(seconds > TAKE))
@@ -102,7 +76,7 @@ export namespace HumanTravelLeaf {
           reason: `a door is held after the hand has reached it, which takes ${TAKE} s`,
           fix: "hold the door longer",
         });
-      const door: IHumanActionContext.IProp = context.prop(context.params.door);
+      const door: IAutoMovieMotionHumanActionContext.IProp = context.prop(context.params.door);
       const id: string = context.params.handle;
       const rest:
         | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
@@ -128,7 +102,7 @@ export namespace HumanTravelLeaf {
       const handle = (
         film: number,
       ): Parameters<typeof HumanMountRider.hold>[3] => {
-        const frame: IHumanProp.IFrame = door.frame(film);
+        const frame: IAutoMovieMotionHumanProp.IFrame = door.frame(film);
         const moved:
           | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
           | undefined = door.prop.point?.(id, film);
@@ -159,7 +133,7 @@ export namespace HumanTravelLeaf {
       };
       // The body stands while it opens, its sway signed in the opening
       // hand's frame, so a left-handed opening mirrors a right one.
-      const standing: IHumanActionPlan = stand.plan(
+      const standing: IAutoMovieMotionHumanActionPlan = stand.plan(
         { ...context, params: { seconds } },
         side,
       );
@@ -208,7 +182,7 @@ export namespace HumanTravelLeaf {
           ),
         );
       // Where the hold puts the wrist on the handle at a second.
-      const wristAt = (t: number, posture: IHumanPosture): IAutoMovieVector3 =>
+      const wristAt = (t: number, posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
         HumanMountRider.hold(
           body,
           side,
@@ -221,7 +195,7 @@ export namespace HumanTravelLeaf {
       // A handle the standing arm does not reach as the hand takes it, such
       // as a car door's below the shoulder, is taken leaning toward it, the
       // body lowered over the reach as a pick up lowers it.
-      const start: IHumanPosture = standing.posture(0);
+      const start: IAutoMovieMotionHumanPosture = standing.posture(0);
       const lowered: pickUpPosture.IStance | null =
         Vector3.length(Vector3.subtract(wristAt(TAKE, start), shoulder)) <=
         REACH * arm
@@ -235,15 +209,15 @@ export namespace HumanTravelLeaf {
               wristAt(TAKE, start),
               bendLower.REACH * arm,
             );
-      const base = (t: number): IHumanPosture =>
+      const base = (t: number): IAutoMovieMotionHumanPosture =>
         lowered === null
           ? standing.posture(t)
           : lowered.at(minimumJerk(Math.min(1, t / TAKE)).s);
 
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
-      const holds = (posture: IHumanPosture, t: number): boolean => {
-        const goal: IHumanPosture.IGoal = HumanMountRider.hold(
+      const holds = (posture: IAutoMovieMotionHumanPosture, t: number): boolean => {
+        const goal: IAutoMovieMotionHumanPosture.IGoal = HumanMountRider.hold(
           body,
           side,
           posture,
@@ -266,7 +240,7 @@ export namespace HumanTravelLeaf {
 
       // Standing while the arm holds the handle from there throughout;
       // otherwise walking with the leaf (`HumanTravelLeafWalk`).
-      const walked: IHumanActionPlan | null = readings.every(
+      const walked: IAutoMovieMotionHumanActionPlan | null = readings.every(
         (t: number): boolean => holds(base(t), t),
       )
         ? null
@@ -281,9 +255,9 @@ export namespace HumanTravelLeaf {
               normal: grip(context.start + t).normal,
             }),
           });
-      const shown = (t: number): IHumanPosture => {
+      const shown = (t: number): IAutoMovieMotionHumanPosture => {
         if (walked === null) return base(t);
-        const walking: IHumanPosture = walked.posture(
+        const walking: IAutoMovieMotionHumanPosture = walked.posture(
           Math.min(walked.duration, t),
         );
         return lowered === null
@@ -322,7 +296,7 @@ export namespace HumanTravelLeaf {
           fix: `open the door at most ${followed.toFixed(1)} degrees, or swing it more slowly`,
         });
       }
-      const closed: IHumanPosture["joints"] =
+      const closed: IAutoMovieMotionHumanPosture["joints"] =
         (door.prop.shapes ?? []).length === 0
           ? {}
           : HumanMountRider.closed(
@@ -334,23 +308,23 @@ export namespace HumanTravelLeaf {
               door.frame(context.start + TAKE),
             );
       // The walk's plants, read on the action's clock.
-      const plants: IHumanContactWindow[] =
+      const plants: IAutoMovieMotionHumanContactWindow[] =
         walked === null
           ? standing.contacts
           : walked.contacts
               .filter(
-                (c: IHumanContactWindow): boolean =>
+                (c: IAutoMovieMotionHumanContactWindow): boolean =>
                   c.part === "leftFoot" || c.part === "rightFoot",
               )
               .map(
-                (c: IHumanContactWindow): IHumanContactWindow => ({
+                (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
                   ...c,
                   from: Math.min(1, (c.from * walked.duration) / seconds),
                   to: Math.min(1, (c.to * walked.duration) / seconds),
                 }),
               )
-              .filter((c: IHumanContactWindow): boolean => c.to > c.from);
-      const contacts: IHumanContactWindow[] = [
+              .filter((c: IAutoMovieMotionHumanContactWindow): boolean => c.to > c.from);
+      const contacts: IAutoMovieMotionHumanContactWindow[] = [
         ...plants,
         // The hand bears on the door, which the scene moves; a `grip` would make the door ride the hand instead.
         {
@@ -365,9 +339,9 @@ export namespace HumanTravelLeaf {
         ...standing,
         events: [{ name: "taken", share: TAKE / seconds }],
         contacts,
-        posture: (t: number): IHumanPosture => {
+        posture: (t: number): IAutoMovieMotionHumanPosture => {
           const at: number = Math.min(seconds, Math.max(0, t));
-          const posture: IHumanPosture = shown(at);
+          const posture: IAutoMovieMotionHumanPosture = shown(at);
           const held: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
               body,

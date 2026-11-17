@@ -1,12 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFloorRoll,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanFloorRoll, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,13 +34,13 @@ export function test_human_motion_floor_roll(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [row, sign] of [
       ["forwardRoll", 1],
       ["backwardRoll", -1],
     ] as const) {
       const label: string = `${name} ${row}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "roll",
@@ -70,13 +64,13 @@ export function test_human_motion_floor_roll(): void {
         );
         continue;
       }
-      const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
       const at = (event: string): number =>
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??
           NaN) *
           placed.plan.duration;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,

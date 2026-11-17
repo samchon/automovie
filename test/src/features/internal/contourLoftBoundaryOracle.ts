@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieCurve64 as C,
-  IAutoMovieContourLoft64 as L,
-} from "@automovie/engine";
+import type { IAutoMovieContourLoft64, IAutoMovieCurve64 } from "@automovie/interface";
+
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
 import { nclose } from "../internal/nclose.ts";
@@ -31,9 +29,9 @@ export namespace contourLoftBoundaryOracle {
 
   /** Read the mesh's actual identity edges and their signed triangle traversal. */
   export const edges: (
-    result: L.IResult,
+    result: IAutoMovieContourLoft64.IResult,
   ) => Map<string, { uses: number; orientation: number }> = (
-    result: L.IResult,
+    result: IAutoMovieContourLoft64.IResult,
   ): Map<string, { uses: number; orientation: number }> => {
     const output: Map<string, { uses: number; orientation: number }> =
       new Map();
@@ -57,21 +55,21 @@ export namespace contourLoftBoundaryOracle {
   };
 
   /** Count actual triangle ownership in the two dimensioned adjacent test intervals. */
-  export const intervalTriangles: (result: L.IResult) => [number, number] = (
-    result: L.IResult,
+  export const intervalTriangles: (result: IAutoMovieContourLoft64.IResult) => [number, number] = (
+    result: IAutoMovieContourLoft64.IResult,
   ): [number, number] => {
     const counts: [number, number] = [0, 0];
     for (let side: number = 0; side < 2; side++)
       counts[side] = (result.primitiveRanges ?? [])
         .filter(
-          (range: NonNullable<L.IResult["primitiveRanges"]>[number]): boolean =>
+          (range: NonNullable<IAutoMovieContourLoft64.IResult["primitiveRanges"]>[number]): boolean =>
             nclose(range.beforeMm, side * 2, 0) &&
             nclose(range.afterMm, side * 2 + 2, 0),
         )
         .reduce(
           (
             sum: number,
-            range: NonNullable<L.IResult["primitiveRanges"]>[number],
+            range: NonNullable<IAutoMovieContourLoft64.IResult["primitiveRanges"]>[number],
           ): number => sum + range.triangleCount,
           0,
         );
@@ -80,23 +78,23 @@ export namespace contourLoftBoundaryOracle {
 
   /** Test every published source phase with the explicit Bernstein formula in the original chart. */
   export const aligned: (
-    result: L.IResult,
-    sections: readonly L.ISection[],
+    result: IAutoMovieContourLoft64.IResult,
+    sections: readonly IAutoMovieContourLoft64.ISection[],
   ) => boolean = (
-    result: L.IResult,
-    sections: readonly L.ISection[],
+    result: IAutoMovieContourLoft64.IResult,
+    sections: readonly IAutoMovieContourLoft64.ISection[],
   ): boolean =>
     result.construction.every(
-      (construction: L.IResult["construction"][number]): boolean => {
-        const section: L.ISection | undefined = sections.find(
-          (candidate: L.ISection, i: number): boolean =>
+      (construction: IAutoMovieContourLoft64.IResult["construction"][number]): boolean => {
+        const section: IAutoMovieContourLoft64.ISection | undefined = sections.find(
+          (candidate: IAutoMovieContourLoft64.ISection, i: number): boolean =>
             candidate.loops.some(
-              (loop: L.ISection["loops"][number], j: number): boolean =>
+              (loop: IAutoMovieContourLoft64.ISection["loops"][number], j: number): boolean =>
                 `${loop.curve.name}.section.${i}.loop.${j}` === construction.id,
             ),
         );
-        const curve: C.Cubic | undefined = section?.loops.find(
-          (loop: L.ISection["loops"][number]): boolean =>
+        const curve: IAutoMovieCurve64.Cubic | undefined = section?.loops.find(
+          (loop: IAutoMovieContourLoft64.ISection["loops"][number]): boolean =>
             construction.id.startsWith(`${loop.curve.name}.section.`),
         )?.curve;
         return (

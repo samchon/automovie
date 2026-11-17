@@ -1,19 +1,6 @@
-import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  type IAutoMovieResolvedBone,
-  resolvePose,
-  skeletonJointAxes,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, resolvePose, skeletonJointAxes } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { bakeTimes, clipWorldParity } from "../internal/clipParity";

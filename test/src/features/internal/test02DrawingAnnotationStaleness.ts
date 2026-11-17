@@ -1,10 +1,6 @@
-import type { IAutoMovieDrawingFeatureResolution } from "@automovie/engine";
-import type {
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieDrawingFeature,
-  IAutoMovieModel,
-} from "@automovie/interface";
+import type { IAutoMovieDrawingFeatureResolution, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieDrawingFeature, IAutoMovieModel } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "./predicates";

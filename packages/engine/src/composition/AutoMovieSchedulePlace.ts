@@ -1,12 +1,9 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type { IAutoMovieIntent, IAutoMovieSchedule, IAutoMovieComposition, IAutoMovieResolveSchedule, IAutoMovieScheduleCut, IAutoMovieScheduleError, IAutoMovieScheduleWalk, IAutoMovieMotionEvent } from "@automovie/interface";
 
-import type { AutoMovieComposition } from "./AutoMovieComposition";
+
 import { AutoMovieScheduleCut } from "./AutoMovieScheduleCut";
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
-import type { IAutoMovieIntent } from "./IAutoMovieIntent";
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
-import type { resolveAutoMovieSchedule } from "./resolveAutoMovieSchedule";
 
 /**
  * The two placements of a composition's leaves and joints that the walk does
@@ -38,19 +35,19 @@ export namespace AutoMovieSchedulePlace {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The entry joins the walk's list and nothing else is kept.
    */
   export function intent(
-    walk: AutoMovieScheduleWalk.IWalk,
+    walk: IAutoMovieScheduleWalk.IWalk,
     intent: IAutoMovieIntent,
     start: number,
   ): number {
-    const context: resolveAutoMovieSchedule.IContext = {
+    const context: IAutoMovieResolveSchedule.IContext = {
       start,
       entries: walk.entries,
     };
-    const timing: resolveAutoMovieSchedule.ITiming = walk.laws.timing(
+    const timing: IAutoMovieResolveSchedule.ITiming = walk.laws.timing(
       intent,
       context,
     );
-    const who: Pick<AutoMovieScheduleError.IProps, "subject" | "capability"> = {
+    const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> = {
       subject: intent.subject,
       capability: intent.capability,
     };
@@ -69,7 +66,7 @@ export namespace AutoMovieSchedulePlace {
       );
     // A cut ends the entry early at a share or a named event; a contact
     // after the cut never happens.
-    const cut: AutoMovieScheduleCut.ICut | undefined = AutoMovieScheduleCut.of(
+    const cut: IAutoMovieScheduleCut.ICut | undefined = AutoMovieScheduleCut.of(
       walk,
       intent,
       timing,
@@ -146,12 +143,12 @@ export namespace AutoMovieSchedulePlace {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    walk: AutoMovieScheduleWalk.IWalk,
-    node: Extract<AutoMovieComposition, { kind: "at" }>,
+    walk: IAutoMovieScheduleWalk.IWalk,
+    node: Extract<IAutoMovieComposition, { kind: "at" }>,
     start: number,
-    place: (part: AutoMovieComposition, from: number) => number,
+    place: (part: IAutoMovieComposition, from: number) => number,
   ): number {
-    const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+    const events: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
       AutoMovieScheduleWalk.instants(walk, node.anchor);
     const first: IAutoMovieIntent | undefined = AutoMovieScheduleWalk.leading(
       node.part,
@@ -204,7 +201,7 @@ export namespace AutoMovieSchedulePlace {
               alternatives: [
                 ...new Set(
                   events.map(
-                    (e: resolveAutoMovieSchedule.ICue): string => e.name,
+                    (e: IAutoMovieResolveSchedule.ICue): string => e.name,
                   ),
                 ),
               ],

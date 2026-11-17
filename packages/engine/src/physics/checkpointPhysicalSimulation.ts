@@ -1,5 +1,4 @@
-import type { AutoMoviePhysicalSimulation } from "./AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicalSimulationInput } from "./AutoMoviePhysicalSimulationInput";
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
@@ -14,12 +13,12 @@ import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function checkpointPhysicalSimulation(
-  input: AutoMoviePhysicalSimulation.IInput,
-  previous?: AutoMoviePhysicalSimulation,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  previous?: IAutoMoviePhysicalSimulation,
 ): number {
   if (!previous || previous.cache.protocol !== Cache.protocol) return 0;
-  const strip: (value: AutoMoviePhysicalSimulation.IInput) => string = (
-    value: AutoMoviePhysicalSimulationInput.IInput,
+  const strip: (value: IAutoMoviePhysicalSimulationInput.IInput) => string = (
+    value: IAutoMoviePhysicalSimulationInput.IInput,
   ): string =>
     JSON.stringify({
       ...value,
@@ -39,14 +38,14 @@ export function checkpointPhysicalSimulation(
         input.bodies.map(
           (
             body: (typeof input.bodies)[number],
-          ): AutoMoviePhysicalSimulation.ITarget => body.targets[step]!,
+          ): IAutoMoviePhysicalSimulationInput.ITarget => body.targets[step]!,
         ),
       ) !==
         JSON.stringify(
           previous.input.bodies.map(
             (
               body: (typeof previous.input.bodies)[number],
-            ): AutoMoviePhysicalSimulation.ITarget => body.targets[step]!,
+            ): IAutoMoviePhysicalSimulationInput.ITarget => body.targets[step]!,
           ),
         ) ||
       JSON.stringify(

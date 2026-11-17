@@ -1,25 +1,12 @@
-import {
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndFootPlant,
-  IAutoMovieBeatEndState,
-  IAutoMovieClip,
-  IAutoMovieMotion,
-  IAutoMovieMountBinding,
-  IAutoMoviePose,
-  IAutoMovieSceneNode,
-  IAutoMovieShot,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieSampledChannel, type IAutoMovieStagedSet, type IAutoMovieResolveBeatProps, IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieBeatEndState, IAutoMovieClip, IAutoMovieMotion, IAutoMovieMountBinding, IAutoMoviePose, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import { IResolveBeatProps } from "./IResolveBeatProps";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
 import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
@@ -53,7 +40,7 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Indexes, context and sampled-channel maps live for one call and are released on return or throw; unique current/trailing instants number at most one plus the baked actor count. The returned state owns one fresh record per scene node. A non-null pose is shallow-copied with root cleared and joints borrowed; plants and mount bindings are borrowed, while transform ownership follows the sampled or staged branch.
  */
 export function resolveBeatSnapshot(
-  props: IResolveBeatProps,
+  props: IAutoMovieResolveBeatProps,
   instant: number,
 ): IAutoMovieBeatEndState {
   const motionById: Map<string, { motion: IAutoMovieMotion; index: number }> =

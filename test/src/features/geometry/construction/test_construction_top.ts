@@ -1,14 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  IAutoMovieConstructionKnot,
-  IAutoMovieConstructionOutline,
-  IAutoMovieConstructionView,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionKnot, IAutoMovieConstructionOutline, IAutoMovieConstructionView } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -55,7 +47,7 @@ export function test_construction_top(): void {
       type: "top",
       shoulders: [flat(), flat(), flat(), flat()],
     };
-    const real: AutoMovieConstructionRealization.IRealization =
+    const real: IAutoMovieConstructionRealization.IRealization =
       realizeAutoMovieConstruction(
         { name: "made", root: tube },
         { chord: 1e-4 },

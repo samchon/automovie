@@ -1,4 +1,4 @@
-import { ViolationCollector } from "../../validation/ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import { isRecord } from "../../validation/isRecord";
 
 /**
@@ -21,7 +21,7 @@ import { isRecord } from "../../validation/isRecord";
 export function validateCameraClearanceEnvelope(
   value: unknown,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   if (!isRecord(value)) {
     out.push("type", path, "camera clearance must be an object", value);
@@ -43,7 +43,7 @@ export function validateCameraClearanceEnvelope(
 function validateSphere(
   sphere: unknown,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   if (!isRecord(sphere)) {
     out.push("type", path, "camera clearance sphere must be an object", sphere);

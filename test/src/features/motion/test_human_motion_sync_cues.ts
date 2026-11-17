@@ -1,12 +1,6 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
-import {
-  HumanChain,
-  HumanCue,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolveSchedule } from "@automovie/interface";
+
+import { HumanChain, HumanCue, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -54,17 +48,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_sync_cues(): void {
   const FRAME: number = 1 / 24;
   const cues: {
-    dialogue: resolveAutoMovieSchedule.ICue[];
-    music: resolveAutoMovieSchedule.ICue[];
+    dialogue: IAutoMovieResolveSchedule.ICue[];
+    music: IAutoMovieResolveSchedule.ICue[];
   } = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
     music: HumanCue.beats({ bpm: 96, count: 16 }),
   };
   const complaints: string[] = [];
   const perform = (
-    bodies: Readonly<Record<string, IHumanBody>>,
-    composition: HumanChain,
-  ): HumanPerformance =>
+    bodies: Readonly<Record<string, IAutoMovieMotionHumanBody>>,
+    composition: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "sync",
       cues,
@@ -77,7 +71,7 @@ export function test_human_motion_sync_cues(): void {
       })),
       composition: composition.node,
     });
-  const instant = (segment: HumanSegment.ISegment, event: string): number =>
+  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -91,22 +85,22 @@ export function test_human_motion_sync_cues(): void {
   };
   const said = (thrown: unknown): string =>
     thrown instanceof Error ? thrown.message : String(thrown);
-  const waving = (index: number): HumanChain =>
+  const waving = (index: number): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a")
       .stand({ seconds: 4 })
       .gesture({ kind: "wave" })
       .sync({ of: "dialogue", event: "accent", index, align: "strokeStart" });
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. The stroke meets the accent, and the stand gives way where needed.
-    const waved: readonly HumanSegment.ISegment[] = perform(
+    const waved: readonly IAutoMovieMotionHumanSegment.ISegment[] = perform(
       { a: body },
       waving(0),
     ).segments("a");
-    const stood: HumanSegment.ISegment | undefined = waved[0];
-    const wave: HumanSegment.ISegment | undefined = waved[1];
+    const stood: IAutoMovieMotionHumanSegment.ISegment | undefined = waved[0];
+    const wave: IAutoMovieMotionHumanSegment.ISegment | undefined = waved[1];
     const met: number = instant(wave!, "strokeStart");
     if (!(Math.abs(met - 2.0) <= FRAME))
       complaints.push(
@@ -122,7 +116,7 @@ export function test_human_motion_sync_cues(): void {
       );
 
     // 2. Moving the cue moves the action and nothing else.
-    const later: HumanSegment.ISegment = perform(
+    const later: IAutoMovieMotionHumanSegment.ISegment = perform(
       { a: body },
       waving(1),
     ).segments("a")[1]!;
@@ -136,10 +130,10 @@ export function test_human_motion_sync_cues(): void {
     }
   }
 
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
 
   // 3. A cut on a beat.
-  const cut: HumanSegment.ISegment = perform(
+  const cut: IAutoMovieMotionHumanSegment.ISegment = perform(
     { a: body },
     HumanChain.subject("a")
       .stand({ seconds: 5 })
@@ -152,7 +146,7 @@ export function test_human_motion_sync_cues(): void {
     );
 
   // 4 and 5. A partner's instant, twice.
-  const pair = (): HumanPerformance =>
+  const pair = (): IAutoMovieMotionHumanPerformance =>
     perform(
       { a: body, b: body },
       HumanChain.subject("a")
@@ -169,7 +163,7 @@ export function test_human_motion_sync_cues(): void {
             }),
         ),
     );
-  const first: HumanPerformance = pair();
+  const first: IAutoMovieMotionHumanPerformance = pair();
   const answered: number = instant(first.segments("b")[1]!, "strokeStart");
   const asked: number = instant(first.segments("a")[0]!, "strokeEnd") + 0.2;
   if (!(Math.abs(answered - asked) <= FRAME))
@@ -178,14 +172,14 @@ export function test_human_motion_sync_cues(): void {
     );
   // Whether two films place every action at the same seconds, to a
   // nanosecond.
-  const alike = (one: HumanPerformance, other: HumanPerformance): boolean =>
+  const alike = (one: IAutoMovieMotionHumanPerformance, other: IAutoMovieMotionHumanPerformance): boolean =>
     ["a", "b"].every((subject: string): boolean => {
-      const here: readonly HumanSegment.ISegment[] = one.segments(subject);
-      const there: readonly HumanSegment.ISegment[] = other.segments(subject);
+      const here: readonly IAutoMovieMotionHumanSegment.ISegment[] = one.segments(subject);
+      const there: readonly IAutoMovieMotionHumanSegment.ISegment[] = other.segments(subject);
       return (
         here.length === there.length &&
         here.every(
-          (segment: HumanSegment.ISegment, index: number): boolean =>
+          (segment: IAutoMovieMotionHumanSegment.ISegment, index: number): boolean =>
             segment.name === there[index]!.name &&
             Math.abs(segment.entryTime - there[index]!.entryTime) <= 1e-9 &&
             Math.abs(segment.end - there[index]!.end) <= 1e-9,
@@ -253,10 +247,10 @@ export function test_human_motion_sync_cues(): void {
     );
 
   // 7. The tracks.
-  const beats: resolveAutoMovieSchedule.ICue[] = cues.music.filter(
+  const beats: IAutoMovieResolveSchedule.ICue[] = cues.music.filter(
     (c): boolean => c.name === "beat",
   );
-  const downs: resolveAutoMovieSchedule.ICue[] = cues.music.filter(
+  const downs: IAutoMovieResolveSchedule.ICue[] = cues.music.filter(
     (c): boolean => c.name === "downbeat",
   );
   if (

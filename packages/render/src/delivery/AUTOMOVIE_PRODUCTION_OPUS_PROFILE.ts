@@ -1,18 +1,8 @@
+import type { IAutoMovieProductionOpusProfile } from "@automovie/interface";
+
+
 /** Current fieldwise Opus-in-MP4 profile written by the deterministic encoder. */
-export const AUTOMOVIE_PRODUCTION_OPUS_PROFILE: Readonly<{
-  kind: "opus";
-  version: 0;
-  outputChannelCount: 2;
-  inputSampleRate: 48000;
-  outputGainQ7_8: 0;
-  channelMapping: Readonly<{
-    family: 0;
-    streamCount: null;
-    coupledCount: null;
-    mapping: readonly [];
-    channelOrder: readonly ["front-left", "front-right"];
-  }>;
-}> = {
+export const AUTOMOVIE_PRODUCTION_OPUS_PROFILE: Readonly<IAutoMovieProductionOpusProfile> = {
   kind: "opus",
   version: 0,
   outputChannelCount: 2,

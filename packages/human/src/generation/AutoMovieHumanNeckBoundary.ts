@@ -1,19 +1,16 @@
-import { AutoMovieLoftSectionNative, AutoMovieViewOutline, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanNeckBoundary, IAutoMovieHumanTrunkConnection } from "@automovie/interface";
+
+
+
+
+import { AutoMovieLoftSectionNative, AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
 
 import { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
-import type { AutoMovieHumanHeadNeckCurves } from "./head/AutoMovieHumanHeadNeckCurves";
-import type { AutoMovieHumanTrunkConnection } from "./trunk/AutoMovieHumanTrunkConnection";
+
 
 /** Original regular neck boundary from shared scalar/section/frame laws, before either part or any raw chain. */
 export namespace AutoMovieHumanNeckBoundary {
-  /** Same physical cut, complete native family and separate legacy support interpretation. */
-  export interface IOutput {
-    /** Full original section and qualified physical frame2, calibration mm. */
-    readonly connection: AutoMovieHumanTrunkConnection.IDefinition;
-
-    /** Existing internal-overlap support/finite-difference convention, not the qualified source jets. */
-    readonly seat: AutoMovieHumanTrunkNeckSeat.ISeat;
-  }
+  
 
   /**
    * @evidence contracts/common.md#principled-implementation Reads the declared radius/centre laws at the original cut and constructs all four native support two-jets and the original fixed-axis frame2 directly. Native admission still evaluates that actual complete section.
@@ -24,24 +21,24 @@ export namespace AutoMovieHumanNeckBoundary {
    * @evidence contracts/performance.md#reuse-equivalent-work Both adjoining original consumers receive the same boundary descriptor; required scalar/neck constraints belong to the supplied common generating controls.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only numeric section/frame/support records return. Prepared scalars, readings and native callbacks are call-owned and no completed part or chain is retained.
    */
-  export function create(controls: AutoMovieHumanHeadNeckCurves.IOutput, station: number): IOutput {
-    const radius: AutoMovieViewOutline.IOutline = prepare(controls.radius);
-    const centre: AutoMovieViewOutline.IOutline = prepare(controls.centre);
-    const origin: AutoMovieViewOutline.IReading = read(centre, station);
-    const r: AutoMovieViewOutline.IReading = read(radius, station);
-    const inputs: AutoMovieHumanTrunkConnection.IDefinition["field"]["inputs"] = {
+  export function create(controls: IAutoMovieHumanHeadNeckCurves.IOutput, station: number): IAutoMovieHumanNeckBoundary.IOutput {
+    const radius: IAutoMovieViewOutline.IOutline = prepare(controls.radius);
+    const centre: IAutoMovieViewOutline.IOutline = prepare(controls.centre);
+    const origin: IAutoMovieViewOutline.IReading = read(centre, station);
+    const r: IAutoMovieViewOutline.IReading = read(radius, station);
+    const inputs: IAutoMovieHumanTrunkConnection.IDefinition["field"]["inputs"] = {
       extents: controls.extents.map((extent: number): [number, number, number] => [
         extent * r.value / controls.lateral,
         extent * r.stationJet![0] / controls.lateral,
         extent * r.stationJet![1] / controls.lateral,
-      ]) as AutoMovieHumanTrunkConnection.IDefinition["field"]["inputs"]["extents"],
+      ]) as IAutoMovieHumanTrunkConnection.IDefinition["field"]["inputs"]["extents"],
       shoulders: [
         [AutoMovieViewSection.ELLIPSE, 0, 0], [AutoMovieViewSection.ELLIPSE, 0, 0],
         [AutoMovieViewSection.ELLIPSE, 0, 0], [AutoMovieViewSection.ELLIPSE, 0, 0],
       ],
     };
     AutoMovieLoftSectionNative.jet(inputs)(0);
-    const connection: AutoMovieHumanTrunkConnection.IDefinition = {
+    const connection: IAutoMovieHumanTrunkConnection.IDefinition = {
       boundary: { y: station,
         frame: { origin: [origin.value, station, 0], u: [1, 0, 0], v: [0, 0, 1] },
         frameSlopes: { origin: [origin.stationJet![0], 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
@@ -61,14 +58,14 @@ export namespace AutoMovieHumanNeckBoundary {
 }
 
 /** Admit the actual numeric scalar in its original parameter. */
-function prepare(outline: IAutoMovieViewPart.IOutline): AutoMovieViewOutline.IOutline {
+function prepare(outline: IAutoMovieViewPart.IOutline): IAutoMovieViewOutline.IOutline {
   const result: ReturnType<typeof AutoMovieViewOutline.create> = AutoMovieViewOutline.create(outline);
   if ("detail" in result) throw new Error(result.detail);
   return result;
 }
 
 /** Physical station derivatives of the original law, never fitted boundary jets. */
-function read(outline: AutoMovieViewOutline.IOutline, station: number): AutoMovieViewOutline.IReading {
+function read(outline: IAutoMovieViewOutline.IOutline, station: number): IAutoMovieViewOutline.IReading {
   const result: ReturnType<typeof AutoMovieViewOutline.at> = AutoMovieViewOutline.at(outline, station);
   if (typeof result === "string") throw new Error(result);
   if (result.stationJet === null) throw new Error("Original neck boundary has no qualified physical2");

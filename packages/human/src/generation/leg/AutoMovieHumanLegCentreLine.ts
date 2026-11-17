@@ -1,3 +1,7 @@
+import type { IAutoMovieNaturalSpline, IAutoMovieHumanLegAxis, IAutoMovieHumanLegCentreLine } from "@automovie/interface";
+
+
+
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 
@@ -19,36 +23,9 @@ import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
  * leg, meets each ring's centroid exactly and crosses the knee on its joint.
  */
 export namespace AutoMovieHumanLegCentreLine {
-  /** A centroid the line passes through. */
-  export interface IAnchor {
-    /** Station, mm. */
-    at: number;
+  
 
-    /** The centroid in the canonical body frame, `[x, z]` mm (the ring's plane is horizontal). */
-    point: readonly [number, number];
-  }
-
-  /** What the line is placed from. */
-  export interface IInput {
-    /** The leg's frames. */
-    frames: AutoMovieHumanLegAxis.IFrames;
-
-    /** The ankle ring's centroid at the leg's first station. */
-    ankle: IAnchor;
-
-    /** The crotch arc's centroid at the leg's last station. */
-    crotch: IAnchor;
-
-    /** Station of the knee centre, mm. */
-    knee: number;
-
-    /**
-     * The sections' centres ahead of the bone where the leg's own law stands,
-     * by the limb's mass prior (`AutoMovieHumanLegMassPrior`): station and
-     * forward offset, mm.
-     */
-    mass: readonly { at: number; offset: number }[];
-  }
+  
 
   /**
    * The centre line.
@@ -56,9 +33,9 @@ export namespace AutoMovieHumanLegCentreLine {
    * @param input The frames and the three places.
    * @returns The chart origin's offset from the frame origin at a station, `[along u, along v]` mm.
    */
-  export function of(input: IInput): (s: number) => [number, number] {
-    const offset: (a: IAnchor) => [number, number] = (a: IAnchor): [number, number] => {
-      const f: AutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(input.frames, a.at);
+  export function of(input: IAutoMovieHumanLegCentreLine.IInput): IAutoMovieHumanLegCentreLine.OfResult {
+    const offset: (a: IAutoMovieHumanLegCentreLine.IAnchor) => [number, number] = (a: IAutoMovieHumanLegCentreLine.IAnchor): [number, number] => {
+      const f: IAutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(input.frames, a.at);
       const d: number[] = [a.point[0] - f.origin[0], 0, a.point[1] - f.origin[2]];
       return [d[0]! * f.u[0] + d[2]! * f.u[2], d[0]! * f.v[0] + d[2]! * f.v[2]];
     };
@@ -74,11 +51,11 @@ export namespace AutoMovieHumanLegCentreLine {
       { at: input.knee, offset: 0 },
       { at: input.crotch.at, offset: high[0] },
     ].sort((a: { at: number; offset: number }, b: { at: number; offset: number }): number => a.at - b.at);
-    const u: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const u: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       forward.map((m: { at: number; offset: number }): number => m.at),
       forward.map((m: { at: number; offset: number }): number => m.offset),
     );
-    const v: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create([input.ankle.at, input.knee, input.crotch.at], [low[1], 0, high[1]]);
+    const v: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create([input.ankle.at, input.knee, input.crotch.at], [low[1], 0, high[1]]);
     return (s: number): [number, number] => [AutoMovieNaturalSpline.evaluate(u, s), AutoMovieNaturalSpline.evaluate(v, s)];
   }
 }

@@ -1,7 +1,5 @@
-import {
-  type AutoMovieLoftViewRead,
-  AutoMovieNativeCoordinate,
-} from "@automovie/engine";
+import type { IAutoMovieLoftViewRead, IAutoMovieNativeCoordinate } from "@automovie/interface";
+import { AutoMovieNativeCoordinate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -27,7 +25,7 @@ export function test_construction_native_coordinate(): void {
   for (const scale of [0.001, 1, 1000]) {
     const a: number = 3 * scale;
     const b: number = 2 * scale;
-    const inputs: AutoMovieLoftViewRead.IValues = {
+    const inputs: IAutoMovieLoftViewRead.IValues = {
       extents: [a, b, a, b],
       shoulders: [0, 1, 2, 3].map((): number => Math.SQRT2 - 1),
     };
@@ -35,7 +33,7 @@ export function test_construction_native_coordinate(): void {
       for (const half of [1, -1] as const)
         for (const share of [-1, -0.93, -0.5, 0, 0.31, 0.87, 1]) {
           const target: number = share * (component === 0 ? a : b);
-          const result: AutoMovieNativeCoordinate.IResult =
+          const result: IAutoMovieNativeCoordinate.IResult =
             AutoMovieNativeCoordinate.locate(inputs, component, half, target);
           if ((share === -1 || share === 1) && result.iterations !== 0)
             failures.push(
@@ -82,7 +80,7 @@ export function test_construction_native_coordinate(): void {
         "outside native target",
       );
   }
-  const inputs: AutoMovieLoftViewRead.IValues = {
+  const inputs: IAutoMovieLoftViewRead.IValues = {
     extents: [1, 1, 1, 1],
     shoulders: [0.4, 0.4, 0.4, 0.4],
   };

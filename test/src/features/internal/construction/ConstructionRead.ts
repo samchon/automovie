@@ -1,8 +1,5 @@
-import type {
-  AutoMovieConstructionRealization,
-  AutoMovieSolidTrim,
-  IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieSolidTrim } from "@automovie/interface";
+
 
 /**
  * Lookups into a realized construction by the names its tree gave: a face's
@@ -16,7 +13,7 @@ import type {
 export namespace ConstructionRead {
   /** A face's surface by its name. */
   export function surface(
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     name: string,
   ): IAutoMovieSolidSurface {
     const found: IAutoMovieSolidSurface | undefined = r.surfaces.find(
@@ -31,7 +28,7 @@ export namespace ConstructionRead {
 
   /** Every surface by its name. */
   export function surfaces(
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
   ): Map<string, IAutoMovieSolidSurface> {
     return new Map(
       r.surfaces.map(
@@ -45,12 +42,12 @@ export namespace ConstructionRead {
 
   /** A join by its name, the name of its blend's chain. */
   export function join(
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     name: string,
-  ): AutoMovieConstructionRealization.IJoin {
-    const found: AutoMovieConstructionRealization.IJoin | undefined =
+  ): IAutoMovieConstructionRealization.IJoin {
+    const found: IAutoMovieConstructionRealization.IJoin | undefined =
       r.joins.find(
-        (j: AutoMovieConstructionRealization.IJoin): boolean =>
+        (j: IAutoMovieConstructionRealization.IJoin): boolean =>
           j.blend.chain.name === name,
       );
     if (found === undefined)
@@ -60,11 +57,11 @@ export namespace ConstructionRead {
 
   /** The trim cut in a face. */
   export function trim(
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     face: string,
-  ): AutoMovieSolidTrim.ITrim {
-    const found: AutoMovieSolidTrim.ITrim | undefined = r.trims.find(
-      (t: AutoMovieSolidTrim.ITrim): boolean => t.surface === face,
+  ): IAutoMovieSolidTrim.ITrim {
+    const found: IAutoMovieSolidTrim.ITrim | undefined = r.trims.find(
+      (t: IAutoMovieSolidTrim.ITrim): boolean => t.surface === face,
     );
     if (found === undefined)
       throw new Error(`the realization has no trim in ${face}`);
@@ -106,7 +103,7 @@ export namespace ConstructionRead {
 
   /** A join's traced curve points in metres (the kernel traces in millimetres). */
   export function seam(
-    j: AutoMovieConstructionRealization.IJoin,
+    j: IAutoMovieConstructionRealization.IJoin,
   ): [number, number, number][] {
     return j.join.curve.points.map(
       (q: { point: readonly number[] }): [number, number, number] => [
@@ -119,7 +116,7 @@ export namespace ConstructionRead {
 
   /** The diagnostics as `node contract: detail` lines, for a failure message. */
   export function diagnostics(
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
   ): string {
     return r.diagnostics
       .map(

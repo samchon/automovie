@@ -1,5 +1,5 @@
-import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
-import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBodyLocator";
+import type { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
 
 /**
  * Two building bodies whose part-box proxy volume fold emitted an intersection.
@@ -21,10 +21,10 @@ export interface IAutoMovieBuiltPlacementOverlapPair {
    * The body that appears first in record order, where elements precede
    * populations.
    */
-  left: AutoMovieBuiltPlacementBodyLocator;
+  left: IAutoMovieBuiltPlacementBodyLocator;
 
   /** The body that appears later in record order. */
-  right: AutoMovieBuiltPlacementBodyLocator;
+  right: IAutoMovieBuiltPlacementBodyLocator;
 
   /** Derivation of the left body's extent. */
   leftBasis: Exclude<AutoMovieBuiltPlacementBasis, "surface-height-rule">;

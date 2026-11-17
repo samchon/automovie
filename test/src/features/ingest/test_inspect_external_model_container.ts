@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
@@ -250,7 +251,7 @@ export function test_inspect_external_model_container(): void {
           "unsupportedProfile",
           (): boolean =>
             throwsError(
-              (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+              (): IAutoMovieExternalModelInspection =>
                 inspectAutoMovieExternalModelBytes({
                   path: "public/models/actor.glb",
                   bytes: container({}),

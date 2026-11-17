@@ -1,12 +1,10 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
 } from "@automovie/engine";
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -33,12 +31,12 @@ export async function test_physical_internal_actuation(): Promise<void> {
   // semi-implicit COM lag g dt t / 2 stays far under the 2 mm bound.
   const duration: number = 0.05;
   for (const gravity of [0, -9.81]) {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "assembly",
       profile,
       duration,
     );
-    const pattern: NonNullable<Simulation.IBody["supportTracking"]>["pattern"] =
+    const pattern: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]>["pattern"] =
       {
         id: "four-internal-carriers",
         minimumSupports: 1,
@@ -46,7 +44,7 @@ export async function test_physical_internal_actuation(): Promise<void> {
           (
             index: number,
           ): NonNullable<
-            Simulation.IBody["supportTracking"]
+            IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
           >["pattern"]["limbs"][number] => ({
             bone: "support-" + index,
             chain: ["upper-" + index, "lower-" + index, "support-" + index],
@@ -98,10 +96,10 @@ export async function test_physical_internal_actuation(): Promise<void> {
         pose.rotation = Quaternion.multiply(rotation, pose.rotation);
       }
     }
-    const input: Simulation.IInput = PhysicalFixtures.input([body], duration);
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], duration);
     input.gravity.y = gravity;
     input.substeps = 4;
-    const run: Simulation = await Simulation.compute(input);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     const states: (typeof run.cache.frames)[number]["bodies"][string] =
       run.cache.at(duration).bodies.assembly!;
     let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

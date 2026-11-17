@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalPrincipalAxes, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBasis";
@@ -29,10 +27,7 @@ import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBas
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its tensor; it shares nothing between calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
-export function physicalPrincipalAxes(tensor: number[][]): {
-  moments: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-} {
+export function physicalPrincipalAxes(tensor: number[][]): IAutoMoviePhysicalPrincipalAxes.IResult {
   // Jacobi's stopping criterion must compare dimensionless entries rather
   // than mixing a fixed unit-one floor with moments measured in kg m².
   const scale: number = Math.max(

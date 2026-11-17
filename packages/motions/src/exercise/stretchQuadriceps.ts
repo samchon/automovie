@@ -1,7 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 
 /**
@@ -30,7 +29,7 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function stretchQuadriceps(props: {
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
   side: "left" | "right";
   hip: IAutoMovieVector3;
   shoulder: IAutoMovieVector3;

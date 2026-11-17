@@ -1,3 +1,5 @@
+import type { IAutoMovieAngleRange, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkFoot, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   DEFAULT_HUMANOID_ROM,
   Quaternion,
@@ -7,13 +9,6 @@ import {
   smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
-import type {
-  IAutoMovieAngleRange,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
@@ -103,7 +98,7 @@ export namespace walkReach {
    * @param foot The foot.
    * @returns 1 in stance, fading to 0 in mid-swing.
    */
-  export function weight(foot: walkFoot.IScheduled): number {
+  export function weight(foot: IAutoMovieMotionHumanWalkFoot.IScheduled): number {
     if (foot.swing === undefined) return 1;
     const u: number = foot.swing.u;
     return u < 0.5
@@ -122,7 +117,7 @@ export namespace walkReach {
    *   under none, which claims as little as any slack does.
    */
   export function short(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
   ): number {
@@ -143,11 +138,11 @@ export namespace walkReach {
    * @returns The heading, the pivots and the hip joints under that root.
    */
   export function pelvis(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
   ): IPelvis {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
@@ -214,11 +209,11 @@ export namespace walkReach {
    * @returns The pelvis and each stance as reached.
    */
   export function ground(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
     rocker: number = walkLeg.ROCKER,
   ): IGround {
@@ -324,10 +319,10 @@ export namespace walkReach {
    * @returns The foot as reached.
    */
   export function swing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     settled: IGround,
-    foot: walkFoot.IFoot,
+    foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     share?: number,
   ): walkFoot.IEnd {
     const m = body.measure;
@@ -402,7 +397,7 @@ export namespace walkReach {
     // floor as the swing put it, never on the floor while it travels. Lifting
     // the foot leans its shank further, so the pitch is held inside the
     // ankle's range again after each lift.
-    const lowest = (placement: HumanFoot.IPlacement): number =>
+    const lowest = (placement: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(
         HumanFoot.point(body, side, "toe", placement, foot.toes).y,
         HumanFoot.point(body, side, "heel", placement).y,

@@ -1,4 +1,4 @@
-import { IAutoMovieSurface } from "./IAutoMovieSurface";
+import type { IAutoMovieSurface } from "./IAutoMovieSurface";
 
 /**
  * The space of a scene: the set of standable surfaces plus which of them an actor may walk on: the first-class representation behind what the engine previously assumed as one scalar ground plane.

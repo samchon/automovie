@@ -1,13 +1,7 @@
-import {
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
+import { type IAutoMovieBoundaryWallCut, type IAutoMovieWallOpening, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { IAutoMovieWallOpening } from "../geometry/IAutoMovieWallOpening";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieBoundaryWallCut } from "./IAutoMovieBoundaryWallCut";
 import { outlineHull } from "./outlineHull";
 import { polygonBounds } from "./polygonBounds";
 

@@ -1,27 +1,6 @@
-import {
-  IAutoMovieFormationPlacement,
-  followPathMotion,
-  formationSlotPosition,
-  heightAt,
-  plantStanceFeet,
-  spaceGround,
-  stageScene,
-  surfaceHeightAt,
-  validateFootSkate,
-  validateGroundContact,
-  worldHeightfield,
-  worldSurfaceHeight,
-} from "@automovie/engine";
-import {
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieSpace,
-  IAutoMovieSurface,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-  IAutoMovieWorldSurface,
-} from "@automovie/interface";
+import { type IAutoMovieFormationPlacement, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieSpace, IAutoMovieSurface, IAutoMovieTransform, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
+import { followPathMotion, formationSlotPosition, heightAt, plantStanceFeet, spaceGround, stageScene, surfaceHeightAt, validateFootSkate, validateGroundContact, worldHeightfield, worldSurfaceHeight } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";

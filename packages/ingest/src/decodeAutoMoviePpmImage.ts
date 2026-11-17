@@ -1,3 +1,8 @@
+import type {
+  IAutoMoviePpmImageDecodeOptions,
+  IAutoMovieRgb8Image,
+} from "@automovie/interface";
+
 /**
  * Decode one raw P6 RGB8 image under an explicitly supplied transfer convention.
  * The @automovie/ingest entry exposes this codec without the
@@ -20,17 +25,8 @@
  */
 export function decodeAutoMoviePpmImage(
   bytes: Uint8Array,
-  options: {
-    maxPixels: number;
-    maxHeaderBytes: number;
-    transfer: "srgb" | "bt709" | "linear";
-  },
-): {
-  width: number;
-  height: number;
-  rgb8: Uint8Array;
-  transfer: "srgb" | "bt709" | "linear";
-} {
+  options: IAutoMoviePpmImageDecodeOptions,
+): IAutoMovieRgb8Image {
   if (
     !(bytes instanceof Uint8Array) ||
     !options ||

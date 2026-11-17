@@ -1,7 +1,8 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanConicSection, IAutoMovieHumanF1, IAutoMovieLoftRelief } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
-import { type AutoMovieHumanConicLoft, AutoMovieHumanConicRelief, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Placing } from "@automovie/human";
+
+import { AutoMovieHumanConicRelief, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Placing } from "@automovie/human";
 
 /**
  * The count of what f1 is stored as (issue #3197, step 1): per part and in total, the families' and cutters' knots and fields, the relief
@@ -164,7 +165,7 @@ namespace FamilyConicCount {
     knots: number;
     fields: number;
     wall: number;
-    units: Record<AutoMovieHumanConicSection.Unit, number>;
+    units: Record<IAutoMovieHumanConicSection.Unit, number>;
     centres: number;
     halves: number;
     /** Closed ends, and the numbers they hold (`from`, `tip`, a `centre`'s two). */
@@ -189,10 +190,10 @@ namespace FamilyConicCount {
   }
 
   /** The count's row of one member. */
-  function row(family: AutoMovieHumanConicLoft.IFamily, role: "family" | "cutter", mirrored: boolean): IRow {
-    const units: AutoMovieHumanConicSection.Unit[] = AutoMovieHumanConicSection.units(family.layout);
+  function row(family: IAutoMovieHumanConicLoft.IFamily, role: "family" | "cutter", mirrored: boolean): IRow {
+    const units: IAutoMovieHumanConicSection.Unit[] = AutoMovieHumanConicSection.units(family.layout);
     if (units.length !== family.values.length) throw new Error(family.name + ": " + family.values.length + " fields stored for a layout of " + units.length);
-    const tips: AutoMovieHumanConicLoft.ITip[] = [];
+    const tips: IAutoMovieHumanConicLoft.ITip[] = [];
     for (const tip of family.tips ?? []) if (tip !== null) tips.push(tip);
     return {
       part: partOf(family.name),
@@ -208,7 +209,7 @@ namespace FamilyConicCount {
       centres: family.centres.length,
       halves: family.halves.length,
       tips: tips.length,
-      tipNumbers: tips.reduce((sum: number, tip: AutoMovieHumanConicLoft.ITip): number => sum + 2 + (tip.centre === undefined ? 0 : 2), 0),
+      tipNumbers: tips.reduce((sum: number, tip: IAutoMovieHumanConicLoft.ITip): number => sum + 2 + (tip.centre === undefined ? 0 : 2), 0),
       roll: family.roll === undefined ? 0 : family.roll.knots.length + family.roll.values.length,
       nets: (family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): INet => {
         if (relief.heights.length !== relief.rows * relief.columns) throw new Error(relief.name + ": " + relief.heights.length + " heights for " + relief.rows + " x " + relief.columns);
@@ -293,8 +294,8 @@ namespace FamilyConicCount {
   export async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const rows: IRow[] = [
-      ...AutoMovieHumanF1.FAMILIES.map((member: AutoMovieHumanF1.IMember): IRow => row(member.family, "family", member.mirrored)),
-      ...AutoMovieHumanF1.CUTTERS.map((cutter: { family: AutoMovieHumanConicLoft.IFamily; mirrored: boolean }): IRow => row(cutter.family, "cutter", cutter.mirrored)),
+      ...AutoMovieHumanF1.FAMILIES.map((member: IAutoMovieHumanF1.IMember): IRow => row(member.family, "family", member.mirrored)),
+      ...AutoMovieHumanF1.CUTTERS.map((cutter: { family: IAutoMovieHumanConicLoft.IFamily; mirrored: boolean }): IRow => row(cutter.family, "cutter", cutter.mirrored)),
     ];
 
     // The placing table.

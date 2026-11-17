@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type { IAutoMovieRecoveryCameraPoseRefinementOperation, IAutoMovieRecoveryCameraPoseSelectionOperation, IAutoMovieRecoveryCameraResidualsScoreOperation, IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, IAutoMovieRecoveryEpipolarModelRefinementOperation } from "@automovie/interface";
 
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
+
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
 import { refineRecoveryCameraPose } from "./refineRecoveryCameraPose";
 import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
@@ -21,28 +22,18 @@ import { selectRecoveryCameraPose } from "./selectRecoveryCameraPose";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Up to three fixed-size pose/counter summaries and one O(M) score return; local subset arrays expire, and no image, handle or global cache survives.
  */
 export function refineRecoveryEpipolarModel(
-  matrix: readonly number[],
-  initialScore: ReturnType<typeof scoreRecoveryCameraResiduals>,
-  firstPoints: readonly (readonly [number, number])[],
-  secondPoints: readonly (readonly [number, number])[],
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-  policy: IAutoMovieRecoveryCameraPairInput["policy"],
-  budget: IAutoMovieRecoveryCameraPairInput["budget"],
-): {
-  matrix: number[];
-  score: ReturnType<typeof scoreRecoveryCameraResiduals>;
-  fits: ReturnType<typeof refineRecoveryCameraPose>[];
-  converged: boolean;
-  refusal:
-    | "optimizer-termination"
-    | "inlier-refit-budget"
-    | "insufficient-refined-support"
-    | null;
-} {
-  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = initialScore;
+  matrix: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[0],
+  initialScore: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[1],
+  firstPoints: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[2],
+  secondPoints: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[3],
+  first: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[4],
+  second: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[5],
+  policy: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[6],
+  budget: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[7],
+): ReturnType<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation> {
+  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> = initialScore;
   let fittedMatrix: number[] = matrix.slice();
-  const initial: ReturnType<typeof selectRecoveryCameraPose> =
+  const initial: ReturnType<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation> =
     selectRecoveryCameraPose(
       matrix,
       score.indices.map(
@@ -58,9 +49,8 @@ export function refineRecoveryEpipolarModel(
     );
   let pose: { rotation: number[]; translation: [number, number, number] } = {
     rotation: initial.rotation,
-    translation: initial.translation,
-  };
-  const fits: ReturnType<typeof refineRecoveryCameraPose>[] = [];
+    translation: initial.translation };
+  const fits: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[] = [];
   for (let refit: number = 0; refit < 3; refit++) {
     if (score.indices.length < 8)
       return {
@@ -68,9 +58,8 @@ export function refineRecoveryEpipolarModel(
         score,
         fits,
         converged: false,
-        refusal: "insufficient-refined-support",
-      };
-    const fit: ReturnType<typeof refineRecoveryCameraPose> =
+        refusal: "insufficient-refined-support" };
+    const fit: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation> =
       refineRecoveryCameraPose(
         pose,
         score.indices.map(
@@ -85,14 +74,13 @@ export function refineRecoveryEpipolarModel(
           lossScalePx: policy.refinementLossScalePx,
           minimumDesignRatio: policy.minimumDesignSingularRatio,
           maxIterations: budget.maxRefinementIterations,
-          maxSweeps: budget.maxSingularSweeps,
-        },
+          maxSweeps: budget.maxSingularSweeps },
       );
     fits.push(fit);
     fittedMatrix = fit.fundamental;
-    const errors: ReturnType<typeof measureRecoveryEpipolarErrors> =
+    const errors: ReturnType<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation> =
       measureRecoveryEpipolarErrors(fittedMatrix, firstPoints, secondPoints);
-    const next: ReturnType<typeof scoreRecoveryCameraResiduals> =
+    const next: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
       scoreRecoveryCameraResiduals(
         errors.map(
           (error: (typeof errors)[number]): number | null =>
@@ -112,24 +100,21 @@ export function refineRecoveryEpipolarModel(
         score,
         fits,
         converged: false,
-        refusal: "optimizer-termination",
-      };
+        refusal: "optimizer-termination" };
     if (score.indices.length < 8)
       return {
         matrix: fittedMatrix,
         score,
         fits,
         converged: false,
-        refusal: "insufficient-refined-support",
-      };
+        refusal: "insufficient-refined-support" };
     if (unchanged)
       return {
         matrix: fittedMatrix,
         score,
         fits,
         converged: true,
-        refusal: null,
-      };
+        refusal: null };
     pose = { rotation: fit.rotation, translation: fit.translation };
   }
   return {
@@ -137,6 +122,5 @@ export function refineRecoveryEpipolarModel(
     score,
     fits,
     converged: false,
-    refusal: "inlier-refit-budget",
-  };
+    refusal: "inlier-refit-budget" };
 }

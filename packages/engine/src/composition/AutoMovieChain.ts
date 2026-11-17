@@ -1,3 +1,4 @@
+import type { IAutoMovieChain, IAutoMovieComposition } from "@automovie/interface";
 import { AutoMovieComposition } from "./AutoMovieComposition";
 
 /**
@@ -20,14 +21,14 @@ import { AutoMovieComposition } from "./AutoMovieComposition";
  */
 export class AutoMovieChain {
   /** The composition this chain holds; never reassigned. */
-  public readonly node: AutoMovieComposition;
+  public readonly node: IAutoMovieComposition;
 
   /**
    * A chain holding a composition.
    *
    * @param node The node.
    */
-  public constructor(node: AutoMovieComposition) {
+  public constructor(node: IAutoMovieComposition) {
     this.node = node;
   }
 
@@ -45,7 +46,7 @@ export class AutoMovieChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
-  public static of(part: AutoMovieComposition.Part): AutoMovieChain {
+  public static of(part: IAutoMovieComposition.Part): IAutoMovieChain {
     return new AutoMovieChain(AutoMovieComposition.of(part));
   }
 
@@ -63,8 +64,8 @@ export class AutoMovieChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  public next(...parts: AutoMovieComposition.Part[]): this {
-    const head: readonly AutoMovieComposition[] =
+  public next(...parts: IAutoMovieComposition.Part[]): this {
+    const head: readonly IAutoMovieComposition[] =
       this.node.kind === "sequence" ? this.node.parts : [this.node];
     return this.derive({
       kind: "sequence",
@@ -86,8 +87,8 @@ export class AutoMovieChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  public with(...parts: AutoMovieComposition.Part[]): this {
-    const head: readonly AutoMovieComposition[] =
+  public with(...parts: IAutoMovieComposition.Part[]): this {
+    const head: readonly IAutoMovieComposition[] =
       this.node.kind === "parallel" ? this.node.parts : [this.node];
     return this.derive({
       kind: "parallel",
@@ -102,9 +103,9 @@ export class AutoMovieChain {
    * @param node The new node.
    * @returns The new chain.
    */
-  protected derive(node: AutoMovieComposition): this {
-    const make: new (node: AutoMovieComposition) => this = this
-      .constructor as new (node: AutoMovieComposition) => this;
+  protected derive(node: IAutoMovieComposition): this {
+    const make: new (node: IAutoMovieComposition) => this = this
+      .constructor as new (node: IAutoMovieComposition) => this;
     return new make(node);
   }
 }

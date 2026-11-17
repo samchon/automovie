@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanStageFight,
-  type IHumanActionLaw,
-  type IHumanBody,
-  touch,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanSignature, HumanStageFight, touch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -46,7 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its measures and the 4 scenarios with their bounds.
  */
 export function test_human_motion_hand_reach_up(): void {
-  const laws: IHumanActionLaw<never>[] = [
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanStageFight.slap,
     HumanStageFight.backhand,
   ];
@@ -59,10 +50,10 @@ export function test_human_motion_hand_reach_up(): void {
     ["f-small", "backhand", "jawRight", "handBack"],
     ["m-average", "slap", "jawLeft", "palm"],
   ] as const) {
-    const body: IHumanBody = motionHumanBody(who);
-    const partner: IHumanBody = motionHumanBody("m-average");
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(who);
+    const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const label: string = `${who} ${row}`;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "reach",
@@ -97,19 +88,19 @@ export function test_human_motion_hand_reach_up(): void {
       );
       continue;
     }
-    const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
     const ready: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "ready")?.share ??
         NaN) *
         placed.plan.duration;
-    const mine: HumanSignature.IReader = HumanSignature.of(
+    const mine: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       0,
     );
-    const theirs: HumanSignature.IReader = HumanSignature.of(
+    const theirs: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "b",
       partner,

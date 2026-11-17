@@ -1,4 +1,4 @@
-import type { AutoMoviePhysicalPlayback } from "./AutoMoviePhysicalPlayback";
+import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicsCache } from "@automovie/interface";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
@@ -13,7 +13,7 @@ import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
  */
 export async function encodePhysicalPlayback(
-  cache: Cache,
+  cache: IAutoMoviePhysicsCache,
   maximumBytes: number,
 ): Promise<Uint8Array<ArrayBuffer>> {
   const frames: number = cache.duration * cache.rate + 1;
@@ -26,7 +26,7 @@ export async function encodePhysicalPlayback(
   const segments: [string, string][] = Object.entries(
     cache.frames[0]!.bodies,
   ).flatMap(
-    ([body, bones]: [string, Record<string, Cache.ISegment>]): [
+    ([body, bones]: [string, Record<string, IAutoMoviePhysicsCache.ISegment>]): [
       string,
       string,
     ][] =>
@@ -34,7 +34,7 @@ export async function encodePhysicalPlayback(
   );
   if (!segments.length)
     throw new Error("Physical playback needs at least one segment");
-  const header: AutoMoviePhysicalPlayback.IHeader = {
+  const header: IAutoMoviePhysicalPlayback.IHeader = {
     format: 1,
     protocol: Cache.protocol,
     identity: cache.identity,
@@ -64,7 +64,7 @@ export async function encodePhysicalPlayback(
   let cursor: number = offset;
   for (const frame of cache.frames)
     for (const [body, bone] of segments) {
-      const state: Cache.ISegment | undefined = frame.bodies[body]?.[bone];
+      const state: IAutoMoviePhysicsCache.ISegment | undefined = frame.bodies[body]?.[bone];
       if (!state) throw new Error(`Incomplete physical frame: ${body}/${bone}`);
       const values: number[] = [
         state.position.x,

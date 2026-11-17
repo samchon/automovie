@@ -1,8 +1,13 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanScapularMass, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The scapula and the muscles on it (supraspinatus, infraspinatus, teres)
@@ -31,29 +36,7 @@ export namespace AutoMovieHumanScapularMass {
   /** The mass's projection over the envelope at its centre, mm. Conventional, flagged: no published skin relief of the blade is on the record. */
   export const PROJECTION: number = 4;
 
-  /** What the mass reads. */
-  export interface IInput {
-    /** The back wall's point at the centre's lateral place, `[x, y, z]`, mm. */
-    centre: AutoMovieHumanTrunkFeatureFrame.V3;
-
-    /** The wall's section tangent there in `[x, z]`, in the direction of rising phase (back: z falling). */
-    tangent: [number, number];
-
-    /** The section's half width at the centre's height, mm. */
-    width: number;
-
-    /** The crotch-to-cervicale span, mm. */
-    span: number;
-
-    /** The base's phase at a lateral place on the back at the centre's height. */
-    phaseOf: (z: number) => number;
-
-    /** The trunk's base surface. */
-    base: AutoMovieHumanTrunkReliefNet.Base;
-
-    /** Height the window must stay under, mm: the shoulders' top less a clearance. */
-    ceiling: number;
-  }
+  
 
   /**
    * The left mass as a feature.
@@ -61,9 +44,9 @@ export namespace AutoMovieHumanScapularMass {
    * @param input The centre, the wall's tangent and the sizes.
    * @returns The mass as a height field.
    */
-  export function feature(input: IInput): IAutoMovieHumanTrunkFeature {
+  export function feature(input: IAutoMovieHumanScapularMass.IInput): IAutoMovieHumanTrunkFeature {
     // The tangent turned a quarter back points backward and outward on the back wall.
-    const frame: AutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanTrunkFeatureFrame.create(input.centre, [input.tangent[1], 0, -input.tangent[0]]);
+    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanTrunkFeatureFrame.create(input.centre, [input.tangent[1], 0, -input.tangent[0]]);
     const half: number = ((OUTER - MEDIAL) / 2) * input.width;
     const lower: number = LOWER * input.span;
     const upper: number = Math.max(1, Math.min(UPPER * input.span, input.ceiling - input.centre[1]));
@@ -82,7 +65,7 @@ export namespace AutoMovieHumanScapularMass {
    * @param input The centre, the wall's tangent and the sizes.
    * @returns The left and the right window.
    */
-  export function create(input: IInput): IAutoMovieLoftRelief[] {
+  export function create(input: IAutoMovieHumanScapularMass.IInput): IAutoMovieLoftRelief[] {
     const mass: IAutoMovieHumanTrunkFeature = feature(input);
     const o: [number, number, number] = mass.frame.origin;
     const stations: [number, number] = [o[1] + mass.reach.v[0], o[1] + mass.reach.v[1]];

@@ -1,9 +1,9 @@
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanSword } from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingSkill } from "../striking/StrikingSkill";
-import type { HumanSword } from "./HumanSword";
 
 /**
  * The clock of a blade's attack, shared by the cut and the thrust: its own
@@ -19,12 +19,12 @@ import type { HumanSword } from "./HumanSword";
 export namespace HumanSwordTiming {
   /** The clock of an attack: its attack lasts as a minimum-jerk unit of the path's length at the peak speed. `carried` is the part of that length an advancing body covers: the body arrives at rest (a whole unit) while an arrested point arrives at its peak (half a unit), so the two speeds peak apart and the attack is timed on the greatest of their sum. */
   export const timed = (
-    context: IHumanActionContext<HumanSword.IAttack>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
     length: number,
     speed: number,
     follow: number,
     carried: number = 0,
-  ): AutoMovieMotionClock.IClock => {
+  ): IAutoMovieMotionClock.IClock => {
     const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
     let peak: number = 1.875 * length;
     for (let i: number = 1; carried > 0 && i <= 50; i++)

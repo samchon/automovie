@@ -1,18 +1,10 @@
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
-import type { gestureStroke } from "../../everyday/gestureStroke";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -65,9 +57,9 @@ import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function everydayGestureVerdicts(
-  kind: gestureStroke.Kind,
-  performance: HumanPerformance,
-  body: IHumanBody,
+  kind: IAutoMovieMotionHumanGestureStroke.Kind,
+  performance: IAutoMovieMotionHumanPerformance,
+  body: IAutoMovieMotionHumanBody,
   from: number,
   to: number,
   cycles: number,
@@ -88,7 +80,7 @@ export function everydayGestureVerdicts(
     deg(Math.asin(Math.max(-1, Math.min(1, -forwardOf(t, bone).y))));
   const yaw = (t: number, bone: AutoMovieHumanoidBone): number =>
     deg(Math.atan2(forwardOf(t, bone).x, forwardOf(t, bone).z));
-  const palm = (t: number, side: HumanHand.Side) =>
+  const palm = (t: number, side: IAutoMovieMotionHumanHand.Side) =>
     HumanHand.frame(body, performance.bones("a", t), side, "palm");
   const joint = (t: number, bone: AutoMovieHumanoidBone): number =>
     (performance.pose("a", t).joints as IAutoMovieJointPose[]).find(
@@ -122,7 +114,7 @@ export function everydayGestureVerdicts(
     );
   const placed = (
     name: string,
-    expected: AutoMovieMotionHumanTargetGrid.IGrid,
+    expected: IAutoMovieMotionHumanTargetGrid.IGrid,
   ): IMotionCaptureCase.IVerdict => {
     // The law places the hand from the rig origin, not from the hips bone.
     const root = performance.pose("a", mid).root;

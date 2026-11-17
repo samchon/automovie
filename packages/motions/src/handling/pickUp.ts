@@ -1,27 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPickUp, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrehension, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import { HumanHand } from "../posture/HumanHand";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
-import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
@@ -97,10 +83,10 @@ import { pickUpStance } from "./pickUpStance";
  */
 export namespace pickUp {
   /** The action's name. */
-  export const name: HumanActionName = "pickUp";
+  export const name: AutoMovieMotionHumanActionName = "pickUp";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: 0.3 },
       {
@@ -122,32 +108,6 @@ export namespace pickUp {
     ],
   };
 
-  /** Parameters. */
-  export interface IParams {
-    /** The prop's subject id. */
-    prop: string;
-
-    /** The grip affordance's id. */
-    handle: string;
-
-    /** The grasping hand; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. */
-    lift?: number;
-
-    /**
-     * What the prop is taken up for, when it is a tool: the grasp is then
-     * chosen for the use and not only for the reach. A handle can be wrapped
-     * from any side, and the side the hanging arm reaches most easily leaves
-     * a blade or a barrel where the wrist cannot later aim it. With a use,
-     * the grasp must also hold with the tool presented ahead of the shoulder
-     * on the line the use names, and a handle no grasp serves so is refused.
-     * Absent, the grasp is chosen for the reach and the lift alone.
-     */
-    use?: HumanGraspUse.IUse;
-  }
-
   /** The share of the reach over which the arm leaves its entry pose by a blend of its joints, before the transport's goal alone leads it to the grip (provisional: 0.6, ahead of the last stretch the hand makes along the approach). */
   export const LEAVE: number = 0.6;
 
@@ -163,9 +123,9 @@ export namespace pickUp {
    * @throws {Error} When the lift is negative, or the prop has no such affordance or no colliders.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const side: HumanHand.Side = context.params.hand ?? "right";
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
     const steadied: boolean =
       context.entry.holds[side === "left" ? "right" : "left"] ===
       context.params.prop;
@@ -180,12 +140,12 @@ export namespace pickUp {
         reason: `the other hand already holds ${context.params.prop}; a second grip steadies it and cannot lift it independently`,
         fix: "take the second grip without lifting, then move both hands together or hand the prop over",
       });
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
 
     // The grasp: where the hand goes, how it opens and how it closes.
     // The grip is taken from the side of its axis the arm can reach with the
     // hand turned as asked (a cylinder grips alike from any azimuth).
-    const authored: HumanGrasp.ITarget = HumanGrasp.target(
+    const authored: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.target(
       context,
       context.params.prop,
       context.params.handle,
@@ -202,9 +162,9 @@ export namespace pickUp {
       authored,
     );
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
-    const held: IHumanPosture = stance.posture;
-    const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
-    const grasp: HumanHand.IWrist = chosen.wrist;
+    const held: IAutoMovieMotionHumanPosture = stance.posture;
+    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
+    const grasp: IAutoMovieMotionHumanHand.IWrist = chosen.wrist;
     pickUpPosture.reachable(context, side, grasp.point, held);
 
     // The use is judged at its own pose, by its own measure: how far the
@@ -236,18 +196,18 @@ export namespace pickUp {
     const rising: boolean = raise.trunk !== null || raise.share < 1;
     // The stance's body a share of the way down; the entry's when it was
     // not lowered.
-    const way = (share: number): IHumanPosture =>
+    const way = (share: number): IAutoMovieMotionHumanPosture =>
       lowered === null ? held : lowered.at(share);
 
     // The digits close on the prop where the arm actually puts the hand.
-    const closed: IHumanPosture["joints"] = HumanGrip.close(
+    const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
       body,
       side,
       target.grip,
       chosen.shown,
       target.colliders,
     ).joints;
-    const open: IHumanPosture["joints"] = HumanPreshape.open(
+    const open: IAutoMovieMotionHumanPosture["joints"] = HumanPreshape.open(
       body,
       side,
       closed,
@@ -272,7 +232,7 @@ export namespace pickUp {
     const end: number = reach + LOAD + rise;
     const up: number = lowered === null && !rising ? 0 : reach;
     const duration: number = end + up;
-    const transport: HumanPrehension.ITransport = HumanPrehension.transport(
+    const transport: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
       entry.worldPosition,
       grasp.point,
       target.approach,
@@ -286,12 +246,12 @@ export namespace pickUp {
       open,
       closed,
     };
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const rest: AutoMovieMotionHumanArm.IAngles =
+    const limb: IAutoMovieMotionHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const rest: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
-    const hand: IHumanContactWindow["part"] =
+    const hand: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
-    const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
+    const shoulder = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;
     // Where the straightening after the lift starts from.
     const bottom: IAutoMovieVector3 | null =
@@ -300,7 +260,7 @@ export namespace pickUp {
         : shoulder(
             rising ? pickUpLift.posed(body, raise, way, raise.share, 1) : held,
           );
-    const plan: IHumanActionPlan = {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "gripClosed", share: reach / duration },
@@ -314,11 +274,11 @@ export namespace pickUp {
         // keeps throughout.
         ...context.entry.supports
           .filter(
-            (s: IHumanEntryState.ISupport): boolean =>
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
               s.part !== "leftFoot" && s.part !== "rightFoot",
           )
           .map(
-            (s: IHumanEntryState.ISupport): IHumanContactWindow => ({
+            (s: IAutoMovieMotionHumanEntryState.ISupport): IAutoMovieMotionHumanContactWindow => ({
               ...s,
               from: 0,
               to: 1,
@@ -341,13 +301,13 @@ export namespace pickUp {
         },
       ],
       contact: reach,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
 
         // The body at the second: the entry, lowered over the reach; over the
         // lift, inclined or straightened as far as the lift needs; and
         // straightened after it, back to the entry.
-        let base: IHumanPosture = held;
+        let base: IAutoMovieMotionHumanPosture = held;
         if (t < reach) {
           if (lowered !== null) base = lowered.at(minimumJerk(t / reach).s);
         } else if (t <= end) {
@@ -378,7 +338,7 @@ export namespace pickUp {
 
         // The posture whose arm goal is the transport's at a second of the
         // action, with the fingers shaped as they are at `shaped`.
-        const goaled = (at: number, shaped: number): IHumanPosture => ({
+        const goaled = (at: number, shaped: number): IAutoMovieMotionHumanPosture => ({
           ...base,
           joints: {
             ...base.joints,

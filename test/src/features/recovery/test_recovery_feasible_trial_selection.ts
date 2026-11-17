@@ -1,10 +1,5 @@
-import {
-  type IAutoMovieRecoveryFeasibleProblem,
-  type IAutoMovieRecoveryFeasibleTrialSelection,
-  type IAutoMovieRecoveryFeasibleTrials,
-  type IAutoMovieRecoverySqpArc,
-  selectRecoveryFeasibleTrial,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryFeasibleProblem, IAutoMovieRecoveryFeasibleTrialSelection, IAutoMovieRecoveryFeasibleTrials, IAutoMovieRecoverySqpArc } from "@automovie/interface";
+import { selectRecoveryFeasibleTrial } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IRecoveryFeasibleTrialObservation } from "../internal/IRecoveryFeasibleTrialObservation";

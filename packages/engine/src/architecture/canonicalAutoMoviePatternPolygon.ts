@@ -1,7 +1,7 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMoviePatternPoint, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { convexHull2D } from "../math/convexHull2D";
-import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 
 /**
  * Canonicalize an authored face-local polygon to a counter-clockwise convex

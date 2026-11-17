@@ -1,17 +1,6 @@
-import {
-  IAutoMovieMeshQueryBudget,
-  IAutoMovieMeshSeparationQuery,
-  IAutoMovieMeshSeparationResult,
-  boundAutoMovieConvexSeparation,
-  boundAutoMovieProjectionSeparation,
-  createAutoMovieMeshSeparationQuery,
-} from "@automovie/engine";
-import {
-  IAutoMovieMesh,
-  IAutoMovieMeshPhysicalVertices,
-  IAutoMovieMeshSkin,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieMeshQueryBudget, type IAutoMovieMeshSeparationQuery, type IAutoMovieMeshSeparationResult, IAutoMovieMesh, IAutoMovieMeshPhysicalVertices, IAutoMovieMeshSkin, IAutoMovieVector3 } from "@automovie/interface";
+import { boundAutoMovieConvexSeparation, boundAutoMovieProjectionSeparation, createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**

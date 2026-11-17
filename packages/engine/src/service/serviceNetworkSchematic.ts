@@ -1,14 +1,6 @@
-import {
-  AutoMovieServiceNodeKind,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSegment,
-  IAutoMovieServiceSystem,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieServiceSchematic, type IAutoMovieServiceNetworkSchematic, AutoMovieServiceNodeKind, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieServiceSystem, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieServiceSchematic } from "./IAutoMovieServiceSchematic";
+
 import { portOwners } from "./portOwners";
 import { routeLength } from "./routeLength";
 import { serviceSystemLoad } from "./serviceSystemLoad";
@@ -33,13 +25,7 @@ import { serviceSystemReach } from "./serviceSystemReach";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One owner lookup resolves all selected edges and the projected edge lengths are reused for totalLength; no report survives mutable network equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources New drawing rows and point arrays transfer to the caller while temporary ownership/reach maps release without a source-network cache.
  */
-export const serviceNetworkSchematic: (props: {
-  network: IAutoMovieServiceNetwork;
-  system: string;
-}) => IAutoMovieServiceSchematic = (props: {
-  network: IAutoMovieServiceNetwork;
-  system: string;
-}): IAutoMovieServiceSchematic => {
+export const serviceNetworkSchematic: (props: IAutoMovieServiceNetworkSchematic.IProps) => IAutoMovieServiceSchematic = (props: IAutoMovieServiceNetworkSchematic.IProps): IAutoMovieServiceSchematic => {
   const system: IAutoMovieServiceSystem = requireSystem(
     props.network,
     props.system,

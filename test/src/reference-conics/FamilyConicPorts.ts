@@ -1,8 +1,9 @@
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieLoftFrame, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieConstructionPort } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type AutoMovieConstructionRealization, AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
-import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
+
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -20,26 +21,26 @@ namespace FamilyConicPorts {
   /** Realize the ports and report them. */
   export async function main(): Promise<void> {
     const [limbName, ringAt, margin, rail, ...digits]: string[] = process.argv.slice(2);
-    const member = (name: string | undefined): AutoMovieHumanF1.IMember => {
-      const found: AutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: AutoMovieHumanF1.IMember): boolean => m.family.name === name);
+    const member = (name: string | undefined): IAutoMovieHumanF1.IMember => {
+      const found: IAutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === name);
       if (found === undefined) throw new Error("no family named " + name);
       return found;
     };
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const partOf = (family: AutoMovieHumanConicLoft.IFamily, from: number): IAutoMovieViewPart => {
+    const partOf = (family: IAutoMovieHumanConicLoft.IFamily, from: number): IAutoMovieViewPart => {
       const to: number = family.knots.at(-1)!;
       const count: number = Math.ceil((to - from) / 2) + 1;
       return AutoMovieHumanConicLoft.part(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
     };
-    const limb: AutoMovieHumanConicLoft.IFamily = member(limbName).family;
+    const limb: IAutoMovieHumanConicLoft.IFamily = member(limbName).family;
     const host: IAutoMovieViewPart = partOf(limb, limb.tips![1]!.from - 90);
     sources.set(limb.name, host);
-    let root: AutoMovieConstructionNode = { type: "source", name: limb.name, source: limb.name };
+    let root: IAutoMovieConstructionNode = { type: "source", name: limb.name, source: limb.name };
 
     // A world point on the limb's chart: the station of its foot on the course, found by stepping along the tangent, and its phase about it.
     const chart = (p: number[]): [number, number] => {
       let s: number = limb.tips![1]!.from;
-      let frame: AutoMovieLoftFrame.IFrame = host.axis.at(s);
+      let frame: IAutoMovieLoftFrame.IFrame = host.axis.at(s);
       for (let k: number = 0; k < 20; ++k) {
         const t: number[] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
         s += (p[0]! - frame.origin[0]) * t[0]! + (p[1]! - frame.origin[1]) * t[1]! + (p[2]! - frame.origin[2]) * t[2]!;
@@ -50,11 +51,11 @@ namespace FamilyConicPorts {
     };
     const loops: Record<string, IAutoMovieConstructionPort.ILoop> = {};
     for (const name of digits) {
-      const digit: AutoMovieHumanConicLoft.IFamily = member(name).family;
+      const digit: IAutoMovieHumanConicLoft.IFamily = member(name).family;
       const free: number = digit.knots[0]!;
 
       // The digit's ring near its joint, from its fields carried back there, on the limb's chart.
-      const probe: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(partOf({ ...digit, tips: undefined }, Number(ringAt)));
+      const probe: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(partOf({ ...digit, tips: undefined }, Number(ringAt)));
       if (probe.chain === null) throw new Error(name + " does not loft back to station " + ringAt);
       const ring: [number, number][] = Array.from({ length: 48 }, (_: unknown, j: number): [number, number] => chart(AutoMovieLoftChain.point(probe.chain!, Number(ringAt), (2 * Math.PI * j) / 48)));
       const middle: number = Math.atan2(ring.reduce((sum: number, c: [number, number]): number => sum + Math.sin(c[1]), 0), ring.reduce((sum: number, c: [number, number]): number => sum + Math.cos(c[1]), 0));
@@ -72,7 +73,7 @@ namespace FamilyConicPorts {
     }
     process.stdout.write(JSON.stringify({ tip: limb.tips![1], loops }) + "\n");
     const started: number = performance.now();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.ports", root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.ports", root }, { chord: 0.0005, sources });
     process.stdout.write(JSON.stringify({ limb: limbName, digits, milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, chains: real.chains.map((c: { name: string }): string => c.name), triangles: real.mesh.indices.length / 3 }).slice(0, 3000) + "\n");
     if (real.mesh.positions.length === 0) return;
     const out: string = path.join(path.resolve(process.cwd(), ".."), "test/.shots/family-conic-ports", new Date().toISOString().replaceAll(":", "-"));

@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanActionRow,
-  HumanChain,
-  HumanMutual,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanActionLaw,
-  type IHumanBody,
-  type IHumanMutual,
-  highFive,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanHighFive, IAutoMovieMotionHumanMutual, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanActionRow, HumanChain, HumanMutual, HumanPerformance, highFive } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,15 +43,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_mutual_join(): void {
   const FRAME: number = 1 / 24;
-  const bodies: Readonly<Record<string, IHumanBody>> = {
+  const bodies: Readonly<Record<string, IAutoMovieMotionHumanBody>> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
     c: motionHumanBody("m-average"),
   };
   const complaints: string[] = [];
-  const fistBump: IHumanActionLaw<Omit<highFive.IParams, "kind">> =
+  const fistBump: IAutoMovieMotionHumanActionLaw<Omit<IAutoMovieMotionHumanHighFive.IParams, "kind">> =
     HumanActionRow.of("fistBump", highFive, { kind: "fist" });
-  const bump: IHumanMutual<object, "one" | "other"> = {
+  const bump: IAutoMovieMotionHumanMutual<object, "one" | "other"> = {
     name: "fistBump",
     roles: ["one", "other"],
     act: (role, _params, cast) => ({
@@ -69,9 +60,9 @@ export function test_human_motion_mutual_join(): void {
     }),
   };
   const perform = (
-    composition: { node: HumanPerformance.IInput["composition"] },
+    composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
     cast: readonly string[] = ["a", "b"],
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "mutual",
       laws: [fistBump],
@@ -90,14 +81,14 @@ export function test_human_motion_mutual_join(): void {
       })),
       composition: composition.node,
     });
-  const chain = (subject: string): HumanChain =>
+  const chain = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
-  const instant = (segment: HumanSegment.ISegment, event: string): number =>
+  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
   const joints = (
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     seconds: number,
   ): IAutoMovieVector3[] =>
@@ -108,7 +99,7 @@ export function test_human_motion_mutual_join(): void {
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
 
   // 1. One meeting second, one meeting place.
-  const slap: HumanPerformance = perform(
+  const slap: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.mutual(HumanMutual.highFive, {
       one: chain("a"),
       other: chain("b"),
@@ -134,7 +125,7 @@ export function test_human_motion_mutual_join(): void {
     );
 
   // 2. Who is named first changes nothing.
-  const swapped: HumanPerformance = perform(
+  const swapped: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.mutual(HumanMutual.highFive, {
       one: chain("b"),
       other: chain("a"),
@@ -171,7 +162,7 @@ export function test_human_motion_mutual_join(): void {
   );
 
   // 4. A production's own mutual action over a registered row.
-  const bumped: HumanPerformance = perform(
+  const bumped: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.mutual(bump, { one: chain("a"), other: chain("b") }),
   );
   const fists: number[] = ["a", "b"].map((subject: string): number =>
@@ -186,7 +177,7 @@ export function test_human_motion_mutual_join(): void {
     );
 
   // 5. A role's action is anchored for others to sync to.
-  const watched: HumanPerformance = perform(
+  const watched: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.mutual(
       HumanMutual.highFive,
       { one: chain("a"), other: chain("b") },

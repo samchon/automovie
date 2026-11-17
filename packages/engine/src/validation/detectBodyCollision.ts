@@ -1,25 +1,13 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBody,
-  IAutoMovieBone,
-  IAutoMovieCapsuleProxy,
-  IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieBodyCollisionResult, type IAutoMovieClosestSegmentPoints, type IAutoMovieCollisionActor, type IAutoMovieCollisionResponse, type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieDetectBodyCollision, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieBone, IAutoMovieCapsuleProxy, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
+
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../kinematics/resolvePose";
-import { IAutoMovieClosestSegmentPoints } from "../math/IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
-import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 import { suggestCollisionResponse } from "../physics/suggestCollisionResponse";
-import { IAutoMovieBodyCollisionResult } from "./IAutoMovieBodyCollisionResult";
-import { IAutoMovieCollisionActor } from "./IAutoMovieCollisionActor";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
@@ -55,22 +43,8 @@ interface IPenetration {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actor pose resolves once per frame and its map serves all capsule pairs; one retained penetration list supplies events, warnings and deepest response without a cross-call motion cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local pose maps and penetration rows are discarded; fresh events, validation and response transfer to the caller without retaining sampled poses or owning a physics/render task.
  */
-export const detectBodyCollision: (props: {
-  a: IAutoMovieCollisionActor;
-  b: IAutoMovieCollisionActor;
-  sampleRate?: number | undefined;
-  physicsIntent?: string | undefined;
-  gainDegPerImpulse?: number | undefined;
-  path?: string | undefined;
-}) => IAutoMovieBodyCollisionResult = (props: {
-  a: IAutoMovieCollisionActor;
-  b: IAutoMovieCollisionActor;
-  sampleRate?: number;
-  physicsIntent?: string;
-  gainDegPerImpulse?: number;
-  path?: string;
-}): IAutoMovieBodyCollisionResult => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const detectBodyCollision: (props: IAutoMovieDetectBodyCollision.IProps) => IAutoMovieBodyCollisionResult = (props: IAutoMovieDetectBodyCollision.IProps): IAutoMovieBodyCollisionResult => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
@@ -256,12 +230,12 @@ const validateActorCapsules: (
   actor: IAutoMovieCollisionActor,
   path: string,
   topology: IAutoMovieSkeletonTopology,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => boolean = (
   actor: IAutoMovieCollisionActor,
   path: string,
   topology: IAutoMovieSkeletonTopology,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): boolean => {
   const bones: Set<AutoMovieHumanoidBone> = new Set(
     actor.skeleton.bones.map(

@@ -1,21 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  gazeChainJoints,
-  minimumJerk,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { Quaternion, Vector3, gazeChainJoints, minimumJerk } from "@automovie/engine";
 import { HumanTrunk } from "./HumanTrunk";
 
 /**
@@ -68,8 +53,6 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanGaze {
-  /** Which segments a gaze may recruit. */
-  export type Recruit = "auto" | "eyes" | "head" | "trunk";
 
   /** Final eye-in-head eccentricity before the head joins, degrees (Freedman 2008). */
   export const EYES: number = 15;
@@ -84,18 +67,6 @@ export namespace HumanGaze {
   /** The trunk's share of yaw, degrees (provisional). */
   export const TRUNK: number = 40;
 
-  /** A split of one gaze direction, degrees: yaw positive toward the performer's left, pitch positive down. */
-  export interface ISplit {
-    /** Eye-in-head direction at the end of the shift. */
-    eyes: { yaw: number; pitch: number };
-
-    /** Head and neck. */
-    head: { yaw: number; pitch: number };
-
-    /** Trunk yaw. */
-    trunk: number;
-  }
-
   /**
    * Split a gaze direction over the eyes, the head and the trunk.
    *
@@ -107,8 +78,8 @@ export namespace HumanGaze {
   export function split(
     yaw: number,
     pitch: number,
-    recruit: Recruit = "auto",
-  ): ISplit {
+    recruit: IAutoMovieMotionHumanGaze.Recruit = "auto",
+  ): IAutoMovieMotionHumanGaze.ISplit {
     const share = (
       total: number,
       first: number,
@@ -169,10 +140,10 @@ export namespace HumanGaze {
    * @returns Yaw (positive left) and pitch (positive down), degrees.
    */
   export function direction(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     point: IAutoMovieVector3,
-  ): { yaw: number; pitch: number } {
+  ): IAutoMovieMotionHumanGaze.IDirectionResult {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(body, posture);
     const eyes: IAutoMovieVector3 = Vector3.scale(
@@ -207,19 +178,19 @@ export namespace HumanGaze {
    * @returns The posture with the trunk, neck, head and eyes set; limb goals unchanged.
    */
   export function aim(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     point: IAutoMovieVector3,
-    recruit: Recruit,
-    weights: { eyes: number; head: number; trunk: number },
-  ): IHumanPosture {
+    recruit: IAutoMovieMotionHumanGaze.Recruit,
+    weights: IAutoMovieMotionHumanGaze.IAimWeights,
+  ): IAutoMovieMotionHumanPosture {
     const towards: { yaw: number; pitch: number } = direction(
       body,
       posture,
       point,
     );
-    const parts: ISplit = split(towards.yaw, towards.pitch, recruit);
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    const parts: IAutoMovieMotionHumanGaze.ISplit = split(towards.yaw, towards.pitch, recruit);
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
     const blend = (
       bone: AutoMovieHumanoidBone,
       target: readonly [number, number, number],
@@ -323,21 +294,6 @@ export namespace HumanGaze {
     return { ...posture, joints };
   }
 
-  /** A gaze layer's request. */
-  export interface ILayer {
-    /** What to look at. */
-    target: AutoMovieMotionTarget;
-
-    /** Film second the gaze shift starts. */
-    from: number;
-
-    /** Film second the gaze returns to the body's own direction; never when absent. */
-    to?: number;
-
-    /** Which segments may join; `auto` when absent. */
-    with?: Recruit;
-  }
-
   /**
    * A gaze layer: from `from` the eyes, head and trunk turn toward the
    * target on their own timings and track it; from `to` they return.
@@ -347,26 +303,26 @@ export namespace HumanGaze {
    * @returns The layer.
    */
   export function layer(
-    requests: readonly ILayer[],
+    requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
     name: string = "gaze",
-  ): IHumanLayer {
+  ): IAutoMovieMotionHumanLayer {
     return {
       name,
 
       // The eyes, the neck and the head, and the chest and lumbar spine
       // unless every gaze keeps the trunk out of the turn.
       channels: requests.every(
-        (request: ILayer): boolean =>
+        (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
           request.with === "eyes" || request.with === "head",
       )
         ? ["head"]
         : ["head", "trunk"],
       apply: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-        context: IHumanLayer.IContext,
-      ): IHumanPosture => {
-        let active: ILayer | undefined;
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture => {
+        let active: IAutoMovieMotionHumanGaze.ILayer | undefined;
         for (const r of requests) if (r.from <= seconds) active = r;
         if (active === undefined) return posture;
         const point: IAutoMovieVector3 = context.aim(
@@ -379,7 +335,7 @@ export namespace HumanGaze {
           point,
         );
         const amplitude: number = Math.hypot(towards.yaw, towards.pitch);
-        const parts: ISplit = split(
+        const parts: IAutoMovieMotionHumanGaze.ISplit = split(
           towards.yaw,
           towards.pitch,
           active.with ?? "auto",

@@ -1,6 +1,10 @@
-import type { IAutoMovieSectionPlane } from "@automovie/engine";
+import type { IAutoMovieSectionPlane, IAutoMovieInspectionRequest } from "@automovie/interface";
 
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+
+
+
+
+
 
 /** Stroke width in output pixels when none is asked: three, which stays visible when a still is reduced into a contact-sheet cell. */
 const STROKE: number = 3;

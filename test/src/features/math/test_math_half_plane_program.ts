@@ -1,3 +1,4 @@
+import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
 import { solveAutoMovieHalfPlaneProgram } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,14 +33,14 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_math_half_plane_program(): void {
   const findings: string[] = [];
-  type ILine = solveAutoMovieHalfPlaneProgram.ILine;
-  type IPoint = solveAutoMovieHalfPlaneProgram.IPoint;
+  type ILine = IAutoMovieSolveHalfPlaneProgram.ILine;
+  type IPoint = IAutoMovieSolveHalfPlaneProgram.IPoint;
   const inside = (line: ILine, p: IPoint): number =>
     line.direction.x * (line.point.y - p.y) -
     line.direction.y * (line.point.x - p.x);
 
   // 1. Inside.
-  const free: solveAutoMovieHalfPlaneProgram.IResult =
+  const free: IAutoMovieSolveHalfPlaneProgram.IResult =
     solveAutoMovieHalfPlaneProgram(
       [{ point: { x: 0, y: -1 }, direction: { x: 1, y: 0 } }],
       2,
@@ -68,7 +69,7 @@ export function test_math_half_plane_program(): void {
     findings.push(`the disc's boundary point is (${clipped.x}, ${clipped.y})`);
 
   // 4. Infeasible: y >= 0.2 and y <= -0.2.
-  const torn: solveAutoMovieHalfPlaneProgram.IResult =
+  const torn: IAutoMovieSolveHalfPlaneProgram.IResult =
     solveAutoMovieHalfPlaneProgram(
       [
         { point: { x: 0, y: 0.2 }, direction: { x: 1, y: 0 } },
@@ -108,7 +109,7 @@ export function test_math_half_plane_program(): void {
       x: (random() * 2 - 1) * 1.5 * R,
       y: (random() * 2 - 1) * 1.5 * R,
     };
-    const result: solveAutoMovieHalfPlaneProgram.IResult =
+    const result: IAutoMovieSolveHalfPlaneProgram.IResult =
       solveAutoMovieHalfPlaneProgram(lines, R, preferred);
     let best: number = Infinity;
     for (let i: number = 0; i < G; ++i)

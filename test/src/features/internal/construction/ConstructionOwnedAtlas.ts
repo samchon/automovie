@@ -1,12 +1,5 @@
-import {
-  AutoMovieSolidFoot,
-  AutoMovieSolidIntersection,
-  AutoMovieSolidRail,
-  AutoMovieSolidTraceLaw,
-  AutoMovieSolidTraceSolve,
-  type IAutoMovieSolidAtlas,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { IAutoMovieSolidAtlas, IAutoMovieSolidFoot, IAutoMovieSolidIntersection, IAutoMovieSolidRail, IAutoMovieSolidSurface, IAutoMovieSolidTraceLaw } from "@automovie/interface";
+import { AutoMovieSolidFoot, AutoMovieSolidIntersection, AutoMovieSolidRail, AutoMovieSolidTraceLaw, AutoMovieSolidTraceSolve } from "@automovie/engine";
 
 import { nclose } from "../nclose";
 
@@ -87,7 +80,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
       });
     },
   };
-  const result: AutoMovieSolidIntersection.IResult =
+  const result: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part: { ...part, period: 2 * Math.PI },
       host,
@@ -103,7 +96,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
   else {
     const faces: Set<number> = new Set(
       result.curve.points.map(
-        (p: AutoMovieSolidIntersection.IPoint): number => p.face,
+        (p: IAutoMovieSolidIntersection.IPoint): number => p.face,
       ),
     );
     if (faces.size !== 2)
@@ -138,7 +131,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
         return { ...j, p: [j.p[0] + centre - 1, j.p[1], j.p[2]] };
       },
     };
-    const contact: AutoMovieSolidIntersection.IResult =
+    const contact: IAutoMovieSolidIntersection.IResult =
       AutoMovieSolidIntersection.trace({
         part: shifted,
         host,
@@ -160,9 +153,9 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
       boundary,
       boundary + 2 ** -20,
     ]) {
-      const point: AutoMovieSolidIntersection.IPoint | null =
+      const point: IAutoMovieSolidIntersection.IPoint | null =
         contact.curve.at(phi);
-      const rail: AutoMovieSolidRail.IRail | null =
+      const rail: IAutoMovieSolidRail.IRail | null =
         point === null
           ? null
           : AutoMovieSolidRail.at(shifted, host, point, "outside", 0.1, 0.25);
@@ -195,7 +188,7 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
         );
     }
   }
-  const arc: AutoMovieSolidIntersection.IResult =
+  const arc: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part,
       host,
@@ -277,17 +270,17 @@ function boundedTrials(failures: string[]): void {
       };
     },
   };
-  const law: AutoMovieSolidTraceLaw.ILaw | null = AutoMovieSolidTraceLaw.of({
+  const law: IAutoMovieSolidTraceLaw.ILaw | null = AutoMovieSolidTraceLaw.of({
     kind: "phase",
   });
   if (law === null) throw new Error("Unexpected phase-law failure.");
   const target: (
     height: number,
     guess: number,
-  ) => AutoMovieSolidIntersection.IPoint | null = (
+  ) => IAutoMovieSolidIntersection.IPoint | null = (
     height: number,
     guess: number,
-  ): AutoMovieSolidIntersection.IPoint | null =>
+  ): IAutoMovieSolidIntersection.IPoint | null =>
     AutoMovieSolidTraceSolve.solve(
       part,
       AutoMovieSolidIntersection.atlas(trialPlane(height)),
@@ -297,19 +290,19 @@ function boundedTrials(failures: string[]): void {
       0,
       1e-10,
     );
-  const inside: AutoMovieSolidIntersection.IPoint | null = target(0.25, 0.05);
+  const inside: IAutoMovieSolidIntersection.IPoint | null = target(0.25, 0.05);
   if (inside === null || !nclose(inside.s, 0.5, 1e-8))
     failures.push(
       "A feasible Newton solve failed after an outside full trial.",
     );
   if (target(1.44, 0.5) !== null || target(0.25, -0.1) !== null)
     failures.push("An infeasible meeting was published.");
-  const edge: AutoMovieSolidIntersection.IPoint | null = target(1 + 5e-11, 1);
+  const edge: IAutoMovieSolidIntersection.IPoint | null = target(1 + 5e-11, 1);
   if (edge === null || edge.s !== 1)
     failures.push(
       "An infeasible polish displaced the accepted owned boundary point.",
     );
-  const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
+  const foot: IAutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
     part,
     [0.5, 0.25, 0],
     [0.1, 0],

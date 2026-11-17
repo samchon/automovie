@@ -1,7 +1,6 @@
-import { getConstraint } from "@automovie/engine";
-import type { IAutoMovieBone } from "@automovie/interface";
+import type { IAutoMovieBone, IAutoMovieMotionHumanBody } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { getConstraint } from "@automovie/engine";
 
 /**
  * How far a torque through the arm bends a trunk that resists it (#3439):
@@ -56,7 +55,7 @@ export namespace HumanForceTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The range is the engine's `getConstraint` on the body's rig.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function range(body: IHumanBody, side: "left" | "right"): number {
+  export function range(body: IAutoMovieMotionHumanBody, side: "left" | "right"): number {
     let sum: number = 0;
     for (const bone of ["spine", "chest"] as const) {
       const limits: ReturnType<typeof getConstraint> = getConstraint(

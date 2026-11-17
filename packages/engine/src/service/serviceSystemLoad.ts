@@ -1,9 +1,5 @@
-import {
-  IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSystem,
-} from "@automovie/interface";
+import { type IAutoMovieServiceSystemLoad, IAutoMovieServiceNode, IAutoMovieServicePort } from "@automovie/interface";
+
 
 /**
  * Total demand one system is declared to carry, in the system's own unit.
@@ -35,13 +31,7 @@ import {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One load is derived per requested system from its current port demands; cross-system demand tables are not cached by this scalar owner.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Temporary filtered lists release on return and the output is a primitive, so no graph record remains retained.
  */
-export const serviceSystemLoad: (props: {
-  network: IAutoMovieServiceNetwork;
-  system: IAutoMovieServiceSystem;
-}) => number = (props: {
-  network: IAutoMovieServiceNetwork;
-  system: IAutoMovieServiceSystem;
-}): number => {
+export const serviceSystemLoad: (props: IAutoMovieServiceSystemLoad.IProps) => number = (props: IAutoMovieServiceSystemLoad.IProps): number => {
   const facing: string = props.system.flow === "to-root" ? "out" : "in";
   return props.network.nodes.reduce(
     (sum: number, node: IAutoMovieServiceNode): number =>

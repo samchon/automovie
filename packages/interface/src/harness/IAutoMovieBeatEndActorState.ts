@@ -1,8 +1,8 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMoviePose } from "../pose/IAutoMoviePose";
-import { IAutoMovieBeatEndFootPlant } from "./IAutoMovieBeatEndFootPlant";
-import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
+import type { IAutoMovieBeatEndFootPlant } from "./IAutoMovieBeatEndFootPlant";
+import type { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
 
 /**
  * One actor's resolved state at a shot-local instant of a compiled beat.

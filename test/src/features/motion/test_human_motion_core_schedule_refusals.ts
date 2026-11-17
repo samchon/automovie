@@ -1,11 +1,6 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
-import {
-  HumanChain,
-  HumanCue,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieResolveSchedule } from "@automovie/interface";
+
+import { HumanChain, HumanCue, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -47,21 +42,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_schedule_refusals(): void {
   const complaints: string[] = [];
-  const cues: Record<string, readonly resolveAutoMovieSchedule.ICue[]> = {
+  const cues: Record<string, readonly IAutoMovieResolveSchedule.ICue[]> = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
     music: HumanCue.beats({ bpm: 96, count: 16 }),
   };
-  const bodies: Record<string, IHumanBody> = {
+  const bodies: Record<string, IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
-  const perform = (composition: { node: HumanChain["node"] }): unknown => {
+  const perform = (composition: { node: IAutoMovieMotionHumanChain["node"] }): unknown => {
     try {
       new HumanPerformance({
         seed: "refusals",
         cues,
         performers: Object.entries(bodies).map(
-          ([subject, body]: [string, IHumanBody], index: number) => ({
+          ([subject, body]: [string, IAutoMovieMotionHumanBody], index: number) => ({
             subject,
             body,
             at: { x: index * 1.2, y: 0, z: 0 },
@@ -85,8 +80,8 @@ export function test_human_motion_core_schedule_refusals(): void {
 
   // The listener's nod, synced as each scenario says.
   const answer = (
-    sync: Parameters<HumanChain["sync"]>[0],
-  ): { node: HumanChain["node"] } =>
+    sync: Parameters<IAutoMovieMotionHumanChain["sync"]>[0],
+  ): { node: IAutoMovieMotionHumanChain["node"] } =>
     HumanChain.subject("a")
       .gesture({ kind: "wave" }, "greeting")
       .with(

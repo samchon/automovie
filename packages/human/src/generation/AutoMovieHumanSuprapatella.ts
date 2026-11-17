@@ -1,5 +1,8 @@
+import type { AutoMovieHumanSexPair, IAutoMovieHumanBodyMeasures } from "@automovie/interface";
+
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
+
 
 /**
  * The suprapatella's height: the patella's superior point above the floor,
@@ -21,7 +24,7 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  */
 export namespace AutoMovieHumanSuprapatella {
   /** Mid-patella height per stature, women and men, ANSUR II (means). */
-  export const MIDPATELLA: readonly [number, number] = [0.276, 0.278];
+  export const MIDPATELLA: AutoMovieHumanSexPair<number> = [0.276, 0.278];
 
   /** The patella's length, superior to inferior pole, mm (Kafa et al. 2024, mean of 168). */
   export const PATELLA_LENGTH: number = 38.83;

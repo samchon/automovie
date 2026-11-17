@@ -1,6 +1,7 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieViewLoft } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftChain, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
@@ -94,14 +95,14 @@ namespace FamilyConicEarRound {
    * checks a candidate family in place of the stored one of its name.
    */
   const crossing = async (file: string | undefined): Promise<string[]> => {
-    const plate: AutoMovieHumanConicLoft.IFamily = file === undefined ? AutoMovieHumanF1.BODY.ear : JSON.parse(await fs.readFile(file, "utf8"));
-    const sample = (family: AutoMovieHumanConicLoft.IFamily, step: number): { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; stations: number[] } => {
+    const plate: IAutoMovieHumanConicLoft.IFamily = file === undefined ? AutoMovieHumanF1.BODY.ear : JSON.parse(await fs.readFile(file, "utf8"));
+    const sample = (family: IAutoMovieHumanConicLoft.IFamily, step: number): { chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]>; stations: number[] } => {
       const [bottom, top] = family.tips ?? [null, null];
       const from: number = bottom === null ? family.knots[0]! : bottom.tip;
       const to: number = top === null ? family.knots.at(-1)! : top.tip;
       const stations: number[] = [];
       for (let s: number = from + step / 2; s < to; s += step) stations.push(Math.round(s * 1000) / 1000);
-      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
+      const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
       if (loft.chain === null) throw new Error("--crossing: " + family.name + " does not loft");
       return { chain: loft.chain, stations };
     };
@@ -180,8 +181,8 @@ namespace FamilyConicEarRound {
       return (q[0]! - p[0]!) * n[0]! + (q[1]! - p[1]!) * n[1]! + (q[2]! - p[2]!) * n[2]!;
     };
     // `--tube=<family json>` (repeatable) stands in for the stored family of the same name, so a candidate is checked before it is written.
-    const candidates: AutoMovieHumanConicLoft.IFamily[] = await Promise.all(
-      process.argv.filter((a: string): boolean => a.startsWith("--tube=")).map(async (a: string): Promise<AutoMovieHumanConicLoft.IFamily> => JSON.parse(await fs.readFile(a.slice("--tube=".length), "utf8"))),
+    const candidates: IAutoMovieHumanConicLoft.IFamily[] = await Promise.all(
+      process.argv.filter((a: string): boolean => a.startsWith("--tube=")).map(async (a: string): Promise<IAutoMovieHumanConicLoft.IFamily> => JSON.parse(await fs.readFile(a.slice("--tube=".length), "utf8"))),
     );
     const lines: string[] = [
       "plate: " + (file ?? "the stored module") + "; tubes: " + (candidates.length === 0 ? "stored" : candidates.map((c) => c.name + " (candidate)").join(", ")),
@@ -191,7 +192,7 @@ namespace FamilyConicEarRound {
     // `phases`), between shares 0 and 0.5 of its stations, as the ear's merges declare it. For each line, the stations where its signed
     // distance to the plate changes sign: the first line with one is the line the search can seed on.
     const seedLines: number = Number(process.argv.find((a: string): boolean => a.startsWith("--seed-lines="))?.slice("--seed-lines=".length) ?? 8);
-    const tubes: AutoMovieHumanConicLoft.IFamily[] = ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => candidates.find((c) => c.name === name) ?? AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family);
+    const tubes: IAutoMovieHumanConicLoft.IFamily[] = ["helix", "antihelix"].map((name: string): IAutoMovieHumanConicLoft.IFamily => candidates.find((c) => c.name === name) ?? AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family);
     for (const tube of tubes) {
       const own = sample(tube, 0.5);
       const half: number[] = own.stations.filter((s: number): boolean => s <= own.stations[0]! + (own.stations.at(-1)! - own.stations[0]!) / 2);

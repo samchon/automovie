@@ -1,3 +1,4 @@
+import type { IAutoMovieMark } from "@automovie/interface";
 import {
   type Archetype,
   ArchetypeArticulation,
@@ -5,7 +6,7 @@ import {
   ArchetypeMarks,
   type IArchetypeBand,
 } from "@automovie/archetypes";
-import type { IAutoMovieMark } from "@automovie/engine";
+
 
 import type { IGalleryRequest } from "../structures/IGalleryRequest";
 import type { IGalleryView } from "../structures/IGalleryView";

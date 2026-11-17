@@ -1,14 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createDoor } from "@automovie/archetypes";
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -61,8 +54,8 @@ export function test_human_motion_object_door_drive(): void {
   const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "door-drive",

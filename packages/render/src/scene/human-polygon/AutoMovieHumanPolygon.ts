@@ -1,9 +1,10 @@
+import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+
 import type * as THREE from "three";
 
 /**
- * Structural inputs and actual drawing handles for the original polygon
- * mannequin. Human's public skeleton output is structurally assignable; no
- * generator or example motion is imported by this optional Viewer entry.
+ * Actual Three drawing handles for the original polygon mannequin.
+ * Inputs use the canonical Human skeleton bone and placement contracts directly.
  *
  * The mannequin stays deliberately simple: a fix corrects a wrong value within
  * the same primitives and segment count, never adds geometry, detail or
@@ -11,70 +12,11 @@ import type * as THREE from "three";
  * checks and diffusion hints.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents frames, units, source exterior requirements, actual mesh registries and rigid-joint limitations.
- * @evidence contracts/development/design.md#principled-representation Represents Structural inputs and actual drawing handles for the original polygon mannequin: companion namespace of 4 members (`IInput`, `IBone`, `IPlacement`, `IDrawing`); units and frames named in its text: frame, metres, metre, quaternion, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieHumanPolygon` in packages/render/src/scene/human-polygon/AutoMovieHumanPolygon.ts; its surface is the 4 members listed and the text shows 21 other files naming it, mostly movies (10), packages/render (8), test (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation Represents Structural inputs and actual drawing handles for the original polygon mannequin: one renderer-owned drawing handle; Human owns registered skeletal data and the renderer owns concrete native objects.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieHumanPolygon` in packages/render/src/scene/human-polygon/AutoMovieHumanPolygon.ts; its retained IDrawing serves native display consumers; skeletal inputs are shared through IAutoMovieHumanSkeleton.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the native drawing handle borrows canonical Human placements rather than restating their shape.
  */
 export namespace AutoMovieHumanPolygon {
-  /**
-   * A fixed body's rest joints and its evaluated placement in the body frame.
-   *
-   * @evidence contracts/development/design.md#principled-representation Supplies rest joints, posed transforms and source neck/head exterior independently rather than deriving one from a display approximation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only fields read by the renderer; generator outputs may carry additional provenance and clinical diagnostics.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The descriptor contains no person selector, authored motion or fitted replacement surface.
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed-rest, pose and optional exterior meanings; the builder requires the exterior for its original neck/head geometry.
-   */
-  export interface IInput {
-    /** Rest joints in registered body metres, parent before child. */
-    bones: IBone[];
-
-    /** Evaluated placements in the body frame, including custom joints. */
-    posed: IPlacement[];
-  }
-
-  /**
-   * One original rest joint and the segment leaving it.
-   *
-   * @evidence contracts/development/design.md#principled-representation Uses registered joint/tip positions and supplied girth radius, preserving the original polygon construction inputs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One bone record serves rest topology and shape selection.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Custom bone identifiers remain ordinary strings and no absent endpoint is synthesized by this contract.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives metre dimensions, parent identity and null endpoint meaning.
-   */
-  export interface IBone {
-    /** Stable evaluator bone identity. */
-    bone: string;
-
-    /** Parent identity, or null at a root. */
-    parent: string | null;
-
-    /** Registered rest joint centre in metres. */
-    position: [number, number, number];
-
-    /** Leaf segment endpoint in metres; null delegates its end to a child. */
-    tip: [number, number, number] | null;
-
-    /** Positive girth radius of the segment, metres. */
-    radius: number;
-  }
-
-  /**
-   * A bone's rigid placement relative to its fixed rest joint.
-   *
-   * @evidence contracts/development/design.md#principled-representation Position is the evaluated joint in body metres and rotation is a unit bind-relative quaternion; flat display groups consume both once.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One transform drives the matching surface and diagnostic groups.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No parent rotation is composed again and no quaternion normalization conceals invalid evaluator data.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives stable identity, body frame, bind-relative meaning and quaternion component order.
-   */
-  export interface IPlacement {
-    /** Stable bone identity, including joints outside the humanoid vocabulary. */
-    bone: string;
-
-    /** Evaluated joint centre in body-frame metres. */
-    position: [number, number, number];
-
-    /** Unit bind-relative quaternion `[x,y,z,w]` in the body frame. */
-    rotation: [number, number, number, number];
-  }
 
   /**
    * Actual rigid polygon drawing and its owned resource lifetime.
@@ -129,7 +71,7 @@ export namespace AutoMovieHumanPolygon {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses stable groups, geometry and matrices; mutable input placements are admitted on every call rather than cached by identity.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary placement references expire after the call; drawing resources retain their existing owner and no clock or task is acquired.
      */
-    setPose: (output: Pick<IInput, "posed">) => void;
+    setPose: (output: Pick<IAutoMovieHumanSkeleton.IOutput, "posed">) => void;
 
     /**
      * Replace emitted-part RGB overrides; undefined restores the borrowed clay material.

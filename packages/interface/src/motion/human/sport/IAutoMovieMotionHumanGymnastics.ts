@@ -1,0 +1,55 @@
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+
+/**
+ * A handstand kicked up from standing, held and stepped down (#3251).
+ *
+ * The hands are placed on the floor a shoulder width apart, as far ahead of
+ * the feet as the standing legs let the hips go with the trunk pitched 120
+ * degrees over the hands (provisional). Over the first half of the entry
+ * the body folds forward and the hands come down under the shoulders, which
+ * stand the arms' reach above the wrists; over the second the trunk swings
+ * about the shoulders, which stay where they are, and the legs follow
+ * straight until the body stands inverted with the hips over the shoulders
+ * and the shoulders over the base of the hands. The exit is the entry
+ * reversed: over its first half the legs swing back down about the
+ * shoulders while the hands still bear, until the feet stand where they
+ * left the floor, and over its second the trunk unfolds over the feet. The
+ * entry and the exit take 1.5 s each (provisional) and the hold is the
+ * author's. Balance in the hold is by the wrists first (Kerwin and
+ * Trewartha 2001); no sway is drafted yet.
+ *
+ * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
+ * at the exit's middle, when the feet bear again and the hands leave the
+ * floor, with the phrase instants.
+ *
+ * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
+ * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
+ * the vault (`vault`). Not drafted: bars and rings, which need swings about
+ * a bar support.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds held inverted; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#principled-representation seconds: Seconds held inverted; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.gymnastics, params); sport/gymnastics.ts (gymnastics.plan, context); sport/gymnastics.ts (gymnastics.plan).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanGymnastics {
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
+   * @evidence contracts/development/design.md#principled-representation The hold.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   *
+   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
+   */
+  export interface IParams {
+    /** Seconds held inverted; 2 when absent.
+     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+     */
+    seconds?: number;
+
+    /** How it is performed. */
+    manner?: IAutoMovieMotionManner.IManner;
+  }
+}

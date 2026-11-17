@@ -1,11 +1,10 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionTrajectoryInterval, IAutoMovieProjectileDragFlight, IAutoMovieProjectileDragInterval, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Vector3 } from "../math/Vector3";
 import { integrateMotionTrajectory } from "../motion/integrateMotionTrajectory";
 import { AutoMovieAir } from "./AutoMovieAir";
-import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
-import type { IProjectileDragInterval } from "./IProjectileDragInterval";
 
 /**
  * A projectile's flight under gravity and quadratic drag, read by time:
@@ -45,8 +44,8 @@ import type { IProjectileDragInterval } from "./IProjectileDragInterval";
  */
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
-): projectileDragFlight.IFlight {
-  const known: projectileDragFlight.IFlight | undefined = MEMO.get(projectile);
+): IAutoMovieProjectileDragFlight.IFlight {
+  const known: IAutoMovieProjectileDragFlight.IFlight | undefined = MEMO.get(projectile);
   if (known !== undefined) return known;
   const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
   const density: number = drag.density ?? AutoMovieAir.DENSITY;
@@ -68,7 +67,7 @@ export function projectileDragFlight(
   const f = (
     _: number,
     x: readonly number[],
-  ): integrateMotionTrajectory.IRate => {
+  ): IAutoMovieIntegrateMotionTrajectory.IRate => {
     const speed: number = Math.hypot(x[3]!, x[4]!, x[5]!);
     return {
       dx: [
@@ -131,8 +130,8 @@ export function projectileDragFlight(
 
   // Chunks integrated on demand, in order, each from its predecessor's end.
   const span: number = projectileDragFlight.CHUNK * h;
-  const chunks: integrateMotionTrajectory.ITrajectory[] = [];
-  const chunk = (index: number): integrateMotionTrajectory.ITrajectory => {
+  const chunks: IAutoMovieIntegrateMotionTrajectory.ITrajectory[] = [];
+  const chunk = (index: number): IAutoMovieIntegrateMotionTrajectory.ITrajectory => {
     while (chunks.length <= index) {
       const c: number = chunks.length;
       const start: number[] =
@@ -149,15 +148,15 @@ export function projectileDragFlight(
     }
     return chunks[index]!;
   };
-  const flight: projectileDragFlight.IFlight = {
+  const flight: IAutoMovieProjectileDragFlight.IFlight = {
     step: h,
     fastest,
-    interval: (seconds: number): projectileDragFlight.IInterval => {
+    interval: (seconds: number): IAutoMovieProjectileDragInterval => {
       const t: number = Math.max(0, seconds);
-      const trajectory: integrateMotionTrajectory.ITrajectory = chunk(
+      const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory = chunk(
         Math.floor(t / span),
       );
-      const data: integrateMotionTrajectory.IInterval = trajectory.interval!(t);
+      const data: IAutoMovieMotionTrajectoryInterval = trajectory.interval!(t);
       return {
         from: data.from,
         to: data.to,
@@ -203,36 +202,8 @@ export namespace projectileDragFlight {
 
   /** Steps per chunk: a memory bound no flight reads, about a thousand knots of six numbers per chunk. */
   export const CHUNK: number = 1024;
-
-  /** Existing namespace spelling of the shared actual dense projectile interval. */
-  export type IInterval = IProjectileDragInterval;
-
-  /** A drag flight's reader. */
-  export interface IFlight {
-    /** The integration step, seconds. */
-    step: number;
-
-    /** The largest speed the flight reaches, m/s: the launch speed or the terminal speed, whichever is larger. */
-    fastest: number;
-
-    /**
-     * Read the actual cubic interval containing a nonnegative flight time.
-     *
-     * @param seconds Seconds since launch; negative times select the first interval.
-     * @returns Actual adjacent knot times with fresh endpoint states.
-     */
-    interval(seconds: number): IInterval;
-
-    /**
-     * The state at a second after the launch.
-     *
-     * @param seconds Seconds since the launch; before it, the launch state.
-     * @returns Position and velocity.
-     */
-    at(seconds: number): IAutoMovieProjectileState;
-  }
 }
 
 /** The flights integrated so far, by projectile record. */
-const MEMO: WeakMap<IAutoMovieProjectile, projectileDragFlight.IFlight> =
+const MEMO: WeakMap<IAutoMovieProjectile, IAutoMovieProjectileDragFlight.IFlight> =
   new WeakMap();

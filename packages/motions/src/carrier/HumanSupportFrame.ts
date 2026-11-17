@@ -1,22 +1,8 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  integrateMotionTrajectory,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSupportFrame, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3, integrateMotionTrajectory } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 
@@ -43,23 +29,6 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The frame is the prop's or the bone's own displayed one; nothing is extrapolated from the entry.
  */
 export namespace HumanSupportFrame {
-  /** The support's frame at a second. */
-  export interface IFrame {
-    /** What the base rests on. */
-    support: IHumanContactWindow.Support;
-
-    /** Its origin, world metres. */
-    position: IAutoMovieVector3;
-
-    /** Its rotation to the world. */
-    rotation: IAutoMovieQuaternion;
-
-    /** Its origin's velocity, m/s. */
-    velocity: IAutoMovieVector3;
-
-    /** Its origin's acceleration, m/s². */
-    acceleration: IAutoMovieVector3;
-  }
 
   /**
    * The support the action is entered on: the first bearing contact on a
@@ -69,14 +38,14 @@ export namespace HumanSupportFrame {
    * @returns The support.
    */
   export function of(
-    context: Pick<IHumanActionContext, "entry" | "carrier">,
-  ): IHumanContactWindow.Support {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "carrier">,
+  ): IAutoMovieMotionHumanContactWindow.Support {
     // An overlay rides what its carrier stands on, even where its entry
     // still stood on the ground before the carrier began.
     if (context.carrier?.support !== undefined) return context.carrier.support;
-    const bearing: IHumanEntryState.ISupport | undefined =
+    const bearing: IAutoMovieMotionHumanEntryState.ISupport | undefined =
       context.entry.supports.find(
-        (s: IHumanEntryState.ISupport): boolean =>
+        (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
           s.kind !== "grip" && s.support.kind !== "ground",
       );
     return bearing?.support ?? { kind: "ground" };
@@ -98,12 +67,12 @@ export namespace HumanSupportFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function contact(
-    context: Pick<IHumanActionContext, "entry">,
-    part: IHumanContactWindow["part"],
-  ): IHumanContactWindow.Support {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+    part: IAutoMovieMotionHumanContactWindow["part"],
+  ): IAutoMovieMotionHumanContactWindow.Support {
     return (
       context.entry.supports.find(
-        (support: IHumanEntryState.ISupport): boolean => support.part === part,
+        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean => support.part === part,
       )?.support ?? { kind: "ground" }
     );
   }
@@ -122,7 +91,7 @@ export namespace HumanSupportFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFoot.sockets as the surface datum.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function floor(body: IHumanBody, entry: IHumanEntryState): number {
+  export function floor(body: IAutoMovieMotionHumanBody, entry: IAutoMovieMotionHumanEntryState): number {
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
@@ -134,7 +103,7 @@ export namespace HumanSupportFrame {
     return Math.min(
       ...planted.flatMap((side: "left" | "right"): number[] =>
         HumanFoot.sockets(body, bones, side).map(
-          (socket: HumanFoot.ISocket): number => socket.point.y,
+          (socket: IAutoMovieMotionHumanFoot.ISocket): number => socket.point.y,
         ),
       ),
     );
@@ -152,13 +121,13 @@ export namespace HumanSupportFrame {
    */
   export function board(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "entry" | "prop" | "performer" | "start"
     >,
     prop: string,
     speed: number,
   ): void {
-    const current: IHumanContactWindow.Support = of(context);
+    const current: IAutoMovieMotionHumanContactWindow.Support = of(context);
     if (current.kind === "prop" && current.subject === prop) return;
     const moving: number = Vector3.length(
       at(context, context.start, { kind: "prop", subject: prop }).velocity,
@@ -183,11 +152,11 @@ export namespace HumanSupportFrame {
    * @returns The frame.
    */
   export function at(
-    context: Pick<IHumanActionContext, "entry" | "prop" | "performer">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "prop" | "performer">,
     seconds: number,
-    named?: IHumanContactWindow.Support,
-  ): IFrame {
-    const support: IHumanContactWindow.Support = named ?? of(context);
+    named?: IAutoMovieMotionHumanContactWindow.Support,
+  ): IAutoMovieMotionHumanSupportFrame.IFrame {
+    const support: IAutoMovieMotionHumanContactWindow.Support = named ?? of(context);
     if (support.kind === "ground")
       return {
         support,
@@ -196,10 +165,10 @@ export namespace HumanSupportFrame {
         velocity: { x: 0, y: 0, z: 0 },
         acceleration: { x: 0, y: 0, z: 0 },
       };
-    const frame = (t: number): IHumanProp.IFrame => {
+    const frame = (t: number): IAutoMovieMotionHumanProp.IFrame => {
       if (support.kind === "prop")
         return context.prop(support.subject).frame(t);
-      const other: IHumanActionContext.IPerformer = context.performer(
+      const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
         support.subject,
       );
       const bone: AutoMovieHumanoidBone =
@@ -210,7 +179,7 @@ export namespace HumanSupportFrame {
       return HumanPropFrame.bone(posed);
     };
     const h: number = integrateMotionTrajectory.STEP;
-    const now: IHumanProp.IFrame = frame(seconds);
+    const now: IAutoMovieMotionHumanProp.IFrame = frame(seconds);
 
     // A person is read only up to the second evaluated: backward differences.
     const [before, after]: [IAutoMovieVector3, IAutoMovieVector3] =

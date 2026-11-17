@@ -1,12 +1,12 @@
 # @automovie/interface
 
-The authoring AST of AutoMovie: the TypeScript types a coding agent fills in, through function calling or structured output, and that every other package reads. It has no runtime code and no dependency.
+The common and domain contracts of AutoMovie, from authored models and shots to computation inputs, results and host protocols. `engine`, `human`, `motions`, `recovery`, `ingest` and `render` use these declarations at their public boundaries. The package has no runtime dependency.
 
-The types are loose on purpose, because the agent has to be able to fill in every one of them. Fields are plain `string` and `number` with their units and ranges written in JSDoc, and a value from a fixed set is a closed union. `@automovie/engine` enforces the ranges at runtime.
+Fields use plain `string` and `number`; their JSDoc states units, frames, ranges, ownership and absence behavior. Closed unions describe alternatives. The implementation that admits or produces each record owns its runtime checks, so importing a type alone does not validate data. Validator-specific metadata stays with that implementation.
 
 ## Use
 
-```bash
+```powershell
 npm install @automovie/interface
 ```
 
@@ -16,10 +16,12 @@ import type { IAutoMovieModel, IAutoMovieShot } from "@automovie/interface";
 
 ## Conventions
 
-- Space is right-handed and y-up, as in glTF 2.0 and VRM 1.0. Lengths are metres, time is seconds, and normalized weights run from 0 to 1.
-- Authored angles are degrees of an anatomical movement (flexion, abduction, twist). The engine converts them to bone-local quaternions.
-- Interfaces are named `IAutoMovie*` and closed unions `AutoMovie*`. An absent value is `T | null` with its meaning in JSDoc, not an optional field.
+Authored scene coordinates are right-handed and y-up, with lengths in metres and time in seconds. Authored joint angles are degrees of anatomical movement. Numerical construction, Human preparation, imported observations and film clocks may use millimetres, radians, other frames or exact frame counts; the containing field defines the convention. Tuple and object coordinate representations do not imply a conversion between them.
+
+Object contracts and object unions use `IAutoMovie*`; scalar, literal, tuple and utility aliases use `AutoMovie*`. Type-only namespaces group related contracts. Optional and null values retain distinct meanings stated at the field, including any default supplied by its runtime owner.
+
+Archetype assets and their producer APIs remain in `@automovie/archetypes`, using the common model, affordance, body, rig and geometry contracts. Adding an asset does not require an interface entry. Frontend state and contracts requiring Three, Node or another implementation dependency remain with their owning packages.
 
 ## Where to look
 
-All types are exported from the package root. Start from `IAutoMovieModel` for a figure or prop and `IAutoMovieShot` for a shot.
+Import contracts from the package root. Start from `IAutoMovieModel` for a figure or prop and `IAutoMovieShot` for a shot; the declarations document the related domain inputs, results and runtime admission owners.

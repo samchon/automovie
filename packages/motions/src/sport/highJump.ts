@@ -1,23 +1,12 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolveCenterOfMass, AutoMovieMotionHumanActionKey, IAutoMovieAffordance, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsTakeoff, IAutoMovieMotionHumanHighJump, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import type { IHumanBody } from "../body/IHumanBody";
+
+import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { lieDown } from "../floor/lieDown";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
@@ -73,10 +62,10 @@ import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
  */
 export namespace highJump {
   /** The action's name. */
-  export const name: HumanActionKey = "highJump";
+  export const name: AutoMovieMotionHumanActionKey = "highJump";
 
   /** Cancel table: once lying, into rising. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       rise: ["fromRelax", "smooth"],
     });
@@ -109,7 +98,7 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function arched(body: IHumanBody): ExerciseKey.IKey {
+  export function arched(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [-25, 0, 0], chest: [-20, 0, 0], neck: -30 },
@@ -132,31 +121,12 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function piked(body: IHumanBody): ExerciseKey.IKey {
+  export function piked(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [10, 0, 0], neck: 30 },
       { hip: 80, knee: 10, ankle: -20, shoulder: 10, raise: 15, elbow: 20 },
     );
-  }
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The landing place, its support and the high jump whose crossbar is cleared.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a prop's subject id, as the jump's.
-   */
-  export interface IParams {
-    /** Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. */
-    to: IAutoMovieVector3;
-
-    /** The prop landed on, its subject id; the floor when absent. */
-    on?: string;
-
-    /** The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at. */
-    bar: string;
   }
 
   /**
@@ -177,10 +147,10 @@ export namespace highJump {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function crossbar(
-    context: Pick<IHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): number {
-    const read: IHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
@@ -198,7 +168,7 @@ export namespace highJump {
         reason: `${subject} declares no crossbar named bar`,
         fix: "give the high jump's crossbar the id bar, as createHighJump does",
       });
-    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, found.frame.translation),
@@ -221,16 +191,16 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the take-off plan and the mass model.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const model: GymnasticsFlight.Model = GymnasticsFlight.model(body);
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighJump.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
+    const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
     const bar: number = crossbar(context, p.bar);
 
     // The centre's height lying on the back on the surface.
-    const supine: IHumanPosture = {
+    const supine: IAutoMovieMotionHumanPosture = {
       root: { x: 0, y: 0, z: 0 },
       yaw: context.entry.posture.yaw,
       pitch: lieDown.POSES.supine.pitch,
@@ -247,7 +217,7 @@ export namespace highJump {
 
     // The take-off: the centre peaks at the bar and comes down at the
     // landing place at its lying height.
-    const takeoff: GymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
+    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
       context,
       (centre: IAutoMovieVector3): IAutoMovieVector3 => {
         if (!(bar > centre.y))
@@ -307,7 +277,7 @@ export namespace highJump {
       y: Math.sqrt(2 * AutoMovieGravity.STANDARD * (bar - c0.y)),
     };
     const rising: number = v.y / AutoMovieGravity.STANDARD;
-    const from: IHumanPosture = GymnasticsFlight.frozen(
+    const from: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
       body,
       takeoff.plan.posture(off),
     );
@@ -315,7 +285,7 @@ export namespace highJump {
     // The flight posture at seconds since the take-off: the joints keyed,
     // the half turn over the rise and the somersault through the flight
     // at constant rates from the take-off, the centre on its parabola.
-    const start: ExerciseKey.IKey = {
+    const start: IAutoMovieMotionHumanExerciseKey.IKey = {
       pitch: 0,
       roll: 0,
       yaw: 0,
@@ -333,10 +303,10 @@ export namespace highJump {
     const spin: number = 90 / (rising - ramp / 2);
     const somersault = (t: number): number =>
       t < ramp ? (spin * t * t) / (2 * ramp) : spin * (t - ramp / 2);
-    const arch: ExerciseKey.IKey = arched(body);
-    const pike: ExerciseKey.IKey = piked(body);
-    const flying = (t: number): IHumanPosture => {
-      const key: ExerciseKey.IKey =
+    const arch: IAutoMovieMotionHumanExerciseKey.IKey = arched(body);
+    const pike: IAutoMovieMotionHumanExerciseKey.IKey = piked(body);
+    const flying = (t: number): IAutoMovieMotionHumanPosture => {
+      const key: IAutoMovieMotionHumanExerciseKey.IKey =
         t <= rising
           ? ExerciseKey.blend(start, arch, ease(t / rising))
           : ExerciseKey.blend(arch, pike, ease((t - rising) / rising));
@@ -371,7 +341,7 @@ export namespace highJump {
       lowest,
       surface,
     );
-    const landing: (seconds: number) => IHumanPosture = GymnasticsMat.lie({
+    const landing: (seconds: number) => IAutoMovieMotionHumanPosture = GymnasticsMat.lie({
       body,
       model,
       from: flying(down),
@@ -382,8 +352,8 @@ export namespace highJump {
     const touchdown: number = off + down;
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
-    const pushed: IHumanContactWindow = takeoff.plan.contacts[0]!;
-    const contacts: IHumanContactWindow[] = [
+    const pushed: IAutoMovieMotionHumanContactWindow = takeoff.plan.contacts[0]!;
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         ...pushed,
         from: 0,
@@ -413,7 +383,7 @@ export namespace highJump {
       contacts,
       contact: off + rising,
       base: { kind: "lying" },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t <= off) return takeoff.plan.posture(t);
         if (t < touchdown) return flying(t - off);

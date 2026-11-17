@@ -1,24 +1,8 @@
-import type { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
+import type { IAutoMovieLoftSectionBoundary, IAutoMovieLoftSectionBoundaryControls, IAutoMovieLoftViewRead, IAutoMovieViewSectionField } from "@automovie/interface";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
-import type { AutoMovieViewSectionField } from "./AutoMovieViewSectionField";
 
 /** Actual or explicitly generated scalar value/physical-station derivatives. */
-type Scalar = AutoMovieViewSectionField.IStationJet;
-
-/** Eight effective native inputs, with the cap law already applied once. */
-type Inputs = AutoMovieLoftViewRead.IJets;
-
-/** Three complete rows in the transformed scalar coordinate. */
-interface Controls {
-  /** Eight log-extents and logit-shoulders. */
-  value: number[];
-
-  /** Their first physical station derivatives. */
-  slope: number[];
-
-  /** Their second physical station derivatives. */
-  curvature: number[];
-}
+type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /**
  * A continuation-owned native generating law on one changed station span.
@@ -35,40 +19,6 @@ interface Controls {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The eight-scalar law refuses touch and split chains because their extra controls cannot be recovered from the four extents and four shoulders.
  */
 export namespace AutoMovieLoftSectionBoundary {
-  /**
-   * Actual native-family scalar2 at one regular boundary.
-   *
-   * @evidence contracts/development/design.md#principled-representation The eight effective scalar2 tuples describe the same native family and physical station used by the boundary.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One station and the shared native input record preserve endpoint ownership.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A composed non-native endpoint cannot acquire this type by fitting; actual physical jets must be available.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs include cap effects once and station uses mm.
-   */
-  export interface IEnd {
-    /** Location in the receiving chain's physical station, mm. */
-    station: number;
-
-    /** Exact original effective endpoint2, retained without a log/exp round trip. */
-    inputs: Inputs;
-  }
-
-  /**
-   * One explicit positive native scalar generating field.
-   *
-   * @evidence contracts/development/design.md#principled-representation Original endpoints and transformed Hermite rows determine the field independently of registration history.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A discriminator, two endpoints and two complete transformed rows suffice.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not claim monotonicity, proximity to the replaced child span or binary64 positivity without read-time admission.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes exact endpoint tuples from the declared interior log/logit interpolation.
-   */
-  export interface IBridge {
-    /** Distinguishes this native-family law from any mixed generating field. */
-    kind: "native";
-
-    /** Exact lower and upper effective scalar2 boundary data. */
-    ends: readonly [IEnd, IEnd];
-
-    /** Corresponding log/logit rows with physical, rather than normalized, derivatives. */
-    controls: readonly [Controls, Controls];
-  }
 
   /**
    * Define one changed span from actual effective native scalar endpoint2.
@@ -81,7 +31,7 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The transformed endpoint rows serve all later station reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied endpoint/control arrays or a diagnostic and retains no caller object globally.
    */
-  export function create(first: IEnd, last: IEnd): IBridge | string {
+  export function create(first: IAutoMovieLoftSectionBoundary.IEnd, last: IAutoMovieLoftSectionBoundary.IEnd): IAutoMovieLoftSectionBoundary.IBridge | string {
     if (chained(first?.inputs) || chained(last?.inputs)) return CHAIN;
     if (
       first === null ||
@@ -98,8 +48,8 @@ export namespace AutoMovieLoftSectionBoundary {
       !valid(last.inputs)
     )
       return "A native continuation needs two increasing finite stations and actual positive extent/effective shoulder source2.";
-    const a: Controls = transform(first.inputs);
-    const b: Controls = transform(last.inputs);
+    const a: IAutoMovieLoftSectionBoundaryControls = transform(first.inputs);
+    const b: IAutoMovieLoftSectionBoundaryControls = transform(last.inputs);
     if (!control(a) || !control(b))
       return "The native continuation's log/logit endpoint2 is not finitely representable.";
     return {
@@ -123,10 +73,10 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller prepares native geometry once from this result for all of that station's phases.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every result owns fresh triples; this owner retains no queried station.
    */
-  export function read(bridge: IBridge, station: number): Inputs | string {
+  export function read(bridge: IAutoMovieLoftSectionBoundary.IBridge, station: number): IAutoMovieLoftViewRead.IJets | string {
     const fault: string | null = admit(bridge, station);
     if (fault !== null) return fault;
-    const [a, b]: readonly [IEnd, IEnd] = bridge.ends;
+    const [a, b]: readonly [IAutoMovieLoftSectionBoundary.IEnd, IAutoMovieLoftSectionBoundary.IEnd] = bridge.ends;
     if (station === a.station) return copy(a.inputs);
     if (station === b.station) return copy(b.inputs);
     const H: number = b.station - a.station;
@@ -143,7 +93,7 @@ export namespace AutoMovieLoftSectionBoundary {
       (_: unknown, q: number): Scalar =>
         inverse([rows[0]![q]!, rows[1]![q]!, rows[2]![q]!], q < 4),
     );
-    const inputs: Inputs = {
+    const inputs: IAutoMovieLoftViewRead.IJets = {
       extents: values.slice(0, 4),
       shoulders: values.slice(4),
     };
@@ -164,13 +114,13 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh four-entry arrays and retains no query.
    */
   export function values(
-    bridge: IBridge,
+    bridge: IAutoMovieLoftSectionBoundary.IBridge,
     station: number,
-  ): AutoMovieLoftViewRead.IValues | string {
+  ): IAutoMovieLoftViewRead.IValues | string {
     const fault: string | null = admit(bridge, station);
     if (fault !== null) return fault;
-    const [a, b]: readonly [IEnd, IEnd] = bridge.ends;
-    const endpoint: Inputs | null =
+    const [a, b]: readonly [IAutoMovieLoftSectionBoundary.IEnd, IAutoMovieLoftSectionBoundary.IEnd] = bridge.ends;
+    const endpoint: IAutoMovieLoftViewRead.IJets | null =
       station === a.station
         ? a.inputs
         : station === b.station
@@ -213,7 +163,7 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This value transform owns no reusable station plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent tuples and retains no source or output.
    */
-  export function orient(inputs: Inputs, sign: 1 | -1): Inputs {
+  export function orient(inputs: IAutoMovieLoftViewRead.IJets, sign: 1 | -1): IAutoMovieLoftViewRead.IJets {
     if (chained(inputs)) throw new Error(CHAIN);
     if (!valid(inputs) || (sign !== 1 && sign !== -1))
       throw new Error(
@@ -241,7 +191,7 @@ const CHAIN: string =
   "A touch-offset or split-quarter source is a G1 conic chain, phase C1 with sided second derivatives at its joins; it has no eight-scalar boundary law.";
 
 /** Inputs declaring touch offsets or splits belong to a chain. */
-function chained(inputs: Inputs | null | undefined): boolean {
+function chained(inputs: IAutoMovieLoftViewRead.IJets | null | undefined): boolean {
   return (
     inputs !== null &&
     inputs !== undefined &&
@@ -251,7 +201,7 @@ function chained(inputs: Inputs | null | undefined): boolean {
 
 /** Validate the explicit generating-law coefficients without evaluating a requested derivative. */
 function admit(
-  bridge: AutoMovieLoftSectionBoundary.IBridge,
+  bridge: IAutoMovieLoftSectionBoundary.IBridge,
   station: number,
 ): string | null {
   if (
@@ -265,8 +215,8 @@ function admit(
   )
     return "The present native continuation law is malformed.";
   const [a, b]: readonly [
-    AutoMovieLoftSectionBoundary.IEnd,
-    AutoMovieLoftSectionBoundary.IEnd,
+    IAutoMovieLoftSectionBoundary.IEnd,
+    IAutoMovieLoftSectionBoundary.IEnd,
   ] = bridge.ends;
   if (
     a === null ||
@@ -297,7 +247,7 @@ function admit(
 }
 
 /** Actual scalar2 admission is distinct from value-only source availability; a chain's inputs are not eight scalars. */
-function valid(inputs: Inputs): boolean {
+function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
   return (
     inputs !== null &&
     inputs !== undefined &&
@@ -318,7 +268,7 @@ function valid(inputs: Inputs): boolean {
 }
 
 /** Complete fixed-size transformed rows cannot silently select another interpolation law. */
-function control(value: Controls): boolean {
+function control(value: IAutoMovieLoftSectionBoundaryControls): boolean {
   return (
     value !== null &&
     value !== undefined &&
@@ -330,8 +280,8 @@ function control(value: Controls): boolean {
 }
 
 /** Explicit value copies retain the same exact endpoint/control relation. */
-function matches(inputs: Inputs, controls: Controls): boolean {
-  const expected: Controls = transform(inputs);
+function matches(inputs: IAutoMovieLoftViewRead.IJets, controls: IAutoMovieLoftSectionBoundaryControls): boolean {
+  const expected: IAutoMovieLoftSectionBoundaryControls = transform(inputs);
   return expected.value.every(
     (v: number, q: number): boolean =>
       v === controls.value[q] &&
@@ -341,7 +291,7 @@ function matches(inputs: Inputs, controls: Controls): boolean {
 }
 
 /** The original exact endpoint data is never replaced by inverse-transform rounding. */
-function copy(inputs: Inputs): Inputs {
+function copy(inputs: IAutoMovieLoftViewRead.IJets): IAutoMovieLoftViewRead.IJets {
   return {
     extents: inputs.extents.map((jet: Scalar): Scalar => [...jet]),
     shoulders: inputs.shoulders.map((jet: Scalar): Scalar => [...jet]),
@@ -349,7 +299,7 @@ function copy(inputs: Inputs): Inputs {
 }
 
 /** Log and logit chain rules use actual physical endpoint derivatives. */
-function transform(inputs: Inputs): Controls {
+function transform(inputs: IAutoMovieLoftViewRead.IJets): IAutoMovieLoftSectionBoundaryControls {
   const jets: Scalar[] = [...inputs.extents, ...inputs.shoulders].map(
     (jet: Scalar, q: number): Scalar => {
       const [v, first, second]: Scalar = jet;

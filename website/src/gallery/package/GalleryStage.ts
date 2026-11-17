@@ -1,5 +1,6 @@
+import type { IAutoMovieMark } from "@automovie/interface";
 import { ArchetypeMarks } from "@automovie/archetypes";
-import type { IAutoMovieMark } from "@automovie/engine";
+
 import {
   type IAutoMovieInspectionHandle,
   type IAutoMovieModelObject,

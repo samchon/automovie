@@ -1,6 +1,4 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { HumanFoot } from "../../posture/HumanFoot";
+import type { IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * How far a planted foot slides, the one rule every capture case measures
@@ -25,8 +23,8 @@ export namespace FootSlip {
    * @param sole The foot's sockets, in tie order.
    * @returns The lowest.
    */
-  export function contact(sole: HumanFoot.ISocket[]): HumanFoot.ISocket {
-    let lowest: HumanFoot.ISocket = sole[0]!;
+  export function contact(sole: IAutoMovieMotionHumanFoot.ISocket[]): IAutoMovieMotionHumanFoot.ISocket {
+    let lowest: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
     for (const p of sole) if (p.point.y < lowest.point.y - 1e-6) lowest = p;
     return lowest;
   }
@@ -42,7 +40,7 @@ export namespace FootSlip {
   export function drift(
     anchors: Map<string, IAutoMovieVector3>,
     window: string,
-    at: HumanFoot.ISocket,
+    at: IAutoMovieMotionHumanFoot.ISocket,
   ): number {
     const key: string = `${window} ${at.socket}`;
     const anchor: IAutoMovieVector3 = anchors.get(key) ?? at.point;

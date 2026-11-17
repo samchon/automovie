@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEvents";
 
 /**
  * Find one weapon's first new contact, retaining the resolver's scan grid,
@@ -22,26 +21,26 @@ import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEve
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body. Returned ids/times retain no callback, body, certificate object or map.
  */
 export function firstAutoMovieContactImpact(
-  weapon: resolveAutoMovieContactEvents.IWeapon,
-  input: resolveAutoMovieContactEvents.IInput,
-  stops: resolveAutoMovieContactEvents.IStops,
+  weapon: IAutoMovieResolveContactEvents.IWeapon,
+  input: IAutoMovieResolveContactEvents.IInput,
+  stops: IAutoMovieResolveContactEvents.IStops,
   from: number,
   horizon: number,
 ): { against: string; seconds: number } | undefined {
   const live: number = weapon.from ?? -Infinity;
   const until: number = Math.min(input.to, weapon.to ?? Infinity);
   let departures:
-    | Map<resolveAutoMovieContactEvents.IBody, number | null>
+    | Map<IAutoMovieResolveContactEvents.IBody, number | null>
     | undefined;
 
   /** The same actual pair measurement, before any departure eligibility gate. */
   const distance: (
-    body: resolveAutoMovieContactEvents.IBody,
+    body: IAutoMovieResolveContactEvents.IBody,
     t: number,
     p: IAutoMovieVector3,
     q: IAutoMovieVector3 | undefined,
   ) => number = (
-    body: resolveAutoMovieContactEvents.IBody,
+    body: IAutoMovieResolveContactEvents.IBody,
     t: number,
     p: IAutoMovieVector3,
     q: IAutoMovieVector3 | undefined,
@@ -77,7 +76,7 @@ export function firstAutoMovieContactImpact(
       if (release === null || (release !== undefined && t < release)) continue;
       const d: number = distance(body, t, p, q);
       if (initial && d <= 0 && body.departure !== undefined) {
-        const proof: resolveAutoMovieContactEvents.Departure | undefined =
+        const proof: IAutoMovieResolveContactEvents.Departure | undefined =
           body.departure({
             weapon,
             from,

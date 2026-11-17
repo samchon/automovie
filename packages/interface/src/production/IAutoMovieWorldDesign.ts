@@ -1,9 +1,9 @@
-import { IAutoMovieEffectRecipe } from "./IAutoMovieEffectRecipe";
-import { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
-import { IAutoMovieWorldEffectZone } from "./IAutoMovieWorldEffectZone";
-import { IAutoMovieWorldLandmark } from "./IAutoMovieWorldLandmark";
-import { IAutoMovieWorldRoute } from "./IAutoMovieWorldRoute";
-import { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
+import type { IAutoMovieEffectRecipe } from "./IAutoMovieEffectRecipe";
+import type { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
+import type { IAutoMovieWorldEffectZone } from "./IAutoMovieWorldEffectZone";
+import type { IAutoMovieWorldLandmark } from "./IAutoMovieWorldLandmark";
+import type { IAutoMovieWorldRoute } from "./IAutoMovieWorldRoute";
+import type { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
 
 /**
  * Production world of named spatial constraints, terrain, environmental effects and compact general populations.

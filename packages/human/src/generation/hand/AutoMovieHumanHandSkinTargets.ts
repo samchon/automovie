@@ -1,12 +1,15 @@
-import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
-import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanHandMeasures } from "./IAutoMovieHumanHandMeasures";
-import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
-import type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
-import type { IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandMeasures, IAutoMovieHumanHandSkinTargets, IAutoMovieHumanKnuckleSection } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodySurface } from "../AutoMovieHumanBodySurface";
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
@@ -17,7 +20,7 @@ import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
 import { AutoMovieHumanHandSolve } from "./AutoMovieHumanHandSolve";
 import { AutoMovieHumanKnuckleSection } from "../AutoMovieHumanKnuckleSection";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 const { digitsOf }: typeof AutoMovieHumanHandFingers = AutoMovieHumanHandFingers;
 const { palmOf }: typeof AutoMovieHumanHandPalm = AutoMovieHumanHandPalm;
@@ -67,9 +70,9 @@ export namespace AutoMovieHumanHandSkinTargets {
     given: IAutoMovieHumanHandMeasures,
     circumference: number,
     wristTape: number,
-    makeArm: (measures: IAutoMovieHumanHandScales) => IAutoMovieHumanHandWrist,
+    makeArm: IAutoMovieHumanHandSkinTargets.SkinTargetsMakeArm,
     key: string,
-  ): { breadth: number; girth: number } {
+  ): IAutoMovieHumanHandSkinTargets.ISkinTargetsResult {
     const found: { breadth: number; girth: number } | undefined = TARGETS.get(key);
     if (found !== undefined) return found;
     const targets: { breadth: number; girth: number } = { breadth: given.breadth, girth: circumference };
@@ -94,7 +97,7 @@ export namespace AutoMovieHumanHandSkinTargets {
         apertures: [],
         appendages: undefined,
       }).mesh;
-      const skin: AutoMovieHumanKnuckleSection.IMeasure = AutoMovieHumanKnuckleSection.measure(
+      const skin: IAutoMovieHumanKnuckleSection.IMeasure = AutoMovieHumanKnuckleSection.measure(
         mesh.positions,
         mesh.indices,
         [joints.mcps[1]!, joints.mcps[2]!, joints.mcps[4]!],

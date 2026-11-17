@@ -1,6 +1,6 @@
-import { AutoMovieGestureKind } from "./AutoMovieGestureKind";
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
-import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { AutoMovieGestureKind } from "./AutoMovieGestureKind";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
 
 /**
  * A gesture from the engine's motion vocabulary. Pick the closest `kind` and

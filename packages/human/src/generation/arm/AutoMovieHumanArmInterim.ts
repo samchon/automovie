@@ -1,11 +1,17 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanArmConstruction, IAutoMovieHumanArmInterim, IAutoMovieHumanArmWalk, IAutoMovieHumanHandMeasures, IAutoMovieHumanReferenceOutlineTypes } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieIllinois } from "@automovie/engine";
-import type { AutoMovieHumanArmConstruction } from "../AutoMovieHumanArmConstruction";
+
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
-import type { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
+
 import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
 
-type Vec3 = [number, number, number];
 
 /**
  * The arm's site laws from the person's tapes. Each section's four extents
@@ -50,19 +56,19 @@ export namespace AutoMovieHumanArmInterim {
    * @param radialCenter The palm breadth-centre offset from MCP3 along radial u, mm; zero for a caller without the source hand record.
    * @returns The site laws.
    */
-  export function sites(side: "left" | "right", inputs: AutoMovieHumanArmConstruction.IInputs, elbow: Vec3, wrist: Vec3, placement: { projection: number; humerus: number }, crease: boolean = false, radialCenter: number = 0): AutoMovieHumanArmWalk.ISiteLaw[] {
+  export function sites(side: "left" | "right", inputs: IAutoMovieHumanArmConstruction.IInputs, elbow: AutoMovieVector3Tuple, wrist: AutoMovieVector3Tuple, placement: IAutoMovieHumanArmInterim.ISitesPlacement, crease: boolean = false, radialCenter: number = 0): IAutoMovieHumanArmWalk.ISiteLaw[] {
     const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
     const biceps: number = (inputs.upper / 2 - placement.projection) / placement.humerus;
     if (!(biceps > AutoMovieHumanDeltoidSpan.ROOT && biceps < 1)) throw new Error("The retained biceps midpoint must follow the first free deltoid source row inside the humerus");
     const forearm: number = Math.hypot(wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2]);
-    const box: (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number) => [number, number, number, number] = (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number): [number, number, number, number] => {
+    const box: (table: IAutoMovieHumanReferenceOutlineTypes.ITable, share: number, girth: number) => [number, number, number, number] = (table: IAutoMovieHumanReferenceOutlineTypes.ITable, share: number, girth: number): [number, number, number, number] => {
       const read: (column: string) => number = (column: string): number => T.at(table, column, share) * girth;
       const lateral: number = read("lateral");
       const medial: number = read("medial");
       const [plus, minus]: [number, number] = side === "left" ? [lateral, medial] : [medial, lateral];
       return [read("anterior"), plus, -read("posterior"), -minus];
     };
-    const hand: AutoMovieHumanArmConstruction.IHand = side === "left" ? inputs.left : inputs.right;
+    const hand: IAutoMovieHumanHandMeasures = side === "left" ? inputs.left : inputs.right;
     const depth: number = ellipseDepth(hand.breadth, inputs.circumference);
     const palm: [number, number, number, number] = [hand.breadth / 2 + radialCenter, depth / 2, -hand.breadth / 2 + radialCenter, -depth / 2];
     return [

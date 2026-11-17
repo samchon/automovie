@@ -1,15 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanArmClearance,
-  type HumanColliders,
-  type IHumanBody,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { HumanArmClearance, poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -41,10 +33,10 @@ export function test_human_motion_core_arm_clearance_screen(): void {
     name: "m-average" | "f-small",
     x: number,
   ): {
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   } => {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     return {
       body,
       bones: poseBones(
@@ -65,11 +57,11 @@ export function test_human_motion_core_arm_clearance_screen(): void {
   for (let k: number = 0; k < pair.length; ++k) {
     const me: ReturnType<typeof stand> = stand(pair[k]!, 0);
     const other: ReturnType<typeof stand> = stand(pair[1 - k]!, 0.35);
-    const shapes: HumanColliders.IPlaced[] = HumanArmClearance.obstacles(
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
       me.body,
       me.bones,
     );
-    const others: HumanColliders.IPlaced[] = HumanArmClearance.trunk(
+    const others: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.trunk(
       other.body,
       other.bones,
     );
@@ -99,7 +91,7 @@ export function test_human_motion_core_arm_clearance_screen(): void {
                   for (const against of [
                     [],
                     others,
-                  ] as readonly (readonly HumanColliders.IPlaced[])[]) {
+                  ] as readonly (readonly IAutoMovieMotionHumanColliders.IPlaced[])[]) {
                     const read = (on: boolean): number => {
                       HumanArmClearance.broad(on);
                       return HumanArmClearance.overshoot(

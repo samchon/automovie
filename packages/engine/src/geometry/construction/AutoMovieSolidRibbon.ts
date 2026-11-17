@@ -1,7 +1,6 @@
-import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type { IAutoMovieSolidSurface, IAutoMovieSolidRibbon } from "@automovie/interface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 const { combine } = AutoMovieSolidVector;
 
 /**
@@ -32,24 +31,6 @@ const { combine } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidRibbon {
-  /**
-   * Surface point and two across derivatives for a fixed chart direction/scale.
-   *
-   * @evidence contracts/development/design.md#principled-representation These three vectors are the endpoint data of the surface restriction S(r+w*a*d) used by a boundary-matching blend.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Point, first and second derivative fields expose the transverse jet without storing another surface evaluator.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not certify transversality, smooth variation along the rail or G2 continuity of a whole blended surface.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives mm point units and derivative orders relative to the blend cross parameter.
-   */
-  export interface IRibbon {
-    /** The rail's point, mm. */
-    point: Vec3;
-
-    /** First derivative across the rail per unit of the blend's cross parameter. */
-    first: Vec3;
-
-    /** Second derivative across the rail. */
-    second: Vec3;
-  }
 
   /**
    * The ribbon at one rail point.
@@ -77,7 +58,7 @@ export namespace AutoMovieSolidRibbon {
     du: number,
     dv: number,
     a: number,
-  ): IRibbon {
+  ): IAutoMovieSolidRibbon.IRibbon {
     const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
     return {
       point: j.p,

@@ -1,20 +1,7 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditBalance,
-  HumanFoot,
-  type IAutoMovieMotionHumanAuditMeasure,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieGravity, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+
+import { AutoMovieMotionHumanAuditBalance, HumanFoot } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -57,11 +44,11 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_balance(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const ground: IHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
   const plant = (
-    part: IHumanContactWindow["part"],
+    part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,
-  ): IHumanContactWindow => ({
+  ): IAutoMovieMotionHumanContactWindow => ({
     part,
     kind: "plant",
     from,
@@ -70,11 +57,11 @@ export function test_human_motion_audit_balance(): void {
   });
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance: Bones = motionHumanStance(body);
     const film = (
       speed: number,
-      contacts: IHumanContactWindow[] = [
+      contacts: IAutoMovieMotionHumanContactWindow[] = [
         plant("leftFoot", 0),
         plant("rightFoot", 0),
       ],
@@ -102,7 +89,7 @@ export function test_human_motion_audit_balance(): void {
     ): IAutoMovieMotionHumanAuditMeasure =>
       AutoMovieMotionHumanAuditBalance.measure(motion, "a", body);
 
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const centre: number = resolveAutoMovieCenterOfMass.place(model, stance).z;
     const sole: number[] = HumanFoot.base(body, stance).map(

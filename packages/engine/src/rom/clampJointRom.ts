@@ -1,11 +1,6 @@
-import {
-  IAutoMovieAngleRange,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedJointAngles, type IAutoMovieSwingTwistRange, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
 
-import { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
+
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -49,16 +44,16 @@ const clampAxis: (
 export const clampJointRom: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieSwingTwistRange.IJoint,
 ) => IAutoMovieJointPose = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieSwingTwistRange.IJoint,
 ): IAutoMovieJointPose => {
   // A ball joint gated by swing and twist is brought into its range as a
   // rotation (`swingTwistRange.project`) and read back in the reading the
   // three-angle box prefers.
-  const range: swingTwistRange.IJoint | undefined =
+  const range: IAutoMovieSwingTwistRange.IJoint | undefined =
     constraint.swingTwist === undefined || constraint.swingTwist === null
       ? undefined
       : (rig ?? swingTwistRange.of(joint.bone));

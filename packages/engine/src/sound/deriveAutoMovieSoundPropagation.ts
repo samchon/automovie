@@ -1,7 +1,5 @@
-import {
-  IAutoMovieProductionSoundEvent,
-  IAutoMovieSoundPropagationProfile,
-} from "@automovie/interface";
+import { type IAutoMovieDeriveSoundPropagation, IAutoMovieProductionSoundEvent } from "@automovie/interface";
+
 
 /**
  * Derive distance gain, one film-clock arrival and the selected segment/spectral outcome.
@@ -14,34 +12,14 @@ import {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One computed arrival and distance feed the returned receipt consumed by the mix; changed profile or clock inputs require a new derivation rather than a retained stateful propagation cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result transfers to the caller by value; the profile/request is not retained and no acoustic device, host handle or scheduled arrival task is acquired.
  */
-export const deriveAutoMovieSoundPropagation: (props: {
-  distanceMeters: number;
-  emissionFrame: number;
-  segmentEndFrame: number;
-  fps: number;
-  totalFrames: number;
-  profile: IAutoMovieSoundPropagationProfile;
-}) => {
+export const deriveAutoMovieSoundPropagation: (props: IAutoMovieDeriveSoundPropagation.IProps) => {
   profile: string;
   arrivalFrame: number;
   arrivalTimeSeconds: number;
   distanceGain: number;
   highFrequencyGain: number | null;
   boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment";
-} = (props: {
-  /** Effective source/listener distance in metres. */
-  distanceMeters: number;
-  /** Exact story emission frame. */
-  emissionFrame: number;
-  /** Exclusive end of the owning film segment. */
-  segmentEndFrame: number;
-  /** Production frame rate. */
-  fps: number;
-  /** Exclusive finished-film frame bound. */
-  totalFrames: number;
-  /** Explicitly selected production propagation profile. */
-  profile: IAutoMovieSoundPropagationProfile;
-}): NonNullable<IAutoMovieProductionSoundEvent["propagation"]> => {
+} = (props: IAutoMovieDeriveSoundPropagation.IProps): NonNullable<IAutoMovieProductionSoundEvent["propagation"]> => {
   assertFiniteNonnegative(props.distanceMeters, "sound propagation distance");
   assertInteger(props.emissionFrame, "sound propagation emission frame", 0);
   assertInteger(

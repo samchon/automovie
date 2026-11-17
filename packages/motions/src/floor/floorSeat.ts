@@ -1,18 +1,9 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -106,11 +97,11 @@ export namespace floorSeat {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function place(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     kind: Kind,
     share: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
     const s: number = Math.min(1, share);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -124,7 +115,7 @@ export namespace floorSeat {
       right: at("rightUpperLeg"),
     };
     const thigh: number = body.measure.thigh;
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
       origin: {
         x: (hips.left.x + hips.right.x) / 2,
         y: 0,
@@ -141,7 +132,7 @@ export namespace floorSeat {
     const table: Readonly<
       Record<"left" | "right", { ankle: IPlace; knee: IPlace }>
     > = kind === "crossed" ? CROSSED : SIDE;
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const)
       limbs[`${side}Leg`] = {
         point: Vector3.lerp(

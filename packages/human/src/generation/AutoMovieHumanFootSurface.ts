@@ -1,7 +1,14 @@
-import { AutoMovieLoftChain as Loft, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, AutoMovieHumanSide, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanFootCourse, IAutoMovieHumanFootSurface, IAutoMovieHumanSkeletonLaw } from "@automovie/interface";
+
+
+
+
+
+
+
+import { AutoMovieLoftChain as Loft } from "@automovie/engine";
 import { AutoMovieHumanFootCourse } from "./AutoMovieHumanFootCourse";
-import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+
 
 /**
  * Source courses for the original rigid polygon foot, sampled from the same
@@ -13,88 +20,23 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * Named plantar samples identify anatomy, not guaranteed floor contacts.
  */
 export namespace AutoMovieHumanFootSurface {
-  /** Registered bind-body metres, or a dimensionless direction. */
-  export type Vector = [number, number, number];
+  
 
-  /** Anatomical side, independent of a production's actor identity. */
-  export type Side = "left" | "right";
+  
 
-  /** Canonical foot chains, excluding independently articulated toes. */
-  export type Chain = `foot.${Side}`;
+  
 
-  /** The three anatomical plantar samples the original renderer retains. */
-  export type Landmark = "plantarHeel" | "medialBall" | "lateralBall";
+  
 
-  /** One sampled loft course; descriptor extents do not resize its retained points. */
-  export interface ICourse {
-    /** Canonical chain owning every sample. */ chain: Chain;
+  
 
-    /** Material station in calibration mm, not world Y. */ stationMm: number;
+  
 
-    /** Phase-mean source centre in registered bind metres. */ centre: Vector;
+  
 
-    /** Retained samples' extent along the section's first axis, metres. */ depth: number;
+  
 
-    /** Retained samples' extent along the section's second axis, metres. */ breadth: number;
-
-    /** Actual evaluated source points, retained without projection. */ points: Vector[];
-
-    /** Corresponding material phases in radians. */ sourcePhases: number[];
-
-    /** Cumulative cyclic chord length divided by polygon perimeter, times 2 pi; for display joining only. */ displayCoordinates: number[];
-  }
-
-  /** Courses belonging to one existing rigid joint. */
-  export interface IModule {
-    /** Exact existing evaluator joint; not a new pivot. */ bone:
-      | `${Side}Subtalar`
-      | `${Side}Midfoot`;
-
-    /** Direction of the ordered module courses, dimensionless. */ axis: Vector;
-
-    /** Same number of source points in every course. */ courses: ICourse[];
-  }
-
-  /** Address of a source point that must also be an emitted polygon vertex. */
-  export interface ILandmark {
-    /** Existing rigid module carrying the point. */ module:
-      | "hindfoot"
-      | "forefoot";
-
-    /** Zero-based course index in that module. */ course: number;
-
-    /** Zero-based source point, giving ring-major emitted identity. */ point: number;
-  }
-
-  /** One person's source foot; its seam has one geometry owner. */
-  export interface ISide {
-    /** Ankle and calcaneal envelope driven by Subtalar. */ hindfoot: IModule;
-
-    /** Continuation from the shared course, driven by Midfoot. */ forefoot: IModule;
-
-    /** Source addresses of actual plantar anatomical samples. */ landmarks: Record<
-      Landmark,
-      ILandmark
-    >;
-
-    /** Sampled heights, not a weight-bearing or full-foot clearance claim. */ support: {
-      /** Minimum of these source course points only, metres. */ minimumHeight: number;
-
-      /** Bind-body Y of each named source point, metres. */ landmarkHeights: Record<
-        Landmark,
-        number
-      >;
-    };
-  }
-
-  /** Deeply frozen bilateral display data, shared by evaluations of one fixed body. */
-  export interface IOutput {
-    /** All coordinates and extents use physical metres. */ units: "metres";
-
-    /** Left source foot. */ left: ISide;
-
-    /** Right source foot. */ right: ISide;
-  }
+  
 
   /**
    * Sample final calibrated curves once without retaining body/input state.
@@ -115,12 +57,12 @@ export namespace AutoMovieHumanFootSurface {
   export function derive(
     body: IAutoMovieHumanBodyCalibration,
     scale: number,
-  ): IOutput {
+  ): IAutoMovieHumanFootSurface.IOutput {
     if (!(Number.isFinite(scale) && scale > 0) || body.skeleton === undefined)
       throw new Error(
         "Foot exterior requires a calibrated skeleton and positive metre scale",
       );
-    const output: IOutput = {
+    const output: IAutoMovieHumanFootSurface.IOutput = {
       units: "metres",
       left: side(body, scale, "left"),
       right: side(body, scale, "right"),
@@ -130,10 +72,10 @@ export namespace AutoMovieHumanFootSurface {
 }
 
 /** Exact source chain and material address used before a display ring exists. */
-type IAddress = AutoMovieHumanFootCourse.IAddress;
+type IAddress = IAutoMovieHumanFootCourse.IAddress;
 
 /** A bounded phase search result on one actual source course. */
-type IMinimum = AutoMovieHumanFootCourse.IMinimum;
+type IMinimum = IAutoMovieHumanFootCourse.IMinimum;
 
 /** The display reader shares bounded searches and source ring evaluation. */
 const { minimum, course }: typeof AutoMovieHumanFootCourse = AutoMovieHumanFootCourse;
@@ -142,16 +84,16 @@ const { minimum, course }: typeof AutoMovieHumanFootCourse = AutoMovieHumanFootC
 function side(
   body: IAutoMovieHumanBodyCalibration,
   scale: number,
-  own: AutoMovieHumanFootSurface.Side,
-): AutoMovieHumanFootSurface.ISide {
+  own: AutoMovieHumanSide,
+): IAutoMovieHumanFootSurface.ISide {
   const joint: (
     name: "Foot" | "Midfoot" | "HalluxProximal" | "Toe5Proximal",
-  ) => AutoMovieHumanSkeletonLaw.IBone = (
+  ) => IAutoMovieHumanSkeletonLaw.IBone = (
     name: "Foot" | "Midfoot" | "HalluxProximal" | "Toe5Proximal",
-  ): AutoMovieHumanSkeletonLaw.IBone => {
-    const found: AutoMovieHumanSkeletonLaw.IBone | undefined =
+  ): IAutoMovieHumanSkeletonLaw.IBone => {
+    const found: IAutoMovieHumanSkeletonLaw.IBone | undefined =
       body.skeleton!.find(
-        (bone: AutoMovieHumanSkeletonLaw.IBone): boolean =>
+        (bone: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
           bone.bone === `${own}${name}`,
       );
     if (found === undefined)
@@ -159,9 +101,9 @@ function side(
     return found;
   };
   const chain: (
-    name: AutoMovieHumanFootSurface.Chain,
+    name: IAutoMovieHumanFootSurface.Chain,
   ) => IAutoMovieLoftChain = (
-    name: AutoMovieHumanFootSurface.Chain,
+    name: IAutoMovieHumanFootSurface.Chain,
   ): IAutoMovieLoftChain => {
     const found: IAutoMovieLoftChain | undefined = body.chains.find(
       (item: IAutoMovieLoftChain): boolean => item.name === name,
@@ -170,15 +112,15 @@ function side(
     return found;
   };
   const foot: IAutoMovieLoftChain = chain(`foot.${own}`);
-  const ankle: AutoMovieHumanFootSurface.Vector = joint("Foot").position;
-  const ball: AutoMovieHumanFootSurface.Vector = joint("Foot").toward;
-  const forward: AutoMovieHumanFootSurface.Vector = unit([
+  const ankle: AutoMovieVector3Tuple = joint("Foot").position;
+  const ball: AutoMovieVector3Tuple = joint("Foot").toward;
+  const forward: AutoMovieVector3Tuple = unit([
     ball[0] - ankle[0],
     0,
     ball[2] - ankle[2],
   ]);
-  const along: (point: AutoMovieHumanFootSurface.Vector) => number = (
-    point: AutoMovieHumanFootSurface.Vector,
+  const along: (point: AutoMovieVector3Tuple) => number = (
+    point: AutoMovieVector3Tuple,
   ): number => dot(sub(point, ankle), forward);
   const split: number = crossing(foot, along, along(joint("Midfoot").position));
   const hind: IAddress[] = foot.layers
@@ -213,7 +155,7 @@ function side(
     const address: IAddress = hind[course]!;
     const result: IMinimum = minimum(
       address,
-      (point: AutoMovieHumanFootSurface.Vector): number =>
+      (point: AutoMovieVector3Tuple): number =>
         along(point) <= 0 ? point[1] : Infinity,
     );
     if (
@@ -226,10 +168,10 @@ function side(
     throw new Error(`Canonical ${own} foot has no posterior plantar sample`);
   // A ball belongs to the nearest retained plantar source point beneath its
   // own MTP, not to an obsolete forefoot chain ordinal or reversed end ring.
-  const plantar = (centre: AutoMovieHumanFootSurface.Vector): { course: number; result: IMinimum } => {
+  const plantar = (centre: AutoMovieVector3Tuple): { course: number; result: IMinimum } => {
     let best: { course: number; result: IMinimum } | undefined;
     for (let index: number = 0; index < front.length; index++) {
-      const result: IMinimum = minimum(front[index]!, (point: AutoMovieHumanFootSurface.Vector): number => point[1] <= centre[1] ? dot(sub(point, centre), sub(point, centre)) : Infinity);
+      const result: IMinimum = minimum(front[index]!, (point: AutoMovieVector3Tuple): number => point[1] <= centre[1] ? dot(sub(point, centre), sub(point, centre)) : Infinity);
       if (best === undefined || result.score < best.result.score) best = { course: index, result };
     }
     if (best === undefined) throw new Error(`Canonical ${own} foot has no forefoot courses`);
@@ -250,8 +192,8 @@ function side(
   const extrema: IMinimum[] = [];
   for (const objective of [
     along,
-    (point: AutoMovieHumanFootSurface.Vector): number => point[2],
-    (point: AutoMovieHumanFootSurface.Vector): number => -point[2],
+    (point: AutoMovieVector3Tuple): number => point[2],
+    (point: AutoMovieVector3Tuple): number => -point[2],
   ]) {
     let best: IMinimum | undefined;
     for (const address of [...hind, ...front]) {
@@ -289,18 +231,18 @@ function side(
       throw new Error("Foot landmark phase is absent from its emitted course");
     return found;
   };
-  const hindCourses: AutoMovieHumanFootSurface.ICourse[] = hind.map(
-    (address: IAddress): AutoMovieHumanFootSurface.ICourse =>
+  const hindCourses: IAutoMovieHumanFootSurface.ICourse[] = hind.map(
+    (address: IAddress): IAutoMovieHumanFootSurface.ICourse =>
       course(address, phases, scale),
   );
-  const frontCourses: AutoMovieHumanFootSurface.ICourse[] = front.map(
-    (address: IAddress): AutoMovieHumanFootSurface.ICourse =>
+  const frontCourses: IAutoMovieHumanFootSurface.ICourse[] = front.map(
+    (address: IAddress): IAutoMovieHumanFootSurface.ICourse =>
       course(address, phases, scale),
   );
   frontCourses[0] = structuredClone(hindCourses[hindCourses.length - 1]!);
   const landmarks: Record<
-    AutoMovieHumanFootSurface.Landmark,
-    AutoMovieHumanFootSurface.ILandmark
+    IAutoMovieHumanFootSurface.Landmark,
+    IAutoMovieHumanFootSurface.ILandmark
   > = {
     plantarHeel: {
       module: "hindfoot",
@@ -320,7 +262,7 @@ function side(
   };
   const modules: Record<
     "hindfoot" | "forefoot",
-    AutoMovieHumanFootSurface.IModule
+    IAutoMovieHumanFootSurface.IModule
   > = {
     hindfoot: {
       bone: `${own}Subtalar`,
@@ -333,13 +275,13 @@ function side(
       courses: frontCourses,
     },
   };
-  const heights: Record<AutoMovieHumanFootSurface.Landmark, number> = {
+  const heights: Record<IAutoMovieHumanFootSurface.Landmark, number> = {
     plantarHeel: 0,
     medialBall: 0,
     lateralBall: 0,
   };
   for (const name of ["plantarHeel", "medialBall", "lateralBall"] as const) {
-    const address: AutoMovieHumanFootSurface.ILandmark = landmarks[name];
+    const address: IAutoMovieHumanFootSurface.ILandmark = landmarks[name];
     heights[name] =
       modules[address.module].courses[address.course]!.points[
         address.point
@@ -351,9 +293,9 @@ function side(
     support: {
       minimumHeight: Math.min(
         ...[...hindCourses, ...frontCourses].flatMap(
-          (item: AutoMovieHumanFootSurface.ICourse): number[] =>
+          (item: IAutoMovieHumanFootSurface.ICourse): number[] =>
             item.points.map(
-              (point: AutoMovieHumanFootSurface.Vector): number => point[1],
+              (point: AutoMovieVector3Tuple): number => point[1],
             ),
         ),
       ),
@@ -365,7 +307,7 @@ function side(
 /** First source-axis crossing from heel toward toes; no surface is moved. */
 function crossing(
   chain: IAutoMovieLoftChain,
-  along: (point: AutoMovieHumanFootSurface.Vector) => number,
+  along: (point: AutoMovieVector3Tuple) => number,
   target: number,
 ): number {
   for (let index: number = 0; index + 1 < chain.layers.length; index++) {
@@ -387,24 +329,24 @@ function crossing(
 
 /** Registered Euclidean vector difference. */
 function sub(
-  a: AutoMovieHumanFootSurface.Vector,
-  b: AutoMovieHumanFootSurface.Vector,
-): AutoMovieHumanFootSurface.Vector {
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
 /** Registered Euclidean dot product. */
 function dot(
-  a: AutoMovieHumanFootSurface.Vector,
-  b: AutoMovieHumanFootSurface.Vector,
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
 ): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 /** Refuse a collapsed anatomical axis rather than inventing a direction. */
 function unit(
-  vector: AutoMovieHumanFootSurface.Vector,
-): AutoMovieHumanFootSurface.Vector {
+  vector: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   const length: number = Math.hypot(...vector);
   if (!(length > 1e-12))
     throw new Error("Foot exterior requires a nondegenerate anatomical axis");

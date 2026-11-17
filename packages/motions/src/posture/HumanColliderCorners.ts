@@ -1,8 +1,6 @@
+import type { IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+
 import { physicalHullFaces } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 /**
  * The surface probes shared by the body tangle audit and the arm planner:

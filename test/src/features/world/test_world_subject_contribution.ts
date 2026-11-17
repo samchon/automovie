@@ -1,10 +1,6 @@
-import {
-  AutoMovieSubject,
-  AutoMovieSubjectGroup,
-  type IAutoMovieSubjectContribution,
-  mergeAutoMovieSubjectContributions,
-} from "@automovie/engine";
-import type { IAutoMovieShotBuildContext } from "@automovie/interface";
+import type { IAutoMovieSubjectContribution, IAutoMovieSubjectGroup, IAutoMovieShotBuildContext } from "@automovie/interface";
+import { AutoMovieSubject, AutoMovieSubjectGroup, mergeAutoMovieSubjectContributions } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
@@ -189,7 +185,7 @@ export function test_world_subject_contribution(): void {
     {},
   );
 
-  const regiment: AutoMovieSubjectGroup<{ id: string }, Plain> =
+  const regiment: IAutoMovieSubjectGroup<{ id: string }, Plain> =
     new (class extends AutoMovieSubjectGroup<{ id: string }, Plain> {
       public readonly id: string = "regiment";
       public members(): readonly Plain[] {

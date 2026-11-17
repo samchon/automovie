@@ -1,13 +1,8 @@
-import {
-  IAutoMovieConstraintViolation,
-  IAutoMovieEnvironmentInstant,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieAnalysisWorkplane, type IAutoMovieDaylightRequest, type IAutoMovieResolveDaylightRequest, IAutoMovieConstraintViolation, IAutoMovieEnvironmentInstant, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
-import { IAutoMovieDaylightRequest } from "./IAutoMovieDaylightRequest";
 import { assertAutoMovieAnalysisSolids } from "./assertAutoMovieAnalysisSolids";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
@@ -44,26 +39,9 @@ const EPSILON: number = 1e-12;
  */
 export const resolveAutoMovieDaylightRequest: (
   request: IAutoMovieDaylightRequest,
-) => {
-  instant: IAutoMovieEnvironmentInstant | null;
-  normal: IAutoMovieVector3;
-  axisU: IAutoMovieVector3;
-  axisV: IAutoMovieVector3;
-} = (
+) => IAutoMovieResolveDaylightRequest.IResult = (
   request: IAutoMovieDaylightRequest,
-): {
-  /** Instant the study reads, or `null` for an artificial-light-only study. */
-  instant: IAutoMovieEnvironmentInstant | null;
-
-  /** Unit normal of the measured face. */
-  normal: IAutoMovieVector3;
-
-  /** Unit direction of the workplane's first axis. */
-  axisU: IAutoMovieVector3;
-
-  /** Unit direction of the workplane's second axis. */
-  axisV: IAutoMovieVector3;
-} => {
+): IAutoMovieResolveDaylightRequest.IResult => {
   for (const [label, value] of [
     ["id", request.id],
     ["subject", request.subject],

@@ -1,7 +1,7 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieContextOccluder } from "./IAutoMovieContextOccluder";
-import { IAutoMovieEnvironmentInstant } from "./IAutoMovieEnvironmentInstant";
-import { IAutoMovieReferenceGround } from "./IAutoMovieReferenceGround";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieContextOccluder } from "./IAutoMovieContextOccluder";
+import type { IAutoMovieEnvironmentInstant } from "./IAutoMovieEnvironmentInstant";
+import type { IAutoMovieReferenceGround } from "./IAutoMovieReferenceGround";
 
 /**
  * The read-only world a building is analysed against.

@@ -1,11 +1,14 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditReach,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { Quaternion } from "@automovie/engine";
 
 /**
  * Whether a body part gets where its action says and points as its action
@@ -30,41 +33,6 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditReach {
-  /**
-   * A span of the film and its grid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The window a contract speaks of, in film seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members shared by both readings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The rate's default is the audit's, stated once.
-   */
-  export interface ISpan {
-    /** Start, film seconds. */
-    from: number;
-
-    /** End, film seconds, at least `from`. */
-    to: number;
-
-    /** Grid samples per second; 24 by default. */
-    rate?: number;
-  }
-
-  /**
-   * Both ends of a reading over a span.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states which wording it judges.
-   * @evidence contracts/development/design.md#principled-representation The maximum and the minimum, with their instants.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IResult {
-    /** The largest value over the span, with its instant: what "throughout" is judged by. */
-    worst: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The smallest value over the span, with its instant: what "reaches" is judged by. */
-    best: IAutoMovieMotionHumanAuditMeasure;
-  }
-
   /**
    * How far a point of the body is from a place.
    *
@@ -92,9 +60,9 @@ export namespace AutoMovieMotionHumanAuditReach {
       bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ) => IAutoMovieVector3,
     place: (seconds: number) => IAutoMovieVector3,
-    span: ISpan,
+    span: IAutoMovieMotionHumanAuditReach.ISpan,
     where: string,
-  ): IResult {
+  ): IAutoMovieMotionHumanAuditReach.IResult {
     return walk(span, where, (t: number): number => {
       const p: IAutoMovieVector3 = point(motion.bones(subject, t));
       const q: IAutoMovieVector3 = place(t);
@@ -128,8 +96,8 @@ export namespace AutoMovieMotionHumanAuditReach {
     bone: AutoMovieHumanoidBone,
     axis: IAutoMovieVector3,
     toward: (seconds: number) => IAutoMovieVector3,
-    span: ISpan,
-  ): IResult {
+    span: IAutoMovieMotionHumanAuditReach.ISpan,
+  ): IAutoMovieMotionHumanAuditReach.IResult {
     return walk(span, `${bone} axis`, (t: number): number => {
       const resolved: IAutoMovieResolvedBone | undefined = motion
         .bones(subject, t)
@@ -156,17 +124,13 @@ export namespace AutoMovieMotionHumanAuditReach {
 
 /** Both ends of a value over a span's grid. */
 const walk = (
-  span: AutoMovieMotionHumanAuditReach.ISpan,
+  span: IAutoMovieMotionHumanAuditReach.ISpan,
   where: string,
   value: (seconds: number) => number,
-): AutoMovieMotionHumanAuditReach.IResult => {
+): IAutoMovieMotionHumanAuditReach.IResult => {
   let worst: IAutoMovieMotionHumanAuditMeasure | undefined;
   let best: IAutoMovieMotionHumanAuditMeasure | undefined;
-  for (const t of IAutoMovieMotionHumanAuditMotion.grid(
-    span.from,
-    span.to,
-    span.rate ?? 24,
-  )) {
+  for (const t of HumanAuditMotion.grid(span.from, span.to, span.rate ?? 24)) {
     const v: number = value(t);
     if (worst === undefined || v > worst.value)
       worst = { value: v, seconds: t, where };

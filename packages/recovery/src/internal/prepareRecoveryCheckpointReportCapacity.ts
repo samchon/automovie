@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+import type { IAutoMovieRecoveryCheckpointReporting, IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryMapPose, IAutoMovieRecoverySceneWork, IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryCheckpointReporting } from "../structures/internal/IAutoMovieRecoveryCheckpointReporting";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
+
+
+
+
+
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
@@ -34,19 +35,16 @@ export function prepareRecoveryCheckpointReportCapacity(
     directionBudget: {
       maxIterations: options.directionBudget.maxIterations,
       maxEntries: options.directionBudget.maxEntries,
-      maxWork: options.directionBudget.maxWork,
-    },
+      maxWork: options.directionBudget.maxWork },
     maxResidentLinearEntries: options.maxResidentLinearEntries,
     sqpAcceleration: options.sqpAcceleration,
     adaptiveRegularization: options.adaptiveRegularization,
-    laggedLagrangianMetric: options.laggedLagrangianMetric,
-  };
+    laggedLagrangianMetric: options.laggedLagrangianMetric };
   return {
     feasible,
     reporting: prepareRecoveryFeasibleReportCapacity(
       budget.maxResidentLinearEntries,
       feasible.maxResidentLinearEntries,
       0,
-    ),
-  };
+    ) };
 }

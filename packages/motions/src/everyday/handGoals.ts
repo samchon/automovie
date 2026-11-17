@@ -1,6 +1,6 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Arm goals that put hand surfaces on their points, the contact first and
@@ -26,12 +26,12 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function handGoals(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  requests: readonly AutoMovieMotionHumanArm.ISided[],
-): IHumanPosture {
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  requests: readonly IAutoMovieMotionHumanArmTarget.ISided[],
+): IAutoMovieMotionHumanPosture {
   if (requests.length === 0) return posture;
-  const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
   for (const r of requests)
     limbs[`${r.side}Arm`] = AutoMovieMotionHumanArm.goal(body, r.side, r);
   return { ...posture, limbs };

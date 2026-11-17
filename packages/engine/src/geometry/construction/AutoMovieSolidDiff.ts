@@ -1,3 +1,4 @@
+import type { IAutoMovieSolidJoin } from "@automovie/interface";
 import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 
 /**
@@ -39,8 +40,8 @@ export namespace AutoMovieSolidDiff {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller receives the join result and its transitive records/caches; this wrapper retains no input or resource after returning.
    */
   export function create(
-    input: AutoMovieSolidJoin.IInput,
-  ): AutoMovieSolidJoin.IResult {
+    input: IAutoMovieSolidJoin.IInput,
+  ): IAutoMovieSolidJoin.IResult {
     return AutoMovieSolidJoin.create(input, "inside");
   }
 }

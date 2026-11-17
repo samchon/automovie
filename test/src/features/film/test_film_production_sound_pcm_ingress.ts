@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieRenderedProductionSound,
-  renderProductionSound,
-} from "@automovie/engine";
-import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
+import type { IAutoMovieRenderedProductionSound, IAutoMovieProductionSoundPlan } from "@automovie/interface";
+import { renderProductionSound } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createProductionSoundAssetTestInputs } from "../internal/audio/createProductionSoundAssetTestInputs";

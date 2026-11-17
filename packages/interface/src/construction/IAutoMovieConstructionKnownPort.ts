@@ -32,15 +32,25 @@ export interface IAutoMovieConstructionKnownPort {
   period?: number;
 }
 
+/**
+ * Original source identities for each side of a prepared known-port band.
+ *
+ * @evidence contracts/development/design.md#principled-representation A side records the original field, whole chart map and rail's boundary/material/binding identities.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Known-port preparation resolves both sides in the invocation's original source context.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Strings retain explicit ownership and do not certify topology or replace missing field callbacks.
+ * @evidence contracts/development/common.md#meaningful-documentation Original source identities for each side of a prepared known-port band. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMovieConstructionKnownPort {
   /**
-   * One owned source neighborhood and its preauthored rail identity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: One owned source neighborhood and its preauthored rail identity.
-   * @evidence contracts/development/design.md#principled-representation Represents One owned source neighborhood and its preauthored rail identity: interface of 5 members (`field`, `map`, `boundary`, `material`, `binding`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ISide` in packages/interface/src/construction/IAutoMovieConstructionKnownPort.ts; its surface is the 5 members listed and the text shows 19 other files naming it, mostly packages/human (11), packages/engine (4), test (4), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
+ * One original field neighborhood, its chart map and its owned rail.
+ *
+ * AutoMovieConstructionKnownPort resolves field and map in the invocation source. The map must cover the complete band rectangle with the original C2 field; boundary identifies the rail whose material and binding owners must agree. These strings are references, not serialized callback implementations or evidence that two charts are geometrically continuous.
+ *
+ * @evidence contracts/development/design.md#principled-representation Explicit source/map and boundary/material/binding identities preserve the original neighborhood and its sewn ownership.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Known-port preparation resolves this side into the existing source callbacks and retains the declared rail identity.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No Taylor extension, later contact search or sampled refit substitutes for the cited original field and complete map.
+ * @evidence contracts/development/common.md#meaningful-documentation Explains what each identity addresses and which neighborhood and boundary obligations remain for preparation.
+ */
   export interface ISide {
     /** Key of the actual original neighboring field in the runtime context. */
     field: string;

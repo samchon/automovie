@@ -1,20 +1,6 @@
-import {
-  type IAutoMovieFormationPlacement,
-  validateAutoMovieFormationOverlap,
-} from "@automovie/engine";
-import {
-  AutoMovieFormationCapability,
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieDiagnostic,
-  IAutoMovieFormationLayout,
-  IAutoMovieFormationMotion,
-  IAutoMovieFormationMotionState,
-  IAutoMovieFormationSlotMotion,
-  IAutoMovieModel,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFormationPlacement, AutoMovieFormationCapability, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieDiagnostic, IAutoMovieFormationLayout, IAutoMovieFormationMotion, IAutoMovieFormationMotionState, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { validateAutoMovieFormationOverlap } from "@automovie/engine";
+
 
 /** One staged unit as the overlap gate reads it: a placement and its tiers. */
 interface IFormationOverlapTier {

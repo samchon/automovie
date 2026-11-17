@@ -1,18 +1,12 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createCart,
   createHandgun,
   createProjectile,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanVerdicts,
-  HumanWeaponFirearm,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanVerdicts, HumanWeaponFirearm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -47,12 +41,12 @@ export function test_human_motion_support_shot(): void {
   const ball: ReturnType<typeof createProjectile> = createProjectile({
     kind: "ball",
   });
-  const motion = (seconds: number): HumanObject.Placement => ({
+  const motion = (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
     at: { x: 0, y: 0, z: 0 },
     yaw: 20 * seconds,
   });
-  const body: IHumanBody = motionHumanBody("m-average");
-  let performance: HumanPerformance;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = new HumanPerformance({
       seed: "support-shot",

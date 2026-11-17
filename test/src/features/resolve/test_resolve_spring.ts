@@ -1,14 +1,6 @@
-import {
-  type IAutoMovieSpringState,
-  Matrix4,
-  createSpringState,
-  stepSpring,
-} from "@automovie/engine";
-import {
-  IAutoMovieSpringDriver,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieSpringState, IAutoMovieSpringDriver, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

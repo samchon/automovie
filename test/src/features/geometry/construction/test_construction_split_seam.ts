@@ -1,13 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  AutoMovieConstructionSplitSeam,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionSplit,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionSplitSeam, IAutoMovieSolidSurface, IAutoMovieConstructionSplit } from "@automovie/interface";
+import { AutoMovieConstructionSplitSeam, realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -52,7 +45,7 @@ export function test_construction_split_seam(): void {
   ];
   const corner: number = Math.PI / 8;
 
-  const host: AutoMovieConstructionNode = ConstructionShapes.part(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.part(
     "trunk",
     ConstructionShapes.DOWN,
     ConstructionShapes.uniform(-0.06, 0.03, 13),
@@ -62,10 +55,10 @@ export function test_construction_split_seam(): void {
     },
     "open",
   );
-  const leg: (name: string, y: number) => AutoMovieConstructionNode = (
+  const leg: (name: string, y: number) => IAutoMovieConstructionNode = (
     name: string,
     y: number,
-  ): AutoMovieConstructionNode =>
+  ): IAutoMovieConstructionNode =>
     ConstructionShapes.part(
       name,
       { ...ConstructionShapes.DOWN, origin: { x: 0, y, z: -0.03 } },
@@ -109,12 +102,12 @@ export function test_construction_split_seam(): void {
   });
   /** Realize a tree; `coarse` tessellates at 1 mm where only surfaces or diagnostics are read. */
   const realize: (
-    root: AutoMovieConstructionNode,
+    root: IAutoMovieConstructionNode,
     coarse?: boolean,
-  ) => AutoMovieConstructionRealization.IRealization = (
-    root: AutoMovieConstructionNode,
+  ) => IAutoMovieConstructionRealization.IRealization = (
+    root: IAutoMovieConstructionNode,
     coarse?: boolean,
-  ): AutoMovieConstructionRealization.IRealization =>
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction(
       { name: "made", root },
       { chord: coarse === true ? 1e-3 : 1e-4 },
@@ -164,12 +157,12 @@ export function test_construction_split_seam(): void {
   ): V3 => scaled(j.uu, 1 / (len(j.u) * len(j.u)));
   /** The band's and the host's outward normals' angle at a fork column, degrees. */
   const fork: (
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     name: string,
     k: number,
     phi: number,
   ) => number = (
-    r: AutoMovieConstructionRealization.IRealization,
+    r: IAutoMovieConstructionRealization.IRealization,
     name: string,
     k: number,
     phi: number,
@@ -186,7 +179,7 @@ export function test_construction_split_seam(): void {
 
   // 2. The positive tree.
   const profile: IAutoMovieConstructionSplit.IProfile = { knots, corner };
-  const real: AutoMovieConstructionRealization.IRealization = realize(
+  const real: IAutoMovieConstructionRealization.IRealization = realize(
     split(profile),
   );
   if (real.diagnostics.length !== 0)
@@ -200,7 +193,7 @@ export function test_construction_split_seam(): void {
   const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
 
   // 1. The seam alone, on the realized host.
-  const seam: AutoMovieConstructionSplitSeam.ISeam | string =
+  const seam: IAutoMovieConstructionSplitSeam.ISeam | string =
     AutoMovieConstructionSplitSeam.create({
       host: trunk,
       station: 30,
@@ -429,7 +422,7 @@ export function test_construction_split_seam(): void {
         );
     }
   }
-  const beyond: AutoMovieConstructionRealization.IRealization = realize(
+  const beyond: IAutoMovieConstructionRealization.IRealization = realize(
     split({ knots: [[0.05, 0.005]], corner }),
     true,
   );
@@ -448,7 +441,7 @@ export function test_construction_split_seam(): void {
     );
 
   // 8. Red: the straight chord's fork crease, read by the same observer.
-  const straight: AutoMovieConstructionRealization.IRealization = realize(
+  const straight: IAutoMovieConstructionRealization.IRealization = realize(
     split(undefined),
     true,
   );
@@ -461,10 +454,10 @@ export function test_construction_split_seam(): void {
   const outKnots: [number, number][] = [[0, 0.004], [0.006, 0.007], knots[1]!, knots[2]!];
   try {
     const lengthwise: IAutoMovieConstructionSplit = split({ knots: outKnots, corner });
-    const out: AutoMovieConstructionRealization.IRealization = realize({ ...lengthwise, children: lengthwise.children.map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) as IAutoMovieConstructionSplit["children"] }, true);
+    const out: IAutoMovieConstructionRealization.IRealization = realize({ ...lengthwise, children: lengthwise.children.map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) as IAutoMovieConstructionSplit["children"] }, true);
     if (out.diagnostics.length !== 0) failures.push(`run-out seam: ${ConstructionRead.diagnostics(out)}`);
     if (out.body.faces.filter((f: { chain: string }): boolean => f.chain.startsWith("band.")).length !== 2) failures.push("run-out seam: not two bands");
-    const ran: AutoMovieConstructionSplitSeam.ISeam | string = AutoMovieConstructionSplitSeam.create({
+    const ran: IAutoMovieConstructionSplitSeam.ISeam | string = AutoMovieConstructionSplitSeam.create({
       host: ConstructionRead.surface(out, "trunk"),
       station: 30,
       into: 1,

@@ -1,15 +1,8 @@
-import type {
-  IAutoMovieMesh,
-  IAutoMovieMeshDeformationField,
-  IAutoMovieMeshPhysicalSource,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieJacobianCofactor, IAutoMovieMeshDeformationInfluence, IAutoMovieMesh, IAutoMovieMeshDeformationField, IAutoMovieMeshPhysicalSource, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieJacobianCofactor } from "../math/IAutoMovieJacobianCofactor";
 import { Vector3 } from "../math/Vector3";
 import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import type { IAutoMovieMeshDeformationInfluence } from "./IAutoMovieMeshDeformationInfluence";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 

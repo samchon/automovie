@@ -1,15 +1,21 @@
+import type { IAutoMovieNaturalSpline, IAutoMovieHumanHeadCompiled, IAutoMovieHumanHeadCorrections, IAutoMovieHumanHeadEyeOpening, IAutoMovieHumanHeadIdentity, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadNeck, IAutoMovieHumanHeadPrior } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
-import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
-import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
+
+
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadNose } from "./AutoMovieHumanHeadNose";
-import type { IAutoMovieHumanHeadCompiled } from "./IAutoMovieHumanHeadCompiled";
-import type { IAutoMovieHumanHeadCorrections } from "./IAutoMovieHumanHeadCorrections";
-import type { IAutoMovieHumanHeadEyeOpening } from "./IAutoMovieHumanHeadEyeOpening";
-import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
-import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
+
 
 /**
  * The head's landmark skeleton. From the neck ring and the public head inputs
@@ -42,7 +48,7 @@ export namespace AutoMovieHumanHeadLandmarks {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the prior reference and its two preparations.
    */
   export function compile(
-    prior: AutoMovieHumanHeadPrior.IPrior = AutoMovieHumanHeadPrior.PRIOR,
+    prior: IAutoMovieHumanHeadPrior.IPrior = AutoMovieHumanHeadPrior.PRIOR,
   ): IAutoMovieHumanHeadCompiled {
     return {
       prior,
@@ -99,11 +105,11 @@ export namespace AutoMovieHumanHeadLandmarks {
     scale: number,
     fix: IAutoMovieHumanHeadCorrections = NONE,
   ): IAutoMovieHumanHeadLayout {
-    const prior: AutoMovieHumanHeadPrior.IPrior = compiled.prior;
-    const r: AutoMovieHumanHeadPrior.IRatios = prior.ratios;
-    const f: AutoMovieHumanHeadPrior.IFace = prior.face;
-    const p: AutoMovieHumanHeadPrior.IProfile = prior.profile;
-    const fr: AutoMovieHumanHeadPrior.IFrame = prior.frame;
+    const prior: IAutoMovieHumanHeadPrior.IPrior = compiled.prior;
+    const r: IAutoMovieHumanHeadPrior.IRatios = prior.ratios;
+    const f: IAutoMovieHumanHeadPrior.IFace = prior.face;
+    const p: IAutoMovieHumanHeadPrior.IProfile = prior.profile;
+    const fr: IAutoMovieHumanHeadPrior.IFrame = prior.frame;
     const k: number = scale;
     const head: IAutoMovieHumanHeadIdentity = inputs.head;
     const y0: number = neck.level;
@@ -203,7 +209,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       [vertex, ellipse(vertex)],
     ];
     const knots: P2[] = profileSites.filter((point: P2, i: number, all: P2[]): boolean => i === 0 || point[0] !== all[i - 1]![0]);
-    const profile: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const profile: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       knots.map((p2: P2): number => p2[0]),
       knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
     );
@@ -338,7 +344,7 @@ export namespace AutoMovieHumanHeadLandmarks {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned layout; no generated geometry or global cache is retained.
    */
   export function atTragion(plan: IAutoMovieHumanHeadLayout, height: number): IAutoMovieHumanHeadLayout {
-    const frame: AutoMovieHumanHeadPrior.IFrame = AutoMovieHumanHeadPrior.PRIOR.frame;
+    const frame: IAutoMovieHumanHeadPrior.IFrame = AutoMovieHumanHeadPrior.PRIOR.frame;
     const squared: number = (frame.tragion * plan.length) ** 2 - (frame.base * plan.breadth / 2) ** 2 - (plan.nasion - height) ** 2;
     if (!(Number.isFinite(height) && squared > 0)) throw new Error("Selected tragion height cannot span the retained t-n norm and base width");
     const depth: number = Math.sqrt(squared);
@@ -355,7 +361,7 @@ export namespace AutoMovieHumanHeadLandmarks {
  */
 function canthi(
   o: IAutoMovieHumanHeadEyeOpening,
-  face: AutoMovieHumanHeadPrior.IFace,
+  face: IAutoMovieHumanHeadPrior.IFace,
   scale: number,
 ): [number, number] {
   const series: (h: readonly number[], unit: number, t: number) => number = (h: readonly number[], unit: number, t: number): number =>

@@ -1,8 +1,6 @@
-import type {
-  IAutoMovieAnalysisWorkplane,
-  IAutoMovieDaylightRequest,
-} from "@automovie/engine";
-import type { IAutoMovieAnalysisRun } from "@automovie/interface";
+import type { IAutoMovieAnalysisWorkplane, IAutoMovieDaylightRequest, IAutoMovieAnalysisRun } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { analysisContext } from "./analysisFixtures";

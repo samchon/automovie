@@ -1,7 +1,14 @@
+import type { IAutoMovieViewOutline, IAutoMovieViewSection, IAutoMovieHumanHeadNeckBase, IAutoMovieHumanHeadNeckBaseTrial, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanHeadNeckScalars } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
 
 import { AutoMovieHumanHeadNeckBaseTrial } from "./AutoMovieHumanHeadNeckBaseTrial";
-import type { AutoMovieHumanHeadNeckCurves } from "./AutoMovieHumanHeadNeckCurves";
+
 import { AutoMovieHumanHeadNeckScalars } from "./AutoMovieHumanHeadNeckScalars";
 
 /** Explicit positive-radius selection of one shared named-height neck family. */
@@ -23,19 +30,19 @@ export namespace AutoMovieHumanHeadNeckBase {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The bounded call-local Map retains small numeric declarations and measurements, never quadrature populations, callbacks, meshes or global resources.
    */
   export function create(
-    input: AutoMovieHumanHeadNeckCurves.IInputs,
-    template: Parameters<typeof AutoMovieHumanHeadNeckBaseTrial.create>[2],
-    extents: readonly [number, number, number, number],
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
+    template: IAutoMovieViewSection.ISection,
+    extents: IAutoMovieHumanHeadNeckBase.CreateExtents,
     first: number,
     lower: number,
     upper: number,
-    work?: AutoMovieHumanHeadNeckCurves.IWork,
-  ): Pick<AutoMovieHumanHeadNeckCurves.IOutput,
+    work?: IAutoMovieHumanHeadNeckCurves.IWork,
+  ): Pick<IAutoMovieHumanHeadNeckCurves.IOutput,
     "radius" | "centre" | "height" | "baseClock" | "baseRadius" | "measured" | "baseLandmarkPolygon"> {
-    const family: AutoMovieHumanHeadNeckScalars.IOutput =
+    const family: IAutoMovieHumanHeadNeckScalars.IOutput =
       AutoMovieHumanHeadNeckScalars.create(input, first, lower, upper);
     const target: number = family.clock;
-    const polar: AutoMovieHumanHeadNeckBaseTrial.IPolar =
+    const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolar =
       AutoMovieHumanHeadNeckBaseTrial.prepareNative(template, work);
     const named: number[] = [input.base.suprasternaleHeight,
       input.base.sideNeckPointHeight, input.base.cervicaleHeight];
@@ -47,17 +54,17 @@ export namespace AutoMovieHumanHeadNeckBase {
     const prior: number = input.neck.radius;
     const start: number = prior > domain[0] && prior < domain[1] ? prior :
       Number.isFinite(domain[1]) ? (domain[0] + domain[1]) / 2 : domain[0] + prior;
-    const retained: Map<number, AutoMovieHumanHeadNeckBaseTrial.IOutput> = new Map();
+    const retained: Map<number, IAutoMovieHumanHeadNeckBaseTrial.IOutput> = new Map();
 
     /** Reuse only the identical radius and all its actual dependent declarations. */
-    const at: (base: number) => AutoMovieHumanHeadNeckBaseTrial.IOutput = (
+    const at: (base: number) => IAutoMovieHumanHeadNeckBaseTrial.IOutput = (
       base: number,
-    ): AutoMovieHumanHeadNeckBaseTrial.IOutput => {
+    ): IAutoMovieHumanHeadNeckBaseTrial.IOutput => {
       if (!(Number.isFinite(base) && base > domain[0] && base < domain[1]))
         throw new Error("Neck base trial is outside its open positive native-side domain");
-      const previous: AutoMovieHumanHeadNeckBaseTrial.IOutput | undefined = retained.get(base);
+      const previous: IAutoMovieHumanHeadNeckBaseTrial.IOutput | undefined = retained.get(base);
       if (previous !== undefined) return previous;
-      const trial: AutoMovieHumanHeadNeckBaseTrial.IOutput =
+      const trial: IAutoMovieHumanHeadNeckBaseTrial.IOutput =
         AutoMovieHumanHeadNeckBaseTrial.create(input, family, template, extents, base, work, polar);
       retained.set(base, trial);
       return trial;
@@ -88,9 +95,9 @@ export namespace AutoMovieHumanHeadNeckBase {
       selected = AutoMovieIllinois.root(residual, bracket[0], bracket[1], allowance, 64);
     if (selected === null)
       throw new Error("Neck base has no selected sampled finite positive-radius sign bracket: " +
-        JSON.stringify({ target, domain, samples: [...retained].map(([base, trial]: [number, AutoMovieHumanHeadNeckBaseTrial.IOutput]): unknown =>
+        JSON.stringify({ target, domain, samples: [...retained].map(([base, trial]: [number, IAutoMovieHumanHeadNeckBaseTrial.IOutput]): unknown =>
           ({ base, phase: trial.sidePhase, length: trial.measured.lengthMm })) }));
-    const trial: AutoMovieHumanHeadNeckBaseTrial.IOutput = at(selected);
+    const trial: IAutoMovieHumanHeadNeckBaseTrial.IOutput = at(selected);
     const admitted: number = 128 * Number.EPSILON * Math.max(target, trial.measured.lengthMm);
     if (!(Number.isFinite(trial.measured.lengthMm) && Math.abs(residual(selected)) <= admitted))
       throw new Error(`Neck base radius/root residual failed admission: radius=${selected}, residual=${residual(selected)}, allowance=${admitted}`);
@@ -109,12 +116,12 @@ export namespace AutoMovieHumanHeadNeckBase {
    * a tape's value or anatomical validity. Actual native admission still runs.
    */
   function admissible(
-    input: AutoMovieHumanHeadNeckCurves.IInputs,
-    family: AutoMovieHumanHeadNeckScalars.IOutput,
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
+    family: IAutoMovieHumanHeadNeckScalars.IOutput,
     extents: readonly [number, number, number, number],
   ): readonly [number, number] {
     const r: number = input.neck.radius;
-    const axis: AutoMovieHumanHeadNeckScalars.IAxis = AutoMovieHumanHeadNeckScalars.axis(input.neck);
+    const axis: IAutoMovieHumanHeadNeckScalars.IAxis = AutoMovieHumanHeadNeckScalars.axis(input.neck);
     const front: number = input.base.suprasternaleHeight;
     const back: number = input.base.cervicaleHeight;
     const side: number = input.base.sideNeckPointHeight;
@@ -142,7 +149,7 @@ export namespace AutoMovieHumanHeadNeckBase {
 }
 
 /** Read an already prepared original scalar, without a new source or inverse solve. */
-function value(outline: AutoMovieViewOutline.IOutline, station: number): number {
+function value(outline: IAutoMovieViewOutline.IOutline, station: number): number {
   const result: ReturnType<typeof AutoMovieViewOutline.value> = AutoMovieViewOutline.value(outline, station);
   if (typeof result === "string") throw new Error(result);
   return result;

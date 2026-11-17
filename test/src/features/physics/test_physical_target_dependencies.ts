@@ -1,3 +1,4 @@
+import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -5,7 +6,7 @@ import {
   memoizePhysicalTransformValue,
   solvePhysicalArticulationTargets,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -122,7 +123,7 @@ export function test_physical_target_dependencies(): void {
   const weighted: (poses: Poses) => number[] = (poses: Poses): number[] => [
     poses.a!.position.x - (start.x + poses.b!.position.x) / 2,
   ];
-  const rows: linearizePhysicalTargetRows.IRows[] = [
+  const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] = [
     distance,
     world,
     weighted,
@@ -130,7 +131,7 @@ export function test_physical_target_dependencies(): void {
     (
       measure: (poses: Poses) => number[],
       index: number,
-    ): linearizePhysicalTargetRows.IRows => ({
+    ): IAutoMovieLinearizePhysicalTargetRows.IRows => ({
       bones: new Set(["a", "b"]),
       rigidInvariant: index === 0,
       measure,

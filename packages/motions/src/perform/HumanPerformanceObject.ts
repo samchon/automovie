@@ -1,15 +1,9 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
+
 import { AffordanceArticulation, Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * The state of the props' articulations over the film: what the acts drive
@@ -52,7 +46,7 @@ export namespace HumanPerformanceObject {
     travel(seconds: number): number;
 
     /** The action that drives it, or undefined for the prop's own track. */
-    source?: HumanSegment.ISegment & { subject: string };
+    source?: IAutoMovieMotionHumanSegment.ISegment & { subject: string };
   }
 
   /**
@@ -66,8 +60,8 @@ export namespace HumanPerformanceObject {
    * @returns The writers, by their start.
    */
   export function writers(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
   ): readonly IWriter[] {
     const known: readonly IWriter[] | undefined = WRITERS.get(self)?.get(
       prop.subject,
@@ -93,7 +87,7 @@ export namespace HumanPerformanceObject {
             segment.start + drive.to * duration,
           );
           if (!(to >= from)) continue;
-          const own: IHumanActionPlan.IDrive = drive;
+          const own: IAutoMovieMotionHumanActionPlan.IDrive = drive;
           out.push({
             articulation: own.articulation,
             leader:
@@ -139,8 +133,8 @@ export namespace HumanPerformanceObject {
    * @returns Travel by articulation id.
    */
   export function state(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): Record<string, number> {
     const out: Record<string, number> = {};
@@ -166,15 +160,15 @@ export namespace HumanPerformanceObject {
    * @returns The point and its outward normal in the prop's frame, or undefined when the prop has no such point.
    */
   export function point(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
     id: string,
     seconds: number,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined {
     const rest = prop.points[id];
     if (rest === undefined || prop.articulate === undefined) return rest;
     if (writers(self, prop).length === 0) return rest;
-    const posed: IHumanProp.IPosed = pose(self, prop, seconds);
+    const posed: IAutoMovieMotionHumanProp.IPosed = pose(self, prop, seconds);
     const found: IAutoMovieAffordance | undefined = posed.affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
@@ -200,16 +194,16 @@ export namespace HumanPerformanceObject {
    * @returns The posed contacts and colliders.
    */
   export function pose(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
     seconds: number,
-  ): IHumanProp.IPosed {
-    const kept: Map<string, { seconds: number; posed: IHumanProp.IPosed }> =
+  ): IAutoMovieMotionHumanProp.IPosed {
+    const kept: Map<string, { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }> =
       POSED.get(self) ?? new Map();
     const last = kept.get(prop.subject);
     if (last !== undefined && last.seconds === seconds && !self.resolving)
       return last.posed;
-    const posed: IHumanProp.IPosed = prop.articulate!(
+    const posed: IAutoMovieMotionHumanProp.IPosed = prop.articulate!(
       state(self, prop, seconds),
     );
     if (!self.resolving) {
@@ -228,7 +222,7 @@ export namespace HumanPerformanceObject {
    * @param self The placed performance.
    * @throws {HumanRefusal} A `cut` refusal for overlapping drives; a `parameter` refusal for a travel out of range.
    */
-  export function admit(self: HumanPerformanceState): void {
+  export function admit(self: IAutoMovieMotionHumanPerformanceState): void {
     for (const prop of self.props.values()) {
       const all: readonly IWriter[] = writers(self, prop);
       const driven: IWriter[] = all.filter(
@@ -276,13 +270,13 @@ export namespace HumanPerformanceObject {
 
   /** The writers kept per placed performance and prop. */
   const WRITERS: WeakMap<
-    HumanPerformanceState,
+    IAutoMovieMotionHumanPerformanceState,
     Map<string, readonly IWriter[]>
   > = new WeakMap();
 
   /** The last posed prop read per performance and prop. */
   const POSED: WeakMap<
-    HumanPerformanceState,
-    Map<string, { seconds: number; posed: IHumanProp.IPosed }>
+    IAutoMovieMotionHumanPerformanceState,
+    Map<string, { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }>
   > = new WeakMap();
 }

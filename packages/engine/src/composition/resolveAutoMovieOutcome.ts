@@ -1,4 +1,5 @@
-import type { IAutoMovieIntent } from "./IAutoMovieIntent";
+import type { IAutoMovieIntent, IAutoMovieResolveOutcome } from "@automovie/interface";
+
 
 /**
  * The outcome of interacting intents from a production's own table: the
@@ -18,40 +19,10 @@ import type { IAutoMovieIntent } from "./IAutoMovieIntent";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function resolveAutoMovieOutcome<Outcome extends string>(
-  table: resolveAutoMovieOutcome.ITable<Outcome>,
+  table: IAutoMovieResolveOutcome.ITable<Outcome>,
   intents: readonly IAutoMovieIntent[],
-): { outcome: Outcome; rule?: string } {
+): IAutoMovieResolveOutcome.IResult<Outcome> {
   for (const rule of table.rules)
     if (rule.when(intents)) return { outcome: rule.outcome, rule: rule.id };
   return { outcome: table.otherwise };
-}
-/**
- * Companion types of {@link resolveAutoMovieOutcome}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 2 members (`IRule`, `ITable`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `resolveAutoMovieOutcome` in packages/engine/src/composition/resolveAutoMovieOutcome.ts; its surface is the 2 members listed and the text shows 5 other files naming it, mostly movies (3), packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace resolveAutoMovieOutcome {
-  /** One ordered rule. */
-  export interface IRule<Outcome extends string> {
-    /** Stable rule id, reported with the outcome. */
-    id: string;
-
-    /** Whether the rule decides these intents. */
-    when(intents: readonly IAutoMovieIntent[]): boolean;
-
-    /** The outcome it decides. */
-    outcome: Outcome;
-  }
-
-  /** A production's outcome table. */
-  export interface ITable<Outcome extends string> {
-    /** Rules in priority order. */
-    rules: readonly IRule<Outcome>[];
-
-    /** The outcome when no rule decides. */
-    otherwise: Outcome;
-  }
 }

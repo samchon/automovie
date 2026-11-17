@@ -1,9 +1,6 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionClock, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Hand primitives: the fingers and the thumb of one hand formed into a shape,
@@ -19,46 +16,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand owner's shape vocabulary and angles; no shape is defined here.
  */
 export namespace AutoMovieMotionHumanHand {
-  /**
-   * One hand's shaping over a window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and its value when absent.
-   * @evidence contracts/development/design.md#principled-representation The span the hand is written over, the shape it goes to and how far it has gone.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `shape`; `form` fills them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is a function of seconds and not a named easing.
-   */
-  export interface IShape {
-    /** The hand. */
-    side: HumanHand.Side;
-
-    /** The shape at weight 1. */
-    shape: HumanHand.Shape;
-
-    /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
-    curl?: number;
-
-    /** Seconds since the action's start from which the hand is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the hand is written. */
-    to: number;
-
-    /**
-     * How far the hand is from the relaxed cascade to the shape.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by the function that writes the part; the builders from a clock fill it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reader clamps the result to [0, 1] instead of trusting the member, so an implementation that overshoots cannot push the part past its ends.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    weight(seconds: number): number;
-  }
 
   /**
    * The finger joints of a hand on its way to a shape.
@@ -78,14 +35,14 @@ export namespace AutoMovieMotionHumanHand {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fingers(
-    side: HumanHand.Side,
-    shape: HumanHand.Shape,
+    side: IAutoMovieMotionHumanHand.Side,
+    shape: IAutoMovieMotionHumanHand.Shape,
     curl: number,
     weight: number,
-  ): IHumanPosture["joints"] {
-    const asked: IHumanPosture["joints"] = HumanHand.shape(side, shape);
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const out: IHumanPosture["joints"] = {};
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const out: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[]) {
       const a: number = asked[bone]![0] + (bone.includes("Thumb") ? 0 : curl);
       const r: number = relaxed[bone]![0];
@@ -108,12 +65,12 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `fingers`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function shape(props: IShape): IAutoMovieMotionHumanPrimitive {
+  export function shape(props: IAutoMovieMotionHumanHand.IShape): IAutoMovieMotionHumanPrimitive {
     return {
       channels: [`${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         joints: {
           ...posture.joints,
@@ -150,11 +107,11 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function form(
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    clock: IAutoMovieMotionClock.IClock,
+    side: IAutoMovieMotionHumanHand.Side,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    asked: HumanHand.Shape,
+    asked: IAutoMovieMotionHumanHand.Shape,
     curl: number = 0,
   ): IAutoMovieMotionHumanPrimitive {
     return shape({

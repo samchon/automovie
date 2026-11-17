@@ -1,8 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-import type { preparePhysicalGeometry as Geometry } from "../physics/preparePhysicalGeometry";
-import type { auditAutoMovieOutcome } from "./auditAutoMovieOutcome";
-
+import type { IAutoMovieMeasureContact, IAutoMoviePhysicalProfile, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
 /**
  * Measure whether two displayed bodies meet: the least signed separation, in
  * metres, between every declared collider of one body's named segments (an
@@ -24,29 +20,22 @@ import type { auditAutoMovieOutcome } from "./auditAutoMovieOutcome";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 8 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function measureAutoMovieContact(input: {
-  /** The acting side. */ a: measureAutoMovieContact.ISide;
-  /** The receiving side. */ b: measureAutoMovieContact.ISide;
-  /** Prepared native geometric queries. */ queries: Geometry.IQueries;
-  /** Film seconds of the measurement. */ seconds: number;
-  /** Farthest separation the query reports, metres; 1 by default. */ prediction?: number;
-  /** Separation counted as contact, metres; 0 by default. */ tolerance?: number;
-}): measureAutoMovieContact.IResult {
+export function measureAutoMovieContact(input: IAutoMovieMeasureContact.IInput): IAutoMovieMeasureContact.IResult {
   const colliders = (
-    side: measureAutoMovieContact.ISide,
-  ): Geometry.ICollider[] =>
+    side: IAutoMovieMeasureContact.ISide,
+  ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
     side.profile.segments
-      .filter((segment: P.ISegment): boolean =>
+      .filter((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
         side.bones.includes(segment.bone),
       )
-      .flatMap((segment: P.ISegment): Geometry.ICollider[] => {
-        const pose: P.ITransform | undefined = side.segments[segment.bone];
+      .flatMap((segment: IAutoMoviePhysicalProfile.ISegment): IAutoMoviePreparePhysicalGeometry.ICollider[] => {
+        const pose: IAutoMoviePhysicalProfile.ITransform | undefined = side.segments[segment.bone];
         if (!pose)
           throw new Error(
             `Missing displayed pose ${side.subject}.${segment.bone}`,
           );
         return segment.shapes.map(
-          (shape: P.IShape): Geometry.ICollider => ({
+          (shape: IAutoMoviePhysicalProfile.IShape): IAutoMoviePreparePhysicalGeometry.ICollider => ({
             body: side.subject,
             bone: segment.bone,
             shape,
@@ -54,13 +43,13 @@ export function measureAutoMovieContact(input: {
           }),
         );
       });
-  const sources: Geometry.ICollider[] = colliders(input.a);
-  const targets: Geometry.ICollider[] = colliders(input.b);
+  const sources: IAutoMoviePreparePhysicalGeometry.ICollider[] = colliders(input.a);
+  const targets: IAutoMoviePreparePhysicalGeometry.ICollider[] = colliders(input.b);
   if (sources.length === 0 || targets.length === 0)
     throw new Error(
       `No declared colliders between ${input.a.subject} and ${input.b.subject}`,
     );
-  let best: measureAutoMovieContact.IResult = {
+  let best: IAutoMovieMeasureContact.IResult = {
     separation: Infinity,
     a: null,
     b: null,
@@ -82,46 +71,4 @@ export function measureAutoMovieContact(input: {
       impulse: 0,
     };
   return best;
-}
-/**
- * Companion types of {@link measureAutoMovieContact}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 2 members (`ISide`, `IResult`); units and frames named in its text: world, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `measureAutoMovieContact` in packages/engine/src/composition/measureAutoMovieContact.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly movies (1), packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace measureAutoMovieContact {
-  /** One measured side. */
-  export interface ISide {
-    /** Subject id. */
-    subject: string;
-
-    /** Region id reported in the contact record. */
-    region: string;
-
-    /** Its physical profile with declared colliders. */
-    profile: P;
-
-    /** Its displayed world pose by segment. */
-    segments: Readonly<Record<string, P.ITransform>>;
-
-    /** Segments whose colliders form the side. */
-    bones: readonly string[];
-  }
-
-  /** A measurement. */
-  export interface IResult {
-    /** Least signed separation, metres; Infinity when no pair is within the prediction. */
-    separation: number;
-
-    /** The acting segment of the closest pair. */
-    a: string | null;
-
-    /** The receiving segment of the closest pair. */
-    b: string | null;
-
-    /** The contact record when the separation is within tolerance. */
-    contact: auditAutoMovieOutcome.IContact | null;
-  }
 }

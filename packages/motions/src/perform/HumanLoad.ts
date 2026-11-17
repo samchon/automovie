@@ -1,5 +1,6 @@
+import type { IAutoMovieMotionHumanForce, IAutoMovieMotionHumanLoad, IAutoMovieVector3 } from "@automovie/interface";
+
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanForce } from "./HumanForce";
 
@@ -48,19 +49,7 @@ export namespace HumanLoad {
    * @param props The body's mass and centre height, and the load's mass and its distance ahead of the centre.
    * @returns Degrees, or null.
    */
-  export function lean(props: {
-    /** The body's mass, kilograms. */
-    mass: number;
-
-    /** The body's centre-of-mass height above its base, metres. */
-    height: number;
-
-    /** The load's mass, kilograms. */
-    load: number;
-
-    /** The load's horizontal distance ahead of the centre along the facing, metres; negative behind. */
-    ahead: number;
-  }): number | null {
+  export function lean(props: IAutoMovieMotionHumanLoad.ILeanProps): number | null {
     const ratio: number =
       (props.load * props.ahead) / (props.mass * props.height);
     if (Math.abs(ratio) > 1) return null;
@@ -84,7 +73,7 @@ export namespace HumanLoad {
     acceleration: (seconds: number) => IAutoMovieVector3,
     from: number,
     to: number,
-  ): HumanForce.ISustained {
+  ): IAutoMovieMotionHumanForce.ISustained {
     return {
       kind: "sustained",
       subject,
@@ -142,7 +131,7 @@ export namespace HumanLoad {
    * @returns World newtons.
    */
   export function sustained(
-    forces: readonly HumanForce.IForce[],
+    forces: readonly IAutoMovieMotionHumanForce.IForce[],
     subject: string,
     seconds: number,
   ): IAutoMovieVector3 {

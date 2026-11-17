@@ -1,13 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import { HumanChain, type IHumanBody } from "@automovie/motions";
+import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { HumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,7 +36,7 @@ export function test_human_motion_region_cheek(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
       "cheek",
       [{ subject: "a", body }],
@@ -53,7 +47,7 @@ export function test_human_motion_region_cheek(): void {
     const place = (
       region: AutoMovieHumanoidRegion,
     ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
-      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[region];
       return resolveAutoMovieHumanoidSurfaces.place(
         frame,

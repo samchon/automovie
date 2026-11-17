@@ -1,5 +1,8 @@
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
-import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage.js";
+import type { IAutoMovieCaptureFolder, IAutoMovieCaptureFolderOpenProps, IAutoMovieCaptureRecord, IAutoMovieCaptureStorage } from "@automovie/interface";
+
+
+
+
 
 /** The record's file name. */
 const RECORD: string = "record.json";
@@ -38,7 +41,7 @@ const FILE_NAME: RegExp = /^(?!\.{1,2}$)[^/\\]+$/u;
  * @evidence contracts/development/design.md#minimal-and-owned-surface `open`, `claim`, `write`, `remove`, `read` and `close`, the steps the capture run, the comparison and the video capture take; drawing, sheets and comparisons are theirs. `round` and `compare` let the run confirm the folder was opened for its plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A foreign entry refuses the folder instead of being kept or deleted, and the compared round is confirmed before anything is deleted.
  */
-export class AutoMovieCaptureFolder {
+export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   /** Where files are read and written. */
   private readonly storage: IAutoMovieCaptureStorage;
 
@@ -98,19 +101,7 @@ export class AutoMovieCaptureFolder {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A folder is opened once per capture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps the compared record and two name sets; no handle stays open.
    */
-  public static async open(props: {
-    /** Where files are read and written. */
-    storage: IAutoMovieCaptureStorage;
-
-    /** The capture's root folder. */
-    root: string;
-
-    /** Round the capture is kept as, or null for the root. */
-    round: string | null;
-
-    /** Earlier round compared against, or null. */
-    compare: string | null;
-  }): Promise<AutoMovieCaptureFolder> {
+  public static async open(props: IAutoMovieCaptureFolderOpenProps): Promise<AutoMovieCaptureFolder> {
     const { storage } = props;
     const root: string = props.root.replace(/\/+$/u, "");
     if (root === "") throw new Error("A capture root cannot be empty");

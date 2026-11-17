@@ -1,7 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSolveHalfPlaneProgram, IAutoMovieCrowdAgent, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
-import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
+
 
 /**
  * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
@@ -268,7 +267,7 @@ export namespace steerAutoMovieCrowdGeometry {
     step: number,
     top: number,
     other: number,
-  ): solveAutoMovieHalfPlaneProgram.ILine {
+  ): IAutoMovieSolveHalfPlaneProgram.ILine {
     const rx: number = qx - px;
     const rz: number = qz - pz;
     const ux: number = vx - wx;

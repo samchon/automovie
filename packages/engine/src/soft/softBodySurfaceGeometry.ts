@@ -1,8 +1,5 @@
-import {
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftBodyState,
-  IAutoMovieSoftBodySurface,
-} from "@automovie/interface";
+import { type IAutoMovieSoftBodySurfaceGeometry, IAutoMovieSoftBodySurface } from "@automovie/interface";
+
 
 /** Derive fresh panel mesh arrays from a solved row-major particle field. Two fixed triangles cover each lattice quad, UVs follow lattice coordinates and zero accumulated normals use +Y. Bounds include indexed triangle vertices; a cord or point with no quads returns null bounds.
  *
@@ -14,13 +11,7 @@ import {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each face cross product is computed once and shared by its three vertices; dynamic state positions require fresh normals/bounds rather than a stale mesh cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All returned arrays and bounds are fresh caller-owned values; source state positions are copied, accumulation is discarded, and no GPU resource is acquired.
  */
-export const softBodySurfaceGeometry: (props: {
-  domain: IAutoMovieSoftBodyDomain;
-  state: IAutoMovieSoftBodyState;
-}) => IAutoMovieSoftBodySurface = (props: {
-  domain: IAutoMovieSoftBodyDomain;
-  state: IAutoMovieSoftBodyState;
-}): IAutoMovieSoftBodySurface => {
+export const softBodySurfaceGeometry: (props: IAutoMovieSoftBodySurfaceGeometry.IProps) => IAutoMovieSoftBodySurface = (props: IAutoMovieSoftBodySurfaceGeometry.IProps): IAutoMovieSoftBodySurface => {
   const { domain, state }: typeof props = props;
   const columns: number = domain.lattice.columns;
   const rows: number = domain.lattice.rows;

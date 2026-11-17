@@ -1,8 +1,9 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   validatePhysicalProfile,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,9 +29,9 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A one-kilogram sphere drops one metre and settles on a real plane.).
  */
 export async function test_physical_simulation(): Promise<void> {
-  const input: Simulation.IInput = falling();
+  const input: IAutoMoviePhysicalSimulationInput.IInput = falling();
   const progress: number[] = [];
-  const first: Simulation = await Simulation.compute(
+  const first: IAutoMoviePhysicalSimulation = await Simulation.compute(
     input,
     undefined,
     undefined,
@@ -43,7 +44,7 @@ export async function test_physical_simulation(): Promise<void> {
       progress.push(completed);
     },
   );
-  const second: Simulation = await Simulation.compute(input);
+  const second: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
   TestValidator.equals(
     "independent current-input admission identifies the actual completed cache",
     Simulation.identity(input),
@@ -87,7 +88,7 @@ export async function test_physical_simulation(): Promise<void> {
       JSON.stringify(first.cache.frames) ===
       JSON.stringify(second.cache.frames),
   );
-  const edited: Simulation.IInput = structuredClone(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
   edited.impulses.push({
     step: 200,
     body: "ball",
@@ -95,8 +96,8 @@ export async function test_physical_simulation(): Promise<void> {
     impulse: { x: 1, y: 0, z: 0 },
     point: { x: 0, y: 0.1, z: 0 },
   });
-  const resumed: Simulation = await Simulation.compute(edited, first);
-  const fresh: Simulation = await Simulation.compute(edited);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(edited, first);
+  const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
   TestValidator.predicate(
     "late edit uses the nearest earlier checkpoint",
     (): boolean => resumed.recomputedSteps === 60,
@@ -118,9 +119,9 @@ export async function test_physical_simulation(): Promise<void> {
       JSON.stringify(first.cache.frames.slice(0, 181)) ===
       JSON.stringify(resumed.cache.frames.slice(0, 181)),
   );
-  const kinematic: Simulation.IInput = falling();
+  const kinematic: IAutoMoviePhysicalSimulationInput.IInput = falling();
   kinematic.bodies[0]!.mode = { kind: "kinematic" };
-  const authored: Simulation = await Simulation.compute(kinematic);
+  const authored: IAutoMoviePhysicalSimulation = await Simulation.compute(kinematic);
   TestValidator.predicate(
     "kinematic path stays authored",
     (): boolean =>
@@ -144,7 +145,7 @@ export async function test_physical_simulation(): Promise<void> {
 }
 
 /** Analytic one-sphere fixture, with no film, species or fitted expected state. */
-function falling(): Simulation.IInput {
+function falling(): IAutoMoviePhysicalSimulationInput.IInput {
   const profile: P = {
     id: "ball",
     mass: 1,
@@ -197,7 +198,7 @@ function falling(): Simulation.IInput {
         mode: { kind: "simulated" },
         targets: Array.from(
           { length: 241 },
-          (): Simulation.ITarget => ({
+          (): IAutoMoviePhysicalSimulationInput.ITarget => ({
             strength: 0,
             segments: {
               root: {

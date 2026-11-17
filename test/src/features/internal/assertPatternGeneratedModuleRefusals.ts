@@ -1,8 +1,5 @@
-import type {
-  AutoMovieSurfacePatternGenerator,
-  IAutoMoviePatternCandidate,
-  IAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import type { AutoMovieSurfacePatternGenerator, IAutoMoviePatternCandidate, IAutoMovieSurfacePattern } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { stackBond, zone } from "./patternFixtures";

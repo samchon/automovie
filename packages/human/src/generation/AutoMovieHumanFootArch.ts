@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
+import type { IAutoMovieHumanBodyMeasures } from "@automovie/interface";
+
 
 /**
  * The foot's dorsum and medial arch heights, standing: the side view's knots

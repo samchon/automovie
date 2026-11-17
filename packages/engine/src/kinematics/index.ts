@@ -1,17 +1,4 @@
-export * from "./AutoMovieSkeletonParentKey";
-export * from "./IAutoMovieArmChainFault";
-export * from "./IAutoMovieChainBone";
-export * from "./IAutoMovieHingedArticulation";
-export * from "./IAutoMovieJointAxesIssue";
-export * from "./IAutoMovieJointRotationDomain";
-export * from "./IAutoMoviePoseRig";
-export * from "./IAutoMovieResolvedBone";
-export * from "./IAutoMovieResolvedJointAngles";
-export * from "./IAutoMovieSkeletonTopology";
-export * from "./IAutoMovieSwivelNear";
-export * from "./IAutoMovieSwivelSeed";
-export * from "./IAutoMovieTwoBoneArticulation";
-export * from "./ITwoBoneIK";
+
 export * from "./aimRotation";
 export * from "./aimYawPitch";
 export * from "./alternateRigJointAngles";
@@ -32,7 +19,6 @@ export * from "./jointRomOvershoot";
 export * from "./jointToQuaternion";
 export * from "./jointToQuaternionOnBasis";
 export * from "./prepareArticulatedRig";
-export * from "./IArticulatedRigReader";
 export * from "./measureAutoMovieHumanoidBody";
 export * from "./normalizeJointAxes";
 export * from "./poseJointCodec";

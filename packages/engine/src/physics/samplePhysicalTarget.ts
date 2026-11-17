@@ -1,8 +1,4 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
@@ -18,16 +14,12 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalTarget(
-  before: P.ITransform,
-  after: P.ITransform,
+  before: IAutoMoviePhysicalProfile.ITransform,
+  after: IAutoMoviePhysicalProfile.ITransform,
   fraction: number,
   rate: number,
-): {
-  pose: P.ITransform;
-  velocity: IAutoMovieVector3;
-  angularVelocity: IAutoMovieVector3;
-} {
-  const delta: P.ITransform["rotation"] = Quaternion.multiply(
+): IAutoMovieSamplePhysicalTarget.IResult {
+  const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
     after.rotation,
     Quaternion.inverse(before.rotation),
   );

@@ -1,5 +1,4 @@
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
-
+import type { IAutoMovieResolvedJointAngles } from "@automovie/interface";
 /**
  * The squared distance of one joint's clinical angles from the anatomical
  * neutral, `flexion² + abduction² + twist²`, in square degrees.

@@ -1,4 +1,5 @@
-import type { IAutoMovieAffordance } from "@automovie/interface";
+import type { IAutoMovieAffordanceArticulation, IAutoMovieAffordance } from "@automovie/interface";
+
 
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
@@ -25,24 +26,6 @@ export namespace AffordanceArticulation {
     "wheel",
     "pedal",
   ]);
-
-  /**
-   * An independent input, or the coordinate where its upstream resolution failed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Success gives the independent id and travel; failure gives the offending id, travel, reason kind and leader when one was resolved.
-   * @evidence contracts/development/design.md#principled-representation A discriminated result keeps failed input admission apart from a usable independent coordinate; each travel uses its named articulation's unit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by input; archetypes own their structured refusal and motion reads successful coordinates to recover a joint's current travel.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No exception class crosses package boundaries; the optional leader is diagnostic context present only after a coupling is resolved.
-   */
-  export type Input =
-    | { success: true; id: string; travel: number }
-    | {
-        success: false;
-        id: string;
-        travel: number;
-        kind: "reference" | "range" | "follower" | "inverse";
-        leader?: string;
-      };
 
   /**
    * The independent articulation upstream of a coordinate, or null for an unknown, non-articulating or cyclic chain. Reversibility concerns input permission, not which degree of freedom a writer addresses.
@@ -78,7 +61,7 @@ export namespace AffordanceArticulation {
     byId: ReadonlyMap<string, IAutoMovieAffordance>,
     id: string,
     value: number,
-  ): Input {
+  ): IAutoMovieAffordanceArticulation.Input {
     const path: IAutoMovieAffordance[] | null = chain(byId, id);
     if (path === null)
       return { success: false, kind: "reference", id, travel: value };
@@ -143,7 +126,7 @@ export namespace AffordanceArticulation {
     for (const [authored, requested] of Object.entries(state)) {
       if (leader(byId, authored) !== degree) continue;
       if (found) return null;
-      const resolved: Input = input(byId, authored, requested);
+      const resolved: IAutoMovieAffordanceArticulation.Input = input(byId, authored, requested);
       if (!resolved.success) return null;
       found = true;
       value = resolved.travel;

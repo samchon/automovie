@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -23,7 +20,7 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 23 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function validatePhysicalProfile(profile: P): string[] {
+export function validatePhysicalProfile(profile: IAutoMoviePhysicalProfile): string[] {
   if (!profile || typeof profile !== "object")
     return ["profile must be an object"];
   const errors: string[] = [];
@@ -58,8 +55,8 @@ export function validatePhysicalProfile(profile: P): string[] {
     !!q &&
     [q.x, q.y, q.z, q.w].every(Number.isFinite) &&
     Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6;
-  const transform: (t: P.ITransform, path: string) => void = (
-    t: P.ITransform,
+  const transform: (t: IAutoMoviePhysicalProfile.ITransform, path: string) => void = (
+    t: IAutoMoviePhysicalProfile.ITransform,
     path: string,
   ): void => {
     fail(!!t && vector(t.position), `${path}.position`);
@@ -164,7 +161,7 @@ export function validatePhysicalProfile(profile: P): string[] {
       shapes.add(shape.id);
       fail(materials.has(shape.material), `${location}.material`);
       transform(shape.transform, `${location}.transform`);
-      let hull: physicalHullFaces.IHull | null = null;
+      let hull: IAutoMoviePhysicalHullFaces.IHull | null = null;
       if (shape.kind === "box")
         fail(
           vector(shape.halfExtents) &&
@@ -194,7 +191,7 @@ export function validatePhysicalProfile(profile: P): string[] {
           `${location}.points`,
         );
       } else fail(false, `${location}.kind`);
-      const material: P.IMaterial | undefined = profile.materials.find(
+      const material: IAutoMoviePhysicalProfile.IMaterial | undefined = profile.materials.find(
         (candidate: (typeof profile.materials)[number]): boolean =>
           !!candidate && candidate.id === shape.material,
       );
@@ -307,11 +304,11 @@ export function validatePhysicalProfile(profile: P): string[] {
     parents.set(joint.child, joint.parent);
     transform(joint.parentFrame, `${path}.parentFrame`);
     transform(joint.childFrame, `${path}.childFrame`);
-    const parent: P.ISegment | undefined = profile.segments.find(
+    const parent: IAutoMoviePhysicalProfile.ISegment | undefined = profile.segments.find(
       (segment: (typeof profile.segments)[number]): boolean =>
         segment?.bone === joint.parent,
     );
-    const child: P.ISegment | undefined = profile.segments.find(
+    const child: IAutoMoviePhysicalProfile.ISegment | undefined = profile.segments.find(
       (segment: (typeof profile.segments)[number]): boolean =>
         segment?.bone === joint.child,
     );

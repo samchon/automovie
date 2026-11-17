@@ -1,4 +1,5 @@
-import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieResolveMaterial, IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
+
 
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
@@ -21,13 +22,7 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All simulated material consumers reuse this resolver and one inventory result per id; a standalone call recomputes because mutable model/material contents decide equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the borrowed selected record returns; candidates/signatures are temporary and no host material, shader handle or retained lookup registry is owned.
  */
-export const resolveAutoMovieMaterial: (props: {
-  models: readonly IAutoMovieModel[];
-  material: string;
-}) => IAutoMovieMaterial = (props: {
-  models: readonly IAutoMovieModel[];
-  material: string;
-}): IAutoMovieMaterial => {
+export const resolveAutoMovieMaterial: (props: IAutoMovieResolveMaterial.IProps) => IAutoMovieMaterial = (props: IAutoMovieResolveMaterial.IProps): IAutoMovieMaterial => {
   if (props.material.trim().length === 0)
     throw new Error("material id must not be blank.");
   const candidates: { model: string; material: IAutoMovieMaterial }[] =

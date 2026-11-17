@@ -1,0 +1,44 @@
+import type { IAutoMovieNaturalSpline } from "../../../construction/IAutoMovieNaturalSpline";
+import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieHumanHandClear } from "./IAutoMovieHumanHandClear";
+
+/**
+ * A digit's law in the hand form's axes: its centre line, the half width and
+ * half depth of its sections along it, the way its section's phase turns, and
+ * its rounded tip. The form is shared by every person; a person's hand is the
+ * form through the hand's three scales.
+ *
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A digit's law in the hand form's axes: its centre line, the half width and half depth of its sections along it, the way its section's phase turns, and its rounded tip.
+ * @evidence contracts/development/design.md#principled-representation `centre`: Centre of its root at the web, where its line starts. `line`: Natural splines of the line's three coordinates over the length along it, mm of the form. `width`: `[length, half width]` knots across the digit, mm of the form.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHandDigitLaw.digit. Read by AutoMovieHumanFingerBones.of, AutoMovieHumanHandDigitBones.onBones, AutoMovieHumanHandDigitChain.fingerOf. Also types AutoMovieHumanHandDigitLaw.tube, AutoMovieHumanHandForm.digits.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `centre`, `line`, `width`, `depth`, `angles`, `first`, `clear`, `cap`, `pole`; callers supply the complete record.
+ */
+export interface IAutoMovieHumanHandDigit {
+  /** Centre of its root at the web, where its line starts. */
+  centre: AutoMovieVector3Tuple;
+
+  /** Natural splines of the line's three coordinates over the length along it, mm of the form. */
+  line: IAutoMovieNaturalSpline.ISpline[];
+
+  /** `[length, half width]` knots across the digit, mm of the form. */
+  width: [number, number][];
+
+  /** `[length, half depth]` knots through the digit, mm of the form. */
+  depth: [number, number][];
+
+  /** Section angle of each control point, turning one way round the digit. */
+  angles: number[];
+
+  /** Station of its first own section, past its webs' crests. */
+  first: number;
+
+  /** What its first section must clear: its arcs of the parent's ring and its webs' crests. */
+  clear: IAutoMovieHumanHandClear[];
+
+  /** Station where the rounded tip starts. */
+  cap: number;
+
+  /** The tip's apex, where the radius has fallen to nothing. */
+  pole: AutoMovieVector3Tuple;
+}

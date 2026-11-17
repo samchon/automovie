@@ -1,13 +1,6 @@
-import {
-  AutoMovieHumanHairColor,
-  AutoMovieHumanHairCurl,
-  AutoMovieHumanHairStyle,
-  AutoMovieHumanHairline,
-  AutoMovieHumanLowerUnderwear,
-  AutoMovieHumanSex,
-  AutoMovieHumanUpperUnderwear,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
+import type { IAutoMovieHumanParameters } from "@automovie/interface";
+
+import { AutoMovieHumanHairColor, AutoMovieHumanHairCurl, AutoMovieHumanHairStyle, AutoMovieHumanHairline, AutoMovieHumanLowerUnderwear, AutoMovieHumanSex, AutoMovieHumanUpperUnderwear } from "@automovie/human";
 
 /** Authored f1 example in the Human parameter units; an omitted measure takes its survey default.
  *

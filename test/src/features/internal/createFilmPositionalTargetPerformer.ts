@@ -1,17 +1,6 @@
-import {
-  type IAutoMoviePerformedShot,
-  type IAutoMovieStagedSet,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
-import type {
-  IAutoMovieActionCall,
-  IAutoMovieScript,
-  IAutoMovieSkeleton,
-  IAutoMovieStage,
-  IAutoMovieStageActor,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMoviePerformedShot, IAutoMovieStagedSet, IAutoMovieActionCall, IAutoMovieScript, IAutoMovieSkeleton, IAutoMovieStage, IAutoMovieStageActor, IAutoMovieVector3 } from "@automovie/interface";
+import { performShot, stageScene } from "@automovie/engine";
+
 
 import {
   makePerformanceWrite,

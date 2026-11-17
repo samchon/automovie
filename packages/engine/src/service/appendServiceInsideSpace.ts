@@ -1,10 +1,5 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import type { IAutoMovieAppendServiceInsideSpace } from "@automovie/interface";
 import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**
  * Hold one authored world point inside the logical space its node stands in.
@@ -31,23 +26,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The helper consumes the gate's supplied space-id set and one point, retaining no cached membership across moving nodes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a failed source point is appended to the supplied collector; no cell index, bounds record or environment reference is stored here.
  */
-export const appendServiceInsideSpace: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  spaceIds: ReadonlySet<string>;
-  space: string;
-  point: IAutoMovieVector3;
-  path: string;
-  subject: string;
-  out: ViolationCollector;
-}) => void = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  spaceIds: ReadonlySet<string>;
-  space: string;
-  point: IAutoMovieVector3;
-  path: string;
-  subject: string;
-  out: ViolationCollector;
-}): void => {
+export const appendServiceInsideSpace: (props: IAutoMovieAppendServiceInsideSpace.IProps) => void = (props: IAutoMovieAppendServiceInsideSpace.IProps): void => {
   if (!props.spaceIds.has(props.space)) return;
   for (const axis of ["x", "y", "z"] as const)
     if (!Number.isFinite(props.point[axis])) return;

@@ -1,21 +1,25 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieViewPart, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
+
+
+
+
 
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
-import type { AutoMovieHumanSiteViewPart as Site } from "./AutoMovieHumanSiteViewPart";
+
 
 /** Publish a part from its shared original scalar controls; preparation and contact acquisition remain separate. */
 export namespace AutoMovieHumanSiteDefinition {
   /** Preserve ordinary source definition while both consumers can explicitly share its preceding mathematical controls. */
-  export function of(input: Site.IInput): Site.IDefinition {
+  export function of(input: IAutoMovieHumanSiteViewPart.IInput): IAutoMovieHumanSiteViewPart.IDefinition {
     return publish(AutoMovieHumanSiteControls.prepare(input));
   }
 
   /** Construct the actual original part/view from the same admitted controls, without solving or rebuilding another part. */
   export function publish(
-    prepared: AutoMovieHumanSiteControls.IOutput,
-  ): Site.IDefinition {
-    const controls: AutoMovieHumanSiteControls.IControls | null =
+    prepared: IAutoMovieHumanSiteControls.IOutput,
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
+    const controls: IAutoMovieHumanSiteControls.IControls | null =
       prepared.controls;
     if (controls === null)
       return { part: null, view: null, diagnostics: prepared.diagnostics };
@@ -36,7 +40,7 @@ export namespace AutoMovieHumanSiteDefinition {
   /** Preserve the original signed scalar declaration and qualified normalized jets at its actual parameter. */
   export function outline(
     input: Pick<
-      Site.IInput,
+      IAutoMovieHumanSiteViewPart.IInput,
       "sites" | "pole" | "poleJets" | "ranges" | "parameter"
     >,
     quarter: 0 | 1 | 2 | 3,

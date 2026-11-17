@@ -1,10 +1,11 @@
+import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
   Vector3,
   physicalShapeSurfaceAnchor,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /** Selected receiver surfaces follow their bone frame and agree with independent native closest-point queries.
@@ -20,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sphere, capsule and box support witnesses lie on the exact collider under two composed rotations.).
  */
 export async function test_physical_surface_anchor(): Promise<void> {
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const pose: P.ITransform = {
     position: { x: 1, y: 2, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),

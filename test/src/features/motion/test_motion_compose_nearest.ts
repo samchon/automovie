@@ -1,8 +1,5 @@
-import {
-  AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanTargetGrid,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanTargetGrid } from "@automovie/interface";
+import { AutoMovieMotionHumanTarget, AutoMovieMotionHumanTargetGrid } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,7 +29,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the stub and lists the 3 scenarios with their numbers.
  */
 export function test_motion_compose_nearest(): void {
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     measure: {
       stature: 1.7,
       upperArm: 0.3,
@@ -46,14 +43,14 @@ export function test_motion_compose_nearest(): void {
       chestHeight: 1.25,
       neckHeight: 1.48,
     },
-  } as unknown as IHumanBody;
-  const laterals: AutoMovieMotionHumanTargetGrid.Lateral[] = [
+  } as unknown as IAutoMovieMotionHumanBody;
+  const laterals: IAutoMovieMotionHumanTargetGrid.Lateral[] = [
     "centre",
     "inside",
     "shoulder",
     "outside",
   ];
-  const distances: AutoMovieMotionHumanTargetGrid.Distance[] = [
+  const distances: IAutoMovieMotionHumanTargetGrid.Distance[] = [
     "close",
     "near",
     "mid",

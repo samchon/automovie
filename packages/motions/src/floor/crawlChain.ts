@@ -1,14 +1,9 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
@@ -162,9 +157,9 @@ export namespace crawlChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain holds the body's few lengths and places only.
    */
   export function of(
-    body: IHumanBody,
-    standing: IHumanPosture,
-    frame: HumanFrame.IFrame,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
+    frame: IAutoMovieMotionHumanFrame.IFrame,
     forward: IAutoMovieVector3,
   ): IChain {
     const yaw: number = frame.yaw;
@@ -191,7 +186,7 @@ export namespace crawlChain {
       crawlFrame.wrists(body, standing, forward);
     const wv: number = (wrists.left.y + wrists.right.y) / 2;
     const ball = (side: "left" | "right"): IAutoMovieVector3 => {
-      const from: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+      const from: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
       return HumanFrame.local(
         frame,
         HumanFoot.point(body, side, "mtp", {

@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryCameraSceneEstimate } from "../structures/image/IAutoMovieRecoveryCameraSceneEstimate";
-import type { IAutoMovieRecoverySceneRegistration } from "../structures/image/IAutoMovieRecoverySceneRegistration";
-import type { IAutoMovieRecoverySceneCandidate } from "../structures/internal/IAutoMovieRecoverySceneCandidate";
+import type { IAutoMovieRecoveryCameraSceneEstimate, IAutoMovieRecoverySceneCandidate, IAutoMovieRecoverySceneRegistration } from "@automovie/interface";
+
+
+
 
 /**
  * Describe all requested views against the final accepted component revision.
@@ -36,24 +37,21 @@ export function describeRecoverySceneRegistration(
           status: "registered",
           candidates,
           lastAttempt,
-          reasons: [],
-        };
+          reasons: [] };
       if (result.registeredViews.length === 0)
         return {
           viewIndex,
           status: "not-attempted",
           candidates,
           lastAttempt,
-          reasons: ["seed-component-unavailable"],
-        };
+          reasons: ["seed-component-unavailable"] };
       if (candidates < result.policy.minimumResectionInliers)
         return {
           viewIndex,
           status: "insufficient-support",
           candidates,
           lastAttempt,
-          reasons: ["insufficient-distinct-existing-map-support"],
-        };
+          reasons: ["insufficient-distinct-existing-map-support"] };
       if (
         lastAttempt !== null &&
         result.attempts[lastAttempt]!.revision === result.revision
@@ -63,8 +61,7 @@ export function describeRecoverySceneRegistration(
           status: "refused",
           candidates,
           lastAttempt,
-          reasons: result.attempts[lastAttempt]!.reasons.slice(),
-        };
+          reasons: result.attempts[lastAttempt]!.reasons.slice() };
       return {
         viewIndex,
         status: "not-attempted",
@@ -74,8 +71,7 @@ export function describeRecoverySceneRegistration(
           result.stopReason === "budget-exhausted"
             ? "scene-work-budget-exhausted-before-attempt"
             : "no-remaining-qualified-transaction",
-        ],
-      };
+        ] };
     },
   );
 }

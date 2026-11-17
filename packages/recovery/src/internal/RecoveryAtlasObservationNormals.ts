@@ -1,6 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAtlasObservationState } from "@automovie/interface";
 
-import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
+
+
+
 
 /**
  * Compute the original unnormalized source face cross products in index order.
@@ -14,13 +16,13 @@ import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTy
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation call owns O(F) private normal storage; it is not published as engine geometry and is released with that call.
  */
 export function RecoveryAtlasObservationNormals(
-  input: RecoveryAtlasObservationTypes["Input"],
+  input: IAutoMovieRecoveryAtlasObservationState["Input"],
 ): number[][] {
   return input.triangles.map(
     (triangle: readonly [number, number, number]): number[] => {
-      const a: C.Vector = input.verticesMm[triangle[0]]!,
-        b: C.Vector = input.verticesMm[triangle[1]]!,
-        c: C.Vector = input.verticesMm[triangle[2]]!;
+      const a: Readonly<AutoMovieVector3Tuple> = input.verticesMm[triangle[0]]!,
+        b: Readonly<AutoMovieVector3Tuple> = input.verticesMm[triangle[1]]!,
+        c: Readonly<AutoMovieVector3Tuple> = input.verticesMm[triangle[2]]!;
       const u: number[] = b.map((x: number, k: number): number => x - a[k]!),
         v: number[] = c.map((x: number, k: number): number => x - a[k]!);
       return [

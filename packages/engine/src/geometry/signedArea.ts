@@ -1,5 +1,4 @@
-import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
-
+import type { IAutoMovieProfilePoint } from "@automovie/interface";
 /**
  * Signed area enclosed by a closed planar ring, positive when the ring runs
  * counter-clockwise in its `x, y` plane.

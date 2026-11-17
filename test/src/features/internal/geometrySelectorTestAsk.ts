@@ -1,17 +1,6 @@
+import { type IAutoMovieGeometryQuery, IAutoMovieCamera, IAutoMovieClip, IAutoMovieCompiledShotSource, IAutoMovieGeometryResult, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieTransform, type IAutoMovieVector3, IAutoMovieWorldDesign } from "@automovie/interface";
 import { measureAutoMovieGeometry } from "@automovie/engine";
-import {
-  AutoMovieGeometryQuery,
-  IAutoMovieCamera,
-  IAutoMovieClip,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieGeometryResult,
-  IAutoMovieModel,
-  IAutoMovieSceneNode,
-  IAutoMovieShot,
-  IAutoMovieTransform,
-  type IAutoMovieVector3,
-  IAutoMovieWorldDesign,
-} from "@automovie/interface";
+
 
 import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "./GEOMETRY_SELECTOR_TEST_WORLD";
 import {
@@ -207,7 +196,7 @@ const SHOTS = new Map<string, IAutoMovieCompiledShotSource>([
 
 /** Evaluate the existing geometry query against the shared compiled shot records. */
 export const geometrySelectorTestAsk = (
-  request: AutoMovieGeometryQuery,
+  request: IAutoMovieGeometryQuery,
   world: Pick<
     IAutoMovieWorldDesign,
     "landmarks" | "surfaces" | "routes"

@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
+import type { IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryFeasibleMapWork, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoveryFeasibleMapWork } from "../structures/internal/IAutoMovieRecoveryFeasibleMapWork";
+
+
+
+
+
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 
@@ -135,6 +136,5 @@ export function prepareRecoveryFeasibleMapWork(
     agreementWork,
     retained,
     evaluationWork,
-    modelWork,
-  };
+    modelWork };
 }

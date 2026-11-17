@@ -1,8 +1,6 @@
-import {
-  AutoMovieBernstein64 as B,
-  type IAutoMovieCurve64 as C,
-  AutoMovieCurveMath64 as M,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, AutoMovieBernsteinPolynomial64, IAutoMovieCurve64, IAutoMoviePolylineFit, IAutoMoviePolylineFitInput } from "@automovie/interface";
+
+import { AutoMovieBernstein64 as B, AutoMovieCurveMath64 as M } from "@automovie/engine";
 
 /** Shared engine vector arithmetic retains the physical coefficient chart. */
 const add: typeof M.add = M.add,
@@ -15,60 +13,14 @@ const add: typeof M.add = M.add,
  * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c .
  *
  * @evidence contracts/development/common.md#meaningful-documentation States physical millimetres, declared corners, G1 versus C1 and the finite-polyline scope of the bound.
- * @evidence contracts/development/design.md#principled-representation Represents Fits physical ordered observations with adaptive tangent-constrained cubics: companion namespace of 8 members (`Input`, `Result`, `fit`, `solve`, `error`, `dot`, ...); units and frames named in its text: local, newton. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryBezierFit` in packages/recovery/src/internal/RecoveryBezierFit.ts; its surface is the 8 members listed and the text shows 7 other files naming it, mostly packages/recovery (7), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+ * @evidence contracts/development/design.md#principled-representation Ordered millimetre samples, declared corners and physical phase widths define tangent-constrained cubic fitting through IAutoMoviePolylineFitInput and IAutoMoviePolylineFit.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Recovery owns Schneider fitting and interface owns its single input/result identity shared by direct and outcome-wrapped callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every observation remains represented; budget exhaustion throws, and an unresolved two-point terminal span retains toleranceMet false.
  */
 export namespace RecoveryBezierFit {
-  /**
-   * Ordered observations in one physical millimetre chart.
-   *
-   * @evidence contracts/development/design.md#principled-representation A sequence, explicit corner indices and physical tolerance define the approximation problem without a source mesh dependency.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The caller owns feature semantics; numerical fitting owns only admitted point order.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred smoothing removes source observations.
-   * @evidence contracts/development/common.md#meaningful-documentation Properties state closure, units, budgets and parameterization.
-   */
-  export interface Input {
-    /** Semantic curve name carried into engine construction. */
-    name: string;
-    /** Ordered millimetre points; closed paths omit the repeated endpoint. */
-    pointsMm: readonly C.Vector[];
-    /** Whether the last point joins the first. */
-    closed: boolean;
-    /** Declared C0 corners; other adaptive joins share a tangent direction. */
-    corners: readonly number[];
-    /** Positive requested finite-polyline correspondence tolerance, millimetres. */
-    toleranceMm: number;
-    /** Hard output budget; exhaustion throws rather than losing observations. */
-    maxSpans: number;
-    /** Chord length is physical; centripetal uses square-root chord weights. */
-    parameterization: "chord" | "centripetal";
-  }
 
-  /**
-   * Complete curve coefficients and honest finite-observation error accounting.
-   *
-   * @evidence contracts/development/design.md#principled-representation Each accepted span retains the maximum correspondence sample residual and convex-hull upper estimate over all matched polyline intervals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One coefficient authority accompanies aggregate diagnostics rather than a duplicate display curve.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Binary64 convex-hull estimates are not outward-rounded certificates or bounds against the unknown continuous source surface.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes sample residual, polyline bound, compactness and unresolved tolerance.
-   */
-  export interface Result {
-    /** Actual fitted coefficients, physical widths and shared endpoints. */
-    curve: C.Cubic;
-    /** Largest observed point-to-corresponding-parameter residual, millimetres. */
-    sampleMaximumMm: number;
-    /** Bernstein convex-hull upper estimate over the full input polyline, millimetres. */
-    polylineUpperEstimateMm: number;
-    /** False means a two-observation tangent-constrained span could not meet tolerance. */
-    toleranceMet: boolean;
-    /** Observation count divided by span count; no universal compactness threshold is implied. */
-    observationsPerSpan: number;
-    /** Number of attempted solves using the declared conditioning or handle-sign fallback. */
-    handleFallbacks: number;
-  }
-
-  /**
+ 
+ /**
    * Solve endpoint handle lengths, refine monotone parameters and split the worst interval.
    * Smooth adaptive joins are G1; physical phase widths do not enforce equal derivative magnitude.
    * Declared corners retain independent one-sided tangents. Repeated adjacent points reject.
@@ -84,20 +36,20 @@ export namespace RecoveryBezierFit {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The work stack and observation copies expire on return or throw; only S coefficient spans and scalar diagnostics escape.
    */
   export function fit(
-    input: Input,
+    input: IAutoMoviePolylineFitInput,
     observeCorrespondence?: (
       span: number,
       first: number,
       last: number,
       parameters: readonly number[],
     ) => void,
-  ): Result {
-    const source: B.Vec[] = input.pointsMm.map((p: C.Vector): B.Vec => [...p]);
+  ): IAutoMoviePolylineFit {
+    const source: AutoMovieVector3Tuple[] = input.pointsMm.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p]);
     const n: number = source.length;
     if (
       n < (input.closed ? 3 : 2) ||
       !source.every(
-        (p: B.Vec): boolean => p.length === 3 && p.every(Number.isFinite),
+        (p: AutoMovieVector3Tuple): boolean => p.length === 3 && p.every(Number.isFinite),
       )
     )
       throw new Error("Fitting needs finite ordered physical observations");
@@ -115,7 +67,7 @@ export namespace RecoveryBezierFit {
       input.parameterization !== "centripetal"
     )
       throw new Error("Unknown fitting parameterization");
-    const points: B.Vec[] = input.closed ? [...source, source[0]!] : source;
+    const points: AutoMovieVector3Tuple[] = input.closed ? [...source, source[0]!] : source;
     const cumulative: number[] = [0];
     for (let i: number = 1; i < points.length; i++) {
       const length: number = distance(points[i - 1]!, points[i]!);
@@ -146,18 +98,18 @@ export namespace RecoveryBezierFit {
       (a: number, b: number): number => a - b,
     );
     const declared: Set<number> = new Set(input.corners);
-    const spans: C.Span[] = [];
+    const spans: IAutoMovieCurve64.Span[] = [];
     const widths: number[] = [];
     let sampleMaximumMm: number = 0,
       polylineUpperEstimateMm: number = 0;
     let handleFallbacks: number = 0;
-    const tangent: (at: number) => B.Vec = (at: number): B.Vec => {
+    const tangent: (at: number) => AutoMovieVector3Tuple = (at: number): AutoMovieVector3Tuple => {
       if (!input.closed && at === 0) return unit(sub(points[1]!, points[0]!));
       if (!input.closed && at === n - 1)
         return unit(sub(points[n - 1]!, points[n - 2]!));
       return unit(sub(source[(at + 1) % n]!, source[(at + n - 1) % n]!));
     };
-    const work: { first: number; last: number; left: B.Vec; right: B.Vec }[] =
+    const work: { first: number; last: number; left: AutoMovieVector3Tuple; right: AutoMovieVector3Tuple }[] =
       [];
     for (let k: number = ordered.length - 2; k >= 0; k--) {
       const first: number = ordered[k]!,
@@ -170,14 +122,13 @@ export namespace RecoveryBezierFit {
           : tangent(first),
         right: declared.has(last % n)
           ? unit(sub(points[last - 1]!, points[last]!))
-          : scale(tangent(last % n), -1),
-      });
+          : scale(tangent(last % n), -1) });
     }
     while (work.length > 0) {
       if (spans.length + work.length > input.maxSpans)
         throw new Error("Fitted span budget exhausted");
       const job: (typeof work)[number] = work.pop()!;
-      const p: B.Vec[] = points.slice(job.first, job.last + 1);
+      const p: AutoMovieVector3Tuple[] = points.slice(job.first, job.last + 1);
       const u: number[] = [0];
       for (let i: number = 1; i < p.length; i++)
         u.push(
@@ -196,7 +147,7 @@ export namespace RecoveryBezierFit {
         throw new Error("Fitting parameter intervals are not representable");
       const arc: number = cumulative[job.last]! - cumulative[job.first]!;
       const weights: number[] = p.map(
-        (point: B.Vec, i: number): number =>
+        (point: AutoMovieVector3Tuple, i: number): number =>
           ((i > 0 ? distance(point, p[i - 1]!) : 0) +
             (i + 1 < p.length ? distance(point, p[i + 1]!) : 0)) /
           (2 * arc),
@@ -208,7 +159,7 @@ export namespace RecoveryBezierFit {
         job.left,
         job.right,
       );
-      let controls: B.Poly = solved.controls;
+      let controls: AutoMovieBernsteinPolynomial64 = solved.controls;
       if (solved.fallback) handleFallbacks++;
       let errors: { sample: number; bound: number; split: number } = error(
         p,
@@ -220,13 +171,13 @@ export namespace RecoveryBezierFit {
         round < 4 && errors.bound > input.toleranceMm;
         round++
       ) {
-        const d: B.Poly = B.tangent(controls),
-          dd: B.Poly = B.tangent(d);
+        const d: AutoMovieBernsteinPolynomial64 = B.tangent(controls),
+          dd: AutoMovieBernsteinPolynomial64 = B.tangent(d);
         const next: number[] = u.slice();
         for (let i: number = 1; i < u.length - 1; i++) {
-          const q: B.Vec = sub(B.value(controls, u[i]!), p[i]!);
-          const v: B.Vec = B.value(d, u[i]!),
-            a: B.Vec = B.value(dd, u[i]!);
+          const q: AutoMovieVector3Tuple = sub(B.value(controls, u[i]!), p[i]!);
+          const v: AutoMovieVector3Tuple = B.value(d, u[i]!),
+            a: AutoMovieVector3Tuple = B.value(dd, u[i]!);
           const denominator: number = dot(v, v) + dot(q, a);
           const candidate: number = u[i]! - dot(q, v) / denominator;
           if (
@@ -249,7 +200,7 @@ export namespace RecoveryBezierFit {
           job.left,
           job.right,
         );
-        const candidate: B.Poly = attempted.controls;
+        const candidate: AutoMovieBernsteinPolynomial64 = attempted.controls;
         if (attempted.fallback) handleFallbacks++;
         const candidateError: typeof errors = error(p, next, candidate);
         if (candidateError.bound >= errors.bound) break;
@@ -259,7 +210,7 @@ export namespace RecoveryBezierFit {
       }
       if (errors.bound <= input.toleranceMm || p.length === 2) {
         observeCorrespondence?.(spans.length, job.first, job.last, u.slice());
-        spans.push(controls as unknown as C.Span);
+        spans.push(controls as unknown as IAutoMovieCurve64.Span);
         widths.push(cumulative[job.last]! - cumulative[job.first]!);
         sampleMaximumMm = Math.max(sampleMaximumMm, errors.sample);
         polylineUpperEstimateMm = Math.max(
@@ -269,7 +220,7 @@ export namespace RecoveryBezierFit {
       } else {
         const split: number =
           job.first + Math.max(1, Math.min(p.length - 2, errors.split));
-        let center: B.Vec = sub(points[split + 1]!, points[split - 1]!);
+        let center: AutoMovieVector3Tuple = sub(points[split + 1]!, points[split - 1]!);
         if (Math.hypot(...center) === 0)
           center = sub(points[split]!, points[split - 1]!);
         center = unit(center);
@@ -277,14 +228,12 @@ export namespace RecoveryBezierFit {
           first: split,
           last: job.last,
           left: center,
-          right: job.right,
-        });
+          right: job.right });
         work.push({
           first: job.first,
           last: split,
           left: job.left,
-          right: scale(center, -1),
-        });
+          right: scale(center, -1) });
       }
     }
     return {
@@ -295,29 +244,28 @@ export namespace RecoveryBezierFit {
         unit: "mm",
         phaseUnit: "mm",
         phaseIntervals: widths,
-        spans,
-      },
+        spans },
       sampleMaximumMm,
       polylineUpperEstimateMm,
       toleranceMet: polylineUpperEstimateMm <= input.toleranceMm,
       observationsPerSpan: n / spans.length,
-      handleFallbacks,
-    };
+      handleFallbacks };
   }
 
-  /**
+ 
+ /**
    * Solve arclength-weighted two-handle normal equations in the physical chart.
    *
    */
   function solve(
-    p: B.Vec[],
+    p: AutoMovieVector3Tuple[],
     u: number[],
     weights: number[],
-    left: B.Vec,
-    right: B.Vec,
-  ): { controls: B.Poly; fallback: boolean } {
-    const start: B.Vec = p[0]!,
-      end: B.Vec = p[p.length - 1]!;
+    left: AutoMovieVector3Tuple,
+    right: AutoMovieVector3Tuple,
+  ): { controls: AutoMovieBernsteinPolynomial64; fallback: boolean } {
+    const start: AutoMovieVector3Tuple = p[0]!,
+      end: AutoMovieVector3Tuple = p[p.length - 1]!;
     let aa: number = 0,
       ab: number = 0,
       bb: number = 0,
@@ -326,9 +274,9 @@ export namespace RecoveryBezierFit {
     for (let i: number = 0; i < p.length; i++) {
       const t: number = u[i]!,
         s: number = 1 - t;
-      const a: B.Vec = scale(left, 3 * t * s * s),
-        b: B.Vec = scale(right, 3 * t * t * s);
-      const residual: B.Vec = sub(
+      const a: AutoMovieVector3Tuple = scale(left, 3 * t * s * s),
+        b: AutoMovieVector3Tuple = scale(right, 3 * t * t * s);
+      const residual: AutoMovieVector3Tuple = sub(
         p[i]!,
         add(
           scale(start, s * s * s + 3 * t * s * s),
@@ -360,18 +308,18 @@ export namespace RecoveryBezierFit {
         add(end, scale(right, beta)),
         end,
       ],
-      fallback,
-    };
+      fallback };
   }
 
-  /**
+ 
+ /**
    * Restrict each matched chord interval and bound its elevated polynomial difference.
    *
    */
   function error(
-    p: B.Vec[],
+    p: AutoMovieVector3Tuple[],
     u: number[],
-    controls: B.Poly,
+    controls: AutoMovieBernsteinPolynomial64,
   ): { sample: number; bound: number; split: number } {
     let sample: number = 0,
       bound: number = 0,
@@ -379,10 +327,10 @@ export namespace RecoveryBezierFit {
     for (let i: number = 0; i < p.length; i++)
       sample = Math.max(sample, distance(p[i]!, B.value(controls, u[i]!)));
     for (let i: number = 0; i < p.length - 1; i++) {
-      const restricted: B.Poly = B.restrict(controls, u[i]!, u[i + 1]!);
-      const chord: B.Poly = B.elevate([p[i]!, p[i + 1]!], 3);
+      const restricted: AutoMovieBernsteinPolynomial64 = B.restrict(controls, u[i]!, u[i + 1]!);
+      const chord: AutoMovieBernsteinPolynomial64 = B.elevate([p[i]!, p[i + 1]!], 3);
       const estimate: number = Math.max(
-        ...restricted.map((v: B.Vec, j: number): number =>
+        ...restricted.map((v: AutoMovieVector3Tuple, j: number): number =>
           distance(v, chord[j]!),
         ),
       );
@@ -395,25 +343,28 @@ export namespace RecoveryBezierFit {
       throw new Error("Curve fitting arithmetic is unresolved");
     return { sample, bound, split };
   }
-  /**
+ 
+ /**
    * Dot product for the physical least-squares and Newton equations.
    *
    */
-  function dot(a: B.Vec, b: B.Vec): number {
+  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
-  /**
+ 
+ /**
    * Euclidean point distance in millimetres.
    *
    */
-  function distance(a: B.Vec, b: B.Vec): number {
+  function distance(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
-  /**
+ 
+ /**
    * Normalize a measurable tangent without inventing a direction at degeneracy.
    *
    */
-  function unit(a: B.Vec): B.Vec {
+  function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const length: number = Math.hypot(...a);
     if (!(length > 0) || !Number.isFinite(length))
       throw new Error("Observation tangent is unresolved");

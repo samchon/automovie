@@ -1,8 +1,9 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   samplePhysicalTrackingTarget,
 } from "@automovie/engine";
-import type { IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -23,13 +24,13 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An incoming sphere physically contacts a tracked sphere and releases it.).
  */
 export async function test_physical_contact_release(): Promise<void> {
-  const striker: Simulation.IBody = PhysicalFixtures.body(
+  const striker: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "striker",
     PhysicalFixtures.sphere(),
     1,
     { position: { x: -0.8, y: 1, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
   );
-  const receiver: Simulation.IBody = PhysicalFixtures.body(
+  const receiver: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "receiver",
     PhysicalFixtures.sphere(),
     1,
@@ -47,7 +48,7 @@ export async function test_physical_contact_release(): Promise<void> {
     },
   });
   for (const target of receiver.targets) target.strength = 1;
-  const input: Simulation.IInput = PhysicalFixtures.input(
+  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
     [striker, receiver],
     1,
   );
@@ -58,7 +59,7 @@ export async function test_physical_contact_release(): Promise<void> {
     point: { x: -0.8, y: 1, z: 0 },
     impulse: { x: 2, y: 0, z: 0 },
   });
-  const baseline: Simulation = await Simulation.compute(input);
+  const baseline: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
   const contact: Receipt | undefined = baseline.cache.contacts.find(
     (receipt: Receipt): boolean =>
       receipt.a.body !== "floor" &&
@@ -73,16 +74,16 @@ export async function test_physical_contact_release(): Promise<void> {
         .contactReleased?.includes("receiver") === true &&
       baseline.cache.at(1).bodies.receiver!.root!.position.x > 0.1,
   );
-  const miss: Simulation.IInput = structuredClone(input);
+  const miss: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
   for (const target of miss.bodies[0]!.targets)
     target.segments.root!.position.y = 2;
-  const missed: Simulation = await Simulation.compute(miss);
+  const missed: IAutoMoviePhysicalSimulation = await Simulation.compute(miss);
   TestValidator.predicate(
     "no contact means no withdrawal",
     missed.cache.controllerCheckpoints.get(60)!.contactReleased?.length === 0 &&
       Math.abs(missed.cache.at(1).bodies.receiver!.root!.position.x) < 1e-10,
   );
-  const edited: Simulation.IInput = structuredClone(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
   edited.impulses.push({
     step: 90,
     body: "receiver",
@@ -90,8 +91,8 @@ export async function test_physical_contact_release(): Promise<void> {
     point: { x: 0, y: 1, z: 0 },
     impulse: { x: 0.1, y: 0, z: 0 },
   });
-  const fresh: Simulation = await Simulation.compute(edited);
-  const resumed: Simulation = await Simulation.compute(edited, baseline);
+  const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(edited, baseline);
   TestValidator.predicate(
     "released contact transition and native warm start resume exactly",
     resumed.recomputedSteps === 60 &&
@@ -167,19 +168,19 @@ export async function test_physical_contact_release(): Promise<void> {
       .strength,
     0,
   );
-  const articulated: Simulation.IBody = PhysicalFixtures.body(
+  const articulated: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "receiver",
     PhysicalModelFixtures.stickman().profile,
     1,
   );
   const joint: string = articulated.profile.joints[0]!.id;
-  const segment: Simulation.IBody["profile"]["segments"][number] =
+  const segment: IAutoMoviePhysicalSimulationInput.IBody["profile"]["segments"][number] =
     articulated.profile.segments[0]!;
   articulated.releaseOnContact = {
     ...receiver.releaseOnContact!,
     shapes: [segment.shapes[0]!.id],
   };
-  const intent: Simulation.ITarget = {
+  const intent: IAutoMoviePhysicalSimulationInput.ITarget = {
     ...articulated.targets[0]!,
     strength: 1,
     jointStrength: { [joint]: 1 },
@@ -207,7 +208,7 @@ export async function test_physical_contact_release(): Promise<void> {
       .jointStrength![joint],
     0.2,
   );
-  const invalid: Simulation.IInput = structuredClone(input);
+  const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
   invalid.bodies[1]!.releaseOnContact!.otherShapes = ["missing"];
   let refused: boolean = false;
   try {
@@ -225,7 +226,7 @@ export async function test_physical_contact_release(): Promise<void> {
 /** Computed soft pressure cannot withdraw tracking unless a positive native response reached that receiver. */
 async function transferredSoftRelease(): Promise<void> {
   for (const gain of [1, 1e-300]) {
-    const receiver: Simulation.IBody = PhysicalFixtures.body(
+    const receiver: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "soft-receiver",
       PhysicalFixtures.sphere(0.1, 0.1),
       2 / 120,
@@ -246,7 +247,7 @@ async function transferredSoftRelease(): Promise<void> {
       otherBody: "boundary",
       otherShapes: ["surface"],
     };
-    const boundary: Simulation.IBody = PhysicalFixtures.body(
+    const boundary: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "boundary",
       PhysicalFixtures.sphere(),
       2 / 120,
@@ -254,13 +255,13 @@ async function transferredSoftRelease(): Promise<void> {
     boundary.mode = { kind: "kinematic" };
     for (const target of boundary.targets)
       target.segments.root!.position.x = 0.18;
-    const input: Simulation.IInput = PhysicalFixtures.input(
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
       [receiver, boundary],
       2 / 120,
     );
     input.substeps = 8;
     input.checkpointEvery = 1;
-    const run: Simulation = await Simulation.compute(input);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     TestValidator.predicate(
       "both cases contain actual computed compliant pressure",
       run.cache.contacts.some((receipt: Receipt): boolean =>

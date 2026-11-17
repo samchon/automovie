@@ -1,12 +1,10 @@
-import {
-  type IAutoMovieSimplexAtom,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import type { IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoveryFeasibleSqpStepMixingOperation, IAutoMovieRecoverySqpArc, IAutoMovieRecoverySqpOptions, IAutoMovieRecoverySqpTightening, IAutoMovieSimplexAtom } from "@automovie/interface";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
 
-import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
-import type { IAutoMovieRecoverySqpOptions } from "../structures/internal/IAutoMovieRecoverySqpOptions";
-import type { IAutoMovieRecoverySqpTightening } from "../structures/internal/IAutoMovieRecoverySqpTightening";
+
+
+
+
 import { chooseRecoverySqpTightening } from "./chooseRecoverySqpTightening";
 import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
 
@@ -60,9 +58,7 @@ export function createRecoveryFeasibleSqpArc(
       correctionSupported: false,
       correctionTightening: null,
       correctionFailure: null,
-      work: 0,
-    },
-  };
+      work: 0 } };
   const fail: (reason: string) => IAutoMovieRecoverySqpArc = (
     reason: string,
   ): IAutoMovieRecoverySqpArc => {
@@ -212,8 +208,7 @@ export function createRecoveryFeasibleSqpArc(
       factor = decomposeAutoMovieSingularMatrix(transpose, {
         maxEntries: options.maxEntries,
         maxSweeps: options.maxSweeps,
-        orthogonalityTolerance: 1e-12,
-      });
+        orthogonalityTolerance: 1e-12 });
     } catch (error: unknown) {
       if (
         error instanceof Error &&
@@ -345,8 +340,7 @@ export function createRecoveryFeasibleSqpArc(
     maximumViolation: violation,
     equalityResidual: equality,
     stationarityResidual: residual,
-    stationarityScale: scale,
-  });
+    stationarityScale: scale });
   if (
     ![residual, violation, equality, scale].every(Number.isFinite) ||
     violation > tolerance ||
@@ -365,13 +359,12 @@ export function createRecoveryFeasibleSqpArc(
     return fail(
       weight === 1 ? "baseline-weight-one" : "zero-or-unresolved-sqp-norm",
     );
-  const mixture: ReturnType<typeof mixRecoveryFeasibleSqpStep> =
+  const mixture: ReturnType<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation> =
     mixRecoveryFeasibleSqpStep(model.physicalRows, physical, tilted, weight);
   Object.assign(result.report, {
     mixWeight: mixture.weight,
     numericalMixAttempted: mixture.numericalAttempted,
-    numericalMixSupported: mixture.numericalSupported,
-  });
+    numericalMixSupported: mixture.numericalSupported });
   if (mixture.step === null) return fail("mixed-affine-descent-unresolved");
   const mixed: number[] = mixture.step;
   result.step = mixed;

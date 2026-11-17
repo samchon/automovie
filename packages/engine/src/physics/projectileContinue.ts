@@ -1,12 +1,8 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieProjectileContinue, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieHit } from "./IAutoMovieHit";
-import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { projectileAt } from "./projectileAt";
 
 /**
@@ -53,8 +49,8 @@ import { projectileAt } from "./projectileAt";
 export function projectileContinue(
   projectile: IAutoMovieProjectile,
   hit: IAutoMovieHit,
-  outcome: projectileContinue.Outcome,
-): projectileContinue.Segment {
+  outcome: IAutoMovieProjectileContinue.Outcome,
+): IAutoMovieProjectileContinue.Segment {
   if (hit.normal === undefined)
     throw new RangeError(
       "a projectile continues only from a contact with a normal",
@@ -91,7 +87,7 @@ export function projectileContinue(
     velocity: IAutoMovieVector3,
     resistance: number,
     normalGravity: number,
-  ): projectileContinue.Segment => {
+  ): IAutoMovieProjectileContinue.Segment => {
     admit("rolling resistance", resistance);
     if (normalGravity > 0)
       throw new RangeError(
@@ -131,6 +127,10 @@ export function projectileContinue(
     case "bounce": {
       admit("restitution", outcome.restitution, 1);
       admit("friction", outcome.friction);
+      if (outcome.roll !== undefined) {
+        admit("rolling radius", outcome.roll.radius);
+        admit("rolling resistance", outcome.roll.resistance);
+      }
       const rebound: number = -outcome.restitution * vn;
       const slip: number = Vector3.length(tangent);
       const kept: number =
@@ -221,65 +221,6 @@ export function projectileContinue(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is the caller's.
  */
 export namespace projectileContinue {
-  /** What happens at a contact. */
-  export type Outcome =
-    | {
-        /** It stops in the struck body. */
-        kind: "stick";
-        /** How far its point goes on into the body, metres. */
-        depth: number;
-      }
-    | {
-        /** It rebounds. */
-        kind: "bounce";
-        /** Newton's coefficient of restitution of the normal speed, 0 to 1. */
-        restitution: number;
-        /** Coulomb's friction coefficient of the contact. */
-        friction: number;
-        /** Roll instead once a rebound rises less than `radius`, at the rolling resistance `resistance`. */
-        roll?: { radius: number; resistance: number };
-      }
-    | {
-        /** It rolls on the surface. */
-        kind: "roll";
-        /** The rolling-resistance coefficient, dimensionless. */
-        resistance: number;
-      }
-    | {
-        /** It passes through. */
-        kind: "pass";
-        /** The share of its speed it loses, 0 to 1. */
-        loss: number;
-      };
-
-  /** What follows a contact; every `from` is seconds since the original launch. */
-  export type Segment =
-    | {
-        /** A new flight, whose own time zero is `from`. */
-        kind: "flight";
-        from: number;
-        projectile: IAutoMovieProjectile;
-      }
-    | {
-        /** A roll from `origin` until `until`, then at rest. */
-        kind: "roll";
-        from: number;
-        origin: IAutoMovieVector3;
-        /** Velocity at the roll's start, m/s, along the surface. */
-        velocity: IAutoMovieVector3;
-        /** Deceleration, m/s². */
-        deceleration: number;
-        /** Seconds since the launch it comes to rest; Infinity on a frictionless roll. */
-        until: number;
-        rotation?: IAutoMovieQuaternion;
-      }
-    | {
-        /** At rest. */
-        kind: "rest";
-        from: number;
-        position: IAutoMovieVector3;
-        rotation?: IAutoMovieQuaternion;
-      };
 
   /**
    * A segment's centre and velocity at a second since the original launch:
@@ -291,7 +232,7 @@ export namespace projectileContinue {
    * @returns The state.
    */
   export function at(
-    segment: Segment,
+    segment: IAutoMovieProjectileContinue.Segment,
     seconds: number,
   ): IAutoMovieProjectileState {
     switch (segment.kind) {

@@ -1,3 +1,4 @@
+import type { IAutoMovieGhoshConicApproximationDisplacement } from "@automovie/interface";
 /**
  * Intersect a Euclidean unit normal with a compactified bitangent conic family.
  * The barycentric point and normal use the endpoint tangent triangle; normal
@@ -18,9 +19,9 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous scalar operation retains no coordinates, callback, state or resources after return.
  */
 export function GhoshConicApproximationDisplacement(
-  coordinate: { value: readonly number[]; normal: readonly number[] },
-  rho: number,
-): number | undefined {
+  coordinate: Parameters<IAutoMovieGhoshConicApproximationDisplacement.Operation>[0],
+  rho: Parameters<IAutoMovieGhoshConicApproximationDisplacement.Operation>[1],
+): ReturnType<IAutoMovieGhoshConicApproximationDisplacement.Operation> {
   const l: readonly number[] = coordinate.value;
   const n: readonly number[] = coordinate.normal;
   const conic: number = (1 - rho) ** 2;

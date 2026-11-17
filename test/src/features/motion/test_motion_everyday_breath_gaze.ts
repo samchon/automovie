@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBreath, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanGestureStroke } from "@automovie/interface";
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import {
   HumanBreath,
@@ -84,7 +85,7 @@ export function test_motion_everyday_breath_gaze(): void {
     Math.abs(sighs / expected - 1) < 0.2,
   );
 
-  const bout: HumanBreath.IExertion = { at: 30, level: 1, recovery: 60 };
+  const bout: IAutoMovieMotionHumanBreath.IExertion = { at: 30, level: 1, recovery: 60 };
   const before = HumanBreath.state(29, rate, [bout], 0, sigh);
   const after = HumanBreath.state(91, rate, [bout], 0, sigh);
   TestValidator.predicate(
@@ -107,7 +108,7 @@ export function test_motion_everyday_breath_gaze(): void {
       HumanBreath.state(12.3, rate, [bout], 0.4, sigh).volume,
   );
 
-  const sum = (s: HumanGaze.ISplit): number =>
+  const sum = (s: IAutoMovieMotionHumanGaze.ISplit): number =>
     s.eyes.yaw + s.head.yaw + s.trunk;
   const small = HumanGaze.split(10, 0);
   TestValidator.predicate(
@@ -183,7 +184,7 @@ export function test_motion_everyday_breath_gaze(): void {
     `stroke continuous (${jump.toFixed(4)})`,
     jump < 0.02,
   );
-  for (const kind of Object.keys(gestureStroke.RHYTHM) as gestureStroke.Kind[])
+  for (const kind of Object.keys(gestureStroke.RHYTHM) as IAutoMovieMotionHumanGestureStroke.Kind[])
     TestValidator.predicate(
       `${kind} names its hands`,
       ["one", "both", "none"].includes(gestureStroke.HANDS[kind]),

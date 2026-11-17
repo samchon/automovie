@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanKnuckleSection } from "@automovie/interface";
+
+
 /**
  * The hand's section through knuckles II and V on a meshed skin, as ANSUR II
  * and ISO 7250-1 measure hand breadth and hand circumference: the plane
@@ -12,14 +15,7 @@
  * solve can be steered to what the skin measures.
  */
 export namespace AutoMovieHumanKnuckleSection {
-  /** A section's two measures, mm. */
-  export interface IMeasure {
-    /** Extent along the line from knuckle II to knuckle V. */
-    breadth: number;
-
-    /** Hull perimeter. */
-    girth: number;
-  }
+  
 
   /**
    * Measure a mesh's knuckle section.
@@ -32,28 +28,28 @@ export namespace AutoMovieHumanKnuckleSection {
   export function measure(
     positions: ArrayLike<number>,
     indices: ArrayLike<number>,
-    mcps: readonly [Vec3, Vec3, Vec3],
-    centre: Vec3,
-  ): IMeasure {
+    mcps: IAutoMovieHumanKnuckleSection.MeasureMcps,
+    centre: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanKnuckleSection.IMeasure {
     const [two, three, five] = mcps;
-    const middle: Vec3 = scale(plus(two, five), 0.5);
-    const axis: Vec3 = unit(sub(three, centre));
-    const line: Vec3 = unit(sub(five, two));
-    const normal: Vec3 = unit(sub(axis, scale(line, dot(axis, line))));
-    const other: Vec3 = cross(normal, line);
-    const point = (v: number): Vec3 => [positions[3 * v]!, positions[3 * v + 1]!, positions[3 * v + 2]!];
+    const middle: AutoMovieVector3Tuple = scale(plus(two, five), 0.5);
+    const axis: AutoMovieVector3Tuple = unit(sub(three, centre));
+    const line: AutoMovieVector3Tuple = unit(sub(five, two));
+    const normal: AutoMovieVector3Tuple = unit(sub(axis, scale(line, dot(axis, line))));
+    const other: AutoMovieVector3Tuple = cross(normal, line);
+    const point = (v: number): AutoMovieVector3Tuple => [positions[3 * v]!, positions[3 * v + 1]!, positions[3 * v + 2]!];
     const points: [number, number][] = [];
     // Every triangle edge the plane crosses gives one section point; the
     // plane through the knuckles meets only the palm and its webs here, so no
     // component needs choosing.
     for (let t: number = 0; t < indices.length / 3; t++)
       for (let e: number = 0; e < 3; e++) {
-        const p: Vec3 = point(indices[3 * t + e]!);
-        const q: Vec3 = point(indices[3 * t + ((e + 1) % 3)]!);
+        const p: AutoMovieVector3Tuple = point(indices[3 * t + e]!);
+        const q: AutoMovieVector3Tuple = point(indices[3 * t + ((e + 1) % 3)]!);
         const fp: number = dot(sub(p, middle), normal);
         const fq: number = dot(sub(q, middle), normal);
         if (fp === fq || fp * fq > 0) continue;
-        const x: Vec3 = sub(plus(p, scale(sub(q, p), fp / (fp - fq))), middle);
+        const x: AutoMovieVector3Tuple = sub(plus(p, scale(sub(q, p), fp / (fp - fq))), middle);
         points.push([dot(x, line), dot(x, other)]);
       }
     if (points.length < 3) throw new Error("The knuckles' plane misses the hand's skin");
@@ -62,30 +58,28 @@ export namespace AutoMovieHumanKnuckleSection {
   }
 }
 
-/** A point or direction. */
-type Vec3 = [number, number, number];
 
-function sub(a: Vec3, b: Vec3): Vec3 {
+function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
-function plus(a: Vec3, b: Vec3): Vec3 {
+function plus(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
-function scale(a: Vec3, s: number): Vec3 {
+function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
   return [a[0] * s, a[1] * s, a[2] * s];
 }
 
-function dot(a: Vec3, b: Vec3): number {
+function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-function cross(a: Vec3, b: Vec3): Vec3 {
+function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
 
-function unit(a: Vec3): Vec3 {
+function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   const l: number = Math.hypot(a[0], a[1], a[2]) || 1;
   return [a[0] / l, a[1] / l, a[2] / l];
 }

@@ -1,4 +1,4 @@
-import { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
+import type { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
 
 /**
  * A support surface and the logical space in which it can be used.

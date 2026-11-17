@@ -1,5 +1,6 @@
-import type { IAutoMovieCurve64 as G } from "@automovie/engine";
-import { approximateAutoMovieRecoveryCompactCurves as approximate, type AutoMovieRecoveryCompactApproximation as C } from "@automovie/recovery";
+import type { IAutoMovieCompactCurveApproximation, IAutoMovieCurve64 } from "@automovie/interface";
+
+import { approximateAutoMovieRecoveryCompactCurves as approximate } from "@automovie/recovery";
 import { createWriteStream } from "node:fs";
 import { once } from "node:events";
 import path from "node:path";
@@ -61,7 +62,7 @@ export namespace RuledCompactFit {
     const alive = (): boolean => performance.now() - started < summary.wallBudgetMs && process.memoryUsage.rss() <= 8 * 1024 ** 3;
     for (const entry of loaded.cohort) {
       const begin: number = performance.now();
-      const original: G.Cubic = entry.holder.curve;
+      const original: IAutoMovieCurve64.Cubic = entry.holder.curve;
       const oldSpans: number = original.spans.length;
       const counts: Counts = summary.cohorts[entry.kind];
       ++counts.curves;
@@ -77,10 +78,10 @@ export namespace RuledCompactFit {
           const prepared: A.Prepared = A.prepare(original);
           if (!prepared.accepted) reason = prepared.reason;
           else {
-            const options: C.IOptions = { toleranceMm: summary.toleranceMm, degree: 3, maximumPieces: Math.min(1024, oldSpans - 1), maximumDepth: 12, maximumQueries: 12000 };
-            const fitted: C.IResult = approximate(prepared.source, options);
+            const options: IAutoMovieCompactCurveApproximation.IOptions = { toleranceMm: summary.toleranceMm, degree: 3, maximumPieces: Math.min(1024, oldSpans - 1), maximumDepth: 12, maximumQueries: 12000 };
+            const fitted: IAutoMovieCompactCurveApproximation.IResult = approximate(prepared.source, options);
             queries = fitted.queries;
-            const candidate: G.Cubic | null = A.materialize(original, prepared, fitted);
+            const candidate: IAutoMovieCurve64.Cubic | null = A.materialize(original, prepared, fitted);
             if (candidate === null) reason = fitted.status !== "complete" ? "fit-budget-or-admission-retained" : "exact-phase-materialization-retained";
             else if (candidate.spans.length >= oldSpans) reason = "not-smaller";
             else {

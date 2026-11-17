@@ -1,14 +1,10 @@
-import {
-  type AutoMovieLoftContract,
-  AutoMovieSolidIntersection,
-  type AutoMovieSolidVector,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieLoftContract, IAutoMovieSolidIntersection, IAutoMovieSolidSurface } from "@automovie/interface";
+import { AutoMovieSolidIntersection } from "@automovie/engine";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 import { ConstructionOwnedAtlas } from "../../../internal/construction/ConstructionOwnedAtlas";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 /** Independent closed-form surface owners and Euclidean comparison. */
 const { cylinder, distance, plane, sphere }: typeof HumanSolidShapes =
   HumanSolidShapes;
@@ -84,7 +80,7 @@ export function test_construction_operator_intersection(): void {
     [0, 0, 1],
     R,
   );
-  const steinmetz: AutoMovieSolidIntersection.IResult =
+  const steinmetz: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part,
       host,
@@ -95,14 +91,14 @@ export function test_construction_operator_intersection(): void {
     });
   if (steinmetz.curve === null || steinmetz.diagnostics.length !== 0)
     failures.push(
-      `Steinmetz: no clean curve (${steinmetz.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
+      `Steinmetz: no clean curve (${steinmetz.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
     );
   else {
-    const curve: AutoMovieSolidIntersection.ICurve = steinmetz.curve;
+    const curve: IAutoMovieSolidIntersection.ICurve = steinmetz.curve;
     near("Steinmetz winding", curve.winding, 0, 0);
     const phases: number[] = [
       ...curve.points.map(
-        (p: AutoMovieSolidIntersection.IPoint): number => p.phi,
+        (p: IAutoMovieSolidIntersection.IPoint): number => p.phi,
       ),
       0.123,
       2.5,
@@ -110,7 +106,7 @@ export function test_construction_operator_intersection(): void {
       7.1,
     ];
     for (const t of phases) {
-      const p: AutoMovieSolidIntersection.IPoint | null = curve.at(t);
+      const p: IAutoMovieSolidIntersection.IPoint | null = curve.at(t);
       if (p === null) {
         failures.push(`Steinmetz: no point at phi ${t}`);
         continue;
@@ -150,7 +146,7 @@ export function test_construction_operator_intersection(): void {
   }
 
   // 2. Equal radii: the two loops touch with coincident tangent planes.
-  const equal: AutoMovieSolidIntersection.IResult =
+  const equal: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part: cylinder("equal", [0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], R),
       host,
@@ -164,7 +160,7 @@ export function test_construction_operator_intersection(): void {
 
   // 3. A 5 mm cylinder at 40 degrees to the plane z = 0: an ellipse.
   const a: number = (40 * Math.PI) / 180;
-  const tilted: AutoMovieSolidIntersection.IResult =
+  const tilted: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part: cylinder(
         "tilted",
@@ -187,7 +183,7 @@ export function test_construction_operator_intersection(): void {
     });
   if (tilted.curve === null || tilted.diagnostics.length !== 0)
     failures.push(
-      `tilted cylinder: no clean curve (${tilted.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
+      `tilted cylinder: no clean curve (${tilted.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
     );
   else
     for (const p of tilted.curve.points) {
@@ -212,7 +208,7 @@ export function test_construction_operator_intersection(): void {
     [0, 0, 1],
   ];
   const height: number = (100 - 64 + 144) / 24;
-  const circle: AutoMovieSolidIntersection.IResult =
+  const circle: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part: sphere("one", [0, 0, 0], ...axes, 10),
       host: sphere("two", [0, 0, 12], ...axes, 8),
@@ -228,7 +224,7 @@ export function test_construction_operator_intersection(): void {
     });
   if (circle.curve === null || circle.diagnostics.length !== 0)
     failures.push(
-      `spheres: no clean curve (${circle.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
+      `spheres: no clean curve (${circle.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
     );
   else {
     near("circle winding", circle.curve.winding, 1, 0);
@@ -243,7 +239,7 @@ export function test_construction_operator_intersection(): void {
   }
 
   // 5. Spheres 30 mm apart: no meeting, no curve.
-  const apart: AutoMovieSolidIntersection.IResult =
+  const apart: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part: sphere("one", [0, 0, 0], ...axes, 10),
       host: sphere("far", [0, 0, 30], ...axes, 8),
@@ -258,7 +254,7 @@ export function test_construction_operator_intersection(): void {
     );
 
   // 6. Too few points per turn.
-  const sparse: AutoMovieSolidIntersection.IResult =
+  const sparse: IAutoMovieSolidIntersection.IResult =
     AutoMovieSolidIntersection.trace({
       part,
       host,

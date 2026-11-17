@@ -1,15 +1,5 @@
-import {
-  AutoMovieConstructionContinuation,
-  AutoMovieLoftChain,
-  AutoMovieLoftFrame,
-  AutoMovieLoftJet,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
-  type AutoMovieLoftViewRead,
-  AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieLoftSectionSource, IAutoMovieLoftViewRead, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieConstructionContinuation, AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieLoftSectionConnect, AutoMovieLoftSectionSource, AutoMovieViewLoft } from "@automovie/engine";
 
 import { ConstructionConicFieldOracle } from "./ConstructionConicFieldOracle";
 
@@ -69,7 +59,7 @@ function original(failures: string[], input: IAutoMovieViewPart): void {
         [2, 0, 0],
         phi,
       );
-      const jet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, phi);
+      const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, phi);
       const c: number = Math.cos(phi);
       const t: number = Math.sin(phi);
       const radial: (row: readonly number[]) => number = (
@@ -121,12 +111,12 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
       const hs: number = hostEnd === "bottom" ? 0 : 1;
       const ps: number = partEnd === "bottom" ? 0 : 1;
       for (const phi of [-0.37, 0, 0.43, 2.7, 7.1]) {
-        const a: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const a: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
           host,
           hs,
           sign * phi,
         );
-        const b: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, ps, phi);
+        const b: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, ps, phi);
         for (const key of ["p", "s", "t", "ss", "st", "tt"] as const) {
           const factor: number = key === "s" || key === "t" ? sign : 1;
           close(
@@ -137,7 +127,7 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
             failures,
           );
         }
-        const near: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const near: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
           result,
           ps + (partEnd === "bottom" ? 1 : -1) * 2 ** -24,
           phi,
@@ -156,7 +146,7 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
 
 /** An independently expanded tiny quintic weight must survive a rounded complementary one. */
 function mixed(failures: string[]): void {
-  const inputs: AutoMovieLoftViewRead.IJets = {
+  const inputs: IAutoMovieLoftViewRead.IJets = {
     extents: Array.from({ length: 4 }, (): Scalar => [1, 0, 0]),
     shoulders: Array.from({ length: 4 }, (): Scalar => [Math.SQRT2 - 1, 0, 0]),
   };
@@ -185,7 +175,7 @@ function mixed(failures: string[]): void {
   const second: number = 60 * u - 180 * u ** 2 + 120 * u ** 3;
   const expected: number = 1 + q * (1e16 - 1);
   const point: [number, number, number] = AutoMovieLoftChain.point(chain, u, 0);
-  const jet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, u, 0);
+  const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, u, 0);
   close(
     [point[0], jet.p[0], jet.s[0], jet.ss[0]],
     [expected, expected, first * (1e16 - 1), second * (1e16 - 1)],
@@ -194,7 +184,7 @@ function mixed(failures: string[]): void {
     failures,
   );
   for (const s of [0, 1]) {
-    const result: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, 0);
+    const result: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, 0);
     close(
       [result.p[0], result.s[0], result.ss[0]],
       [s === 0 ? 1 : 1e16, 0, 0],
@@ -216,7 +206,7 @@ function availability(failures: string[], input: IAutoMovieViewPart): void {
       { site: "end", station: 1, value: 2 * sign },
     ],
   });
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     ...input,
     front: { positive: root(1), negative: root(-1) },
   });
@@ -247,7 +237,7 @@ function copies(failures: string[], input: IAutoMovieViewPart): void {
     ...chain,
     nativeSource: JSON.parse(
       JSON.stringify(chain.nativeSource),
-    ) as AutoMovieLoftSectionSource.ISource,
+    ) as IAutoMovieLoftSectionSource.ISource,
     layers: chain.layers.map(
       (row: IAutoMovieLoftChain.ILayer): IAutoMovieLoftChain.ILayer => ({
         ...row,
@@ -306,7 +296,7 @@ function copies(failures: string[], input: IAutoMovieViewPart): void {
 
 /** The actual producer, with its diagnostic result preserved on failure. */
 function made(input: IAutoMovieViewPart): IAutoMovieLoftChain {
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(input);
   if (result.chain === null)
     throw new Error(JSON.stringify(result.diagnostics));
   return result.chain;

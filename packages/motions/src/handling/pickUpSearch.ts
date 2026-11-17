@@ -1,18 +1,10 @@
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPickUp, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUse } from "./HumanGraspUse";
-import type { pickUp } from "./pickUp";
 import { pickUpPosture } from "./pickUpPosture";
 
 /**
@@ -43,7 +35,7 @@ export namespace pickUpSearch {
   /** A grasp chosen from a stance, the elbow hint its arm hangs by, and the stance. */
   export interface ISearched {
     /** The grasp the arm reaches best. */
-    chosen: HumanGrasp.IReach;
+    chosen: IAutoMovieMotionHumanGrasp.IReach;
 
     /** The elbow hint the arm hangs by, world metres. */
     bend: IAutoMovieVector3;
@@ -71,14 +63,14 @@ export namespace pickUpSearch {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function of(
-    context: IHumanActionContext<pickUp.IParams>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
+    side: IAutoMovieMotionHumanHand.Side,
     lift: number,
-    authored: HumanGrasp.ITarget,
+    authored: IAutoMovieMotionHumanGrasp.ITarget,
     stance: pickUpPosture.IStance,
   ): ISearched {
-    const body: IHumanBody = context.body;
-    const held: IHumanPosture = stance.posture;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const held: IAutoMovieMotionHumanPosture = stance.posture;
     // The same grip must still hold at the top of the lift, so the lifted
     // pose is a key of the choice.
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -87,7 +79,7 @@ export namespace pickUpSearch {
       side,
     );
 
-    const goal = (turn: number, tilt: number): HumanHand.IWrist =>
+    const goal = (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
       HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
     // Without a use, the hand takes the grip as the archetype declares it:
     // never tilted, and turned about the wrapped axis only as far as the
@@ -105,8 +97,8 @@ export namespace pickUpSearch {
     // use's pose, and every pose the performer's next action on the prop
     // demands of it (`HumanGraspDemand`), asked from the body the pick up
     // ends in, its stance straightened back up.
-    const demands: IHumanActionContext["demands"] = context.demands;
-    const after: IHumanPosture = stance.at(0);
+    const demands: IAutoMovieMotionHumanActionContext["demands"] = context.demands;
+    const after: IAutoMovieMotionHumanPosture = stance.at(0);
     // What a grip must hold: every judged key within its own bound (the
     // demanding action's, or the held tool's for a use), measured as the
     // worst judgement's share of its bound; the grasp's and the lift's are
@@ -139,9 +131,9 @@ export namespace pickUpSearch {
     // lifted pose, any use's pose, then the next action's demands, whose
     // grip is read for this candidate alone.
     const stroke = function* (
-      wrist: HumanHand.IWrist,
-      shown: HumanHand.IWrist,
-    ): Generator<HumanGrasp.IKey> {
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+      shown: IAutoMovieMotionHumanHand.IWrist,
+    ): Generator<IAutoMovieMotionHumanGrasp.IKey> {
       if (lift > 0)
         yield {
           posture: held,
@@ -187,7 +179,7 @@ export namespace pickUpSearch {
     const search = (
       tilts: readonly number[],
       turns: readonly number[],
-    ): HumanGrasp.IReach =>
+    ): IAutoMovieMotionHumanGrasp.IReach =>
       HumanGrasp.reachable(
         body,
         held,
@@ -206,11 +198,11 @@ export namespace pickUpSearch {
     // A use may need the far side of the handle, so it searches every turn
     // and tilt. A next action's demands are asked of the grip as declared
     // first, and the search widens only when no declared grip holds them.
-    const chosen: HumanGrasp.IReach =
+    const chosen: IAutoMovieMotionHumanGrasp.IReach =
       context.params.use !== undefined
         ? search(HumanGraspUse.OBLIQUE, HumanGraspUse.AROUND)
-        : ((): HumanGrasp.IReach => {
-            const first: HumanGrasp.IReach = search([0], declared);
+        : ((): IAutoMovieMotionHumanGrasp.IReach => {
+            const first: IAutoMovieMotionHumanGrasp.IReach = search([0], declared);
             return required === undefined ||
               required.measure(first.keys, first.judged, first.bounds) <=
                 required.bound

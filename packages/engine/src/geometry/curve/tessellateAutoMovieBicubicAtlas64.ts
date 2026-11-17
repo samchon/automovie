@@ -1,15 +1,7 @@
+import type { AutoMovieVector3Tuple, IAutoMovieBicubicAtlasPlan64, IAutoMovieBicubicAtlasRegistry64, IAutoMovieBicubicAtlasTessellation64 } from "@automovie/interface";
 import { AutoMovieBicubicAtlasEmit64 } from "./AutoMovieBicubicAtlasEmit64";
 import { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
 import { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
-import type { AutoMovieBicubicAtlasTypes64 } from "./AutoMovieBicubicAtlasTypes64";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
-
-type Patch = AutoMovieBicubicAtlasTypes64["Patch"];
-type AtlasInput = AutoMovieBicubicAtlasTypes64["AtlasInput"];
-type Counts = AutoMovieBicubicAtlasTypes64["Counts"];
-type Range = AutoMovieBicubicAtlasTypes64["Range"];
-type AtlasChunk = AutoMovieBicubicAtlasTypes64["AtlasChunk"];
-type AtlasSummary = AutoMovieBicubicAtlasTypes64["AtlasSummary"];
 
 const SIDES: readonly (readonly number[])[] = [
   [0, 1, 2, 3],
@@ -84,8 +76,8 @@ const CORNERS: readonly (readonly [number, number, number])[] = [
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The generator retains O(C+P+L) coefficient references, plans, canonical samples and fan registries plus one vertex-bounded chunk. Requested corner parameters add six numbers per emitted triangle alongside that chunk's indices; omitted requests allocate no parameter buffer. Legacy edge/corner caches release after their last incident patch; canonical registries release at completion or cancellation. Consumers own yielded arrays.
  */
 export function* tessellateAutoMovieBicubicAtlas64(
-  input: AtlasInput,
-): Generator<AtlasChunk, AtlasSummary, void> {
+  input: IAutoMovieBicubicAtlasTessellation64.Input,
+): Generator<IAutoMovieBicubicAtlasTessellation64.Chunk, IAutoMovieBicubicAtlasTessellation64.Summary, void> {
   if (
     input.retainTriangleParameters !== undefined &&
     typeof input.retainTriangleParameters !== "boolean"
@@ -96,11 +88,11 @@ export function* tessellateAutoMovieBicubicAtlas64(
     typeof input.retainPatchCoefficients !== "boolean"
   )
     throw new Error("Patch coefficient retention must be boolean");
-  const prepared: ReturnType<typeof AutoMovieBicubicAtlasPlan64> =
+  const prepared: IAutoMovieBicubicAtlasPlan64.IResult =
     AutoMovieBicubicAtlasPlan64(input, SIDES, CORNERS);
-  const registered: ReturnType<typeof AutoMovieBicubicAtlasRegistry64> =
+  const registered: IAutoMovieBicubicAtlasRegistry64.IResult =
     AutoMovieBicubicAtlasRegistry64(input, prepared, SIDES, CORNERS);
-  const summary: AtlasSummary = yield* AutoMovieBicubicAtlasEmit64(
+  const summary: IAutoMovieBicubicAtlasTessellation64.Summary = yield* AutoMovieBicubicAtlasEmit64(
     input,
     prepared,
     registered,
@@ -115,14 +107,14 @@ export function* tessellateAutoMovieBicubicAtlas64(
             (
               plan: (typeof prepared.plans)[number],
               i: number,
-            ): NonNullable<AtlasSummary["patchCoefficients"]> =>
+            ): NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]> =>
               plan.grid.length === 4
                 ? [
                     {
                       patch: input.patches[i]!.id,
-                      gridMm: plan.grid.map((row: number[][]): C.Vector[] =>
+                      gridMm: plan.grid.map((row: number[][]): Readonly<AutoMovieVector3Tuple>[] =>
                         row.map(
-                          (p: number[]): C.Vector => [p[0]!, p[1]!, p[2]!],
+                          (p: number[]): Readonly<AutoMovieVector3Tuple> => [p[0]!, p[1]!, p[2]!],
                         ),
                       ),
                     },
@@ -131,129 +123,5 @@ export function* tessellateAutoMovieBicubicAtlas64(
           ),
         }
       : {}),
-  };
-}
-
-/**
- * Immutable input, streamed chunk and terminal summary contracts for this generator.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Members state units, append-only indexing, ownership and independent approximation qualification.
- * @evidence contracts/development/design.md#principled-representation Represents Immutable input, streamed chunk and terminal summary contracts for this generator: companion namespace of 3 members (`Input`, `Chunk`, `Summary`); units and frames named in its text: local, metre, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `tessellateAutoMovieBicubicAtlas64` in packages/engine/src/geometry/curve/tessellateAutoMovieBicubicAtlas64.ts; its surface is the 3 members listed and the text shows 7 other files naming it, mostly packages/engine (4), packages/recovery (2), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace tessellateAutoMovieBicubicAtlas64 {
-  /**
-   * Immutable millimetre coefficient registry and row-major bicubic control IDs.
-   *
-   * Complete controls and shared integer IDs define the tensor atlas.
-   * One input record owns the explicit approximation and resource policy.
-   * No source mesh or anatomy-specific coefficient table is accepted.
-   * The operator states row ordering, mm units, identity and immutable lifetime.
-   * A type performs no computation.
-   * A type coordinates no cache.
-   * A type owns no runtime input lifetime.
-   */
-  export type Input = {
-    /** Identity scope shared only by this declared physical atlas instance. */
-    topologyDomain: string;
-    /** Complete immutable coefficient registry, millimetres. */
-    controlsMm: readonly C.Vector[];
-    /** Complete bicubic charts and their explicit shared coefficient identities. */
-    patches: readonly Patch[];
-    /** Canonical cubic owners; bindings construct patch edges from their restrictions. */
-    boundaryAuthorities?: readonly {
-      id: string;
-      controlIds: readonly [number, number, number, number];
-    }[];
-    /** Oriented canonical intervals and independent analytic normal-fan identities. */
-    boundaryBindings?: readonly {
-      patch: string;
-      side: 0 | 1 | 2 | 3;
-      authority: string;
-      start: number;
-      end: number;
-      normalFan: string;
-    }[];
-    /** Requested analytic-field to PL approximation estimate, millimetres. */
-    toleranceMm: number;
-    /** Total allocated leaf slots, including explicitly unprocessed cells. */
-    maxCells: number;
-    /** Finite leaf retention at the same slot budget; omitted selects strict omission. */
-    cellBudgetPolicy?: "retain-coarse" | "omit-unresolved";
-    /** Maximum newly published vertices in one chunk, at least three. */
-    maxVerticesPerChunk: number;
-    /** First global index of this run; omitted means zero. */
-    vertexOffset?: number;
-
-    /** Retain six patch-local numbers per accepted triangle, in index-corner order; omitted allocates none. */
-    retainTriangleParameters?: boolean;
-    /** Retain the actual prepared grids after canonical binding, in mm; omitted allocates no snapshots. */
-    retainPatchCoefficients?: boolean;
-  };
-  /**
-   * Metre vertex suffix, global indices, patch-local parameter face ranges and diagnostics.
-   *
-   * Generated indices name current or previously published vertices.
-   * Geometry and its patch attribution transfer together.
-   * Equal coordinates do not imply shared identity.
-   * States metre units and append-only indexing.
-   * The record performs no arithmetic.
-   * Shared geometry reuse belongs to the generator.
-   * Consumers own and release yielded buffers.
-   */
-  export type Chunk = {
-    /** Owning patch name for this streamed suffix. */
-    patch: string;
-    /** First global index of newly published vertices. */
-    vertexStart: number;
-    /** New positions in model metres. */
-    positions: number[];
-    /** Own analytic render normals, aligned with positions. */
-    normals: number[];
-    /** Logical position identities, independent of normal fans. */
-    physicalVertexIds: string[];
-    /** Global triangle indices, including previously published vertices. */
-    indices: number[];
-
-    /** Requested actual [u0,v0,u1,v1,u2,v2] for each emitted triangle; not per shared vertex and not a packed texture chart. */
-    triangleParameters?: number[];
-    /** Requested actual post-binding root grid, mm; supports a cancelled finite prefix. */
-    patchCoefficients?: C.Vector[][];
-    /** Patch-local parameter attribution with chunk-relative triangle offsets. */
-    faceRanges: Range[];
-    /** Actual retained cell and output arithmetic counts. */
-    counts: Counts;
-    /** Incomplete work and qualification messages, independent of finite display. */
-    diagnostics: string[];
-  };
-  /**
-   * Final published counts; omittedPatches includes partially unprocessed patches.
-   *
-   * Explicit omissions distinguish a finite prefix from a complete atlas.
-   * Final scalar totals are separate from transferred geometry.
-   * Completion is not an embedding or fidelity certificate.
-   * States partial omission scope.
-   * A type computes no totals.
-   * A type owns no cache.
-   * Requested prepared coefficient snapshots transfer alongside scalar totals.
-   */
-  export type Summary = {
-    /** Requested actual bound field coefficients, independent of tessellation completeness. */
-    patchCoefficients?: { patch: string; gridMm: C.Vector[][] }[];
-    /** Total admitted analytic patches in this run. */
-    patches: number;
-    /** Patches with at least one unprocessed region. */
-    omittedPatches: number;
-    /** True only if every retained cell meets the requested analytic approximation estimate. */
-    approximationQualified: boolean;
-    /** Finite leaves explicitly retained above the approximation request. */
-    retainedCoarseCells: number;
-    /** Actual published render vertex count. */
-    vertices: number;
-    /** Actual retained triangle count. */
-    triangles: number;
-    /** Final unresolved work and arithmetic messages. */
-    diagnostics: string[];
   };
 }

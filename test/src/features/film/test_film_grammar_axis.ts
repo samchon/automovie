@@ -1,10 +1,5 @@
-import {
-  type IAutoMovieGrammarDiagnostic,
-  type IAutoMovieGrammarReading,
-  type IAutoMovieGrammarShotObservation,
-  type IAutoMovieGrammarSubjectObservation,
-  readFilmGrammar,
-} from "@automovie/engine";
+import type { IAutoMovieGrammarDiagnostic, IAutoMovieGrammarReading, IAutoMovieGrammarShotObservation, IAutoMovieGrammarSubjectObservation } from "@automovie/interface";
+import { readFilmGrammar } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";

@@ -1,7 +1,6 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieSweepFrame, type IAutoMovieLocateSweepPoint, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
+
 
 /** Even samples of the spine parameter a sign change of the plane distance is bracketed between. */
 const SAMPLES: number = 128;
@@ -25,22 +24,10 @@ const BISECTIONS: number = 48;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call locates one point; callers locating many keep the compiled surface.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export const locateAutoMovieSweepPoint: (props: {
-  surface: IAutoMovieSweepSurface;
-  point: IAutoMovieVector3;
-}) => {
-  u: number;
-  v: number;
-  offset: number;
-} = (props: {
-  surface: IAutoMovieSweepSurface;
-  point: IAutoMovieVector3;
-}): {
-  u: number;
-  v: number;
-  offset: number;
-} => {
+export const locateAutoMovieSweepPoint: (props: IAutoMovieLocateSweepPoint.IProps) => IAutoMovieLocateSweepPoint.IResult = (props: IAutoMovieLocateSweepPoint.IProps): IAutoMovieLocateSweepPoint.IResult => {
   const { surface, point }: typeof props = props;
+  if (surface.sweep.correspondence === "parameter")
+    throw new Error("sweep point location requires direction correspondence");
   if (![point.x, point.y, point.z].every(Number.isFinite))
     throw new Error("sweep point to locate is not finite");
   function plane(u: number): number {

@@ -1,16 +1,6 @@
-import {
-  type IAutoMovieRenderedProductionSound,
-  deriveProductionSoundPlan,
-  productionPhonemesToVisemes,
-  renderProductionSound,
-} from "@automovie/engine";
-import type {
-  IAutoMovieCompiledShotSource,
-  IAutoMovieProductionSoundPlan,
-  IAutoMovieProductionViseme,
-  IAutoMovieShotEventContract,
-  IAutoMovieShotPredicate,
-} from "@automovie/interface";
+import type { IAutoMovieRenderedProductionSound, IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan, IAutoMovieProductionViseme, IAutoMovieShotEventContract, IAutoMovieShotPredicate } from "@automovie/interface";
+import { deriveProductionSoundPlan, productionPhonemesToVisemes, renderProductionSound } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

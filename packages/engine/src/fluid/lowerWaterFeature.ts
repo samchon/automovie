@@ -1,10 +1,6 @@
-import {
-  IAutoMovieFluidDomain,
-  IAutoMovieFluidState,
-  IAutoMovieWaterFeature,
-} from "@automovie/interface";
+import { type IAutoMovieWaterFeatureFrame, type IAutoMovieLowerWaterFeature, IAutoMovieFluidState } from "@automovie/interface";
 
-import { IAutoMovieWaterFeatureFrame } from "./IAutoMovieWaterFeatureFrame";
+
 import { fluidSurfaceGeometry } from "./fluidSurfaceGeometry";
 import { sampleFluidDomain } from "./sampleFluidDomain";
 import { sampleFluidSpray } from "./sampleFluidSpray";
@@ -25,26 +21,7 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one solved state between the surface and the spray of a frame instead of solving twice; nothing is reused across frames, so a renderer calling this per frame pays the stateless replay `simulateFluidDomain` documents.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned frame owns the state, the surface and the spray it carries.
  */
-export const lowerWaterFeature: (props: {
-  feature: IAutoMovieWaterFeature;
-  domain: IAutoMovieFluidDomain;
-  time: number;
-  cameraDistance?: number;
-}) => IAutoMovieWaterFeatureFrame = (props: {
-  /** The binding being drawn; its `domain` must name `domain.id`. */
-  feature: IAutoMovieWaterFeature;
-
-  /** The fluid domain the feature binds. */
-  domain: IAutoMovieFluidDomain;
-
-  /** Shot second to sample; ignored by a `static` feature. */
-  time: number;
-
-  /**
-   * Camera distance in metres driving spray LOD; defaults to zero. sampleFluidSpray refuses non-finite distance and clamps negative distance to the nearest LOD.
-   */
-  cameraDistance?: number;
-}): IAutoMovieWaterFeatureFrame => {
+export const lowerWaterFeature: (props: IAutoMovieLowerWaterFeature.IProps) => IAutoMovieWaterFeatureFrame = (props: IAutoMovieLowerWaterFeature.IProps): IAutoMovieWaterFeatureFrame => {
   if (props.feature.domain !== props.domain.id)
     throw new Error(
       `water feature "${props.feature.id}" binds fluid domain "${props.feature.domain}", not "${props.domain.id}"`,

@@ -1,4 +1,5 @@
-import type { IAutoMovieSurfacePattern } from "@automovie/engine";
+import type { IAutoMovieSurfacePattern } from "@automovie/interface";
+
 
 import { patternFixtureZone } from "./patternFixtureZone";
 

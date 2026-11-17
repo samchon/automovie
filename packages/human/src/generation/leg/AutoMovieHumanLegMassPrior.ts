@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanLegMassPrior } from "@automovie/interface";
+
 /**
  * Where the leg's mass stands about its bone: at each station share of a
  * segment, the share of the section's front-to-back depth that lies ahead of
@@ -30,17 +32,10 @@
  * by finding this reader; no new fit or private person reading was made.
  */
 export namespace AutoMovieHumanLegMassPrior {
-  /** One row: the bin's centre as a share from the proximal joint, and the front share there. */
-  export interface IRow {
-    /** Station share from the segment's proximal joint (hip or knee) to its distal one. */
-    share: number;
-
-    /** Share of the section's depth ahead of the bone's line. */
-    front: number;
-  }
+  
 
   /** The thigh's rows, hip to knee. */
-  export const THIGH: readonly IRow[] = [
+  export const THIGH: readonly IAutoMovieHumanLegMassPrior.IRow[] = [
     { share: 0.25, front: 0.534 },
     { share: 0.35, front: 0.578 },
     { share: 0.45, front: 0.586 },
@@ -51,7 +46,7 @@ export namespace AutoMovieHumanLegMassPrior {
   ];
 
   /** The shank's rows, knee to ankle. */
-  export const SHANK: readonly IRow[] = [
+  export const SHANK: readonly IAutoMovieHumanLegMassPrior.IRow[] = [
     { share: 0.15, front: 0.353 },
     { share: 0.25, front: 0.322 },
     { share: 0.35, front: 0.321 },

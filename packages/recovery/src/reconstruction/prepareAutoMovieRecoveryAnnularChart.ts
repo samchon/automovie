@@ -1,6 +1,7 @@
+import type { IAutoMovieRecoveryAnnularChart, IAutoMovieRecoveryEventCurveArc } from "@automovie/interface";
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
-import type { IAutoMovieRecoveryEventCurveArc } from "../structures/curve/IAutoMovieRecoveryEventCurveArc";
-import type { IAutoMovieRecoveryAnnularChart } from "../structures/domain/IAutoMovieRecoveryAnnularChart";
+
+
 
 /**
  * Bind two named closed paths to one explicit, shared periodic seam.

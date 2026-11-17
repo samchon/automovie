@@ -1,9 +1,6 @@
-import {
-  type IAutoMovieSubdivisionCage,
-  type IAutoMovieSubdivisionSurface,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSubdivisionCage, IAutoMovieSubdivisionSurface, IAutoMovieVector3 } from "@automovie/interface";
+import { subdivideAutoMovieSurface } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";

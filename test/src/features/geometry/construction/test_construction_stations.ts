@@ -1,10 +1,5 @@
-import {
-  type AutoMovieConstructionRealization,
-  AutoMovieLoftChain,
-  AutoMovieLoftStations,
-  type IAutoMovieLoftChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain } from "@automovie/interface";
+import { AutoMovieLoftChain, AutoMovieLoftStations, realizeAutoMovieConstruction } from "@automovie/engine";
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 
@@ -25,7 +20,7 @@ type V3 = [number, number, number];
  */
 export function test_construction_stations(): void {
   const failures: string[] = [];
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction(
       {
         name: "made",

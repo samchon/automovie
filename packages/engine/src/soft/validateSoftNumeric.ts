@@ -1,5 +1,4 @@
-import { ViolationCollector } from "../validation/ViolationCollector";
-
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 /**
  * Append a range violation for a non-finite scalar or an open/closed interval failure.
  *
@@ -12,7 +11,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the supplied collector retains an appended violation; no value cache or host handle is acquired.
  */
 export const validateSoftNumeric: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,
@@ -20,7 +19,7 @@ export const validateSoftNumeric: (
   exclusive: boolean,
   max: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,

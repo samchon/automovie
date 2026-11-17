@@ -1,6 +1,5 @@
-import type { IAutoMoviePose } from "@automovie/interface";
+import type { IAutoMovieFitChainToTargetProps, IAutoMoviePose } from "@automovie/interface";
 
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
 /**
@@ -17,6 +16,6 @@ import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export const fitChainToTarget: (
-  props: IFitChainToTargetProps,
-) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose =>
+  props: IAutoMovieFitChainToTargetProps,
+) => IAutoMoviePose = (input: IAutoMovieFitChainToTargetProps): IAutoMoviePose =>
   fitSeededChainToTarget(input).pose;

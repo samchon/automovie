@@ -1,10 +1,6 @@
-import {
-  type IAutoMovieProfilePoint,
-  buildAutoMoviePolyhedron,
-  extrudeAutoMovieRegion,
-  revolveAutoMovieProfile,
-} from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieProfilePoint, IAutoMovieMesh } from "@automovie/interface";
+import { buildAutoMoviePolyhedron, extrudeAutoMovieRegion, revolveAutoMovieProfile } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

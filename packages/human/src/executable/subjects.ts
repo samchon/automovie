@@ -1,9 +1,8 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
-} from "@automovie/render";
+import type { IAutoMovieMark } from "@automovie/interface";
+
+import type { AutoMovieDrawSubjects, IAutoMovieDrawScene, IAutoMovieDrawSubject } from "@automovie/render";
+
+
 import * as THREE from "three";
 
 import { buildHumanCaptureFigure } from "../capture/buildHumanCaptureFigure";

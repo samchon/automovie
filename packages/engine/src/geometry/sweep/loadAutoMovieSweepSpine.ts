@@ -1,7 +1,5 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieSweepSpine, type IAutoMovieSweepTransport, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
 /**

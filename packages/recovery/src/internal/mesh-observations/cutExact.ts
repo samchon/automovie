@@ -1,8 +1,9 @@
-import { CutPoint } from "./CutPoint";
-import { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh";
-import { Plane } from "./Plane";
-import { Polyline } from "./Polyline";
-import { V3 } from "./V3";
+import type { AutoMovieVector3Tuple, IAutoMovieMeshPlaneContour, IAutoMovieMeshPlaneCut, IAutoMovieMeshPlaneIntersection, IAutoMoviePlaneFrame } from "@automovie/interface";
+
+
+
+
+
 
 /**
  * Intersect a triangle surface with a plane without epsilon displacement or branch loss.
@@ -22,15 +23,15 @@ import { V3 } from "./V3";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graph maps and visited edges expire on return; only ordered physical observations with private source support addresses escape.
  */
 export function cutExact(
-  skin: IAutoMovieRecoveryIndexedMesh,
-  plane: Plane,
-  select?: (triangle: number) => boolean,
-  chart?: { heights: readonly number[]; level: number },
-): Polyline[] {
+  skin: Parameters<IAutoMovieMeshPlaneCut.Operation>[0],
+  plane: Parameters<IAutoMovieMeshPlaneCut.Operation>[1],
+  select?: Parameters<IAutoMovieMeshPlaneCut.Operation>[2],
+  chart?: Parameters<IAutoMovieMeshPlaneCut.Operation>[3],
+): ReturnType<IAutoMovieMeshPlaneCut.Operation> {
   const heights: readonly number[] =
     chart?.heights ??
     skin.vertices.map(
-      (p: V3): number =>
+      (p: AutoMovieVector3Tuple): number =>
         (p[0] - plane.origin[0]) * plane.n[0] +
         (p[1] - plane.origin[1]) * plane.n[1] +
         (p[2] - plane.origin[2]) * plane.n[2],
@@ -49,12 +50,13 @@ export function cutExact(
  * Prepared queries consume one immutable source and scalar chart, with optional complete face candidates.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents source immutability, scalar authority, inclusive candidate completeness, default traversal and binary64 predicate limits inherited from cutExact.
- * @evidence contracts/development/design.md#principled-representation Represents Reusable admission for deterministic source-plane observations: companion namespace of 1 member (`prepare`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `cutExact` in packages/recovery/src/internal/mesh-observations/cutExact.ts; its surface is the 1 member listed and the text shows 9 other files naming it, mostly packages/recovery (9), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation An immutable registered mesh and scalar chart define exact-zero binary64 plane observations with optional original-face and ordered-edge provenance.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Direct cutting and prepared queries share the same source admission and intersection graph; interface owns the mesh/plane/contour records.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Candidate completeness is a caller premise; binary64 signs are not exact predicates, and isolated contacts or junction branches are never silently discarded.
  */
 export namespace cutExact {
-  /**
+ 
+ /**
    * Admit immutable source positions, incidence and scalar heights once.
    * The caller keeps every supplied array unchanged until all queries finish.
    * Each query accepts original face IDs in strictly increasing order; candidates
@@ -68,16 +70,11 @@ export namespace cutExact {
    *
    */
   export function prepare(
-    skin: IAutoMovieRecoveryIndexedMesh,
-    heights: readonly number[],
-    retainSourceFaces: boolean = false,
-    retainOrderedSource: boolean = false,
-  ): (
-    plane: Plane,
-    level: number,
-    candidates?: readonly number[],
-    select?: (triangle: number) => boolean,
-  ) => Polyline[] {
+    skin: Parameters<IAutoMovieMeshPlaneCut.Prepare>[0],
+    heights: Parameters<IAutoMovieMeshPlaneCut.Prepare>[1],
+    retainSourceFaces: Parameters<IAutoMovieMeshPlaneCut.Prepare>[2] = false,
+    retainOrderedSource: Parameters<IAutoMovieMeshPlaneCut.Prepare>[3] = false,
+  ): ReturnType<IAutoMovieMeshPlaneCut.Prepare> {
     if (
       skin.canon.length !== skin.vertices.length ||
       heights.length !== skin.vertices.length
@@ -108,11 +105,11 @@ export namespace cutExact {
           "Section face addresses do not align with source positions",
         );
     return (
-      _plane: Plane,
+      _plane: IAutoMoviePlaneFrame,
       level: number,
       candidates?: readonly number[],
       select?: (triangle: number) => boolean,
-    ): Polyline[] => {
+    ): IAutoMovieMeshPlaneContour[] => {
       if (!Number.isFinite(level))
         throw new Error("A finite section level is required");
       const distances: Map<number, number> = new Map();
@@ -125,7 +122,7 @@ export namespace cutExact {
         distances.set(i, value);
         return value;
       };
-      const points: Map<string, CutPoint> = new Map();
+      const points: Map<string, IAutoMovieMeshPlaneIntersection> = new Map();
       const segments: Map<string, [string, string]> = new Map();
       const sourceFaces: Map<string, Set<number>> | undefined =
         retainSourceFaces || retainOrderedSource ? new Map() : undefined;
@@ -150,10 +147,10 @@ export namespace cutExact {
       const provenance: (
         edges?: readonly string[],
         contact?: string,
-      ) => Pick<Polyline, "exactSourceTriangleIds"> = (
+      ) => Pick<IAutoMovieMeshPlaneContour, "exactSourceTriangleIds"> = (
         edges?: readonly string[],
         contact?: string,
-      ): Pick<Polyline, "exactSourceTriangleIds"> => {
+      ): Pick<IAutoMovieMeshPlaneContour, "exactSourceTriangleIds"> => {
         if (!sourceFaces) return {};
         const faces: Set<number> = new Set(
           contact === undefined ? [] : contactFaces!.get(contact),
@@ -163,14 +160,13 @@ export namespace cutExact {
         return {
           exactSourceTriangleIds: [...faces].sort(
             (a: number, b: number): number => a - b,
-          ),
-        };
+          ) };
       };
       const contacts: Set<string> = new Set();
       const coplanarVertices: Set<string> = new Set();
       const coplanar: Map<
         string,
-        { ends: [string, string]; triangle: number; opposite: V3 }[]
+        { ends: [string, string]; triangle: number; opposite: AutoMovieVector3Tuple }[]
       > = new Map();
       const key: (a: string, b: string) => string = (
         a: string,
@@ -178,42 +174,40 @@ export namespace cutExact {
       ): string => JSON.stringify(a < b ? [a, b] : [b, a]);
       const ordered: (
         edges: readonly string[] | undefined,
-      ) => Pick<Polyline, "orderedSegments"> = (
+      ) => Pick<IAutoMovieMeshPlaneContour, "orderedSegments"> = (
         edges: readonly string[] | undefined,
-      ): Pick<Polyline, "orderedSegments"> =>
+      ): Pick<IAutoMovieMeshPlaneContour, "orderedSegments"> =>
         retainOrderedSource
           ? {
               orderedSegments: (edges ?? []).map(
                 (
                   id: string,
-                ): NonNullable<Polyline["orderedSegments"]>[number] => ({
+                ): NonNullable<IAutoMovieMeshPlaneContour["orderedSegments"]>[number] => ({
                   id,
                   sourceTriangleIds: [...(sourceFaces?.get(id) ?? [])].sort(
                     (a: number, b: number): number => a - b,
-                  ),
-                }),
-              ),
-            }
+                  ) }),
+              ) }
           : {};
       const remember: (
         id: string,
         a: number,
         b: number,
         t: number,
-        pointMm: V3,
+        pointMm: AutoMovieVector3Tuple,
       ) => void = (
         id: string,
         a: number,
         b: number,
         t: number,
-        pointMm: V3,
+        pointMm: AutoMovieVector3Tuple,
       ): void => {
         if (!retainOrderedSource) return;
-        const point: CutPoint = points.get(id)!;
+        const point: IAutoMovieMeshPlaneIntersection = points.get(id)!;
         point.sourceEdges ??= [];
         if (
           !point.sourceEdges.some(
-            (e: NonNullable<CutPoint["sourceEdges"]>[number]): boolean =>
+            (e: NonNullable<IAutoMovieMeshPlaneIntersection["sourceEdges"]>[number]): boolean =>
               e.a === a && e.b === b && e.t === t,
           )
         )
@@ -226,8 +220,7 @@ export namespace cutExact {
             p: [...skin.vertices[i]!],
             a: skin.canon[i]!,
             b: skin.canon[i]!,
-            t: 0,
-          });
+            t: 0 });
         remember(id, i, i, 0, skin.vertices[i]!);
         return id;
       };
@@ -238,8 +231,8 @@ export namespace cutExact {
         if (skin.canon[i]! > skin.canon[j]!) [i, j] = [j, i];
         const id: string = `e:${skin.canon[i]},${skin.canon[j]}`;
         if (!points.has(id)) {
-          const a: V3 = skin.vertices[i]!,
-            b: V3 = skin.vertices[j]!;
+          const a: AutoMovieVector3Tuple = skin.vertices[i]!,
+            b: AutoMovieVector3Tuple = skin.vertices[j]!;
           // Opposite finite signs permit a ratio without overflowing their difference.
           const da: number = Math.abs(distance(i)),
             db: number = Math.abs(distance(j));
@@ -247,7 +240,7 @@ export namespace cutExact {
           const t: number = da <= db ? ratio / (1 + ratio) : 1 / (1 + ratio);
           if (!(t > 0 && t < 1))
             throw new Error("Exact section edge fraction is unresolved");
-          const p: V3 = [
+          const p: AutoMovieVector3Tuple = [
             a[0] * (1 - t) + b[0] * t,
             a[1] * (1 - t) + b[1] * t,
             a[2] * (1 - t) + b[2] * t,
@@ -261,9 +254,9 @@ export namespace cutExact {
             db: number = Math.abs(distance(j));
           const ratio: number = Math.min(da, db) / Math.max(da, db);
           const t: number = da <= db ? ratio / (1 + ratio) : 1 / (1 + ratio);
-          const a: V3 = skin.vertices[i]!,
-            b: V3 = skin.vertices[j]!;
-          const p: V3 = [
+          const a: AutoMovieVector3Tuple = skin.vertices[i]!,
+            b: AutoMovieVector3Tuple = skin.vertices[j]!;
+          const p: AutoMovieVector3Tuple = [
             a[0] * (1 - t) + b[0] * t,
             a[1] * (1 - t) + b[1] * t,
             a[2] * (1 - t) + b[2] * t,
@@ -304,8 +297,7 @@ export namespace cutExact {
             coplanar.get(id)!.push({
               ends: [a, b],
               triangle: ti,
-              opposite: skin.vertices[t[(k + 2) % 3]!]!,
-            });
+              opposite: skin.vertices[t[(k + 2) % 3]!]! });
           }
           continue;
         }
@@ -344,8 +336,8 @@ export namespace cutExact {
           patch[0]!.ends[0] === patch[1]!.ends[1] &&
           patch[0]!.ends[1] === patch[1]!.ends[0]
         ) {
-          const a: V3 = points.get(patch[0]!.ends[0])!.p,
-            b: V3 = points.get(patch[0]!.ends[1])!.p;
+          const a: AutoMovieVector3Tuple = points.get(patch[0]!.ends[0])!.p,
+            b: AutoMovieVector3Tuple = points.get(patch[0]!.ends[1])!.p;
           const e: number[] = b.map(
             (x: number, i: number): number => x - a[i]!,
           );
@@ -396,14 +388,14 @@ export namespace cutExact {
         adjacency.get(b)!.push({ edge, next: a });
       }
       const visited: Set<string> = new Set();
-      const output: Polyline[] = [];
+      const output: IAutoMovieMeshPlaneContour[] = [];
       const walk: (
         start: string,
         first: { edge: string; next: string },
-      ) => Polyline = (
+      ) => IAutoMovieMeshPlaneContour = (
         start: string,
         first: { edge: string; next: string },
-      ): Polyline => {
+      ): IAutoMovieMeshPlaneContour => {
         const keys: string[] = [start];
         const traversed: string[] | undefined =
           retainSourceFaces || retainOrderedSource ? [] : undefined;
@@ -421,9 +413,8 @@ export namespace cutExact {
               ...provenance(traversed),
               ...ordered(traversed),
               pts: (closed ? keys : [...keys, start]).map(
-                (id: string): CutPoint => points.get(id)!,
-              ),
-            };
+                (id: string): IAutoMovieMeshPlaneIntersection => points.get(id)!,
+              ) };
           }
           keys.push(current);
           const neighbors: typeof adjacency extends Map<string, infer T>
@@ -439,8 +430,7 @@ export namespace cutExact {
           closed: false,
           ...provenance(traversed),
           ...ordered(traversed),
-          pts: keys.map((id: string): CutPoint => points.get(id)!),
-        };
+          pts: keys.map((id: string): IAutoMovieMeshPlaneIntersection => points.get(id)!) };
       };
       for (const [start, neighbors] of adjacency)
         if (neighbors.length !== 2)
@@ -455,8 +445,7 @@ export namespace cutExact {
             closed: false,
             pts: [points.get(id)!],
             ...provenance([], id),
-            ...ordered([]),
-          });
+            ...ordered([]) });
       return output;
     };
   }

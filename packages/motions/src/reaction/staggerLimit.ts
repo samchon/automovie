@@ -1,7 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import { staggerRecover } from "./staggerRecover";
@@ -42,19 +40,19 @@ export namespace staggerLimit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    body: IHumanActionContext["body"],
-    entry: IHumanActionContext["entry"],
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     above: number,
   ): number {
     // The limit is the body's in a direction from a stance: read once.
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(entry);
     const key: string = [
       push.x,
       push.z,
       ...[feet.left, feet.right].flatMap(
-        (f: HumanFoot.IPlacement): number[] => [f.ankle.x, f.ankle.z],
+        (f: IAutoMovieMotionHumanFoot.IPlacement): number[] => [f.ankle.x, f.ankle.z],
       ),
     ]
       .map((v: number): string => v.toFixed(4))
@@ -107,7 +105,7 @@ export namespace staggerLimit {
 
   /** Each body's fastest caught push, by its direction and its stance's feet, read once (`limit`). */
   const LIMITS: WeakMap<
-    IHumanActionContext["body"],
+    IAutoMovieMotionHumanActionContext["body"],
     Map<string, number>
   > = new WeakMap();
 }

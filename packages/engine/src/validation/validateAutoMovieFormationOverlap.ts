@@ -1,24 +1,12 @@
-import {
-  IAutoMovieDiagnostic,
-  IAutoMovieFormationDesign,
-  IAutoMovieFormationMotion,
-  IAutoMovieFormationSlotMotion,
-  IAutoMovieModel,
-  IAutoMovieShotContract,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFormationGrounding, type IAutoMovieFormationPlacement, type IAutoMovieFormationSlotPlacement, type IAutoMovieModelColumn, type IAutoMovieSampledFormationMotion, type IAutoMovieValidateFormationOverlap, IAutoMovieDiagnostic, IAutoMovieFormationDesign, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieShotContract, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieFormationPlacement } from "../IAutoMovieFormationPlacement";
+
 import {
   formationSlotPosition,
   placeFormationSlot,
   sampleFormationMotion,
   sampleFormationSlotMotion,
 } from "../index";
-import type { IAutoMovieFormationGrounding } from "./../IAutoMovieFormationGrounding";
-import type { IAutoMovieFormationSlotPlacement } from "./../IAutoMovieFormationSlotPlacement";
-import type { IAutoMovieSampledFormationMotion } from "./../IAutoMovieSampledFormationMotion";
-import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
 import { engineDiagnostic } from "./engineDiagnostic";
 
@@ -260,28 +248,10 @@ const formationOverlapClearance: (
  */
 export const validateAutoMovieFormationOverlap: (
   contract: Pick<IAutoMovieShotContract, "id">,
-  value: {
-    models: readonly IAutoMovieModel[];
-    formations: ReadonlyArray<
-      IAutoMovieFormationPlacement & {
-        lod: ReadonlyArray<{ runtimeModel: string }>;
-      }
-    >;
-    formationMotions?: readonly IAutoMovieFormationMotion[];
-    formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationOverlap.IValue,
 ) => IAutoMovieDiagnostic[] = (
   contract: Pick<IAutoMovieShotContract, "id">,
-  value: {
-    models: readonly IAutoMovieModel[];
-    formations: ReadonlyArray<
-      IAutoMovieFormationPlacement & {
-        lod: ReadonlyArray<{ runtimeModel: string }>;
-      }
-    >;
-    formationMotions?: readonly IAutoMovieFormationMotion[];
-    formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationOverlap.IValue,
 ): IAutoMovieDiagnostic[] => {
   const runtimes: Map<string, IAutoMovieModel> = new Map(
     value.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [

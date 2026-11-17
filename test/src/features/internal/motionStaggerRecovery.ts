@@ -1,11 +1,6 @@
-import type { AutoMovieMotionTarget } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  HumanVerdicts,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionTarget } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanRefusal, HumanVerdicts } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -35,8 +30,8 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
-  const body: IHumanBody = motionHumanBody(name);
-  const pushed = (speed: number, from?: AutoMovieMotionTarget) =>
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const pushed = (speed: number, from?: IAutoMovieMotionTarget) =>
     new HumanPerformance({
       seed: "stagger",
       performers: [
@@ -56,7 +51,7 @@ export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
   const caught = (
     label: string,
     speed: number,
-    from?: AutoMovieMotionTarget,
+    from?: IAutoMovieMotionTarget,
   ) => {
     try {
       const report: string = HumanVerdicts.describe(

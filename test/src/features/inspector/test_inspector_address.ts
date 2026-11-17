@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import { parseAutoMovieCapturePlanRequest, readAutoMovieCaptureArguments } from "@automovie/render";
 import {
   formatAutoMovieInspectorAddress,
   formatAutoMovieInspectorCommand,

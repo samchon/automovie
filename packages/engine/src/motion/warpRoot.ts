@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieWarpRoot, IAutoMovieTransform } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { minimumJerk } from "./minimumJerk";
@@ -35,7 +33,7 @@ import { minimumJerk } from "./minimumJerk";
  */
 export function warpRoot(
   root: IAutoMovieTransform,
-  warp: warpRoot.IWarp,
+  warp: IAutoMovieWarpRoot.IWarp,
   seconds: number,
 ): IAutoMovieTransform {
   if (!(warp.end > warp.start))
@@ -57,29 +55,4 @@ export function warpRoot(
     ),
     scale: root.scale,
   };
-}
-
-/**
- * Companion types of {@link warpRoot}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit.
- * @evidence contracts/development/design.md#principled-representation A displacement in metres and degrees with a window in seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the warp reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
- */
-export namespace warpRoot {
-  /** A root displacement over a window. */
-  export interface IWarp {
-    /** Translation added by the window's end, metres, parent frame. */
-    translation: IAutoMovieVector3;
-
-    /** Turn about +Y added by the window's end, degrees. */
-    yaw: number;
-
-    /** Window start, seconds. */
-    start: number;
-
-    /** Window end, the named event's instant, seconds. */
-    end: number;
-  }
 }

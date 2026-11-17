@@ -1,5 +1,6 @@
+import type { IAutoMoviePhysicalTracking, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { AutoMoviePhysicalTracking as Tracking } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /** Physical tracking behavior.
@@ -25,7 +26,7 @@ export function test_physical_layers_tracking(): void {
       channel: "rotation.x",
     },
   ];
-  const tracked: Tracking.IResult = Tracking.torque(
+  const tracked: IAutoMoviePhysicalTracking.IResult = Tracking.torque(
     { x: 0, y: 0, z: 0, w: 1 },
     { x: Math.sin(0.25), y: 0, z: 0, w: Math.cos(0.25) },
     { x: 0, y: 0, z: 0 },
@@ -34,7 +35,7 @@ export function test_physical_layers_tracking(): void {
     1 / 120,
     1,
   );
-  const limp: Tracking.IResult = Tracking.torque(
+  const limp: IAutoMoviePhysicalTracking.IResult = Tracking.torque(
     { x: 0, y: 0, z: 0, w: 1 },
     { x: Math.sin(0.25), y: 0, z: 0, w: Math.cos(0.25) },
     { x: 0, y: 0, z: 0 },

@@ -1,12 +1,6 @@
-import {
-  type IAutoMovieMeshSeparationQuery,
-  type IAutoMovieMeshSeparationResult,
-  createAutoMovieMeshSeparationQuery,
-} from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMeshSeparationQuery, IAutoMovieMeshSeparationResult, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";

@@ -1,4 +1,5 @@
-import { type IAutoMovieSubdivisionCage } from "@automovie/engine";
+import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
+
 
 /**
  * A synthetic open cage of `n` quads around vertex 0, which is interior with

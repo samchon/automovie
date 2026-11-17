@@ -1,15 +1,10 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { pickUpPosture } from "./pickUpPosture";
@@ -47,7 +42,7 @@ export namespace pickUpLift {
    */
   export interface IRaise {
     /** The trunk's inclination at `lifted`, as the bend law solves it on the stance's bottom posture; null when the trunk is not used. */
-    trunk: bendLower.ISolved | null;
+    trunk: IAutoMovieMotionHumanBendLower.ISolved | null;
 
     /** The share of the way down the stance holds at `lifted`, 0 to 1: 1 where it does not straighten. */
     share: number;
@@ -79,15 +74,15 @@ export namespace pickUpLift {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function raise(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: IAutoMovieMotionHumanHand.Side,
     lifted: IAutoMovieVector3,
     stance: pickUpPosture.IStance | null,
-    held: IHumanPosture,
+    held: IAutoMovieMotionHumanPosture,
   ): IRaise | null {
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const arm: number = body.measure.upperArm + body.measure.forearm;
-    const far = (posture: IHumanPosture): number =>
+    const far = (posture: IAutoMovieMotionHumanPosture): number =>
       Vector3.length(Vector3.subtract(lifted, shoulder(body, side, posture)));
     if (far(held) <= arm + 1e-6) return ARM;
 
@@ -152,13 +147,13 @@ export namespace pickUpLift {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function posed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     raise: IRaise,
-    at: (share: number) => IHumanPosture,
+    at: (share: number) => IAutoMovieMotionHumanPosture,
     share: number,
     inclined: number,
-  ): IHumanPosture {
-    const posture: IHumanPosture = at(share);
+  ): IAutoMovieMotionHumanPosture {
+    const posture: IAutoMovieMotionHumanPosture = at(share);
     if (raise.trunk === null || inclined <= 0) return posture;
     const pitch: number = raise.trunk.pitch * inclined;
     return bendLower.lower(
@@ -199,15 +194,15 @@ export namespace pickUpLift {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function judged(
-    context: IHumanActionContext<{ prop: string; handle: string }>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<{ prop: string; handle: string }>,
+    side: IAutoMovieMotionHumanHand.Side,
     lift: number,
-    plan: IHumanActionPlan,
+    plan: IAutoMovieMotionHumanActionPlan,
     closed: number,
     lifted: number,
   ): void {
     if (lift <= 0) return;
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const wrist = (seconds: number): number =>
       poseBones(body, resolveHumanPosture(body, plan.posture(seconds))).get(
         `${side}Hand`,
@@ -231,9 +226,9 @@ export namespace pickUpLift {
 
   /** The arm's shoulder joint on a posture, world metres. */
   const shoulder = (
-    body: IHumanBody,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;
 }

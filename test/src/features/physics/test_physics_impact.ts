@@ -1,5 +1,6 @@
-import { IAutoMovieImpactBody, resolveImpact } from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieImpactBodyState, IAutoMovieVector3 } from "@automovie/interface";
+import { resolveImpact } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
@@ -11,9 +12,9 @@ const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
 ): IAutoMovieVector3 => ({ x, y, z });
 const N: IAutoMovieVector3 = v(0, 0, 1); // contact normal, a → b (b sits ahead on +z)
 
-const body: (over: Partial<IAutoMovieImpactBody>) => IAutoMovieImpactBody = (
-  over: Partial<IAutoMovieImpactBody>,
-): IAutoMovieImpactBody => ({
+const body: (over: Partial<IAutoMovieImpactBodyState>) => IAutoMovieImpactBodyState = (
+  over: Partial<IAutoMovieImpactBodyState>,
+): IAutoMovieImpactBodyState => ({
   mass: 1,
   velocity: v(0, 0, 0),
   restitution: 0.2,

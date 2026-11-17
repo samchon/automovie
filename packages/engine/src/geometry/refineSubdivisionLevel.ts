@@ -1,6 +1,4 @@
-import { ISubdivisionLevel } from "./ISubdivisionLevel";
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
-import { ISubdivisionVertexMask } from "./ISubdivisionVertexMask";
+import type { IAutoMovieSubdivisionLevel, IAutoMovieSubdivisionTopology, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
 import { buildSubdivisionTopology } from "./buildSubdivisionTopology";
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { refineSubdivisionPoints } from "./refineSubdivisionPoints";
@@ -31,14 +29,14 @@ import { refineSubdivisionUvs } from "./refineSubdivisionUvs";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the child level, about four times the parent's corners; the parent is not retained.
  */
 export const refineSubdivisionLevel = (
-  level: ISubdivisionLevel,
-): ISubdivisionLevel => {
-  const topology: ISubdivisionTopology = level.topology;
+  level: IAutoMovieSubdivisionLevel,
+): IAutoMovieSubdivisionLevel => {
+  const topology: IAutoMovieSubdivisionTopology = level.topology;
   const vertexCount: number = topology.vertexCount;
   const edgeCount: number = topology.edgeSharpness.length;
   const cornerCount: number = topology.faceVertices.length;
   const faceOffsets: number[] = topology.faceOffsets;
-  const refined: { points: number[]; masks: ISubdivisionVertexMask[] } =
+  const refined: { points: number[]; masks: IAutoMovieSubdivisionVertexMask[] } =
     refineSubdivisionPoints(topology, level.positions);
 
   const childOffsets: number[] = new Array<number>(cornerCount + 1);
@@ -92,7 +90,7 @@ export const refineSubdivisionLevel = (
     }
   }
 
-  const child: ISubdivisionTopology = buildSubdivisionTopology(
+  const child: IAutoMovieSubdivisionTopology = buildSubdivisionTopology(
     vertexCount + edgeCount + faceOffsets.length - 1,
     childOffsets,
     childVertices,

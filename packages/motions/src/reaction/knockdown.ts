@@ -1,11 +1,6 @@
-import { Vector3, physicalShapeBounds } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanKnockdown, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRoot, IAutoMovieMotionHumanStrikingContact, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -15,13 +10,8 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
-import type { StrikingContact } from "../striking/StrikingContact";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 
@@ -58,31 +48,15 @@ import { ReactionSource } from "./ReactionSource";
  */
 export namespace knockdown {
   /** The action's name. */
-  export const name: HumanActionName = "knockdown";
+  export const name: AutoMovieMotionHumanActionName = "knockdown";
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {};
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
-  export const accepts: IHumanActionLaw["accepts"] = {
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blow's target and the lying time's unit and default.
-   * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union and the lying time seconds, checked non-negative when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   */
-  export interface IParams {
-    /** Where the blow came from; a place ahead of the performer when absent. */
-    from?: AutoMovieMotionTarget;
-
-    /** How long the body lies after landing, seconds; 1 when absent. */
-    seconds?: number;
-  }
 
   /** Seat contact, seconds. */
   export const SEATED: number = 0.45;
@@ -106,7 +80,7 @@ export namespace knockdown {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function rest(body: IHumanBody, posture: IHumanPosture): number {
+  export function rest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
     const bones = StrikingBody.trunk(body, {
       ...posture,
       root: { ...posture.root, y: 0 },
@@ -133,13 +107,13 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the fit, two measures and one cached heading, the last cleared by settle and all released with the plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const body = context.body;
     const lie: number = context.params.seconds ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
-    const entry: IHumanPosture = context.entry.posture;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       DOWN + lie,
       [
         { name: "rolling", seconds: ROLLING * SEATED },
@@ -230,7 +204,7 @@ export namespace knockdown {
         AutoMovieMotionHumanRoot.travel({
           from: 0,
           to: duration,
-          offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => {
+          offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset => {
             const turn: number = angle(heading() - entry.yaw);
             const now: IMeasure = at(seconds);
             const landed: boolean = seconds >= SEATED;
@@ -261,7 +235,7 @@ export namespace knockdown {
         AutoMovieMotionHumanLean.tilt({
           from: 0,
           to: duration,
-          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+          angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
             pitch: fold(fitted, sit(seconds), back(seconds)).pitch,
             roll: 0,
           }),
@@ -273,7 +247,7 @@ export namespace knockdown {
           channels: ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
           from: 0,
           to: duration,
-          delta: (seconds: number): AutoMovieMotionHumanJoints.Angles =>
+          delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
             fold(fitted, sit(seconds), back(seconds)).joints,
         }),
       ],
@@ -283,7 +257,7 @@ export namespace knockdown {
   /** The trunk's pitch and the joints of the fall at one instant. */
   interface IFold {
     pitch: number;
-    joints: AutoMovieMotionHumanJoints.Angles;
+    joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
   /**
@@ -337,11 +311,11 @@ export namespace knockdown {
 
   /** The body's shapes in a fold, the root at the origin and facing +Z. */
   function shapes(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     folded: IFold,
   ): {
     bones: ReturnType<typeof StrikingBody.trunk>;
-    colliders: StrikingContact.ICollider[];
+    colliders: IAutoMovieMotionHumanStrikingContact.ICollider[];
   } {
     const bones = StrikingBody.trunk(body, {
       root: { x: 0, y: 0, z: 0 },
@@ -356,7 +330,7 @@ export namespace knockdown {
 
   /** The lowest height of the shapes whose bone matches. */
   function lowest(
-    colliders: readonly StrikingContact.ICollider[],
+    colliders: readonly IAutoMovieMotionHumanStrikingContact.ICollider[],
     of: (bone: string) => boolean,
   ): number {
     let low: number = Infinity;
@@ -365,7 +339,7 @@ export namespace knockdown {
   }
 
   /** Measures a fold. */
-  function measure(body: IHumanBody, folded: IFold): IMeasure {
+  function measure(body: IAutoMovieMotionHumanBody, folded: IFold): IMeasure {
     const { bones, colliders } = shapes(body, folded);
     return {
       floor: -lowest(colliders, () => true),
@@ -385,7 +359,7 @@ export namespace knockdown {
    * the rest of the lying body. A joint whose range ends first stays at its
    * end.
    */
-  function fit(body: IHumanBody, landed: number): IFit {
+  function fit(body: IAutoMovieMotionHumanBody, landed: number): IFit {
     const gap = (
       fitted: IFit,
       back: number,
@@ -492,7 +466,7 @@ export namespace knockdown {
   }
 
   /** The lowest world height of a collider. */
-  function bottom(c: StrikingContact.ICollider): number {
+  function bottom(c: IAutoMovieMotionHumanStrikingContact.ICollider): number {
     return physicalShapeBounds(c.pose, c.shape).min.y;
   }
 }

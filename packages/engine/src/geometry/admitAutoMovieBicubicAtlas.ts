@@ -1,4 +1,5 @@
-import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+import type { IAutoMovieAdmitBicubicAtlas, IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+
 
 /**
  * Admit the global recipe and identify its structurally usable patch occurrences.
@@ -18,17 +19,7 @@ import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
  */
 export function admitAutoMovieBicubicAtlas(
   input: IAutoMovieBicubicAtlasGeometry,
-): {
-  patches: number[];
-  controls: number[];
-  diagnostics: string[];
-  boundaryAuthorities: NonNullable<
-    IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
-  >;
-  boundaryBindings: NonNullable<
-    IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
-  >;
-} {
+): IAutoMovieAdmitBicubicAtlas.IResult {
   if (
     input.type !== "bicubic-atlas" ||
     typeof input.topologyDomain !== "string" ||

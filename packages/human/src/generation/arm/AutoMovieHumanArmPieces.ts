@@ -1,5 +1,8 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
-import type { AutoMovieHumanArmAxis } from "./AutoMovieHumanArmAxis";
+import type { IAutoMovieHumanArmAxis, IAutoMovieHumanArmBones, IAutoMovieHumanArmPiece } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
 import { AutoMovieHumanElbowSpan } from "./AutoMovieHumanElbowSpan";
@@ -25,8 +28,8 @@ export namespace AutoMovieHumanArmPieces {
    * @param tapes The four tapes, mm.
    */
   export function inputs(
-    bones: AutoMovieHumanArmBones.IBones,
-    axis: AutoMovieHumanArmAxis.IAxis,
+    bones: IAutoMovieHumanArmBones.IBones,
+    axis: IAutoMovieHumanArmAxis.IAxis,
     tapes: IAutoMovieHumanArmPiece.ITapes,
   ): IAutoMovieHumanArmPiece.IInputs {
     return { bones, axis, tapes, stylion: bones.forearm - AutoMovieHumanArmBones.STYLION_WRIST };

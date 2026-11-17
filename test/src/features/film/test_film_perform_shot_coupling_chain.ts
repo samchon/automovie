@@ -1,31 +1,6 @@
-import {
-  HUMANOID_JOINT_AXES,
-  IAutoMovieActionSynthesizer,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-  Quaternion,
-  Vector3,
-  performShot,
-  resolveAttachment,
-  sampleClip,
-  sampleMotion,
-  stageScene,
-} from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieClip,
-  IAutoMovieConstraintViolation,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSceneNode,
-  IAutoMovieScript,
-  IAutoMovieSkeleton,
-  IAutoMovieStage,
-  IAutoMovieStageCamera,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActionSynthesizer, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieMotion, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieSkeleton, IAutoMovieStage, IAutoMovieStageCamera, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, Quaternion, Vector3, performShot, resolveAttachment, sampleClip, sampleMotion, stageScene } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import {

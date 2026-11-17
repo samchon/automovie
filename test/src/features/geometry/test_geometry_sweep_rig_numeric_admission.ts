@@ -1,11 +1,6 @@
-import {
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSweep,
-  bufferAutoMovieBones,
-  rigAutoMovieSweep,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { IAutoMovieSurfaceNetwork, IAutoMovieSweep, AutoMovieHumanoidBone } from "@automovie/interface";
+import { bufferAutoMovieBones, rigAutoMovieSweep, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

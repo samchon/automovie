@@ -1,11 +1,5 @@
-import {
-  IAutoMovieChannel,
-  IAutoMovieChannelLimit,
-  IAutoMovieDriver,
-} from "@automovie/interface";
+import { type IAutoMovieBoundProfile, type IAutoMovieProfileApplication, IAutoMovieChannel, IAutoMovieChannelLimit, IAutoMovieDriver } from "@automovie/interface";
 
-import { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
-import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
 
 /**
  * Bind every supported semantic node reference through an own boneMap entry and optional placement prefix. Pointer channels retain their global addresses. Mismatched profile ids and missing/blank node mappings throw before a bound result returns; unchanged nested bounds and curve data remain borrowed.

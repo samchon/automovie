@@ -1,17 +1,12 @@
-import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+import type { IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryAtlasObservationPublish, IAutoMovieRecoveryAtlasObservationState, IAutoMovieRecoveryChartAssembly, IAutoMovieRecoveryChartBatch, IAutoMovieRecoveryChartBoundary, IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "@automovie/interface";
 
-import type { observeAutoMovieRecoveryAtlas } from "../observation/observeAutoMovieRecoveryAtlas";
-import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
+
+
+
+
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
-import { RecoveryChartBoundary } from "./RecoveryChartBoundary";
-import { selectRecoveryScalarIntervals } from "./selectRecoveryScalarIntervals";
-
-type Input = RecoveryAtlasObservationTypes["Input"];
-type Prepared = RecoveryAtlasObservationTypes["Prepared"];
-type Pending = RecoveryAtlasObservationTypes["Pending"];
-
-type Inventory = RecoveryAtlasObservationTypes["Inventory"];
+type Prepared = IAutoMovieRecoveryAtlasObservationState["Prepared"];
 /**
  * Fit the completely registered selected domain and publish its canonical assembly and coverage.
  *
@@ -23,29 +18,7 @@ type Inventory = RecoveryAtlasObservationTypes["Inventory"];
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fit reports and the original shared outcomes arrays reuse the same pending chart ownership.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned geometry and private reports transfer to the caller; no fit, publication or source resource is retained globally.
  */
-export function RecoveryAtlasObservationPublish(context: {
-  input: Input;
-  pending: Pending[];
-  boundaryOwner: ReturnType<typeof RecoveryChartBoundary>;
-  fittedCharts: Parameters<typeof RecoveryChartAssembly>[0][number][];
-  controls: IAutoMovieBicubicAtlasGeometry["controls"];
-  patches: IAutoMovieBicubicAtlasGeometry["patches"];
-  charts: object[];
-  privateLedger: object[];
-  representedFaces: Set<number>;
-  encounteredFaces: Set<number>;
-  failedSelectedComponents: Set<string>;
-  sourceNormals: number[][];
-  inventory: Inventory[];
-  order: readonly number[];
-  selection: ReturnType<typeof selectRecoveryScalarIntervals>;
-  visitedIntervalIds: number[];
-  visitedIntervals: number;
-  visitedComponents: number;
-  incrementUnsupported: () => void;
-  unsupportedCount: () => number;
-  observe: ((record: object) => void) | undefined;
-}): ReturnType<typeof observeAutoMovieRecoveryAtlas> {
+export function RecoveryAtlasObservationPublish(context: Parameters<IAutoMovieRecoveryAtlasObservationPublish.Operation>[0]): ReturnType<IAutoMovieRecoveryAtlasObservationPublish.Operation> {
   const {
     input,
     pending,
@@ -67,12 +40,11 @@ export function RecoveryAtlasObservationPublish(context: {
     visitedComponents,
     incrementUnsupported,
     unsupportedCount,
-    observe,
-  }: {
-    input: Input;
-    pending: Pending[];
-    boundaryOwner: ReturnType<typeof RecoveryChartBoundary>;
-    fittedCharts: Parameters<typeof RecoveryChartAssembly>[0][number][];
+    observe }: {
+    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    boundaryOwner: ReturnType<IAutoMovieRecoveryChartBoundary.Operation>;
+    fittedCharts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0][number][];
     controls: IAutoMovieBicubicAtlasGeometry["controls"];
     patches: IAutoMovieBicubicAtlasGeometry["patches"];
     charts: object[];
@@ -81,9 +53,9 @@ export function RecoveryAtlasObservationPublish(context: {
     encounteredFaces: Set<number>;
     failedSelectedComponents: Set<string>;
     sourceNormals: number[][];
-    inventory: Inventory[];
+    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
     order: readonly number[];
-    selection: ReturnType<typeof selectRecoveryScalarIntervals>;
+    selection: ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>;
     visitedIntervalIds: number[];
     visitedIntervals: number;
     visitedComponents: number;
@@ -92,14 +64,14 @@ export function RecoveryAtlasObservationPublish(context: {
     observe: ((record: object) => void) | undefined;
   } = context;
   // All selected chart families register their physical subarcs before any fit.
-  const pendingByName: Map<string, Pending> = new Map(
-    pending.map((prepared: Pending): [string, Pending] => [
+  const pendingByName: Map<string, IAutoMovieRecoveryAtlasObservationState["Pending"]> = new Map(
+    pending.map((prepared: IAutoMovieRecoveryAtlasObservationState["Pending"]): [string, IAutoMovieRecoveryAtlasObservationState["Pending"]] => [
       prepared.chart.name,
       prepared,
     ]),
   );
-  const batch: ReturnType<typeof B> = B({
-    charts: pending.map((prepared: Pending): Prepared => prepared.chart),
+  const batch: ReturnType<IAutoMovieRecoveryChartBatch.Operation> = B({
+    charts: pending.map((prepared: IAutoMovieRecoveryAtlasObservationState["Pending"]): Prepared => prepared.chart),
     owner: boundaryOwner,
     fit: {
       toleranceMm: input.toleranceMm,
@@ -109,11 +81,9 @@ export function RecoveryAtlasObservationPublish(context: {
       maxIterations: input.maxIterations,
       maxObservationRows: input.maxObservationRowsPerChart,
       maxRefinements: input.maxRefinementsPerChart,
-      physicalGradientLengthMm: input.physicalGradientLengthMm,
-    },
-  });
+      physicalGradientLengthMm: input.physicalGradientLengthMm } });
   for (const result of batch) {
-    const prepared: Pending | undefined = pendingByName.get(result.name);
+    const prepared: IAutoMovieRecoveryAtlasObservationState["Pending"] | undefined = pendingByName.get(result.name);
     if (!prepared)
       throw new Error("A common-network result lost its private source owner");
     if (!result.fit || !result.chart) {
@@ -122,8 +92,7 @@ export function RecoveryAtlasObservationPublish(context: {
         chart: null,
         proposedChart: result.name,
         sourceFaces: prepared.sourceFaces,
-        reason: result.reason,
-      });
+        reason: result.reason });
       const key: string = `${prepared.interval}:${prepared.component}`;
       if (!failedSelectedComponents.has(key)) {
         failedSelectedComponents.add(key);
@@ -139,20 +108,17 @@ export function RecoveryAtlasObservationPublish(context: {
       patches: fit.patches,
       partition: fit.partition,
       boundaries: chart.boundaries,
-      leafLayout: fit.leafLayout,
-    });
+      leafLayout: fit.leafLayout });
     const offset: number = controls.length;
     for (const point of fit.controlsMm)
       controls.push({
         x: point[0] * 0.001,
         y: point[1] * 0.001,
-        z: point[2] * 0.001,
-      });
+        z: point[2] * 0.001 });
     for (const patch of fit.patches)
       patches.push({
         id: patch.id,
-        controlIds: patch.controlIds.map((id: number): number => offset + id),
-      });
+        controlIds: patch.controlIds.map((id: number): number => offset + id) });
     charts.push({
       id: result.name,
       interval: prepared.interval,
@@ -168,8 +134,7 @@ export function RecoveryAtlasObservationPublish(context: {
       map: {
         qualified: fit.map.qualified,
         residual: fit.map.residual,
-        failedTriangles: fit.map.failedTriangles.length,
-      },
+        failedTriangles: fit.map.failedTriangles.length },
       continuity: fit.continuity,
       partition: fit.partition,
       leafBounds: fit.leafLayout.leaves.map(
@@ -188,16 +153,14 @@ export function RecoveryAtlasObservationPublish(context: {
           (sum: number, row: (typeof fit.boundary)[number]): number =>
             sum + row.curve.spans.length,
           0,
-        ),
-      },
+        ) },
       sourceChart: prepared.sourceChart,
       diskConstruction: prepared.diskConstruction,
       commonBoundaryNetwork: {
         scope: "entire-selected-chart-domain",
         succeeded: result.sharedBoundaryQualified,
         networkMeasuredPointChangeMm: result.networkMaximumPointChangeMm,
-        diagnostics: result.diagnostics,
-      },
+        diagnostics: result.diagnostics },
       physicalGradientLengthMm: input.physicalGradientLengthMm ?? 0,
       externalBoundaryAuthorityQualified:
         prepared.externalBoundaryAuthorityQualified &&
@@ -210,12 +173,10 @@ export function RecoveryAtlasObservationPublish(context: {
           curve: boundary.curve,
           toleranceMet: boundary.toleranceMet,
           sampleMaximumMm: boundary.sampleMaximumMm,
-          polylineUpperEstimateMm: boundary.polylineUpperEstimateMm,
-        }),
+          polylineUpperEstimateMm: boundary.polylineUpperEstimateMm }),
       ),
       externalJoins:
-        "all-selected-families-share-declared-physical-subarcs; physical-gradient-fit-is-not-exact-G1; global-neighbor-and-cut-bank-qualification-remains-explicit",
-    });
+        "all-selected-families-share-declared-physical-subarcs; physical-gradient-fit-is-not-exact-G1; global-neighbor-and-cut-bank-qualification-remains-explicit" });
     for (const face of prepared.sourceFaces) representedFaces.add(face);
     prepared.outcomes.push({
       component: prepared.component,
@@ -224,8 +185,7 @@ export function RecoveryAtlasObservationPublish(context: {
       qualified: fit.qualified,
       reason: null,
       sourceFaceScope:
-        "At least one clipped feature/chart part; not complete original-face area",
-    });
+        "At least one clipped feature/chart part; not complete original-face area" });
     observe?.({
       phase: "common-network-chart-fit",
       chart: result.name,
@@ -234,16 +194,15 @@ export function RecoveryAtlasObservationPublish(context: {
       rows: fit.areaObservation.rows,
       unknownControls: fit.joint.unknownControls,
       physicalJetRows: fit.joint.physicalJetRows,
-      iterations: fit.joint.iterations,
-    });
+      iterations: fit.joint.iterations });
   }
   let assembly:
-    | Omit<ReturnType<typeof RecoveryChartAssembly>, "controlsMm" | "patches">
+    | Omit<ReturnType<IAutoMovieRecoveryChartAssembly.Operation>, "controlsMm" | "patches">
     | { diagnostics: string[]; failed: true };
   let boundaryAuthorities: IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"],
     boundaryBindings: IAutoMovieBicubicAtlasGeometry["boundaryBindings"];
   try {
-    const merged: ReturnType<typeof RecoveryChartAssembly> =
+    const merged: ReturnType<IAutoMovieRecoveryChartAssembly.Operation> =
       RecoveryChartAssembly(fittedCharts);
     boundaryAuthorities = merged.boundaryAuthorities;
     boundaryBindings = merged.boundaryBindings;
@@ -253,23 +212,20 @@ export function RecoveryAtlasObservationPublish(context: {
       controls.push({
         x: point[0] * 0.001,
         y: point[1] * 0.001,
-        z: point[2] * 0.001,
-      });
+        z: point[2] * 0.001 });
     for (const patch of merged.patches) patches.push(patch);
     assembly = {
       diagnostics: merged.diagnostics,
       maximumCanonicalRestrictionDifferenceMm:
         merged.maximumCanonicalRestrictionDifferenceMm,
       sharedBoundarySpans: merged.sharedBoundarySpans,
-      unmatchedBoundarySpans: merged.unmatchedBoundarySpans,
-    };
+      unmatchedBoundarySpans: merged.unmatchedBoundarySpans };
   } catch (failure: unknown) {
     assembly = {
       failed: true,
       diagnostics: [
         `Canonical boundary assembly failed; finite independently fitted charts retained: ${failure instanceof Error ? failure.message : String(failure)}`,
-      ],
-    };
+      ] };
   }
   const fitReports: {
     id: string;
@@ -352,9 +308,7 @@ export function RecoveryAtlasObservationPublish(context: {
                 (diagnostic: string): string => `${report.id}: ${diagnostic}`,
               ),
           ),
-        ],
-      },
-    },
+        ] } },
     charts,
     coverage: {
       complete: false,
@@ -403,8 +357,6 @@ export function RecoveryAtlasObservationPublish(context: {
         "closed/ruled seam coupling",
       ],
       visitedIntervalIds,
-      unvisitedIntervalIds: selection.intervals.slice(visitedIntervals),
-    },
-    privateLedger,
-  };
+      unvisitedIntervalIds: selection.intervals.slice(visitedIntervals) },
+    privateLedger };
 }

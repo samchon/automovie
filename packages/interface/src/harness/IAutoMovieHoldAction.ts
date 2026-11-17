@@ -1,4 +1,4 @@
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 
 /**
  * A beat of stillness: the actor holds a pose for an explicit span.

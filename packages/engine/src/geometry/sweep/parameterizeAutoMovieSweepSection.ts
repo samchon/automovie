@@ -1,4 +1,5 @@
-import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
+import type { IAutoMovieSweepSection, IAutoMovieParameterizeSweepSection } from "@automovie/interface";
+
 
 /**
  * Parameterize a section curve over one closed parameter interval.
@@ -28,15 +29,9 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  */
 export const parameterizeAutoMovieSweepSection: (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,
-) => {
-  point: (t: number) => IAutoMovieSweepSection.IPoint;
-  segments: number;
-} = (
+) => IAutoMovieParameterizeSweepSection.IResult = (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,
-): {
-  point: (t: number) => IAutoMovieSweepSection.IPoint;
-  segments: number;
-} => {
+): IAutoMovieParameterizeSweepSection.IResult => {
   if (section.type === "superellipse") {
     const half: number[] = [
       section.right,

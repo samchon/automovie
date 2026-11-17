@@ -1,10 +1,6 @@
-import {
-  type IAutoMovieSubdivisionCage,
-  type IAutoMovieSubdivisionParameter,
-  type IAutoMovieSubdivisionSurface,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSubdivisionCage, IAutoMovieSubdivisionParameter, IAutoMovieSubdivisionSurface, IAutoMovieVector3 } from "@automovie/interface";
+import { subdivideAutoMovieSurface } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { subdivisionCornerNormal } from "../internal/subdivisionCornerNormal";

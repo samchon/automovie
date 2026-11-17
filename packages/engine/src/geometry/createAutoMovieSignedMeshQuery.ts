@@ -1,9 +1,7 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMeshQueryHierarchy, IAutoMovieSignedMeshQueryHit, IAutoMovieSignedMeshQueryOptions, IAutoMovieMesh } from "@automovie/interface";
+
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
-import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
-import type { IAutoMovieSignedMeshQueryHit } from "./IAutoMovieSignedMeshQueryHit";
-import type { IAutoMovieSignedMeshQueryOptions } from "./IAutoMovieSignedMeshQueryOptions";
 import { boundAutoMovieMeshQueryPoint as bound } from "./boundAutoMovieMeshQueryPoint";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";

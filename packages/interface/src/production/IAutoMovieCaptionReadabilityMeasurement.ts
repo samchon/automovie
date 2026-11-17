@@ -1,4 +1,4 @@
-import { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
+import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
 
 /**
  * Effective readability measurements for one compiled caption cue. Counts use canonical displayed lines and the recorded grapheme runtime; frame counts use the production clock.

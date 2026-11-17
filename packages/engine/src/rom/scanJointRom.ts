@@ -1,8 +1,5 @@
-import {
-  IAutoMovieAngleRange,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-} from "@automovie/interface";
+import { type IAutoMovieScanJointRom, type IAutoMovieSwingTwistRange, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
+
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -59,26 +56,26 @@ export const scanJointRom: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
   report: (
-    part: scanJointRom.Part,
+    part: IAutoMovieScanJointRom.Part,
     actual: number,
     overshoot: number | undefined,
   ) => void,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieSwingTwistRange.IJoint,
 ) => void = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
   report: (
-    part: scanJointRom.Part,
+    part: IAutoMovieScanJointRom.Part,
     actual: number,
     overshoot: number | undefined,
   ) => void,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieSwingTwistRange.IJoint,
 ): void => {
   // A ball joint gated by swing and twist reads its rotation, not its three
   // angles: the swing past the reach of its flexion and abduction ranges,
   // then the twist past its interval, in the frame its clinical angles are
   // written in: the caller's rig's, or the humanoid tables'.
-  const range: swingTwistRange.IJoint | undefined =
+  const range: IAutoMovieSwingTwistRange.IJoint | undefined =
     constraint.swingTwist === undefined || constraint.swingTwist === null
       ? undefined
       : (rig ?? swingTwistRange.of(joint.bone));
@@ -99,7 +96,7 @@ export const scanJointRom: (
       )
     )
       return;
-    const reading: swingTwistRange.IReading = swingTwistRange.read(
+    const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
       jointToQuaternion(joint, range.axes, range.frame),
       range,
     );
@@ -147,23 +144,3 @@ export const scanJointRom: (
       report("swing", swing, swing - constraint.swingDeg);
   }
 };
-
-/**
- * Companion declarations of {@link scanJointRom}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names what the namespace holds; its one member states what each value stands for.
- * @evidence contracts/development/design.md#principled-representation Holds the one type the scan's callback needs, the part a fault is measured on.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One type, declared beside the function whose callback takes it and read by its two callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No cast, no index signature and no copy of a type owned elsewhere.
- */
-export namespace scanJointRom {
-  /**
-   * What a fault is measured on: one clinical axis, or the combined swing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of part a fault can name.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the three clinical axis names a joint pose carries and `swing`, the coupling of flexion and abduction that belongs to no single axis.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four literals, one for each check the scan runs; the gate maps each to its message and the ranking ignores it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts String literals rather than `string`, so a caller's switch over the parts is checked for exhaustiveness.
-   */
-  export type Part = "flexion" | "abduction" | "twist" | "swing";
-}

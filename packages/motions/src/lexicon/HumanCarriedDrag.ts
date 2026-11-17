@@ -1,4 +1,4 @@
-import type { HumanCarried } from "./HumanCarried";
+import type { IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedDrag } from "@automovie/interface";
 
 /**
  * The carries in which the carried body trails on the floor (#3349): the
@@ -29,11 +29,9 @@ import type { HumanCarried } from "./HumanCarried";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; offsets are in arm lengths.
  */
 export namespace HumanCarriedDrag {
-  /** A drag's name. */
-  export type Name = "armpitDrag" | "collarDrag" | "ankleDrag";
 
   /** The drags. */
-  export const CARRIES: Readonly<Record<Name, HumanCarried.IRow>> = {
+  export const CARRIES: Readonly<Record<IAutoMovieMotionHumanCarriedDrag.Name, IAutoMovieMotionHumanCarried.IRow>> = {
     armpitDrag: {
       mine: "upperBack",
       theirs: "abdomen",

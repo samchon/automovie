@@ -1,5 +1,4 @@
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
-
+import type { IAutoMovieSweep } from "@automovie/interface";
 /**
  * Refuse a feature whose band or points cannot define a finite sweep displacement.
  *

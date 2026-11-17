@@ -1,12 +1,5 @@
-import {
-  AutoMovieAffordanceKind,
-  IAutoMovieAffordance,
-  IAutoMoviePropRelation,
-  IAutoMoviePropRelationTarget,
-  IAutoMoviePropSpec,
-} from "@automovie/interface";
+import { type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, AutoMovieAffordanceKind, IAutoMovieAffordance, IAutoMoviePropRelationTarget } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**
  * Gate one relation that cites another prop's declared contact point.
@@ -34,23 +27,11 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and appends at most one violation per call.
  */
 export const validatePropAffordanceTarget: (
-  props: {
-    relation: IAutoMoviePropRelation;
-    target: IAutoMoviePropRelationTarget.IPropAffordance;
-    path: string;
-    node: string;
-    matches: readonly { value: IAutoMoviePropSpec }[];
-  },
-  out: ViolationCollector,
+  props: IAutoMovieValidatePropAffordanceTarget.IProps,
+  out: IAutoMovieViolationCollector,
 ) => void = (
-  props: {
-    relation: IAutoMoviePropRelation;
-    target: IAutoMoviePropRelationTarget.IPropAffordance;
-    path: string;
-    node: string;
-    matches: readonly { value: IAutoMoviePropSpec }[];
-  },
-  out: ViolationCollector,
+  props: IAutoMovieValidatePropAffordanceTarget.IProps,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const target: IAutoMoviePropRelationTarget.IPropAffordance = props.target;
   if (target.prop === props.node) {

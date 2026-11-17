@@ -1,6 +1,17 @@
-import type { IAutoMovieContourLoft64, IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieContourLoft64, IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanBodyCalibration, IAutoMovieHumanHandConstruction, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandWrist } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
 import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
@@ -9,16 +20,7 @@ import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandSkinTargets } from "./AutoMovieHumanHandSkinTargets";
 import { AutoMovieHumanHandSolve } from "./AutoMovieHumanHandSolve";
-import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
-import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanHandJoints } from "./IAutoMovieHumanHandJoints";
-import type { IAutoMovieHumanHandMeasures } from "./IAutoMovieHumanHandMeasures";
-import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
-import type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
 
 /**
  * The hand, composed from its pieces and nothing more: the form shared by
@@ -32,33 +34,20 @@ type Vec3 = AutoMovieHumanHandVector.Vec3;
  * the same construction.
  */
 export namespace AutoMovieHumanHandConstruction {
-  /** Authored fixed contour topology before JSON tuple and literal restoration. */
-  export interface IFixedContourInput {
-    /** Physical original section coordinates and their closed coefficient loops. */
-    sections: { coordinateMm: number; loops: { curve: AutoMovieHumanHandPalm.IFixedCurveInput; winding: number }[] }[];
-    /** Original section-to-section component incidence. */
-    intervals?: IAutoMovieContourLoft64["intervals"];
-    /** Observed source events with their physical coordinate and incident loops. */
-    events: {
-      name: string; coordinateMm: number; beforeMm: number; afterMm: number; before: number[]; after: number[];
-      kind: string; regular: boolean; terminal: number[] | null;
-    }[];
-    /** Original physical chord budget in millimetres. */
-    chordToleranceMm: number;
-  }
+  
 
   /** Restore exactly the declared contour coefficients and event incidence. */
-  export function fixedContour(value: IFixedContourInput): IAutoMovieContourLoft64 {
+  export function fixedContour(value: IAutoMovieHumanHandConstruction.IFixedContourInput): IAutoMovieContourLoft64 {
     const point: typeof AutoMovieHumanHandPalm.fixedPoint = AutoMovieHumanHandPalm.fixedPoint;
     return {
       ...value,
-      sections: value.sections.map((section: IFixedContourInput["sections"][number]): IAutoMovieContourLoft64.ISection => ({
+      sections: value.sections.map((section: IAutoMovieHumanHandConstruction.IFixedContourInput["sections"][number]): IAutoMovieContourLoft64.ISection => ({
         ...section, loops: section.loops.map((loop: typeof section.loops[number]): IAutoMovieContourLoft64.ISection["loops"][number] => {
           if (loop.winding !== 1 && loop.winding !== -1) throw new Error("A fixed F1 loop has no declared winding");
           return { ...loop, winding: loop.winding, curve: AutoMovieHumanHandPalm.fixedCurve(loop.curve) };
         }),
       })),
-      events: value.events.map((event: IFixedContourInput["events"][number]): IAutoMovieContourLoft64.IEvent => {
+      events: value.events.map((event: IAutoMovieHumanHandConstruction.IFixedContourInput["events"][number]): IAutoMovieContourLoft64.IEvent => {
         if (event.kind !== "saddle" && event.kind !== "minimum" && event.kind !== "maximum")
           throw new Error("A fixed F1 contour event has an unknown incidence");
         return { ...event, kind: event.kind, terminal: event.terminal === null ? null : point(event.terminal) };
@@ -69,80 +58,11 @@ export namespace AutoMovieHumanHandConstruction {
   /** Points of a digit's centre line per point handed to the skeleton. */
   const LINE_EVERY: number = 8;
 
-  /** What one side's hand reads. */
-  export interface IInput<A extends IAutoMovieHumanHandWrist> {
-    /** Calibration the body's surface is built on, for the knuckle section's skin. */
-    calibration: IAutoMovieHumanBodyCalibration;
+  
 
-    /** Which side; the hand is built in the left frame either way. */
-    side: "left" | "right";
+  
 
-    /** The person's hand measures for this side. */
-    given: IAutoMovieHumanHandMeasures;
-
-    /** Hand tape over knuckles II to V, mm. */
-    circumference: number;
-
-    /** Wrist tape at stylion, mm. */
-    wristTape: number;
-
-    /** The arm the hand grows out of, built for a set of scales. */
-    makeArm: (measures: IAutoMovieHumanHandScales) => A;
-
-    /** Identity of the arm and the hand's inputs, for the skin targets' cache. */
-    key: string;
-
-    /** Whether to build the chains; the skeleton needs only the landmarks. */
-    lofted: boolean;
-  }
-
-  /** One side's hand: the solve, the landmarks the skeleton stands on, and the chains. */
-  export interface IBuilt<A extends IAutoMovieHumanHandWrist> {
-    /** The hand's scales as solved. */
-    measures: IAutoMovieHumanHandScales;
-
-    /** The arm built with those scales. */
-    law: A;
-
-    /** The knuckles and the thumb's base, left frame. */
-    joints: IAutoMovieHumanHandJoints;
-
-    /** Each digit's centre line, joints and tip in world millimetres on this side, thumb first. */
-    lines: ILine[];
-
-    /** The thumb's carpometacarpal and metacarpophalangeal joints, this side. */
-    thumb: { cmc: Vec3; mcp: Vec3 };
-
-    /** The palm's chain, absent when not lofted. */
-    palm: IAutoMovieLoftChain | null;
-
-    /** The digits' chains, thumb first; empty when not lofted. */
-    digits: IAutoMovieLoftChain[];
-
-    /** The digits' poles, thumb first; empty when not lofted. */
-    poles: IAutoMovieHumanBodyCalibration.IPole[];
-
-    /** The digits' nail plates on their chains, thumb first; empty when not lofted. */
-    nails: IAutoMovieHumanBodyCalibration.INail[];
-  }
-
-  /** A digit's published centre line. */
-  export interface ILine {
-    /** Chain name. */
-    name: string;
-
-    /** Points of the digit's centre line from its root at the web to its tip. */
-    line: Vec3[];
-
-    /** The tip's apex. */
-    tip: Vec3;
-
-    /** The metacarpophalangeal joint, where the metacarpal ends. */
-    joint: Vec3;
-
-    /** The digit's joints from its MCP to its tip: MCP, PIP, DIP and tip for a finger, MCP, IP and tip for the thumb. */
-    joints: Vec3[];
-  }
+  
 
   /**
    * Build one side's hand.
@@ -152,8 +72,8 @@ export namespace AutoMovieHumanHandConstruction {
    * the joints, the joints give the digits' bones, and the bones give the
    * chains.
    */
-  export function build<A extends IAutoMovieHumanHandWrist>(input: IInput<A>): IBuilt<A> {
-    const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+  export function build<A extends IAutoMovieHumanHandWrist>(input: IAutoMovieHumanHandConstruction.IInput<A>): IAutoMovieHumanHandConstruction.IBuilt<A> {
+    const prior: IAutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
     const sign: 1 | -1 = input.side === "left" ? 1 : -1;
     const hand: IAutoMovieHumanHandForm = AutoMovieHumanHandForm.form();
 
@@ -182,26 +102,26 @@ export namespace AutoMovieHumanHandConstruction {
     // Every digit stands on its bones: the thumb from its root through its MCP,
     // each finger from its knuckle, the middle one reaching the hand length.
     const fingers: IAutoMovieHumanHandFinger[] = AutoMovieHumanHandFingers.digitsOf(hand, measures, law, joints);
-    const lines: ILine[] = hand.digits.map((_: IAutoMovieHumanHandDigit, i: number): ILine => {
+    const lines: IAutoMovieHumanHandConstruction.ILine[] = hand.digits.map((_: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanHandConstruction.ILine => {
       const own: IAutoMovieHumanHandFinger = fingers[i]!;
       return {
         name: prior.digits[i]!.name.replace("{side}", input.side),
         line: own.points
-          .filter((_p: Vec3, k: number): boolean => k % LINE_EVERY === 0)
-          .map((p: Vec3): Vec3 => AutoMovieHumanHandSide.sided(p, sign)),
+          .filter((_p: AutoMovieVector3Tuple, k: number): boolean => k % LINE_EVERY === 0)
+          .map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => AutoMovieHumanHandSide.sided(p, sign)),
         tip: AutoMovieHumanHandSide.sided(own.pole, sign),
         joint: AutoMovieHumanHandSide.sided(joints.mcps[i]!, sign),
-        joints: [...own.joints, own.pole].map((p: Vec3): Vec3 => AutoMovieHumanHandSide.sided(p, sign)),
+        joints: [...own.joints, own.pole].map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => AutoMovieHumanHandSide.sided(p, sign)),
       };
     });
-    const thumb: { cmc: Vec3; mcp: Vec3 } = {
+    const thumb: { cmc: AutoMovieVector3Tuple; mcp: AutoMovieVector3Tuple } = {
       cmc: AutoMovieHumanHandSide.sided(joints.cmc, sign),
       mcp: AutoMovieHumanHandSide.sided(joints.mcps[0]!, sign),
     };
     if (!input.lofted) return { measures, law, joints, lines, thumb, palm: null, digits: [], poles: [], nails: [] };
 
     // The chains, from the same bones, in the left frame reflected to the side.
-    const map = (q: readonly [number, number, number]): Vec3 => AutoMovieHumanHandMap.handPoint(q, measures, law.wrist);
+    const map = (q: readonly [number, number, number]): AutoMovieVector3Tuple => AutoMovieHumanHandMap.handPoint(q, measures, law.wrist);
     return {
       measures,
       law,

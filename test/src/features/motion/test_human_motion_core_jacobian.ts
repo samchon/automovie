@@ -1,24 +1,7 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  clampJointToSkeleton,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointPose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanJacobian,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3, clampJointToSkeleton } from "@automovie/engine";
+
+import { HumanJacobian, poseBones, resolveHumanPosture } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -59,7 +42,7 @@ export function test_human_motion_core_jacobian(): void {
     ["m-average", 7],
     ["f-small", 11],
   ] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     let state: number = seed;
     const random = (): number => {
       state = (state * 1103515245 + 12345) % 2147483648;
@@ -67,8 +50,8 @@ export function test_human_motion_core_jacobian(): void {
     };
 
     // A posture inside every range, and the variables it has.
-    const joints: IHumanPosture["joints"] = {};
-    const variables: HumanJacobian.IVariable[] = [
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
+    const variables: IAutoMovieMotionHumanJacobian.IVariable[] = [
       { kind: "place", axis: "x" },
       { kind: "place", axis: "y" },
       { kind: "place", axis: "z" },
@@ -125,7 +108,7 @@ export function test_human_motion_core_jacobian(): void {
           variables.push({ kind: "angle", bone, axis: k as 0 | 1 | 2 });
       });
     }
-    const posture: IHumanPosture = {
+    const posture: IAutoMovieMotionHumanPosture = {
       root: {
         x: random() * 2 - 1,
         y: 0.9 + random() * 0.2,
@@ -138,18 +121,18 @@ export function test_human_motion_core_jacobian(): void {
       limbs: {},
     };
     const posed = (
-      p: IHumanPosture,
+      p: IAutoMovieMotionHumanPosture,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       poseBones(body, resolveHumanPosture(body, p));
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       posed(posture);
-    const motions: HumanJacobian.IMotion[] = HumanJacobian.of(
+    const motions: IAutoMovieMotionHumanJacobian.IMotion[] = HumanJacobian.of(
       body,
       posture,
       bones,
       variables,
     );
-    const nudged = (v: HumanJacobian.IVariable, h: number): IHumanPosture => {
+    const nudged = (v: IAutoMovieMotionHumanJacobian.IVariable, h: number): IAutoMovieMotionHumanPosture => {
       if (v.kind === "place")
         return {
           ...posture,
@@ -176,7 +159,7 @@ export function test_human_motion_core_jacobian(): void {
       const error: number = Vector3.length(Vector3.subtract(an, fd));
       if (error > worst.error) worst = { error, where };
     };
-    variables.forEach((v: HumanJacobian.IVariable, i: number): void => {
+    variables.forEach((v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
       const h: number = v.kind === "place" ? 1e-5 : 1e-3;
       const up: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
         nudged(v, h),
@@ -206,7 +189,7 @@ export function test_human_motion_core_jacobian(): void {
           sine < 1e-15
             ? { x: 0, y: 0, z: 0 }
             : Vector3.scale(vector, angle / sine / (2 * h));
-        const twist: HumanJacobian.ITwist = HumanJacobian.twist(
+        const twist: IAutoMovieMotionHumanJacobian.ITwist = HumanJacobian.twist(
           motions[i]!,
           bone,
           b.worldPosition,

@@ -1,20 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type { tags } from "typia";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanStrikingAdvance, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSword, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingAdvance } from "../striking/StrikingAdvance";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -54,52 +42,9 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sword kind is named; lengths are shares of the arm and the blade's own length.
  */
 export namespace HumanSword {
-  /** What every blade action takes. */
-  export interface IWield {
-    /** The held blade's prop subject id; the bare hand when absent. */
-    blade?: string;
-
-    /** The hand that holds it; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** How many hands are on the grip; 2 for a blade whose grip declares a two-hand grasp, else 1. */
-    hands?: 1 | 2;
-
-    /** The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent. */
-    tip?: string;
-
-    /** See `tip`. */
-    edge?: string;
-
-    /** How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549). */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /** Where a cut comes from, as the performer sees it: `forehand` is the blade hand's side. */
-  export type Line =
-    | "above"
-    | "aboveForehand"
-    | "forehand"
-    | "belowForehand"
-    | "below"
-    | "belowBackhand"
-    | "backhand"
-    | "aboveBackhand";
-
-  /** A direction or a place by its parts: away from the midline on the blade hand's side, up, and forward. */
-  export interface IParts {
-    /** Toward the blade hand's side. */
-    out: number;
-
-    /** Up. */
-    up: number;
-
-    /** Forward. */
-    forward: number;
-  }
 
   /** Where each cut comes from, across the line to the target: `out` and `up` parts of a unit direction. */
-  export const LINES: Readonly<Record<Line, readonly [number, number]>> = {
+  export const LINES: Readonly<Record<IAutoMovieMotionHumanSword.Line, readonly [number, number]>> = {
     above: [0, 1],
     aboveForehand: [Math.SQRT1_2, Math.SQRT1_2],
     forehand: [1, 0],
@@ -142,61 +87,16 @@ export namespace HumanSword {
     Record<"thrust" | "cut", readonly [number, number]>
   > = { thrust: [2.6, 3.2], cut: [6, 10] };
 
-  /** Parameters of a cut or a thrust. */
-  export interface IAttack extends IWield {
-    /** What it is aimed at; a place at the blade's reach ahead when absent. */
-    target?: AutoMovieMotionTarget;
-
-    /** How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. */
-    advance?: StrikingBlade.Advance;
-
-    /** Whether it lands or is stopped short for a parry to meet; `lands` when absent. */
-    outcome?: "lands" | "parried";
-
-    /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
-    feint?: number &
-      tags.ExclusiveMinimum<0> &
-      tags.ExclusiveMaximum<1> &
-      HumanUnit<"">;
-  }
-
-  /** Parameters of a cut. */
-  export interface ICut extends IAttack {
-    /** Where the cut comes from; `above` when absent. */
-    from?: Line;
-  }
-
-  /** The performer's axes and the held blade, read once per plan. */
-  export interface ISetup {
-    /** The held blade in the hand's frame. */
-    tool: StrikingHeld.ITool;
-
-    /** Where the other hand holds the grip, or null for one hand. */
-    support: StrikingBlade.ISupport | null;
-
-    /** The upper arm and the forearm together, metres. */
-    arm: number;
-
-    /** The blade hand's shoulder joint at the entry, world metres. */
-    shoulder: IAutoMovieVector3;
-
-    /** A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent. */
-    world: (parts: IParts, yaw?: number) => IAutoMovieVector3;
-
-    /** A quantity between its novice and elite values at the performer's speed skill. */
-    skill: (pair: readonly [number, number]) => number;
-  }
-
   /**
    * Read the held blade and the performer's axes at an action's entry.
    *
    * @param context The action's context.
    * @returns The setup.
    */
-  export const setup = (context: IHumanActionContext<IWield>): ISetup => {
-    const p: IWield = context.params;
-    const side: HumanHand.Side = p.hand ?? "right";
-    const tool: StrikingHeld.ITool = StrikingHeld.of(
+  export const setup = (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IWield>): IAutoMovieMotionHumanSword.ISetup => {
+    const p: IAutoMovieMotionHumanSword.IWield = context.params;
+    const side: IAutoMovieMotionHumanHand.Side = p.hand ?? "right";
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
       context,
       side,
       p.blade,
@@ -227,7 +127,7 @@ export namespace HumanSword {
         z: 1,
       }),
       world: (
-        parts: IParts,
+        parts: IAutoMovieMotionHumanSword.IParts,
         yaw: number = context.entry.posture.yaw,
       ): IAutoMovieVector3 =>
         HumanFrame.point(
@@ -240,7 +140,7 @@ export namespace HumanSword {
   };
 
   /** The cancel table of a blade action: anything may follow from the named instant on, the grip kept. */
-  export const follows = (instant: string): IHumanActionLaw["interrupts"] => ({
+  export const follows = (instant: string): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
     any: [
       {
         window: [instant, 1],
@@ -252,38 +152,14 @@ export namespace HumanSword {
     ],
   });
 
-  /** What an attack's target and advance give its geometry. */
-  export interface IAim {
-    /** The point aimed at, world metres. */
-    target: IAutoMovieVector3;
-
-    /** The horizontal unit line from the root to the target. */
-    line: IAutoMovieVector3;
-
-    /** That line's heading, degrees. */
-    yaw: number;
-
-    /** The advance taken. */
-    advance: StrikingBlade.Advance;
-
-    /** How far it carries the leading foot, metres: the least of its travel that brings the target within reach. */
-    travel: number;
-
-    /** The blade hand's shoulder at the decisive instant, world metres. */
-    reach: IAutoMovieVector3;
-
-    /** The body as the advance leaves it at the decisive instant. */
-    posture: IHumanPosture;
-  }
-
   /** Read an attack's target, line and advance: the target named or a place at the blade's reach, and with no advance named the least that reaches. */
   export const aim = (
-    context: IHumanActionContext<IAttack>,
-    s: ISetup,
-    place: IParts,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
+    s: IAutoMovieMotionHumanSword.ISetup,
+    place: IAutoMovieMotionHumanSword.IParts,
     span: number,
-  ): IAim => {
-    const p: IAttack = context.params;
+  ): IAutoMovieMotionHumanSword.IAim => {
+    const p: IAutoMovieMotionHumanSword.IAttack = context.params;
     const root: IAutoMovieVector3 = context.entry.posture.root;
     const given: IAutoMovieVector3 | undefined =
       p.target === undefined
@@ -300,7 +176,7 @@ export namespace HumanSword {
     // part: the target lies within reach where it is no farther from the
     // shoulder than `REACH` of the arm and that span together.
     const within = (
-      candidate: StrikingBlade.Advance,
+      candidate: IAutoMovieMotionHumanStrikingAdvance.Advance,
       travel: number = StrikingAdvance.travel(context, candidate),
     ): boolean =>
       given === undefined ||
@@ -314,10 +190,10 @@ export namespace HumanSword {
         REACH * s.arm;
 
     // With no advance named, the least one that reaches: none, step, lunge.
-    const advance: StrikingBlade.Advance =
+    const advance: IAutoMovieMotionHumanStrikingAdvance.Advance =
       p.advance ??
       (["none", "step"] as const).find(
-        (candidate: StrikingBlade.Advance): boolean => within(candidate),
+        (candidate: IAutoMovieMotionHumanStrikingAdvance.Advance): boolean => within(candidate),
       ) ??
       "lunge";
 
@@ -380,7 +256,7 @@ export namespace HumanSword {
   export const timed: typeof HumanSwordTiming.timed = HumanSwordTiming.timed;
 
   /** The share of its path an attack runs: all of it, a feint's shown share, or a parried attack's stop. */
-  export const stopped = (params: IAttack): number => {
+  export const stopped = (params: IAutoMovieMotionHumanSword.IAttack): number => {
     if (params.feint !== undefined)
       return HumanBound.within("feint", params.feint, 0, 1, "", "both");
     return params.outcome === "parried" ? STOPPED : 1;
@@ -401,11 +277,11 @@ export namespace HumanSword {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const cut: IHumanActionLaw<ICut> = {
+  export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> = {
     name: "swordCut",
     interrupts: follows("strokeEnd"),
-    plan: (context: IHumanActionContext<ICut>): IHumanActionPlan => {
-      const s: ISetup = setup(context);
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.ICut>): IAutoMovieMotionHumanActionPlan => {
+      const s: IAutoMovieMotionHumanSword.ISetup = setup(context);
       // What lands is the held thing's own striking part: `LANDS.cut` along
       // its edge from the hand's end, or its working point when it declares
       // no edge.
@@ -413,7 +289,7 @@ export namespace HumanSword {
         s.tool.span === null
           ? 0
           : s.tool.span[1] - LANDS.cut * (s.tool.span[1] - s.tool.span[0]);
-      const a: IAim = aim(
+      const a: IAutoMovieMotionHumanSword.IAim = aim(
         context,
         s,
         { out: 0, up: -0.1, forward: 0.6 },
@@ -426,7 +302,7 @@ export namespace HumanSword {
 
       // The contact pose: the landing part on the target, the edge leading
       // along the travel, the blade's lean and turn as the arm holds them.
-      const landed: StrikingHeld.IHandFrame = HumanSwordLanding.frame(context, {
+      const landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = HumanSwordLanding.frame(context, {
         tool: s.tool,
         back,
         target: a.target,
@@ -451,7 +327,7 @@ export namespace HumanSword {
           s.arm,
         ),
       );
-      const path = (progress: number): StrikingHeld.IHandFrame => ({
+      const path = (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
         rotation: Quaternion.multiply(
           Quaternion.fromAxisAngle(about, -SWING * (1 - progress)),
           landed.rotation,

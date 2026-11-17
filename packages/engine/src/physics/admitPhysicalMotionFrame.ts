@@ -1,5 +1,4 @@
-import type { AutoMovieMotionAudit as Audit } from "./AutoMovieMotionAudit";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
+import type { IAutoMovieMotionAudit, IAutoMovieMotionGeometry, IAutoMoviePhysicsCache } from "@automovie/interface";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { motionAuditGeometry } from "./motionAuditGeometry";
 
@@ -15,8 +14,8 @@ import { motionAuditGeometry } from "./motionAuditGeometry";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalMotionFrame(
-  frame: Cache.IFrame,
-  bodies: readonly Audit.IBody[],
+  frame: IAutoMoviePhysicsCache.IFrame,
+  bodies: readonly IAutoMovieMotionAudit.IBody[],
   seconds: number,
 ): void {
   if (
@@ -30,12 +29,12 @@ export function admitPhysicalMotionFrame(
     for (const bone of [
       ...motionAuditGeometry(body).segments.map(
         (
-          segment: ReturnType<typeof motionAuditGeometry>["segments"][number],
+          segment: IAutoMovieMotionGeometry["segments"][number],
         ): string => segment.bone,
       ),
       ...(motionAuditGeometry(body).witnesses ?? []),
     ]) {
-      const state: Cache.ISegment | undefined = frame.bodies[body.id]?.[bone];
+      const state: IAutoMoviePhysicsCache.ISegment | undefined = frame.bodies[body.id]?.[bone];
       if (
         !state?.position ||
         !state.rotation ||

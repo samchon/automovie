@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanBalance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Quaternion,
   Vector3,
@@ -7,11 +9,7 @@ import {
   pointInHull,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -94,8 +92,8 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function shift(
-    body: IHumanBody,
-    build: (back: number) => IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    build: (back: number) => IAutoMovieMotionHumanPosture,
     range: number = RANGE,
     target: number = 0,
   ): number {
@@ -189,7 +187,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse across calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
-  export function margin(body: IHumanBody, posture: IHumanPosture): number {
+  export function margin(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
     return read(body, posture).margin;
   }
 
@@ -214,8 +212,8 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function extrapolated(
-    body: IHumanBody,
-    at: (seconds: number) => IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    at: (seconds: number) => IAutoMovieMotionHumanPosture,
     seconds: number,
   ): number {
     const h: number = 1 / 240;
@@ -259,9 +257,9 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function support(
-    body: IHumanBody,
-    posture: IHumanPosture,
-  ): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanBalance.ISupportResult {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
     return {
       centre: resolveAutoMovieCenterOfMass.place(model(body), bones),
@@ -336,7 +334,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
-  export function offset(body: IHumanBody, posture: IHumanPosture): number {
+  export function offset(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
     return read(body, posture).offset;
   }
 }
@@ -349,7 +347,7 @@ interface IReading {
 }
 
 /** A posture's balance, read on one solve of it. */
-function read(body: IHumanBody, posture: IHumanPosture): IReading {
+function read(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): IReading {
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
     resolveHumanPosture(body, posture),
@@ -377,7 +375,7 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
     // socket, the ball or the toe a foot stands on either way.
     flat: (["left", "right"] as const).every(
       (side: "left" | "right"): boolean => {
-        const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(
+        const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
           body,
           bones,
           side,
@@ -392,12 +390,12 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
 }
 
 /** Mass models by body. */
-const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> =
+const MODELS: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass.IModel> =
   new WeakMap();
 
 /** The engine's mass model of a body, made once. */
-function model(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {
-  let out: resolveAutoMovieCenterOfMass.IModel | undefined = MODELS.get(body);
+function model(body: IAutoMovieMotionHumanBody): IAutoMovieResolveCenterOfMass.IModel {
+  let out: IAutoMovieResolveCenterOfMass.IModel | undefined = MODELS.get(body);
   if (out === undefined) {
     out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     MODELS.set(body, out);

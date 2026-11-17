@@ -1,7 +1,5 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**
  * Restore the complete native and causal prefix selected by sampled-input equivalence.
@@ -15,11 +13,11 @@ import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function restorePhysicalSimulationCheckpoint(
-  input: Simulation.IInput,
-  previous: Simulation | undefined,
-  cache: Cache,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  previous: IAutoMoviePhysicalSimulation | undefined,
+  cache: IAutoMoviePhysicsCache,
   start: number,
-  diagnostics: Simulation.IDiagnostic[],
+  diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
 ): World {
   let world: World;
   if (start > 0 && previous) {
@@ -49,7 +47,7 @@ export function restorePhysicalSimulationCheckpoint(
     );
     cache.supportWrenches.push(
       ...previous.cache.supportWrenches.filter(
-        (entry: Cache.ISupportWrench): boolean =>
+        (entry: IAutoMoviePhysicsCache.ISupportWrench): boolean =>
           entry.seconds <= start / input.rate,
       ),
     );

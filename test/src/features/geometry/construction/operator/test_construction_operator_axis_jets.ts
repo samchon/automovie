@@ -1,15 +1,11 @@
-import {
-  AutoMovieConstructionViews,
-  type AutoMovieLoftFrame,
-  AutoMovieViewAxis,
-  AutoMovieViewParallelAxis,
-} from "@automovie/engine";
+import type { IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewParallelAxis } from "@automovie/interface";
+import { AutoMovieConstructionViews, AutoMovieViewAxis, AutoMovieViewParallelAxis } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
 /** A frame jet returned by an actual analytic axis. */
-type Jet = NonNullable<ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>>;
+type Jet = NonNullable<ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>>;
 
 /** A scalar's value and first two station derivatives. */
 type Dual = [number, number, number];
@@ -39,7 +35,7 @@ export function test_construction_operator_axis_jets(): void {
     const displacement: Vec3 = integral(1, half);
     const start: number = 100 * scale - displacement[0];
     for (const rolled of [false, true]) {
-      const axis: AutoMovieViewAxis.IAxis | string =
+      const axis: IAutoMovieViewAxis.IAxis | string =
         AutoMovieConstructionViews.frame({
           type: "jointed",
           centres: [
@@ -88,7 +84,7 @@ export function test_construction_operator_axis_jets(): void {
           `${scale}/${rolled}/${share}`,
           failures,
         );
-        const value: AutoMovieLoftFrame.IFrame = axis.at(station);
+        const value: IAutoMovieLoftFrame.IFrame = axis.at(station);
         for (const key of ["origin", "u", "v"] as const)
           if (
             value[key].some(
@@ -114,7 +110,7 @@ export function test_construction_operator_axis_jets(): void {
     }
   }
 
-  const level: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.level(
+  const level: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.level(
     [
       { station: 0, value: 3 },
       { station: 10, value: 23 },
@@ -137,7 +133,7 @@ export function test_construction_operator_axis_jets(): void {
         failures,
       );
   }
-  const root: AutoMovieViewParallelAxis.IOrigin = {
+  const root: IAutoMovieViewParallelAxis.IOrigin = {
     x: {
       knots: [
         { site: "start", station: 0, value: 10 },
@@ -158,7 +154,7 @@ export function test_construction_operator_axis_jets(): void {
       ],
     },
   };
-  const parallel: AutoMovieViewAxis.IAxis | string =
+  const parallel: IAutoMovieViewAxis.IAxis | string =
     AutoMovieViewParallelAxis.create(root, [1, 0, 0], [0, 0, 1]);
   if (typeof parallel === "string") failures.push(parallel);
   else {
@@ -178,7 +174,7 @@ export function test_construction_operator_axis_jets(): void {
       else compare(actual, expected, 1, "parallel root interior", failures);
     }
   }
-  const numerical: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.minimal(
+  const numerical: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.minimal(
     [
       { station: 0, point: [0, 0, 0] },
       { station: 10, point: [0, 10, 0] },

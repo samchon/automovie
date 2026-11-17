@@ -1,10 +1,18 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieViewPart, IAutoMovieHumanFootSource, IAutoMovieHumanLegSourceFamily, IAutoMovieHumanLegWalk, IAutoMovieHumanSiteRegionControls, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
 
-import type { AutoMovieHumanFootInterim } from "../foot/AutoMovieHumanFootInterim";
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 import { AutoMovieHumanSiteRegionControls } from "../limb/AutoMovieHumanSiteRegionControls";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-import type { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
+
 import { AutoMovieHumanLegRegion } from "./AutoMovieHumanLegRegion";
 import { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
@@ -20,46 +28,11 @@ import { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  * @evidence contracts/performance.md#bound-retention-and-release-resources One body context owns a base, latest coupled definition and one ankle owner; replaced contexts share no result.
  */
 export namespace AutoMovieHumanLegSourceFamily {
-  /** Invocation-owned production inputs and its optional full-parent completion seam. */
-  export interface IInput {
-    /** Existing side-qualified production name. */
-    name: string;
+  
 
-    /** Actual immutable bone frames. */
-    bones: Parameters<typeof AutoMovieHumanLegWalk.define>[1];
-    /** Existing measured and intermediate source laws. */
-    law: AutoMovieHumanLegWalk.ILaw;
+  
 
-    /** Existing emission spacing, calibration mm. */
-    gap: number;
-
-    /** Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion. */
-    complete?: () => void;
-  }
-
-  /** Exact retained region with the actual explicit full-resolver capability. */
-  export type IAnkle = Omit<
-    AutoMovieHumanFootInterim.IAnkleSource,
-    "source"
-  > & {
-    /** Only complete requests the real full original; name/frame/property reads remain local metadata. */
-    source: AutoMovieHumanFootSource.IRegional;
-  };
-
-  /** Regional and full demands of the same production family. */
-  export interface IOutput {
-    /** Latest actual coupled definition, or the base before explicit assembly. */
-    current(): AutoMovieHumanLegWalk.IDefinition;
-
-    /** Same bounded calf-to-cap authority without forcing the full leg or upper-parent completion. */
-    ankle(): IAnkle;
-
-    /** Author a trial/final proximal prefix against its identical parent. */
-    bind(
-      parent: AutoMovieHumanSiteViewPart.IDefinition,
-      station: number,
-    ): AutoMovieHumanLegWalk.IDefinition;
-  }
+  
 
   /**
    * Own the lazy base and explicit completion without a global registry.
@@ -72,10 +45,10 @@ export namespace AutoMovieHumanLegSourceFamily {
    * @evidence contracts/performance.md#reuse-equivalent-work The final reparent and ankle owner share the base's same distal authority; a new family is required for a changed source epoch.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps only the base, latest trial and one ankle owner for this context; no earlier trial list or process survives it.
    */
-  export function create(input: IInput): IOutput {
-    let initial: AutoMovieHumanLegWalk.IDefinition | undefined;
-    let coupled: AutoMovieHumanLegWalk.IDefinition | undefined;
-    let ankle: IAnkle | undefined;
+  export function create(input: IAutoMovieHumanLegSourceFamily.IInput): IAutoMovieHumanLegSourceFamily.IOutput {
+    let initial: IAutoMovieHumanLegWalk.IDefinition | undefined;
+    let coupled: IAutoMovieHumanLegWalk.IDefinition | undefined;
+    let ankle: IAutoMovieHumanLegSourceFamily.IAnkle | undefined;
     let completing: boolean = false;
     let local: { value: ILocal } | { error: unknown } | undefined;
     const regional: () => ILocal = (): ILocal => {
@@ -84,7 +57,7 @@ export namespace AutoMovieHumanLegSourceFamily {
         return local.value;
       }
       try {
-        const chart: AutoMovieHumanWalkPart.ISource | string =
+        const chart: IAutoMovieHumanWalkPart.ISource | string =
           AutoMovieHumanLegWalk.source(
             input.name,
             input.bones,
@@ -92,9 +65,9 @@ export namespace AutoMovieHumanLegSourceFamily {
             input.gap,
           );
         if (typeof chart === "string") throw new Error(chart);
-        const controls: AutoMovieHumanSiteRegionControls.IOutput =
+        const controls: IAutoMovieHumanSiteRegionControls.IOutput =
           AutoMovieHumanSiteRegionControls.create(chart.input, "calf");
-        const distal: AutoMovieHumanFootSource.IRegion =
+        const distal: IAutoMovieHumanFootSource.IRegion =
           AutoMovieHumanLegRegion(controls.local);
         const value: ILocal = { chart, controls, distal };
         local = { value };
@@ -104,8 +77,8 @@ export namespace AutoMovieHumanLegSourceFamily {
         throw error;
       }
     };
-    const base: () => AutoMovieHumanLegWalk.IDefinition =
-      (): AutoMovieHumanLegWalk.IDefinition => {
+    const base: () => IAutoMovieHumanLegWalk.IDefinition =
+      (): IAutoMovieHumanLegWalk.IDefinition => {
         if (initial !== undefined) return initial;
         const region: ILocal = regional();
         initial = {
@@ -135,8 +108,8 @@ export namespace AutoMovieHumanLegSourceFamily {
       }
     };
     return {
-      current: (): AutoMovieHumanLegWalk.IDefinition => coupled ?? base(),
-      ankle(): IAnkle {
+      current: (): IAutoMovieHumanLegWalk.IDefinition => coupled ?? base(),
+      ankle(): IAutoMovieHumanLegSourceFamily.IAnkle {
         if (ankle !== undefined) return ankle;
         const region: ILocal = regional();
         ankle = {
@@ -146,9 +119,9 @@ export namespace AutoMovieHumanLegSourceFamily {
         return ankle;
       },
       bind(
-        parent: AutoMovieHumanSiteViewPart.IDefinition,
+        parent: IAutoMovieHumanSiteViewPart.IDefinition,
         station: number,
-      ): AutoMovieHumanLegWalk.IDefinition {
+      ): IAutoMovieHumanLegWalk.IDefinition {
         coupled = AutoMovieHumanLegWalk.reparent(base(), {
           definition: parent,
           station,
@@ -162,11 +135,11 @@ export namespace AutoMovieHumanLegSourceFamily {
 /** One actual bone chart and its independently prepared calf/ankle scalar family. */
 interface ILocal {
   /** Original unsolved site inputs and bone/share station map. */
-  chart: AutoMovieHumanWalkPart.ISource;
+  chart: IAutoMovieHumanWalkPart.ISource;
 
   /** Shared local C2 coefficients, independent site constraints and full-source connection. */
-  controls: AutoMovieHumanSiteRegionControls.IOutput;
+  controls: IAutoMovieHumanSiteRegionControls.IOutput;
 
   /** Same bounded contact authority retained by the leg and foot, without full-parent demand. */
-  distal: AutoMovieHumanFootSource.IRegion;
+  distal: IAutoMovieHumanFootSource.IRegion;
 }

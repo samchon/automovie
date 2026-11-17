@@ -1,5 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
-
+import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieEvaluateBernstein64 } from "@automovie/interface";
 /**
  * Evaluate an admitted Bernstein piece at local t in [0,1], returning position in millimetres and its derivative per local t. De Casteljau evaluation preserves the supplied degree; rational coordinates use the quotient rule and hybrid Y uses its independent polynomial degree.
  *
@@ -16,15 +15,9 @@ import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Work arrays and returned vectors belong to this call; no coefficient, image or external handle is retained.
  */
 export function evaluateAutoMovieBernstein64(
-  piece: C.Piece,
+  piece: IAutoMovieCurve64.Piece,
   t: number,
-): {
-  /** Millimetre position after any rational and hybrid-Y evaluation. */
-  point: C.Vector;
-
-  /** Millimetres per normalized local t, before any enclosing phase-width division. */
-  derivative: C.Vector;
-} {
+): IAutoMovieEvaluateBernstein64.IResult {
   const finite: (x: number) => number = (x: number): number => {
     if (typeof x !== "number" || !Number.isFinite(x))
       throw new Error("Nonfinite Bernstein arithmetic");
@@ -38,9 +31,9 @@ export function evaluateAutoMovieBernstein64(
     for (const x of a) finite(x);
     return a;
   };
-  const vectors: (a: readonly C.Vector[]) => readonly C.Vector[] = (
-    a: readonly C.Vector[],
-  ): readonly C.Vector[] => {
+  const vectors: (a: readonly Readonly<AutoMovieVector3Tuple>[]) => readonly Readonly<AutoMovieVector3Tuple>[] = (
+    a: readonly Readonly<AutoMovieVector3Tuple>[],
+  ): readonly Readonly<AutoMovieVector3Tuple>[] => {
     if (!Array.isArray(a) || a.length === 0)
       throw new Error("Complete vector coefficients required");
     for (const p of a) {
@@ -62,17 +55,17 @@ export function evaluateAutoMovieBernstein64(
   finite(t);
   if (t < 0 || t > 1 || !Number.isInteger(piece.degree) || piece.degree < 0)
     throw new Error("Invalid Bernstein degree or local parameter");
-  const controls: readonly C.Vector[] = vectors(
+  const controls: readonly Readonly<AutoMovieVector3Tuple>[] = vectors(
     piece.primitive === "polynomialBezier"
       ? piece.controls
       : piece.homogeneousNumerator,
   );
   if (controls.length !== piece.degree + 1)
     throw new Error("Declared degree disagrees with complete coefficients");
-  const metadata: C.Piece & {
+  const metadata: IAutoMovieCurve64.Piece & {
     parameterDomain?: readonly number[];
     qInterval?: readonly number[];
-    controls?: readonly C.Vector[];
+    controls?: readonly Readonly<AutoMovieVector3Tuple>[];
   } = piece;
   if (
     metadata.parameterDomain !== undefined &&
@@ -99,7 +92,7 @@ export function evaluateAutoMovieBernstein64(
     )
       throw new Error("Complete positive Bernstein denominator required");
     if (metadata.controls !== undefined) {
-      const cache: readonly C.Vector[] = vectors(metadata.controls);
+      const cache: readonly Readonly<AutoMovieVector3Tuple>[] = vectors(metadata.controls);
       if (cache.length !== controls.length)
         throw new Error("Derived rational control cache count mismatch");
       for (let i: number = 0; i < controls.length; i++)
@@ -160,10 +153,10 @@ export function evaluateAutoMovieBernstein64(
     return result;
   };
   const p: number[] = [0, 1, 2].map((k: number): number =>
-    casteljau(controls.map((c: C.Vector): number => c[k]!)),
+    casteljau(controls.map((c: Readonly<AutoMovieVector3Tuple>): number => c[k]!)),
   );
   const d: number[] = [0, 1, 2].map((k: number): number =>
-    casteljau(difference(controls.map((c: C.Vector): number => c[k]!))),
+    casteljau(difference(controls.map((c: Readonly<AutoMovieVector3Tuple>): number => c[k]!))),
   );
   if (piece.primitive !== "polynomialBezier") {
     const q: number = casteljau(piece.weights);
@@ -182,7 +175,7 @@ export function evaluateAutoMovieBernstein64(
     }
   }
   return {
-    point: p as unknown as C.Vector,
-    derivative: d as unknown as C.Vector,
+    point: p as unknown as Readonly<AutoMovieVector3Tuple>,
+    derivative: d as unknown as Readonly<AutoMovieVector3Tuple>,
   };
 }

@@ -1,5 +1,9 @@
-import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
-import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
+import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanChainRings, IAutoMovieHumanNeutralBody } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -35,27 +39,27 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     body: IAutoMovieHumanNeutralBody,
     rings: readonly IAutoMovieHumanChainRings[],
     side: "left" | "right",
-    hand: Math3D.Quaternion,
-  ): Math3D.Vector {
-    const index: Math3D.Vector = Math3D.unit(body.between(`${side}Hand`, `${side}IndexProximal`));
-    const bind: Math3D.Vector = body.direction(`${side}ThumbMetacarpal`);
+    hand: AutoMovieQuaternionTuple,
+  ): AutoMovieVector3Tuple {
+    const index: AutoMovieVector3Tuple = Math3D.unit(body.between(`${side}Hand`, `${side}IndexProximal`));
+    const bind: AutoMovieVector3Tuple = body.direction(`${side}ThumbMetacarpal`);
     const thumb: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `thumb.${side}`);
     const palm: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `hand.${side}.1`);
     if (thumb === undefined || palm === undefined) return Math3D.unit(Math3D.rotate(hand, index));
 
     // The thumb's skin past its root ring, in the bind.
-    const joint: Math3D.Vector = body.byBone.get(`${side}ThumbMetacarpal`)!.position;
-    const rows: Math3D.Vector[][] = ringsOf(thumb);
-    const depth: number[] = rows.map((r: Math3D.Vector[]): number => Turn.length(centroid(r), joint));
+    const joint: AutoMovieVector3Tuple = body.byBone.get(`${side}ThumbMetacarpal`)!.position;
+    const rows: AutoMovieVector3Tuple[][] = ringsOf(thumb);
+    const depth: number[] = rows.map((r: AutoMovieVector3Tuple[]): number => Turn.length(centroid(r), joint));
     const root: number = depth.indexOf(Math.min(...depth));
-    const skin: Math3D.Vector[] = rows.filter((_: Math3D.Vector[], k: number): boolean => k !== root).flat();
+    const skin: AutoMovieVector3Tuple[] = rows.filter((_: AutoMovieVector3Tuple[], k: number): boolean => k !== root).flat();
     const hull: ISlab[] = slabs(ringsOf(palm));
 
     // The nearest share to the index line at which the turned skin stays out.
     for (let share: number = 1; share > 0; share -= STEP) {
-      const along: Math3D.Vector = Math3D.unit(Math3D.add(Math3D.times(bind, 1 - share), Math3D.times(index, share)));
-      const turn: Math3D.Quaternion = Turn.arc(bind, along);
-      const clear: boolean = skin.every((p: Math3D.Vector): boolean => !inside(hull, Math3D.add(joint, Math3D.rotate(turn, Math3D.sub(p, joint)))));
+      const along: AutoMovieVector3Tuple = Math3D.unit(Math3D.add(Math3D.times(bind, 1 - share), Math3D.times(index, share)));
+      const turn: AutoMovieQuaternionTuple = Turn.arc(bind, along);
+      const clear: boolean = skin.every((p: AutoMovieVector3Tuple): boolean => !inside(hull, Math3D.add(joint, Math3D.rotate(turn, Math3D.sub(p, joint)))));
       if (clear) return Math3D.unit(Math3D.rotate(hand, along));
     }
     return Math3D.unit(Math3D.rotate(hand, bind));
@@ -73,17 +77,17 @@ export namespace AutoMovieHumanNeutralThumbCmc {
   export function derive(
     body: IAutoMovieHumanNeutralBody,
     side: "left" | "right",
-    hand: Math3D.Quaternion,
-    along: Math3D.Vector,
-  ): Math3D.Quaternion {
+    hand: AutoMovieQuaternionTuple,
+    along: AutoMovieVector3Tuple,
+  ): AutoMovieQuaternionTuple {
     return Turn.straighten(body, `${side}ThumbMetacarpal`, hand, along);
   }
 
   /** A chain's rings as point lists. */
-  function ringsOf(chain: IAutoMovieHumanChainRings): Math3D.Vector[][] {
+  function ringsOf(chain: IAutoMovieHumanChainRings): AutoMovieVector3Tuple[][] {
     const n: number = chain.phases;
-    return chain.stations.map((_: number, k: number): Math3D.Vector[] =>
-      Array.from({ length: n }, (__: unknown, m: number): Math3D.Vector => {
+    return chain.stations.map((_: number, k: number): AutoMovieVector3Tuple[] =>
+      Array.from({ length: n }, (__: unknown, m: number): AutoMovieVector3Tuple => {
         const i: number = 3 * (k * n + m);
         return [chain.points[i]!, chain.points[i + 1]!, chain.points[i + 2]!];
       }),
@@ -91,8 +95,8 @@ export namespace AutoMovieHumanNeutralThumbCmc {
   }
 
   /** The mean of points. */
-  function centroid(points: readonly Math3D.Vector[]): Math3D.Vector {
-    return Math3D.times(points.reduce((s: Math3D.Vector, p: Math3D.Vector): Math3D.Vector => Math3D.add(s, p), [0, 0, 0]), 1 / points.length);
+  function centroid(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
+    return Math3D.times(points.reduce((s: AutoMovieVector3Tuple, p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => Math3D.add(s, p), [0, 0, 0]), 1 / points.length);
   }
 
   /**
@@ -103,19 +107,19 @@ export namespace AutoMovieHumanNeutralThumbCmc {
    */
   interface ISlab {
     /** The ring's centroid. */
-    centre: Math3D.Vector;
+    centre: AutoMovieVector3Tuple;
 
     /** Unit normal of the ring's plane. */
-    normal: Math3D.Vector;
+    normal: AutoMovieVector3Tuple;
 
     /** Half thickness of the slab the ring stands for, mm. */
     half: number;
 
     /** First in-plane axis. */
-    e1: Math3D.Vector;
+    e1: AutoMovieVector3Tuple;
 
     /** Second in-plane axis. */
-    e2: Math3D.Vector;
+    e2: AutoMovieVector3Tuple;
 
     /** The ring in its plane, `[along e1, along e2]`. */
     outline: [number, number][];
@@ -126,22 +130,22 @@ export namespace AutoMovieHumanNeutralThumbCmc {
    * tests reads the same slabs, so their centroids, normals and outlines are
    * fixed before the scan.
    */
-  function slabs(rings: readonly Math3D.Vector[][]): ISlab[] {
-    const centres: Math3D.Vector[] = rings.map(centroid);
-    return rings.map((ring: Math3D.Vector[], k: number): ISlab => {
-      const a: Math3D.Vector = centres[Math.max(0, k - 1)]!;
-      const b: Math3D.Vector = centres[Math.min(rings.length - 1, k + 1)]!;
-      const normal: Math3D.Vector = Math3D.unit(Math3D.sub(b, a));
-      const centre: Math3D.Vector = centres[k]!;
-      const e1: Math3D.Vector = Math3D.unit(Turn.perpendicular(Math3D.sub(ring[0]!, centre), normal));
-      const e2: Math3D.Vector = Turn.cross(normal, e1);
+  function slabs(rings: readonly AutoMovieVector3Tuple[][]): ISlab[] {
+    const centres: AutoMovieVector3Tuple[] = rings.map(centroid);
+    return rings.map((ring: AutoMovieVector3Tuple[], k: number): ISlab => {
+      const a: AutoMovieVector3Tuple = centres[Math.max(0, k - 1)]!;
+      const b: AutoMovieVector3Tuple = centres[Math.min(rings.length - 1, k + 1)]!;
+      const normal: AutoMovieVector3Tuple = Math3D.unit(Math3D.sub(b, a));
+      const centre: AutoMovieVector3Tuple = centres[k]!;
+      const e1: AutoMovieVector3Tuple = Math3D.unit(Turn.perpendicular(Math3D.sub(ring[0]!, centre), normal));
+      const e2: AutoMovieVector3Tuple = Turn.cross(normal, e1);
       return {
         centre,
         normal,
         half: Turn.length(a, b) / (k === 0 || k === rings.length - 1 ? 2 : 4),
         e1,
         e2,
-        outline: ring.map((q: Math3D.Vector): [number, number] => [Turn.dot(Math3D.sub(q, centre), e1), Turn.dot(Math3D.sub(q, centre), e2)]),
+        outline: ring.map((q: AutoMovieVector3Tuple): [number, number] => [Turn.dot(Math3D.sub(q, centre), e1), Turn.dot(Math3D.sub(q, centre), e2)]),
       };
     });
   }
@@ -151,7 +155,7 @@ export namespace AutoMovieHumanNeutralThumbCmc {
    * whose plane it is nearest, and inside that ring's outline in its plane
    * (crossing number).
    */
-  function inside(hull: readonly ISlab[], p: Math3D.Vector): boolean {
+  function inside(hull: readonly ISlab[], p: AutoMovieVector3Tuple): boolean {
     let best: ISlab | null = null;
     let least: number = Infinity;
     for (const slab of hull) {
@@ -164,7 +168,7 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     if (best === null) return false;
 
     // The point in the ring's plane against its outline.
-    const d: Math3D.Vector = Math3D.sub(p, best.centre);
+    const d: AutoMovieVector3Tuple = Math3D.sub(p, best.centre);
     const x: number = Turn.dot(d, best.e1);
     const y: number = Turn.dot(d, best.e2);
     const outline: [number, number][] = best.outline;

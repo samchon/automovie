@@ -1,5 +1,5 @@
-import { AutoMovieExpressionPreset } from "./AutoMovieExpressionPreset";
-import { IAutoMovieBlendshapeChannel } from "./IAutoMovieBlendshapeChannel";
+import type { AutoMovieExpressionPreset } from "./AutoMovieExpressionPreset";
+import type { IAutoMovieBlendshapeChannel } from "./IAutoMovieBlendshapeChannel";
 
 /**
  * A facial expression at one instant: preset, intensity and a required nullable ARKit override list.

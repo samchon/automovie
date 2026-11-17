@@ -1,7 +1,13 @@
-﻿import { AutoMovieSplineCurve, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, AutoMovieVector3Tuple, IAutoMovieHumanTrunkColumn, IAutoMovieHumanTrunkQuadrant, IAutoMovieHumanTrunkSection } from "@automovie/interface";
+
+
+
+
+
+import { AutoMovieSplineCurve, AutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
-import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
+
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
@@ -12,23 +18,23 @@ import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
  * bisects the landmark each course owns until the course reads its input.
  */
 export namespace AutoMovieHumanTrunkCourses {
-  type V3 = [number, number, number];
+  
 
   /**
    * Length of a tape taut from a to b over points, bridging hollows, on the
    * side `out` points to: the hull chain between the two ends in the plane
    * of the chord and `out`.
    */
-  export function taut(a: V3, b: V3, out: V3, points: readonly V3[]): number {
-    const d: V3 = sub(b, a);
+  export function taut(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, out: AutoMovieVector3Tuple, points: readonly AutoMovieVector3Tuple[]): number {
+    const d: AutoMovieVector3Tuple = sub(b, a);
     const L: number = norm(d);
-    const u: V3 = scale(d, 1 / L);
-    const o: V3 = sub(out, scale(u, dot(out, u)));
-    const n: V3 = scale(o, 1 / (norm(o) || 1));
+    const u: AutoMovieVector3Tuple = scale(d, 1 / L);
+    const o: AutoMovieVector3Tuple = sub(out, scale(u, dot(out, u)));
+    const n: AutoMovieVector3Tuple = scale(o, 1 / (norm(o) || 1));
     const flat: [number, number][] = [
       [0, 0] as [number, number],
       ...points
-        .map((p: V3): [number, number] => [dot(sub(p, a), u), dot(sub(p, a), n)])
+        .map((p: AutoMovieVector3Tuple): [number, number] => [dot(sub(p, a), u), dot(sub(p, a), n)])
         .filter((q: [number, number]): boolean => q[0] > 0 && q[0] < L && q[1] > 0),
       [L, 0] as [number, number],
     ].sort((p, q): number => p[0] - q[0]);
@@ -52,21 +58,21 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.5, back neck point to waist: down the back's median skin
    * from cervicale to the waist level.
    */
-  export function backNeckToWaist(column: AutoMovieHumanTrunkColumn.IColumn, waist: number, cervicale: V3): number {
-    const points: V3[] = [];
+  export function backNeckToWaist(column: IAutoMovieHumanTrunkColumn.IColumn, waist: number, cervicale: AutoMovieVector3Tuple): number {
+    const points: AutoMovieVector3Tuple[] = [];
     for (let y: number = waist; y < cervicale[1]; y += 2) points.push([column.at(y).back, y, 0]);
-    const low: V3 = [column.at(waist).back, waist, 0];
+    const low: AutoMovieVector3Tuple = [column.at(waist).back, waist, 0];
     return taut(cervicale, low, [-1, 0, 0], points);
   }
 
   /** The skin point of a section at a lateral place, front (phases 0 to L) or back (L to S), reliefs included. */
   export function point(
-    s: AutoMovieHumanTrunkQuadrant.ISection,
+    s: IAutoMovieHumanTrunkSection,
     reliefs: readonly IAutoMovieLoftRelief[],
     z: number,
-    side: AutoMovieHumanTrunkQuadrant.Side,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
     controls: number[] = AutoMovieHumanTrunkRing.controls(s),
-  ): V3 {
+  ): AutoMovieVector3Tuple {
     const L: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.midAxillary);
     const S: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.backMidline);
     // Phase rises with z on the front and falls with it on the back.
@@ -98,12 +104,12 @@ export namespace AutoMovieHumanTrunkCourses {
    * the skin in the plane of the two points and the forward direction.
    */
   export function sideNeckToBust(
-    column: AutoMovieHumanTrunkColumn.IColumn,
+    column: IAutoMovieHumanTrunkColumn.IColumn,
     reliefs: readonly IAutoMovieLoftRelief[],
-    neck: V3,
-    bust: V3,
+    neck: AutoMovieVector3Tuple,
+    bust: AutoMovieVector3Tuple,
   ): number {
-    const points: V3[] = [];
+    const points: AutoMovieVector3Tuple[] = [];
     const count: number = 20;
     for (let i: number = 1; i < count; i++) {
       const f: number = i / count;
@@ -118,14 +124,14 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.3, across back shoulder width: shoulder point through the
    * back neck point to shoulder point, taut over the back in their plane.
    */
-  export function acrossBack(column: AutoMovieHumanTrunkColumn.IColumn, shoulder: V3, cervicale: V3): number {
-    const points: V3[] = [];
+  export function acrossBack(column: IAutoMovieHumanTrunkColumn.IColumn, shoulder: AutoMovieVector3Tuple, cervicale: AutoMovieVector3Tuple): number {
+    const points: AutoMovieVector3Tuple[] = [];
     const count: number = 20;
     for (let i: number = 1; i < count; i++) {
       const f: number = i / count;
       const y: number = cervicale[1] + f * (shoulder[1] - cervicale[1]);
       const z: number = f * shoulder[2];
-      const s: AutoMovieHumanTrunkQuadrant.ISection = column.at(y);
+      const s: IAutoMovieHumanTrunkSection = column.at(y);
       if (z < s.width) points.push(point(s, [], z, "back"));
     }
     return 2 * taut(cervicale, shoulder, [-1, 0, 0], points);
@@ -135,10 +141,10 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.7, across front width: between the anterior axillary fold
    * points over the front of the section at the axilla, taut.
    */
-  export function acrossFront(s: AutoMovieHumanTrunkQuadrant.ISection, reliefs: readonly IAutoMovieLoftRelief[]): number {
+  export function acrossFront(s: IAutoMovieHumanTrunkSection, reliefs: readonly IAutoMovieLoftRelief[]): number {
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
     const A: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary);
-    const at = (t: number): V3 => {
+    const at = (t: number): AutoMovieVector3Tuple => {
       const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
       let x: number = p[0];
       let z: number = p[1];
@@ -151,7 +157,7 @@ export namespace AutoMovieHumanTrunkCourses {
     };
     // From the right fold point over the front to the left one; the tape
     // bridges the hollow between the breasts, so the midline is not an end.
-    const points: V3[] = [];
+    const points: AutoMovieVector3Tuple[] = [];
     for (let i: number = -59; i < 60; i++) points.push(at(A * (i / 60)));
     return taut(at(-A), at(A), [1, 0, 0], points);
   }

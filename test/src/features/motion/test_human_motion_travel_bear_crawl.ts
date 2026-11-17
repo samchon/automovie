@@ -1,11 +1,5 @@
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature } from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,8 +33,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_bear_crawl(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const perform = (kind: "bear" | "knees"): HumanPerformance =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const perform = (kind: "bear" | "knees"): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "bear-crawl",
         performers: [
@@ -55,7 +49,7 @@ export function test_human_motion_travel_bear_crawl(): void {
         composition: HumanChain.subject("a").crawl({ kind, cycles: 2 }).node,
       });
     for (const kind of ["bear", "knees"] as const) {
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = perform(kind);
       } catch (error) {
@@ -64,13 +58,13 @@ export function test_human_motion_travel_bear_crawl(): void {
         );
         continue;
       }
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
         0,
       );
-      const [crawl]: readonly HumanSegment.ISegment[] =
+      const [crawl]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
         performance.segments("a");
       const at = (share: number): number =>
         crawl!.start + share * crawl!.plan.duration;
@@ -101,21 +95,21 @@ export function test_human_motion_travel_bear_crawl(): void {
 
       // 3. The diagonal pairing.
       const windows = (
-        part: IHumanContactWindow["part"],
-      ): IHumanContactWindow[] =>
+        part: IAutoMovieMotionHumanContactWindow["part"],
+      ): IAutoMovieMotionHumanContactWindow[] =>
         crawl!.plan.contacts.filter(
-          (c: IHumanContactWindow): boolean => c.part === part,
+          (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === part,
         );
       for (const [hand, foot] of [
         ["leftHand", "rightFoot"],
         ["rightHand", "leftFoot"],
       ] as const) {
-        const a: IHumanContactWindow[] = windows(hand);
-        const b: IHumanContactWindow[] = windows(foot);
+        const a: IAutoMovieMotionHumanContactWindow[] = windows(hand);
+        const b: IAutoMovieMotionHumanContactWindow[] = windows(foot);
         if (
           a.length !== b.length ||
           a.some(
-            (w: IHumanContactWindow, i: number): boolean =>
+            (w: IAutoMovieMotionHumanContactWindow, i: number): boolean =>
               Math.abs(w.from - b[i]!.from) > 1e-9 ||
               Math.abs(w.to - b[i]!.to) > 1e-9,
           )
@@ -145,10 +139,10 @@ export function test_human_motion_travel_bear_crawl(): void {
 }
 
 /** Contact windows written as their shares. */
-function spans(windows: readonly IHumanContactWindow[]): string {
+function spans(windows: readonly IAutoMovieMotionHumanContactWindow[]): string {
   return windows
     .map(
-      (w: IHumanContactWindow): string =>
+      (w: IAutoMovieMotionHumanContactWindow): string =>
         `${w.from.toFixed(3)}-${w.to.toFixed(3)}`,
     )
     .join(", ");

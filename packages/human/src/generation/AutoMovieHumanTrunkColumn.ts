@@ -1,7 +1,12 @@
-﻿import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
+import type { IAutoMovieNaturalSpline, IAutoMovieHumanTrunkColumn, IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkSection } from "@automovie/interface";
+
+
+
+
+import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieNaturalSpline } from "@automovie/engine";
-import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
-import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
+
+
 import { AutoMovieHumanTrunkGlutealCleft } from "./AutoMovieHumanTrunkGlutealCleft";
 import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkProfileBack } from "./AutoMovieHumanTrunkProfileBack";
@@ -19,14 +24,7 @@ import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
  * narrower. The inguinal fold and the gluteal cleft are added at the crotch.
  */
 export namespace AutoMovieHumanTrunkColumn {
-  /** The column. */
-  export interface IColumn {
-    /** The section's measures at a height. */
-    at: (y: number) => IAutoMovieHumanTrunkSection;
-
-    /** The keys, by rising height. */
-    keys: IAutoMovieHumanTrunkKey[];
-  }
+  
 
   /**
    * The column through its keys.
@@ -36,10 +34,10 @@ export namespace AutoMovieHumanTrunkColumn {
    * @param soft The inguinal fold's softness, mm.
    * @returns The column.
    */
-  export function create(keys: IAutoMovieHumanTrunkKey[], crotch: number, soft: number): IColumn {
+  export function create(keys: IAutoMovieHumanTrunkKey[], crotch: number, soft: number): IAutoMovieHumanTrunkColumn.IColumn {
     const spline = (pick: (k: IAutoMovieHumanTrunkKey) => number | null): ((y: number) => number) => {
       const used: IAutoMovieHumanTrunkKey[] = keys.filter((k: IAutoMovieHumanTrunkKey): boolean => pick(k) !== null);
-      const s: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+      const s: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
         used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
         used.map((k: IAutoMovieHumanTrunkKey): number => pick(k)!),
       );

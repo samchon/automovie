@@ -1,15 +1,8 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMovieMovablePanel,
-  IAutoMovieOperationState,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieOpeningPanelPlacement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieMovablePanel, IAutoMovieOperationState, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieOpeningPanelPlacement } from "./IAutoMovieOpeningPanelPlacement";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { requireBuiltOpening } from "./requireBuiltOpening";
 

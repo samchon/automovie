@@ -1,18 +1,10 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import {
   getConstraint,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanForceTrunk,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSocial,
-  type IHumanBody,
-  armWrestle,
-  seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanForceTrunk, HumanPerformance, HumanSocial, armWrestle, seated } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -60,14 +52,14 @@ export function test_human_motion_arm_wrestle_force(): void {
   const DEGREE: number = 1;
   const shares: number[] = [];
   for (const loser of ["f-small", "f-average"] as const) {
-    const bodies: Record<"a" | "b", IHumanBody> = {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody("m-average"),
       b: motionHumanBody(loser),
     };
     const apart: number = 0.45;
     const top: number = seated.popliteal(bodies.a) + 0.27;
     const table: IAutoMovieVector3 = { x: 0, y: top, z: 0.275 };
-    const sits = (who: "a" | "b"): HumanChain => {
+    const sits = (who: "a" | "b"): IAutoMovieMotionHumanChain => {
       const behind: number = bodies[who].rest.get("leftFoot")!.z - 0.1;
       return HumanChain.subject(who).sit({
         seat: {
@@ -81,7 +73,7 @@ export function test_human_motion_arm_wrestle_force(): void {
         },
       });
     };
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "wrestle",
@@ -107,7 +99,7 @@ export function test_human_motion_arm_wrestle_force(): void {
       continue;
     }
     const instant = (who: "a" | "b", event: string): number => {
-      const placed: HumanSegment.ISegment = film.segments(who)[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment = film.segments(who)[1]!;
       return (
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??

@@ -1,5 +1,8 @@
+import type { IAutoMovieHumanDigitSector, IAutoMovieHumanSeamKnot } from "@automovie/interface";
+
+
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
-import type { AutoMovieHumanSeamKnot } from "../../lofting/AutoMovieHumanSeamKnot";
+
 
 /**
  * One sector of a digit's section: the arc between two guides, built in the
@@ -18,20 +21,7 @@ import type { AutoMovieHumanSeamKnot } from "../../lofting/AutoMovieHumanSeamKno
  * velocity here is millimetres per radian.
  */
 export namespace AutoMovieHumanDigitSector {
-  /** A guide's jet at a section's phase, in the section's `[across, palmar]` plane. */
-  export interface IGuide {
-    /** Point, mm. */
-    point: [number, number];
-
-    /** Unit tangent in the direction of increasing phase. */
-    tangent: [number, number];
-
-    /** Curvature vector `kappa N`, toward the section's inside, 1/mm. */
-    curvature: [number, number];
-
-    /** Parameter speed, mm per radian of phase. */
-    speed: number;
-  }
+  
 
   /** Central difference step in the unit parameter. */
   const H: number = 1e-3;
@@ -46,12 +36,12 @@ export namespace AutoMovieHumanDigitSector {
    * @returns A function of absolute phase giving `[p, p', p'']` per radian.
    */
   export function of(
-    from: IGuide,
-    to: IGuide,
+    from: IAutoMovieHumanDigitSector.IGuide,
+    to: IAutoMovieHumanDigitSector.IGuide,
     span: number,
     start: number,
-  ): (t: number) => AutoMovieHumanSeamKnot.Jet {
-    const jetOf = (g: IGuide): number[][] => {
+  ): IAutoMovieHumanDigitSector.OfResult {
+    const jetOf = (g: IAutoMovieHumanDigitSector.IGuide): number[][] => {
       const [p, d1, d2] = AutoMovieHumanSeam.adopt({ point: g.point, tangent: g.tangent, curvature: g.curvature }, g.speed);
       return [p, d1.map((v: number): number => v * span), d2.map((v: number): number => v * span * span)];
     };
@@ -59,7 +49,7 @@ export namespace AutoMovieHumanDigitSector {
     const hi: number[][] = jetOf(to);
     const at = (u: number): number[] => AutoMovieHumanSeam.quintic(lo, hi, 1, u);
 
-    return (t: number): AutoMovieHumanSeamKnot.Jet => {
+    return (t: number): IAutoMovieHumanSeamKnot.Jet => {
       // Derivatives of the degree-five polynomial by central differences in
       // the unit parameter: their error is below 1e-6 of the value at this
       // step. Inside a guide's neighbourhood the one-sided clamp of the

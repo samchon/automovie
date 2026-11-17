@@ -1,4 +1,5 @@
-import type { IAutoMovieSurfacePatternZone } from "@automovie/engine";
+import type { IAutoMovieSurfacePatternZone } from "@automovie/interface";
+
 
 import { patternFixtureRectangle } from "./patternFixtureRectangle";
 import { patternFixtureStackBond } from "./patternFixtureStackBond";

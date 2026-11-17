@@ -1,4 +1,12 @@
-import type { AutoMovieLoftContract } from "@automovie/engine";
+import type { IAutoMovieLoftContract, AutoMovieHumanSex as AutoMovieHumanSexType, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandBones, IAutoMovieHumanHandFrame, IAutoMovieHumanHandMeasures } from "@automovie/interface";
+
+
+
+
+
+
+
+
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
@@ -6,8 +14,7 @@ import { AutoMovieHumanDigitJoints } from "../AutoMovieHumanDigitJoints";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandPosture } from "./AutoMovieHumanHandPosture";
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
-import type { IAutoMovieHumanHandFrame } from "./IAutoMovieHumanHandFrame";
-import type { IAutoMovieHumanHandMeasures } from "./IAutoMovieHumanHandMeasures";
+
 
 /**
  * Pure hand joint definitions, before skin: measured metacarpal and phalanx
@@ -35,70 +42,11 @@ import type { IAutoMovieHumanHandMeasures } from "./IAutoMovieHumanHandMeasures"
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns fixed module ratios and call-owned records without a person cache or source-skin reference.
  */
 export namespace AutoMovieHumanHandBones {
-  /**
-   * Anatomical name used by the skeleton.
-   *
-   * @evidence contracts/common.md#principled-implementation Enumerates the four non-thumb digits in the existing skeletal vocabulary.
-   * @evidence contracts/common.md#clear-and-simple-design One closed union keys the four source records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no person-dependent alias or fallback digit.
-   * @evidence contracts/common.md#meaningful-documentation States that the names belong to the skeleton and excludes the separately represented thumb.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A name union has no runtime algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no runtime resource.
-   */
-  export type Finger = "Index" | "Middle" | "Ring" | "Little";
+  
 
-  /**
-   * One digit's actual generating joint centres and terminal soft-tissue
-   * point, mm, with the same hand's material dorsal direction.
-   *
-   * @evidence contracts/common.md#principled-implementation Separates a terminal skin apex from the three generating joints and retains the original material direction.
-   * @evidence contracts/common.md#clear-and-simple-design A four-point list and one direction serve both skeleton and source curves.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not recover a direction from flexed bones or label the terminal skin point as another bony joint.
-   * @evidence contracts/common.md#meaningful-documentation Gives finger/thumb point ordering, calibration units and the material-direction owner.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record declares no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The generating owner shares the record by reference.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The hand definition caller owns its finite point list and direction.
-   */
-  export interface IDigit {
-    /** MCP, PIP, DIP and tip for a finger; CMC, MCP, IP and tip for the thumb. */
-    centres: Vec3[];
+  
 
-    /** Shared bind dorsal direction, projected by the digit's own generating frame. */
-    dorsal: Vec3;
-  }
-
-  /**
-   * Actual joints and material frame: of creates the canonical left side,
-   * and sided reflects the complete source for the right.
-   *
-   * @evidence contracts/common.md#principled-implementation Preserves the same joint/frame definition with an independent public crease and the packing-derived breadth centre.
-   * @evidence contracts/common.md#clear-and-simple-design All hand consumers read one explicit source record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A shared knuckle is the actual middle-MCP tuple, not a second estimate from a skin or bent segment.
-   * @evidence contracts/common.md#meaningful-documentation States side/reflection ownership, material units and the independent crease/packing definitions.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The output type owns no runtime algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The source factory determines record identity and sharing.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The synchronous definition owns the returned bounded joint manifest.
-   */
-  export interface IOutput {
-    /** The actual generating material frame, carried with these same joints. */
-    frame: IAutoMovieHumanHandFrame;
-
-    /** Palm breadth-centre offset from MCP3 along this hand's radial/across direction, mm; derived from the same conventional MCP packing. */
-    radialCenter: number;
-
-    /** Four fingers. */
-    fingers: Record<Finger, IDigit>;
-
-    /** The opposed thumb. */
-    thumb: IDigit;
-
-    /** Third MCP, the distal centre of the arm-owned palm. */
-    knuckle: Vec3;
-
-    /** Public palm-length crease locus on the middle proximal phalanx's measuring course. */
-    crease: Vec3;
-  }
+  
 
   /**
    * Place a hand without constructing or measuring a palm, digit or mesh.
@@ -114,12 +62,12 @@ export namespace AutoMovieHumanHandBones {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned tuples only and keeps no identity cache or calibration reference.
    */
   export function of(
-    wrist: Vec3,
+    wrist: AutoMovieVector3Tuple,
     given: IAutoMovieHumanHandMeasures,
-    sex: AutoMovieHumanSex,
+    sex: AutoMovieHumanSexType,
     scale: number,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
-  ): IOutput {
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): IAutoMovieHumanHandBones.IOutput {
     if (
       !(
         scale > 0 &&
@@ -132,18 +80,18 @@ export namespace AutoMovieHumanHandBones {
       throw new Error(
         "A hand needs positive dimensions with hand length beyond its palm",
       );
-    const prior: AutoMovieHumanArmPrior.IHandPrior =
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
-    const along: Vec3 = V.unit([...prior.along]);
-    const across: Vec3 = V.across([...prior.across], along);
-    const palmar: Vec3 = V.cross(across, along);
+    const along: AutoMovieVector3Tuple = V.unit([...prior.along]);
+    const across: AutoMovieVector3Tuple = V.across([...prior.across], along);
+    const palmar: AutoMovieVector3Tuple = V.cross(across, along);
     const frame: IAutoMovieHumanHandFrame = {
       along,
       across,
       palmar:
         V.dot(palmar, [...prior.through]) >= 0 ? palmar : V.scale(palmar, -1),
     };
-    const dorsal: Vec3 = V.scale(frame.palmar, -1);
+    const dorsal: AutoMovieVector3Tuple = V.scale(frame.palmar, -1);
     const terminal: number =
       given.length - AutoMovieHumanHandJoints.STYLION * scale;
     const reach: number =
@@ -182,11 +130,11 @@ export namespace AutoMovieHumanHandBones {
       centres.push(edge - (packing * width) / 2);
       edge -= packing * width + gap;
     }
-    const point: (a: number, b: number, c?: number) => Vec3 = (
+    const point: (a: number, b: number, c?: number) => AutoMovieVector3Tuple = (
       a: number,
       b: number,
       c: number = 0,
-    ): Vec3 =>
+    ): AutoMovieVector3Tuple =>
       V.plus(
         wrist,
         V.plus(
@@ -194,34 +142,34 @@ export namespace AutoMovieHumanHandBones {
           V.plus(V.scale(across, b), V.scale(frame.palmar, c)),
         ),
       );
-    const mcps: Vec3[] = centres.map(
-      (b: number, index: number): Vec3 =>
+    const mcps: AutoMovieVector3Tuple[] = centres.map(
+      (b: number, index: number): AutoMovieVector3Tuple =>
         point(reach - third + METACARPALS[index + 1]! * third, b - centres[1]!),
     );
-    const fingers: Record<Finger, IDigit> = {} as Record<Finger, IDigit>;
+    const fingers: Record<IAutoMovieHumanHandBones.Finger, IAutoMovieHumanHandBones.IDigit> = {} as Record<IAutoMovieHumanHandBones.Finger, IAutoMovieHumanHandBones.IDigit>;
     for (let index: number = 0; index < NAMES.length; index++) {
       const length: number = external * prior.external[index]!;
       const web: number = WEB[index]! * length;
       const first: number = web + prior.joints[index]![0]! * length;
       const second: number = web + prior.joints[index]![1]! * length;
-      const proximal: Vec3 = AutoMovieHumanHandJoints.proximal(
+      const proximal: AutoMovieVector3Tuple = AutoMovieHumanHandJoints.proximal(
         index + 1,
         frame,
       );
-      const middle: Vec3 = bend(
+      const middle: AutoMovieVector3Tuple = bend(
         proximal,
         frame.palmar,
         prior.posture.pip[index]!,
       );
-      const distal: Vec3 = bend(
+      const distal: AutoMovieVector3Tuple = bend(
         middle,
         frame.palmar,
         prior.posture.dip[index]!,
       );
-      const mcp: Vec3 = mcps[index]!;
-      const pip: Vec3 = V.plus(mcp, V.scale(proximal, first));
-      const dip: Vec3 = V.plus(pip, V.scale(middle, second - first));
-      const tip: Vec3 = V.plus(dip, V.scale(distal, web + length - second));
+      const mcp: AutoMovieVector3Tuple = mcps[index]!;
+      const pip: AutoMovieVector3Tuple = V.plus(mcp, V.scale(proximal, first));
+      const dip: AutoMovieVector3Tuple = V.plus(pip, V.scale(middle, second - first));
+      const tip: AutoMovieVector3Tuple = V.plus(dip, V.scale(distal, web + length - second));
       fingers[NAMES[index]!] = {
         centres: [mcp, pip, dip, tip],
         dorsal: [...dorsal],
@@ -234,33 +182,33 @@ export namespace AutoMovieHumanHandBones {
     // direction: no independent hand-depth measurement exists here. The CMC
     // meets the same base-level plane as the other metacarpals, radial and
     // palmar of the wrist; the measured MC length continues along that ray.
-    const ray: Vec3 = [
+    const ray: AutoMovieVector3Tuple = [
       prior.branch - prior.crease,
       prior.thenar.b,
       prior.thenar.c,
     ];
     const base: number = reach - third;
-    const cmc: Vec3 = point(
+    const cmc: AutoMovieVector3Tuple = point(
       base,
       (base * ray[1]) / ray[0],
       (base * ray[2]) / ray[0],
     );
-    const metacarpal: Vec3 = V.unit(
+    const metacarpal: AutoMovieVector3Tuple = V.unit(
       V.plus(
         V.scale(along, ray[0]),
         V.plus(V.scale(across, ray[1]), V.scale(frame.palmar, ray[2])),
       ),
     );
-    const mcp: Vec3 = V.plus(cmc, V.scale(metacarpal, METACARPALS[0]! * third));
+    const mcp: AutoMovieVector3Tuple = V.plus(cmc, V.scale(metacarpal, METACARPALS[0]! * third));
     const rest: { mcp: number; ip: number } =
       AutoMovieHumanHandPosture.thumbRest();
-    const proximal: Vec3 = bend(metacarpal, frame.palmar, rest.mcp);
-    const distal: Vec3 = bend(proximal, frame.palmar, rest.ip);
-    const ip: Vec3 = V.plus(
+    const proximal: AutoMovieVector3Tuple = bend(metacarpal, frame.palmar, rest.mcp);
+    const distal: AutoMovieVector3Tuple = bend(proximal, frame.palmar, rest.ip);
+    const ip: AutoMovieVector3Tuple = V.plus(
       mcp,
       V.scale(proximal, prior.thumbProximal * given.thumb),
     );
-    const tip: Vec3 = V.plus(
+    const tip: AutoMovieVector3Tuple = V.plus(
       ip,
       V.scale(distal, (1 - prior.thumbProximal) * given.thumb),
     );
@@ -292,18 +240,18 @@ export namespace AutoMovieHumanHandBones {
    * @evidence contracts/performance.md#reuse-equivalent-work The canonical side reuses its actual source; the reflected record is shared by bind and curve consumers.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns source-owned records without a global cache or calibration reference.
    */
-  export function sided(hand: IOutput, sign: 1 | -1): IOutput {
+  export function sided(hand: IAutoMovieHumanHandBones.IOutput, sign: 1 | -1): IAutoMovieHumanHandBones.IOutput {
     if (sign === 1) return hand;
-    const point: (value: Vec3) => Vec3 = (value: Vec3): Vec3 => [
+    const point: (value: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
       value[0],
       value[1],
       -value[2],
     ];
-    const digit: (value: IDigit) => IDigit = (value: IDigit): IDigit => ({
+    const digit: (value: IAutoMovieHumanHandBones.IDigit) => IAutoMovieHumanHandBones.IDigit = (value: IAutoMovieHumanHandBones.IDigit): IAutoMovieHumanHandBones.IDigit => ({
       centres: value.centres.map(point),
       dorsal: point(value.dorsal),
     });
-    const fingers: Record<Finger, IDigit> = {
+    const fingers: Record<IAutoMovieHumanHandBones.Finger, IAutoMovieHumanHandBones.IDigit> = {
       Index: digit(hand.fingers.Index),
       Middle: digit(hand.fingers.Middle),
       Ring: digit(hand.fingers.Ring),
@@ -337,12 +285,12 @@ export namespace AutoMovieHumanHandBones {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new tuple and retains no hand or skin reference.
    */
   export function crease(
-    wrist: Vec3,
-    mcp: Vec3,
-    pip: Vec3,
+    wrist: AutoMovieVector3Tuple,
+    mcp: AutoMovieVector3Tuple,
+    pip: AutoMovieVector3Tuple,
     palm: number,
     scale: number,
-  ): Vec3 {
+  ): AutoMovieVector3Tuple {
     const after: number =
       palm -
       AutoMovieHumanHandJoints.STYLION * scale -
@@ -351,10 +299,9 @@ export namespace AutoMovieHumanHandBones {
   }
 }
 
-/** A point or unit direction in calibration coordinates. */
-type Vec3 = V.Vec3;
+
 /** The four fingers, in radial-to-ulnar packing order. */
-const NAMES: readonly AutoMovieHumanHandBones.Finger[] = [
+const NAMES: readonly IAutoMovieHumanHandBones.Finger[] = [
   "Index",
   "Middle",
   "Ring",
@@ -370,8 +317,8 @@ const MET3: readonly number[] = [78 / 170.1, 86.2 / 187.9];
 const WEB: readonly number[] = [0.1552, 0.1533, 0.1849, 0.2472];
 
 /** Turn a phalanx toward the palm by its shared bind angle, retaining unit length. */
-function bend(direction: Vec3, palmar: Vec3, degrees: number): Vec3 {
-  const normal: Vec3 = V.unit(
+function bend(direction: AutoMovieVector3Tuple, palmar: AutoMovieVector3Tuple, degrees: number): AutoMovieVector3Tuple {
+  const normal: AutoMovieVector3Tuple = V.unit(
     V.sub(palmar, V.scale(direction, V.dot(palmar, direction))),
   );
   const angle: number = (degrees * Math.PI) / 180;

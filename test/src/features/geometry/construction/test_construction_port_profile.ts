@@ -1,12 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionPort,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieConstructionPort } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -46,8 +40,8 @@ export function test_construction_port_profile(): void {
   const failures: string[] = [];
   const n: number = 32;
   const clock: (k: number) => number = (k: number): number => (2 * Math.PI * k) / n;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
-  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
+  const arm: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
     { origin: { x: 0.012, y: 0, z: -0.05 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
     0.007,
@@ -70,7 +64,7 @@ export function test_construction_port_profile(): void {
     rows: 4,
     ...(profiles === undefined ? {} : { profiles }),
   });
-  const realize = (root: AutoMovieConstructionNode): AutoMovieConstructionRealization.IRealization =>
+  const realize = (root: IAutoMovieConstructionNode): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
   const sub = (a: readonly number[], b: readonly number[]): V3 => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
   const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
@@ -78,8 +72,8 @@ export function test_construction_port_profile(): void {
   const len = (a: readonly number[]): number => Math.hypot(a[0]!, a[1]!, a[2]!);
 
   // 1. Both trees.
-  const plain: AutoMovieConstructionRealization.IRealization = realize(port());
-  const shaped: AutoMovieConstructionRealization.IRealization = realize(port([{ knots: [[0.5, 0.002]], ...window }]));
+  const plain: IAutoMovieConstructionRealization.IRealization = realize(port());
+  const shaped: IAutoMovieConstructionRealization.IRealization = realize(port([{ knots: [[0.5, 0.002]], ...window }]));
   for (const [label, real] of [["plain", plain], ["profiled", shaped]] as const) {
     if (real.diagnostics.length !== 0) failures.push(`${label} diagnostics: ${ConstructionRead.diagnostics(real)}`);
     const names: string = real.body.faces
@@ -108,7 +102,7 @@ export function test_construction_port_profile(): void {
 
   const before: IAutoMovieSolidSurface = ConstructionRead.surface(plain, "band.port");
   const after: IAutoMovieSolidSurface = ConstructionRead.surface(shaped, "band.port");
-  const span = (real: AutoMovieConstructionRealization.IRealization): number =>
+  const span = (real: IAutoMovieConstructionRealization.IRealization): number =>
     real.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers.at(-1)?.y ?? NaN;
   const L: number = span(plain);
   if (!(Math.abs(span(shaped) - L) <= 1e-9)) failures.push(`the profiled band's span ${span(shaped)} mm is not the plain band's ${L} mm`);

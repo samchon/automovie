@@ -1,4 +1,7 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanConicRelief } from "@automovie/interface";
+
+
+
 
 /**
  * The compact forms a family's relief nets are stored in, and their expansion to the nets the engine reads.
@@ -13,23 +16,7 @@ import type { IAutoMovieLoftRelief } from "@automovie/engine";
  * as one whose module wrote them all out.
  */
 export namespace AutoMovieHumanConicRelief {
-  /** A net stored as the reflection of an earlier one of its family's list. */
-  export interface ITwin {
-    /** The twin's own name. */
-    name: string;
-
-    /** The name of the net it reflects, which stands before it in the list. */
-    twin: string;
-
-    /** The twin's own phase window, radians. */
-    phases: [number, number];
-
-    /** The twin's own unit direction of height. */
-    axis: [number, number, number];
-
-    /** The twin's own turning direction; present exactly when the original has one. */
-    turn?: [number, number, number];
-  }
+  
 
   /** How many heights each expanded net's module stores, by the expanded `heights` array itself. */
   const STORED: WeakMap<readonly number[], number> = new WeakMap();
@@ -59,7 +46,7 @@ export namespace AutoMovieHumanConicRelief {
    * @param original The net fitted on one side.
    * @param own The twin's name, phase window and directions.
    */
-  export function twin(original: IAutoMovieLoftRelief, own: Omit<ITwin, "twin">): IAutoMovieLoftRelief {
+  export function twin(original: IAutoMovieLoftRelief, own: Omit<IAutoMovieHumanConicRelief.ITwin, "twin">): IAutoMovieLoftRelief {
     if ((original.turn === undefined) !== (own.turn === undefined)) throw new Error("twin: " + own.name + " and " + original.name + " do not both turn their cast");
     if (original.shift !== undefined) throw new Error("twin: " + original.name + " carries a station map, which no twin reflects");
     const { rows, columns }: IAutoMovieLoftRelief = original;
@@ -73,7 +60,7 @@ export namespace AutoMovieHumanConicRelief {
    * A family's nets from their stored list, in its order: a net written whole or through `mirrored` stands as it is, and a twin is the
    * reflection of the net it names, which must stand before it.
    */
-  export function list(entries: readonly (IAutoMovieLoftRelief | ITwin)[]): IAutoMovieLoftRelief[] {
+  export function list(entries: readonly (IAutoMovieLoftRelief | IAutoMovieHumanConicRelief.ITwin)[]): IAutoMovieLoftRelief[] {
     const out: IAutoMovieLoftRelief[] = [];
     for (const entry of entries) {
       if (!("twin" in entry)) {

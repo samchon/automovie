@@ -1,13 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createBow, createProjectile } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanArchery,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanArchery, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,13 +40,13 @@ export function test_human_motion_archery_draw(): void {
   // The recurve's launch speed band's low end (KSL, 2012 Olympics: 54.7 to 62.2 m/s), standing in for the bow's launchSpeed (#3481).
   const SPEED: number = 54.7;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const target: IAutoMovieVector3 = {
       x: 0,
       y: body.measure.chestHeight,
       z: 18,
     };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "archery",

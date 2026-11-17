@@ -1,19 +1,12 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanSupport } from "../law/HumanSupport";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanBodyFitMerit } from "../posture/HumanBodyFitMerit";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFitPairs } from "../posture/HumanFitPairs";
 import { HumanFitVariables } from "../posture/HumanFitVariables";
-import type { HumanJacobian } from "../posture/HumanJacobian";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -53,31 +46,31 @@ export namespace supportKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solved(
-    body: IHumanBody,
-    preferred: IHumanPosture,
-    from: IHumanPosture,
-    contacts: readonly HumanSupport.IContact[],
-    at: (c: HumanSupport.IContact) => IAutoMovieVector3 | null,
+    body: IAutoMovieMotionHumanBody,
+    preferred: IAutoMovieMotionHumanPosture,
+    from: IAutoMovieMotionHumanPosture,
+    contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
+    at: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null,
     label: string,
     miss: number,
-    swings: readonly HumanBodyFit.ITarget[] = [],
-  ): IHumanPosture {
+    swings: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [],
+  ): IAutoMovieMotionHumanPosture {
     const forms: supportContact.IForm[] = contacts.map(
-      (c: HumanSupport.IContact): supportContact.IForm =>
+      (c: IAutoMovieMotionHumanSupport.IContact): supportContact.IForm =>
         supportContact.form(body, c, at(c)),
     );
     const bearing: RegExp[] = forms.flatMap(
       (f: supportContact.IForm): RegExp[] =>
         f.bearing === undefined ? [] : [f.bearing],
     );
-    const targets: HumanBodyFit.ITarget[] = [
-      ...forms.map((f: supportContact.IForm): HumanBodyFit.ITarget => f.target),
+    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
+      ...forms.map((f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget => f.target),
       ...swings,
     ];
     // Select the less violated of the previous solution and the geometrically
     // placed preference before the one SQP solve. This is a seed selection,
     // not a retry: both candidates are measured on the same full merit rows.
-    const variables: readonly HumanJacobian.IVariable[] =
+    const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] =
       HumanFitVariables.BODY;
     const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit.of({
       body,
@@ -97,9 +90,9 @@ export namespace supportKey {
     const stated: HumanBodyFitMerit.IEvaluation = merit.evaluate(
       HumanFitVariables.vector(variables, preferred),
     );
-    const start: IHumanPosture =
+    const start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
-    const result: HumanBodyFit.IResult = HumanBodyFit.fit({
+    const result: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
       body,
       posture: preferred,
       start,
@@ -145,24 +138,24 @@ export namespace supportKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function preferred(
-    body: IHumanBody,
-    base: IHumanPosture,
-    stance: HumanSupport.IStance,
-    from: IHumanPosture,
-    place: (c: HumanSupport.IContact) => IAutoMovieVector3 | null = (): null =>
+    body: IAutoMovieMotionHumanBody,
+    base: IAutoMovieMotionHumanPosture,
+    stance: IAutoMovieMotionHumanSupport.IStance,
+    from: IAutoMovieMotionHumanPosture,
+    place: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null = (): null =>
       null,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (stance.prefer === undefined) return base;
-    const anchors: { contact: HumanSupport.IContact; at: IAutoMovieVector3 }[] =
+    const anchors: { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3 }[] =
       stance.contacts.flatMap(
         (
-          c: HumanSupport.IContact,
-        ): { contact: HumanSupport.IContact; at: IAutoMovieVector3 }[] => {
+          c: IAutoMovieMotionHumanSupport.IContact,
+        ): { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3 }[] => {
           const at: IAutoMovieVector3 | null = place(c);
           return at === null ? [] : [{ contact: c, at }];
         },
       );
-    const turned: IHumanPosture = {
+    const turned: IAutoMovieMotionHumanPosture = {
       root: from.root,
       yaw: base.yaw + (stance.turn ?? 0),
       pitch: stance.prefer.pitch,
@@ -190,7 +183,7 @@ export namespace supportKey {
       if (a.at.y > 0) dy += (a.at.y - now.y) / anchors.length;
       dz += (a.at.z - now.z) / anchors.length;
     }
-    const keyed: IHumanPosture = {
+    const keyed: IAutoMovieMotionHumanPosture = {
       ...turned,
       root: {
         x: turned.root.x + dx,
@@ -203,7 +196,7 @@ export namespace supportKey {
       poseBones(body, resolveHumanPosture(body, keyed)),
     );
     const grounded: boolean = stance.contacts.some(
-      (c: HumanSupport.IContact): boolean =>
+      (c: IAutoMovieMotionHumanSupport.IContact): boolean =>
         supportContact.form(body, c, place(c)).bearing !== undefined,
     );
     return {
@@ -234,12 +227,12 @@ export namespace supportKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function blended(
-    body: IHumanBody,
-    a: IHumanPosture,
-    b: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    a: IAutoMovieMotionHumanPosture,
+    b: IAutoMovieMotionHumanPosture,
     w: number,
-  ): IHumanPosture {
-    const joints: IHumanPosture["joints"] = {};
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     const bones: Set<AutoMovieHumanoidBone> = new Set([
       ...(Object.keys(a.joints) as AutoMovieHumanoidBone[]),
       ...(Object.keys(b.joints) as AutoMovieHumanoidBone[]),

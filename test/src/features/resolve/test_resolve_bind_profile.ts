@@ -1,16 +1,6 @@
-import { type IAutoMovieBoundProfile, bindProfile } from "@automovie/engine";
-import {
-  IAutoMovieAimDriver,
-  IAutoMovieChannel,
-  IAutoMovieCopyDriver,
-  IAutoMovieDrivenDriver,
-  IAutoMovieDriver,
-  IAutoMovieIKDriver,
-  IAutoMovieParentDriver,
-  IAutoMovieProfile,
-  IAutoMovieProfileBinding,
-  IAutoMovieSpringDriver,
-} from "@automovie/interface";
+import { type IAutoMovieBoundProfile, IAutoMovieAimDriver, IAutoMovieChannel, IAutoMovieCopyDriver, IAutoMovieDrivenDriver, IAutoMovieDriver, IAutoMovieIKDriver, IAutoMovieParentDriver, IAutoMovieProfile, IAutoMovieProfileBinding, IAutoMovieSpringDriver } from "@automovie/interface";
+import { bindProfile } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -1,9 +1,12 @@
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
+import type { IAutoMovieCapturePlanRequest, IAutoMovieCaptureRequestSource, IAutoMovieInspectionRequest } from "@automovie/interface";
+
+
+
 import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { AUTO_MOVIE_CAPTURE_PLAN_KEYS } from "./AUTO_MOVIE_CAPTURE_PLAN_KEYS.js";
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
-import type { IAutoMovieCaptureRequestSource } from "./IAutoMovieCaptureRequestSource.js";
+
+
 
 /** Every key the reader admits, for constant-time lookup. */
 const KNOWN: ReadonlySet<string> = new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS);

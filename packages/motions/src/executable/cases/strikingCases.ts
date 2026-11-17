@@ -1,10 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
 import { StrikingRecord } from "../../striking/StrikingRecord";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -84,7 +81,7 @@ interface IPerson {
   man: humanPolygonMan.IPolygonMan;
 
   /** Its motion body. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
 }
 
 /** One strike of a case: who throws it, at whom, and its segment. */
@@ -93,13 +90,13 @@ interface IThrown {
   id: string;
 
   /** The striker's body. */
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
 
   /** The other person, when there is one. */
-  other: { id: string; body: IHumanBody } | undefined;
+  other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
 
   /** The strike's segment. */
-  segment: HumanSegment.ISegment;
+  segment: IAutoMovieMotionHumanSegment.ISegment;
 }
 
 /**
@@ -116,7 +113,7 @@ function build(
   const s: strikingScenarios.IScenario = strikingScenarios(A.body, B.body)[
     scenario
   ]!();
-  const perform = (a: HumanChain): HumanPerformance =>
+  const perform = (a: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: scenario,
       performers: [
@@ -141,7 +138,7 @@ function build(
       ],
       composition: (s.b === undefined ? a : a.with(s.b)).node,
     });
-  const performance: HumanPerformance = perform(s.a);
+  const performance: IAutoMovieMotionHumanPerformance = perform(s.a);
   const people: Omit<IThrown, "segment">[] = [
     {
       id: "a",
@@ -164,7 +161,7 @@ function build(
         verdicts.push(StrikingEventVerdicts.defence(p.id, g));
       if (g.name !== "punch" && g.name !== "kick" && g.name !== "knee")
         continue;
-      const record: StrikingRecord.IRecord | undefined = StrikingRecord.of(
+      const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined = StrikingRecord.of(
         g.plan,
       );
       const stop: number | undefined = record?.stop(g.end);
@@ -245,9 +242,9 @@ function build(
 
   // A redirect after the chamber key must be refused.
   if (s.late !== undefined) {
-    const late: HumanChain = s.late;
+    const late: IAutoMovieMotionHumanChain = s.late;
     verdicts.push(
-      StrikingEventVerdicts.refusal((): HumanPerformance => perform(late)),
+      StrikingEventVerdicts.refusal((): IAutoMovieMotionHumanPerformance => perform(late)),
     );
   }
   times.sort(
@@ -256,7 +253,7 @@ function build(
   );
   const ghosts: IMotionCaptureCase.IGhost[] = [];
   if (s.ghost !== undefined) {
-    const source: HumanPerformance = perform(s.ghost);
+    const source: IAutoMovieMotionHumanPerformance = perform(s.ghost);
     ghosts.push({
       id: "uninterrupted",
       body: A.man.body,

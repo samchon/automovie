@@ -1,11 +1,6 @@
-import type { IAutoMovieCollisionActor } from "@automovie/engine";
-import type {
-  IAutoMovieBody,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieCollisionActor, IAutoMovieBody, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 /** Place the original hips-to-spine capsule at the requested world endpoints with an identity pose and one static keyframe. */
 export const staticActor: (props: {

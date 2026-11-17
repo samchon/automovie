@@ -1,12 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionPort,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieConstructionPort } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -46,13 +40,13 @@ export function test_construction_port(): void {
   const n: number = 32;
   const clock: (k: number) => number = (k: number): number =>
     (2 * Math.PI * k) / n;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "trunk",
     ConstructionShapes.DOWN,
     0.02,
     0.1,
   );
-  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const arm: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
     {
       origin: { x: 0.012, y: 0, z: -0.05 },
@@ -80,10 +74,10 @@ export function test_construction_port(): void {
     rows: 4,
   });
   const realize: (
-    root: AutoMovieConstructionNode,
-  ) => AutoMovieConstructionRealization.IRealization = (
-    root: AutoMovieConstructionNode,
-  ): AutoMovieConstructionRealization.IRealization =>
+    root: IAutoMovieConstructionNode,
+  ) => IAutoMovieConstructionRealization.IRealization = (
+    root: IAutoMovieConstructionNode,
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
   const sub: (a: readonly number[], b: readonly number[]) => V3 = (
     a: readonly number[],
@@ -102,7 +96,7 @@ export function test_construction_port(): void {
   ): number => len(sub(scaled(a, 1 / len(a)), scaled(b, 1 / len(b))));
 
   // 1. The positive tree.
-  const real: AutoMovieConstructionRealization.IRealization = realize(
+  const real: IAutoMovieConstructionRealization.IRealization = realize(
     port(0.02),
   );
   if (real.diagnostics.length !== 0)
@@ -244,7 +238,7 @@ export function test_construction_port(): void {
     );
 
   // 6. Refusal.
-  const deep: AutoMovieConstructionRealization.IRealization = realize(
+  const deep: IAutoMovieConstructionRealization.IRealization = realize(
     port(0.5),
   );
   const kept: string = deep.body.faces
@@ -270,7 +264,7 @@ export function test_construction_port(): void {
   // 8. A shaped loop: each column's share of the ellipse's distance from the centre.
   const share: (k: number) => number = (k: number): number =>
     1 + 0.2 * Math.cos(2 * clock(k));
-  const shaped: AutoMovieConstructionRealization.IRealization = realize({
+  const shaped: IAutoMovieConstructionRealization.IRealization = realize({
     ...port(0.02),
     loop: {
       ...port(0.02).loop,
@@ -343,7 +337,7 @@ export function test_construction_port(): void {
       ((m1 - m0) * t * t * t) / (6 * h)
     );
   };
-  const curved: AutoMovieConstructionRealization.IRealization = realize({
+  const curved: IAutoMovieConstructionRealization.IRealization = realize({
     ...port(0.02),
     rails: [0.02, 0.03, 0.02, 0.03],
   });
@@ -452,12 +446,12 @@ export function test_construction_port(): void {
     const [y0, y1, m0, m1]: number[] = [knots[j]!, knots[(j + 1) % m]!, M[j]!, M[(j + 1) % m]!];
     return y0 + t * ((y1! - y0!) / step - (step * (2 * m0! + m1!)) / 6) + (m0! * t * t) / 2 + ((m1! - m0!) * t * t * t) / (6 * step);
   };
-  const tilted = (correspondence: "angle" | "length"): AutoMovieConstructionRealization.IRealization =>
+  const tilted = (correspondence: "angle" | "length"): IAutoMovieConstructionRealization.IRealization =>
     realize({ ...port(0.02), rails: knots.map((x: number): number => x / 1000), correspondence });
-  const byAngle: AutoMovieConstructionRealization.IRealization = tilted("angle");
+  const byAngle: IAutoMovieConstructionRealization.IRealization = tilted("angle");
   if (!byAngle.diagnostics.some((d: { node: string }): boolean => d.node === "port.arm") || !ConstructionRead.diagnostics(byAngle).includes("not monotone"))
     failures.push(`star: the tilted ring matched by angle was not refused as not monotone: ${ConstructionRead.diagnostics(byAngle)}`);
-  const byLength: AutoMovieConstructionRealization.IRealization = tilted("length");
+  const byLength: IAutoMovieConstructionRealization.IRealization = tilted("length");
   if (byLength.diagnostics.length !== 0) failures.push(`star: matched by length: ${ConstructionRead.diagnostics(byLength)}`);
   else {
     const strip: IAutoMovieSolidSurface = ConstructionRead.surface(byLength, "band.port");
@@ -505,15 +499,15 @@ export function test_construction_port(): void {
   // 14. Ribbons per column. With the part 4 mm off the loop's centre (its axis at z = -54 mm), the columns at clock 0 must hug their
   // chords: the host's direction into the loop there points away from the part's ring. A column's scale is its cross derivative at the
   // loop times the band's span over its own chord, the factor applied to the chord law.
-  const offset: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const offset: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
     { origin: { x: 0.012, y: 0, z: -0.054 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
     0.007,
     0.06,
     7,
   );
-  const scales = (ribbons: "common" | "column"): { factors: number[]; real: AutoMovieConstructionRealization.IRealization } | string => {
-    const made: AutoMovieConstructionRealization.IRealization = realize({ ...port(0.02), part: offset, ribbons });
+  const scales = (ribbons: "common" | "column"): { factors: number[]; real: IAutoMovieConstructionRealization.IRealization } | string => {
+    const made: IAutoMovieConstructionRealization.IRealization = realize({ ...port(0.02), part: offset, ribbons });
     if (made.diagnostics.length !== 0) return ConstructionRead.diagnostics(made);
     const strip: IAutoMovieSolidSurface = ConstructionRead.surface(made, "band.port");
     const span: number = made.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;

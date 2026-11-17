@@ -1,5 +1,6 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type { IAutoMovieInspectionRequest } from "@automovie/render";
+import type { IAutoMovieInspectionRequest, IAutoMovieMark } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";

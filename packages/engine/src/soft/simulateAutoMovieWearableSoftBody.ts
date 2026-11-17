@@ -1,20 +1,7 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieSoftAnchor,
-  IAutoMovieSoftAnchorBinding,
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftCollider,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, type IAutoMovieSoftBodyBoundarySample, type IAutoMovieSoftNodeTransform, type IAutoMovieWearableSoftActorPose, type IAutoMovieWearableSoftFrame, type IAutoMovieWearableSoftResult, type IAutoMovieSimulateWearableSoftBody, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSoftAnchor, IAutoMovieSoftAnchorBinding, IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
-import { IAutoMovieSoftNodeTransform } from "./IAutoMovieSoftNodeTransform";
-import { IAutoMovieWearableSoftActorPose } from "./IAutoMovieWearableSoftActorPose";
-import { IAutoMovieWearableSoftFrame } from "./IAutoMovieWearableSoftFrame";
-import { IAutoMovieWearableSoftResult } from "./IAutoMovieWearableSoftResult";
 import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
 /** Resolve admitted node/bone moving anchors and body capsules from complete absolute primary-motion snapshots, then replay cloth. This exported resolver currently has portable test consumers and no production/viewer live host.
@@ -27,27 +14,7 @@ import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Node/actor indexes are built once per frame and reused for all targets; required bone scans preserve duplicate detection. Snapshots, domain and budget are not assumed equivalent across calls for a retained solve cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Frame maps and resolved histories are local; only fresh solved arrays and budget scalars transfer, without retaining subject maps, rig callbacks or a host task.
  */
-export const simulateAutoMovieWearableSoftBody: (props: {
-  domain: IAutoMovieSoftBodyDomain;
-  step: number;
-  frames: readonly IAutoMovieWearableSoftFrame[];
-  subjectIndex: number;
-  maxSubjects: number;
-  state?: string | null | undefined;
-}) => IAutoMovieWearableSoftResult = (props: {
-  /** Authored domain carrying static or moving anchors and colliders. */
-  domain: IAutoMovieSoftBodyDomain;
-  /** Absolute target step. */
-  step: number;
-  /** Complete primary-motion snapshots from zero through the target step. */
-  frames: readonly IAutoMovieWearableSoftFrame[];
-  /** Zero-based selected expensive-subject slot. */
-  subjectIndex: number;
-  /** Declared maximum simultaneous wearable subjects. */
-  maxSubjects: number;
-  /** Optional named static boundary state. */
-  state?: string | null;
-}): IAutoMovieWearableSoftResult => {
+export const simulateAutoMovieWearableSoftBody: (props: IAutoMovieSimulateWearableSoftBody.IProps) => IAutoMovieWearableSoftResult = (props: IAutoMovieSimulateWearableSoftBody.IProps): IAutoMovieWearableSoftResult => {
   assertAdmission(props.subjectIndex, props.maxSubjects);
   if (!Number.isSafeInteger(props.step) || props.step < 0)
     throw new Error("wearable soft step must be a non-negative integer");

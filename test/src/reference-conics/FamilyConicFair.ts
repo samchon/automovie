@@ -1,4 +1,5 @@
-import { AutoMovieRecoveryConicApproximation as V, approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**
@@ -58,7 +59,7 @@ export namespace FamilyConicFair {
     domain: readonly [number, number];
 
     /** Its rational quadratic: endpoint, tangent intersection, endpoint, chart mm. */
-    controls: V.IArc["controls"];
+    controls: IAutoMovieConicApproximation.IArc["controls"];
 
     /** Its middle weight; the shoulder `rho = w / (1 + w)`. */
     weight: number;
@@ -94,7 +95,7 @@ export namespace FamilyConicFair {
   /** A faired section's conversion. */
   export interface IConversion {
     /** The converter's status: complete, partial or refused. */
-    status: V.IResult["status"];
+    status: IAutoMovieConicApproximation.IResult["status"];
 
     /** The converter's largest sampled error against the faired section, mm. */
     errorMm: number;
@@ -165,7 +166,7 @@ export namespace FamilyConicFair {
   const wrap = (x: number): number => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
 
   /** The faired section as the converter's source: radius by phase about the origin, faired; breaks at its inflections and the closure's ends. */
-  export function curve(points: readonly C.P[], options: Pick<IOptions, "fairMm" | "closures"> = {}): V.ICurve & { radius: (phi: number) => number; girth: number } {
+  export function curve(points: readonly C.P[], options: Pick<IOptions, "fairMm" | "closures"> = {}): IAutoMovieConicApproximation.ICurve & { radius: (phi: number) => number; girth: number } {
     const fairMm: number = options.fairMm ?? FAIR_MM;
     const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
     let girth: number = 0;
@@ -229,7 +230,7 @@ export namespace FamilyConicFair {
     // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
     const binomial = (n: number, k: number): number => (k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k));
     const domain: readonly [number, number] = [SEAM, SEAM + 2 * Math.PI];
-    const derivative = (phi: number, order: 1 | 2 | 3 | 4 | 5): V.Point => {
+    const derivative = (phi: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point => {
       let x: number = 0, y: number = 0;
       for (let j: number = 0; j <= order; ++j) {
         const c: number = binomial(order, j) * rAt(phi, j);
@@ -249,7 +250,7 @@ export namespace FamilyConicFair {
     // bisected, and 16 of 443 sections ran out of arcs. A pair of them costs two short arcs.
     const breaks: number[] = [];
     const numerator = (phi: number): number => {
-      const d1: V.Point = derivative(phi, 1), d2: V.Point = derivative(phi, 2);
+      const d1: IAutoMovieConicApproximation.Point = derivative(phi, 1), d2: IAutoMovieConicApproximation.Point = derivative(phi, 2);
       return d1[0] * d2[1] - d1[1] * d2[0];
     };
     const steps: number = 16 * H;
@@ -277,7 +278,7 @@ export namespace FamilyConicFair {
       domain,
       breaks,
       closed: true,
-      evaluate: (phi: number): V.Point => [rAt(phi, 0) * Math.cos(phi), rAt(phi, 0) * Math.sin(phi)],
+      evaluate: (phi: number): IAutoMovieConicApproximation.Point => [rAt(phi, 0) * Math.cos(phi), rAt(phi, 0) * Math.sin(phi)],
       derivative,
       radius: (phi: number): number => rAt(phi, 0),
       girth,
@@ -384,11 +385,11 @@ export namespace FamilyConicFair {
       fairSum += off;
       ++fairCount;
     }
-    const result: V.IResult = approximateAutoMovieRecoveryConicsAhn(source, { toleranceMm: options.toleranceMm, ...LIMITS });
+    const result: IAutoMovieConicApproximation.IResult = approximateAutoMovieRecoveryConicsAhn(source, { toleranceMm: options.toleranceMm, ...LIMITS });
     const onClosure = (phi: number): boolean => (options.closures ?? []).some(([a, b]): boolean => wrap(phi - a) < wrap(b - a));
     const arcs: IArc[] = [...result.arcs]
-      .sort((p: V.IArc, q: V.IArc): number => p.domain[0] - q.domain[0])
-      .map((arc: V.IArc): IArc => {
+      .sort((p: IAutoMovieConicApproximation.IArc, q: IAutoMovieConicApproximation.IArc): number => p.domain[0] - q.domain[0])
+      .map((arc: IAutoMovieConicApproximation.IArc): IArc => {
         const [p0, p1, p2] = arc.controls;
         const cross: number = (p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]);
         const legs: number = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) * Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
@@ -421,7 +422,7 @@ export namespace FamilyConicFair {
       if (!inward(k) || inward(k - 1)) continue;
       const run: IArc[] = [];
       for (let j: number = k; inward(j) && run.length < n; ++j) run.push(arcs[((j % n) + n) % n]!);
-      const a: V.Point = run[0]!.controls[0], b: V.Point = run.at(-1)!.controls[2];
+      const a: IAutoMovieConicApproximation.Point = run[0]!.controls[0], b: IAutoMovieConicApproximation.Point = run.at(-1)!.controls[2];
       const chord: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
       // The floor: the farthest of the run's arc ends and middles from the chord, on the course's side.
       let depth: number = 0, floor: number = (run[0]!.domain[0] + run.at(-1)!.domain[1]) / 2;
@@ -436,7 +437,7 @@ export namespace FamilyConicFair {
   }
 
   /** The point at the middle of a rational quadratic. */
-  export function middle(arc: Pick<IArc, "controls" | "weight">): V.Point {
+  export function middle(arc: Pick<IArc, "controls" | "weight">): IAutoMovieConicApproximation.Point {
     const [p0, p1, p2] = arc.controls;
     const w: number = arc.weight;
     return [(p0[0] + 2 * w * p1[0] + p2[0]) / (2 + 2 * w), (p0[1] + 2 * w * p1[1] + p2[1]) / (2 + 2 * w)];

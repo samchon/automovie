@@ -1,9 +1,10 @@
-import { AutoMovieViewOutline, type AutoMovieViewAxis, type IAutoMovieViewPart } from "@automovie/engine";
-import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+import type { IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadFrontSource, IAutoMovieHumanHeadLayout } from "@automovie/interface";
 
-/** A station identity, without a surrogate source value. */
-type Site = Pick<IAutoMovieViewPart.IKnot, "site" | "station">;
+
+
+import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
+
 
 /**
  * The head's actual front scalar, composed in one crown-root clock.
@@ -39,24 +40,24 @@ export namespace AutoMovieHumanHeadFrontSource {
    * @evidence contracts/performance.md#reuse-equivalent-work The caller's radius and axis are borrowed unchanged and all final knots reuse those prepared fields.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns copied scalar records; temporary readers and spline preparations end with this call.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, axis: AutoMovieViewAxis.IAxis, sites: readonly Site[], radius: AutoMovieViewOutline.IOutline | null): IAutoMovieViewPart.IOutline {
+  export function of(plan: IAutoMovieHumanHeadLayout, axis: IAutoMovieViewAxis.IAxis, sites: readonly IAutoMovieHumanHeadFrontSource.Site[], radius: IAutoMovieViewOutline.IOutline | null): IAutoMovieViewPart.IOutline {
     const neck: typeof plan.neck.curves = plan.neck.curves;
     if (neck !== undefined && radius === null) throw new Error("The head front requires its actual prepared neck radius");
     const first: number = sites[0]!.station;
     const lower: number = neck?.band[1] ?? plan.y0;
     if (!(first < lower && lower < plan.menton && plan.menton < plan.vertex)) throw new Error("The head front needs an increasing neck-band to menton to crown source interval");
-    if (!sites.some((site: Site): boolean => site.station === lower) || !sites.some((site: Site): boolean => site.station === plan.menton)) throw new Error("The head front requires both original handover stations in its emitted partition");
+    if (!sites.some((site: IAutoMovieHumanHeadFrontSource.Site): boolean => site.station === lower) || !sites.some((site: IAutoMovieHumanHeadFrontSource.Site): boolean => site.station === plan.menton)) throw new Error("The head front requires both original handover stations in its emitted partition");
     const parameter: NonNullable<IAutoMovieViewPart.IOutline["parameter"]> = { type: "root", end: "top", pole: plan.vertex };
     const scale: number = neck === undefined ? 1 : neck.extents[0] / neck.lateral;
 
     // A missing current source was refused above. The retired layout's
     // declared constant prototype is a different, explicit input case.
-    const bottom: AutoMovieViewOutline.IOutline = radius ?? prepare({ parameter, knots: [first, lower].map((station: number): IAutoMovieViewPart.IKnot => ({ site: "neck.prototype", station, value: plan.neck.radius, jet: { first: 0, second: 0 } })) });
-    const upper: AutoMovieViewOutline.IOutline = prepare({ parameter, knots: sites.filter((site: Site): boolean => site.station >= plan.menton).map((site: Site): IAutoMovieViewPart.IKnot => ({ site: site.site, station: site.station, value: site.station === plan.vertex ? 0 : AutoMovieHumanHeadMedianProfile.profileAt(plan, site.station) - axis.at(site.station).origin[0] })) });
-    const a: AutoMovieViewOutline.IReading = read(bottom, lower);
-    const b: AutoMovieViewOutline.IReading = read(upper, plan.menton);
+    const bottom: IAutoMovieViewOutline.IOutline = radius ?? prepare({ parameter, knots: [first, lower].map((station: number): IAutoMovieViewPart.IKnot => ({ site: "neck.prototype", station, value: plan.neck.radius, jet: { first: 0, second: 0 } })) });
+    const upper: IAutoMovieViewOutline.IOutline = prepare({ parameter, knots: sites.filter((site: IAutoMovieHumanHeadFrontSource.Site): boolean => site.station >= plan.menton).map((site: IAutoMovieHumanHeadFrontSource.Site): IAutoMovieViewPart.IKnot => ({ site: site.site, station: site.station, value: site.station === plan.vertex ? 0 : AutoMovieHumanHeadMedianProfile.profileAt(plan, site.station) - axis.at(site.station).origin[0] })) });
+    const a: IAutoMovieViewOutline.IReading = read(bottom, lower);
+    const b: IAutoMovieViewOutline.IReading = read(upper, plan.menton);
     const bridgeSpan: number = Math.sqrt(plan.vertex - lower) - Math.sqrt(plan.vertex - plan.menton);
-    const bridge: AutoMovieViewOutline.IOutline = prepare({ parameter, knots: [
+    const bridge: IAutoMovieViewOutline.IOutline = prepare({ parameter, knots: [
       { site: "neck.cylinder.upper", station: lower, value: a.value * scale, jet: { first: a.parameterJet[0] * scale * bridgeSpan, second: a.parameterJet[1] * scale * bridgeSpan * bridgeSpan } },
       { site: "menton", station: plan.menton, value: b.value, jet: { first: b.parameterJet[0] * bridgeSpan, second: b.parameterJet[1] * bridgeSpan * bridgeSpan } },
     ] });
@@ -64,24 +65,24 @@ export namespace AutoMovieHumanHeadFrontSource {
 
     // All incident pieces share each endpoint's actual two jets. Copying
     // every retained jet prevents a global natural refit at the handover.
-    return { parameter, knots: sites.map((site: Site): IAutoMovieViewPart.IKnot => {
-      const source: AutoMovieViewOutline.IOutline = site.station <= lower ? bottom : site.station < plan.menton ? bridge : upper;
+    return { parameter, knots: sites.map((site: IAutoMovieHumanHeadFrontSource.Site): IAutoMovieViewPart.IKnot => {
+      const source: IAutoMovieViewOutline.IOutline = site.station <= lower ? bottom : site.station < plan.menton ? bridge : upper;
       const factor: number = site.station <= lower ? scale : 1;
-      const value: AutoMovieViewOutline.IReading = read(source, site.station);
+      const value: IAutoMovieViewOutline.IReading = read(source, site.station);
       return { site: site.site, station: site.station, value: value.value * factor, jet: { first: value.parameterJet[0] * factor * span, second: value.parameterJet[1] * factor * span * span } };
     }) };
   }
 
   /** Prepare the declared scalar without replacing a failed source. */
-  function prepare(outline: IAutoMovieViewPart.IOutline): AutoMovieViewOutline.IOutline {
-    const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
+  function prepare(outline: IAutoMovieViewPart.IOutline): IAutoMovieViewOutline.IOutline {
+    const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
     if ("detail" in source) throw new Error(`Head front source: ${source.detail}`);
     return source;
   }
 
   /** Keep parameter jets even where a physical station jet is singular. */
-  function read(source: AutoMovieViewOutline.IOutline, station: number): AutoMovieViewOutline.IReading {
-    const value: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(source, station);
+  function read(source: IAutoMovieViewOutline.IOutline, station: number): IAutoMovieViewOutline.IReading {
+    const value: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(source, station);
     if (typeof value === "string") throw new Error(`Head front source: ${value}`);
     return value;
   }

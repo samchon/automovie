@@ -1,7 +1,5 @@
-import {
-  IAutoMovieFormationSlot,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFormationSlotRecord, IAutoMovieFormationSlot } from "@automovie/interface";
+
 
 import { seededValue } from "./math/seededValue";
 
@@ -26,14 +24,9 @@ import { seededValue } from "./math/seededValue";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the record is fresh and aliases the position vector the caller handed in.
  */
 export const formationSlotRecord = (
-  formation: {
-    id: string;
-    model: string;
-    facingDeg: number;
-    seed: number;
-  },
+  formation: IAutoMovieFormationSlotRecord.IFormation,
   slot: number,
-  member: { actor: string | null; position: IAutoMovieVector3 },
+  member: IAutoMovieFormationSlotRecord.IMember,
 ): IAutoMovieFormationSlot => ({
   slot,
   node:

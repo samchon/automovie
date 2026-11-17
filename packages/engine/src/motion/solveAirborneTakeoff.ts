@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieIntegrateAirborneRotation, IAutoMovieSolveAirborneTakeoff, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { Quaternion } from "../math/Quaternion";
@@ -58,8 +56,8 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps the current and last accepted trial flights during the search; the returned flight escapes for playback and other trials lose their references. The caller's history retains every distinct evaluation instant across those trials with no fixed population bound.
  */
 export function solveAirborneTakeoff(
-  props: solveAirborneTakeoff.IProps,
-): solveAirborneTakeoff.ISolution {
+  props: IAutoMovieSolveAirborneTakeoff.IProps,
+): IAutoMovieSolveAirborneTakeoff.ISolution {
   const flight: number = props.t1 - props.t0;
   if (!(flight > 0))
     throw new Error(`The take-off needs a positive flight, got ${flight}`);
@@ -72,7 +70,7 @@ export function solveAirborneTakeoff(
   interface IEvaluation {
     r: number[];
     jacobian: number[][];
-    flight: integrateAirborneRotation.IFlight;
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight;
   }
   const directions: IAutoMovieVector3[] = [0, 1, 2].map(
     (i: number): IAutoMovieVector3 =>
@@ -89,7 +87,7 @@ export function solveAirborneTakeoff(
     local: readonly number[],
     target: readonly number[],
   ): IEvaluation => {
-    const turned: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+    const turned: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
       {
         history: props.history,
         t0: props.t0,
@@ -106,7 +104,7 @@ export function solveAirborneTakeoff(
       },
     );
     // The body seen in the frame's axes, `q F`, so the take-off reads zero.
-    const end: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.unwrapped(
+    const end: IAutoMovieSolveAirborneTakeoff.IAngles = solveAirborneTakeoff.unwrapped(
       {
         ...turned,
         orientation: (t: number): IAutoMovieQuaternion =>
@@ -294,74 +292,6 @@ export namespace solveAirborneTakeoff {
    */
   export const TOLERANCE: number = 2 * Math.PI * 0.01;
 
-  /** What a take-off is solved from. */
-  export interface IProps {
-    /** The shape's history (`integrateAirborneRotation.history`). */
-    history: integrateAirborneRotation.IHistory;
-
-    /** Take-off, seconds. */
-    t0: number;
-
-    /** Touchdown, seconds. */
-    t1: number;
-
-    /** The root's world orientation at take-off. */
-    q0: IAutoMovieQuaternion;
-
-    /**
-     * The somersault frame in the root's frame at take-off: its X the
-     * somersault axis, its Y the long axis, its Z the tilt axis. The root's
-     * own axes when absent (a forward or backward salto); a side salto turns
-     * it a quarter about the long axis.
-     */
-    frame?: IAutoMovieQuaternion;
-
-    /** Somersault turns about the frame's X, signed (positive tips the head toward the frame's +Z). */
-    somersault: number;
-
-    /** Twist turns about the long axis, signed by the right-hand rule about +Y. */
-    twist: number;
-
-    /** The largest momentum the take-off can give, kg m²/s; unbounded when absent. */
-    maximum?: number;
-
-    /** The residual norm accepted, radians; `TOLERANCE` when absent. */
-    tolerance?: number;
-
-    /** The integrator's step, seconds. */
-    h?: number;
-
-    /** The integrator's error control, as the flight that reads the momentum integrates it; the fixed step when absent. */
-    integration?: integrateMotionTrajectory.ITolerance;
-  }
-
-  /** A solved take-off. */
-  export interface ISolution {
-    /** The whole-body angular momentum about the centre of mass, world, kg m²/s. */
-    momentum: IAutoMovieVector3;
-
-    /** What the flight misses at touchdown, revolutions: somersault, tilt and twist. */
-    residual: IAngles;
-
-    /** Whether the residual is within the tolerance and the momentum within the maximum. */
-    met: boolean;
-
-    /** The evaluated flight whose residual was judged; a consumer uses this value for playback instead of reintegrating the momentum on a different adaptive mesh. */
-    flight: integrateAirborneRotation.IFlight;
-  }
-
-  /** Yeadon's attitude angles, in the unit their reader states. */
-  export interface IAngles {
-    /** About the frame's lateral axis X. */
-    somersault: number;
-
-    /** About its forward axis Z. */
-    tilt: number;
-
-    /** About the body's long axis Y. */
-    twist: number;
-  }
-
   /**
    * Yeadon's somersault, tilt and twist of an orientation relative to a
    * frame, radians, from `M = frame⁻¹ q = Rx(φ) Rz(θ) Ry(ψ)`: the long axis
@@ -376,7 +306,7 @@ export namespace solveAirborneTakeoff {
   export function angles(
     frame: IAutoMovieQuaternion,
     q: IAutoMovieQuaternion,
-  ): IAngles {
+  ): IAutoMovieSolveAirborneTakeoff.IAngles {
     const m: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.inverse(frame),
       q,
@@ -416,9 +346,9 @@ export namespace solveAirborneTakeoff {
    * @returns The touchdown angles, radians.
    */
   export function unwrapped(
-    flight: integrateAirborneRotation.IFlight,
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight,
     frame: IAutoMovieQuaternion,
-  ): IAngles {
+  ): IAutoMovieSolveAirborneTakeoff.IAngles {
     let somersault: number = 0;
     let twist: number = 0;
     let tilt: number = 0;
@@ -426,7 +356,7 @@ export namespace solveAirborneTakeoff {
     const instants: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
     for (let k: number = 0; k < instants; k++) {
       const t: number = k === instants - 1 ? flight.t1 : flight.t0 + k * step;
-      const a: IAngles = angles(frame, flight.orientation(t));
+      const a: IAutoMovieSolveAirborneTakeoff.IAngles = angles(frame, flight.orientation(t));
       somersault = near(a.somersault, somersault);
       twist = near(a.twist, twist);
       tilt = a.tilt;
@@ -458,7 +388,7 @@ export namespace solveAirborneTakeoff {
 function solve3(a: readonly number[][], b: readonly number[]): number[] | null {
   if (!a.flat().every(Number.isFinite) || !b.every(Number.isFinite))
     return null;
-  const column = (c: number): AutoMovieSolidVector.Vec3 => [
+  const column = (c: number): AutoMovieVector3Tuple => [
     a[0]![c]!,
     a[1]![c]!,
     a[2]![c]!,

@@ -1,5 +1,8 @@
-import type { AutoMovieFilmBeautyComposition } from "./AutoMovieFilmBeautyComposition.js";
-import type { IAutoMovieFilmBeautyLayer } from "./IAutoMovieFilmBeautyLayer.js";
+import type { IAutoMovieFilmBeautyComposition, IAutoMovieFilmBeautyLayer } from "@automovie/interface";
+
+
+
+
 
 /**
  * Resolve a builder-sampled beauty layer list into one explicit compositor.
@@ -18,11 +21,11 @@ export const resolveAutoMovieFilmBeautyComposition: <
   Layer extends IAutoMovieFilmBeautyLayer,
 >(
   layers: readonly Layer[],
-) => AutoMovieFilmBeautyComposition<Layer> = <
+) => IAutoMovieFilmBeautyComposition<Layer> = <
   Layer extends IAutoMovieFilmBeautyLayer,
 >(
   layers: readonly Layer[],
-): AutoMovieFilmBeautyComposition<Layer> => {
+): IAutoMovieFilmBeautyComposition<Layer> => {
   if (layers.length !== 1 && layers.length !== 2)
     throw new Error(
       `Film beauty composition requires one fade/cut layer or two dissolve layers, but received ${layers.length}.`,

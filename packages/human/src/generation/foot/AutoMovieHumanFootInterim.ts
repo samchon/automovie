@@ -1,20 +1,35 @@
-import type { AutoMovieHumanFootConstruction } from "../AutoMovieHumanFootConstruction";
+import type { IAutoMovieLoftContract, AutoMovieVector3Tuple, IAutoMovieHumanBodyMeasures, IAutoMovieHumanFootBreadth, IAutoMovieHumanFootConnection, IAutoMovieHumanFootFrame, IAutoMovieHumanFootHost, IAutoMovieHumanFootInterim, IAutoMovieHumanFootPart, IAutoMovieHumanFootSource, IAutoMovieHumanFootToeSources, IAutoMovieHumanLegWalk, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart, IAutoMovieHumanToePart } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanFootArch } from "../AutoMovieHumanFootArch";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
+
 import { AutoMovieHumanFootPart } from "./AutoMovieHumanFootPart";
 import { AutoMovieHumanFootBreadth } from "./AutoMovieHumanFootBreadth";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-import type { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
+
 import { AutoMovieHumanFootToeSources } from "./AutoMovieHumanFootToeSources";
-import type { AutoMovieHumanLegWalk } from "../leg/AutoMovieHumanLegWalk";
-import type { AutoMovieHumanToePart } from "./AutoMovieHumanToePart";
+
+
 import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
 import { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnection";
 import { AutoMovieHumanFootDorsum } from "./AutoMovieHumanFootDorsum";
-import type { AutoMovieLoftContract } from "@automovie/engine";
+
 import { AutoMovieHumanFootHost } from "./AutoMovieHumanFootHost";
 
-type Vec3 = [number, number, number];
 
 /**
  * A foot and its toes from the person's foot dimensions and the reference set's
@@ -56,62 +71,18 @@ type Vec3 = [number, number, number];
  */
 export namespace AutoMovieHumanFootInterim {
 
-  /** A real leg-family ankle capability, without claiming that its upper parent is already complete. */
-  export interface IAnkleSource {
-
-    /** Original physical ankle station, calibration mm. */
-
-    ankleStation: number;
-
-    /** Same retained distal authority with an explicit full-parent resolver. */
-
-    source: AutoMovieHumanFootSource.ISource;
-  }
+  
 
   /** Actual production names; enumeration performs no geometry or full-parent request. */
   export function names(side: "left" | "right"): readonly string[] {
     return AutoMovieHumanFootToeSources.names(side);
   }
 
-  /** Actual original toe input and its separate skin-attachment/terminal datums. */
-  export type IToe = AutoMovieHumanFootToeSources.ICandidate;
+  
 
-  /**
-   * The foot input and all five toe sources sharing its actual floor frame
-   * and metatarsal support origin, before loft or skin construction.
-   *
-   * @evidence contracts/common.md#principled-implementation Makes the actual foot's heel, axis and regional supports the source for every toe.
-   * @evidence contracts/common.md#clear-and-simple-design Owns one foot input and five explicit attachment records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not recover placement from a generated course or reuse the old skeletal foot's different yaw and origin.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes source inputs from a realized foot, and skin attachments from skeletal centres.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result type declares no runtime algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The define owner determines how the records are shared.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The generating call owns the finite result without global retention.
-   */
-  export interface IDefinition {
+  
 
-    /** The actual foot builder input, including its shared regional support datum. */
-    foot: AutoMovieHumanFootPart.IInput;
-
-    /** Same final original read by the attachments, metric owner and production loft. */
-    definition: AutoMovieHumanSiteViewPart.IDefinition;
-
-    /** Hallux first, each with its actual generated attachment and walk. */
-    toes: IToe[];
-
-    /** Nonfatal attachment-premise diagnostics retained before any join or skin. An unavailable breadth source throws before a normalized record can be returned. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
-
-  /** Shared local source controls and child inputs; actual parent publication stays an explicit method. */
-  export interface IPrepared extends Omit<IDefinition, "definition"> {
-
-    /** Same original scalar/frame controls consumed by the foot and its toe contacts. */
-    controls: AutoMovieHumanSiteControls.IOutput;
-
-    /** Publish the actual foot only on explicit original/assembly demand, retaining one identical result. */
-    definition(): AutoMovieHumanSiteViewPart.IDefinition;
-  }
+  
 
   /**
    * Define the foot and its toe attachments in one shared source frame.
@@ -136,34 +107,34 @@ export namespace AutoMovieHumanFootInterim {
    * @evidence contracts/performance.md#reuse-equivalent-work Shares one frame, station plan and retained host-support preparation between the unit and final source definitions; all toes then share the final host record.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned records without a cache, sampler or realized skin reference.
    */
-  export function prepare(name: "left" | "right", d: AutoMovieHumanFootConstruction.IDimensions, ankle: Vec3, leg: AutoMovieHumanLegWalk.IDefinition | IAnkleSource, measures: IAutoMovieHumanBodyMeasures, scale: number): IPrepared {
+  export function prepare(name: "left" | "right", d: IAutoMovieHumanFootFrame.IDimensions, ankle: AutoMovieVector3Tuple, leg: IAutoMovieHumanLegWalk.IDefinition | IAutoMovieHumanFootInterim.IAnkleSource, measures: IAutoMovieHumanBodyMeasures, scale: number): IAutoMovieHumanFootInterim.IPrepared {
     if (!("source" in leg) && leg.part === null) throw new Error(`The ${name} foot needs its actual prepared leg source`);
-    const anchor: Vec3 = ("source" in leg ? leg.source.axis ?? leg.source.part.axis : leg.part!.axis).at(leg.ankleStation).origin;
+    const anchor: AutoMovieVector3Tuple = ("source" in leg ? leg.source.axis ?? leg.source.part.axis : leg.part!.axis).at(leg.ankleStation).origin;
     const mismatch: number = Math.hypot(...anchor.map((value: number, coordinate: number): number => value - ankle[coordinate]!));
     const roundoff: number = 64 * Number.EPSILON * Math.max(1, ...anchor.map(Math.abs), ...ankle.map(Math.abs));
     if (!Number.isFinite(mismatch) || mismatch > roundoff) throw new Error(`The ${name} public ankle misses its actual leg source by ${mismatch} mm`);
-    const frame: AutoMovieHumanFootHost.IFrame = AutoMovieHumanFootHost.place(name, d, anchor, scale);
-    const owner: AutoMovieHumanFootSource.ISource = "source" in leg ? leg.source : AutoMovieHumanFootSource.prepare(leg.part!);
-    const connection: AutoMovieHumanFootConnection.IAnkle = AutoMovieHumanFootConnection.ankle(owner, leg.ankleStation, frame.along);
-    const plan: AutoMovieHumanFootHost.IPlan = AutoMovieHumanFootHost.sourcePlan(d, measures, scale, frame.back);
-    const support: AutoMovieHumanFootHost.ITransverse = AutoMovieHumanFootHost.acrossSupport(d, plan);
+    const frame: IAutoMovieHumanFootHost.IFrame = AutoMovieHumanFootHost.place(name, d, anchor, scale);
+    const owner: IAutoMovieHumanFootSource.ISource = "source" in leg ? leg.source : AutoMovieHumanFootSource.prepare(leg.part!);
+    const connection: IAutoMovieHumanFootConnection.IAnkle = AutoMovieHumanFootConnection.ankle(owner, leg.ankleStation, frame.along);
+    const plan: IAutoMovieHumanFootHost.IPlan = AutoMovieHumanFootHost.sourcePlan(d, measures, scale, frame.back);
+    const support: IAutoMovieHumanFootHost.ITransverse = AutoMovieHumanFootHost.acrossSupport(d, plan);
 
     // Horizontal guides scale together. The local parent field owns Y;
 
     // native fullness does not promise anisotropic chord-height invariance.
-    const unit: AutoMovieHumanFootPart.IInput = AutoMovieHumanFootHost.create(name, d, frame, plan, support, 1);
-    const unitDefinition: AutoMovieHumanSiteControls.IOutput = roof(unit, connection, measures, scale);
-    const raw: AutoMovieHumanFootBreadth.ISupport | string = AutoMovieHumanFootBreadth.measure(unit, AutoMovieHumanFootToeSources.create(unit, unitDefinition).map((toe: IToe): AutoMovieHumanToePart.IInput => toe.part), unitDefinition);
+    const unit: IAutoMovieHumanFootPart.IInput = AutoMovieHumanFootHost.create(name, d, frame, plan, support, 1);
+    const unitDefinition: IAutoMovieHumanSiteControls.IOutput = roof(unit, connection, measures, scale);
+    const raw: IAutoMovieHumanFootBreadth.ISupport | string = AutoMovieHumanFootBreadth.measure(unit, AutoMovieHumanFootToeSources.create(unit, unitDefinition).map((toe: IAutoMovieHumanFootToeSources.ICandidate): IAutoMovieHumanToePart.IInput => toe.part), unitDefinition);
     if (typeof raw === "string") throw new Error(`The ${name} metatarsal source cannot own public breadth: ${raw}`);
     const transverse: number = d.breadth / raw.breadth;
     if (!(transverse > 0) || !Number.isFinite(transverse)) throw new Error(`The ${name} metatarsal source needs a finite positive transverse scale`);
-    const foot: AutoMovieHumanFootPart.IInput = AutoMovieHumanFootHost.create(name, d, frame, plan, support, transverse);
-    const controls: AutoMovieHumanSiteControls.IOutput = roof(foot, connection, measures, scale);
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    let retained: AutoMovieHumanSiteViewPart.IDefinition | undefined;
+    const foot: IAutoMovieHumanFootPart.IInput = AutoMovieHumanFootHost.create(name, d, frame, plan, support, transverse);
+    const controls: IAutoMovieHumanSiteControls.IOutput = roof(foot, connection, measures, scale);
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
+    let retained: IAutoMovieHumanSiteViewPart.IDefinition | undefined;
     return {
       foot, controls, toes: AutoMovieHumanFootToeSources.create(foot, controls), diagnostics,
-      definition(): AutoMovieHumanSiteViewPart.IDefinition {
+      definition(): IAutoMovieHumanSiteViewPart.IDefinition {
         retained ??= AutoMovieHumanSiteViewPart.fromControls(controls);
         return retained;
       },
@@ -171,8 +142,8 @@ export namespace AutoMovieHumanFootInterim {
   }
 
   /** Explicit original-parent publication preserves the previous public definition contract. */
-  export function define(...args: Parameters<typeof prepare>): IDefinition {
-    const shared: IPrepared = prepare(...args);
+  export function define(...args: IAutoMovieHumanFootInterim.DefineArgs): IAutoMovieHumanFootInterim.IDefinition {
+    const shared: IAutoMovieHumanFootInterim.IPrepared = prepare(...args);
     return { foot: shared.foot, definition: shared.definition(), toes: shared.toes, diagnostics: shared.diagnostics };
   }
 
@@ -186,7 +157,7 @@ export namespace AutoMovieHumanFootInterim {
    * @param scale Calibration millimetres per world millimetre.
    * @returns The foot part's input.
    */
-  export function of(name: "left" | "right", d: AutoMovieHumanFootConstruction.IDimensions, ankle: Vec3, leg: AutoMovieHumanLegWalk.IDefinition, measures: IAutoMovieHumanBodyMeasures, scale: number): AutoMovieHumanFootPart.IInput {
+  export function of(name: "left" | "right", d: IAutoMovieHumanFootFrame.IDimensions, ankle: AutoMovieVector3Tuple, leg: IAutoMovieHumanLegWalk.IDefinition, measures: IAutoMovieHumanBodyMeasures, scale: number): IAutoMovieHumanFootPart.IInput {
     return prepare(name, d, ankle, leg, measures, scale).foot;
   }
 
@@ -200,15 +171,15 @@ export namespace AutoMovieHumanFootInterim {
    * @param scale Calibration millimetres per world millimetre.
    * @returns Each toe's walk.
    */
-  export function toes(name: "left" | "right", d: AutoMovieHumanFootConstruction.IDimensions, ankle: Vec3, leg: AutoMovieHumanLegWalk.IDefinition, measures: IAutoMovieHumanBodyMeasures, scale: number): AutoMovieHumanToePart.IInput[] {
-    return prepare(name, d, ankle, leg, measures, scale).toes.map((toe: IToe): AutoMovieHumanToePart.IInput => toe.part);
+  export function toes(name: "left" | "right", d: IAutoMovieHumanFootFrame.IDimensions, ankle: AutoMovieVector3Tuple, leg: IAutoMovieHumanLegWalk.IDefinition, measures: IAutoMovieHumanBodyMeasures, scale: number): IAutoMovieHumanToePart.IInput[] {
+    return prepare(name, d, ankle, leg, measures, scale).toes.map((toe: IAutoMovieHumanFootToeSources.ICandidate): IAutoMovieHumanToePart.IInput => toe.part);
   }
 
   /** Author only the replacement dorsal scalar from the actual ankle contact; the foot and toes share these original coefficients. */
-  function roof(foot: AutoMovieHumanFootPart.IInput, connection: AutoMovieHumanFootConnection.IAnkle, measures: IAutoMovieHumanBodyMeasures, scale: number): AutoMovieHumanSiteControls.IOutput {
-    const base: AutoMovieHumanSiteControls.IOutput = AutoMovieHumanFootPart.controls(foot);
+  function roof(foot: IAutoMovieHumanFootPart.IInput, connection: IAutoMovieHumanFootConnection.IAnkle, measures: IAutoMovieHumanBodyMeasures, scale: number): IAutoMovieHumanSiteControls.IOutput {
+    const base: IAutoMovieHumanSiteControls.IOutput = AutoMovieHumanFootPart.controls(foot);
     if (base.controls === null)
-      throw new Error(base.diagnostics.map((diagnostic: AutoMovieLoftContract.IDiagnostic): string => diagnostic.detail).join("; "));
+      throw new Error(base.diagnostics.map((diagnostic: IAutoMovieLoftContract.IDiagnostic): string => diagnostic.detail).join("; "));
     foot.dorsal = AutoMovieHumanFootDorsum.create({
       part: base.controls.scalars, heel: foot.heel, along: foot.along, length: foot.length,
       height: foot.height, arch: AutoMovieHumanFootArch.dorsum(measures) * scale, ankle: connection,

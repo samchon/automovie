@@ -1,6 +1,6 @@
-import { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
-import { IAutoMovieNodeTarget } from "../harness/IAutoMovieNodeTarget";
-import { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
+import type { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
+import type { IAutoMovieNodeTarget } from "../harness/IAutoMovieNodeTarget";
+import type { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
 
 /**
  * Camera grammar shared by the hero intent and every alternate take.

@@ -1,11 +1,6 @@
-import {
-  type IAutoMovieInstanceSetPlacement,
-  instanceSlot,
-} from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieInstanceSetPlacement, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { instanceSlot } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { INSTANCE_SLOT_TEST_ROAD as road } from "../internal/INSTANCE_SLOT_TEST_ROAD";

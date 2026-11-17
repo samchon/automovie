@@ -1,9 +1,10 @@
+import { type IAutoMovieViolationCollector, IAutoMovieJointConstraint } from "@automovie/interface";
 import {
   ViolationCollector,
   clampJointRom,
   validateJointRom,
 } from "@automovie/engine";
-import { IAutoMovieJointConstraint } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -31,7 +32,7 @@ export function test_rom_validate_zero_excluding_override(): void {
   };
 
   // 1. zero against a zero-excluding override reports and clamps to the min
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", { flexion: 0, abduction: 0, twist: 0 }),
     constraint,
@@ -65,7 +66,7 @@ export function test_rom_validate_zero_excluding_override(): void {
 
   // 2. the immobile-axis skip and zero-including ranges stay clean (the
   //    abduction 0 and twist 0 above produced no violations of their own)
-  const clean: ViolationCollector = new ViolationCollector();
+  const clean: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", { flexion: 45, abduction: 0, twist: 0 }),
     constraint,

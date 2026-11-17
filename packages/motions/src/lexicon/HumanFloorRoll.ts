@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { roll } from "../floor/roll";
 import { HumanActionRow } from "../law/HumanActionRow";
 
@@ -12,12 +14,12 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanFloorRoll {
   /** A forward roll: crouch, roll over the back forward, rise on the feet. */
-  export const forwardRoll = HumanActionRow.of("forwardRoll", roll, {
+  export const forwardRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["floorRoll"]["forwardRoll"]> = HumanActionRow.of("forwardRoll", roll, {
     direction: "forward",
   });
 
   /** A backward roll: crouch, roll over the back backward, rise on the feet. */
-  export const backwardRoll = HumanActionRow.of("backwardRoll", roll, {
+  export const backwardRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["floorRoll"]["backwardRoll"]> = HumanActionRow.of("backwardRoll", roll, {
     direction: "backward",
   });
 }

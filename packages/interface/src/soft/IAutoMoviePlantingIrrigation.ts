@@ -1,4 +1,4 @@
-import { AutoMoviePlantingIrrigationMedium } from "./AutoMoviePlantingIrrigationMedium";
+import type { AutoMoviePlantingIrrigationMedium } from "./AutoMoviePlantingIrrigationMedium";
 
 /**
  * How a planting is watered.

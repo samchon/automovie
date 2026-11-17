@@ -1,11 +1,5 @@
-import {
-  type IAutoMovieRecoveryMapObservation,
-  type IAutoMovieRecoveryMapPose,
-  admitRecoveryCameraScene,
-  evaluateRecoveryScenePoint,
-  refineRecoveryCameraMap,
-  triangulateRecoverySceneTrack,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryMapObservation, IAutoMovieRecoveryMapPose } from "@automovie/interface";
+import { admitRecoveryCameraScene, evaluateRecoveryScenePoint, refineRecoveryCameraMap, triangulateRecoverySceneTrack } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";

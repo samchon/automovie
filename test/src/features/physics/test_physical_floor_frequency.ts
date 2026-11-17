@@ -1,9 +1,10 @@
+import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   bindPhysicalWorld,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,39 +68,39 @@ export async function test_physical_floor_frequency(): Promise<void> {
   // One step out of the same penetration at both declared frequencies.
   const rise: number[] = [];
   for (const frequency of [60, 240]) {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "pad",
       profile,
       1 / 120,
     );
     for (const target of body.targets)
       target.segments.root!.position.y = extent.y - PENETRATION;
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
     Object.assign(input, {
       floor: 0,
       contactFrequency: frequency,
       substeps: 1,
     });
-    const run: Simulation = await Simulation.compute(input);
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
     rise.push(run.cache.at(1 / 120).bodies.pad!.root!.velocity.y);
   }
   if (!(rise[0]! > 0 && rise[1]! > rise[0]!))
     findings.push(`frequency-ordered push-out ${JSON.stringify(rise)}`);
 
   // The settled weight in the floor's impulse receipts.
-  const body: Simulation.IBody = PhysicalFixtures.body(
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "pad",
     profile,
     DURATION,
   );
-  const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], DURATION);
   Object.assign(input, {
     floor: 0,
     gravity: { x: 0, y: -9.81, z: 0 },
     substeps: 4,
     checkpointEvery: 15,
   });
-  const run: Simulation = await Simulation.compute(input);
+  const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
   const force: number =
     run.cache.contacts
       .flatMap(

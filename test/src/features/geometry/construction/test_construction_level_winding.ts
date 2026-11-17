@@ -1,12 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionOutline,
-  IAutoMovieConstructionView,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionOutline, IAutoMovieConstructionView } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 
@@ -35,7 +29,7 @@ export function test_construction_level_winding(): void {
   const r: number = 0.02;
   const centre: V3 = [0, 0.05, 0];
   const SHARE: number = 0.95;
-  const host: AutoMovieConstructionNode = ConstructionShapes.ellipsoid(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.ellipsoid(
     "host",
     {
       origin: { x: 0, y: 0, z: 0 },
@@ -100,7 +94,7 @@ export function test_construction_level_winding(): void {
     part: IAutoMovieConstructionView,
     turned: boolean,
   ) => number = (part: IAutoMovieConstructionView, turned: boolean): number => {
-    const real: AutoMovieConstructionRealization.IRealization =
+    const real: IAutoMovieConstructionRealization.IRealization =
       realizeAutoMovieConstruction(
         {
           name: "made",
@@ -130,7 +124,7 @@ export function test_construction_level_winding(): void {
         },
         { chord: 1e-4 },
       );
-    const m: AutoMovieConstructionRealization.IMesh = real.mesh;
+    const m: IAutoMovieConstructionRealization.IMesh = real.mesh;
     for (const diagnostic of real.diagnostics)
       if (diagnostic.contract === "face triangulation")
         failures.push(

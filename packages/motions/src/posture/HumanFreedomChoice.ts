@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanFreedomChoice } from "@automovie/interface";
+
 /**
  * The values of the freedoms a law leaves a held thing's grasp or pose,
  * chosen by what the fitted body makes of them: the one shared chooser of a
@@ -29,52 +31,6 @@ export namespace HumanFreedomChoice {
   export const FITS: number = 48;
 
   /**
-   * One freedom of a pose: `bounded` between its least and greatest value,
-   * or `wrapped`, a turn that repeats after its period (a round handle's turn
-   * about its axis), with no bound. Its `step` is the refinement's first
-   * step, in the freedom's own unit (degrees or metres); 0 holds the freedom
-   * at its tried value.
-   */
-  export type Freedom =
-    | { kind: "bounded"; step: number; least: number; greatest: number }
-    | { kind: "wrapped"; step: number; period: number };
-
-  /** The freedoms of a pose as a law states them for `chosen`. */
-  export interface IProblem {
-    /** The values to judge first, in the law's order of preference, nearest the asked pose first. */
-    tried: readonly (readonly number[])[];
-
-    /** Each value's freedom, in the values' order. */
-    freedoms: readonly Freedom[];
-
-    /**
-     * How far the fitted hand misses the pose the values give, metres, at
-     * each instant the pose is judged at, read lazily and in order.
-     *
-     * @param values The freedoms' values, inside their bounds.
-     * @returns The misses, not negative.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the order of the result.
-     * @evidence contracts/development/implementation.md#principled-implementation Each miss is a fit of the body the law poses, read back, so the joints' ranges count.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `chosen` for each candidate.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `chosen` stops reading once a candidate cannot win, so an instant's fit is made only when it can still decide.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
-     */
-    judge(values: readonly number[]): Iterable<number>;
-  }
-
-  /** The chosen values and the worst miss the judge read for them, metres. */
-  export interface IChoice {
-    /** The freedoms' values, inside their bounds. */
-    values: number[];
-
-    /** The worst of the misses at every instant, metres. */
-    miss: number;
-  }
-
-  /**
    * Choose a pose's values.
    *
    * @param problem The tried values, the freedoms and the judge.
@@ -89,12 +45,12 @@ export namespace HumanFreedomChoice {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan and pose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chosen(problem: IProblem): IChoice {
+  export function chosen(problem: IAutoMovieMotionHumanFreedomChoice.IProblem): IAutoMovieMotionHumanFreedomChoice.IChoice {
     const { tried, freedoms, judge } = problem;
     if (tried.length === 0) throw new Error("A pose has no candidate");
     const within = (values: readonly number[]): number[] =>
       values.map((v: number, i: number): number => {
-        const freedom: Freedom = freedoms[i]!;
+        const freedom: IAutoMovieMotionHumanFreedomChoice.Freedom = freedoms[i]!;
         if (freedom.kind === "bounded")
           return Math.min(freedom.greatest, Math.max(freedom.least, v));
         const p: number = freedom.period;

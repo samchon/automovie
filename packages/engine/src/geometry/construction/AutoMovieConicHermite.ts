@@ -1,13 +1,12 @@
-import type { AutoMovieConicArc } from "./AutoMovieConicArc";
+import type { IAutoMovieConicArc, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieConicHermiteField, IAutoMoviePolarSector } from "@automovie/interface";
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
-import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
 /** A final projective reading of the unchanged bounded numeric inverse. */
 interface Located {
-  /** Same final point/log probabilities. */ reading: AutoMovieConicHermiteField.IProjective<number>;
+  /** Same final point/log probabilities. */ reading: IAutoMovieConicHermiteField.IProjective<number>;
   /** Null only for an explicit endpoint. */ clock: number | null;
   /** Explicit selected position. */ position: "first" | "interior" | "last";
 }
@@ -41,39 +40,6 @@ interface Located {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicHermite {
-  /**
-   * One short rational cubic in deficit/height coordinates.
-   *
-   * @evidence contracts/development/design.md#principled-representation The native bound and positive rational controls describe the same G2 end arc used by point and arclength readers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Fixed-size geometric data separates preparation from evaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores no mesh, sampled fit or alternate anatomical source.
-   * @evidence contracts/development/common.md#meaningful-documentation Members identify physical lengths, dimensionless controls and angular/native bounds.
-   */
-  export interface IPatch<T = number> {
-    /** First support extent, in the source length unit. */
-    extent: T;
-
-    /** Positive x deficit at the far endpoint, same length unit. */
-    deficit: T;
-
-    /** Positive y at the far endpoint, same length unit. */
-    height: T;
-
-    /** Far endpoint in the original quadratic's native parameter. */
-    native: T;
-
-    /** Far endpoint polar angle, radians. */
-    angle: number;
-
-    /** Shared geometric start curvature, inverse source length. */
-    curvature: T;
-
-    /** Four controls [x deficit / deficit, y / height]. */
-    points: readonly (readonly [T, T])[];
-
-    /** Four positive rational weights; create normalizes the outer weights to one. */
-    weights: readonly T[];
-  }
 
   /**
    * Prepare a convex G2 end approximation or an explicit finite-arithmetic failure.
@@ -91,7 +57,7 @@ export namespace AutoMovieConicHermite {
     b: number,
     r: number,
     shared: number,
-  ): IPatch | string | null {
+  ): IAutoMovieConicHermite.IPatch | string | null {
     return prepare(AutoMovieConicFieldJet.NUMBER, a, b, r, shared);
   }
 
@@ -107,12 +73,12 @@ export namespace AutoMovieConicHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fixed-size scalar/tuple records or a named string escape.
    */
   export function prepare<T>(
-    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    ops: IAutoMovieConicFieldJet.IAlgebra<T>,
     a: T,
     b: T,
     r: T,
     shared: T,
-  ): IPatch<T> | string | null {
+  ): IAutoMovieConicHermite.IPatch<T> | string | null {
     const own: T = AutoMovieConicArcField.curvature(ops, a, b, r);
     return AutoMovieConicPreparation.end(ops, a, b, r, shared, own);
   }
@@ -129,7 +95,7 @@ export namespace AutoMovieConicHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a six-number result escapes; fixed-size scratch is local.
    */
   export function jet(
-    patch: IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     t: number,
   ): [number, number, number, number, number, number] {
     const s: number = 1 - t;
@@ -187,9 +153,9 @@ export namespace AutoMovieConicHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the local scalar bracket and final fixed-size jet.
    */
   export function radius(
-    patch: IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     angle: number,
-  ): AutoMoviePolarSector.Jet {
+  ): IAutoMoviePolarSector.Jet {
     return locate(patch, angle)?.radial ?? [NaN, NaN, NaN];
   }
 
@@ -205,9 +171,9 @@ export namespace AutoMovieConicHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned numeric record holds no source, algebra table or cache.
    */
   export function locate(
-    patch: IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     angle: number,
-  ): AutoMovieConicArc.IRay | null {
+  ): IAutoMovieConicArc.IRay | null {
     const selected: Located | null = locateReading(patch, angle);
     return selected === null
       ? null
@@ -231,7 +197,7 @@ export namespace AutoMovieConicHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local bracket/reading records die after the fresh pair is returned; no query cache.
    */
   export function point(
-    patch: IPatch,
+    patch: IAutoMovieConicHermite.IPatch,
     angle: number,
   ): readonly [number, number] | null {
     const selected: Located | null = locateReading(patch, angle);
@@ -251,7 +217,7 @@ export namespace AutoMovieConicHermite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One query owns its inverse without a cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no query data.
    */
-  export function value(patch: IPatch, angle: number): number {
+  export function value(patch: IAutoMovieConicHermite.IPatch, angle: number): number {
     const selected: Located | null = locateReading(patch, angle);
     if (selected === null) return NaN;
     const value: number =
@@ -262,18 +228,18 @@ export namespace AutoMovieConicHermite {
   }
 
   /** The original inverse, including its exact endpoint and residual policy. */
-  function locateReading(patch: IPatch, angle: number): Located | null {
+  function locateReading(patch: IAutoMovieConicHermite.IPatch, angle: number): Located | null {
     if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))
       return null;
 
-    const ops: AutoMovieConicFieldJet.IAlgebra<number> =
+    const ops: IAutoMovieConicFieldJet.IAlgebra<number> =
       AutoMovieConicFieldJet.NUMBER;
     const weightLogs: number[] = patch.weights.map(Math.log);
     if (!weightLogs.every(Number.isFinite)) return null;
 
     if (angle === 0 || angle === patch.angle) {
       const position: "first" | "last" = angle === 0 ? "first" : "last";
-      const reading: AutoMovieConicHermiteField.IProjective<number> =
+      const reading: IAutoMovieConicHermiteField.IProjective<number> =
         AutoMovieConicHermiteField.projective(
           ops,
           patch,
@@ -289,9 +255,9 @@ export namespace AutoMovieConicHermite {
       Math.max(...weightLogs.map(Math.abs));
     let lo: number = -span;
     let hi: number = span;
-    const below: AutoMovieConicHermiteField.IProjective<number> =
+    const below: IAutoMovieConicHermiteField.IProjective<number> =
       AutoMovieConicHermiteField.projective(ops, patch, weightLogs, lo);
-    const above: AutoMovieConicHermiteField.IProjective<number> =
+    const above: IAutoMovieConicHermiteField.IProjective<number> =
       AutoMovieConicHermiteField.projective(ops, patch, weightLogs, hi);
     if (
       !(
@@ -303,13 +269,13 @@ export namespace AutoMovieConicHermite {
     for (let i: number = 0; i < 64; i++) {
       const middle: number = (lo + hi) / 2;
       if (middle === lo || middle === hi) break;
-      const reading: AutoMovieConicHermiteField.IProjective<number> =
+      const reading: IAutoMovieConicHermiteField.IProjective<number> =
         AutoMovieConicHermiteField.projective(ops, patch, weightLogs, middle);
       if (Math.atan2(reading.point[1], reading.point[0]) < angle) lo = middle;
       else hi = middle;
     }
     const clock: number = (lo + hi) / 2;
-    const reading: AutoMovieConicHermiteField.IProjective<number> =
+    const reading: IAutoMovieConicHermiteField.IProjective<number> =
       AutoMovieConicHermiteField.projective(ops, patch, weightLogs, clock);
     const residual: number = Math.abs(
       Math.atan2(reading.point[1], reading.point[0]) - angle,

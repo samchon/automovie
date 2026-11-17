@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type { IAutoMovieRecoveryCameraResidualsScoreOperation, IAutoMovieRecoveryHomographyConsensusFittingOperation, IAutoMovieRecoveryHomographyFittingOperation } from "@automovie/interface";
+
 
 import { fitRecoveryHomography } from "./fitRecoveryHomography";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
@@ -23,23 +24,12 @@ import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the current best matrix, inverse, O(N) indices and scalar counters escape. Proposal/subset arrays expire synchronously and no image, callback, process or global cache is retained.
  */
 export function fitRecoveryHomographyConsensus(
-  first: readonly (readonly [number, number])[],
-  second: readonly (readonly [number, number])[],
-  policy: IAutoMovieRecoveryCameraPairInput["policy"],
-  budget: IAutoMovieRecoveryCameraPairInput["budget"],
-  checkpoint: (completed: number, total: number) => void,
-): {
-  model: ReturnType<typeof fitRecoveryHomography> | null;
-  score: ReturnType<typeof scoreRecoveryCameraResiduals>;
-  population: number;
-  forbiddenSupport: number;
-  trials: number;
-  requiredTrialsAtForbiddenSupport: number | null;
-  conditionalTrialTargetMet: boolean;
-  forbiddenOverlapFound: boolean;
-  numericalRefusals: number;
-  refitRefusals: number;
-} {
+  first: Parameters<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation>[0],
+  second: Parameters<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation>[1],
+  policy: Parameters<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation>[2],
+  budget: Parameters<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation>[3],
+  checkpoint: Parameters<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation>[4],
+): ReturnType<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation> {
   if (first.length !== second.length || first.length < 4)
     throw new Error(
       "camera-homography: four or more final epipolar inliers required",
@@ -56,12 +46,11 @@ export function fitRecoveryHomographyConsensus(
   let trials: number = 0,
     numericalRefusals: number = 0,
     refitRefusals: number = 0;
-  let model: ReturnType<typeof fitRecoveryHomography> | null = null;
-  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = {
+  let model: ReturnType<IAutoMovieRecoveryHomographyFittingOperation.Operation> | null = null;
+  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> = {
     indices: [],
     medianPx: null,
-    p90Px: null,
-  };
+    p90Px: null };
   while (
     trials < budget.maxRansacTrials &&
     (trials < budget.minimumRansacTrials || trials < required) &&
@@ -77,8 +66,8 @@ export function fitRecoveryHomographyConsensus(
       trials,
     );
     trials++;
-    let candidate: ReturnType<typeof fitRecoveryHomography>;
-    let candidateScore: ReturnType<typeof scoreRecoveryCameraResiduals>;
+    let candidate: ReturnType<IAutoMovieRecoveryHomographyFittingOperation.Operation>;
+    let candidateScore: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>;
     try {
       candidate = fitRecoveryHomography(
         sample.map((at: number): readonly [number, number] => first[at]!),
@@ -160,6 +149,5 @@ export function fitRecoveryHomographyConsensus(
       trials >= required && trials >= budget.minimumRansacTrials,
     forbiddenOverlapFound: score.indices.length >= forbiddenSupport,
     numericalRefusals,
-    refitRefusals,
-  };
+    refitRefusals };
 }

@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSolvePhysicalCompliantContacts, IAutoMovieVector3 } from "@automovie/interface";
+
 import type {
   Collider,
   RigidBody,
@@ -28,11 +29,11 @@ import { visitPhysicalNative } from "./visitPhysicalNative";
  */
 export function solvePhysicalCompliantContacts(
   world: World,
-  surfaces: ReadonlyMap<number, solvePhysicalCompliantContacts.ISurface>,
+  surfaces: ReadonlyMap<number, IAutoMovieSolvePhysicalCompliantContacts.ISurface>,
   seconds: number,
   dt: number,
-): solvePhysicalCompliantContacts.IMeasurement[] {
-  const results: solvePhysicalCompliantContacts.IMeasurement[] = [];
+): IAutoMovieSolvePhysicalCompliantContacts.IMeasurement[] {
+  const results: IAutoMovieSolvePhysicalCompliantContacts.IMeasurement[] = [];
   const visited: Set<string> = new Set();
   for (const [handle, a] of surfaces) {
     if (a.compliance === 0) continue;
@@ -40,7 +41,7 @@ export function solvePhysicalCompliantContacts(
       (visitor: (other: number) => void): void =>
         world.narrowPhase.intersectionPairsWith(handle, visitor),
       (other: number): void => {
-        const b: solvePhysicalCompliantContacts.ISurface | undefined =
+        const b: IAutoMovieSolvePhysicalCompliantContacts.ISurface | undefined =
           surfaces.get(other);
         const key: string = `${Math.min(handle, other)}:${Math.max(handle, other)}`;
         if (
@@ -160,39 +161,6 @@ function transferredNormal(
           }),
       )
     : 0;
-}
-
-/**
- * Numerical material policy for an outer surface, separate from its rigid core.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Numerical material policy for an outer surface, separate from its rigid core) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Numerical material policy for an outer surface, separate from its rigid core: companion namespace of 2 members (`ISurface`, `IMeasurement`); units and frames named in its text: metres, newton, seconds, second, world. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `solvePhysicalCompliantContacts` in packages/engine/src/physics/solvePhysicalCompliantContacts.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace solvePhysicalCompliantContacts {
-  /** Admitted solver material values; exaggerated gains are explicit. */
-  export interface ISurface {
-    /** Scene owner; self-contact policy remains owned by the profile adapter. */ body: string;
-    /** Metres per newton, including any declared policy factor. */ compliance: number;
-    /** Dissipative time constant, seconds. */ damping: number;
-    /** Coulomb coefficient. */ friction: number;
-    /** Explicit post-solve impulse multiplier. */ gain: number;
-  }
-  /** One positive solved soft-surface impulse. */
-  export interface IMeasurement {
-    /** First outer collider. */ handle: number;
-    /** Second outer collider. */ other: number;
-    /** Completed fixed-step time. */ seconds: number;
-    /** Actual world application point. */ point: IAutoMovieVector3;
-    /** From first to second. */ normal: IAutoMovieVector3;
-    /** Normal impulse before explicit response gains, N s. */ impulse: number;
-    /** Actual transferred normal impulse on each mapped side, after response gain and native f32 rounding. */ appliedImpulse: {
-      a: number;
-      b: number;
-    };
-    /** Actual signed outer-surface separation, metres. */ separation: number;
-  }
 }
 
 /** Directional point inverse mass includes the rotated complete inertia tensor. */

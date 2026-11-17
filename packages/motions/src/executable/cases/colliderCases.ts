@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanCanonicalBody, IAutoMoviePhysicalProfile, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   Quaternion,
   Vector3,
@@ -5,11 +7,6 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,
@@ -65,7 +62,7 @@ export function* colliderCases(
 ): Iterable<IMotionCaptureCase> {
   for (const name of names) {
     if (only !== undefined && !only(`colliders-${name}`)) continue;
-    const body: AutoMovieHumanCanonicalBody.IBody =
+    const body: IAutoMovieHumanCanonicalBody.IBody =
       MotionBodies.population(name).body;
     const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
       AutoMovieHumanCanonicalBody.display(body),

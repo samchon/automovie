@@ -1,19 +1,7 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanArmClearance,
-  HumanColliders,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+
+import { HumanArmClearance, HumanColliders, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -75,24 +63,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_posture_arm_clearance(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
-    const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
     const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
     );
-    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
     const r: number = body.measure.forearmRadius;
     const degrees = (metres: number): number =>
       ((metres / body.measure.upperArm) * 180) / Math.PI;
 
     // 1. The trunk and the obstacles.
-    const trunk: HumanColliders.IPlaced[] = HumanArmClearance.trunk(
+    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.trunk(
       body,
       bones,
     );
-    const obstacles: HumanColliders.IPlaced[] = HumanArmClearance.obstacles(
+    const obstacles: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
       body,
       bones,
     );
@@ -130,7 +118,7 @@ export function test_human_motion_posture_arm_clearance(): void {
         trunk.some((s) => s.bone === "chest" || s.bone === "upperChest"),
     );
 
-    const chest: HumanColliders.IPlaced = (trunk.find(
+    const chest: IAutoMovieMotionHumanColliders.IPlaced = (trunk.find(
       (s) => s.bone === "upperChest",
     ) ?? trunk.find((s) => s.bone === "chest"))!;
     const toward = (
@@ -191,7 +179,7 @@ export function test_human_motion_posture_arm_clearance(): void {
       );
       // Without the other arm's room: that arm is placed, or its coming goal
       // lies on its own side; and an elbow hinted across.
-      const placedOther: HumanColliders.IPlaced[] = HumanArmClearance.obstacles(
+      const placedOther: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
         body,
         bones,
         [side === "left" ? "right" : "left"],
@@ -245,7 +233,7 @@ export function test_human_motion_posture_arm_clearance(): void {
       );
 
       // 5. A palm laid on the chest, against its own trunk and another body.
-      const hit: HumanColliders.IHit | undefined = HumanColliders.cast(
+      const hit: IAutoMovieMotionHumanColliders.IHit | undefined = HumanColliders.cast(
         body,
         new Map([...bones].filter(([bone]) => bone === chest.bone)),
         toward(chest.pose.position, sign * 0.02, 0, 0.6),
@@ -314,7 +302,7 @@ export function test_human_motion_posture_arm_clearance(): void {
       }
 
       // 6. Room.
-      const own: HumanArmClearance.IArm = {
+      const own: IAutoMovieMotionHumanArmClearance.IArm = {
         upper: triple(pose, `${side}UpperArm`),
         lower: triple(pose, `${side}LowerArm`),
         hand: triple(pose, `${side}Hand`),
@@ -340,7 +328,7 @@ export function test_human_motion_posture_arm_clearance(): void {
         Math.abs(HumanArmClearance.room(body, pose, side, own) - stance) <=
           1e-9,
       );
-      const bent: HumanArmClearance.IArm = {
+      const bent: IAutoMovieMotionHumanArmClearance.IArm = {
         upper: [20, 10, 5],
         lower: [60, 0, 0],
         hand: [10, 5, 0],

@@ -1,8 +1,9 @@
-import type { IAutoMovieRecoverySourceTerminal } from "../structures/mesh/IAutoMovieRecoverySourceTerminal";
+import type { IAutoMovieMeshCriticalPoints, IAutoMovieRecoveryCriticalBracketsPreparationOperation, IAutoMovieRecoverySlabGraph, IAutoMovieRecoverySourceTerminal, IAutoMovieRecoverySourceTerminalsObservationOperation } from "@automovie/interface";
+
 import { RecoverySlabGraph } from "./RecoverySlabGraph";
 import { critical } from "./mesh-observations/critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
-import type { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
+
 
 /**
  * Observe actual distal extrema and PL critical brackets from existing source-loop incidence. The open half-space is bounded above by the next representable value beyond the source maximum. Private vertex-face probes let the existing slab graph identify exactly the seeded indexed-source component; original point positions are published only as measured extrema and critical event observations. A one-tip result requires unique incidence, two-use original edges, one nonflat manifold maximum and no other critical event; branch and plateau observations remain explicit.
@@ -15,18 +16,7 @@ import type { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidenc
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One critical classification, sorted physical-height set and admitted slab-graph closure serve every seed on the same immutable source chart.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared source references belong to the calling synchronous observation; per-seed supports and connectivity expire after measurements are copied. No source arrays or private addresses enter the returned terminal records.
  */
-export function observeRecoverySourceTerminals(input: {
-  prepared: ReturnType<typeof prepareRecoveryMeshIncidence>;
-  heights: readonly number[];
-  axis: [number, number, number];
-  seeds: readonly {
-    coordinateMm: number;
-    loopIndex: number;
-    curveName: string;
-    faces: ReadonlySet<number>;
-  }[];
-  checkpoint?: () => void;
-}): IAutoMovieRecoverySourceTerminal[] {
+export function observeRecoverySourceTerminals(input: Parameters<IAutoMovieRecoverySourceTerminalsObservationOperation.Operation>[0]): ReturnType<IAutoMovieRecoverySourceTerminalsObservationOperation.Operation> {
   if (!input.seeds.length) return [];
   const { prepared, heights }: typeof input = input;
   const uniqueHeights: number[] = [...new Set(heights)].sort(
@@ -44,18 +34,17 @@ export function observeRecoverySourceTerminals(input: {
   const upper: number = high === 0 ? Number.MIN_VALUE : next.getFloat64(0);
   if (!(upper > high && Number.isFinite(upper)))
     throw new Error("Source maximum has no finite larger half-space bound");
-  const events: ReturnType<typeof critical> = critical(
+  const events: ReturnType<IAutoMovieMeshCriticalPoints.Operation> = critical(
     prepared.mesh,
     input.axis,
     heights,
     "boundary-regular-path-v1",
   );
-  const graph: ReturnType<typeof RecoverySlabGraph.prepare> =
+  const graph: ReturnType<IAutoMovieRecoverySlabGraph.Prepare> =
     RecoverySlabGraph.prepare({
       triangles: prepared.mesh.triangles,
       canon: prepared.canon,
-      heights,
-    });
+      heights });
   const results: IAutoMovieRecoverySourceTerminal[] = [];
   for (const seed of input.seeds) {
     input.checkpoint?.();
@@ -63,14 +52,12 @@ export function observeRecoverySourceTerminals(input: {
       seed: {
         coordinateMm: seed.coordinateMm,
         loopIndex: seed.loopIndex,
-        curveName: seed.curveName,
-      },
+        curveName: seed.curveName },
       singleTipQualified: false,
       maximum: null,
       events: [],
       coordinatesMm: [],
-      diagnostics: [],
-    };
+      diagnostics: [] };
     results.push(record);
     if (!(seed.coordinateMm < high)) {
       record.diagnostics.push(
@@ -85,21 +72,20 @@ export function observeRecoverySourceTerminals(input: {
         vertices.push(vertex);
         probes.push(faces);
       }
-    const groups: RecoverySlabGraph.Group[] = graph({
+    const groups: IAutoMovieRecoverySlabGraph.Group[] = graph({
       beforeMm: seed.coordinateMm,
       afterMm: upper,
       before: [seed.faces],
       after: [],
       defects: [],
-      probes,
-    });
-    const incident: RecoverySlabGraph.Group[] = groups.filter(
-      (group: RecoverySlabGraph.Group): boolean => group.before.includes(0),
+      probes });
+    const incident: IAutoMovieRecoverySlabGraph.Group[] = groups.filter(
+      (group: IAutoMovieRecoverySlabGraph.Group): boolean => group.before.includes(0),
     );
     if (incident.length !== 1 || !incident[0]!.supported) {
       record.diagnostics.push(
         "Seed has no unique supported clipped distal source component",
-        ...incident.flatMap((group: RecoverySlabGraph.Group): string[] =>
+        ...incident.flatMap((group: IAutoMovieRecoverySlabGraph.Group): string[] =>
           group.reason ? [group.reason] : [],
         ),
       );
@@ -124,8 +110,7 @@ export function observeRecoverySourceTerminals(input: {
       coordinateMm: maximum,
       pointsMm: maxima.map((vertex: number): [number, number, number] => [
         ...prepared.mesh.vertices[vertex]!,
-      ]),
-    };
+      ]) };
     let boundaryEdges: number = 0;
     for (const [key, faces] of prepared.faceEdges) {
       const ends: number[] = key.split(",").map(Number);
@@ -142,13 +127,13 @@ export function observeRecoverySourceTerminals(input: {
       record.diagnostics.push(
         `Distal source component has ${boundaryEdges} boundary or nonmanifold original edges`,
       );
-    const selected: ReturnType<typeof critical> = events.filter(
-      (event: ReturnType<typeof critical>[number]): boolean =>
+    const selected: ReturnType<IAutoMovieMeshCriticalPoints.Operation> = events.filter(
+      (event: ReturnType<IAutoMovieMeshCriticalPoints.Operation>[number]): boolean =>
         component.has(event.vertex),
     );
     const levels: Set<number> = new Set();
-    const gaps: Parameters<typeof prepareRecoveryCriticalBrackets>[5] = [];
-    const bracketed: ReturnType<typeof prepareRecoveryCriticalBrackets> =
+    const gaps: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[5] = [];
+    const bracketed: ReturnType<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation> =
       prepareRecoveryCriticalBrackets(
         selected,
         uniqueHeights,
@@ -181,8 +166,7 @@ export function observeRecoverySourceTerminals(input: {
         flat: event.flat,
         regular,
         beforeMm: bracket?.before ?? null,
-        afterMm: bracket?.after ?? null,
-      });
+        afterMm: bracket?.after ?? null });
       levels.add(event.level);
     }
     record.coordinatesMm = [...levels]

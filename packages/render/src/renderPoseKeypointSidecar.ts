@@ -1,4 +1,7 @@
-import type { IAutoMoviePoseKeypointSidecar } from "./IAutoMoviePoseKeypointSidecar.js";
+import type { IAutoMoviePoseKeypointSidecar } from "@automovie/interface";
+
+
+
 
 /**
  * Serialize a pose-keypoint sidecar for the host to write: JSON indented by two spaces, properties in declaration order, ending with one newline.

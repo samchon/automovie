@@ -1,18 +1,10 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieRestFrame, IAutoMovieFitChainToTargetProps, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { solveDistalTwist } from "./solveDistalTwist";
 
@@ -44,7 +36,7 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function splitDistalTwist(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   pose: IAutoMoviePose,
   rotation: IAutoMovieQuaternion,

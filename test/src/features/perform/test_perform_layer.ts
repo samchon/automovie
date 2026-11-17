@@ -1,15 +1,6 @@
-import {
-  IAutoMovieActionSynthesizer,
-  compilePerformance,
-  sampleMotion,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieActionCall,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-} from "@automovie/interface";
+import { type IAutoMovieActionSynthesizer, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import { compilePerformance, sampleMotion } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createLayerTestJointClip as jointClip } from "../internal/createLayerTestJointClip";

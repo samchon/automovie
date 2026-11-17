@@ -1,3 +1,4 @@
+import type { IAutoMovieEncodePng } from "@automovie/interface";
 /**
  * Encode raw 8-bit pixels as a PNG file in the padded base64 an `IAutoMovieImage` carries, for an image code generates together with a model.
  *
@@ -18,17 +19,7 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The CRC table is the one shared result; each call encodes its own pixels, and a caller that encodes the same pixels twice owns any cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned string escapes; the intermediate byte buffer is released with the call and the module retains just the fixed 1 KiB CRC table.
  */
-export const encodeAutoMoviePng: (props: {
-  width: number;
-  height: number;
-  channels: 1 | 2 | 3 | 4;
-  pixels: Uint8Array;
-}) => string = (props: {
-  width: number;
-  height: number;
-  channels: 1 | 2 | 3 | 4;
-  pixels: Uint8Array;
-}): string => {
+export const encodeAutoMoviePng: (props: IAutoMovieEncodePng.IProps) => string = (props: IAutoMovieEncodePng.IProps): string => {
   const { width, height, channels, pixels } = props;
   if (!Number.isSafeInteger(width) || width < 1)
     throw new Error(`png width must be a positive integer, got ${width}`);

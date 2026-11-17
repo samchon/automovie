@@ -1,5 +1,6 @@
-import type { IAutoMovieCurve64 as G } from "@automovie/engine";
-import { convertAutoMovieRecoveryCurves, type IAutoMovieRecoveryOpenContinuation } from "@automovie/recovery";
+import type { IAutoMovieCurve64, IAutoMovieRecoveryOpenContinuation } from "@automovie/interface";
+
+import { convertAutoMovieRecoveryCurves } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import { once } from "node:events";
 import fs from "node:fs/promises";
@@ -35,9 +36,9 @@ export namespace RuledCompactInput {
   /** Narrow writable view; all other decoded fields remain on the original objects. */
   export interface Bundle {
     /** Complete original closed topology and its current cubic authorities. */
-    loft: { sections: { coordinateMm: number; loops: { curve: G.Cubic }[] }[] };
+    loft: { sections: { coordinateMm: number; loops: { curve: IAutoMovieCurve64.Cubic }[] }[] };
     /** Original section identities, closed qualification and all open observations. */
-    reports: { coordinateMm: number; fits: Quality[]; open: (Quality & { curve: G.Cubic })[]; diagnostics: string[] }[];
+    reports: { coordinateMm: number; fits: Quality[]; open: (Quality & { curve: IAutoMovieCurve64.Cubic })[]; diagnostics: string[] }[];
     /** Original acquisition policy, not a new native-precision claim. */
     policy: { toleranceMm: number };
     /** Actual whole-artifact span count is adjusted after adopted replacements. */
@@ -59,7 +60,7 @@ export namespace RuledCompactInput {
     /** Original closed/open ordinal, unchanged by refitting. */
     ordinal: number;
     /** The original data slot, not a copied coefficient graph. */
-    holder: { curve: G.Cubic };
+    holder: { curve: IAutoMovieCurve64.Cubic };
     /** Its original qualification record, aligned by section and ordinal. */
     quality: Quality;
   }

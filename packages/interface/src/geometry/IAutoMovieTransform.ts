@@ -1,5 +1,5 @@
-import { IAutoMovieQuaternion } from "./IAutoMovieQuaternion";
-import { IAutoMovieVector3 } from "./IAutoMovieVector3";
+import type { IAutoMovieQuaternion } from "./IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
  * A translation, rotation and scale transform placing something in its parent's space.

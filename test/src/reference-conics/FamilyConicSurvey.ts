@@ -1,6 +1,7 @@
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanConicSection, IAutoMovieHumanF1, IAutoMovieLoftRelief, IAutoMovieViewChain } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftRelief, AutoMovieViewChain, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief, AutoMovieViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1 } from "@automovie/human";
 
 /**
@@ -26,7 +27,7 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1 }
  *   whole spans with the control spacing kept.
  */
 namespace FamilyConicSurvey {
-  type Family = AutoMovieHumanConicLoft.IFamily;
+  type Family = IAutoMovieHumanConicLoft.IFamily;
 
   /**
    * Where the figure reads each family whose stored range it does not use whole, as `AutoMovieHumanF1.construction` builds it (the lines
@@ -61,14 +62,14 @@ namespace FamilyConicSurvey {
   /** The station range the figure reads a family over, caps included. */
   function built(family: Family): [number, number] {
     const own: { from?: number; to?: number } | undefined = BUILT[family.name];
-    const [bottom, top]: [AutoMovieHumanConicLoft.ITip | null, AutoMovieHumanConicLoft.ITip | null] = family.tips ?? [null, null];
+    const [bottom, top]: [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] = family.tips ?? [null, null];
     return [own?.from ?? (bottom === null ? family.knots[0]! : bottom.tip), own?.to ?? (top === null ? family.knots.at(-1)! : top.tip)];
   }
 
   /** The station range a family's fields own, between its caps and inside what the figure reads. */
   function owned(family: Family): [number, number] {
     const [lo, hi]: [number, number] = built(family);
-    const [bottom, top]: [AutoMovieHumanConicLoft.ITip | null, AutoMovieHumanConicLoft.ITip | null] = family.tips ?? [null, null];
+    const [bottom, top]: [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] = family.tips ?? [null, null];
     return [Math.max(family.knots[0]!, lo, BUILT[family.name]?.from === undefined && bottom !== null ? bottom.from : -Infinity), Math.min(family.knots.at(-1)!, hi, BUILT[family.name]?.to === undefined && top !== null ? top.from : Infinity)];
   }
 
@@ -191,7 +192,7 @@ namespace FamilyConicSurvey {
     const read: (s: number) => number[] = reader(knots, values);
     const out: Float64Array = new Float64Array(stations.length * WALL.phases);
     stations.forEach((s: number, i: number): void => {
-      const section: AutoMovieViewChain.ISection = AutoMovieHumanConicSection.chain(read(s), family.layout);
+      const section: IAutoMovieViewChain.ISection = AutoMovieHumanConicSection.chain(read(s), family.layout);
       for (let j: number = 0; j < WALL.phases; ++j) out[i * WALL.phases + j] = AutoMovieViewChain.radius(section, (2 * Math.PI * j) / WALL.phases);
     });
     return out;
@@ -231,7 +232,7 @@ namespace FamilyConicSurvey {
   export async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const members: { family: Family; role: string; mirrored: boolean }[] = [
-      ...AutoMovieHumanF1.FAMILIES.map((m: AutoMovieHumanF1.IMember) => ({ family: m.family, role: "family", mirrored: m.mirrored })),
+      ...AutoMovieHumanF1.FAMILIES.map((m: IAutoMovieHumanF1.IMember) => ({ family: m.family, role: "family", mirrored: m.mirrored })),
       ...AutoMovieHumanF1.CUTTERS.map((c: { family: Family; mirrored: boolean }) => ({ family: c.family, role: "cutter", mirrored: c.mirrored })),
     ];
     const nets: { family: Family; mirrored: boolean; relief: IAutoMovieLoftRelief }[] = members.flatMap((m) => (m.family.reliefs ?? []).map((relief: IAutoMovieLoftRelief) => ({ family: m.family, mirrored: m.mirrored, relief })));
@@ -420,7 +421,7 @@ namespace FamilyConicSurvey {
       const [ds, dt]: [number, number] = [(relief.stations[1] - relief.stations[0]) / (ns - 1), span / (nt - 1)];
       const radius: number[][] = Array.from({ length: ns }, (_: unknown, i: number): number[] => {
         const s: number = Math.min(family.knots.at(-1)!, Math.max(family.knots[0]!, relief.stations[0] + i * ds));
-        const section: AutoMovieViewChain.ISection = AutoMovieHumanConicSection.chain(read(s), family.layout);
+        const section: IAutoMovieViewChain.ISection = AutoMovieHumanConicSection.chain(read(s), family.layout);
         return Array.from({ length: nt }, (__: unknown, j: number): number => {
           const r: number = AutoMovieViewChain.radius(section, relief.phases[0] + j * dt);
           return Number.isFinite(r) ? Math.max(1, r) : 1;
@@ -499,7 +500,7 @@ namespace FamilyConicSurvey {
       lines.push("    greedy order:      " + order.map((step): string => step.knot + " -> " + fix(step.move)).join("  "));
       lines.push("    removable under " + UNDER_WALL.map((limit: number, k: number): string => limit + " mm: " + removable[k] + " knots (" + removable[k]! * (family.values.length + 1) + " numbers)").join("; "));
       // Per field: constant, linear along the station, or following another field, within one unit of its last stored decimal.
-      const units: AutoMovieHumanConicSection.Unit[] = AutoMovieHumanConicSection.units(family.layout);
+      const units: IAutoMovieHumanConicSection.Unit[] = AutoMovieHumanConicSection.units(family.layout);
       const notes: string[] = [];
       family.values.forEach((field: number[], f: number): void => {
         const tolerance: number = 10 ** -Math.max(...field.map(decimals));
@@ -541,7 +542,7 @@ namespace FamilyConicSurvey {
       const foot: [number, number][] = [];
       for (let a: number = 0; a < relief.rows; ++a) for (let b: number = 0; b < relief.columns; ++b) if (Math.abs(at(relief, a, b)) >= Math.abs(top) / 4 && top !== 0) foot.push([a, b]);
       const [sPeak, tPeak]: [number, number] = site(relief, peak[0], peak[1]);
-      const section: AutoMovieViewChain.ISection = AutoMovieHumanConicSection.chain(AutoMovieHumanConicLoft.reader(family)(Math.min(family.knots.at(-1)!, Math.max(family.knots[0]!, sPeak))), family.layout);
+      const section: IAutoMovieViewChain.ISection = AutoMovieHumanConicSection.chain(AutoMovieHumanConicLoft.reader(family)(Math.min(family.knots.at(-1)!, Math.max(family.knots[0]!, sPeak))), family.layout);
       const r: number = AutoMovieViewChain.radius(section, tPeak);
       const alongMm: number = foot.length === 0 ? 0 : ((Math.max(...foot.map((p): number => p[0])) - Math.min(...foot.map((p): number => p[0])) + 1) * (relief.stations[1] - relief.stations[0])) / (relief.rows - 3);
       const roundMm: number = foot.length === 0 ? 0 : ((Math.max(...foot.map((p): number => p[1])) - Math.min(...foot.map((p): number => p[1])) + 1) * AutoMovieLoftRelief.width(relief) * (Number.isFinite(r) ? r : NaN)) / (relief.columns - 3);

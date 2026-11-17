@@ -1,8 +1,6 @@
+import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 
 import type { Archetype } from "./Archetype";
 import { ArchetypeFrame } from "./ArchetypeFrame";
@@ -346,12 +344,12 @@ export namespace ArchetypeTrack {
             "the nonlinear solver's phase step count is not representable",
           fix: "use a representable finite phase interval",
         });
-      const trajectory: integrateMotionTrajectory.ITrajectory =
+      const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
           f: (
             _t: number,
             x: readonly number[],
-          ): integrateMotionTrajectory.IRate => ({
+          ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
             dx: [x[1]!, -Math.sin(x[0]!)],
           }),
           x0: [theta0, 0],

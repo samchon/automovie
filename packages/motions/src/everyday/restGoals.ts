@@ -1,16 +1,10 @@
-import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
-import type { rest } from "./rest";
 import { restClasped } from "./restClasped";
 import { restCrossedArms } from "./restCrossedArms";
 import { restElbowSupport } from "./restElbowSupport";
@@ -42,17 +36,17 @@ import { restElbowSupport } from "./restElbowSupport";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restGoals(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  places: Record<HumanHand.Side, rest.Place>,
-): Partial<Record<HumanHand.Side, rest.IGoal>> {
-  const out: Partial<Record<HumanHand.Side, rest.IGoal>> = {};
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  places: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.Place>,
+): Partial<Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>> {
+  const out: Partial<Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>> = {};
   const m = body.measure;
   const region = (
     name: AutoMovieHumanoidRegion,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
     HumanTrunk.region(body, posture, name);
-  const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+  const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
   const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
     HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
@@ -61,7 +55,7 @@ export function restGoals(
   // The hint rides the root and the heading only, as the rest places were
   // captured: a standing rest does not pitch or roll the trunk.
   const elbow = (
-    side: HumanHand.Side,
+    side: IAutoMovieMotionHumanHand.Side,
     place: keyof typeof restGoals.BENDS,
   ): IAutoMovieVector3 =>
     AutoMovieMotionHumanBend.arm(
@@ -71,14 +65,14 @@ export function restGoals(
       restGoals.BENDS[place],
     );
   const lay = (
-    side: HumanHand.Side,
+    side: IAutoMovieMotionHumanHand.Side,
     place: keyof typeof restGoals.BENDS,
-    surface: HumanHand.Surface,
-    shape: HumanHand.Shape,
+    surface: IAutoMovieMotionHumanHand.Surface,
+    shape: IAutoMovieMotionHumanHand.Shape,
     point: IAutoMovieVector3,
     fingers: IAutoMovieVector3,
     palm: IAutoMovieVector3,
-  ): rest.IGoal => ({
+  ): IAutoMovieMotionHumanRest.IGoal => ({
     surface,
     shape,
     point,
@@ -88,7 +82,7 @@ export function restGoals(
   for (const side of ["left", "right"] as const) {
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
     const sign: number = side === "left" ? 1 : -1;
-    const place: rest.Place = places[side];
+    const place: IAutoMovieMotionHumanRest.Place = places[side];
     switch (place) {
       case "side":
       case "crossed":
@@ -127,7 +121,7 @@ export function restGoals(
       case "claspedFront":
       case "claspedBehind": {
         if (side === "right") break;
-        const elbows: Record<HumanHand.Side, IAutoMovieVector3> = {
+        const elbows: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = {
           left: elbow("left", place),
           right: elbow("right", place),
         };
@@ -175,7 +169,7 @@ export function restGoals(
     Object.assign(out, restCrossedArms(body, posture));
   for (const side of ["left", "right"] as const) {
     if (places[side] !== "elbowSupport") continue;
-    const other: HumanHand.Side = side === "left" ? "right" : "left";
+    const other: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
     out[side] = restElbowSupport(
       body,
       posture,
@@ -199,8 +193,8 @@ export namespace restGoals {
   /** The elbow's bend preset by place. */
   export const BENDS: Readonly<
     Record<
-      Exclude<rest.Place, "side" | "crossed">,
-      AutoMovieMotionHumanBend.Arm
+      Exclude<IAutoMovieMotionHumanRest.Place, "side" | "crossed">,
+      IAutoMovieMotionHumanBend.Arm
     >
   > = {
     pocket: "tucked",

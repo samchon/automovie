@@ -1,6 +1,7 @@
-import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanApertureEdge } from "./IAutoMovieHumanApertureEdge";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
+import type { IAutoMovieHumanApertureEdge, IAutoMovieHumanConstructionPath, IAutoMovieHumanLoftMesh } from "@automovie/interface";
+
+
+
 
 /** Construction paths read from the actual aperture columns, without another fit. */
 export namespace AutoMovieHumanApertureConstruction {
@@ -16,7 +17,7 @@ export namespace AutoMovieHumanApertureConstruction {
    * @returns Shared skin samples for the construction pass.
    */
   export function generate(
-    mesh: AutoMovieHumanLoftMesh.IContext,
+    mesh: IAutoMovieHumanLoftMesh.IContext,
     name: string,
     edges: readonly IAutoMovieHumanApertureEdge[],
     columns: ReadonlyMap<number, readonly number[]>,

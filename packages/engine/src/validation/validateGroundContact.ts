@@ -1,21 +1,11 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieCapsuleProxy,
-  type IAutoMovieJointAxes,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieValidateGroundContact, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieCapsuleProxy, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
-import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
@@ -36,66 +26,8 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Topology/reachability and capsule usability are computed before the time walk; current ground callbacks execute for each measurement.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-frame maps release; the caller owns warnings and the borrowed callback lifetime, with no physics scene created.
  */
-export const validateGroundContact: (props: {
-  motion: IAutoMovieMotion;
-  skeleton: IAutoMovieSkeleton;
-  footBones?: readonly AutoMovieHumanoidBone[];
-  capsules?: readonly IAutoMovieCapsuleProxy[];
-  groundY?: number | ((x: number, z: number) => number);
-  tolerance?: number;
-  sampleRate?: number;
-  path?: string;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  physicsIntent?: string;
-}) => IAutoMovieValidation = (props: {
-  /** Motion clip to sample. */
-  motion: IAutoMovieMotion;
-
-  /** Skeleton used for forward kinematics. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Bones treated as ground-contact points. Defaults to both humanoid feet. */
-  footBones?: readonly AutoMovieHumanoidBone[];
-
-  /**
-   * Whole-body capsule proxies swept against the ground (#1185): each is a
-   * `from → to` bone segment with a radius, and its lowest surface point
-   * (`min(from.y, to.y) − radius`, sampled per endpoint against a heightfield)
-   * must stay above the ground, so a hand, hip, elbow, or prop clipping through
-   * the floor is no longer invisible the way the foot-point check leaves it. A
-   * capsule on a missing or detached bone is a `type` error, not a silent skip
-   * (the totality contract the point check does not carry). Omit to check only
-   * `footBones`.
-   */
-  capsules?: readonly IAutoMovieCapsuleProxy[];
-
-  /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */
-  groundY?: number | ((x: number, z: number) => number);
-
-  /** Allowed penetration depth before violation. Defaults to `0`. */
-  tolerance?: number;
-
-  /** Samples per second used by the validator. Defaults to `24`. */
-  sampleRate?: number;
-
-  /** JSON path of the motion being checked. Defaults to `$input`. */
-  path?: string;
-
-  /** Optional clinical-axis remap for rigs authored in semantic axes. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional rest-frame remap for clinical authoring. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /**
-   * Marker that opts the clip out of the ground-contact expectation: a
-   * deliberate pass-through (a phasing ghost, a stylized float) sets this and
-   * the matching warnings are suppressed.
-   */
-  physicsIntent?: string;
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateGroundContact: (props: IAutoMovieValidateGroundContact.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateGroundContact.IProps): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const footBones: readonly AutoMovieHumanoidBone[] =
     props.footBones ?? DEFAULT_FOOT_BONES;

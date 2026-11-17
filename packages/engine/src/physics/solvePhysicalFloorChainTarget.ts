@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMovieSolvePhysicalFloorChainTarget, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -22,25 +20,7 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 11 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function solvePhysicalFloorChainTarget(input: {
-  /** Actual fixed-pivot tree. */ profile: P;
-  /** Proximal-to-distal joints ending at the support endpoint. */ chain: readonly string[];
-  /** Segment owners of the complete support patch. */ contacts: readonly string[];
-  /** Admitted working motor goals to copy. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Requested world endpoint; Y is determined by the patch plane. */ goal: IAutoMovieVector3;
-  /** Optional bone-local endpoint. */ localPoint?: IAutoMovieVector3;
-  /** Optional endpoint inside the chain; the terminal bone remains the default. */ endpointBone?: string;
-  /** Actual surface points which should share the requested plane. */ floorPoints?: readonly {
-    bone: string;
-    localPoint: IAutoMovieVector3;
-  }[];
-  /** Fit endpoint Y and treat the floor as a lower bound when supplied. */ endpointHeight?: number;
-  /** Requested minimum patch height, metres. */ floor: number;
-  /** Positive update budget, at most 64. */ iterations: number;
-  /** Positive metre residual early-out. */ tolerance: number;
-}): { targets: Record<string, P.ITransform>; residual: number } {
+export function solvePhysicalFloorChainTarget(input: IAutoMovieSolvePhysicalFloorChainTarget.IInput): IAutoMovieSolvePhysicalFloorChainTarget.IResult {
   if (
     !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
@@ -79,20 +59,20 @@ export function solvePhysicalFloorChainTarget(input: {
     tolerance: input.tolerance,
     measure,
     linearize: (
-      poses: Readonly<Record<string, P.ITransform>>,
-    ): ((probe: Readonly<Record<string, P.ITransform>>) => number[]) => {
+      poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    ): ((probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>) => number[]) => {
       const residual: number[] = measure(poses);
       const inequality: boolean =
         input.endpointHeight !== undefined || !!input.floorPoints?.length;
       const active: boolean = inequality && residual.at(-1)! < 0;
-      return (probe: Readonly<Record<string, P.ITransform>>): number[] =>
+      return (probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>): number[] =>
         measure(probe, inequality ? active : undefined);
     },
   });
 
   /** The nonlinear height witness follows the same complete convex patch as contact. */
   function measure(
-    poses: Readonly<Record<string, P.ITransform>>,
+    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
     activeFloor?: boolean,
   ): number[] {
     const endpoint: IAutoMovieVector3 = physicalSupportPoint(
@@ -101,13 +81,13 @@ export function solvePhysicalFloorChainTarget(input: {
     );
     const heights: number[] = input.contacts.flatMap(
       (bone: string): number[] => {
-        const segment: P.ISegment | undefined = input.profile.segments.find(
-          (candidate: P.ISegment): boolean => candidate.bone === bone,
+        const segment: IAutoMoviePhysicalProfile.ISegment | undefined = input.profile.segments.find(
+          (candidate: IAutoMoviePhysicalProfile.ISegment): boolean => candidate.bone === bone,
         );
         if (!segment || !poses[bone])
           throw new Error(`Missing floor-chain patch ${bone}`);
         return segment.shapes.map(
-          (shape: P.IShape): number =>
+          (shape: IAutoMoviePhysicalProfile.IShape): number =>
             physicalShapeBounds(poses[bone]!, shape).min.y,
         );
       },

@@ -1,24 +1,21 @@
+import type { IAutoMovieLocalHermiteStream64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieLocalHermiteField64, IAutoMoviePlanLocalHermite64 } from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
-import { AutoMovieLocalHermiteField64 as F } from "./AutoMovieLocalHermiteField64";
-import type { IAutoMovieLocalHermiteStream64 } from "./IAutoMovieLocalHermiteStream64";
 import { planAutoMovieLocalHermite64 } from "./planAutoMovieLocalHermite64";
 import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
 
-type Plan = ReturnType<ReturnType<typeof planAutoMovieLocalHermite64>["plan"]>;
+type Plan = ReturnType<IAutoMoviePlanLocalHermite64.IResult["plan"]>;
 type Leaf = Plan["leaves"][number];
 type Vertex = {
   index: number;
-  position: B.Vec;
-  normal: B.Vec;
+  position: AutoMovieVector3Tuple;
+  normal: AutoMovieVector3Tuple;
   identity: string;
 };
 type Counts = IAutoMovieLocalHermiteStream64.Chunk["counts"];
 type FaceRange = IAutoMovieLocalHermiteStream64.Chunk["faceRanges"][number];
-type StreamInput = tessellateAutoMovieLocalHermite64.Input;
-type StreamChunk = tessellateAutoMovieLocalHermite64.Chunk;
-type StreamSummary = tessellateAutoMovieLocalHermite64.Summary;
 
 /**
  * Stream a conforming open mesh of the local linear physical Hermite field.
@@ -55,14 +52,14 @@ type StreamSummary = tessellateAutoMovieLocalHermite64.Summary;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The generator retains source admission, two bounded interval plans, current-interval vertices and two station edge maps, plus one vertex-bounded output chunk. Completed interval maps are released; yielded chunks belong to the consumer. Cancellation releases generator-owned state and no external handles exist.
  */
 export function* tessellateAutoMovieLocalHermite64(
-  input: StreamInput,
-): Generator<StreamChunk, StreamSummary, void> {
-  const prepared: ReturnType<typeof planAutoMovieLocalHermite64> =
+  input: IAutoMovieLocalHermiteStream64.Input,
+): Generator<IAutoMovieLocalHermiteStream64.Chunk, IAutoMovieLocalHermiteStream64.Summary, void> {
+  const prepared: IAutoMoviePlanLocalHermite64.IResult =
     planAutoMovieLocalHermite64(input);
-  const field: F.Prepared = prepared.field;
+  const field: IAutoMovieLocalHermiteField64.Prepared = prepared.field;
   const plan: (interval: number) => Plan = prepared.plan;
-  const norm: (p: B.Vec) => number = (p: B.Vec): number => Math.hypot(...p);
-  const cross: (a: B.Vec, b: B.Vec) => B.Vec = (a: B.Vec, b: B.Vec): B.Vec => [
+  const norm: (p: AutoMovieVector3Tuple) => number = (p: AutoMovieVector3Tuple): number => Math.hypot(...p);
+  const cross: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
@@ -85,7 +82,7 @@ export function* tessellateAutoMovieLocalHermite64(
   let current: Plan = plan(0),
     incoming: Map<number, Vertex> = new Map(),
     nextIndex: number = input.vertexOffset ?? 0;
-  const summary: StreamSummary = {
+  const summary: IAutoMovieLocalHermiteStream64.Summary = {
     intervals: input.courses.length - 1,
     omittedIntervals: 0,
     vertices: 0,
@@ -101,7 +98,7 @@ export function* tessellateAutoMovieLocalHermite64(
       ]),
     ].sort((a: number, b: number): number => a - b);
     const outgoing: Map<number, Vertex> = new Map();
-    const fresh: () => StreamChunk = (): StreamChunk => ({
+    const fresh: () => IAutoMovieLocalHermiteStream64.Chunk = (): IAutoMovieLocalHermiteStream64.Chunk => ({
       interval: j,
       vertexStart: nextIndex,
       positions: [],
@@ -113,7 +110,7 @@ export function* tessellateAutoMovieLocalHermite64(
       counts: zeros(),
       faceRanges: [],
     });
-    let chunk: StreamChunk = fresh();
+    let chunk: IAutoMovieLocalHermiteStream64.Chunk = fresh();
     const qualify: () => void = (): void => {
       chunk.diagnostics.push(
         input.stationInterpolation === "ruled"
@@ -196,10 +193,10 @@ export function* tessellateAutoMovieLocalHermite64(
         return out;
       };
       const vertices: Map<string, Vertex> = new Map();
-      const jet: (u: number, t: number) => F.Jet = (
+      const jet: (u: number, t: number) => IAutoMovieLocalHermiteField64.Jet = (
         u: number,
         t: number,
-      ): F.Jet => {
+      ): IAutoMovieLocalHermiteField64.Jet => {
         if (t === 0 || t === 1) return field.station(j + t, u);
         let lo: number = 0,
           hi: number = current.cells.length - 1;
@@ -208,9 +205,9 @@ export function* tessellateAutoMovieLocalHermite64(
           if (current.cells[m]!.u0 <= u) lo = m;
           else hi = m - 1;
         }
-        const cell: F.Cell = current.cells[lo]!,
+        const cell: IAutoMovieLocalHermiteField64.Cell = current.cells[lo]!,
           x: number = (u - cell.u0) / (cell.u1 - cell.u0);
-        const poly: B.Poly = G.gridValue(cell.grid, t);
+        const poly: AutoMovieBernsteinPolynomial64 = G.gridValue(cell.grid, t);
         return {
           position: B.value(poly, x),
           coursePartial: B.value(B.tangent(poly, 1 / (cell.u1 - cell.u0)), x),
@@ -235,8 +232,8 @@ export function* tessellateAutoMovieLocalHermite64(
           vertices.get(key) ??
           (t === 0 ? incoming.get(u) : t === 1 ? outgoing.get(u) : undefined);
         if (existing) return existing;
-        const value: F.Jet = jet(u, t),
-          n: B.Vec = cross(value.coursePartial, value.stationPartial),
+        const value: IAutoMovieLocalHermiteField64.Jet = jet(u, t),
+          n: AutoMovieVector3Tuple = cross(value.coursePartial, value.stationPartial),
           length: number = norm(n);
         if (!value.position.every(Number.isFinite))
           throw new Error("Nonfinite emitted field position");
@@ -366,7 +363,7 @@ export function* tessellateAutoMovieLocalHermite64(
             .sort(
               ([a]: [number, Vertex], [b]: [number, Vertex]): number => a - b,
             )
-            .map(([, v]: [number, Vertex]): B.Vec => V.clone(v.position)),
+            .map(([, v]: [number, Vertex]): AutoMovieVector3Tuple => V.clone(v.position)),
         });
       qualify();
       yield chunk;
@@ -384,21 +381,4 @@ export function* tessellateAutoMovieLocalHermite64(
     current = next;
   }
   return summary;
-}
-
-/**
- * Streaming operator records; arrays in a yielded chunk transfer to its consumer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Records state units, ownership and indexing in the operator comment.
- * @evidence contracts/development/design.md#principled-representation Represents Streaming operator records; arrays in a yielded chunk transfer to its consumer: companion namespace of 3 members (`Input`, `Chunk`, `Summary`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `tessellateAutoMovieLocalHermite64` in packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64.ts; its surface is the 3 members listed and the text shows 9 other files naming it, mostly packages/recovery (4), test (3), packages/engine (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace tessellateAutoMovieLocalHermite64 {
-  /** Original immutable physical run contract, owned by the stream record declaration. */
-  export type Input = IAutoMovieLocalHermiteStream64.Input;
-  /** Original append-only indexed chunk, with consumer-owned transferred arrays. */
-  export type Chunk = IAutoMovieLocalHermiteStream64.Chunk;
-  /** Original returned complete-run counts and explicit local omissions. */
-  export type Summary = IAutoMovieLocalHermiteStream64.Summary;
 }

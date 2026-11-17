@@ -1,14 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFrame,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  seated,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanFrame, HumanPerformance, HumanRefusal, HumanSignature, seated } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -37,14 +29,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_base_crossed_legs(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const chair: seated.ISeat = {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: { x: 0, y: seated.popliteal(body), z: -0.1 },
       yaw: 0,
       depth: 0.45,
     };
-    const perform = (seconds: number, rises: boolean): HumanPerformance => {
-      const sitting: HumanChain = HumanChain.subject("a").sit({
+    const perform = (seconds: number, rises: boolean): IAutoMovieMotionHumanPerformance => {
+      const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("a").sit({
         seat: chair,
         legs: "crossed",
         seconds,
@@ -83,7 +75,7 @@ export function test_human_motion_base_crossed_legs(): void {
       );
 
     // 1 to 3. Crossed, on the floor, and up again.
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(1.5, true);
     } catch (error) {
@@ -92,9 +84,9 @@ export function test_human_motion_base_crossed_legs(): void {
       );
       continue;
     }
-    const sitting: HumanSegment.ISegment = performance.segments("a")[0]!;
-    const rising: HumanSegment.ISegment = performance.segments("a")[1]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const sitting: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+    const rising: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,

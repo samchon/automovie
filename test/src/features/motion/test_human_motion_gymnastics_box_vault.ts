@@ -1,15 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import { createPlyoBox } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import {
-  HumanChain,
-  HumanFoot,
-  HumanGymnastics,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+import { HumanChain, HumanFoot, HumanGymnastics, HumanObject, HumanPerformance } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -47,7 +39,7 @@ export function test_human_motion_gymnastics_box_vault(): void {
   });
   const depth: number = box.dimensions.depth!;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance = motionHumanStance(body);
     const toes: number = Math.max(
       stance.get("leftToes")!.worldPosition.z,
@@ -56,7 +48,7 @@ export function test_human_motion_gymnastics_box_vault(): void {
     const middle: number =
       toes + (body.measure.upperArm + body.measure.forearm) / 2 + depth / 2;
     const far: number = middle + depth / 2;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "box-vault",
@@ -87,9 +79,9 @@ export function test_human_motion_gymnastics_box_vault(): void {
     }
 
     // 1. Placed under its name.
-    const vault: HumanSegment.ISegment | undefined = film
+    const vault: IAutoMovieMotionHumanSegment.ISegment | undefined = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "boxVault");
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "boxVault");
     complaints.check(`${name}: placed as boxVault`, vault !== undefined);
     if (vault === undefined) continue;
     const share = (event: string): number | undefined =>
@@ -107,11 +99,11 @@ export function test_human_motion_gymnastics_box_vault(): void {
     // 2. Nothing bears in flight.
     const bearing: string[] = vault.plan.contacts
       .filter(
-        (w: IHumanContactWindow): boolean =>
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
           w.from < down - 1e-9 && w.to > push + 1e-9,
       )
       .map(
-        (w: IHumanContactWindow): string =>
+        (w: IAutoMovieMotionHumanContactWindow): string =>
           `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`,
       );
     complaints.check(
@@ -135,7 +127,7 @@ export function test_human_motion_gymnastics_box_vault(): void {
       complaints.check(
         `${name}: the ${part} is planted from touchdown to the end`,
         vault.plan.contacts.some(
-          (w: IHumanContactWindow): boolean =>
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
             w.part === part &&
             w.kind === "plant" &&
             Math.abs(w.from - down) < 1e-9 &&

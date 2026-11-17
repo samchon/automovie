@@ -1,6 +1,10 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanGlutealRelief, IAutoMovieHumanTrunkFeature } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The buttocks merged into the trunk: the left gluteal mass sampled as a
@@ -10,17 +14,7 @@ import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature"
  * curvature (J7), so the ring the legs share is untouched.
  */
 export namespace AutoMovieHumanGlutealRelief {
-  /** What the merge reads. */
-  export interface IInput {
-    /** The gluteal mass. */
-    dome: IAutoMovieHumanTrunkFeature;
-
-    /** The trunk's base surface: the body point at a height and a phase. */
-    base: AutoMovieHumanTrunkReliefNet.Base;
-
-    /** The base's phase at a lateral place on the back at the buttock point's height. */
-    phaseOf: (z: number) => number;
-  }
+  
 
   /**
    * Both buttocks' windows.
@@ -28,7 +22,7 @@ export namespace AutoMovieHumanGlutealRelief {
    * @param input The dome, the base and the phase map.
    * @returns The left and the right window; none when the dome has no height.
    */
-  export function create(input: IInput): IAutoMovieLoftRelief[] {
+  export function create(input: IAutoMovieHumanGlutealRelief.IInput): IAutoMovieLoftRelief[] {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     if (!(dome.height(dome.apex[0], dome.apex[1]) > 0)) return [];
     const o: [number, number, number] = dome.frame.origin;

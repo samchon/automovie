@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieQuadraticRow,
-  solveAutoMovieBoundedDisplacement,
-} from "@automovie/engine";
+import type { IAutoMovieQuadraticRow } from "@automovie/interface";
+import { solveAutoMovieBoundedDisplacement } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";

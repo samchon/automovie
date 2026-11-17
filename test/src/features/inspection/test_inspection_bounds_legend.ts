@@ -1,11 +1,5 @@
-import {
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionLegendEntry,
-  type IAutoMovieViewerSubjectBounds,
-  applyAutoMovieInspection,
-  measureAutoMovieInspectionBounds,
-  mergeAutoMovieInspectionLegends,
-} from "@automovie/render";
+import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import { type IAutoMovieInspectionHandle, type IAutoMovieViewerSubjectBounds, applyAutoMovieInspection, measureAutoMovieInspectionBounds, mergeAutoMovieInspectionLegends } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

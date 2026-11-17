@@ -1,13 +1,7 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanLegPhrase,
-  AutoMovieMotionManner,
-  type IHumanBody,
-  type IHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieMotionClock, AutoMovieMotionHumanArm, AutoMovieMotionHumanLegPhrase, AutoMovieMotionManner } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -55,8 +49,8 @@ export function test_motion_compose_manner(): void {
     float: (index: number): number => (index === 0 ? 0.75 : 0.25),
   } as unknown as IAutoMovieRandom;
   const resolve = (
-    manner: AutoMovieMotionManner.IManner,
-  ): AutoMovieMotionManner.IModifiers =>
+    manner: IAutoMovieMotionManner.IManner,
+  ): IAutoMovieMotionManner.IModifiers =>
     AutoMovieMotionManner.resolve(manner, random);
   const free = AutoMovieMotionClock.phrase({
     prepare: 0.25,
@@ -100,7 +94,7 @@ export function test_motion_compose_manner(): void {
   );
 
   // 3. The clock.
-  const instants = (clock: AutoMovieMotionClock.IClock): number[] => [
+  const instants = (clock: IAutoMovieMotionClock.IClock): number[] => [
     ...AutoMovieMotionClock.PHRASE.map((name: string): number =>
       clock.at(name),
     ),
@@ -192,7 +186,7 @@ export function test_motion_compose_manner(): void {
   );
 
   // 6. The phrases.
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     rest: new Map<string, IAutoMovieVector3>([
       ["leftLowerLeg", { x: 0.1, y: 0.5, z: 0 }],
       ["leftFoot", { x: 0.1, y: 0.08, z: 0 }],
@@ -211,8 +205,8 @@ export function test_motion_compose_manner(): void {
         toeLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: 0.2 } },
       },
     },
-  } as unknown as IHumanBody;
-  const posture: IHumanPosture = {
+  } as unknown as IAutoMovieMotionHumanBody;
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -222,7 +216,7 @@ export function test_motion_compose_manner(): void {
   };
   const identity = { x: 0, y: 0, z: 0, w: 1 };
   const visit = (
-    manner: Pick<AutoMovieMotionManner.IModifiers, "extent" | "curvature">,
+    manner: Pick<IAutoMovieMotionManner.IModifiers, "extent" | "curvature">,
     solid: boolean,
   ) =>
     AutoMovieMotionHumanArm.visit({
@@ -231,7 +225,7 @@ export function test_motion_compose_manner(): void {
       origin: { point: { x: -0.2, y: 0.9, z: 0 }, rotation: identity },
       clock: free,
       manner,
-      target: (): AutoMovieMotionHumanArm.ITarget => ({
+      target: (): IAutoMovieMotionHumanArmTarget.ITarget => ({
         surface: "wrist",
         shape: "relaxed",
         point: { x: -0.2, y: 1.2, z: 0.5 },
@@ -248,7 +242,7 @@ export function test_motion_compose_manner(): void {
         : {}),
     });
   const hand = (
-    manner: Pick<AutoMovieMotionManner.IModifiers, "extent" | "curvature">,
+    manner: Pick<IAutoMovieMotionManner.IModifiers, "extent" | "curvature">,
     solid: boolean,
     s: number,
   ): IAutoMovieVector3 =>

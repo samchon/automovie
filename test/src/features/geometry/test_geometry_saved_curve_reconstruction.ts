@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieLocalHermiteField64 as H,
-  tessellateAutoMovieLocalHermite64 as tessellate,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieLocalHermiteField64, IAutoMovieLocalHermiteStream64 } from "@automovie/interface";
+import { AutoMovieLocalHermiteField64 as H, tessellateAutoMovieLocalHermite64 as tessellate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -26,17 +23,17 @@ import { nclose } from "../internal/nclose";
 export function test_geometry_saved_curve_reconstruction(): void {
   /** Exact linear-in-course sections of the independently specified polynomial. */
   const stations: number[] = [0, 2, 7, 11];
-  const course: (s: number, divided: boolean, reverse: boolean) => C.Cubic = (
+  const course: (s: number, divided: boolean, reverse: boolean) => IAutoMovieCurve64.Cubic = (
     s: number,
     divided: boolean,
     reverse: boolean,
-  ): C.Cubic => {
+  ): IAutoMovieCurve64.Cubic => {
     const cuts: number[] = divided ? [0, 0.25, 1] : [0, 1];
-    const spans: C.Span[] = cuts
+    const spans: IAutoMovieCurve64.Span[] = cuts
       .slice(0, -1)
-      .map((start: number, j: number): C.Span => {
+      .map((start: number, j: number): IAutoMovieCurve64.Span => {
         const end: number = cuts[j + 1]!;
-        const point: (i: number) => C.Vector = (i: number): C.Vector => {
+        const point: (i: number) => Readonly<AutoMovieVector3Tuple> = (i: number): Readonly<AutoMovieVector3Tuple> => {
           const u: number = start + ((end - start) * i) / 3;
           return [reverse ? 1 - u : u, s, (s * s) / 100];
         };
@@ -75,15 +72,15 @@ export function test_geometry_saved_curve_reconstruction(): void {
     );
   let maximum: number = 0;
   for (const reverse of [false, true]) {
-    const courses: C.Cubic[] = stations.map(
-      (s: number, i: number): C.Cubic => course(s, i % 2 === 1, reverse),
+    const courses: IAutoMovieCurve64.Cubic[] = stations.map(
+      (s: number, i: number): IAutoMovieCurve64.Cubic => course(s, i % 2 === 1, reverse),
     );
     const original: string = JSON.stringify([stations, courses]);
-    const field: H.Prepared = H.prepare(stations, courses, "quadratic");
+    const field: IAutoMovieLocalHermiteField64.Prepared = H.prepare(stations, courses, "quadratic");
     for (let j: number = 0; j < stations.length; j++)
       for (const u of [0, 0.125, 0.25, 0.6, 1]) {
         const s: number = stations[j]!,
-          jet: H.Jet = field.station(j, u);
+          jet: IAutoMovieLocalHermiteField64.Jet = field.station(j, u);
         maximum = Math.max(
           maximum,
           residual(jet.position, [reverse ? 1 - u : u, s, (s * s) / 100]),
@@ -119,7 +116,7 @@ export function test_geometry_saved_curve_reconstruction(): void {
     "nonuniform physical quadratic field and reversal match an independent polynomial",
     nclose(maximum, 0, 1e-11),
   );
-  const ruled: H.Prepared = H.prepare(
+  const ruled: IAutoMovieLocalHermiteField64.Prepared = H.prepare(
     [0, 3],
     [course(0, false, false), course(3, true, false)],
     "ruled",
@@ -169,8 +166,8 @@ export function test_geometry_saved_curve_reconstruction(): void {
       identities: string[] = [],
       indices: number[] = [],
       intervals: number[] = [];
-    const courses: C.Cubic[] = stations.map(
-      (s: number, i: number): C.Cubic => course(s, i % 2 === 1, false),
+    const courses: IAutoMovieCurve64.Cubic[] = stations.map(
+      (s: number, i: number): IAutoMovieCurve64.Cubic => course(s, i % 2 === 1, false),
     );
     const generator: ReturnType<typeof tessellate> = tessellate({
       name: "polynomial.sheet",
@@ -185,7 +182,7 @@ export function test_geometry_saved_curve_reconstruction(): void {
     let next: ReturnType<typeof generator.next> = generator.next(),
       chunks: number = 0;
     while (!next.done) {
-      const chunk: tessellate.Chunk = next.value;
+      const chunk: IAutoMovieLocalHermiteStream64.Chunk = next.value;
       TestValidator.equals(
         "stream appends one global vertex suffix",
         chunk.vertexStart,

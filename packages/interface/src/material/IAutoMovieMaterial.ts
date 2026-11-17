@@ -1,6 +1,6 @@
-import { IAutoMovieColor } from "../color/IAutoMovieColor";
-import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
-import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
+import type { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
+import type { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 
 /**
  * A physically-based (PBR) surface material: the "what it's made of and how it catches light" of a character or object surface.
@@ -134,7 +134,16 @@ export interface IAutoMovieMaterial {
   /**
    * Nonnegative finite RGB radius parameters in metres for the viewer's direct-diffuse subsurface approximation. Screen-space normal curvature and a shared Gaussian-response lookup modify diffuse lighting; this does not transport light through a measured medium or establish an observed appearance. Omission keeps the ordinary physical material response; glTF has no counterpart.
    */
-  subsurfaceRadius?: { r: number; g: number; b: number };
+  subsurfaceRadius?: {
+    /** Red-channel scattering radius parameter, nonnegative metres. */
+    r: number;
+
+    /** Green-channel scattering radius parameter, nonnegative metres. */
+    g: number;
+
+    /** Blue-channel scattering radius parameter, nonnegative metres. */
+    b: number;
+  };
 
   /**
    * Optional second tangent-space normal map, blended over `normalTexture` (whiteout: the two maps' slopes add), usually a fine relief tiled with its own transform over a coarser map bound once across the surface. glTF has one normal slot, so this map has no glTF counterpart. Without a `normalTexture` it stands in as the normal map.

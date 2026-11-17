@@ -1,30 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieMomentum,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionEvent,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanAirborneShape,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanLayer,
-  type IHumanPosture,
-  type jump,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAirborneShape, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJump, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionEvent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieMomentum, solveAirborneTakeoff } from "@automovie/engine";
+
+import { HumanAirborneShape, HumanChain, HumanPerformance, HumanRefusal, poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -59,11 +36,11 @@ export function test_human_motion_airborne_signature(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const findings: string[] = [];
   const perform = (
-    body: IHumanBody,
-    rotation: jump.IParams["rotation"],
-    shape: HumanAirborneShape.Shape,
-  ): HumanPerformance => {
-    const layer: IHumanLayer.IScheduled = {
+    body: IAutoMovieMotionHumanBody,
+    rotation: IAutoMovieMotionHumanJump.IParams["rotation"],
+    shape: IAutoMovieMotionHumanAirborneShape.Shape,
+  ): IAutoMovieMotionHumanPerformance => {
+    const layer: IAutoMovieMotionHumanLayer.IScheduled = {
       layer: HumanAirborneShape.layer(shape),
       from: { of: "leap", event: "takeoff" },
       to: { of: "leap", event: "touchdown" },
@@ -88,14 +65,14 @@ export function test_human_motion_airborne_signature(): void {
   };
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. Each cell lands upright or is refused on its turns.
     for (const somersault of [1, 2])
       for (const shape of ["tuck", "pike", "layout"] as const)
         for (const way of ["forward", "backward", "left"] as const) {
           const label: string = `${name} ${somersault} ${shape} ${way}`;
-          let p: HumanPerformance;
+          let p: IAutoMovieMotionHumanPerformance;
           try {
             p = perform(body, { somersault, way }, shape);
           } catch (error) {
@@ -106,7 +83,7 @@ export function test_human_motion_airborne_signature(): void {
               findings.push(`${label}: refused otherwise: ${String(error)}`);
             continue;
           }
-          const s: HumanSegment.ISegment = p.segments("a")[1]!;
+          const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
           const touchdown: number =
             s.start +
             s.plan.events.find(
@@ -122,7 +99,7 @@ export function test_human_motion_airborne_signature(): void {
           const q0: IAutoMovieQuaternion = p.pose("a", takeoff).root!.rotation;
           const q1: IAutoMovieQuaternion = p.pose("a", touchdown - 1e-6).root!
             .rotation;
-          const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
+          const off: IAutoMovieSolveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
             q0,
             q1,
           );
@@ -140,9 +117,9 @@ export function test_human_motion_airborne_signature(): void {
         }
 
     // 2. The shapes' moments.
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const shaped = (s: HumanAirborneShape.Shape | null): Bones =>
+    const shaped = (s: IAutoMovieMotionHumanAirborneShape.Shape | null): Bones =>
       poseBones(body, {
         skeleton: body.skeleton.id,
         root: null,
@@ -173,7 +150,7 @@ export function test_human_motion_airborne_signature(): void {
   }
 
   // 3. What each shape claims.
-  const standing: IHumanPosture = {
+  const standing: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -190,14 +167,14 @@ export function test_human_motion_airborne_signature(): void {
       },
     },
   };
-  const man: IHumanBody = motionHumanBody("m-average");
-  const context: IHumanLayer.IContext = { body: man } as IHumanLayer.IContext;
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const context: IAutoMovieMotionHumanLayer.IContext = { body: man } as IAutoMovieMotionHumanLayer.IContext;
   // Where the resolver puts an end joint for a shape's joints, the limbs it
   // claims holding no goal and the others theirs.
   const end = (
-    shape: HumanAirborneShape.Shape,
+    shape: IAutoMovieMotionHumanAirborneShape.Shape,
     bone: AutoMovieHumanoidBone,
-    kept: IHumanPosture.Limb,
+    kept: IAutoMovieMotionHumanPosture.Limb,
   ): IAutoMovieVector3 =>
     poseBones(
       man,
@@ -211,12 +188,12 @@ export function test_human_motion_airborne_signature(): void {
     ["tuck", "leftLeg", "leftArm", "leftFoot", "leftUpperLeg"],
     ["armsIn", "leftArm", "leftLeg", "leftHand", "leftUpperArm"],
   ] as const) {
-    const laid: IHumanPosture = HumanAirborneShape.layer(shape).apply(
+    const laid: IAutoMovieMotionHumanPosture = HumanAirborneShape.layer(shape).apply(
       standing,
       0,
       context,
     );
-    const moved: IHumanPosture.IGoal | undefined = laid.limbs[limb];
+    const moved: IAutoMovieMotionHumanPosture.IGoal | undefined = laid.limbs[limb];
     if (
       moved === undefined ||
       Vector3.length(Vector3.subtract(moved.point, end(shape, bone, kept))) >

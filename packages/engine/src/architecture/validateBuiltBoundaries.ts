@@ -1,10 +1,5 @@
-import {
-  IAutoMovieBoundaryFace,
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
-} from "@automovie/interface";
+import { type IAutoMovieValidateBuiltBoundaries, type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
 import { appendBuiltRegionDefects } from "./appendBuiltRegionDefects";
@@ -41,14 +36,14 @@ export const validateBuiltBoundaries: (
   root: string,
   spaceIds: ReadonlySet<string>,
   elementIds: ReadonlySet<string>,
-  collector: ViolationCollector,
-) => { ids: Set<string>; faces: Map<string, IAutoMovieBoundaryFace> } = (
+  collector: IAutoMovieViolationCollector,
+) => IAutoMovieValidateBuiltBoundaries.IResult = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
   spaceIds: ReadonlySet<string>,
   elementIds: ReadonlySet<string>,
-  collector: ViolationCollector,
-): { ids: Set<string>; faces: Map<string, IAutoMovieBoundaryFace> } => {
+  collector: IAutoMovieViolationCollector,
+): IAutoMovieValidateBuiltBoundaries.IResult => {
   const ids: Set<string> = collectDeclaredIds(
     environment.boundaries,
     `${root}.boundaries`,

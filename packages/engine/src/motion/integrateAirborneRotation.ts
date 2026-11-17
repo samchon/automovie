@@ -1,11 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolvedBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieIntegrateMotionTrajectory, IAutoMovieResolveCenterOfMass, IAutoMovieResolveMomentum, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
+
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -54,29 +49,29 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned trajectory retains accepted-step states and their dense-output coefficients for its lifetime, linear in accepted steps and requested variations. Adaptive step count has no fixed bound. The caller owns the history, whose caches also grow with distinct evaluated times, including rejected attempts.
  */
 export function integrateAirborneRotation(
-  props: integrateAirborneRotation.IProps,
-): integrateAirborneRotation.IFlight {
+  props: IAutoMovieIntegrateAirborneRotation.IProps,
+): IAutoMovieIntegrateAirborneRotation.IFlight {
   const { history, momentum } = props;
   const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
   // The integrator averages squared error over all components. Dividing
   // both tolerances by sqrt(1 + directions) keeps the orientation's old
   // three-component RMS contribution unchanged when tangent states are added.
   const errorScale: number = Math.sqrt(1 + variations.length);
-  const tolerance: integrateMotionTrajectory.ITolerance | undefined =
+  const tolerance: IAutoMovieIntegrateMotionTrajectory.ITolerance | undefined =
     props.tolerance === undefined
       ? undefined
       : {
           relative: props.tolerance.relative / errorScale,
           absolute: props.tolerance.absolute / errorScale,
         };
-  const trajectory: integrateMotionTrajectory.ITrajectory =
+  const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
         q: IAutoMovieQuaternion | null,
-      ): integrateMotionTrajectory.IRate => {
-        const instant: integrateAirborneRotation.IInstant = history(t);
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+        const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(t);
         const back: IAutoMovieQuaternion = Quaternion.inverse(q!);
         const carried: IAutoMovieVector3 = Quaternion.rotateVector(
           back,
@@ -157,73 +152,6 @@ export namespace integrateAirborneRotation {
    */
   export const DELTA: number = 1e-3;
 
-  /** What a flight is integrated from. */
-  export interface IProps {
-    /** The shape's history (`history`). */
-    history: IHistory;
-
-    /** Take-off, seconds. */
-    t0: number;
-
-    /** Touchdown, seconds, after `t0`. */
-    t1: number;
-
-    /** The root's world orientation at take-off, unit. */
-    q0: IAutoMovieQuaternion;
-
-    /** The whole-body angular momentum about the centre of mass, world frame, kg m²/s; constant through the flight. */
-    momentum: IAutoMovieVector3;
-
-    /** The integrator's step, seconds; its default when absent. Under a `tolerance`, the first step tried. */
-    h?: number;
-
-    /** The integrator's error control (`integrateMotionTrajectory.ITolerance`); the fixed step when absent. */
-    tolerance?: integrateMotionTrajectory.ITolerance;
-
-    /** Momentum directions whose forward sensitivities are integrated with the orientation. Each returned tangent is in the instantaneous body's frame, radians per unit change of the corresponding direction. Absent, none are integrated. */
-    variations?: readonly IAutoMovieVector3[];
-  }
-
-  /**
-   * The shape's mass distribution at a second, in the root's own frame: its
-   * composite inertia's principal frame and the relative angular momentum of
-   * its segments' motion with respect to the root.
-   */
-  export type IHistory = (seconds: number) => IInstant;
-
-  /** The shape's mass distribution at one instant, root frame. */
-  export interface IInstant {
-    /** The composite inertia about the centre of mass, as its principal frame, kg m². */
-    inertia: resolveAutoMovieMomentum.IPrincipal;
-
-    /** The angular momentum of the segments' motion relative to the root, about the centre of mass, kg m²/s. */
-    relative: IAutoMovieVector3;
-  }
-
-  /** A flight's orientation, read by time. */
-  export interface IFlight {
-    /** Take-off, seconds. */
-    t0: number;
-
-    /** Touchdown, seconds. */
-    t1: number;
-
-    /** The integrator's step, seconds; under a tolerance, its first step tried. */
-    h: number;
-
-    /** The integrator's knot count, the steps plus one; under a tolerance, its accepted steps plus one. */
-    knots: number;
-
-    /**
-     * The root's world orientation at a second, held at the ends outside the flight.
-     *
-     */
-    orientation: (seconds: number) => IAutoMovieQuaternion;
-
-    /** Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested. */
-    variations: (seconds: number) => readonly IAutoMovieVector3[];
-  }
-
   /**
    * A shape's history: at each second, the composite inertia of the posed
    * bones and the relative momentum from the bones `DELTA` either side,
@@ -245,12 +173,12 @@ export namespace integrateAirborneRotation {
    * @returns The history.
    */
   export function history(
-    model: resolveAutoMovieCenterOfMass.IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    span?: { from: number; to: number },
-  ): IHistory {
+    span?: IAutoMovieIntegrateAirborneRotation.IHistorySpan,
+  ): IAutoMovieIntegrateAirborneRotation.IHistory {
     type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     const bones: Map<number, Bones> = new Map();
     const read = (seconds: number): Bones => {
@@ -260,7 +188,7 @@ export namespace integrateAirborneRotation {
       bones.set(seconds, posed);
       return posed;
     };
-    const instants: Map<number, IInstant> = new Map();
+    const instants: Map<number, IAutoMovieIntegrateAirborneRotation.IInstant> = new Map();
     const momentum = (from: number, to: number): IAutoMovieVector3 =>
       resolveAutoMovieMomentum(model, read(from), read(to), to - from).angular;
     const relative = (seconds: number): IAutoMovieVector3 => {
@@ -282,10 +210,10 @@ export namespace integrateAirborneRotation {
         ),
       );
     };
-    return (seconds: number): IInstant => {
-      const known: IInstant | undefined = instants.get(seconds);
+    return (seconds: number): IAutoMovieIntegrateAirborneRotation.IInstant => {
+      const known: IAutoMovieIntegrateAirborneRotation.IInstant | undefined = instants.get(seconds);
       if (known !== undefined) return known;
-      const instant: IInstant = {
+      const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
         inertia: resolveAutoMovieMomentum.principal(
           resolveAutoMovieMomentum.inertia(model, read(seconds)),
         ),
@@ -307,7 +235,7 @@ export namespace integrateAirborneRotation {
    * @returns The root's angular velocity in its own frame, radians per second.
    */
   export function rate(
-    instant: IInstant,
+    instant: IAutoMovieIntegrateAirborneRotation.IInstant,
     momentum: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return inverse(
@@ -319,7 +247,7 @@ export namespace integrateAirborneRotation {
 
 /** Apply the inverse composite tensor through its principal frame. */
 function inverse(
-  frame: resolveAutoMovieMomentum.IPrincipal,
+  frame: IAutoMovieResolveMomentum.IPrincipal,
   vector: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   const local: IAutoMovieVector3 = Quaternion.rotateVector(

@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type { IAutoMovieRecoveryImageFeaturesExtractionOperation } from "@automovie/interface";
+
 
 import { filterRecoveryImageGaussian } from "./filterRecoveryImageGaussian";
 
@@ -23,23 +24,10 @@ import { filterRecoveryImageGaussian } from "./filterRecoveryImageGaussian";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous call owns O(P+C+128F) arrays under admitted capture budgets. Only selected points and descriptors transfer to the pair owner; pyramid/moment/candidate arrays become unreachable on return or throw and no image, handle or cache persists globally.
  */
 export function extractRecoveryImageFeatures(
-  view: IAutoMovieRecoveryCameraPairInput["views"][number],
-  policy: IAutoMovieRecoveryCameraPairInput["policy"],
-  budget: IAutoMovieRecoveryCameraPairInput["budget"],
-): {
-  points: {
-    point: [number, number];
-    scale: number;
-    orientationRadians: number;
-    response: number;
-    descriptor: Float64Array;
-  }[];
-  rawCorners: number;
-  validCandidates: number;
-  selectedBeforeDescriptor: number;
-  zeroDescriptors: number;
-  invalidSupportDescriptors: number;
-} {
+  view: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[0],
+  policy: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[1],
+  budget: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation> {
   const pyramid: {
     width: number;
     height: number;
@@ -198,8 +186,7 @@ export function extractRecoveryImageFeatures(
           response: value,
           level,
           angle,
-          radiusSquared: Infinity,
-        });
+          radiusSquared: Infinity });
       }
     }
     if (level + 1 < budget.maxPyramidLevels) {
@@ -240,7 +227,7 @@ export function extractRecoveryImageFeatures(
       a.x - b.x,
   );
   const selected: typeof candidates = candidates.slice(0, budget.maxFeatures);
-  const points: ReturnType<typeof extractRecoveryImageFeatures>["points"] = [];
+  const points: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>["points"] = [];
   let zeroDescriptors: number = 0;
   let invalidSupportDescriptors: number = 0;
   for (const candidate of selected) {
@@ -323,8 +310,7 @@ export function extractRecoveryImageFeatures(
       scale: 2 ** candidate.level,
       orientationRadians: candidate.angle,
       response: candidate.response,
-      descriptor,
-    });
+      descriptor });
   }
   return {
     points,
@@ -332,6 +318,5 @@ export function extractRecoveryImageFeatures(
     validCandidates: candidates.length,
     selectedBeforeDescriptor: selected.length,
     zeroDescriptors,
-    invalidSupportDescriptors,
-  };
+    invalidSupportDescriptors };
 }

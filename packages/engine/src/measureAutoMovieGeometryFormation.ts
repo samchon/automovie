@@ -1,11 +1,6 @@
-import {
-  AutoMovieGeometryQuery,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieGeometryResult,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieDeliveryCrop, type IAutoMovieFormationBounds, type IAutoMovieFormationLodSelection, type IAutoMovieFormationSlotPlacement, type IAutoMovieGeometryActorReader, type IAutoMovieGeometryQuery, type IAutoMovieProjectToNdc, type IAutoMovieReadGeometryGround, type IAutoMovieResolvedCamera, type IAutoMovieSampledFormationMotion, type IAutoMovieTransform, IAutoMovieCompiledShotSource, IAutoMovieGeometryResult, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
+
 import { composeFormationHeroTransform } from "./composeFormationHeroTransform";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { intersectsPerspectiveFrustumSphere } from "./film/intersectsPerspectiveFrustumSphere";
@@ -35,9 +30,9 @@ import { transformFormationPoint } from "./transformFormationPoint";
  */
 export function measureAutoMovieGeometryFormation(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "formation" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "formation" }>,
 ): IAutoMovieGeometryResult {
-  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+  const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
   const shots: ReadonlyMap<string, IAutoMovieCompiledShotSource> =
     props.compiled;
@@ -127,7 +122,7 @@ export function measureAutoMovieGeometryFormation(
       `Formation sample time ${sampledTime} is outside current shot "${selectedShot}". Choose a finite time from 0 through ${compiled.shot.duration}.`,
     );
 
-  const sampledMotion: ReturnType<typeof sampleFormationMotion> =
+  const sampledMotion: IAutoMovieSampledFormationMotion =
     sampleFormationMotion(compiled.formationMotions, formation.id, sampledTime);
 
   const transformPoint: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -158,7 +153,7 @@ export function measureAutoMovieGeometryFormation(
   // where its cue really put it, which is the same reason.
   const groundViolations: number[] = representative.filter(
     (slot: number): boolean => {
-      const placed: ReturnType<typeof placeFormationSlot> = placeFormationSlot({
+      const placed: IAutoMovieFormationSlotPlacement = placeFormationSlot({
         position: formationSlotPosition(runtime, slot),
         facingDeg: runtime.facingDeg,
         anchor: runtime.anchor,
@@ -172,7 +167,7 @@ export function measureAutoMovieGeometryFormation(
         ),
       });
       if (placed.present === false) return false;
-      const sample: ReturnType<typeof readAutoMovieGeometryGround> =
+      const sample: IAutoMovieReadGeometryGround.IResult =
         readAutoMovieGeometryGround(props.design.world, placed.position);
       return (
         sample.walkable === false ||
@@ -181,7 +176,7 @@ export function measureAutoMovieGeometryFormation(
     },
   );
 
-  const bounds: ReturnType<typeof transformFormationBounds> =
+  const bounds: IAutoMovieFormationBounds =
     transformFormationBounds(
       runtime.bounds,
       runtime.anchor,
@@ -222,7 +217,7 @@ export function measureAutoMovieGeometryFormation(
       `Shot "${selectedShot}" has no current compiled camera "${compiled.shot.camera}".`,
     );
 
-  const resolvedCamera: ReturnType<typeof resolveCameraAt> = resolveCameraAt(
+  const resolvedCamera: IAutoMovieResolvedCamera = resolveCameraAt(
     camera.transform,
     compiled.shot.cameraMotion,
     camera.id,
@@ -242,7 +237,7 @@ export function measureAutoMovieGeometryFormation(
   const aspect: number =
     production.frameFormat.width / production.frameFormat.height;
 
-  const crop: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
+  const crop: IAutoMovieDeliveryCrop =
     resolveAutoMovieDeliveryCrop(production.frameFormat.crop);
 
   const chunkMeasurements: {
@@ -254,7 +249,7 @@ export function measureAutoMovieGeometryFormation(
       chunk: (typeof runtime.chunks)[number],
     ): { distance: number; projectedPixels: number; visible: boolean } => {
       const center: IAutoMovieVector3 = transformPoint(chunk.centroid);
-      const transformedBounds: ReturnType<typeof transformFormationBounds> =
+      const transformedBounds: IAutoMovieFormationBounds =
         transformFormationBounds(
           chunk.bounds,
           runtime.anchor,
@@ -284,7 +279,7 @@ export function measureAutoMovieGeometryFormation(
         center.y - resolvedCamera.position.y,
         center.z - resolvedCamera.position.z,
       );
-      const projection: ReturnType<typeof projectToNdc> = projectToNdc(
+      const projection: IAutoMovieProjectToNdc.IResult = projectToNdc(
         resolvedCamera,
         center,
         halfY,
@@ -341,7 +336,7 @@ export function measureAutoMovieGeometryFormation(
         culled += chunk.anonymousCount;
         return;
       }
-      const lod: ReturnType<typeof selectFormationLod>["lod"] =
+      const lod: IAutoMovieFormationLodSelection["lod"] =
         selectFormationLod({
           lod: runtime.lod,
           distance: measurement.distance,
@@ -372,7 +367,7 @@ export function measureAutoMovieGeometryFormation(
         sampledTime,
         found.model.skeleton,
       );
-      const formed: ReturnType<typeof composeFormationHeroTransform> =
+      const formed: IAutoMovieTransform =
         composeFormationHeroTransform(
           hero.transform,
           source.nodeTransform,

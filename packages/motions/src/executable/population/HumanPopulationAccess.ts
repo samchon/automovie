@@ -1,8 +1,6 @@
-import {
-  AutoMovieHumanBodyAnatomy,
-  type IAutoMovieHumanBodyMeasures,
-  type IAutoMovieHumanParameters,
-} from "@automovie/human";
+import type { IAutoMovieHumanBodyMeasures, IAutoMovieHumanParameters } from "@automovie/interface";
+
+import { AutoMovieHumanBodyAnatomy } from "@automovie/human";
 
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 import { f1, f2, m1, m2 } from "./human-parameters/index";

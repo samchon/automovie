@@ -1,22 +1,6 @@
-import {
-  type IAutoMovieRenderPlanting,
-  type IAutoMovieRenderSoftPanel,
-  type IAutoMovieRenderSubject,
-  type IAutoMovieRenderTextureSource,
-  type IAutoMovieRenderWaterBody,
-  autoMovieRenderSubjectOfCompiledShot,
-  deriveAutoMovieSemanticMask,
-  renderAutoMovieSemanticMaskSidecar,
-} from "@automovie/engine";
-import {
-  type IAutoMovieCompiledEffect,
-  type IAutoMovieCompiledFormation,
-  type IAutoMovieCompiledInstanceSet,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieSemanticMask,
-  type IAutoMovieSemanticMaskEntry,
-  type IAutoMovieWaterFeature,
-} from "@automovie/interface";
+import { type IAutoMovieRenderPlanting, type IAutoMovieRenderSoftPanel, type IAutoMovieRenderSubject, type IAutoMovieRenderTextureSource, type IAutoMovieRenderWaterBody, type IAutoMovieCompiledEffect, type IAutoMovieCompiledFormation, type IAutoMovieCompiledInstanceSet, IAutoMovieCompiledShotSource, IAutoMovieSemanticMask, type IAutoMovieSemanticMaskEntry, type IAutoMovieWaterFeature } from "@automovie/interface";
+import { autoMovieRenderSubjectOfCompiledShot, deriveAutoMovieSemanticMask, renderAutoMovieSemanticMaskSidecar } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin, waterFeature } from "../internal/fluidFixtures";

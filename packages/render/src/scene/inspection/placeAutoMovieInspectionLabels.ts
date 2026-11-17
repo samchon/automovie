@@ -1,7 +1,10 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieInspectionLabel, IAutoMovieInspectionLabelPlacement, IAutoMovieVector3 } from "@automovie/interface";
+
+
+
 import * as THREE from "three";
 
-import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
+
 
 /**
  * Place labels on a picture: project each labelled path's centre through the camera into pixels and keep a label only where its box overlaps no label kept before it.
@@ -39,10 +42,7 @@ export function placeAutoMovieInspectionLabels(props: {
 
   /** Size of one font pixel of the stamp, in picture pixels. */
   scale: number;
-}): {
-  labels: IAutoMovieInspectionLabel[];
-  dropped: IAutoMovieInspectionLabel[];
-} {
+}): IAutoMovieInspectionLabelPlacement {
   for (const [name, value] of [
     ["width", props.width],
     ["height", props.height],

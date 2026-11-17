@@ -1,27 +1,6 @@
-import {
-  IAutoMovieFormationCadenceSegment,
-  IAutoMovieFormationReform,
-  IAutoMovieSampledFormationMotion,
-  composeFormationHeroTransform,
-  formationCadenceSegments,
-  formationSlotPosition,
-  intersectsPerspectiveFrustumSphere,
-  rotateFormationLocalOffset,
-  sampleFormationMotion,
-  sampleFormationSlotMotion,
-  selectFormationLod,
-} from "@automovie/engine";
-import {
-  IAutoMovieCompiledFormationHero,
-  IAutoMovieCompiledFormationLod,
-  IAutoMovieDeliveryCrop,
-  IAutoMovieFormationChunk,
-  IAutoMovieFormationSlot,
-  IAutoMovieFormationSlotMotion,
-  IAutoMovieFormationSlotState,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFormationCadenceSegment, type IAutoMovieFormationReform, type IAutoMovieSampledFormationMotion, IAutoMovieCompiledFormationHero, IAutoMovieCompiledFormationLod, IAutoMovieDeliveryCrop, IAutoMovieFormationChunk, IAutoMovieFormationSlot, IAutoMovieFormationSlotMotion, IAutoMovieFormationSlotState, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { composeFormationHeroTransform, formationCadenceSegments, formationSlotPosition, intersectsPerspectiveFrustumSphere, rotateFormationLocalOffset, sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod } from "@automovie/engine";
+
 import * as THREE from "three";
 
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";

@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieRenderTextureSource,
-  autoMovieRenderTextureDigest,
-  autoMovieTextureBindingStateKey,
-  measureAutoMovieRenderTextureClosure,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMaterial,
-  IAutoMovieTextureReference,
-} from "@automovie/interface";
+import type { IAutoMovieRenderTextureSource, IAutoMovieMaterial, IAutoMovieTextureReference } from "@automovie/interface";
+import { autoMovieRenderTextureDigest, autoMovieTextureBindingStateKey, measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+
 import {
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,

@@ -1,12 +1,9 @@
+import type { IAutoMovieAxis, IAutoMovieLoftSectionJet, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieLoftWorldJetWorld, IAutoMovieSolidSurface } from "@automovie/interface";
+
+
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
-import type { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
-
-/** The original view's actual frame owner, in physical station millimetres. */
-type Axis = IAutoMovieViewPart["axis"];
 
 /**
  * Read an original positive section's world total2 without first lofting it.
@@ -27,8 +24,8 @@ type Axis = IAutoMovieViewPart["axis"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh frame rows and result vectors belong to this call; its temporary native closure dies on return and no source, station, callback or global cache is retained.
  */
 export function AutoMovieLoftViewWorldJet(
-  source: AutoMovieLoftViewSource.ISource,
-  axis: Axis,
+  source: IAutoMovieLoftViewSource.ISource,
+  axis: IAutoMovieAxis,
   station: number,
   phase: number,
 ): IAutoMovieSolidSurface.IJet | string {
@@ -36,10 +33,10 @@ export function AutoMovieLoftViewWorldJet(
     return "Original view world2 requires a finite station and phase.";
   if (axis === null || typeof axis !== "object")
     return "Original view world2 has no actual axis owner.";
-  const readAxis: Axis["jet"] = axis.jet;
+  const readAxis: IAutoMovieAxis["jet"] = axis.jet;
   if (typeof readAxis !== "function")
     return "Original view world2 requires actual axis2, not frame values alone.";
-  const inputs: AutoMovieLoftViewRead.IJets | string =
+  const inputs: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(source, station);
   if (typeof inputs === "string") return `Original view world2: ${inputs}`;
 
@@ -51,9 +48,9 @@ export function AutoMovieLoftViewWorldJet(
 
   // Both callees below read only the freshly owned numeric arrays above.
   try {
-    const local: ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>> =
+    const local: ReturnType<((phi: number) => IAutoMovieLoftSectionJet)> =
       AutoMovieLoftSectionNative.jet(inputs)(phase);
-    const world: ReturnType<typeof AutoMovieLoftWorldJet> =
+    const world: IAutoMovieLoftWorldJetWorld =
       AutoMovieLoftWorldJet(local, rows);
     return {
       p: world.p,

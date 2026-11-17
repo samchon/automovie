@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanArmPrior } from "@automovie/interface";
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
@@ -29,7 +31,7 @@ export namespace AutoMovieHumanDigitPalmarShare {
    * @param length Arc length of the digit's apex, mm.
    */
   export function at(s: number, joints: readonly number[], length: number): number {
-    const shares: AutoMovieHumanArmPrior.IPalmar = AutoMovieHumanArmPrior.PRIOR.hand.palmar;
+    const shares: IAutoMovieHumanArmPrior.IPalmar = AutoMovieHumanArmPrior.PRIOR.hand.palmar;
     const dip: number = joints[joints.length - 1]!;
     const pip: number = joints.length > 1 ? joints[joints.length - 2]! : dip;
     const reach: number = HANDOVER * (length - dip);

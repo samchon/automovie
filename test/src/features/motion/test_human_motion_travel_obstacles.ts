@@ -1,12 +1,5 @@
-import {
-  HumanChain,
-  HumanObstacle,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  HumanTravelDoor,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature } from "@automovie/interface";
+import { HumanChain, HumanObstacle, HumanPerformance, HumanRefusal, HumanSignature, HumanTravelDoor } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,11 +44,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_obstacles(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const wall = (door?: {
     width: number;
     height: number;
-  }): HumanObstacle.IObstacle =>
+  }): IAutoMovieMotionHumanObstacle.IObstacle =>
     HumanObstacle.wall(
       "wall",
       { x: -2, y: 0, z: 2 },
@@ -75,9 +68,9 @@ export function test_human_motion_travel_obstacles(): void {
           ],
     );
   const walk = (
-    obstacle: HumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
     round: boolean = false,
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "obstacles",
       obstacles: [obstacle],
@@ -104,7 +97,7 @@ export function test_human_motion_travel_obstacles(): void {
     });
   const refused = (
     label: string,
-    obstacle: HumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
     least?: number,
   ): void => {
     let thrown: unknown = null;
@@ -145,8 +138,8 @@ export function test_human_motion_travel_obstacles(): void {
 
   // 2. A door that fits.
   try {
-    const through: HumanPerformance = walk(wall({ width: 0.9, height: 2 }));
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const through: IAutoMovieMotionHumanPerformance = walk(wall({ width: 0.9, height: 2 }));
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       through,
       "a",
       body,
@@ -222,7 +215,7 @@ export function test_human_motion_travel_obstacles(): void {
     );
 
   // 7. Through the doorway from off its line, and no doorway to go through.
-  const passing = (obstacle: HumanObstacle.IObstacle): HumanPerformance =>
+  const passing = (obstacle: IAutoMovieMotionHumanObstacle.IObstacle): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "obstacles",
       laws: [HumanTravelDoor.passThrough],
@@ -241,8 +234,8 @@ export function test_human_motion_travel_obstacles(): void {
       }).node,
     });
   try {
-    const through: HumanPerformance = passing(wall({ width: 0.9, height: 2 }));
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const through: IAutoMovieMotionHumanPerformance = passing(wall({ width: 0.9, height: 2 }));
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       through,
       "a",
       body,

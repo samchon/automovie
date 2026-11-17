@@ -1,15 +1,9 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLegPhrase, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
-import type { AutoMovieMotionManner } from "./AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Leg phrases: one foot leaving and rejoining its stance on one clock, a
@@ -23,42 +17,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement`, the clock and the leg's movement; no action name appears.
  */
 export namespace AutoMovieMotionHumanLegPhrase {
-  /**
-   * What every leg phrase takes: the leg, the clock whose standard instants
-   * (`AutoMovieMotionClock.PHRASE`) it moves on, and where the foot stands
-   * before and after.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, and the optional two what their absence means.
-   * @evidence contracts/development/design.md#principled-representation A leg phrase is one foot leaving and rejoining one stance on one clock; the contact states that the place is solid by naming what the foot bears on, so a place in the air cannot carry a contact window.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members shared by `lift`, `tap`, `swing` and `pivot`, mirroring the arm's phrase; the placement, the clock, the contact window and the modifiers are their owners' types. No law reads the leg phrases yet; the kicks, the gaits and the everyday laws rebuilt for #3286 are the consumers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact is one optional record instead of a solid flag beside optional contact fields; `pivot` omits it because its contact is always the ground.
-   */
-  export interface IPhrase {
-    /** The body. */
-    body: IHumanBody;
-
-    /** A clock with the standard instants of a phrase. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The leg. */
-    side: AutoMovieMotionHumanLeg.Side;
-
-    /** Where the foot stands before and after the phrase. */
-    stance: HumanFoot.IPlacement;
-
-    /**
-     * What the foot bears on while it is on its place, when the place is
-     * solid; absent for a place in the air, which gives no contact window.
-     */
-    contact?: Pick<IHumanContactWindow, "kind" | "support">;
-
-    /**
-     * The manner's size: the extent scales a place in the air about where
-     * the foot leaves from. A phrase that states a contact keeps its place
-     * whatever the extent. Neutral when absent.
-     */
-    manner?: Pick<AutoMovieMotionManner.IModifiers, "extent">;
-  }
 
   /**
    * A placement scaled about another by the phrase's extent; unchanged when
@@ -66,10 +24,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * place.
    */
   const extended = (
-    props: Pick<IPhrase, "contact" | "manner">,
-    about: HumanFoot.IPlacement,
-    target: HumanFoot.IPlacement,
-  ): HumanFoot.IPlacement => {
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, "contact" | "manner">,
+    about: IAutoMovieMotionHumanFoot.IPlacement,
+    target: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieMotionHumanFoot.IPlacement => {
     const extent: number = props.manner?.extent ?? 1;
     return props.contact !== undefined || extent === 1
       ? target
@@ -93,10 +51,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bearing(
-    props: Pick<IPhrase, "clock" | "side" | "contact">,
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, "clock" | "side" | "contact">,
     from: string,
     to: string,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     return props.contact === undefined
       ? []
       : [
@@ -128,10 +86,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function between(
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
     share: number,
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return {
       ankle: Vector3.add(
         from.ankle,
@@ -152,10 +110,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * from a chamber.
    */
   const cleared = (
-    props: Pick<IPhrase, "body" | "side" | "stance">,
-    placement: HumanFoot.IPlacement,
-  ): HumanFoot.IPlacement => {
-    const lowest = (foot: HumanFoot.IPlacement): number =>
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, "body" | "side" | "stance">,
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieMotionHumanFoot.IPlacement => {
+    const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(
         ...(["heel", "ball", "toe"] as const).map(
           (point): number =>
@@ -173,7 +131,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
 
   /** Whether a phrase's foot stands on its stance: only at the clock's two ends. */
   const grounded =
-    (clock: AutoMovieMotionClock.IClock) =>
+    (clock: IAutoMovieMotionClock.IClock) =>
     (seconds: number): boolean =>
       seconds <= 0 || seconds >= clock.duration;
 
@@ -194,14 +152,14 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function lift(
-    props: IPhrase & { raised: AutoMovieMotionHumanLeg.Frame },
+    props: IAutoMovieMotionHumanLegPhrase.ILiftProps,
   ): IAutoMovieMotionHumanPrimitive {
     return AutoMovieMotionHumanLeg.place({
       body: props.body,
       side: props.side,
       from: 0,
       to: props.clock.duration,
-      placement: (posture: IHumanPosture, seconds: number) =>
+      placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) =>
         cleared(
           props,
           between(
@@ -235,10 +193,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function tap(
-    props: IPhrase & {
-      target: AutoMovieMotionHumanLeg.Frame;
-      clearance: number;
-    },
+    props: IAutoMovieMotionHumanLegPhrase.ITapProps,
   ): IAutoMovieMotionHumanPrimitive {
     const { clock } = props;
     return {
@@ -247,8 +202,8 @@ export namespace AutoMovieMotionHumanLegPhrase {
         side: props.side,
         from: 0,
         to: clock.duration,
-        placement: (posture: IHumanPosture, seconds: number) => {
-          const target: HumanFoot.IPlacement = extended(
+        placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
+          const target: IAutoMovieMotionHumanFoot.IPlacement = extended(
             props,
             props.stance,
             props.target(posture, seconds),
@@ -296,11 +251,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function swing(
-    props: IPhrase & {
-      chamber: AutoMovieMotionHumanLeg.Frame;
-      target: AutoMovieMotionHumanLeg.Frame;
-      weapons?: readonly IHumanActionPlan.IWeapon[];
-    },
+    props: IAutoMovieMotionHumanLegPhrase.ISwingProps,
   ): IAutoMovieMotionHumanPrimitive {
     const { clock } = props;
     return {
@@ -309,8 +260,8 @@ export namespace AutoMovieMotionHumanLegPhrase {
         side: props.side,
         from: 0,
         to: clock.duration,
-        placement: (posture: IHumanPosture, seconds: number) => {
-          const chamber: HumanFoot.IPlacement = props.chamber(posture, seconds);
+        placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
+          const chamber: IAutoMovieMotionHumanFoot.IPlacement = props.chamber(posture, seconds);
           const p: number = AutoMovieMotionClock.through(
             clock,
             ["strokeStart", "stroke", "strokeEnd"],
@@ -356,11 +307,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments, one point and two angles.
    */
   export function pivot(
-    props: Omit<IPhrase, "contact"> & {
-      about: "heel" | "ball";
-      turn: number;
-      pitch: number;
-    },
+    props: IAutoMovieMotionHumanLegPhrase.IPivotProps,
   ): IAutoMovieMotionHumanPrimitive {
     const { clock } = props;
     const at: IAutoMovieVector3 = HumanFoot.point(
@@ -377,7 +324,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
         side: props.side,
         from: 0,
         to: clock.duration,
-        placement: (_: IHumanPosture, seconds: number) => {
+        placement: (_: IAutoMovieMotionHumanPosture, seconds: number) => {
           const w: number = clock.envelope(
             ["start", "stroke"],
             ["relax", "end"],

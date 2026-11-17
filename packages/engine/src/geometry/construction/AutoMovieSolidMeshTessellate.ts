@@ -1,16 +1,13 @@
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
+import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidMesh } from "@automovie/interface";
+
 import { AutoMovieSolidMeshLoop } from "./AutoMovieSolidMeshLoop";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
-
-/** World-space millimetre vector. */
-type Vec3 = AutoMovieSolidVector.Vec3;
 
 /** Preserve original jet failures and reject nonfinite source positions before appending them. */
-function point(surface: IAutoMovieSolidSurface, u: number, v: number): Vec3 {
-  const value: Vec3 = surface.jet(u, v).p;
+function point(surface: IAutoMovieSolidSurface, u: number, v: number): AutoMovieVector3Tuple {
+  const value: AutoMovieVector3Tuple = surface.jet(u, v).p;
   if (
     !Array.isArray(value) ||
     value.length !== 3 ||
@@ -46,9 +43,9 @@ export namespace AutoMovieSolidMeshTessellate {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mesh retains appended geometry and owner closures; returned loops own their index arrays but borrow the supplied charts, while grid/triangle scratch is local.
    */
   export function seam(
-    mesh: AutoMovieSolidMesh.IMesh,
-    seam: AutoMovieSolidMesh.ISeam,
-  ): AutoMovieSolidMesh.IJoined {
+    mesh: IAutoMovieSolidMesh.IMesh,
+    seam: IAutoMovieSolidMesh.ISeam,
+  ): IAutoMovieSolidMesh.IJoined {
     const count: number = seam.hostLoop.chart.length;
     const period: number | undefined = seam.blend.period;
     if (
@@ -184,7 +181,7 @@ export namespace AutoMovieSolidMeshTessellate {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only appended indices persist in mesh; no fan or surface reference is newly retained by the operation.
    */
   export function close(
-    mesh: AutoMovieSolidMesh.IMesh,
+    mesh: IAutoMovieSolidMesh.IMesh,
     triangles: readonly [number, number, number][],
     surface: IAutoMovieSolidSurface,
     inverted: boolean,
@@ -210,19 +207,19 @@ export namespace AutoMovieSolidMeshTessellate {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh triangle array; temporary alignment/angle/normal data expires and no mesh/surface callback is retained.
    */
   export function bridge(
-    mesh: AutoMovieSolidMesh.IMesh,
+    mesh: IAutoMovieSolidMesh.IMesh,
     ring: readonly number[],
     cycle: readonly number[],
-    out: Readonly<Vec3>,
+    out: Readonly<AutoMovieVector3Tuple>,
   ): [number, number, number][] {
     const turned: number[] = AutoMovieSolidMeshLoop.aligned(mesh, ring, cycle);
     const band: [number, number, number][] = AutoMovieSolidZip.band(
       { vertices: [...ring], angles: AutoMovieSolidMeshLoop.arc(mesh, ring) },
       { vertices: turned, angles: AutoMovieSolidMeshLoop.arc(mesh, turned) },
     );
-    let best: Vec3 = [0, 0, 0];
+    let best: AutoMovieVector3Tuple = [0, 0, 0];
     for (const triangle of band) {
-      const normal: Vec3 = AutoMovieSolidMeshWrite.normal(mesh, triangle);
+      const normal: AutoMovieVector3Tuple = AutoMovieSolidMeshWrite.normal(mesh, triangle);
       if (norm(normal) > norm(best)) best = normal;
     }
     return dot(best, out) < 0

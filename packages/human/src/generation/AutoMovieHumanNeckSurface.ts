@@ -1,6 +1,10 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanNeckSurface } from "@automovie/interface";
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanNeckSurfaceSampling } from "./AutoMovieHumanNeckSurfaceSampling";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+
 
 /**
  * A small display copy of the prepared body's actual neck and head exterior.
@@ -25,142 +29,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains no body or cache; its caller owns six rings, a pole and scalar metadata after temporary measurements are released.
  */
 export namespace AutoMovieHumanNeckSurface {
-  /**
-   * A registered world point in metres, or a dimensionless frame axis.
-   *
-   * @evidence contracts/common.md#principled-implementation Three Cartesian components preserve the registered source coordinates without a new point representation.
-   * @evidence contracts/common.md#clear-and-simple-design One fixed tuple serves points and frame axes; each field states its units.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The tuple carries source coordinates without fixture-specific values or coercion.
-   * @evidence contracts/common.md#meaningful-documentation The alias states the two field-dependent unit meanings.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This type declares three numbers and executes no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type coordinates no computation or effects.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type owns no live state or resources.
-   */
-  export type Vector = [number, number, number];
+  
 
-  /**
-   * One actual source course, sampled at the common display phases.
-   *
-   * @evidence contracts/common.md#principled-implementation Owner and material station identify the source; sampled points preserve its frame and lift independently of scalar measurements.
-   * @evidence contracts/common.md#clear-and-simple-design One record carries the source address, display geometry and independently measured metrics required by the polygon consumer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record separates requested height, actual centre and measured source perimeter instead of asserting that the display polygon meets a target.
-   * @evidence contracts/common.md#meaningful-documentation Every field states its ownership, units or sampling meaning, including the millimetre material address.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares data and chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This interface coordinates no computation or effects.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Resource ownership belongs to derive and its caller, not this structural declaration.
-   */
-  export interface ISection {
-    /** Source chain owning this course. */
-    chain: string;
+  
 
-    /** Continuous material address in calibration millimetres, not world Y. */
-    stationMm: number;
-
-    /** Requested world centre height in metres. */
-    requestedHeight: number;
-
-    /** Actual source section's phase-mean centre in registered world metres. */
-    centre: Vector;
-
-    /** Actual source frame: origin in metres and unmodified dimensionless basis. */
-    frame: {
-      /** Registered world origin in metres. */
-      origin: Vector;
-
-      /** Source basis vector carrying the section's depth coordinate. */
-      u: Vector;
-
-      /** Source basis vector carrying the section's lateral coordinate. */
-      v: Vector;
-    };
-
-    /** Actual source world points in metres, in this course's material-phase order. */
-    points: Vector[];
-
-    /** Actual material phases in radians that evaluated these source points. */
-    sourcePhases: number[];
-
-    /**
-     * Separate LOD zipper coordinates from arclength of the frame-projected
-     * eight-point polygon, radians. These neither change the points nor recover
-     * source event correspondence or exact three-dimensional arclength.
-     */
-    displayCoordinates: number[];
-
-    /** Source perimeter measured at 256 phases, metres; not polygon perimeter. */
-    circumference: number;
-
-    /** Full world Z extent of the 256-phase source section, metres. */
-    breadth: number;
-
-    /** Full world X extent of the 256-phase source section, metres. */
-    depth: number;
-  }
-
-  /**
-   * Prepared neutral neck exterior; no full calibration is retained.
-   *
-   * @evidence contracts/common.md#principled-implementation Per-course phases retain source addresses while projected-polygon coordinates define display joins; requested height, achieved centre height and public circumference retain separate meanings.
-   * @evidence contracts/common.md#clear-and-simple-design The result contains only neck and head geometry and metadata consumed by the existing polygon display.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Public circumference is optional metadata and never replaces source measurements or points.
-   * @evidence contracts/common.md#meaningful-documentation The fields distinguish physical units, source chart units, phase order and display conventions.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares the output and executes no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller's preparation lifecycle owns reuse; this type performs no coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This structural declaration acquires no body, cache or resource.
-   */
-  export interface IOutput {
-    /** Physical output units; only stationMm retains the source chart's mm. */
-    units: "metres";
-
-    /** Public neck length defines a display band, not an anatomical jaw boundary. */
-    bandDefinition: "requested-length";
-
-    /** Source sample phases in radians; their numbers do not assert cross-chart material correspondence. */
-    phases: number[];
-
-    /** Actual lower boundary, half-height, three-quarter-height and upper courses. */
-    sections: ISection[];
-
-    /** Actual head courses at the existing one-third/two-thirds display heights. */
-    headSections: [ISection, ISection];
-
-    /**
-     * Canonical calibration pole used by the skeleton, distinct from a finite
-     * section. Generated chain.pole overrides are outside this display contract.
-     */
-    crown: {
-      /** Actual source chain whose top this pole closes. */
-      chain: string;
-
-      /** Actual source end, retained without inventing a terminal ring. */
-      end: "top" | "bottom";
-
-      /** Registered source terminal point in physical metres. */
-      point: Vector;
-
-      /** Whether the source declares a recovered critical point. */
-      critical: boolean;
-    };
-
-    /** Actual upper-minus-lower centre height, metres; not a bone or axis length. */
-    visibleLength: number;
-
-    /** Public physical neck-length input used as this display band's height, m. */
-    publicTargetLength: number;
-
-    /** Middle of the visible world-height band, metres. */
-    requestedMidHeight: number;
-
-    /** Evaluated centre height of the middle source course, metres. */
-    actualMidHeight: number;
-
-    /**
-     * Public neck circumference input in metres, never used to resize points.
-     * Its measurement site has not been identified with these display courses;
-     * differences from their circumferences do not establish a target error.
-     */
-    publicTargetCircumference?: number;
-  }
+  
 
   /**
    * Copy four neck courses, two head courses and the prepared source crown.
@@ -209,7 +82,7 @@ export namespace AutoMovieHumanNeckSurface {
     scale: number,
     publicTargetCircumferenceMm: number | null,
     publicLengthMm: number | null,
-  ): IOutput {
+  ): IAutoMovieHumanNeckSurface.IOutput {
     if (!(Number.isFinite(scale) && scale > 0))
       throw new Error("Neck exterior requires a positive physical scale");
 
@@ -236,7 +109,7 @@ export namespace AutoMovieHumanNeckSurface {
       upper,
       lowerStation,
     )[1];
-    const lower: ISection = AutoMovieHumanNeckSurfaceSampling.section(
+    const lower: IAutoMovieHumanNeckSurface.ISection = AutoMovieHumanNeckSurfaceSampling.section(
       upper,
       lowerStation,
       lowerHeight,
@@ -255,7 +128,7 @@ export namespace AutoMovieHumanNeckSurface {
     const middle: ICourse = course(chains, middleHeight);
     const upperTube: ICourse = course(chains, upperTubeHeight);
     const top: ICourse = course(chains, topHeight);
-    const sections: ISection[] = [
+    const sections: IAutoMovieHumanNeckSurface.ISection[] = [
       lower,
       AutoMovieHumanNeckSurfaceSampling.section(
         middle.chain,
@@ -305,8 +178,8 @@ export namespace AutoMovieHumanNeckSurface {
           chain.name,
         ),
     );
-    const headSections: [ISection, ISection] = [1, 2].map(
-      (index: number): ISection => {
+    const headSections: [IAutoMovieHumanNeckSurface.ISection, IAutoMovieHumanNeckSurface.ISection] = [1, 2].map(
+      (index: number): IAutoMovieHumanNeckSurface.ISection => {
         const height: number =
           neckTopHeight + ((crown.point[1] - neckTopHeight) * index) / 3;
         const at: ICourse = course(headChains, height);
@@ -318,7 +191,7 @@ export namespace AutoMovieHumanNeckSurface {
           scale,
         );
       },
-    ) as [ISection, ISection];
+    ) as [IAutoMovieHumanNeckSurface.ISection, IAutoMovieHumanNeckSurface.ISection];
 
     return {
       units: "metres",

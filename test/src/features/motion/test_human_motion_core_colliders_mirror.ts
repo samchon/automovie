@@ -1,12 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanColliders,
-  type IHumanBody,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+
+import { HumanColliders, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -28,13 +23,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the scenario and the exactness asked.
  */
 export function test_human_motion_core_colliders_mirror(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const bones = poseBones(
     body,
     resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
   );
-  const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-  const world = (s: HumanColliders.IPlaced): IAutoMovieVector3[][] =>
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+  const world = (s: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieVector3[][] =>
     s.shapes.map((shape) => {
       const at = (p: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(
@@ -54,7 +49,7 @@ export function test_human_motion_core_colliders_mirror(): void {
   const misses: string[] = [];
   let pairs: number = 0;
   for (const left of placed.filter((s): boolean => s.bone.startsWith("left"))) {
-    const right: HumanColliders.IPlaced | undefined = placed.find(
+    const right: IAutoMovieMotionHumanColliders.IPlaced | undefined = placed.find(
       (s): boolean => s.bone === left.bone.replace("left", "right"),
     );
     if (right === undefined) continue;

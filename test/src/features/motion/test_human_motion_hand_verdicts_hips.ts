@@ -1,10 +1,5 @@
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  HumanVerdicts,
-  type IHumanActionLaw,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanVerdicts } from "@automovie/interface";
+import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -30,8 +25,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the bounds, why the row stands alone, what it was and the scenario.
  */
 export function test_human_motion_hand_verdicts_hips(): void {
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
     new HumanPerformance({
       seed: "verdict",
       laws,

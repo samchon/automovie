@@ -1,13 +1,7 @@
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceReader, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
-import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
 /**
  * The tip and the pad of every digit of both hands, as bone-local frames on
@@ -43,15 +37,15 @@ import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoi
  */
 export function AutoMovieHumanoidDigitSurfaces(
   rays: Pick<
-    ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools>,
+    IAutoMovieHumanoidSurfaceReader,
     "at" | "local" | "surface"
   >,
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
 ): Partial<
-  Record<AutoMovieHumanoidRegion, resolveAutoMovieHumanoidSurfaces.IFrame>
+  Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
 > {
   const out: Partial<
-    Record<AutoMovieHumanoidRegion, resolveAutoMovieHumanoidSurfaces.IFrame>
+    Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
   > = {};
   const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   for (const Side of ["Left", "Right"] as const) {
@@ -70,12 +64,12 @@ export function AutoMovieHumanoidDigitSurfaces(
       // The phalanx's own colliders, or the hand's when the profile gives
       // the phalanx none.
       const phalanx: AutoMovieHumanoidBone = profile.segments.some(
-        (x: P.ISegment): boolean => x.bone === distal,
+        (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === distal,
       )
         ? distal
         : (`${side}Hand` as AutoMovieHumanoidBone);
       const name: string = digit.toLowerCase();
-      const tip: AutoMovieHumanoidSurfaceRays.ISurfacePoint = rays.surface(
+      const tip: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = rays.surface(
         phalanx,
         joint,
         along,
@@ -91,7 +85,7 @@ export function AutoMovieHumanoidDigitSurfaces(
       const palmar: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(down, Vector3.scale(unit, Vector3.dot(down, unit))),
       );
-      const pad: AutoMovieHumanoidSurfaceRays.ISurfacePoint = rays.surface(
+      const pad: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = rays.surface(
         phalanx,
         Vector3.lerp(joint, tip.point, 0.5),
         palmar,

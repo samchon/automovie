@@ -1,11 +1,6 @@
-import {
-  AutoMovieGeometryQuery,
-  IAutoMovieCompiledShotSource,
-  IAutoMovieGeometryResult,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieEffectSample, type IAutoMovieGeometryActorReader, type IAutoMovieGeometryQuery, type IAutoMovieResolvedCamera, IAutoMovieCompiledShotSource, IAutoMovieGeometryResult, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
+
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { resolveCameraAt } from "./film/resolveCameraAt";
 import { Quaternion } from "./math/Quaternion";
@@ -25,9 +20,9 @@ import { sampleCompiledEffect } from "./sampleCompiledEffect";
  */
 export function measureAutoMovieGeometryEffect(
   props: IAutoMovieGeometryMeasurementInput,
-  request: Extract<AutoMovieGeometryQuery, { query: "effect" }>,
+  request: Extract<IAutoMovieGeometryQuery, { query: "effect" }>,
 ): IAutoMovieGeometryResult {
-  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+  const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
   const shots: ReadonlyMap<string, IAutoMovieCompiledShotSource> =
     props.compiled;
@@ -88,7 +83,7 @@ export function measureAutoMovieGeometryEffect(
       "Effect measurement requires current production frame format. Restore production design and compile.",
     );
 
-  const cameraTransform: ReturnType<typeof resolveCameraAt> = resolveCameraAt(
+  const cameraTransform: IAutoMovieResolvedCamera = resolveCameraAt(
     camera.transform,
     compiled.shot.cameraMotion,
     camera.id,
@@ -105,7 +100,7 @@ export function measureAutoMovieGeometryEffect(
     Vector3.subtract(cameraTransform.position, center),
   );
 
-  const sample: ReturnType<typeof sampleCompiledEffect> = sampleCompiledEffect(
+  const sample: IAutoMovieEffectSample = sampleCompiledEffect(
     effect,
     request.time,
     cameraDistance,

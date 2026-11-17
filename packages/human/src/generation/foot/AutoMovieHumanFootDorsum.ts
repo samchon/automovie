@@ -1,10 +1,8 @@
-import {
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-  AutoMovieSolidVector as V,
-} from "@automovie/engine";
+import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanFootDorsum } from "@automovie/interface";
 
-import type { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnection";
+
+import { AutoMovieViewOutline, AutoMovieSolidVector as V } from "@automovie/engine";
+
 
 /**
  * A replaced dorsal source and the additional physical stations it owns.
@@ -18,23 +16,7 @@ import type { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnectio
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous caller owns the returned O(n) outline and its source definition.
  */
 export namespace AutoMovieHumanFootDorsum {
-  /** The original constant-height foot chart and its shared ankle contact. */
-  export interface IInput {
-    /** Original dorsal knots and domain, calibration mm; no neighbouring part is acquired. */
-    part: Pick<IAutoMovieViewPart, "front" | "stations">;
-    /** Pternion plan position and foot-along direction. */
-    heel: V.Vec3;
-    /** Unit foot-along direction. */
-    along: V.Vec3;
-    /** Public foot length, mm. */
-    length: number;
-    /** Existing axis height, preserved to keep the floor and closing points. */
-    height: number;
-    /** Williams-McClay dorsum height at half foot length, mm. */
-    arch: number;
-    /** The actual complete leg source and its sagittal cut. */
-    ankle: AutoMovieHumanFootConnection.IAnkle;
-  }
+  
 
   /**
    * Replace the misinterpreted ankle-cut roof and its globally coupled natural
@@ -50,12 +32,12 @@ export namespace AutoMovieHumanFootDorsum {
    * @evidence contracts/performance.md#reuse-equivalent-work The one prepared original supplies every retained value and jet.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary source state dies with this call; only the authored outline survives.
    */
-  export function create(input: IInput): IAutoMovieViewPart.IOutline {
+  export function create(input: IAutoMovieHumanFootDorsum.IInput): IAutoMovieViewPart.IOutline {
     const bottom: number = input.part.stations[0]!;
     const top: number = input.part.stations.at(-1)!;
     const original:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       input.part.front.positive,
       { bottom, top },
     );

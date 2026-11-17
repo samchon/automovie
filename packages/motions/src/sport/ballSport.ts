@@ -1,8 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanBallSport, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import { Vector3 } from "@automovie/engine";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -12,17 +10,10 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
 
 /**
@@ -66,18 +57,15 @@ import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
  */
 export namespace ballSport {
   /** The action's name. */
-  export const name: HumanActionName = "ballSport";
+  export const name: AutoMovieMotionHumanActionName = "ballSport";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       ballSport: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
     });
-
-  /** The skills. */
-  export type Kind = "dribble" | "dig" | "set" | "throwIn";
 
   /** Dribble bounces per second (provisional). */
   export const BOUNCES: number = 2;
@@ -110,34 +98,6 @@ export namespace ballSport {
   export const READY: number = 0.5;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The skill, the hand, the bounce count, and a throw-in's ball and target.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IParams {
-    /** The skill. */
-    kind: Kind;
-
-    /** The dribbling hand; `right` when absent. */
-    side?: "left" | "right";
-
-    /** Dribble bounces; 4 when absent. */
-    count?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-
-    /** The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only. */
-    prop?: string;
-
-    /** The point a thrown ball's path passes through, world metres; required with `prop`. Read by the throw-in only. */
-    at?: IAutoMovieVector3;
-  }
-
-  /**
    * Plan a ball skill.
    *
    * @param context The action's context.
@@ -153,14 +113,14 @@ export namespace ballSport {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanBallSport.IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const count: number = p.count ?? 4;
     HumanBound.whole("count", count);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const attack: number =
       p.kind === "dribble"
@@ -168,7 +128,7 @@ export namespace ballSport {
         : p.kind === "throwIn"
           ? 0.35
           : 0.25;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: p.kind === "throwIn" ? 0.7 : READY,
         attack,
@@ -178,11 +138,11 @@ export namespace ballSport {
       }),
       modifiers,
     );
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const into = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     // The span the arms are planned over: the reach to the place, the hold and the return.
-    const span: AutoMovieMotionHumanArm.ISpan = {
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: clock.at("start"),
       ready: clock.at("ready"),
       relax: clock.at("relax"),
@@ -192,11 +152,11 @@ export namespace ballSport {
       clock.progress("strokeStart", "stroke", s);
     const arm: number = m.upperArm + m.forearm;
     const local = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
-    const rest = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
+    const rest = (side: "left" | "right"): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const crouch = (
       depth: number,
@@ -219,8 +179,8 @@ export namespace ballSport {
     // A throw-in's real ball: its grips and its launch.
     let thrown:
       | {
-          contacts: IHumanContactWindow[];
-          launches: IHumanActionPlan.ILaunch[];
+          contacts: IAutoMovieMotionHumanContactWindow[];
+          launches: IAutoMovieMotionHumanActionPlan.ILaunch[];
         }
       | undefined = undefined;
     const pad: number = AutoMovieMotionHumanTouchEffector.pad(body, "right", {
@@ -241,7 +201,7 @@ export namespace ballSport {
             rest: rest(side),
             weight: into,
             span,
-            place: (posture: IHumanPosture, s: number) => {
+            place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
               const u: number = clock.linear("strokeStart", "strokeEnd", s);
               const down: number =
                 0.25 *
@@ -279,7 +239,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
-              place: (posture: IHumanPosture, s: number) => {
+              place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
                 // The platform: nearly straight arms from the displayed shoulders, lifted at the contact.
                 const below: number =
                   ((PLATFORM - LIFT * stroke(s)) * Math.PI) / 180;
@@ -324,7 +284,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
-              place: (posture: IHumanPosture, s: number) => ({
+              place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
                 point: Vector3.lerp(
                   AutoMovieMotionHumanPlaced.grid(body, posture, side, {
                     height: "crown",
@@ -358,7 +318,7 @@ export namespace ballSport {
           }),
         );
         const heading: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
-        const tilted = (pitch: number): IHumanPosture =>
+        const tilted = (pitch: number): IAutoMovieMotionHumanPosture =>
           AutoMovieMotionHumanLean.pivot(body, entry, { pitch, roll: 0 });
         // Behind the head as the arched trunk carries it, at the head's middle.
         const drawn: IAutoMovieVector3 = Vector3.add(
@@ -415,7 +375,7 @@ export namespace ballSport {
           const seconds: number = clock.at("stroke");
           thrown = {
             contacts: (["left", "right"] as const).map(
-              (side: "left" | "right"): IHumanContactWindow => ({
+              (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
                 part: `${side}Hand`,
                 kind: "grip",
                 from: 0,
@@ -446,7 +406,7 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
-              place: (_posture: IHumanPosture, s: number) => ({
+              place: (_posture: IAutoMovieMotionHumanPosture, s: number) => ({
                 point: Vector3.add(
                   Vector3.lerp(drawn, released, stroke(s)),
                   beside,
@@ -465,7 +425,7 @@ export namespace ballSport {
         break;
       }
     }
-    const planned: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const planned: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(
         clock.duration,
         entry,

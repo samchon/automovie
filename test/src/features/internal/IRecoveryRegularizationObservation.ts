@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieRecoveryFeasibleFit,
-  IAutoMovieRecoveryRegularizationUpdate,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryFeasibleFit, IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
+
 
 /** Source fit effects for one independently prescribed quadratic halfspace. */
 export interface IRecoveryRegularizationObservation {

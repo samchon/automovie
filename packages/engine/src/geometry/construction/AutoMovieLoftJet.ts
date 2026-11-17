@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieLoftCapRead, IAutoMovieLoftChain, IAutoMovieLoftCoefficientSource, IAutoMovieLoftJet, IAutoMovieLoftSectionJet, IAutoMovieStationHermite, IAutoMovieViewAxisJet } from "@automovie/interface";
+
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
@@ -5,12 +8,9 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
-import type { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
-import type { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * A chain's surface point with its exact first and second derivatives in
@@ -41,33 +41,6 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftJet {
-  /**
-   * Point and partial derivatives, world mm per mm of station and per radian of phase.
-   *
-   * @evidence contracts/development/design.md#principled-representation Names the point and all five first/second partial derivatives of one surface chart reading.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six vector fields carry value and derivative orders without hidden computed state.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Describes exact chart derivatives; the type itself does not validate their numerical correctness or finiteness.
-   * @evidence contracts/development/common.md#meaningful-documentation Each field names its derivative; station uses mm and phase radians.
-   */
-  export interface IJet {
-    /** Surface point. */
-    p: V;
-
-    /** First station derivative. */
-    s: V;
-
-    /** First phase derivative. */
-    t: V;
-
-    /** Second station derivative. */
-    ss: V;
-
-    /** Mixed derivative. */
-    st: V;
-
-    /** Second phase derivative. */
-    tt: V;
-  }
 
   /**
    * Whether the actual local interval owners carry physical2 and every
@@ -109,7 +82,7 @@ export namespace AutoMovieLoftJet {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Station weights, frame and lift directions are prepared once, and each visited control is combined once while its station remains cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses the weak-key eight-station insertion cache and returns fresh mutable jet vectors, never a cached output jet.
    */
-  export function at(chain: IAutoMovieLoftChain, s: number, t: number): IJet {
+  export function at(chain: IAutoMovieLoftChain, s: number, t: number): IAutoMovieLoftJet.IJet {
     // The station's part (its section coefficients and plane with their two
     // station derivatives) is the same for every phase, so the last stations
     // read per chain are kept; a chain is never changed once built.
@@ -120,11 +93,11 @@ export namespace AutoMovieLoftJet {
     // value, the station slope and the station curvature of the coefficients.
     const n: number = chain.order;
     fill(station, n, t);
-    const local: ReturnType<typeof AutoMovieLoftSectionLegacy.jet> =
+    const local: IAutoMovieLoftSectionJet =
       station.native === null
         ? section(station.controls!, n, t)
         : station.native(t);
-    const jet: IJet = AutoMovieLoftWorldJet(local, f);
+    const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftWorldJet(local, f);
 
     // The lift a shape law writes moves points along w = v x u by the station
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
@@ -136,7 +109,7 @@ export namespace AutoMovieLoftJet {
     for (const relief of chain.reliefs ?? []) {
       const h: number[] = AutoMovieLoftRelief.jet(relief, s, t);
       if (h.every((x: number): boolean => x === 0)) continue;
-      const [e, e1, e2]: [V, V, V] = AutoMovieLoftRelief.direction(relief, t);
+      const [e, e1, e2]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] = AutoMovieLoftRelief.direction(relief, t);
       jet.p = sum(jet.p, scale(e, h[0]!));
       jet.s = sum(jet.s, scale(e, h[1]!));
       jet.t = sum(sum(jet.t, scale(e, h[2]!)), scale(e1, h[0]!));
@@ -148,7 +121,7 @@ export namespace AutoMovieLoftJet {
       );
     }
     if (
-      !Object.values(jet).every((row: V): boolean => row.every(Number.isFinite))
+      !Object.values(jet).every((row: AutoMovieVector3Tuple): boolean => row.every(Number.isFinite))
     )
       throw new AutoMovieLoftAdmissionError(
         "The complete frame/local/lift/relief total2 is nonfinite.",
@@ -159,9 +132,9 @@ export namespace AutoMovieLoftJet {
   /** One interval's endpoint arrays, weights and combined derivative rows. */
   interface IControls {
     /** Lower endpoint, unchanged for the immutable chain's lifetime. */
-    a: AutoMovieStationHermite.IEnd;
+    a: IAutoMovieStationHermite.IEnd;
     /** Upper endpoint. */
-    b: AutoMovieStationHermite.IEnd;
+    b: IAutoMovieStationHermite.IEnd;
     /** Value, slope and curvature interpolation weights. */
     weights: number[][];
     /** Three coefficient rows; lazy rows contain holes until their support is read. */
@@ -173,7 +146,7 @@ export namespace AutoMovieLoftJet {
     /** Actual basis controls only on the legacy branch; no fabricated rows on a native station. */
     controls: IControls | null;
     /** Actual local total2 generator, absent only on the existing basis branch. */
-    native: ReturnType<typeof AutoMovieLoftSection.jet>;
+    native: (((phi: number) => IAutoMovieLoftSectionJet) | null);
     /** Plane and its first and second station derivatives. */
     f: number[][];
     /** One byte per spline control; absent for the original eager path. */
@@ -185,7 +158,7 @@ export namespace AutoMovieLoftJet {
   /** Lift rows use identical x/z blocks for the existing spline reader. */
   interface ILift extends IControls {
     /** Normal direction and its first two station derivatives. */
-    directions: V[];
+    directions: AutoMovieVector3Tuple[];
   }
 
   /** Stations kept per chain. */
@@ -203,7 +176,7 @@ export namespace AutoMovieLoftJet {
       STATIONS.get(chain);
     if (kept === undefined) STATIONS.set(chain, (kept = []));
     for (const entry of kept) if (entry.s === s) return entry.station;
-    const cap: ReturnType<typeof AutoMovieLoftCapRead.jet> =
+    const cap: (IAutoMovieLoftCapRead.IJetResult) =
       AutoMovieLoftCapRead.jet(chain, s);
     if (cap !== null) {
       const station: IStation = { controls: null, ...cap };
@@ -216,14 +189,14 @@ export namespace AutoMovieLoftJet {
     const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
     const H: number = b.y - a.y;
     const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
-    const native: ReturnType<typeof AutoMovieLoftSection.jet> =
+    const native: (((phi: number) => IAutoMovieLoftSectionJet) | null) =
       AutoMovieLoftSection.jet(chain, s);
     const w: number[][] = [0, 1, 2].map((order: number): number[] =>
       AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, true),
     );
 
     // Section coefficients and plane, each with its two station derivatives.
-    const source: AutoMovieLoftCoefficientSource.IControls | null =
+    const source: IAutoMovieLoftCoefficientSource.IControls | null =
       native === null
         ? AutoMovieLoftCoefficientSource.controls(chain, s)
         : null;
@@ -238,12 +211,12 @@ export namespace AutoMovieLoftJet {
                 order as 0 | 1 | 2,
               ),
             );
-    const ca: AutoMovieStationHermite.IEnd = source?.a ?? {
+    const ca: IAutoMovieStationHermite.IEnd = source?.a ?? {
       value: a.coefficients,
       slope: a.slopes,
       curvature: a.curvatures!,
     };
-    const cb: AutoMovieStationHermite.IEnd = source?.b ?? {
+    const cb: IAutoMovieStationHermite.IEnd = source?.b ?? {
       value: b.coefficients,
       slope: b.slopes,
       curvature: b.curvatures!,
@@ -263,21 +236,21 @@ export namespace AutoMovieLoftJet {
         ? new Array<number>(2 * n)
         : AutoMovieStationHermite.combine(ca, cb, x),
     );
-    const actual: AutoMovieViewAxisJet.IJet | null =
+    const actual: IAutoMovieViewAxisJet.IJet | null =
       AutoMovieLoftFrameSource.actual(a, b, s);
     let f: number[][];
     if (actual !== null)
       f = [actual.value, actual.first, actual.second].map(
-        (value: AutoMovieViewAxisJet.IJet["value"]): number[] => [
+        (value: IAutoMovieViewAxisJet.IJet["value"]): number[] => [
           ...value.origin,
           ...value.u,
           ...value.v,
         ],
       );
     else {
-      const fa: AutoMovieStationHermite.IEnd =
+      const fa: IAutoMovieStationHermite.IEnd =
         AutoMovieStationHermite.frameEnd(a);
-      const fb: AutoMovieStationHermite.IEnd =
+      const fb: IAutoMovieStationHermite.IEnd =
         AutoMovieStationHermite.frameEnd(b);
       f = w.map((x: number[]): number[] =>
         AutoMovieStationHermite.combine(fa, fb, x),
@@ -296,12 +269,12 @@ export namespace AutoMovieLoftJet {
       const zero: number[] = new Array<number>(n).fill(0);
       const quintic: boolean =
         a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
-      const ea: AutoMovieStationHermite.IEnd = {
+      const ea: IAutoMovieStationHermite.IEnd = {
         value: a.lift ?? zero,
         slope: a.liftSlopes ?? zero,
         ...(quintic ? { curvature: a.liftCurvatures! } : {}),
       };
-      const eb: AutoMovieStationHermite.IEnd = {
+      const eb: IAutoMovieStationHermite.IEnd = {
         value: b.lift ?? zero,
         slope: b.liftSlopes ?? zero,
         ...(quintic ? { curvature: b.liftCurvatures! } : {}),
@@ -314,8 +287,8 @@ export namespace AutoMovieLoftJet {
         const row: number[] = AutoMovieStationHermite.combine(ea, eb, x);
         return [...row, ...row];
       });
-      const U: V[] = f.map((x: number[]): V => [x[3]!, x[4]!, x[5]!]);
-      const W: V[] = f.map((x: number[]): V => [x[6]!, x[7]!, x[8]!]);
+      const U: AutoMovieVector3Tuple[] = f.map((x: number[]): AutoMovieVector3Tuple => [x[3]!, x[4]!, x[5]!]);
+      const W: AutoMovieVector3Tuple[] = f.map((x: number[]): AutoMovieVector3Tuple => [x[6]!, x[7]!, x[8]!]);
       station.lift = {
         a: ea,
         b: eb,
@@ -372,8 +345,8 @@ export namespace AutoMovieLoftJet {
 
   /** One component, in exactly StationHermite.combine's left-associated summation order. */
   function scalar(
-    a: AutoMovieStationHermite.IEnd,
-    b: AutoMovieStationHermite.IEnd,
+    a: IAutoMovieStationHermite.IEnd,
+    b: IAutoMovieStationHermite.IEnd,
     w: readonly number[],
     k: number,
   ): number {
@@ -398,15 +371,12 @@ export namespace AutoMovieLoftJet {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure vector operation coordinates no repeated work and returns no cached mutable vector.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained state or handles; its returned vector belongs to the caller.
    */
-  export function normal(jet: IJet): V | null {
-    const n: V = cross(jet.t, jet.s);
+  export function normal(jet: IAutoMovieLoftJet.IJet): AutoMovieVector3Tuple | null {
+    const n: AutoMovieVector3Tuple = cross(jet.t, jet.s);
     const l: number = Math.hypot(n[0], n[1], n[2]);
     return l > 1e-12 ? [n[0] / l, n[1] / l, n[2] / l] : null;
   }
 }
-
-/** A world vector, mm. */
-type V = [number, number, number];
 
 /** A section's `[x, z, x_t, z_t, x_tt, z_tt]` at one phase. */
 type J = [number, number, number, number, number, number];
@@ -416,7 +386,7 @@ function section(
   controls: { c: number[][] },
   n: number,
   t: number,
-): ReturnType<typeof AutoMovieLoftSectionLegacy.jet> {
+): IAutoMovieLoftSectionJet {
   const q0: J = AutoMovieSplineCurve.jet(controls.c[0]!, n, t);
   const q1: J = AutoMovieSplineCurve.jet(controls.c[1]!, n, t);
   const q2: J = AutoMovieSplineCurve.jet(controls.c[2]!, n, t);
@@ -436,8 +406,8 @@ function section(
  * with `w' = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
  */
 function lift(
-  jet: AutoMovieLoftJet.IJet,
-  prepared: { c: number[][]; directions: V[] },
+  jet: IAutoMovieLoftJet.IJet,
+  prepared: { c: number[][]; directions: AutoMovieVector3Tuple[] },
   n: number,
   t: number,
 ): void {
@@ -445,7 +415,7 @@ function lift(
   const h: J[] = prepared.c.map(
     (x: number[]): J => AutoMovieSplineCurve.jet(x, n, t),
   );
-  const [w0, w1, w2] = prepared.directions as [V, V, V];
+  const [w0, w1, w2] = prepared.directions as [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple];
   jet.p = sum(jet.p, scale(w0, h[0]![0]));
   jet.s = sum(jet.s, scale(w0, h[1]![0]), scale(w1, h[0]![0]));
   jet.t = sum(jet.t, scale(w0, h[0]![2]));
@@ -460,19 +430,19 @@ function lift(
 }
 
 /** Sum of vectors. */
-function sum(...vs: V[]): V {
-  const out: V = [0, 0, 0];
+function sum(...vs: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
+  const out: AutoMovieVector3Tuple = [0, 0, 0];
   for (const v of vs) for (let k: number = 0; k < 3; k++) out[k] += v[k]!;
   return out;
 }
 
 /** Vector times a scalar. */
-function scale(v: readonly number[], k: number): V {
+function scale(v: readonly number[], k: number): AutoMovieVector3Tuple {
   return [v[0]! * k, v[1]! * k, v[2]! * k];
 }
 
 /** Cross product. */
-function cross(a: V, b: V): V {
+function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],

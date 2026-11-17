@@ -1,15 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSocial,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanSocial } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,7 +33,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, the 3 scenarios with their bounds and what is not read.
  */
 export function test_human_motion_social_toast_four_glasses(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
@@ -64,7 +57,7 @@ export function test_human_motion_social_toast_four_glasses(): void {
 
   // Before the right shoulder: the performer's right is his forward turned
   // a quarter to the right.
-  const before = (yaw: number): HumanObject.Placement => {
+  const before = (yaw: number): IAutoMovieMotionHumanObject.Placement => {
     const ahead: number = 0.3 * (body.measure.upperArm + body.measure.forearm);
     const right: IAutoMovieVector3 = turn(yaw - 90);
     const floor: IAutoMovieVector3 = Vector3.add(
@@ -75,9 +68,9 @@ export function test_human_motion_social_toast_four_glasses(): void {
   };
 
   // 1. The toast plans.
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
-    const takes = (subject: string): HumanChain =>
+    const takes = (subject: string): IAutoMovieMotionHumanChain =>
       HumanChain.subject(subject).pickUp({
         prop: `glass-${subject}`,
         handle: "body",
@@ -87,7 +80,7 @@ export function test_human_motion_social_toast_four_glasses(): void {
       seed: "four-glasses",
       laws: [HumanSocial.fistBump],
       props: cast.map(
-        ([subject, , yaw]): IHumanProp =>
+        ([subject, , yaw]): IAutoMovieMotionHumanProp =>
           HumanObject.prop(`glass-${subject}`, glass, before(yaw)),
       ),
       performers: cast.map(([subject, , yaw]) => ({
@@ -128,13 +121,13 @@ export function test_human_motion_social_toast_four_glasses(): void {
   // 2, 3. Every rim at the point, every glass upright.
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
   for (const [subject, role] of cast) {
-    const placed: HumanSegment.ISegment = performance.segments(subject)[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments(subject)[1]!;
     const meet: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "meet")?.share ??
         NaN) *
         placed.plan.duration;
-    const frame: IHumanProp.IFrame = performance.prop(`glass-${subject}`, meet);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(`glass-${subject}`, meet);
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,

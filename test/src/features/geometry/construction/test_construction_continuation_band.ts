@@ -1,11 +1,6 @@
-import {
-  type AutoMovieConstructionRealization,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionView,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionView } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 
@@ -32,7 +27,7 @@ export function test_construction_continuation_band(): void {
   const failures: string[] = [];
   const host: IAutoMovieConstructionView = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
   const part: IAutoMovieConstructionView = { ...ConstructionShapes.cylinder("neck", { ...ConstructionShapes.DOWN, origin: { x: 0, y: 0, z: -0.1 } }, 0.015, 0.06), order: 32 };
-  const tree = (band: boolean): AutoMovieConstructionNode => ({
+  const tree = (band: boolean): IAutoMovieConstructionNode => ({
     type: "continue",
     name: "join.neck",
     host,
@@ -45,11 +40,11 @@ export function test_construction_continuation_band(): void {
   });
 
   // 1. Without a band.
-  const plain: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "plain", root: tree(false) }, { chord: 1e-4 });
+  const plain: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "plain", root: tree(false) }, { chord: 1e-4 });
   if (plain.diagnostics.length === 0) failures.push("unequal orders without a band were not refused, so the case does not test the band");
 
   // 2. With a band.
-  const banded: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "banded", root: tree(true) }, { chord: 1e-4 });
+  const banded: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "banded", root: tree(true) }, { chord: 1e-4 });
   if (banded.diagnostics.length !== 0) failures.push(`band: diagnostics ${JSON.stringify(banded.diagnostics)}`);
   const m = banded.mesh;
   const at = (v: number): number[] => [m.positions[3 * v]!, m.positions[3 * v + 1]!, m.positions[3 * v + 2]!];

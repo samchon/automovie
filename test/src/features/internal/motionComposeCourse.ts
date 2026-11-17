@@ -1,12 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanCourse,
-  HumanBalance,
-  type IHumanBody,
-  type IHumanPosture,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanCourse, HumanBalance, resolveHumanPosture, stand } from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -54,15 +48,15 @@ export function motionComposeCourse(name: motionHumanBody.Name): void {
   const INSTANTS: readonly number[] = [0.1, 0.25, 0.5, 0.75, 1];
 
   {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const omega: number = Math.sqrt(9.81 / (1.34 * body.measure.hipHeight));
-    const centre = (posture: IHumanPosture, yaw: 0 | 90): number => {
+    const centre = (posture: IAutoMovieMotionHumanPosture, yaw: 0 | 90): number => {
       const c: IAutoMovieVector3 = HumanBalance.support(body, posture).centre;
       return yaw === 90 ? c.x : c.z;
     };
     const carried =
       (yaw: 0 | 90) =>
-      (_seconds: number, along: number): IHumanPosture =>
+      (_seconds: number, along: number): IAutoMovieMotionHumanPosture =>
         stand.posture(
           body,
           yaw === 90 ? { x: along, y: 0, z: 0.4 } : { x: -0.3, y: 0, z: along },
@@ -137,12 +131,12 @@ export function motionComposeCourse(name: motionHumanBody.Name): void {
     }
 
     // 4. Hips carried over planted feet.
-    const standing: IHumanPosture = stand.posture(
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0, y: 0, z: 0 },
       0,
     );
-    const planted = (_seconds: number, along: number): IHumanPosture =>
+    const planted = (_seconds: number, along: number): IAutoMovieMotionHumanPosture =>
       resolveHumanPosture.lower(body, {
         ...standing,
         root: { x: 0, y: 0, z: along },

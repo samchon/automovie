@@ -1,18 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { StrikingStroke } from "./StrikingStroke";
 
 /**
  * A stopped weapon riding the body it met: after a strike's limb has stopped
@@ -56,7 +45,7 @@ export namespace StrikingRide {
      *
      * @returns Their body and bone query.
      */
-    other(): IHumanActionContext.IPerformer;
+    other(): IAutoMovieMotionHumanActionContext.IPerformer;
 
     /** Film second of the stop. */
     stop: number;
@@ -89,10 +78,10 @@ export namespace StrikingRide {
      * @returns The posture, unchanged until two grid steps past the stop.
      */
     carry(
-      posture: IHumanPosture,
-      limb: IHumanPosture.Limb,
+      posture: IAutoMovieMotionHumanPosture,
+      limb: IAutoMovieMotionHumanPosture.Limb,
       seconds: number,
-    ): IHumanPosture;
+    ): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -147,7 +136,7 @@ export namespace StrikingRide {
       filling = true;
       try {
         while (frames.length <= index) {
-          const other: IHumanActionContext.IPerformer = props.other();
+          const other: IAutoMovieMotionHumanActionContext.IPerformer = props.other();
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             other.bones(props.stop + frames.length * STEP);
           if (bone === undefined) {
@@ -178,7 +167,7 @@ export namespace StrikingRide {
     // where no side of the surface is defined and nothing is carried.
     const contact = (): IContact | null => {
       if (touch !== undefined) return touch;
-      const other: IHumanActionContext.IPerformer = props.other();
+      const other: IAutoMovieMotionHumanActionContext.IPerformer = props.other();
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         other.bones(props.stop);
       const [a, b] = props.axis(props.stop);
@@ -239,11 +228,11 @@ export namespace StrikingRide {
 
     return {
       carry: (
-        posture: IHumanPosture,
-        limb: IHumanPosture.Limb,
+        posture: IAutoMovieMotionHumanPosture,
+        limb: IAutoMovieMotionHumanPosture.Limb,
         seconds: number,
-      ): IHumanPosture => {
-        const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
+      ): IAutoMovieMotionHumanPosture => {
+        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[limb];
         const lagged: number = seconds - 2 * STEP - props.stop;
         if (goal === undefined || goal.on !== undefined || !(lagged > 0))
           return posture;

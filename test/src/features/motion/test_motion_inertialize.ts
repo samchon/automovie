@@ -1,9 +1,10 @@
+import type { IAutoMovieInertializeOffset, IAutoMoviePose } from "@automovie/interface";
 import {
   inertializeOffset,
   inertializePose,
   samplePoseVelocity,
 } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -34,7 +35,7 @@ export function test_motion_inertialize(): void {
   const t1: number = 0.3;
   for (const x0 of [1, -1])
     for (const v0 of [-3 * x0, 2 * x0, 0]) {
-      const at0: inertializeOffset.IState = inertializeOffset(x0, v0, t1, 0);
+      const at0: IAutoMovieInertializeOffset.IState = inertializeOffset(x0, v0, t1, 0);
       const h: number = 1e-7;
       const slope: number =
         (inertializeOffset(x0, v0, t1, h).value - at0.value) / h;

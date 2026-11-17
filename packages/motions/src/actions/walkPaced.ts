@@ -1,8 +1,4 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
-
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 /**
  * A stepping plan played on a tabulated clock: at each film second the body
@@ -27,10 +23,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the table for as long as the returned plan is held.
  */
 export function walkPaced(
-  plan: IHumanActionPlan,
+  plan: IAutoMovieMotionHumanActionPlan,
   step: number,
   clock: readonly number[],
-): IHumanActionPlan {
+): IAutoMovieMotionHumanActionPlan {
   const last: number = clock.length - 1;
   const until: number = last * step;
   if (last < 1) return plan;
@@ -67,13 +63,13 @@ export function walkPaced(
       }),
     ),
     contacts: plan.contacts.map(
-      (c: IHumanContactWindow): IHumanContactWindow => ({
+      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: moved(c.from),
         to: moved(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (film: number): IHumanPosture => plan.posture(toPlan(film)),
+    posture: (film: number): IAutoMovieMotionHumanPosture => plan.posture(toPlan(film)),
   };
 }

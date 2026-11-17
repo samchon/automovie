@@ -1,11 +1,5 @@
-import {
-  type IAutoMovieRecoveryResectionDesignTrace,
-  type IAutoMovieRecoveryResectionTrace,
-  createRecoveryCameraChart,
-  fitRecoveryResectionConsensus,
-  fitRecoveryResectionDesign,
-  sampleRecoveryCameraIndices,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryResectionDesignTrace, IAutoMovieRecoveryResectionTrace } from "@automovie/interface";
+import { createRecoveryCameraChart, fitRecoveryResectionConsensus, fitRecoveryResectionDesign, sampleRecoveryCameraIndices } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";

@@ -1,6 +1,5 @@
-import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import { type IAutoMoviePlaybackTimeline, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 
-import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /**

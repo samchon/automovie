@@ -1,10 +1,6 @@
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
-import type { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
+import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence } from "@automovie/interface";
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
-
-/** Represented finite native-chart point. */
-type Point = readonly [number, number];
 
 /**
  * Select a represented left-side probe with an independently checked corridor.
@@ -24,11 +20,11 @@ type Point = readonly [number, number];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Probe, local image arrays and witness scratch expire on return; no source map, callback or cache is retained.
  */
 export function probeAutoMovieSolidMesh(
-  vertices: ReadonlyMap<number, Point>,
-  edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
-  walk: AutoMovieSolidMeshIncidence.IWalk,
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
+  walk: IAutoMovieSolidMeshIncidence.IWalk,
   period: number | undefined,
-): Point | string {
+): Readonly<AutoMovieVector2Tuple> | string {
   const count: number = walk.vertices.length;
   if (count === 0) return "visibility has an empty boundary walk";
   for (let k: number = 0; k < count; k++) {
@@ -36,7 +32,7 @@ export function probeAutoMovieSolidMesh(
     const next: number = (k + 1) % count;
     const turn: number =
       (next === 0 ? walk.winding : walk.lifts[next]!) - walk.lifts[k]!;
-    const found: Point | string | null = corridor(
+    const found: Readonly<AutoMovieVector2Tuple> | string | null = corridor(
       vertices,
       edges,
       { a: walk.vertices[k]!, b: walk.vertices[next]!, turn },
@@ -53,29 +49,29 @@ export function probeAutoMovieSolidMesh(
 
 /** A witnessed probe on the left of one boundary edge, null when that edge admits no represented corridor, or a named arithmetic failure. */
 function corridor(
-  vertices: ReadonlyMap<number, Point>,
-  edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
-  edge: AutoMovieSolidMeshConstraints.ISegment,
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
+  edge: IAutoMovieSolidMeshConstraints.ISegment,
   period: number | undefined,
-): Point | string | null {
-  const first: Point = vertices.get(edge.a)!;
-  const stored: Point = vertices.get(edge.b)!;
-  const end: Point = [stored[0], stored[1] + edge.turn * (period ?? 0)];
-  const middle: Point = midpoint(first, end);
+): Readonly<AutoMovieVector2Tuple> | string | null {
+  const first: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.a)!;
+  const stored: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.b)!;
+  const end: Readonly<AutoMovieVector2Tuple> = [stored[0], stored[1] + edge.turn * (period ?? 0)];
+  const middle: Readonly<AutoMovieVector2Tuple> = midpoint(first, end);
   const dx: number = end[0] - first[0];
   const dy: number = end[1] - first[1];
   const length: number = Math.hypot(dx, dy);
   let clearance: number = length / 2;
   const own: string = key(edge);
   for (const other of edges) {
-    const a: Point = vertices.get(other.a)!;
-    const b: Point = vertices.get(other.b)!;
+    const a: Readonly<AutoMovieVector2Tuple> = vertices.get(other.a)!;
+    const b: Readonly<AutoMovieVector2Tuple> = vertices.get(other.b)!;
     const shifts: number[] | null = images(a[1], first, end, period);
     if (shifts === null)
       return "visibility probe cover image is not representable";
     for (const image of shifts) {
-      const c: Point = [a[0], a[1] + image * (period ?? 0)];
-      const d: Point = [b[0], b[1] + (image + other.turn) * (period ?? 0)];
+      const c: Readonly<AutoMovieVector2Tuple> = [a[0], a[1] + image * (period ?? 0)];
+      const d: Readonly<AutoMovieVector2Tuple> = [b[0], b[1] + (image + other.turn) * (period ?? 0)];
       if (![...c, ...d].every(Number.isFinite))
         return "visibility probe cover coordinates are not representable";
       if (
@@ -105,7 +101,7 @@ function corridor(
     return null;
   for (let attempt: number = 0; attempt < 64; attempt++) {
     const step: number = clearance / 4;
-    const probe: Point = [
+    const probe: Readonly<AutoMovieVector2Tuple> = [
       middle[0] - (dy / length) * step,
       middle[1] + (dx / length) * step,
     ];
@@ -129,7 +125,7 @@ function corridor(
 }
 
 /** Floating distance proposes a probe only; witness checks decide the represented corridor. */
-function distance(point: Point, a: Point, b: Point): number {
+function distance(point: Readonly<AutoMovieVector2Tuple>, a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>): number {
   const dx: number = b[0] - a[0];
   const dy: number = b[1] - a[1];
   const length: number = Math.hypot(dx, dy);
@@ -143,7 +139,7 @@ function distance(point: Point, a: Point, b: Point): number {
 }
 
 /** Same finite midpoint formula used by the visibility owner. */
-function midpoint(a: Point, b: Point): Point {
+function midpoint(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> {
   return [
     a[0] === b[0] ? a[0] : a[0] / 2 + b[0] / 2,
     a[1] === b[1] ? a[1] : a[1] / 2 + b[1] / 2,
@@ -153,12 +149,12 @@ function midpoint(a: Point, b: Point): Point {
 /** Local cover images for one-period source primitives. */
 function images(
   value: number,
-  a: Point,
-  b: Point,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
   period: number | undefined,
 ): number[] | null {
   if (period === undefined) return [0];
-  const middle: Point = midpoint(a, b);
+  const middle: Readonly<AutoMovieVector2Tuple> = midpoint(a, b);
   const nearest: number = Math.round((middle[1] - value) / period);
   return Number.isSafeInteger(nearest) &&
     Number.isSafeInteger(nearest - 1) &&
@@ -168,7 +164,7 @@ function images(
 }
 
 /** Unoriented segment identity includes the relative cover turn. */
-function key(edge: AutoMovieSolidMeshConstraints.ISegment): string {
+function key(edge: IAutoMovieSolidMeshConstraints.ISegment): string {
   return edge.a < edge.b || (edge.a === edge.b && edge.turn > 0)
     ? `${edge.a}/${edge.b}/${edge.turn}`
     : `${edge.b}/${edge.a}/${-edge.turn}`;

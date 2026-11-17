@@ -1,3 +1,4 @@
+import type { IAutoMovieInterpolateSpline } from "@automovie/interface";
 import { AutoMovieSpline } from "./AutoMovieSpline";
 
 /**
@@ -31,15 +32,7 @@ import { AutoMovieSpline } from "./AutoMovieSpline";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The returned closure is the reuse: callers build it once per profile and evaluate it many times.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains copies of the knots and values, their second derivatives and the tension, O(n), released with the closure.
  */
-export const interpolateAutoMovieSpline: (props: {
-  knots: readonly number[];
-  values: readonly number[];
-  period?: number;
-}) => (x: number) => number = (props: {
-  knots: readonly number[];
-  values: readonly number[];
-  period?: number;
-}): ((x: number) => number) => {
+export const interpolateAutoMovieSpline: (props: IAutoMovieInterpolateSpline.IProps) => (x: number) => number = (props: IAutoMovieInterpolateSpline.IProps): ((x: number) => number) => {
   const n: number = props.knots.length;
   if (n === 0) throw new Error("spline interpolation needs at least one knot");
   if (props.values.length !== n)

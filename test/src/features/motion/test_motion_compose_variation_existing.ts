@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanSkill, IAutoMovieMotionManner } from "@automovie/interface";
 import {
   AutoMovieMotionHumanVariation,
   AutoMovieMotionHumanVariationForm,
@@ -29,7 +30,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 scenarios.
  */
 export function test_motion_compose_variation_existing(): void {
-  const skill: HumanSkill.ISkill = HumanSkill.resolve({ p: 0 }, "film");
+  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve({ p: 0 }, "film");
   const context = {
     skill,
     random: (channel: string) =>
@@ -39,7 +40,7 @@ export function test_motion_compose_variation_existing(): void {
       index: 3,
     }),
   };
-  const manner: AutoMovieMotionManner.IManner = {
+  const manner: IAutoMovieMotionManner.IManner = {
     variation: 1,
     proficiency: 0,
   };

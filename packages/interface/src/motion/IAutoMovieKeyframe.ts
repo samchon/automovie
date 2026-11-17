@@ -1,6 +1,6 @@
-import { IAutoMovieExpression } from "../expression/IAutoMovieExpression";
-import { IAutoMoviePose } from "../pose/IAutoMoviePose";
-import { AutoMovieEasing } from "./AutoMovieEasing";
+import type { IAutoMovieExpression } from "../expression/IAutoMovieExpression";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
+import type { AutoMovieEasing } from "./AutoMovieEasing";
 
 /**
  * A single keyframe: a pose (and optional expression) pinned at a timestamp, plus the easing into the _next_ keyframe.

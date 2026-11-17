@@ -1,6 +1,6 @@
+import type { IAutoMovieViewOutline } from "@automovie/interface";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
-import type { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
 /**
@@ -24,7 +24,7 @@ export namespace AutoMovieViewOutlineRead {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar or failure string without retaining inputs.
    */
   export function value(
-    outline: AutoMovieViewOutline.IOutline,
+    outline: IAutoMovieViewOutline.IOutline,
     station: number,
   ): number | string {
     const x: number = AutoMovieViewParameter.at(outline.parameter, station);
@@ -48,10 +48,10 @@ export namespace AutoMovieViewOutlineRead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned fixed-size record/tuples are fresh and caller-owned; nothing persists between calls.
    */
   export function at(
-    outline: AutoMovieViewOutline.IOutline,
+    outline: IAutoMovieViewOutline.IOutline,
     station: number,
-  ): AutoMovieViewOutline.IReading | string {
-    const { bottom, top }: AutoMovieViewOutline.IEnds = outline.ends;
+  ): IAutoMovieViewOutline.IReading | string {
+    const { bottom, top }: IAutoMovieViewOutline.IEnds = outline.ends;
     const x: number = AutoMovieViewParameter.at(outline.parameter, station);
     if (!Number.isFinite(x))
       return `station ${station} is not finite inside the source parameter domain`;
@@ -76,7 +76,7 @@ export namespace AutoMovieViewOutlineRead {
       station,
     );
     let stationJet: [number, number] | null = null;
-    let stationJetStatus: AutoMovieViewOutline.IReading["stationJetStatus"] =
+    let stationJetStatus: IAutoMovieViewOutline.IReading["stationJetStatus"] =
       pole ? "singular-pole" : "singular-parameter";
     if (change !== null && !pole) {
       stationJet = [
@@ -110,7 +110,7 @@ export namespace AutoMovieViewOutlineRead {
 
   /** Preserve exact pole zeros and the admitted parameter's original polynomial value. */
   function valueAt(
-    outline: AutoMovieViewOutline.IOutline,
+    outline: IAutoMovieViewOutline.IOutline,
     station: number,
     x: number,
   ): number {

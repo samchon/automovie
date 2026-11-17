@@ -1,14 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieSoftBodyDomain,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -30,13 +23,13 @@ const STEP: number = 1 / 240;
 
 /** A cord of `links` segments, `length` metres and `mass` kilograms hung from the right hand's grip socket of performer "a", solved at steps of `dt` seconds. */
 const hung = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   links: number,
   length: number,
   mass: number,
   seconds: number,
   dt: number,
-): IHumanProp => {
+): IAutoMovieMotionHumanProp => {
   const socket: IAutoMovieVector3 = body.surfaces.sockets.gripRight.point;
   const top: IAutoMovieVector3 = Vector3.add(
     body.rest.get("rightHand")!,
@@ -118,9 +111,9 @@ const hung = (
  */
 export function test_human_motion_soft_load(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const pulls: number[] = [];
-  const stand = (mass: number, dt: number): HumanPerformance =>
+  const stand = (mass: number, dt: number): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "load",
       props: [hung(body, LINKS, LENGTH, mass, 4, dt)],
@@ -140,7 +133,7 @@ export function test_human_motion_soft_load(): void {
     // anchor's multiplier short by a residual that falls with the step
     // squared, so Richardson's extrapolation of the two is the converged
     // solver's force (as the cord's catenary is, test_soft_cord_xpbd).
-    const performance: HumanPerformance = stand(mass, STEP);
+    const performance: IAutoMovieMotionHumanPerformance = stand(mass, STEP);
     const end: number = performance.duration;
     const coarse: IAutoMovieVector3 = performance.softLoad(
       "cord",

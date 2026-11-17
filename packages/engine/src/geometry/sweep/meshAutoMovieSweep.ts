@@ -1,20 +1,14 @@
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieMeshTarget, type IAutoMovieProfilePoint, type IAutoMovieRegionRing, type IAutoMovieRegionTriangulation, type IAutoMovieSweep, type IAutoMovieSweepFrame, type IAutoMovieSweepSection, type IAutoMovieSweepSurface, type IAutoMovieMeshSweep, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Vector3 } from "../../math/Vector3";
-import { IAutoMovieMeshTarget } from "../IAutoMovieMeshTarget";
-import { IAutoMovieProfilePoint } from "../IAutoMovieProfilePoint";
-import { IAutoMovieRegionRing } from "../IAutoMovieRegionRing";
-import { IAutoMovieRegionTriangulation } from "../IAutoMovieRegionTriangulation";
 import { canonicalRegion } from "../canonicalRegion";
 import { emptyMeshTarget } from "../emptyMeshTarget";
 import { meshOf } from "../meshOf";
 import { pushFlatTriangle } from "../pushFlatTriangle";
 import { signedArea } from "../signedArea";
 import { trianglesOf } from "../trianglesOf";
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 
 /** Points per loop of a curved section when the caller gives no count. */
@@ -64,19 +58,7 @@ const COLUMNS: number = 32;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one mesh whose buffers the caller owns.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the compiled sweep and ring layouts are released on return and the buffers transferred to the mesh.
  */
-export const meshAutoMovieSweep: (props: {
-  sweep: IAutoMovieSweep;
-  rows?: readonly number[];
-  columns?: number;
-  caps?: boolean;
-  shading?: "flat" | "smooth";
-}) => IAutoMovieMesh = (props: {
-  sweep: IAutoMovieSweep;
-  rows?: readonly number[];
-  columns?: number;
-  caps?: boolean;
-  shading?: "flat" | "smooth";
-}): IAutoMovieMesh => {
+export const meshAutoMovieSweep: (props: IAutoMovieMeshSweep.IProps) => IAutoMovieMesh = (props: IAutoMovieMeshSweep.IProps): IAutoMovieMesh => {
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(props.sweep);
   const spine: IAutoMovieVector3[] = props.sweep.spine.points;
   const rows: number[] =

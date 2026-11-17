@@ -1,13 +1,5 @@
-import {
-  AutoMovieConicArc,
-  AutoMovieConicArcField,
-  AutoMovieConicFieldJet,
-  AutoMovieConicHermite,
-  AutoMovieLoftSectionNative,
-  type AutoMovieLoftViewRead,
-  AutoMovieViewConic,
-  AutoMovieViewSection,
-} from "@automovie/engine";
+import type { IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieLoftSectionNative, IAutoMovieLoftViewRead, IAutoMovieViewConic, IAutoMovieViewSection } from "@automovie/interface";
+import { AutoMovieConicArc, AutoMovieConicArcField, AutoMovieConicFieldJet, AutoMovieConicHermite, AutoMovieLoftSectionNative, AutoMovieViewConic, AutoMovieViewSection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
@@ -31,7 +23,7 @@ import { nclose } from "../../internal/nclose";
 export function test_construction_source_value_cost(): void {
   const failures: string[] = [];
   const E: number = Math.SQRT2 - 1;
-  const cases: AutoMovieLoftViewRead.IValues[] = [];
+  const cases: IAutoMovieLoftViewRead.IValues[] = [];
   for (const scale of [0.001, 1, 1000])
     for (const [a, b] of [
       [3, 2],
@@ -46,7 +38,7 @@ export function test_construction_source_value_cost(): void {
     { extents: [2, 4, 3, 1], shoulders: [0.25, 0.45, 0.6, 0.35] },
   );
   for (const inputs of cases) {
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
       { extents: inputs.extents as [number, number, number, number] },
       inputs.shoulders as [number, number, number, number],
     );
@@ -58,7 +50,7 @@ export function test_construction_source_value_cost(): void {
       AutoMovieLoftSectionNative.point(inputs);
     const phase: ReturnType<typeof AutoMovieLoftSectionNative.phase> =
       AutoMovieLoftSectionNative.phase(inputs);
-    const shared: AutoMovieLoftSectionNative.ICurve =
+    const shared: IAutoMovieLoftSectionNative.ICurve =
       AutoMovieLoftSectionNative.curve(inputs);
     const angles: number[] = [
       0,
@@ -156,7 +148,7 @@ export function test_construction_source_value_cost(): void {
     }
     if (!rejected) failures.push("invalid source has a point fallback");
   }
-  const valid: AutoMovieLoftViewRead.IValues = {
+  const valid: IAutoMovieLoftViewRead.IValues = {
     extents: [3, 2, 3, 2],
     shoulders: [E, E, E, E],
   };
@@ -174,7 +166,7 @@ export function test_construction_source_value_cost(): void {
     if (!rejected) failures.push("nonfinite query has a point fallback");
   }
   const marker: Error = new Error("made-input-getter");
-  const broken: AutoMovieLoftViewRead.IValues = {
+  const broken: IAutoMovieLoftViewRead.IValues = {
     /** An input exception is not numeric admission. */
     get extents(): number[] {
       throw marker;
@@ -197,17 +189,17 @@ export function test_construction_source_value_cost(): void {
   for (const extent of [0, -1, Infinity, NaN]) {
     if (!Number.isNaN(AutoMovieConicArc.value(extent, 2, E, 0)))
       failures.push("invalid guide extent has a scalar fallback");
-    const source: AutoMovieViewConic.ICurve = AutoMovieViewSection.bare(
+    const source: IAutoMovieViewConic.ICurve = AutoMovieViewSection.bare(
       { extents: [3, 2, 3, 2] },
       [E, E, E, E],
     ).conics;
-    const invalid: AutoMovieViewConic.ICurve = {
+    const invalid: IAutoMovieViewConic.ICurve = {
       ...source,
       quarters: source.quarters.map(
         (
-          quarter: AutoMovieViewConic.IQuarter,
+          quarter: IAutoMovieViewConic.IQuarter,
           i: number,
-        ): AutoMovieViewConic.IQuarter =>
+        ): IAutoMovieViewConic.IQuarter =>
           i === 0
             ? { ...quarter, extents: [extent, quarter.extents[1]] }
             : quarter,
@@ -217,7 +209,7 @@ export function test_construction_source_value_cost(): void {
       failures.push("invalid cardinal value has a scalar fallback");
   }
 
-  const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
+  const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
     "value-cost circle",
     { extents: [10, 10, 10, 10] },
     20 * Math.PI,
@@ -252,7 +244,7 @@ function rawAndWork(failures: string[]): void {
         r,
         phi,
       );
-      const full: AutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+      const full: IAutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
         3,
         2,
         r,
@@ -278,7 +270,7 @@ function rawAndWork(failures: string[]): void {
         failures.push("raw physical point arithmetic changed");
     }
   const counter: { divisions: number } = { divisions: 0 };
-  const ops: AutoMovieConicFieldJet.IAlgebra<number> = {
+  const ops: IAutoMovieConicFieldJet.IAlgebra<number> = {
     ...AutoMovieConicFieldJet.NUMBER,
     /** Count this query's divisions without replacing the production table. */
     divide(left: number, right: number): number {
@@ -292,20 +284,20 @@ function rawAndWork(failures: string[]): void {
   AutoMovieConicArcField.evaluate(ops, 3, 2, Math.SQRT1_2, 0.37);
   if (!(pointDivisions <= 4 && counter.divisions > pointDivisions))
     failures.push(`point work ${pointDivisions}/${counter.divisions}`);
-  const AD: AutoMovieConicFieldJet.IAlgebra<AutoMovieConicFieldJet.IJet> =
+  const AD: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
     AutoMovieConicFieldJet.AD;
-  const a: AutoMovieConicFieldJet.IJet = [3, 2, 1, 1, 2, 3];
-  const b: AutoMovieConicFieldJet.IJet = [2, 1, -1, 2, 0, 1];
-  const w: AutoMovieConicFieldJet.IJet = AD.constant(Math.SQRT1_2);
-  const t: AutoMovieConicFieldJet.IJet = AD.constant(0.37);
+  const a: IAutoMovieConicFieldJet.IJet = [3, 2, 1, 1, 2, 3];
+  const b: IAutoMovieConicFieldJet.IJet = [2, 1, -1, 2, 0, 1];
+  const w: IAutoMovieConicFieldJet.IJet = AD.constant(Math.SQRT1_2);
+  const t: IAutoMovieConicFieldJet.IJet = AD.constant(0.37);
   const point: readonly [
-    AutoMovieConicFieldJet.IJet,
-    AutoMovieConicFieldJet.IJet,
+    IAutoMovieConicFieldJet.IJet,
+    IAutoMovieConicFieldJet.IJet,
   ] = AutoMovieConicArcField.point(AD, a, b, w, t);
-  const full: AutoMovieConicArcField.IGeometry<AutoMovieConicFieldJet.IJet> =
+  const full: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet> =
     AutoMovieConicArcField.evaluate(AD, a, b, w, t);
   if (
-    !point.every((row: AutoMovieConicFieldJet.IJet, c: number): boolean =>
+    !point.every((row: IAutoMovieConicFieldJet.IJet, c: number): boolean =>
       row.every((value: number, i: number): boolean =>
         Object.is(value, full.point[c]![i]),
       ),
@@ -323,7 +315,7 @@ function projective(failures: string[]): void {
   const u: number = (1 + 2 * w) / 3;
   const q: number = (2 * w) / (1 + 2 * w);
   for (const k of [1e-100, 1, 1e100]) {
-    const patch: AutoMovieConicHermite.IPatch = {
+    const patch: IAutoMovieConicHermite.IPatch = {
       extent: 3,
       deficit: 3,
       height: 2,

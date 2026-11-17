@@ -1,12 +1,11 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type { IAutoMovieConstructionProfileSource, IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMoviePreparedConstructionProfile, IAutoMovieConstructionProfile } from "@automovie/interface";
+
+
 
 import { AutoMovieConstructionProfilePhase } from "./AutoMovieConstructionProfilePhase";
 import { AutoMovieConstructionProfileSurface } from "./AutoMovieConstructionProfileSurface";
 import { AutoMovieConstructionProfileTopology } from "./AutoMovieConstructionProfileTopology";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** One actual original interval and its existing surface-chart consumer. */
 interface Piece {
@@ -43,75 +42,6 @@ interface Piece {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionProfile {
-  /**
-   * Original section/atlas readers with source identity and no final mesh claim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Original section/atlas readers with source identity and no final mesh claim.
-   * @evidence contracts/development/design.md#principled-representation Represents Original section/atlas readers with source identity and no final mesh claim: interface of 7 members (`definition`, `atlas`, `surfaces`, `originals`, `section`, `phase`, ...); units and frames named in its text: world, second. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPrepared` in packages/engine/src/geometry/construction/AutoMovieConstructionProfile.ts; its surface is the 7 members listed and the text shows 62 other files naming it, mostly packages/human (37), packages/engine (12), test (10), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IPrepared {
-    /** Detached pure declaration; edits require another preparation. */
-    definition: IAutoMovieConstructionProfile;
-
-    /** Existing atlas of actual piece charts, not final closed-solid certification. */
-    atlas: IAutoMovieSolidAtlas;
-
-    /** Piece id to the same actual atlas surface identity. */
-    surfaces: ReadonlyMap<string, IAutoMovieSolidSurface>;
-
-    /** Same original functions on their actual supported neighborhoods, before retained-domain restrictions. */
-    originals: ReadonlyMap<string, IAutoMovieSolidSurface>;
-
-    /**
-     * Active loop ids after explicit endpoint closure checks at this station mm.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Active loop ids after explicit endpoint closure checks at this station mm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Active loop ids after explicit endpoint closure checks at this station mm.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */
-    section(station: number): readonly string[];
-
-    /**
-     * Actual world phase derivatives; second phase may be null independently of physical2.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Actual world phase derivatives; second phase may be null independently of physical2.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Actual world phase derivatives; second phase may be null independently of physical2.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */
-    phase(
-      piece: string,
-      station: number,
-      coordinate: number,
-    ): AutoMovieConstructionProfilePhase.IReading;
-
-    /**
-     * Read the same original region membership at an actual piece chart address.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Read the same original region membership at an actual piece chart address.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Read the same original region membership at an actual piece chart address.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */
-    contains(
-      region: string,
-      piece: string,
-      station: number,
-      coordinate: number,
-    ): boolean;
-  }
 
   /**
    * Prepare immutable original owners; malformed domains/references throw before publication.
@@ -126,7 +56,7 @@ export namespace AutoMovieConstructionProfile {
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
-  ): IPrepared {
+  ): IAutoMoviePreparedConstructionProfile.IPrepared {
     const definition: IAutoMovieConstructionProfile = structuredClone(
       source.definition,
     );

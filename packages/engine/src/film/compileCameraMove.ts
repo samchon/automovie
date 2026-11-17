@@ -1,14 +1,10 @@
-import {
-  IAutoMovieCamera,
-  IAutoMovieClip,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieCameraFrameEntry, type IAutoMovieCompileCameraMove, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ease } from "../motion/ease";
-import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 import { FRAMING_AIM_FRACTION } from "./constants/FRAMING_AIM_FRACTION";
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 import { lookRotation } from "./lookRotation";
@@ -87,13 +83,7 @@ interface IKey {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one camera's entries, called once per take; the hero and coverage takes have different cameras and entries, so nothing is shared between calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the key list is a local bounded by the keys above, and the returned clip is a fresh value owned by the caller.
  */
-export function compileCameraMove(props: {
-  clipId: string;
-  camera: IAutoMovieCamera;
-  entries: IAutoMovieCameraFrameEntry[];
-  shotDuration: number;
-  aspect?: number;
-}): IAutoMovieClip | null {
+export function compileCameraMove(props: IAutoMovieCompileCameraMove.IProps): IAutoMovieClip | null {
   const { clipId, camera, entries, shotDuration }: typeof props = props;
   if (entries.length === 0) return null;
   const halfY: number = Math.tan(((camera.fovY / 2) * Math.PI) / 180);

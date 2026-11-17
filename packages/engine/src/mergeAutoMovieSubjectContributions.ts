@@ -1,5 +1,4 @@
-import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
-
+import type { IAutoMovieSubjectContribution } from "@automovie/interface";
 /**
  * Every contribution field, typed as a complete record so the compiler refuses
  * a field of {@link IAutoMovieSubjectContribution} that the merge would leave

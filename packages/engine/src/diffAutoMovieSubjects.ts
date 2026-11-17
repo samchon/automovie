@@ -1,15 +1,5 @@
-import {
-  IAutoMovieBuildingUnit,
-  IAutoMovieBuiltSpace,
-  IAutoMovieCompiledInstancePrototype,
-  IAutoMovieCompiledInstanceSet,
-  IAutoMovieModel,
-  IAutoMovieSubjectArtifact,
-  IAutoMovieSubjectChange,
-  IAutoMovieSubjectDescription,
-  IAutoMovieSubjectDiff,
-  IAutoMovieSubjectDiffFanout,
-} from "@automovie/interface";
+import { type IAutoMovieModelPart, IAutoMovieBuildingUnit, IAutoMovieBuiltSpace, IAutoMovieCompiledInstancePrototype, IAutoMovieCompiledInstanceSet, IAutoMovieModel, IAutoMovieSubjectArtifact, IAutoMovieSubjectChange, IAutoMovieSubjectDescription, IAutoMovieSubjectDiff, IAutoMovieSubjectDiffFanout } from "@automovie/interface";
+
 
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
@@ -133,7 +123,7 @@ interface IRevision {
   artifact: IAutoMovieSubjectArtifact;
   inventory: Map<string, IAutoMovieSubjectDescription>;
   models: Map<string, IAutoMovieModel>;
-  partOf: ReturnType<typeof createAutoMovieSubjectPartIndex>;
+  partOf: ((modelId: string, address: string) => IAutoMovieModelPart | undefined);
   sets: Map<string, IAutoMovieCompiledInstanceSet>;
   records: Map<string, IAutoMovieBuildingUnit | IAutoMovieBuiltSpace>;
   usage: Map<string, IModelUsage> | null;

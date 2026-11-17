@@ -1,3 +1,4 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeAssembly,
   type ArchetypeCourse,
@@ -9,12 +10,7 @@ import {
   createDeck,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModelPart,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -65,7 +61,7 @@ export function test_archetype_deck_assembly(): void {
     rail: 0.019,
   };
   const EPSILON: number = 1e-9;
-  const shape = (part: IAutoMovieModelPart): AutoMoviePrimitiveShape => {
+  const shape = (part: IAutoMovieModelPart): IAutoMoviePrimitiveShape => {
     if (part.geometry.type !== "primitive")
       throw new Error(`deck part ${part.id} is not a primitive`);
     return part.geometry.shape;
@@ -97,7 +93,7 @@ export function test_archetype_deck_assembly(): void {
         );
     }
     for (const post of posts) {
-      const s: AutoMoviePrimitiveShape = shape(post);
+      const s: IAutoMoviePrimitiveShape = shape(post);
       if (
         s.type !== "box" ||
         s.width < ISO.breadth - EPSILON ||
@@ -114,7 +110,7 @@ export function test_archetype_deck_assembly(): void {
       )
       .map(
         (p: IAutoMovieModelPart): { id: string; y: number; radius: number } => {
-          const s: AutoMoviePrimitiveShape = shape(p);
+          const s: IAutoMoviePrimitiveShape = shape(p);
           if (s.type !== "cylinder")
             throw new Error(`deck course ${p.id} is not a bar`);
           return { id: p.id, y: p.transform!.translation.y, radius: s.radius };

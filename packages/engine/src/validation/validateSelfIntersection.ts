@@ -1,22 +1,11 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieCapsuleProxy,
-  type IAutoMovieJointAxes,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieCapsuleProxyPair, type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieValidateSelfIntersection, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieCapsuleProxy, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
-import { IAutoMovieCapsuleProxyPair } from "./IAutoMovieCapsuleProxyPair";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
@@ -34,45 +23,8 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Skeleton topology/reachability are reused; pair endpoints share the same canonical capsule admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sample-local resolved maps release; returned diagnostics grow with failures and no native collision world persists.
  */
-export const validateSelfIntersection: (props: {
-  motion: IAutoMovieMotion;
-  skeleton: IAutoMovieSkeleton;
-  pairs: readonly IAutoMovieCapsuleProxyPair[];
-  sampleRate?: number;
-  path?: string;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  physicsIntent?: string;
-}) => IAutoMovieValidation = (props: {
-  /** Motion clip to sample. */
-  motion: IAutoMovieMotion;
-
-  /** Skeleton used for forward kinematics. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Declared non-adjacent capsule pairs to test. */
-  pairs: readonly IAutoMovieCapsuleProxyPair[];
-
-  /** Samples per second used by the validator. Defaults to `24`. */
-  sampleRate?: number;
-
-  /** JSON path of the proxy annotation being checked. Defaults to `$input`. */
-  path?: string;
-
-  /** Optional clinical-axis remap for rigs authored in semantic axes. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional rest-frame remap for clinical authoring. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /**
-   * Marker that opts the pair out of the overlap expectation: close
-   * choreography (a grapple, an embrace) sets this and the matching warnings
-   * are suppressed.
-   */
-  physicsIntent?: string;
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateSelfIntersection: (props: IAutoMovieValidateSelfIntersection.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateSelfIntersection.IProps): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
@@ -176,11 +128,11 @@ export const validateSelfIntersection: (props: {
  * Only caller-owned diagnostics remain, without a sampler task.
  */
 const rejectSampleRate: (
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   path: string,
   sampleRate: number,
 ) => IAutoMovieValidation = (
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
   path: string,
   sampleRate: number,
 ): IAutoMovieValidation => {

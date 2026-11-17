@@ -1,11 +1,7 @@
+import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { indexSkeletonTopology } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import { AutoMovieMotionHumanBend, type IHumanBody } from "@automovie/motions";
+
+import { AutoMovieMotionHumanBend } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -82,20 +78,20 @@ export function test_motion_compose_swivel(): void {
       z: parent.z + b.rest.translation.z,
     });
   }
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     skeleton,
     topology: indexSkeletonTopology(skeleton),
     rest,
     measure: { upperArm: 0.3, forearm: 0.25 },
     profile: { segments: [] },
-  } as unknown as IHumanBody;
+  } as unknown as IAutoMovieMotionHumanBody;
   const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
   const shoulder: IAutoMovieVector3 = { x: 0.2, y: 1.4, z: 0 };
   const wrist: IAutoMovieVector3 = { x: 0.35, y: 1.2, z: 0.3 };
-  const props: AutoMovieMotionHumanBend.ISolve = {
+  const props: IAutoMovieMotionHumanBend.ISolve = {
     body,
     posture,
     side: "left",
@@ -172,7 +168,7 @@ export function test_motion_compose_swivel(): void {
     }).y < shoulder.y,
   );
 
-  const far: AutoMovieMotionHumanBend.ISolve = {
+  const far: IAutoMovieMotionHumanBend.ISolve = {
     ...props,
     point: { x: 0.8, y: 1.4, z: 0 },
   };

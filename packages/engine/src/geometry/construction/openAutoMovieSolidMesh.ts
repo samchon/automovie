@@ -1,17 +1,9 @@
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
+import type { IAutoMovieOpenSolidMeshResult, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence, IAutoMovieSolidMeshPlan } from "@automovie/interface";
 import { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
-import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
 
 /** A directed boundary occurrence in an explicit native cover. */
-interface Edge extends AutoMovieSolidMeshConstraints.ISegment {
+interface Edge extends IAutoMovieSolidMeshConstraints.ISegment {
   /** Whether this exposed edge belongs only to the sampling domain. */ domain: boolean;
-}
-
-/** Endpoint cycles plus an explicit inability to close partial periodic ends. */
-interface Result {
-  /** Positive native-chart boundaries with their actual occurrence coordinates. */ cycles: AutoMovieSolidMesh.IOpen[];
-  /** Partial endpoint arcs cannot be treated as complete cap/event rings. */ partial: boolean;
 }
 
 /**
@@ -27,19 +19,19 @@ interface Result {
  */
 export function openAutoMovieSolidMesh(
   chart: ReadonlyMap<number, readonly [number, number]>,
-  triangles: readonly AutoMovieSolidMeshPlan.ITriangle[],
-  constraints: readonly AutoMovieSolidMeshConstraints.IEdge[],
+  triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
+  constraints: readonly IAutoMovieSolidMeshConstraints.IEdge[],
   trimCount: number,
   domainCount: number,
   first: number,
   last: number,
   period?: number,
-): Result | string {
-  const provenance: Map<string, AutoMovieSolidMeshConstraints.IEdge> = new Map(
+): IAutoMovieOpenSolidMeshResult | string {
+  const provenance: Map<string, IAutoMovieSolidMeshConstraints.IEdge> = new Map(
     constraints.map(
       (
-        edge: AutoMovieSolidMeshConstraints.IEdge,
-      ): [string, AutoMovieSolidMeshConstraints.IEdge] => [key(edge), edge],
+        edge: IAutoMovieSolidMeshConstraints.IEdge,
+      ): [string, IAutoMovieSolidMeshConstraints.IEdge] => [key(edge), edge],
     ),
   );
   const uses: Map<string, Edge> = new Map();
@@ -74,7 +66,7 @@ export function openAutoMovieSolidMesh(
     }
   for (const entry of uses) {
     const [identity, edge]: [string, Edge] = entry;
-    const source: AutoMovieSolidMeshConstraints.IEdge | undefined =
+    const source: IAutoMovieSolidMeshConstraints.IEdge | undefined =
       provenance.get(identity);
     if (source === undefined)
       return "unpaired triangle edge has no source constraint";
@@ -90,11 +82,11 @@ export function openAutoMovieSolidMesh(
     edge.domain = domain && !trim;
   }
   const edges: Edge[] = [...uses.values()];
-  const walks: AutoMovieSolidMeshIncidence.IWalk[] | string =
+  const walks: IAutoMovieSolidMeshIncidence.IWalk[] | string =
     AutoMovieSolidMeshIncidence.walks(chart, edges, period);
   if (typeof walks === "string") return walks;
   const claimed: Set<string> = new Set();
-  const cycles: AutoMovieSolidMesh.IOpen[] = [];
+  const cycles: IAutoMovieSolidMesh.IOpen[] = [];
   let partial: boolean = false;
   for (const walk of walks) {
     const boundary: Edge[] = walk.vertices.map(
@@ -162,7 +154,7 @@ export function openAutoMovieSolidMesh(
 }
 
 /** Unoriented original-ID edge identity includes its relative cover turn. */
-function key(edge: AutoMovieSolidMeshConstraints.ISegment): string {
+function key(edge: IAutoMovieSolidMeshConstraints.ISegment): string {
   return edge.a < edge.b || (edge.a === edge.b && edge.turn > 0)
     ? `${edge.a}/${edge.b}/${edge.turn}`
     : `${edge.b}/${edge.a}/${-edge.turn}`;

@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanDefenceOutcome, IAutoMovieMotionHumanSkill } from "@automovie/interface";
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import { DefenceOutcome, HumanSkill, StrikingSkill } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -52,8 +53,8 @@ export function test_motion_striking_defence_outcome(): void {
     "fail",
   );
 
-  const elite: HumanSkill.ISkill = HumanSkill.resolve({ level: "elite" }, "e4");
-  const novice: HumanSkill.ISkill = HumanSkill.resolve(
+  const elite: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve({ level: "elite" }, "e4");
+  const novice: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
     { level: "novice" },
     "e4",
   );
@@ -65,7 +66,7 @@ export function test_motion_striking_defence_outcome(): void {
     for (const forced of ["inTime", "late", "fail"] as const)
       for (let k: number = 0; k < 40; k++) {
         const movement: number = StrikingSkill.defence(elite);
-        const d: DefenceOutcome.IDecision = DefenceOutcome.decide(
+        const d: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
           {
             launch: 1,
             hit: 1 + hit,
@@ -93,7 +94,7 @@ export function test_motion_striking_defence_outcome(): void {
       }
 
   const movement: number = StrikingSkill.defence(novice);
-  const fixed: DefenceOutcome.IDecision = DefenceOutcome.decide(
+  const fixed: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
     { launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice },
     random(1),
     "inTime",
@@ -106,7 +107,7 @@ export function test_motion_striking_defence_outcome(): void {
       fixed.reaction >= n0 - 1e-12 &&
       fixed.reaction <= n1 + 1e-12,
   );
-  const stretched: DefenceOutcome.IDecision = DefenceOutcome.decide(
+  const stretched: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
     {
       launch: 0,
       hit: 0.33,

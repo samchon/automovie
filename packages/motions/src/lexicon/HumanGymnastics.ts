@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+
 import { HumanActionRow } from "../law/HumanActionRow";
 import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
@@ -27,35 +29,35 @@ import { vault } from "../sport/vault";
  */
 export namespace HumanGymnastics {
   /** A round-off leading with the left hand, landing on both feet facing back. */
-  export const roundOffLeft = HumanActionRow.of("roundOffLeft", roundOff, {
+  export const roundOffLeft: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffLeft"]> = HumanActionRow.of("roundOffLeft", roundOff, {
     lead: "left",
   });
 
   /** A round-off leading with the right hand. */
-  export const roundOffRight = HumanActionRow.of("roundOffRight", roundOff, {
+  export const roundOffRight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["roundOffRight"]> = HumanActionRow.of("roundOffRight", roundOff, {
     lead: "right",
   });
 
   /** A front handspring on the floor, lunging on the left leg; the composition may lead with the right. */
-  export const frontHandspring = HumanActionRow.of(
+  export const frontHandspring: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["frontHandspring"]> = HumanActionRow.of(
     "frontHandspring",
     handspring,
     {},
   );
 
   /** A handspring vault: the hands on the top of the prop the composition names as `on`. */
-  export const handspringVault = HumanActionRow.of(
+  export const handspringVault: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["handspringVault"]> = HumanActionRow.of(
     "handspringVault",
     vault,
     {},
   );
 
   /** A two-hand box vault: the hands on the near edge of the top of the box the composition names as `on`, the body tucked over them and flying to land beyond its far edge. */
-  export const boxVault = HumanActionRow.of("boxVault", squatVault, {});
+  export const boxVault: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["boxVault"]> = HumanActionRow.of("boxVault", squatVault, {});
 
   /** A Fosbury flop over the bar the composition sets, onto its landing place. */
-  export const fosburyFlop = HumanActionRow.of("fosburyFlop", highJump, {});
+  export const fosburyFlop: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["fosburyFlop"]> = HumanActionRow.of("fosburyFlop", highJump, {});
 
   /** A vault on the pole the hand holds, out of a run. */
-  export const vaultOnPole = HumanActionRow.of("vaultOnPole", poleVault, {});
+  export const vaultOnPole: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["gymnastics"]["vaultOnPole"]> = HumanActionRow.of("vaultOnPole", poleVault, {});
 }

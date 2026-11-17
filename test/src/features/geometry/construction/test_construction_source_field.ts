@@ -1,11 +1,5 @@
-import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieViewAxis,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieViewAxis, AutoMovieViewSection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -37,10 +31,10 @@ export function test_construction_source_field(): void {
   for (const scale of [0.001, 1, 1000]) {
     const part: IAutoMovieViewPart = circle(scale);
     const before: string = JSON.stringify(part);
-    const source: AutoMovieLoftViewSource.ISource = prepare(part);
+    const source: IAutoMovieLoftViewSource.ISource = prepare(part);
 
     for (const station of [0, 0.125, 0.5, 0.875, 1]) {
-      const scalar: AutoMovieLoftViewRead.IJets | string =
+      const scalar: IAutoMovieLoftViewRead.IJets | string =
         AutoMovieLoftViewRead.jets(source, station);
       if (typeof scalar === "string") throw new Error(scalar);
       const read: (phi: number) => Jet = AutoMovieLoftSectionNative.jet(scalar);
@@ -70,7 +64,7 @@ export function test_construction_source_field(): void {
       }
     }
 
-    const values: AutoMovieLoftViewRead.IValues | string =
+    const values: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(source, 0.5);
     if (typeof values === "string") throw new Error(values);
     close(
@@ -91,7 +85,7 @@ export function test_construction_source_field(): void {
     front: { positive: constant(3), negative: constant(-3) },
     side: { positive: constant(2), negative: constant(-2) },
   };
-  const values: AutoMovieLoftViewRead.IValues | string =
+  const values: IAutoMovieLoftViewRead.IValues | string =
     AutoMovieLoftViewRead.values(prepare(ellipse), 0.37);
   if (typeof values === "string") throw new Error(values);
   const read: (phi: number) => Phase = AutoMovieLoftSectionNative.phase(values);
@@ -111,7 +105,7 @@ export function test_construction_source_field(): void {
   changed.p[0] = 1234;
   close(read(0).p, [3, 0], 3, "fresh local output", failures);
 
-  const top: AutoMovieLoftViewSource.ISource = prepare({
+  const top: IAutoMovieLoftViewSource.ISource = prepare({
     ...ellipse,
     fullness: {
       kind: "top",
@@ -123,7 +117,7 @@ export function test_construction_source_field(): void {
       ],
     },
   });
-  const topInputs: AutoMovieLoftViewRead.IJets | string =
+  const topInputs: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(top, 0.37);
   if (typeof topInputs === "string") throw new Error(topInputs);
   const topPoint: Jet = AutoMovieLoftSectionNative.jet(topInputs)(0.57);
@@ -146,7 +140,7 @@ export function test_construction_source_field(): void {
   };
   if (AutoMovieLoftViewSource.create(generic) !== null)
     failures.push("Generic girth was assigned an invented direct source.");
-  const broken: AutoMovieLoftViewSource.IResult | null =
+  const broken: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create({
       ...ellipse,
       front: {
@@ -190,8 +184,8 @@ function cap(failures: string[]): void {
     side: { positive: outline(1), negative: outline(-1) },
     pole: "bottom",
   };
-  const source: AutoMovieLoftViewSource.ISource = prepare(part);
-  const scalar: AutoMovieLoftViewRead.IJets | string =
+  const source: IAutoMovieLoftViewSource.ISource = prepare(part);
+  const scalar: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(source, 0.25);
   if (typeof scalar === "string") throw new Error(scalar);
   close(scalar.extents[0]!, [0.5, 1, -2], 1, "root physical2", failures);
@@ -203,13 +197,13 @@ function cap(failures: string[]): void {
     failures,
   );
 
-  const tiny: AutoMovieLoftViewRead.IValues | string =
+  const tiny: IAutoMovieLoftViewRead.IValues | string =
     AutoMovieLoftViewRead.values(source, 1e-220);
   if (typeof tiny === "string" || !(tiny.extents[0]! > 0))
     failures.push("Finite positive near-pole scalar values were lost.");
   if (typeof AutoMovieLoftViewRead.jets(source, 1e-220) !== "string")
     failures.push("Overflowing near-pole physical2 was fabricated.");
-  const zero: AutoMovieLoftViewRead.IValues | string =
+  const zero: IAutoMovieLoftViewRead.IValues | string =
     AutoMovieLoftViewRead.values(source, 0);
   if (typeof zero === "string") throw new Error(zero);
   close(zero.extents, [0, 0, 0, 0], 1, "true pole scalar values", failures);
@@ -270,8 +264,8 @@ function constant(value: number): IAutoMovieViewPart.IOutline {
 }
 
 /** Original scalar admission remains visible before any native geometry is read. */
-function prepare(part: IAutoMovieViewPart): AutoMovieLoftViewSource.ISource {
-  const result: AutoMovieLoftViewSource.IResult | null =
+function prepare(part: IAutoMovieViewPart): IAutoMovieLoftViewSource.ISource {
+  const result: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
   if (
     result === null ||

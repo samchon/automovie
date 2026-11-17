@@ -1,13 +1,10 @@
-import {
-  type AutoMovieLoftFrame,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  type AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftFrame, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadDomeHost } from "@automovie/interface";
 
-import type { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
+
+
+
+import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+
 
 /**
  * Original material plane, regular contact and transverse curvature for regional caps.
@@ -21,31 +18,7 @@ import type { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned original sources and contact frames survive; no global registry or cache is retained.
  */
 export namespace AutoMovieHumanHeadDomeHost {
-  /**
-   * An original parent section selected by a plane query or actual cap contact.
-   *
-   * @evidence contracts/common.md#principled-implementation Carries the complete admitted source, query point, actual station/frame and an explicit distinction between plane incidence and a bracketed surface contact.
-   * @evidence contracts/common.md#clear-and-simple-design Keeps the parent-plane datum separate from the child's nominal base and embedding offset.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts World height and a buried child-base coordinate are not implicitly parent stations.
-   * @evidence contracts/common.md#meaningful-documentation All positions and physical source stations use calibration mm.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The factory owns source admission and plane inversion.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The composition owns the actual parent and original scalar preparation.
-   */
-  export interface IHost {
-    /** Identical original parent, never a realized mesh. */
-    part: IAutoMovieViewPart;
-    /** Complete original signed-support/fullness/cap family. */
-    source: AutoMovieLoftViewSource.ISource;
-    /** World query point; only a non-null parameter certifies a bracketed native surface contact. */
-    point: [number, number, number];
-    /** Actual parent source station whose plane contains that attachment. */
-    station: number;
-    /** The actual parent plane at that station. */
-    frame: AutoMovieLoftFrame.IFrame;
-    /** Distance along the unchanged nominal child axis, mm; null for a plane-only query. */
-    parameter: number | null;
-  }
+  
 
   /**
    * Original transverse curvature in the supplied query point's radial direction.
@@ -61,12 +34,12 @@ export namespace AutoMovieHumanHeadDomeHost {
    * @evidence contracts/performance.md#reuse-equivalent-work One prepared complete source supplies the selected native section and its phase derivatives.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Native query geometry and local vectors are transient; only the radius escapes while the source/frame remain borrowed from IHost.
    */
-  export function radius(host: IHost): number {
-    const inputs: AutoMovieLoftViewRead.IValues | string =
+  export function radius(host: IAutoMovieHumanHeadDomeHost.IHost): number {
+    const inputs: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(host.source, host.station);
     if (typeof inputs === "string")
       throw new Error(`Dome parent ${host.part.name}: ${inputs}`);
-    const frame: AutoMovieLoftFrame.IFrame = host.frame;
+    const frame: IAutoMovieLoftFrame.IFrame = host.frame;
     const local: [number, number] = [frame.u, frame.v].map(
       (direction: [number, number, number]): number =>
         direction.reduce(
@@ -109,9 +82,9 @@ export namespace AutoMovieHumanHeadDomeHost {
    */
   export function attachment(
     parent: IAutoMovieViewPart,
-    point: [number, number, number],
-  ): IHost {
-    const admitted: AutoMovieLoftViewSource.IResult | null =
+    point: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanHeadDomeHost.IHost {
+    const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(parent);
     if (admitted === null || admitted.source === null)
       throw new Error(
@@ -133,16 +106,16 @@ export namespace AutoMovieHumanHeadDomeHost {
    */
   export function contact(
     parent: IAutoMovieViewPart,
-    dome: Omit<AutoMovieHumanHeadDome.IDome, "host">,
-  ): IHost {
-    const admitted: AutoMovieLoftViewSource.IResult | null =
+    dome: Omit<IAutoMovieHumanHeadDome.IDome, "host">,
+  ): IAutoMovieHumanHeadDomeHost.IHost {
+    const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(parent);
     if (admitted === null || admitted.source === null)
       throw new Error(
         `Dome parent ${parent.name} has no admitted original direct field`,
       );
-    const source: AutoMovieLoftViewSource.ISource = admitted.source;
-    const first: AutoMovieLoftFrame.IFrame = parent.axis.at(source.domain[0]);
+    const source: IAutoMovieLoftViewSource.ISource = admitted.source;
+    const first: IAutoMovieLoftFrame.IFrame = parent.axis.at(source.domain[0]);
     const normal: [number, number, number] = [
       first.v[1] * first.u[2] - first.v[2] * first.u[1],
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
@@ -156,9 +129,9 @@ export namespace AutoMovieHumanHeadDomeHost {
         0,
       );
     const rate: number = dot(dome.outward);
-    const fixed: IHost | null =
+    const fixed: IAutoMovieHumanHeadDomeHost.IHost | null =
       rate === 0 ? locate(parent, source, dome.origin) : null;
-    const fields: readonly AutoMovieViewOutline.IOutline[] = [
+    const fields: readonly IAutoMovieViewOutline.IOutline[] = [
       ...source.extents,
       ...(source.fullness.kind === "top"
         ? source.fullness.shoulders
@@ -168,13 +141,13 @@ export namespace AutoMovieHumanHeadDomeHost {
       ...new Set([
         ...source.domain,
         ...parent.stations,
-        ...fields.flatMap((outline: AutoMovieViewOutline.IOutline): number[] =>
+        ...fields.flatMap((outline: IAutoMovieViewOutline.IOutline): number[] =>
           outline.knots.map(
             (knot: IAutoMovieViewPart.IKnot): number => knot.station,
           ),
         ),
         ...source.caps.flatMap(
-          (cap: AutoMovieLoftViewSource.ISource["caps"][number]): number[] =>
+          (cap: IAutoMovieLoftViewSource.ISource["caps"][number]): number[] =>
             cap.near === null ? [cap.pole] : [cap.pole, cap.near],
         ),
       ]),
@@ -225,7 +198,7 @@ export namespace AutoMovieHumanHeadDomeHost {
         high,
       ]),
     ].sort((a: number, b: number): number => a - b);
-    const values: AutoMovieLoftViewRead.IValues | string | null =
+    const values: IAutoMovieLoftViewRead.IValues | string | null =
       fixed === null
         ? null
         : AutoMovieLoftViewRead.values(source, fixed.station);
@@ -237,18 +210,18 @@ export namespace AutoMovieHumanHeadDomeHost {
         ? null
         : AutoMovieLoftSectionNative.phase(values);
     const read: (parameter: number) => {
-      host: IHost;
+      host: IAutoMovieHumanHeadDomeHost.IHost;
       residual: number;
       regular: boolean;
     } = (
       parameter: number,
-    ): { host: IHost; residual: number; regular: boolean } => {
+    ): { host: IAutoMovieHumanHeadDomeHost.IHost; residual: number; regular: boolean } => {
       const point: [number, number, number] = dome.origin.map(
         (value: number, i: number): number =>
           value + parameter * dome.outward[i]!,
       ) as [number, number, number];
       const known: number | undefined = parameters.get(parameter);
-      const host: IHost =
+      const host: IAutoMovieHumanHeadDomeHost.IHost =
         fixed !== null
           ? { ...fixed, point, parameter }
           : known === undefined
@@ -287,7 +260,7 @@ export namespace AutoMovieHumanHeadDomeHost {
         throw new Error(
           `Dome ${dome.name} contact has no resolved original parent plane`,
         );
-      const inputs: AutoMovieLoftViewRead.IValues | string =
+      const inputs: IAutoMovieLoftViewRead.IValues | string =
         values ?? AutoMovieLoftViewRead.values(source, host.station);
       if (typeof inputs === "string")
         throw new Error(`Dome parent ${parent.name}: ${inputs}`);
@@ -366,17 +339,17 @@ export namespace AutoMovieHumanHeadDomeHost {
    */
   function locate(
     parent: IAutoMovieViewPart,
-    source: AutoMovieLoftViewSource.ISource,
+    source: IAutoMovieLoftViewSource.ISource,
     point: [number, number, number],
-  ): IHost {
-    const first: AutoMovieLoftFrame.IFrame = parent.axis.at(source.domain[0]);
+  ): IAutoMovieHumanHeadDomeHost.IHost {
+    const first: IAutoMovieLoftFrame.IFrame = parent.axis.at(source.domain[0]);
     const normal: [number, number, number] = [
       first.v[1] * first.u[2] - first.v[2] * first.u[1],
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
       first.v[0] * first.u[1] - first.v[1] * first.u[0],
     ];
     const plane: (station: number) => number = (station: number): number => {
-      const frame: AutoMovieLoftFrame.IFrame = parent.axis.at(station);
+      const frame: IAutoMovieLoftFrame.IFrame = parent.axis.at(station);
       if (
         Math.hypot(
           ...frame.u.map(

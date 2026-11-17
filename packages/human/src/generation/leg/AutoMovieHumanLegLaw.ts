@@ -1,15 +1,24 @@
+import type { IAutoMovieNaturalSpline, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLegAxis, IAutoMovieHumanLegConstruction, IAutoMovieHumanLegLaw, IAutoMovieHumanLegPrior, IAutoMovieHumanPolarSection } from "@automovie/interface";
+
+
+
+
+
+
+
+
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
+
 import { AutoMovieHumanLegPrior } from "../AutoMovieHumanLegPrior";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+
 import { AutoMovieHumanLegAnkleSeam } from "./AutoMovieHumanLegAnkleSeam";
-import type { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
+
 import { AutoMovieHumanLegCrotchRoot } from "./AutoMovieHumanLegCrotchRoot";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-type Vec3 = AutoMovieHumanLegVector.Vec3;
+
 const { dot, smooth, sub } = AutoMovieHumanLegVector;
 
 /**
@@ -34,59 +43,9 @@ const { dot, smooth, sub } = AutoMovieHumanLegVector;
  * 13); until then the fractions below are the law's, not landmarks.
  */
 export namespace AutoMovieHumanLegLaw {
-  /** The fitted law's channels with one person's keys. */
-  export interface IFamily {
-    /** Station of the ankle ring. */
-    bottom: number;
+  
 
-    /** Distance between the rings. */
-    length: number;
-
-    /** Ankle ring centre in the canonical plane. */
-    ankle: [number, number];
-
-    /** The ankle ring in the canonical frame, world. */
-    ankleWorld: Vec3[];
-
-    /** The ring's height off its plane at each phase. */
-    ankleLift: number[];
-
-    /** Offset of the law's last centre from the crotch ring's. */
-    crotchOffset: [number, number];
-
-    /** Centre the crotch ring is read about. */
-    crotchCentre: [number, number];
-
-    /** The tape and control inputs. */
-    inputs: AutoMovieHumanLegConstruction.IInputs;
-
-    /** Log-radius profile along the leg. */
-    profile: AutoMovieNaturalSpline.ISpline;
-
-    /** Forward place of the centre along the leg. */
-    forward: AutoMovieNaturalSpline.ISpline;
-
-    /** The axis's lateral curves. */
-    axis: AutoMovieNaturalSpline.ISpline[];
-
-    /** The shape's Fourier channels. */
-    shape: AutoMovieNaturalSpline.ISpline[];
-
-    /** The radius correction through the ankle and the three tapes. */
-    correction: AutoMovieNaturalSpline.ISpline;
-
-    /** The ankle ring's radius less the law's, at each phase. */
-    ankleResidual: number[];
-  }
-
-  /** Section of the law before any end residual. */
-  export interface IBare {
-    /** Centre in the canonical plane, `[x, z]`. */
-    centre: [number, number];
-
-    /** Radii at the leg's phases. */
-    radii: number[];
-  }
+  
 
   /**
    * Last fraction the law holds alone; over the rest the leg hands over to the
@@ -104,7 +63,7 @@ export namespace AutoMovieHumanLegLaw {
   export const THIGH_FROM: number = 0.6;
 
   /** Reach under the crotch ring over which the leg hands over to it. */
-  export function reachOf(family: IFamily): number {
+  export function reachOf(family: IAutoMovieHumanLegLaw.IFamily): number {
     return (1 - LAST_INTERIOR) * family.length;
   }
 
@@ -113,29 +72,29 @@ export namespace AutoMovieHumanLegLaw {
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
     sign: 1 | -1,
-    inputs: AutoMovieHumanLegConstruction.IInputs,
-  ): IFamily {
-    const prior: AutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
+    inputs: IAutoMovieHumanLegConstruction.IInputs,
+  ): IAutoMovieHumanLegLaw.IFamily {
+    const prior: IAutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
 
     // Keys in the canonical frame.
-    const ankleWorld: Vec3[] = AutoMovieHumanLegAnkleSeam.ring(calibration, side).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]]);
-    const crotchWorld: Vec3[] = AutoMovieHumanLegCrotchRoot.ring(calibration, side);
-    const planar = (ring: readonly Vec3[]): [number, number][] => ring.map((p: Vec3): [number, number] => [p[0], p[2]]);
+    const ankleWorld: AutoMovieVector3Tuple[] = AutoMovieHumanLegAnkleSeam.ring(calibration, side).map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]]);
+    const crotchWorld: AutoMovieVector3Tuple[] = AutoMovieHumanLegCrotchRoot.ring(calibration, side);
+    const planar = (ring: readonly AutoMovieVector3Tuple[]): [number, number][] => ring.map((p: AutoMovieVector3Tuple): [number, number] => [p[0], p[2]]);
     const ankle: [number, number][] = planar(ankleWorld);
-    const crotch: [number, number][] = crotchWorld.map((p: Vec3): [number, number] => [p[0], sign * p[2]]);
-    const ankleSection: AutoMovieHumanPolarSection.ISection = AutoMovieHumanPolarSection.measure(ankle);
-    const crotchSection: AutoMovieHumanPolarSection.ISection = AutoMovieHumanPolarSection.measure(crotch);
+    const crotch: [number, number][] = crotchWorld.map((p: AutoMovieVector3Tuple): [number, number] => [p[0], sign * p[2]]);
+    const ankleSection: IAutoMovieHumanPolarSection.ISection = AutoMovieHumanPolarSection.measure(ankle);
+    const crotchSection: IAutoMovieHumanPolarSection.ISection = AutoMovieHumanPolarSection.measure(crotch);
     const bottom: number = level(ankleWorld);
     const length: number = level(crotchWorld) - bottom;
     if (!(length > 0) || !(inputs.calf > 0) || !(inputs.knee > 0) || !(inputs.thigh > 0))
       throw new Error("A leg needs a positive length and positive tapes");
 
     // The prior's channels.
-    const spline = (values: readonly number[]): AutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(prior.stations, values);
-    const shape: AutoMovieNaturalSpline.ISpline[] = prior.shape[0]!.map(
-      (_: number, k: number): AutoMovieNaturalSpline.ISpline => spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
+    const spline = (values: readonly number[]): IAutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(prior.stations, values);
+    const shape: IAutoMovieNaturalSpline.ISpline[] = prior.shape[0]!.map(
+      (_: number, k: number): IAutoMovieNaturalSpline.ISpline => spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
     );
-    const profile: AutoMovieNaturalSpline.ISpline = spline(prior.profile);
+    const profile: IAutoMovieNaturalSpline.ISpline = spline(prior.profile);
 
     // Radius keys: the ankle ring's own radius, then each tape against the
     // hull of the section it wraps.
@@ -155,7 +114,7 @@ export namespace AutoMovieHumanLegLaw {
       thigh,
       [LAST_INTERIOR, thigh[1]],
     ];
-    const family: IFamily = {
+    const family: IAutoMovieHumanLegLaw.IFamily = {
       bottom,
       length,
       ankle: ankleSection.centre,
@@ -176,7 +135,7 @@ export namespace AutoMovieHumanLegLaw {
     };
 
     // The trunk owns the crotch ring's place, so the thigh leans onto it.
-    const reached: IBare = bare(family, LAST_INTERIOR);
+    const reached: IAutoMovieHumanLegLaw.IBare = bare(family, LAST_INTERIOR);
     family.crotchOffset = [
       crotchSection.centre[0] + prior.ring.forward * length - reached.centre[0],
       crotchSection.centre[1] + prior.ring.lateral * length - reached.centre[1],
@@ -184,7 +143,7 @@ export namespace AutoMovieHumanLegLaw {
 
     // The ankle ring against the bare law, read about the law's own centre:
     // its radius and its height off its plane.
-    const start: IBare = bare(family, 0);
+    const start: IAutoMovieHumanLegLaw.IBare = bare(family, 0);
     family.ankleResidual = AutoMovieHumanLegAnkleSeam.residual(ankle, start.centre, start.radii);
     family.ankleLift = AutoMovieHumanLegAnkleSeam.lift(ankle, start.centre, ankleWorld, bottom);
 
@@ -195,26 +154,26 @@ export namespace AutoMovieHumanLegLaw {
   }
 
   /** Mean height of a ring. */
-  export function level(ring: readonly Vec3[]): number {
-    return ring.reduce((s: number, p: Vec3): number => s + p[1], 0) / ring.length;
+  export function level(ring: readonly AutoMovieVector3Tuple[]): number {
+    return ring.reduce((s: number, p: AutoMovieVector3Tuple): number => s + p[1], 0) / ring.length;
   }
 
   /** The ankle centre ahead of the origin, calibration mm. */
-  export function forward(inputs: AutoMovieHumanLegConstruction.IInputs): number {
-    const line: AutoMovieHumanLegPrior.IAnkle = AutoMovieHumanLegPrior.PRIOR.ankle;
+  export function forward(inputs: IAutoMovieHumanLegConstruction.IInputs): number {
+    const line: IAutoMovieHumanLegPrior.IAnkle = AutoMovieHumanLegPrior.PRIOR.ankle;
     return (line.offset + line.fat * inputs.fat + line.muscularity * inputs.muscularity) * inputs.scale;
   }
 
   /** The axis's lateral curves, one per term of the prior's line. */
-  export function axisCurves(): AutoMovieNaturalSpline.ISpline[] {
-    const prior: AutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
+  export function axisCurves(): IAutoMovieNaturalSpline.ISpline[] {
+    const prior: IAutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
     return [prior.lateral.offset, prior.lateral.leg, prior.lateral.hip, prior.lateral.sex].map(
-      (values: readonly number[]): AutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(prior.stations, values),
+      (values: readonly number[]): IAutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(prior.stations, values),
     );
   }
 
   /** The axis's place off the midline at fraction u, calibration mm. */
-  export function lateral(axis: AutoMovieNaturalSpline.ISpline[], u: number, length: number, inputs: AutoMovieHumanLegConstruction.IInputs): number {
+  export function lateral(axis: IAutoMovieNaturalSpline.ISpline[], u: number, length: number, inputs: IAutoMovieHumanLegConstruction.IInputs): number {
     const value = (i: number): number => AutoMovieNaturalSpline.evaluate(axis[i]!, u);
     return value(0) * inputs.scale + value(1) * length + value(2) * inputs.hip + value(3) * inputs.sex * inputs.scale;
   }
@@ -228,8 +187,8 @@ export namespace AutoMovieHumanLegLaw {
   }
 
   /** Radii of the area-normalized prior shape at uniform phases. */
-  export function unit(shape: AutoMovieNaturalSpline.ISpline[], u: number): number[] {
-    const f: number[] = shape.map((s: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(s, u));
+  export function unit(shape: IAutoMovieNaturalSpline.ISpline[], u: number): number[] {
+    const f: number[] = shape.map((s: IAutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(s, u));
     const raw: number[] = AutoMovieHumanLegSampling.PHASES.map((t: number): number => {
       let v: number = f[0]!;
       for (let k: number = 1; 2 * k < f.length; k++) v += f[2 * k - 1]! * Math.cos(k * t) + f[2 * k]! * Math.sin(k * t);
@@ -241,8 +200,8 @@ export namespace AutoMovieHumanLegLaw {
   }
 
   /** The law's centre and radii at fraction u, canonical frame. */
-  export function bare(family: IFamily, u: number): IBare {
-    const value = (s: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(s, u);
+  export function bare(family: IAutoMovieHumanLegLaw.IFamily, u: number): IAutoMovieHumanLegLaw.IBare {
+    const value = (s: IAutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(s, u);
     const L: number = family.length;
     const radii: number[] = unit(family.shape, u);
     const R: number = L * Math.exp(value(family.profile) + value(family.correction));
@@ -265,25 +224,25 @@ export namespace AutoMovieHumanLegLaw {
    * the ankle ring's difference fading in. Without a frame, the horizontal
    * section at that height.
    */
-  export function points(family: IFamily, s: number, frame: AutoMovieHumanLegAxis.IFrame | null): Vec3[] {
+  export function points(family: IAutoMovieHumanLegLaw.IFamily, s: number, frame: IAutoMovieHumanLegAxis.IFrame | null): AutoMovieVector3Tuple[] {
     const u: number = (s - family.bottom) / family.length;
-    const b: IBare = bare(family, u);
+    const b: IAutoMovieHumanLegLaw.IBare = bare(family, u);
     const low: number = 1 - smooth(u / ANKLE_REACH);
-    const f: AutoMovieHumanLegAxis.IFrame = frame ?? {
+    const f: IAutoMovieHumanLegAxis.IFrame = frame ?? {
       origin: [b.centre[0], s, b.centre[1]],
       u: [1, 0, 0],
       v: [0, 0, 1],
       n: [0, 1, 0],
     };
-    const centre: Vec3 = [b.centre[0], s, b.centre[1]];
+    const centre: AutoMovieVector3Tuple = [b.centre[0], s, b.centre[1]];
     const cx: number = dot(sub(centre, f.origin), f.u);
     const cz: number = dot(sub(centre, f.origin), f.v);
-    return AutoMovieHumanLegSampling.PHASES.map((t: number, m: number): Vec3 => {
+    return AutoMovieHumanLegSampling.PHASES.map((t: number, m: number): AutoMovieVector3Tuple => {
       const r: number = b.radii[m]! + low * family.ankleResidual[m]!;
       const h: number = low * family.ankleLift[m]!;
       const x: number = cx + r * Math.cos(t);
       const z: number = cz + r * Math.sin(t);
-      return [0, 1, 2].map((c: number): number => f.origin[c]! + x * f.u[c]! + z * f.v[c]! + h * f.n[c]!) as Vec3;
+      return [0, 1, 2].map((c: number): number => f.origin[c]! + x * f.u[c]! + z * f.v[c]! + h * f.n[c]!) as AutoMovieVector3Tuple;
     });
   }
 }

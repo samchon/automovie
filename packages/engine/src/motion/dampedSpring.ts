@@ -1,6 +1,4 @@
-import { ISpringParams } from "./ISpringParams";
-import { ISpringStep } from "./ISpringStep";
-
+import type { IAutoMovieSpringParams, IAutoMovieSpringStep } from "@automovie/interface";
 const assertFinite: (label: string, value: number) => void = (
   label: string,
   value: number,
@@ -35,15 +33,15 @@ export const dampedSpring: (
   current: number,
   velocity: number,
   target: number,
-  params: ISpringParams,
+  params: IAutoMovieSpringParams,
   dt: number,
-) => ISpringStep = (
+) => IAutoMovieSpringStep = (
   current: number,
   velocity: number,
   target: number,
-  params: ISpringParams,
+  params: IAutoMovieSpringParams,
   dt: number,
-): ISpringStep => {
+): IAutoMovieSpringStep => {
   assertFinite("spring current", current);
   assertFinite("spring velocity", velocity);
   assertFinite("spring target", target);

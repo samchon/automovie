@@ -1,12 +1,8 @@
-import {
-  AutoMovieBuiltPlacementBodyLocator,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltPopulation,
-  IAutoMovieSubjectBox,
-} from "@automovie/interface";
+import { type IAutoMovieBuiltPlacementBody, type IAutoMovieResolveBuiltPlacementBody, IAutoMovieBuiltPopulation, IAutoMovieSubjectBox } from "@automovie/interface";
+
+
 
 import { unionSubjectBoxes } from "../film/unionSubjectBoxes";
-import { IAutoMovieBuiltPlacementBody } from "./IAutoMovieBuiltPlacementBody";
 import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBounds";
 
 /**
@@ -24,20 +20,7 @@ import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBoun
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The part boxes the caller supplies are reused as the solids and as the input to the union, so each body is measured once per resolution; reuse across bodies is the caller's lookup, such as the sweep's one building-wide part table.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing after returning; the result references the lookup's part boxes and one new union box, both owned by the caller.
  */
-export const resolveBuiltPlacementBody: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  target: AutoMovieBuiltPlacementBodyLocator;
-  parts: (
-    elementId: string,
-  ) => readonly IAutoMovieSubjectBox[] | null | undefined;
-}) => IAutoMovieBuiltPlacementBody | null = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  target: AutoMovieBuiltPlacementBodyLocator;
-  /** World part boxes of one element id, or null or undefined when it has none. */
-  parts: (
-    elementId: string,
-  ) => readonly IAutoMovieSubjectBox[] | null | undefined;
-}): IAutoMovieBuiltPlacementBody | null => {
+export const resolveBuiltPlacementBody: (props: IAutoMovieResolveBuiltPlacementBody.IProps) => IAutoMovieBuiltPlacementBody | null = (props: IAutoMovieResolveBuiltPlacementBody.IProps): IAutoMovieBuiltPlacementBody | null => {
   if (props.target.kind === "element") {
     const solids: readonly IAutoMovieSubjectBox[] | null | undefined =
       props.parts(props.target.id);

@@ -1,10 +1,7 @@
-import {
-  IAutoMovieActionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieEnginePerformShotGateContext, IAutoMovieActionTarget, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 
 /**
  * The world point of a target the input gate already resolved, at the shot's opening.
@@ -24,7 +21,7 @@ import { IPerformShotGateContext } from "./IPerformShotGateContext";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned point may be a staged vector the caller only reads.
  */
 export function resolvedPerformShotPoint(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   target: IAutoMovieActionTarget,
 ): IAutoMovieVector3 {
   const live: IAutoMovieVector3 | null | undefined = context.targetAt?.(

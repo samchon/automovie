@@ -1,17 +1,5 @@
-import {
-  IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMovieBuiltSpace,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServicePenetration,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSystem,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-  IAutoMovieWetZone,
-} from "@automovie/interface";
+import { type IAutoMovieValidateServiceNetwork, type IAutoMovieViolationCollector, IAutoMovieBuiltBoundary, IAutoMovieBuiltElement, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMovieServicePenetration, IAutoMovieServicePort, IAutoMovieServiceSystem, IAutoMovieValidation, IAutoMovieVector3, IAutoMovieWetZone } from "@automovie/interface";
+
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendServiceNetworkCapacity } from "./appendServiceNetworkCapacity";
@@ -46,15 +34,9 @@ const ENDPOINT_EPSILON: number = 1e-6;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Space/element/boundary/system/port indexes and first port paths serve all phases once per validation; no prior build's mutable graph verdict is reused.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lookup maps and the collector are call-local; only the validation envelope and its ordered finding values survive, with no host process, solver task or mesh cache retained.
  */
-export const validateServiceNetwork: (props: {
-  network: IAutoMovieServiceNetwork;
-  environment: IAutoMovieBuiltEnvironment;
-}) => IAutoMovieValidation = (props: {
-  network: IAutoMovieServiceNetwork;
-  environment: IAutoMovieBuiltEnvironment;
-}): IAutoMovieValidation => {
+export const validateServiceNetwork: (props: IAutoMovieValidateServiceNetwork.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateServiceNetwork.IProps): IAutoMovieValidation => {
   const { network, environment }: typeof props = props;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   out.nonEmpty(`${root}.id`, network.id, "service network id");
@@ -234,12 +216,12 @@ const collectIds: <T extends { id: string }>(
   records: readonly T[],
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => Set<string> = <T extends { id: string }>(
   records: readonly T[],
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): Set<string> => {
   const ids: Set<string> = new Set<string>();
   records.forEach((record: T, index: number): void => {
@@ -262,13 +244,13 @@ const coincident: (
   target: IAutoMovieVector3,
   path: string,
   portId: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   point: IAutoMovieVector3,
   target: IAutoMovieVector3,
   path: string,
   portId: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const gap: number = distance(point, target);
   if (gap > ENDPOINT_EPSILON)
@@ -292,12 +274,12 @@ const positive: (
   value: number,
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (!Number.isFinite(value) || value <= 0)
     out.push(
@@ -313,12 +295,12 @@ const nonNegative: (
   value: number,
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (!Number.isFinite(value) || value < 0)
     out.push(

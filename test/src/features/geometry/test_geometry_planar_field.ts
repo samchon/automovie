@@ -1,9 +1,5 @@
-import {
-  type IAutoMoviePatternPoint,
-  clipAutoMoviePatternPolygon,
-  integrateAutoMovieRadialField,
-  intersectAutoMovieConvexPolygons,
-} from "@automovie/engine";
+import type { IAutoMovieIntegrateRadialField, IAutoMoviePatternPoint } from "@automovie/interface";
+import { clipAutoMoviePatternPolygon, integrateAutoMovieRadialField, intersectAutoMovieConvexPolygons } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -124,21 +120,21 @@ export function test_geometry_planar_field(): void {
   ];
   const site: Site = { x: 0, y: 0, z: 0 };
   for (const power of [2, 3] as const) {
-    const full: integrateAutoMovieRadialField.IOutput =
+    const full: IAutoMovieIntegrateRadialField.IOutput =
       integrateAutoMovieRadialField({
         polygon: square,
         sites: [site],
         radius: 1,
         power,
       });
-    const cut: integrateAutoMovieRadialField.IOutput =
+    const cut: IAutoMovieIntegrateRadialField.IOutput =
       integrateAutoMovieRadialField({
         polygon: half,
         sites: [site],
         radius: 1,
         power,
       });
-    const offset: integrateAutoMovieRadialField.IOutput =
+    const offset: IAutoMovieIntegrateRadialField.IOutput =
       integrateAutoMovieRadialField({
         polygon: square,
         sites: [{ ...site, z: 0.6 }],
@@ -165,7 +161,7 @@ export function test_geometry_planar_field(): void {
         1e-10,
       ),
     );
-    const scaled: integrateAutoMovieRadialField.IOutput =
+    const scaled: IAutoMovieIntegrateRadialField.IOutput =
       integrateAutoMovieRadialField({
         polygon: half.map((p: Point): Point => [5 + 3 * p[0], -2 + 3 * p[1]]),
         sites: [{ x: 5, y: -2, z: 0 }],
@@ -184,7 +180,7 @@ export function test_geometry_planar_field(): void {
     { x: 0.5, y: 0, z: 0 },
   ];
   for (const order of [sites, [...sites].reverse()]) {
-    const overlap: integrateAutoMovieRadialField.IOutput =
+    const overlap: IAutoMovieIntegrateRadialField.IOutput =
       integrateAutoMovieRadialField({
         polygon: square,
         sites: order,

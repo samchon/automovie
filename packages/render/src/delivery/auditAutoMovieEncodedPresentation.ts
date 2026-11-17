@@ -1,3 +1,6 @@
+import type { IAutoMovieAuditEncodedPresentationExpected } from "@automovie/interface";
+
+
 /**
  * Check an encoded delivery's probe against its commissioned profile: exactly
  * one H.264 video stream of the raster and integer frame rate and one AAC
@@ -19,14 +22,7 @@
  */
 export function auditAutoMovieEncodedPresentation(
   probe: unknown,
-  expected: {
-    /** Whole seconds, positive. */ durationSeconds: number;
-    /** Raster width, pixels. */ width: number;
-    /** Raster height, pixels. */ height: number;
-    /** Frames per second, an integer. */ fps: number;
-    /** Audio samples per second; 48000 by default. */ sampleRate?: number;
-    /** Audio channels; 2 by default. */ channels?: number;
-  },
+  expected: IAutoMovieAuditEncodedPresentationExpected,
 ): void {
   if (
     probe === null ||

@@ -1,5 +1,6 @@
+import type { IAutoMovieComposition, IAutoMovieMotionHumanGunCrew } from "@automovie/interface";
+
 import { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../HumanChain";
 import { HumanGunDrill } from "./HumanGunDrill";
@@ -28,65 +29,6 @@ import { HumanGunDrill } from "./HumanGunDrill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No duty writes motion; every place and prop is the scene's.
  */
 export namespace HumanGunCrew {
-  /** The crew's performers by role. */
-  export interface IRoles {
-    /** The gunner, who lays the gun and commands the fire. */
-    gunner: string;
-
-    /** No. 1, who sponges and rams. */
-    n1: string;
-
-    /** No. 2, who places the charge. */
-    n2: string;
-
-    /** No. 3, who covers and pricks the vent. */
-    n3: string;
-
-    /** No. 4, who hooks the primer and pulls the lanyard. */
-    n4: string;
-
-    /** No. 5, who brings the charge from the limber. */
-    n5: string;
-  }
-
-  /** The gun, its implements and the places the scene gives. */
-  export interface IScene {
-    /** The gun's prop: its `muzzle`, `vent` and independently driven `screw`. */
-    gun: string;
-
-    /** The sponge and rammer: a held implement whose `sponge` and `rammer` heads go into the bore. */
-    rammer: string;
-
-    /** The cartridge No. 5 brings. */
-    charge: string;
-
-    /** The priming wire No. 3 holds. */
-    wire: string;
-
-    /** The primer No. 4 hooks into the vent. */
-    primer: string;
-
-    /** The lanyard's prop, its `handle` a slider. */
-    lanyard: string;
-
-    /** How deep the bore runs from the muzzle to the breech, metres. */
-    bore: number;
-
-    /** How deep the priming wire goes down the vent to the charge, metres. */
-    vent: number;
-
-    /** How far the gunner turns the elevating screw to lay the gun, degrees. */
-    lay: number;
-
-    /** How far No. 4 draws the lanyard to fire, metres. */
-    pull: number;
-
-    /** Where Nos. 1 to 3 stand clear of the wheels' line, by role. */
-    clear: Readonly<Record<"n1" | "n2" | "n3", IAutoMovieVector3>>;
-
-    /** The cue track and instant of the gunner's command to fire. */
-    command: { of: string; event: string };
-  }
 
   /**
    * The crew's composition for one load and fire.
@@ -95,7 +37,7 @@ export namespace HumanGunCrew {
    * @param scene The gun, the implements and the places.
    * @returns The composition, every role's chain in one parallel group.
    */
-  export function drill(roles: IRoles, scene: IScene): AutoMovieComposition {
+  export function drill(roles: IAutoMovieMotionHumanGunCrew.IRoles, scene: IAutoMovieMotionHumanGunCrew.IScene): IAutoMovieComposition {
     const muzzle = {
       kind: "prop",
       subject: scene.gun,

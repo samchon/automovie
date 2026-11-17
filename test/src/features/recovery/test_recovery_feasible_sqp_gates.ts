@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieRecoveryFeasibleFit,
-  type IAutoMovieRecoveryFeasibleProblem,
-  refineRecoveryFeasibleState,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryFeasibleFit, IAutoMovieRecoveryFeasibleProblem } from "@automovie/interface";
+import { refineRecoveryFeasibleState } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**

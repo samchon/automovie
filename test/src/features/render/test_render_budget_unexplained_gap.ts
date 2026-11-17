@@ -1,13 +1,6 @@
-import type { IAutoMovieRenderSubject } from "@automovie/engine";
-import {
-  AutoMovieRenderMetric,
-  IAutoMovieRenderBudget,
-  IAutoMovieRenderFinding,
-  IAutoMovieRenderInventory,
-  IAutoMovieRenderOwnerCost,
-  IAutoMovieRenderReport,
-  IAutoMovieRenderTarget,
-} from "@automovie/interface";
+import { type IAutoMovieRenderSubject, AutoMovieRenderMetric, IAutoMovieRenderBudget, IAutoMovieRenderFinding, IAutoMovieRenderInventory, IAutoMovieRenderOwnerCost, IAutoMovieRenderReport, IAutoMovieRenderTarget } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";

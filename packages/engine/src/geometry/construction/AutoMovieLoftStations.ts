@@ -1,5 +1,5 @@
+import type { IAutoMovieLoftChain } from "@automovie/interface";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * Tessellation stations of a chain: where a face's grid rings stand.

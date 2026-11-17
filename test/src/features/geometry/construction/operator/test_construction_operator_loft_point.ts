@@ -1,8 +1,5 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftFrame,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftFrame } from "@automovie/interface";
+import { AutoMovieLoftChain } from "@automovie/engine";
 
 type V3 = [number, number, number];
 
@@ -115,7 +112,7 @@ function made(
         (next() - 0.5) * 2
       );
     });
-  const tilt = (y: number): AutoMovieLoftFrame.IFrame => {
+  const tilt = (y: number): IAutoMovieLoftFrame.IFrame => {
     const a: number = 0.1 * next();
     return {
       origin: [next(), y, next()],
@@ -123,7 +120,7 @@ function made(
       v: [0, 0, 1],
     };
   };
-  const delta = (scale: number): AutoMovieLoftFrame.IFrame => ({
+  const delta = (scale: number): IAutoMovieLoftFrame.IFrame => ({
     origin: [(next() - 0.5) * scale, 1, (next() - 0.5) * scale],
     u: [(next() - 0.5) * scale, (next() - 0.5) * scale, 0],
     v: [0, 0, 0],

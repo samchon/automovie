@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple, IAutoMovieMeasureContourFace64 } from "@automovie/interface";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /**
@@ -12,19 +13,19 @@ import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fixed local vectors exist; no input is mutated or retained.
  */
 export function measureAutoMovieContourFace64(
-  p: M.V,
-  q: M.V,
-  r: M.V,
-): { millimetresSquared: number; metresSquared: number } {
-  const cross: (a: M.V, b: M.V) => M.V = (a: M.V, b: M.V): M.V => [
+  p: AutoMovieVector3Tuple,
+  q: AutoMovieVector3Tuple,
+  r: AutoMovieVector3Tuple,
+): IAutoMovieMeasureContourFace64.IResult {
+  const cross: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
   ];
-  const normal: M.V = cross(M.sub(q, p), M.sub(r, p));
+  const normal: AutoMovieVector3Tuple = cross(M.sub(q, p), M.sub(r, p));
   const length: number = Math.hypot(...normal);
-  const output: M.V[] = [p, q, r].map(
-    (point: M.V): M.V => M.scale(point, 0.001),
+  const output: AutoMovieVector3Tuple[] = [p, q, r].map(
+    (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple => M.scale(point, 0.001),
   );
   return {
     millimetresSquared: length,

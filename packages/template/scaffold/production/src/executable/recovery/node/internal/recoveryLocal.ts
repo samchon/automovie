@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieRecoveryOpenContinuation,
-  type IAutoMovieRecoveryTensorFamiliesInput,
-  applyAutoMovieRecoveryAnalyticPublication,
-  restoreRecoveryCurveBasis,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryOpenContinuation, IAutoMovieRecoveryTensorFamiliesInput } from "@automovie/interface";
+import { applyAutoMovieRecoveryAnalyticPublication, restoreRecoveryCurveBasis } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";

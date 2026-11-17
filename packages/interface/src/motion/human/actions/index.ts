@@ -1,0 +1,17 @@
+export type { IAutoMovieMotionHumanJump } from "./IAutoMovieMotionHumanJump";
+export type { IAutoMovieMotionHumanJumpAirborne } from "./IAutoMovieMotionHumanJumpAirborne";
+export type { IAutoMovieMotionHumanRun } from "./IAutoMovieMotionHumanRun";
+export type { IAutoMovieMotionHumanStand } from "./IAutoMovieMotionHumanStand";
+export type { IAutoMovieMotionHumanStandUpright } from "./IAutoMovieMotionHumanStandUpright";
+export type { IAutoMovieMotionHumanSupport } from "./IAutoMovieMotionHumanSupport";
+export type { IAutoMovieMotionHumanWalkCadence } from "./IAutoMovieMotionHumanWalkCadence";
+export type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWalkFacing";
+export type { IAutoMovieMotionHumanWalkFoot } from "./IAutoMovieMotionHumanWalkFoot";
+export type { IAutoMovieMotionHumanWalkGait } from "./IAutoMovieMotionHumanWalkGait";
+export type { IAutoMovieMotionHumanWalkLegClearance } from "./IAutoMovieMotionHumanWalkLegClearance";
+export type { IAutoMovieMotionHumanWalkPace } from "./IAutoMovieMotionHumanWalkPace";
+export type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWalkParams";
+export type { IAutoMovieMotionHumanWalkStanceCourse } from "./IAutoMovieMotionHumanWalkStanceCourse";
+export type { IAutoMovieMotionHumanWalkStanceSolve } from "./IAutoMovieMotionHumanWalkStanceSolve";
+export type { IAutoMovieMotionHumanWalkStation } from "./IAutoMovieMotionHumanWalkStation";
+export type { IAutoMovieMotionHumanWalkSteps } from "./IAutoMovieMotionHumanWalkSteps";

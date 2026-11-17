@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieBicubicAtlasGeometry,
-  IAutoMovieMesh,
-} from "@automovie/interface";
+import type { IAutoMovieAdmitBicubicAtlas, IAutoMovieBicubicAtlasTessellation64, IAutoMovieRealizeBicubicAtlas64, IAutoMovieBicubicAtlasGeometry, IAutoMovieMesh } from "@automovie/interface";
+
 
 import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
 import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMovieBicubicAtlas64";
@@ -37,38 +35,8 @@ import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMo
  */
 export function realizeAutoMovieBicubicAtlas64(
   input: IAutoMovieBicubicAtlasGeometry,
-  options: {
-    /** Retain actual patch-local triangle-corner parameters for downstream surface consumers; omitted allocates none. */
-    retainTriangleParameters?: boolean;
-    /** Retain actual canonically bound grids for construction and field consumers; omitted allocates none. */
-    retainPatchCoefficients?: boolean;
-  } = {},
-): {
-  mesh: IAutoMovieMesh;
-  /** Requested [u0,v0,u1,v1,u2,v2] per retained triangle, with patch ownership in primitiveRanges. */
-  triangleParameters?: number[];
-  /** Requested prepared coefficient grids in mm; only patches with retained triangles are included. */
-  patchCoefficients?: NonNullable<T.Summary["patchCoefficients"]>;
-  complete: boolean;
-  approximationQualified: boolean;
-  diagnostics: string[];
-  counts: {
-    retainedCoarseCells: number;
-    omittedZeroAreaTriangles: number;
-    unresolvedVertexNormals: number;
-    maxErrorBoundMm: number;
-  };
-  primitiveRanges: {
-    patch: string;
-    firstTriangle: number;
-    triangleCount: number;
-    u0: number;
-    u1: number;
-    v0: number;
-    v1: number;
-    approximationBoundMm: number;
-  }[];
-} {
+  options: IAutoMovieRealizeBicubicAtlas64.IOptions = {},
+): IAutoMovieRealizeBicubicAtlas64.IResult {
   if (
     options.retainTriangleParameters !== undefined &&
     typeof options.retainTriangleParameters !== "boolean"
@@ -79,9 +47,9 @@ export function realizeAutoMovieBicubicAtlas64(
     typeof options.retainPatchCoefficients !== "boolean"
   )
     throw new Error("Patch coefficient retention must be boolean");
-  let patchCoefficients: T.Summary["patchCoefficients"] =
+  let patchCoefficients: IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"] =
     options.retainPatchCoefficients ? [] : undefined;
-  const admitted: ReturnType<typeof admitAutoMovieBicubicAtlas> =
+  const admitted: IAutoMovieAdmitBicubicAtlas.IResult =
     admitAutoMovieBicubicAtlas(input);
   const triangleParameters: number[] | undefined =
     options.retainTriangleParameters ? [] : undefined;
@@ -132,7 +100,7 @@ export function realizeAutoMovieBicubicAtlas64(
       slot,
     ]),
   );
-  const iterator: ReturnType<typeof T> = T({
+  const iterator: Generator<IAutoMovieBicubicAtlasTessellation64.Chunk, IAutoMovieBicubicAtlasTessellation64.Summary, void> = T({
     ...(options.retainPatchCoefficients
       ? { retainPatchCoefficients: true }
       : {}),
@@ -157,7 +125,7 @@ export function realizeAutoMovieBicubicAtlas64(
         authority: NonNullable<
           IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
         >[number],
-      ): NonNullable<T.Input["boundaryAuthorities"]>[number] => ({
+      ): NonNullable<IAutoMovieBicubicAtlasTessellation64.Input["boundaryAuthorities"]>[number] => ({
         id: authority.id,
         controlIds: authority.controlIds.map(
           (id: number): number => slots.get(id)!,
@@ -178,7 +146,7 @@ export function realizeAutoMovieBicubicAtlas64(
   try {
     let result: ReturnType<typeof iterator.next> = iterator.next();
     while (!result.done) {
-      const chunk: T.Chunk = result.value,
+      const chunk: IAutoMovieBicubicAtlasTessellation64.Chunk = result.value,
         vertexCount: number = mesh.positions.length / 3;
       if (vertexCount + chunk.positions.length / 3 > input.maxVertices) {
         complete = false;
@@ -210,7 +178,7 @@ export function realizeAutoMovieBicubicAtlas64(
         chunk.patchCoefficients !== undefined &&
         !patchCoefficients.some(
           (
-            patch: NonNullable<T.Summary["patchCoefficients"]>[number],
+            patch: NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]>[number],
           ): boolean => patch.patch === chunk.patch,
         )
       )
@@ -268,7 +236,7 @@ export function realizeAutoMovieBicubicAtlas64(
         );
         patchCoefficients = (result.value.patchCoefficients ?? []).filter(
           (
-            patch: NonNullable<T.Summary["patchCoefficients"]>[number],
+            patch: NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]>[number],
           ): boolean => retained.has(patch.patch),
         );
       }

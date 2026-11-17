@@ -1,9 +1,4 @@
-export * from "./IAutoMovieActionSynthesizer";
-export * from "./IAutoMovieActorContext";
-export * from "./IAutoMovieActorWorldFrame";
-export * from "./IAutoMovieCompiledPerformance";
-export * from "./IAutoMovieMaskedContent";
-export * from "./IAutoMoviePoseLayer";
+
 export * from "./actionRegion";
 export * from "./actorAimPoints";
 export * from "./actorContextWorldFrame";

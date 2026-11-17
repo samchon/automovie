@@ -1,10 +1,6 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import {
-  type IAutoMovieCaptureSubject,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  resolveAutoMovieInspectionColors,
-} from "@automovie/render";
+import type { IAutoMovieCaptureSubject, IAutoMovieMark } from "@automovie/interface";
+
+import { parseAutoMovieCapturePlanRequest, planAutoMovieCapture, resolveAutoMovieInspectionColors } from "@automovie/render";
 import { markMotionCaptureCase } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

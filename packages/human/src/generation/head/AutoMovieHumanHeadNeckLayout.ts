@@ -1,38 +1,14 @@
+import type { IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanHeadNeckLayout } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanHeadLandmarks } from "../AutoMovieHumanHeadLandmarks";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
 import { AutoMovieHumanHeadNeckCurves } from "./AutoMovieHumanHeadNeckCurves";
 
 /** Original neck placement and its two measured courses, before any cranial caliper, head mass or guide preparation. */
 export namespace AutoMovieHumanHeadNeckLayout {
-  /** The same placed layout and original neck declarations, with observed stage costs. */
-  export interface IOutput {
-    /** Existing head datums plus the original lower-neck curves, calibration mm. */
-    readonly layout: IAutoMovieHumanHeadLayout;
-
-    /** Independently available normal source and unresolved lower-family inputs. */
-    readonly definition: AutoMovieHumanHeadNeckCurves.IDefinition | null;
-
-    /** Successful lower closure owned by this exact definition; absent before that explicit request. */
-    readonly lowerClosure?: {
-      /** Same actual normal declaration and lower constraint inputs. */
-      readonly definition: AutoMovieHumanHeadNeckCurves.IDefinition;
-
-      /** Identical lower source published in layout.neck.curves. */
-      readonly curves: AutoMovieHumanHeadNeckCurves.IOutput;
-    };
-
-    /** Synchronous elapsed observations, excluding later head work and lazy queries. */
-    readonly milliseconds: Readonly<{
-      /** Existing selected-tragion placement, elapsed ms. */
-      placement: number;
-
-      /** Complete unchanged normal/base-neck solves and source declarations, elapsed ms. */
-      neckOriginal: number;
-
-      /** Actual normal/native/base subintervals and query counts, or null without a supplied base course. */
-      neckWork: Readonly<AutoMovieHumanHeadNeckCurves.IWork> | null;
-    }>;
-  }
+  
 
   /**
    * Share the identical original arguments between a neck-only and full-head consumer.
@@ -49,7 +25,7 @@ export namespace AutoMovieHumanHeadNeckLayout {
     bottom: number | undefined,
     spacing: number,
     tragion?: number,
-  ): IOutput {
+  ): IAutoMovieHumanHeadNeckLayout.IOutput {
     return close(define(input, bottom, spacing, tragion));
   }
 
@@ -59,19 +35,19 @@ export namespace AutoMovieHumanHeadNeckLayout {
     bottom: number | undefined,
     spacing: number,
     tragion?: number,
-  ): IOutput {
+  ): IAutoMovieHumanHeadNeckLayout.IOutput {
     const started: number = performance.now();
     const placed: IAutoMovieHumanHeadLayout =
       tragion === undefined
         ? input
         : AutoMovieHumanHeadLandmarks.atTragion(input, tragion);
     const placementDone: number = performance.now();
-    const neckWork: AutoMovieHumanHeadNeckCurves.IWork = {
+    const neckWork: IAutoMovieHumanHeadNeckCurves.IWork = {
       normalSection: 0, normalAdmission: 0, normalMetric: 0, normalTrials: 0,
       baseSolve: 0, baseMeasurements: 0, baseFixedQueries: 0, baseRadiusQueries: 0,
       baseAffineEvaluations: 0, baseNativeEvaluations: 0, baseNativeReused: 0,
     };
-    const definition: AutoMovieHumanHeadNeckCurves.IDefinition | null =
+    const definition: IAutoMovieHumanHeadNeckCurves.IDefinition | null =
       placed.neck.base === undefined ? null : AutoMovieHumanHeadNeckCurves.define({
                 neck: placed.neck,
                 base: placed.neck.base,
@@ -94,7 +70,7 @@ export namespace AutoMovieHumanHeadNeckLayout {
   }
 
   /** Explicitly close the lower family; a refusal leaves the caller's independent definition intact. */
-  export function close(prepared: IOutput): IOutput {
+  export function close(prepared: IAutoMovieHumanHeadNeckLayout.IOutput): IAutoMovieHumanHeadNeckLayout.IOutput {
     if (prepared.lowerClosure !== undefined) {
       if (prepared.lowerClosure.definition !== prepared.definition ||
           prepared.lowerClosure.curves !== prepared.layout.neck.curves)
@@ -103,8 +79,8 @@ export namespace AutoMovieHumanHeadNeckLayout {
     }
     if (prepared.definition === null) return prepared;
     const started: number = performance.now();
-    const work: AutoMovieHumanHeadNeckCurves.IWork = { ...prepared.milliseconds.neckWork! };
-    const curves: AutoMovieHumanHeadNeckCurves.IOutput = AutoMovieHumanHeadNeckCurves.close(prepared.definition, work);
+    const work: IAutoMovieHumanHeadNeckCurves.IWork = { ...prepared.milliseconds.neckWork! };
+    const curves: IAutoMovieHumanHeadNeckCurves.IOutput = AutoMovieHumanHeadNeckCurves.close(prepared.definition, work);
     return { ...prepared,
       lowerClosure: { definition: prepared.definition, curves },
       layout: { ...prepared.layout, neck: { ...prepared.layout.neck, curves } },

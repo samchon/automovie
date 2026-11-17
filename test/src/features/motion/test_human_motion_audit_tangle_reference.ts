@@ -1,19 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAudit,
-  AutoMovieMotionHumanAuditTangle,
-  HumanArmClearance,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
+
+
+import { AutoMovieMotionHumanAudit, AutoMovieMotionHumanAuditTangle, HumanArmClearance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,7 +43,7 @@ export function test_human_motion_audit_tangle_reference(): void {
   const limit: number = AutoMovieMotionHumanAudit.LIMITS.tangle;
   const complaints: string[] = [];
   for (const name of ["f-small", "m-average", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance: IAutoMoviePose = resolveHumanPosture(
       body,
       stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
@@ -72,7 +60,7 @@ export function test_human_motion_audit_tangle_reference(): void {
     const arm = (
       pose: IAutoMoviePose,
       side: "left" | "right",
-      change: (now: HumanArmClearance.IArm) => HumanArmClearance.IArm,
+      change: (now: IAutoMovieMotionHumanArmClearance.IArm) => IAutoMovieMotionHumanArmClearance.IArm,
     ): IAutoMoviePose =>
       HumanArmClearance.posed(
         pose,
@@ -115,12 +103,12 @@ export function test_human_motion_audit_tangle_reference(): void {
     // 2. A walk's arm swing along the flank, each arm let out as a gait
     // lets it out of what stands in its way.
     for (const swing of [15, -15]) {
-      const standing: IHumanPosture = stand.posture(
+      const standing: IAutoMovieMotionHumanPosture = stand.posture(
         body,
         { x: 0, y: 0, z: 0 },
         0,
       );
-      const joints: IHumanPosture["joints"] = { ...standing.joints };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...standing.joints };
       for (const side of ["left", "right"] as const) {
         const now: readonly [number, number, number] = angles(
           stance,

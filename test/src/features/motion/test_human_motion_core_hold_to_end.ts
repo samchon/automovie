@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanTarget,
-  HumanHand,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanArm, AutoMovieMotionHumanTarget, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -33,14 +24,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the scenario and its three bounds.
  */
 export function test_human_motion_core_hold_to_end(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-  const side: HumanHand.Side = "right";
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const side: IAutoMovieMotionHumanHand.Side = "right";
   const place = {
     point: { x: -0.2, y: 0.95, z: 0.4 },
     normal: { x: 0, y: 1, z: 0 },
   };
-  const goal: IHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
+  const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
     body,
     side,
     AutoMovieMotionHumanTarget.hand(body, quiet, side, place, {
@@ -57,11 +48,11 @@ export function test_human_motion_core_hold_to_end(): void {
       resolveHumanPosture(body, quiet),
       side,
     ),
-    goal: (): IHumanPosture.IGoal => goal,
+    goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
     weight: (seconds: number): number => Math.min(1, seconds / span.ready),
     span,
   });
-  const before = (): IHumanPosture => quiet;
+  const before = (): IAutoMovieMotionHumanPosture => quiet;
   arm.prepare!(before);
   const palm = (seconds: number): IAutoMovieVector3 =>
     HumanHand.frame(

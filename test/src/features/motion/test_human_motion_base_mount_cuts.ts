@@ -1,15 +1,6 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature } from "@automovie/interface";
 import { createSeat } from "@automovie/archetypes";
-import {
-  HumanChain,
-  HumanFrame,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  type seated,
-} from "@automovie/motions";
+import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,21 +40,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_base_mount_cuts(): void {
   const complaints: string[] = [];
-  const where: HumanObject.Placement = { at: { x: 0, y: 0, z: -0.6 }, yaw: 0 };
-  const seats: readonly (readonly [string, seated.ISeat])[] = [
+  const where: IAutoMovieMotionHumanObject.Placement = { at: { x: 0, y: 0, z: -0.6 }, yaw: 0 };
+  const seats: readonly (readonly [string, IAutoMovieMotionHumanSeated.ISeat])[] = [
     [
       "the bar stool",
       HumanObject.seat(createSeat({ kind: "barStool" }), where),
     ],
   ];
   for (const name of ["m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [kind, seat] of seats) {
       const astride: boolean = seat.astride === true;
       const off: { to?: "left" } = astride ? { to: "left" } : {};
       const perform = (
-        then: (chain: HumanChain) => HumanChain,
-      ): HumanPerformance =>
+        then: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
+      ): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed: "cuts",
           performers: [
@@ -83,11 +74,11 @@ export function test_human_motion_base_mount_cuts(): void {
         });
       const check = (
         what: string,
-        then: (chain: HumanChain) => HumanChain,
+        then: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
         ends: "standing" | "seated",
       ): void => {
         const label: string = `${name} on ${kind}, ${what}`;
-        let performance: HumanPerformance;
+        let performance: IAutoMovieMotionHumanPerformance;
         try {
           performance = perform(then);
         } catch (error) {
@@ -96,13 +87,13 @@ export function test_human_motion_base_mount_cuts(): void {
           );
           return;
         }
-        const reader: HumanSignature.IReader = HumanSignature.of(
+        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
           performance,
           "a",
           body,
           seat.yaw,
         );
-        const segments: readonly HumanSegment.ISegment[] =
+        const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
           performance.segments("a");
         const end: number = segments[segments.length - 1]!.end;
         const hips = (t: number): number =>
@@ -131,13 +122,13 @@ export function test_human_motion_base_mount_cuts(): void {
       // 1. Thinking better of it, while the feet are still on the floor.
       check(
         "sit cut by stand at 0.02",
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain.until({ share: 0.02 }).stand({ seconds: 1 }),
         "standing",
       );
       check(
         "sit cut by stand at commit",
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain.until({ event: "commit" }).stand({ seconds: 1 }),
         "standing",
       );
@@ -145,13 +136,13 @@ export function test_human_motion_base_mount_cuts(): void {
       // 2. Half on, off again.
       check(
         "sit cut by rise at seatContact",
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain.until({ event: "seatContact" }).rise(off),
         "standing",
       );
       check(
         "sit cut by rise at 0.95",
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain.until({ share: 0.95 }).rise(off),
         "standing",
       );
@@ -159,7 +150,7 @@ export function test_human_motion_base_mount_cuts(): void {
       // 3. Settling back.
       check(
         "rise cut by sit at 0.05",
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain.rise(off).until({ share: 0.05 }).sit({ seat, seconds: 0.5 }),
         "seated",
       );
@@ -167,7 +158,7 @@ export function test_human_motion_base_mount_cuts(): void {
       // 4. Off and away, to the side the body got off on.
       check(
         "rise cut by walk at standing",
-        (chain: HumanChain): HumanChain =>
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           chain
             .rise(off)
             .until({ event: "standing" })
@@ -183,18 +174,18 @@ export function test_human_motion_base_mount_cuts(): void {
       // 5. Cuts sit does not declare: a walk, and a stand once a foot is off the floor.
       const forbidden: readonly (readonly [
         string,
-        (chain: HumanChain) => HumanChain,
+        (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
       ])[] = [
         [
           "sit cut by walk at 0.5",
-          (chain: HumanChain): HumanChain =>
+          (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             chain
               .until({ share: 0.5 })
               .walk({ to: { x: 0, y: 0, z: seat.at.z + 3 } }),
         ],
         [
           "sit cut by stand at 0.5",
-          (chain: HumanChain): HumanChain =>
+          (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             chain.until({ share: 0.5 }).stand({ seconds: 1 }),
         ],
       ];

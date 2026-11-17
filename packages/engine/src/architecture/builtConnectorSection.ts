@@ -1,9 +1,5 @@
-import {
-  IAutoMovieBuiltConnector,
-  IAutoMovieConnectorSection,
-} from "@automovie/interface";
+import { type IAutoMovieConnectorSectionAt, IAutoMovieBuiltConnector, IAutoMovieConnectorSection } from "@automovie/interface";
 
-import { IAutoMovieConnectorSectionAt } from "./IAutoMovieConnectorSectionAt";
 
 /**
  * The usable section of one connector record, or null when it states none.

@@ -1,10 +1,6 @@
-import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
-import {
-  type IAutoMovieRecoveryMapPose,
-  type extractRecoveryImageFeatures,
-  type linkRecoveryCameraTracks,
-  matchRecoveryImageFeatures,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryMapPose, IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
+
+import { type extractRecoveryImageFeatures, type linkRecoveryCameraTracks, matchRecoveryImageFeatures } from "@automovie/recovery";
 
 import { createRecoveryMapNumericalFixture } from "./createRecoveryMapNumericalFixture";
 

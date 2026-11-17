@@ -1,14 +1,8 @@
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
 
@@ -39,17 +33,17 @@ export namespace HumanRideHands {
      * followed as they move, as a rower leans to the catch the oar's handle
      * comes to (`HumanMountReach.reach`).
      */
-    lean: (film: number, frame: IHumanProp.IFrame) => number;
+    lean: (film: number, frame: IAutoMovieMotionHumanProp.IFrame) => number;
 
     /** What a hand holds, where the support has it at a film second in its frame then. */
     gripAt: (
       id: string,
       film: number,
-      frame: IHumanProp.IFrame,
+      frame: IAutoMovieMotionHumanProp.IFrame,
     ) => Parameters<typeof HumanMountRider.hold>[3];
 
     /** Each holding hand's fingers, closed on the support's colliders. */
-    closures: Partial<Record<"left" | "right", IHumanPosture["joints"]>>;
+    closures: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>>;
   }
 
   /**
@@ -72,13 +66,13 @@ export namespace HumanRideHands {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record holds the support's reader and the closures only.
    */
   export function of(
-    context: IHumanActionContext<{
+    context: IAutoMovieMotionHumanActionContext<{
       hands?: Partial<Record<"left" | "right", string>>;
     }>,
     on: string,
-    support: IHumanActionContext.IProp,
-    seated: IHumanPosture,
-    origin: IHumanProp.IFrame,
+    support: IAutoMovieMotionHumanActionContext.IProp,
+    seated: IAutoMovieMotionHumanPosture,
+    origin: IAutoMovieMotionHumanProp.IFrame,
   ): IHands {
     const grips: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
     for (const side of ["left", "right"] as const) {
@@ -117,7 +111,7 @@ export namespace HumanRideHands {
     const gripAt = (
       id: string,
       film: number,
-      frame: IHumanProp.IFrame,
+      frame: IAutoMovieMotionHumanProp.IFrame,
     ): Parameters<typeof HumanMountRider.hold>[3] => {
       const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
         support.prop.points[id]!;
@@ -156,7 +150,7 @@ export namespace HumanRideHands {
     };
 
     // The lean at a film second: what the hands hold then, carried back into the frame the rider sat down in, where the circles of `reach` were read.
-    const lean = (film: number, frame: IHumanProp.IFrame): number => {
+    const lean = (film: number, frame: IAutoMovieMotionHumanProp.IFrame): number => {
       const back: IAutoMovieQuaternion = Quaternion.multiply(
         origin.rotation,
         Quaternion.inverse(frame.rotation),
@@ -177,7 +171,7 @@ export namespace HumanRideHands {
     };
 
     // Each holding hand's fingers, closed once on the support's own colliders where it stands when the ride begins.
-    const closures: Partial<Record<"left" | "right", IHumanPosture["joints"]>> =
+    const closures: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> =
       {};
     for (const side of ["left", "right"] as const) {
       const id: string | undefined = context.params.hands?.[side];

@@ -1,11 +1,7 @@
+import type { IAutoMoviePrimitiveShape, IAutoMovieBodyMeasure, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
 import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieBodyMeasure,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { ARMOUR_RECORDS } from "../internal/ARMOUR_RECORDS";
@@ -41,10 +37,10 @@ export function test_archetype_armour_bands(): void {
   const part: (
     piece: ReturnType<typeof createArmour>,
     id: string,
-  ) => AutoMoviePrimitiveShape | undefined = (
+  ) => IAutoMoviePrimitiveShape | undefined = (
     piece: ReturnType<typeof createArmour>,
     id: string,
-  ): AutoMoviePrimitiveShape | undefined => {
+  ): IAutoMoviePrimitiveShape | undefined => {
     const found: IAutoMovieModelPart | undefined = piece.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === id,
     );
@@ -68,10 +64,10 @@ export function test_archetype_armour_bands(): void {
   // 1. The plate at both ends of its band, and a step past each.
   const clearance: (
     kind: createArmour.Kind,
-    s: AutoMoviePrimitiveShape | undefined,
+    s: IAutoMoviePrimitiveShape | undefined,
   ) => number | null = (
     kind: createArmour.Kind,
-    s: AutoMoviePrimitiveShape | undefined,
+    s: IAutoMoviePrimitiveShape | undefined,
   ): number | null => {
     if (s === undefined) return null;
     if (
@@ -111,7 +107,7 @@ export function test_archetype_armour_bands(): void {
 
   // 2. The padding, and dimensions a kind does not have.
   for (const kind of ["openHelmet", "closedHelmet", "brimmedHelmet"] as const) {
-    const s: AutoMoviePrimitiveShape | undefined = part(
+    const s: IAutoMoviePrimitiveShape | undefined = part(
       createArmour({ kind, measure: m, pad: PAD }),
       "piece",
     );
@@ -242,7 +238,7 @@ export function test_archetype_armour_bands(): void {
   // 6. The brim.
   for (const record of ["met26512", "met21972"] as const) {
     for (const thickness of PLATE) {
-      const brim: AutoMoviePrimitiveShape | undefined = part(
+      const brim: IAutoMoviePrimitiveShape | undefined = part(
         createArmour({
           kind: "brimmedHelmet",
           model: record,

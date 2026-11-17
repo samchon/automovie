@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * A part continued from a host's end: the part face's end section is the host face's end section, so the two faces share one ring and the skin runs across it C2 (a neck rising from a trunk's top, a stem from a pot's rim).
@@ -22,7 +22,7 @@ export interface IAutoMovieConstructionContinuation {
   name: string;
 
   /** The solid whose face's end the part continues. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The host face whose end is shared: a view part's name in the host's subtree. */
   hostFace: string;
@@ -31,7 +31,7 @@ export interface IAutoMovieConstructionContinuation {
   hostEnd: "bottom" | "top";
 
   /** The continuing solid. */
-  part: AutoMovieConstructionNode;
+  part: IAutoMovieConstructionNode;
 
   /** The part face that continues the host's: a view part's name in the part's subtree. */
   partFace: string;
@@ -49,6 +49,14 @@ export interface IAutoMovieConstructionContinuation {
   band?: IAutoMovieConstructionContinuation.IBand;
 }
 
+/**
+ * Band parameters for a continuation whose ends do not share one ring.
+ *
+ * @evidence contracts/development/design.md#principled-representation The band retains physical rail depth and bounded row/column counts while each face owns its own section representation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Continuation realization reads this single optional band record; ordinary shared-ring continuation needs none.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No new section fit or searched rail is implied by these authored parameters.
+ * @evidence contracts/development/common.md#meaningful-documentation Band parameters for a continuation whose ends do not share one ring. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMovieConstructionContinuation {
   /**
    * The band that joins two unequal ends.

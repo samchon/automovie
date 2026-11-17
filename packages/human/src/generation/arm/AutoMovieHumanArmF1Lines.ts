@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanArmF1Lines } from "@automovie/interface";
+
+
 import { AutoMovieMeshCourse, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
 
 import { AutoMovieHumanArmCurveSpec } from "./AutoMovieHumanArmCurveSpec";
@@ -46,57 +49,42 @@ import { AutoMovieHumanArmCurveSpec } from "./AutoMovieHumanArmCurveSpec";
  * separate fingers, the knuckles and the knuckle arc keep drawn values.
  */
 export namespace AutoMovieHumanArmF1Lines {
-  /** A point or direction in the fixed F1 capture world. */
-  type V3 = [number, number, number];
+  
 
-  /** Locally owned mutable world-millimetre triangles, until the region is returned. */
-  export interface IFixedMesh {
-    /** Absolute millimetre positions, three numbers per vertex. */
-    positions: number[];
+  
 
-    /** Three vertex indices per emitted triangle. */
-    indices: number[];
-  }
-
-  /** One ordered, implicitly closed set of measured contour controls and its distal plane normal. */
-  export interface IFixedRing {
-    /** Absolute contour vertices in millimetres, without a repeated closing point. */
-    points: V3[];
-
-    /** Unit normal pointing along the measured distal course. */
-    normal: V3;
-  }
+  
 
   /** Use the original contour walks between the exact shared shoulder and wrist. */
   export function sleeve(
-    shoulder: IFixedRing,
-    rows: readonly IFixedRing[],
-    wrist: IFixedRing,
-  ): IFixedMesh {
+    shoulder: IAutoMovieHumanArmF1Lines.IFixedRing,
+    rows: readonly IAutoMovieHumanArmF1Lines.IFixedRing[],
+    wrist: IAutoMovieHumanArmF1Lines.IFixedRing,
+  ): IAutoMovieHumanArmF1Lines.IFixedMesh {
     const positions: number[] = [];
     const indices: number[] = [];
-    const identity: Map<V3, number> = new Map();
+    const identity: Map<AutoMovieVector3Tuple, number> = new Map();
 
     /** Read each original perimeter against its own measured distal normal. */
-    const orientation: (ring: IFixedRing) => number = (ring: IFixedRing): number =>
+    const orientation: (ring: IAutoMovieHumanArmF1Lines.IFixedRing) => number = (ring: IAutoMovieHumanArmF1Lines.IFixedRing): number =>
       Math.sign(AutoMovieHumanArmCurveSpec.dot(AutoMovieMeshCourse.newell(ring.points), ring.normal));
     const sign: number = -orientation(wrist);
     if (sign === 0) throw new Error("The measured F1 wrist has no physical orientation");
 
     // Tessellate in the reference's physical metre chart. Retain the exact
     // absolute millimetre controls for the shared shoulder and wrist indices.
-    const walks: V3[][] = [shoulder, ...rows, wrist].map((ring: IFixedRing): V3[] => {
-      const points: V3[] = ring.points.map(([x, y, z]: V3): V3 => {
-        const point: V3 = [x * 0.001, y * 0.001, -z * 0.001];
+    const walks: AutoMovieVector3Tuple[][] = [shoulder, ...rows, wrist].map((ring: IAutoMovieHumanArmF1Lines.IFixedRing): AutoMovieVector3Tuple[] => {
+      const points: AutoMovieVector3Tuple[] = ring.points.map(([x, y, z]: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
+        const point: AutoMovieVector3Tuple = [x * 0.001, y * 0.001, -z * 0.001];
         identity.set(point, positions.push(x, y, z) / 3 - 1);
         return point;
       });
       return orientation(ring) === sign ? points : points.reverse();
     });
     for (let i: number = 1; i < walks.length; ++i)
-      tessellateAutoMovieContourStrip64(walks[i - 1]!, walks[i]!, (a: V3, b: V3, c: V3): void => {
+      tessellateAutoMovieContourStrip64(walks[i - 1]!, walks[i]!, (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, c: AutoMovieVector3Tuple): void => {
         indices.push(identity.get(a)!, identity.get(b)!, identity.get(c)!);
-      }, (point: V3): string => String(identity.get(point)), ({ qualified, diagnostics }: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
+      }, (point: AutoMovieVector3Tuple): string => String(identity.get(point)), ({ qualified, diagnostics }: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
         if (!qualified) throw new Error(`F1 measured arm strip ${i} refused: ${diagnostics.join("; ")}`);
       });
 
@@ -109,44 +97,18 @@ export namespace AutoMovieHumanArmF1Lines {
     return { positions, indices };
   }
 
-  /** One quarter's conic shoulder per pair of guides. */
-  export interface IShoulders {
-    /** Between the lateral and posterior guides. */
-    lateralPosterior: number;
+  
 
-    /** Between the posterior and medial guides. */
-    posteriorMedial: number;
-
-    /** Between the medial and anterior guides. */
-    medialAnterior: number;
-
-    /** Between the anterior and lateral guides. */
-    anteriorLateral: number;
-  }
-
-  /** One authored station. */
-  export interface IStation {
-    /** Its anatomical site. */
-    site: string;
-
-    /** Millimetres from the segment's zero along its axis, or the landmark it stands at. */
-    along: number | "axilla level" | "elbow" | "wrist" | "knuckles";
-
-    /** Outline values from the segment axis: lateral, medial, anterior, posterior, mm. */
-    extents: [number, number, number, number];
-
-    /** Quarter shoulders. */
-    shoulders: IShoulders;
-  }
+  
 
   /** Quarter shoulders in the order lateral-posterior, posterior-medial, medial-anterior, anterior-lateral, held inside [0.02, 0.98]. */
-  const q = (lp: number, pm: number, ma: number, al: number): IShoulders => {
+  const q = (lp: number, pm: number, ma: number, al: number): IAutoMovieHumanArmF1Lines.IShoulders => {
     const hold = (x: number): number => Math.min(0.98, Math.max(0.02, x));
     return { lateralPosterior: hold(lp), posteriorMedial: hold(pm), medialAnterior: hold(ma), anteriorLateral: hold(al) };
   };
 
   /** The upper arm from GH. */
-  export const HUMERUS: readonly IStation[] = [
+  export const HUMERUS: readonly IAutoMovieHumanArmF1Lines.IStation[] = [
     { site: "rail (axilla level)", along: "axilla level", extents: [39.16, 56.57, 56.09, 26.57], shoulders: q(0.2493, 0.2795, 0.5228, 0.42) },
     { site: "humerus 78.8", along: 78.8, extents: [39.31, 56.78, 56.31, 26.67], shoulders: q(0.2493, 0.2795, 0.5228, 0.42) },
     { site: "humerus 88.8", along: 88.8, extents: [37.05, 58.08, 55.22, 26.94], shoulders: q(0.2334, 0.3017, 0.5313, 0.3948) },
@@ -160,7 +122,7 @@ export namespace AutoMovieHumanArmF1Lines {
   ];
 
   /** The forearm from the elbow centre, supinated. */
-  export const FOREARM: readonly IStation[] = [
+  export const FOREARM: readonly IAutoMovieHumanArmF1Lines.IStation[] = [
     { site: "forearm 8.7", along: 8.7, extents: [38.25, 41.49, 25.85, 39.45], shoulders: q(0.2987, 0.4933, 0.4871, 0.351) },
     { site: "forearm 22.7", along: 22.7, extents: [38.6, 42.99, 22.28, 43.4], shoulders: q(0.2764, 0.4399, 0.4078, 0.5027) },
     { site: "forearm 30.7", along: 30.7, extents: [38.77, 43.38, 22.72, 45.22], shoulders: q(0.292, 0.4739, 0.2871, 0.5009) },
@@ -175,7 +137,7 @@ export namespace AutoMovieHumanArmF1Lines {
   ];
 
   /** The hand from the wrist zero (extracted to the distal palm; the knuckles and their arc drawn). */
-  export const HAND: readonly IStation[] = [
+  export const HAND: readonly IAutoMovieHumanArmF1Lines.IStation[] = [
     { site: "hand 3.4", along: 3.4, extents: [28.02, 23.81, 20.29, 21.64], shoulders: q(0.5713, 0.1893, 0.5686, 0.2365) },
     { site: "hand 5.4", along: 5.4, extents: [27.97, 24.0, 20.07, 21.68], shoulders: q(0.5895, 0.1817, 0.5556, 0.2294) },
     { site: "hand 19.4", along: 19.4, extents: [30.71, 26.47, 19.49, 21.95], shoulders: q(0.7349, 0.1051, 0.4418, 0.1794) },

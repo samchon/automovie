@@ -1,11 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanTravelDoor, IAutoMovieVector3 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanObstacle } from "../perform/HumanObstacle";
 
 /**
  * Going through a doorway: a walk that squares up before a named opening
@@ -26,42 +22,31 @@ import type { HumanObstacle } from "../perform/HumanObstacle";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased; the fit is the obstacle owner's test, not restated here.
  */
 export namespace HumanTravelDoor {
-  /** Parameters of a passage. */
-  export interface IParams {
-    /** The obstacle whose opening is passed: its subject id. */
-    through: string;
-
-    /** The opening's id within that obstacle; its only opening when absent. */
-    aperture?: string;
-
-    /** The pace; `normal` when absent. */
-    pace?: walk.IParams["pace"];
-  }
 
   /** How far before and beyond the sill the walker squares up and comes out, metres (provisional: about a step, so the body is past the wall's thickness). */
   export const CLEAR: number = 0.6;
 
   /** Walk through a named opening. */
-  export const passThrough: IHumanActionLaw<IParams> = {
+  export const passThrough: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelDoor.IParams> = {
     name: "passThrough",
     interrupts: walk.interrupts,
     yields: walk.yields,
-    plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
-      const obstacle: HumanObstacle.IObstacle | undefined = context
+    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelDoor.IParams>): IAutoMovieMotionHumanActionPlan => {
+      const obstacle: IAutoMovieMotionHumanObstacle.IObstacle | undefined = context
         .obstacles()
         .find(
-          (o: HumanObstacle.IObstacle): boolean =>
+          (o: IAutoMovieMotionHumanObstacle.IObstacle): boolean =>
             o.subject === context.params.through,
         );
-      const openings: readonly HumanObstacle.IAperture[] =
+      const openings: readonly IAutoMovieMotionHumanObstacle.IAperture[] =
         obstacle?.apertures ?? [];
-      const opening: HumanObstacle.IAperture | undefined =
+      const opening: IAutoMovieMotionHumanObstacle.IAperture | undefined =
         context.params.aperture === undefined
           ? openings.length === 1
             ? openings[0]
             : undefined
           : openings.find(
-              (a: HumanObstacle.IAperture): boolean =>
+              (a: IAutoMovieMotionHumanObstacle.IAperture): boolean =>
                 a.id === context.params.aperture,
             );
       if (opening === undefined)
@@ -78,8 +63,8 @@ export namespace HumanTravelDoor {
               obstacle === undefined
                 ? context
                     .obstacles()
-                    .map((o: HumanObstacle.IObstacle): string => o.subject)
-                : openings.map((a: HumanObstacle.IAperture): string => a.id),
+                    .map((o: IAutoMovieMotionHumanObstacle.IObstacle): string => o.subject)
+                : openings.map((a: IAutoMovieMotionHumanObstacle.IAperture): string => a.id),
           },
           reason:
             obstacle === undefined

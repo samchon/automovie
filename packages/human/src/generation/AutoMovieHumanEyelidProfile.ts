@@ -1,3 +1,7 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanEyelid, IAutoMovieHumanEyelidProfile } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanEyeGlobe } from "./AutoMovieHumanEyeGlobe";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 
@@ -37,22 +41,22 @@ export namespace AutoMovieHumanEyelidProfile {
    * @returns Row points in mm
    */
   export function generate(
-    s: AutoMovieHumanEyelid.ISample,
-    g: AutoMovieHumanEyelid.IGlobe,
+    s: IAutoMovieHumanEyelid.ISample,
+    g: IAutoMovieHumanEyelid.IGlobe,
     band: number,
-    skin: { x: number; k: number },
-    drift: AutoMovieHumanEyelid.Point = [0, 0, 0],
-  ): AutoMovieHumanEyelid.Point[] {
+    skin: IAutoMovieHumanEyelidProfile.IGenerateSkin,
+    drift: AutoMovieVector3Tuple = [0, 0, 0],
+  ): AutoMovieVector3Tuple[] {
     const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
     const contact: number = E.dot(E.sub(s.contact, g.centre), g.forward);
 
     // Points of the column's plane: `u` outward from the contact point in
     // projection, `x` depth from the globe centre.
     /** Lift the regular profile coordinates into the globe's physical frame. */
-    const place: (u: number, x: number) => AutoMovieHumanEyelid.Point = (
+    const place: (u: number, x: number) => AutoMovieVector3Tuple = (
       u: number,
       x: number,
-    ): AutoMovieHumanEyelid.Point =>
+    ): AutoMovieVector3Tuple =>
       E.add(
         E.add(s.contact, E.scale(s.outward, u)),
         E.scale(g.forward, x - contact),
@@ -150,27 +154,27 @@ export namespace AutoMovieHumanEyelidProfile {
       (1 - into) *
         (AutoMovieHumanEyeGlobe.anterior(Math.min(s.rho, 0.95 * radial)) - TUCK) +
       into * -TUCK;
-    const lost = (u: number): AutoMovieHumanEyelid.Point => {
+    const lost = (u: number): AutoMovieVector3Tuple => {
       const q: number = Math.min(1, Math.max(0, (u - edgeU) / span));
       return E.scale(drift, q * q);
     };
-    const points: AutoMovieHumanEyelid.Point[] = [
+    const points: AutoMovieVector3Tuple[] = [
       ...surface.map(
-        ([u, x]: [number, number]): AutoMovieHumanEyelid.Point =>
+        ([u, x]: [number, number]): AutoMovieVector3Tuple =>
           E.add(place(u, x), lost(u)),
       ),
       ...[...rounded, ...face].map(
-        ([u, x]: [number, number]): AutoMovieHumanEyelid.Point => place(u, x),
+        ([u, x]: [number, number]): AutoMovieVector3Tuple => place(u, x),
       ),
     ];
 
     // The tuck end lies on the contact point's radial line from the axis.
-    const offset: AutoMovieHumanEyelid.Point = E.sub(s.contact, g.centre);
-    const across: AutoMovieHumanEyelid.Point = E.sub(
+    const offset: AutoMovieVector3Tuple = E.sub(s.contact, g.centre);
+    const across: AutoMovieVector3Tuple = E.sub(
       offset,
       E.scale(g.forward, E.dot(offset, g.forward)),
     );
-    const unit: AutoMovieHumanEyelid.Point = E.normalize(across);
+    const unit: AutoMovieVector3Tuple = E.normalize(across);
     points.push(
       E.add(E.add(g.centre, E.scale(unit, tuckRho)), E.scale(g.forward, tuckX)),
     );

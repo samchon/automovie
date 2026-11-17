@@ -1,3 +1,4 @@
+import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence, IAutoMovieSolidMeshPlan } from "@automovie/interface";
 import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
 import { insertAutoMovieSolidMeshPoints } from "./insertAutoMovieSolidMeshPoints";
@@ -7,15 +8,12 @@ import { probeAutoMovieSolidMesh } from "./probeAutoMovieSolidMesh";
 import { triangulateAutoMovieSolidBoundary } from "./triangulateAutoMovieSolidBoundary";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
 
-/** One finite native-chart position. */
-type Point = readonly [number, number];
-
 /** One possible straight visibility edge, ordered by original endpoint IDs and turn. */
-type Candidate = AutoMovieSolidMeshConstraints.ISegment;
+type Candidate = IAutoMovieSolidMeshConstraints.ISegment;
 
 /** A kept left boundary, classified in its own finite native cover. */
 interface Component {
-  /** Directed original-ID occurrences and cover lifts. */ walk: AutoMovieSolidMeshIncidence.IWalk;
+  /** Directed original-ID occurrences and cover lifts. */ walk: IAutoMovieSolidMeshIncidence.IWalk;
   /** Whether the finite left probe is inside this zero-winding boundary. */ outer: boolean;
 }
 
@@ -48,34 +46,6 @@ interface Component {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMeshPlan {
-  /**
-   * An oriented triangle, with its actual native-cover occurrence at each corner.
-   *
-   * @evidence contracts/development/design.md#principled-representation Original IDs describe shared geometry while integer lifts retain the periodic face embedding used to prove positive chart orientation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two parallel triples distinguish mesh identity from cover occurrence.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not reconstruct a half-period tie from global IDs or infer shared geometry from coordinate coincidence.
-   * @evidence contracts/development/common.md#meaningful-documentation The first lift is zero; coordinates add lift times period before reading chart orientation.
-   */
-  export interface ITriangle {
-    /** Original shared mesh indices in positive native-chart order. */
-    vertices: [number, number, number];
-
-    /** Integer phase periods added at each corner, beginning at zero. */
-    lifts: [number, number, number];
-  }
-
-  /**
-   * A completed index plan and the original constraints' subdivision history.
-   *
-   * @evidence contracts/development/design.md#principled-representation Triangles retain original IDs and cover lifts; split constraints retain source-edge indices so an endpoint boundary is distinguished from a trim or retained-cell boundary.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Explicit result data carries topology and provenance without a registry or repeating the split operation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Provenance does not certify world geometry or classify every unpaired edge as an endpoint.
-   * @evidence contracts/development/common.md#meaningful-documentation States index, lift and source-edge ownership and the endpoint-classification limit.
-   */
-  export interface IPlan {
-    /** Positive native-chart triangle occurrences. */ triangles: ITriangle[];
-    /** Subdivided original constraints with source-edge provenance. */ constraints: AutoMovieSolidMeshConstraints.IEdge[];
-  }
 
   /**
    * Plan every kept triangular face or return the failed visibility premise.
@@ -99,20 +69,20 @@ export namespace AutoMovieSolidMeshPlan {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new triangles and the owned split records/source-index histories, including total provenance length P; input maps/segments and membership reader remain borrowed for this call and are never stored globally.
    */
   export function triangulate(
-    vertices: ReadonlyMap<number, Point>,
-    constraints: readonly AutoMovieSolidMeshConstraints.ISegment[],
+    vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+    constraints: readonly IAutoMovieSolidMeshConstraints.ISegment[],
     keeps: (u: number, v: number) => boolean,
     period?: number,
     indexed: boolean = false,
     occupied?: ReadonlySet<string>,
     scale: number = 1,
     local?: (ids: readonly number[], charts: readonly [number, number][]) => [number, number],
-  ): IPlan | string {
-    const split: AutoMovieSolidMeshConstraints.IEdge[] | string =
+  ): IAutoMovieSolidMeshPlan.IPlan | string {
+    const split: IAutoMovieSolidMeshConstraints.IEdge[] | string =
       AutoMovieSolidMeshConstraints.split(vertices, constraints, period);
     if (typeof split === "string") return split;
-    const edges: AutoMovieSolidMeshConstraints.ISegment[] = [...split];
-    const entries: [number, Point][] = [...vertices];
+    const edges: IAutoMovieSolidMeshConstraints.ISegment[] = [...split];
+    const entries: [number, Readonly<AutoMovieVector2Tuple>][] = [...vertices];
     if (entries.length === 0) return { triangles: [], constraints: split };
     let lower: number = Infinity;
     let upper: number = -Infinity;
@@ -164,9 +134,9 @@ export namespace AutoMovieSolidMeshPlan {
         return "visibility bridge did not merge kept boundary components";
       boundaries = next;
     }
-    const triangles: ITriangle[] = [];
+    const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [];
     for (const component of boundaries) {
-      const made: ITriangle[] | string = triangulateAutoMovieSolidBoundary(
+      const made: IAutoMovieSolidMeshPlan.ITriangle[] | string = triangulateAutoMovieSolidBoundary(
         vertices,
         component.walk,
         period,
@@ -175,13 +145,13 @@ export namespace AutoMovieSolidMeshPlan {
       );
       if (typeof made === "string") return made;
       for (const triangle of made) {
-        const points: Point[] = triangle.vertices.map(
-          (id: number, index: number): Point => [
+        const points: Readonly<AutoMovieVector2Tuple>[] = triangle.vertices.map(
+          (id: number, index: number): Readonly<AutoMovieVector2Tuple> => [
             vertices.get(id)![0],
             vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0),
           ],
         );
-        const probe: Point | string = centroid(points);
+        const probe: Readonly<AutoMovieVector2Tuple> | string = centroid(points);
         if (typeof probe === "string")
           return `boundary ear: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
         if (!keeps(probe[0], probe[1]))
@@ -189,7 +159,7 @@ export namespace AutoMovieSolidMeshPlan {
         triangles.push(triangle);
       }
     }
-    const inserted: ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+    const inserted: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
       vertices,
       split,
       triangles,
@@ -198,7 +168,7 @@ export namespace AutoMovieSolidMeshPlan {
       indexed,
     );
     if (typeof inserted === "string") return inserted;
-    const legal: ITriangle[] | string = legalizeAutoMovieSolidMesh(
+    const legal: IAutoMovieSolidMeshPlan.ITriangle[] | string = legalizeAutoMovieSolidMesh(
       vertices,
       split,
       inserted,
@@ -210,13 +180,13 @@ export namespace AutoMovieSolidMeshPlan {
     );
     if (typeof legal === "string") return legal;
     for (const triangle of legal) {
-      const points: Point[] = triangle.vertices.map(
-        (id: number, index: number): Point => [
+      const points: Readonly<AutoMovieVector2Tuple>[] = triangle.vertices.map(
+        (id: number, index: number): Readonly<AutoMovieVector2Tuple> => [
           vertices.get(id)![0],
           vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0),
         ],
       );
-      const probe: Point | string = centroid(points);
+      const probe: Readonly<AutoMovieVector2Tuple> | string = centroid(points);
       if (typeof probe === "string")
         return `inserted grid triangle: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
       if (!keeps(probe[0], probe[1]))
@@ -228,23 +198,23 @@ export namespace AutoMovieSolidMeshPlan {
 
 /** Kept left boundary components; exact ray parity distinguishes finite outer walks from holes. */
 function components(
-  vertices: ReadonlyMap<number, Point>,
-  edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
   keeps: (u: number, v: number) => boolean,
   period: number | undefined,
 ): Component[] | string {
-  const walks: AutoMovieSolidMeshIncidence.IWalk[] | string =
+  const walks: IAutoMovieSolidMeshIncidence.IWalk[] | string =
     AutoMovieSolidMeshIncidence.walks(vertices, edges, period);
   if (typeof walks === "string") return walks;
   const result: Component[] = [];
   for (const walk of walks) {
-    const points: Point[] = walk.vertices.map(
-      (id: number, index: number): Point => [
+    const points: Readonly<AutoMovieVector2Tuple>[] = walk.vertices.map(
+      (id: number, index: number): Readonly<AutoMovieVector2Tuple> => [
         vertices.get(id)![0],
         vertices.get(id)![1] + walk.lifts[index]! * (period ?? 0),
       ],
     );
-    if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
+    if (!points.every((point: Readonly<AutoMovieVector2Tuple>): boolean => point.every(Number.isFinite)))
       return "visibility face cover coordinates are not representable";
     if (
       walk.winding === 0 &&
@@ -252,11 +222,11 @@ function components(
       new Set(walk.vertices).size === 3 &&
       orientAutoMovieSolidChart(points[0]!, points[1]!, points[2]!) > 0
     ) {
-      const strict: Point | string = centroid(points);
+      const strict: Readonly<AutoMovieVector2Tuple> | string = centroid(points);
       if (typeof strict === "string")
         return `arrangement face: ${strict}; original vertices ${walk.vertices.join("/")}; cover ${JSON.stringify(points)}`;
     }
-    const probe: Point | string = probeAutoMovieSolidMesh(
+    const probe: Readonly<AutoMovieVector2Tuple> | string = probeAutoMovieSolidMesh(
       vertices,
       edges,
       walk,
@@ -267,8 +237,8 @@ function components(
     let inside: boolean = false;
     if (walk.winding === 0)
       for (let k: number = 0; k < points.length; k++) {
-        const a: Point = points[k]!;
-        const b: Point = points[(k + 1) % points.length]!;
+        const a: Readonly<AutoMovieVector2Tuple> = points[k]!;
+        const b: Readonly<AutoMovieVector2Tuple> = points[(k + 1) % points.length]!;
         if (
           a[1] > probe[1] !== b[1] > probe[1] &&
           orientAutoMovieSolidChart(a, b, probe) * (b[1] > a[1] ? 1 : -1) > 0
@@ -304,8 +274,8 @@ function components(
  * shortest phase image allowed (both at a half-period tie, as before).
  */
 function bridge(
-  vertices: ReadonlyMap<number, Point>,
-  edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
   boundaries: readonly Component[],
   selected: number,
   keeps: (u: number, v: number) => boolean,
@@ -335,12 +305,12 @@ function bridge(
   ): string | null => {
     const span: number = period ?? 0;
     for (const a of boundaries[selected]!.walk.vertices) {
-      const first: Point = vertices.get(a)!;
+      const first: Readonly<AutoMovieVector2Tuple> = vertices.get(a)!;
       for (let j: number = 0; j < boundaries.length; j++) {
         if (j === selected) continue;
         for (const b of boundaries[j]!.walk.vertices) {
           if (a === b) continue;
-          const last: Point = vertices.get(b)!;
+          const last: Readonly<AutoMovieVector2Tuple> = vertices.get(b)!;
           const nearest: number =
             period === undefined
               ? 0
@@ -412,9 +382,9 @@ function bridge(
     list.sort(before);
     for (const ranked of list) {
       const candidate: Candidate = ranked.candidate;
-      const first: Point = vertices.get(candidate.a)!;
-      const last: Point = vertices.get(candidate.b)!;
-      const end: Point = [last[0], last[1] + candidate.turn * (period ?? 0)];
+      const first: Readonly<AutoMovieVector2Tuple> = vertices.get(candidate.a)!;
+      const last: Readonly<AutoMovieVector2Tuple> = vertices.get(candidate.b)!;
+      const end: Readonly<AutoMovieVector2Tuple> = [last[0], last[1] + candidate.turn * (period ?? 0)];
       const visible: boolean | string = clear(
         vertices,
         edges,
@@ -423,7 +393,7 @@ function bridge(
       );
       if (typeof visible === "string") return visible;
       if (!visible) continue;
-      const middle: Point = midpoint(first, end);
+      const middle: Readonly<AutoMovieVector2Tuple> = midpoint(first, end);
       if (
         (middle[0] === first[0] && middle[1] === first[1]) ||
         (middle[0] === end[0] && middle[1] === end[1])
@@ -481,14 +451,14 @@ function bridge(
 }
 
 /** A strict represented centroid, never a silent empty-face classification at rounded boundaries. */
-function centroid(points: readonly Point[]): Point | string {
-  const point: Point = [
+function centroid(points: readonly Readonly<AutoMovieVector2Tuple>[]): Readonly<AutoMovieVector2Tuple> | string {
+  const point: Readonly<AutoMovieVector2Tuple> = [
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
   return point.every(Number.isFinite) &&
     points.every(
-      (corner: Point, index: number): boolean =>
+      (corner: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
         orientAutoMovieSolidChart(corner, points[(index + 1) % 3]!, point) > 0,
     )
     ? point
@@ -496,14 +466,14 @@ function centroid(points: readonly Point[]): Point | string {
 }
 
 /** Identity of an unoriented edge, including its relative cover turn. */
-function key(edge: AutoMovieSolidMeshConstraints.ISegment): string {
+function key(edge: IAutoMovieSolidMeshConstraints.ISegment): string {
   return edge.a < edge.b || (edge.a === edge.b && edge.turn > 0)
     ? `${edge.a}/${edge.b}/${edge.turn}`
     : `${edge.b}/${edge.a}/${-edge.turn}`;
 }
 
 /** A finite midpoint without adding two potentially large coordinates. */
-function midpoint(a: Point, b: Point): Point {
+function midpoint(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> {
   return [
     a[0] === b[0] ? a[0] : a[0] / 2 + b[0] / 2,
     a[1] === b[1] ? a[1] : a[1] / 2 + b[1] / 2,
@@ -513,12 +483,12 @@ function midpoint(a: Point, b: Point): Point {
 /** Neighbour images cover comparisons with shortest-image visibility edges and one-period primitives. */
 function images(
   value: number,
-  a: Point,
-  b: Point,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
   period: number | undefined,
 ): number[] | null {
   if (period === undefined) return [0];
-  const middle: Point = midpoint(a, b);
+  const middle: Readonly<AutoMovieVector2Tuple> = midpoint(a, b);
   const nearest: number = Math.round((middle[1] - value) / period);
   return Number.isSafeInteger(nearest) &&
     Number.isSafeInteger(nearest - 1) &&
@@ -528,7 +498,7 @@ function images(
 }
 
 /** Exact closed segment membership on the represented native points. */
-function on(a: Point, b: Point, p: Point): boolean {
+function on(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>, p: Readonly<AutoMovieVector2Tuple>): boolean {
   return (
     p[0] >= Math.min(a[0], b[0]) &&
     p[0] <= Math.max(a[0], b[0]) &&
@@ -540,17 +510,17 @@ function on(a: Point, b: Point, p: Point): boolean {
 
 /** Refuse third vertices, edge intersections and coincident existing diagonals. */
 function clear(
-  vertices: ReadonlyMap<number, Point>,
-  edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
-  candidate: AutoMovieSolidMeshConstraints.ISegment,
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],
+  candidate: IAutoMovieSolidMeshConstraints.ISegment,
   period: number | undefined,
 ): boolean | string {
-  const a: Point = vertices.get(candidate.a)!;
-  const stored: Point = vertices.get(candidate.b)!;
-  const b: Point = [stored[0], stored[1] + candidate.turn * (period ?? 0)];
+  const a: Readonly<AutoMovieVector2Tuple> = vertices.get(candidate.a)!;
+  const stored: Readonly<AutoMovieVector2Tuple> = vertices.get(candidate.b)!;
+  const b: Readonly<AutoMovieVector2Tuple> = [stored[0], stored[1] + candidate.turn * (period ?? 0)];
   if (a[0] === b[0] && a[1] === b[1]) return false;
   for (const entry of vertices) {
-    const [id, point]: [number, Point] = entry;
+    const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
     const shifts: number[] | null = images(point[1], a, b, period);
     if (shifts === null)
       return "visibility vertex cover image is not representable";
@@ -560,7 +530,7 @@ function clear(
         (id === candidate.b && turn === candidate.turn)
       )
         continue;
-      const lifted: Point = [point[0], point[1] + turn * (period ?? 0)];
+      const lifted: Readonly<AutoMovieVector2Tuple> = [point[0], point[1] + turn * (period ?? 0)];
       if (!lifted.every(Number.isFinite))
         return "visibility vertex cover coordinates are not representable";
       if (on(a, b, lifted)) return false;
@@ -568,14 +538,14 @@ function clear(
   }
   for (const edge of edges) {
     if (key(edge) === key(candidate)) return false;
-    const first: Point = vertices.get(edge.a)!;
-    const last: Point = vertices.get(edge.b)!;
+    const first: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.a)!;
+    const last: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.b)!;
     const shifts: number[] | null = images(first[1], a, b, period);
     if (shifts === null)
       return "visibility edge cover image is not representable";
     for (const turn of shifts) {
-      const c: Point = [first[0], first[1] + turn * (period ?? 0)];
-      const d: Point = [last[0], last[1] + (turn + edge.turn) * (period ?? 0)];
+      const c: Readonly<AutoMovieVector2Tuple> = [first[0], first[1] + turn * (period ?? 0)];
+      const d: Readonly<AutoMovieVector2Tuple> = [last[0], last[1] + (turn + edge.turn) * (period ?? 0)];
       if (![...c, ...d].every(Number.isFinite))
         return "visibility edge cover coordinates are not representable";
       if (

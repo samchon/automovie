@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieSwingTwist, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
@@ -34,7 +32,7 @@ import { Vector3 } from "./Vector3";
 export function swingTwist(
   rotation: IAutoMovieQuaternion,
   axis: IAutoMovieVector3,
-): { swing: IAutoMovieQuaternion; twist: IAutoMovieQuaternion } {
+): IAutoMovieSwingTwist.IResult {
   const unit: IAutoMovieVector3 = Vector3.normalize(axis);
   const along: number =
     rotation.x * unit.x + rotation.y * unit.y + rotation.z * unit.z;

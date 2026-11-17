@@ -1,6 +1,5 @@
-import type { IAutoMovieShotBuildContext } from "@automovie/interface";
+import type { IAutoMovieSubjectContribution, IAutoMovieShotBuildContext } from "@automovie/interface";
 
-import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
 
 /**
  * One thing in a production: a performer, a prop, a place, or a population.

@@ -1,4 +1,4 @@
-import type { IHumanManoeuvre } from "./IHumanManoeuvre";
+import type { IAutoMovieMotionHumanManoeuvre } from "@automovie/interface";
 
 /**
  * The drills as rows over the four choices of a manoeuvre, so a new drill
@@ -22,7 +22,7 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  *   where ways cross; each by its own latency.
  */
 export const HUMAN_MANOEUVRES: Readonly<
-  Record<IHumanManoeuvre.Row, IHumanManoeuvre.IRule>
+  Record<IAutoMovieMotionHumanManoeuvre.Row, IAutoMovieMotionHumanManoeuvre.IRule>
 > = {
   wheel: { assign: "order", path: "arc", order: "together" },
   deploy: { assign: "order", path: "flank", order: "farFirst" },

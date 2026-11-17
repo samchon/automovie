@@ -1,15 +1,19 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark, IAutoMovieDrawCall, IAutoMovieDrawDescription, IAutoMovieDrawResult, IAutoMovieInspectionCamera, IAutoMovieInspectionLabel, IAutoMovieInspectionLegendEntry, IAutoMovieInspectionRequest, IAutoMovieInspectionTrail, IAutoMovieInspectionView } from "@automovie/interface";
+
+
+
+
 import * as THREE from "three";
 
 import { resolveAutoMovieCapturePatterns } from "../capture/resolveAutoMovieCapturePatterns.js";
-import type { IAutoMovieInspectionCamera } from "../scene/inspection/IAutoMovieInspectionCamera.js";
+
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionLabel } from "../scene/inspection/IAutoMovieInspectionLabel.js";
-import type { IAutoMovieInspectionLegendEntry } from "../scene/inspection/IAutoMovieInspectionLegendEntry.js";
+
+
 import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
-import type { IAutoMovieInspectionTrail } from "../scene/inspection/IAutoMovieInspectionTrail.js";
-import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
+
+
+
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
@@ -19,11 +23,11 @@ import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoM
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
-import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
-import type { IAutoMovieDrawDescription } from "./IAutoMovieDrawDescription.js";
+
+
 import type { IAutoMovieDrawFunction } from "./IAutoMovieDrawFunction.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
-import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
+
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";

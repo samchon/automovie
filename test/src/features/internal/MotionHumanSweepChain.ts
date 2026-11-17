@@ -1,5 +1,6 @@
-import type { AutoMovieComposition } from "@automovie/engine";
-import { type HumanActionName, HumanChain } from "@automovie/motions";
+import type { AutoMovieMotionHumanActionName, IAutoMovieComposition } from "@automovie/interface";
+
+import { HumanChain } from "@automovie/motions";
 
 /**
  * A chain whose named append takes parameters read at run time.
@@ -37,11 +38,11 @@ export class MotionHumanSweepChain extends HumanChain {
    * @returns The chain.
    */
   public override act(
-    name: HumanActionName,
+    name: AutoMovieMotionHumanActionName,
     params: object = {},
     anchor?: string,
   ): this {
-    const node: AutoMovieComposition = {
+    const node: IAutoMovieComposition = {
       kind: "intent",
       intent: {
         subject: this.subject,

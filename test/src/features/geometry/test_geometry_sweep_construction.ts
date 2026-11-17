@@ -1,14 +1,6 @@
-import {
-  type IAutoMovieSurfaceConstruction,
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSurfaceRig,
-  type IAutoMovieSweep,
-  type IAutoMovieSweepSurface,
-  compileAutoMovieSweep,
-  frameAutoMovieSweepSpine,
-  rigAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieSurfaceConstruction, IAutoMovieSurfaceNetwork, IAutoMovieSurfaceRig, IAutoMovieSweep, IAutoMovieSweepSurface, IAutoMovieVector3 } from "@automovie/interface";
+import { compileAutoMovieSweep, frameAutoMovieSweepSpine, rigAutoMovieSurfaceNetwork } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

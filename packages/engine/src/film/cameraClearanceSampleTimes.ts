@@ -1,9 +1,5 @@
-import {
-  IAutoMovieClip,
-  IAutoMovieMotion,
-  IAutoMovieShot,
-  IAutoMovieTrack,
-} from "@automovie/interface";
+import { type IAutoMovieCameraClearanceSampleTimes, IAutoMovieClip, IAutoMovieMotion, IAutoMovieShot, IAutoMovieTrack } from "@automovie/interface";
+
 
 import { sampleTimes } from "../motion/sampleTimes";
 
@@ -22,19 +18,7 @@ import { sampleTimes } from "../motion/sampleTimes";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The validated actor and object boundary set is built once per shot and copied into each take's set, since every take reads the same motions and only its camera clip differs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the shared set, bounded by the fixed-clock samples plus all actor and object key instants in the shot, until the clearance compiler drops it at the end of the call; each take's array is owned by its caller.
  */
-export function cameraClearanceSampleTimes(props: {
-  /** Shot length in seconds. */
-  duration: number;
-
-  /** Fixed-clock samples per second, finite and positive. */
-  sampleRate: number;
-
-  /** Actor motion per node; its root translation and scale move obstacles. */
-  motions: Readonly<Record<string, IAutoMovieMotion>>;
-
-  /** Object clips whose node channels move obstacles. */
-  objectMotions: readonly IAutoMovieClip[];
-}): (cameraMotion: IAutoMovieShot["cameraMotion"]) => number[] {
+export function cameraClearanceSampleTimes(props: IAutoMovieCameraClearanceSampleTimes.IProps): (cameraMotion: IAutoMovieShot["cameraMotion"]) => number[] {
   for (const motion of Object.values(props.motions)) {
     if (
       motion.keyframes.some(

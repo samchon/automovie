@@ -1,8 +1,14 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanSternalNotch, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame, IAutoMovieHumanTrunkReliefNet } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The sternal notch carved into the shoulders: the hollow as a relief window
@@ -24,7 +30,7 @@ export namespace AutoMovieHumanSternalNotch {
    * @param front The front midline's forward place at the notch, as a function of height, mm.
    * @returns The frame.
    */
-  export function frame(neck: number, front: (y: number) => number): AutoMovieHumanTrunkFeatureFrame.IFrame {
+  export function frame(neck: number, front: IAutoMovieHumanSternalNotch.FrameFront): IAutoMovieHumanTrunkFeatureFrame.IFrame {
     const y: number = neck - CLEARANCE - AutoMovieHumanSternalNotchProfile.UPPER;
 
     return AutoMovieHumanTrunkFeatureFrame.midline(y, front(y), "front");
@@ -36,7 +42,7 @@ export namespace AutoMovieHumanSternalNotch {
    * @param at The notch's frame.
    * @returns The hollow as a height field.
    */
-  export function feature(at: AutoMovieHumanTrunkFeatureFrame.IFrame): IAutoMovieHumanTrunkFeature {
+  export function feature(at: IAutoMovieHumanTrunkFeatureFrame.IFrame): IAutoMovieHumanTrunkFeature {
     const P: typeof AutoMovieHumanSternalNotchProfile = AutoMovieHumanSternalNotchProfile;
 
     return {
@@ -56,8 +62,8 @@ export namespace AutoMovieHumanSternalNotch {
    * @returns The relief.
    */
   export function create(
-    at: AutoMovieHumanTrunkFeatureFrame.IFrame,
-    base: AutoMovieHumanTrunkReliefNet.Base,
+    at: IAutoMovieHumanTrunkFeatureFrame.IFrame,
+    base: IAutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
   ): IAutoMovieLoftRelief {
     const P: typeof AutoMovieHumanSternalNotchProfile = AutoMovieHumanSternalNotchProfile;

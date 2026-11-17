@@ -1,19 +1,6 @@
-import {
-  type IAutoMoviePoseRig,
-  type IAutoMovieRandom,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  clampPose,
-  inertializePose,
-  minimumJerk,
-  samplePoseVelocity,
-} from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+import type { IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMoviePoseRig, IAutoMovieRandom, IAutoMovieResolvedBone, IAutoMovieSamplePoseVelocity, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieSwivelSeed } from "@automovie/interface";
 
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { clampPose, inertializePose, minimumJerk, samplePoseVelocity } from "@automovie/engine";
 import { humanRig } from "../posture/humanRig";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -43,14 +30,14 @@ export namespace HumanSegmentPose {
    * @returns The pose.
    */
   export function displayed(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
   ): IAutoMoviePose {
     const cached: IAutoMoviePose | undefined = person.resolving
       ? undefined
       : person.cache.get(seconds);
     if (cached !== undefined) return cached;
-    let active: HumanSegment.ISegment | undefined;
+    let active: IAutoMovieMotionHumanSegment.ISegment | undefined;
     for (const s of person.segments)
       if (s.entryTime <= seconds + 1e-12) active = s;
     const pose: IAutoMoviePose =
@@ -76,8 +63,8 @@ export namespace HumanSegmentPose {
    * @returns The pose.
    */
   export function of(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment.ISegment,
     seconds: number,
   ): IAutoMoviePose {
     return seeded(person, segment, seconds).pose;
@@ -100,8 +87,8 @@ export namespace HumanSegmentPose {
    * @returns The pose and the seeds of its fits.
    */
   export function seeded(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment.ISegment,
     seconds: number,
     near?: INear,
   ): ISeeded {
@@ -115,12 +102,12 @@ export namespace HumanSegmentPose {
       t: number,
       fits?: INear,
     ): {
-      posture: IHumanPosture;
-      carried: HumanSegment.IHeld[];
+      posture: IAutoMovieMotionHumanPosture;
+      carried: IAutoMovieMotionHumanSegment.IHeld[];
       pose: IAutoMoviePose;
       seeds: IFits;
     } => {
-      let written: IHumanPosture = layered(
+      let written: IAutoMovieMotionHumanPosture = layered(
         person,
         segment.plan.posture(
           Math.min(segment.plan.duration, Math.max(0, t - segment.start)),
@@ -132,8 +119,8 @@ export namespace HumanSegmentPose {
       // second: an interrupted action evaluated past its cut (a transition's
       // source, an entry state) still carries what it carried when it was
       // cut.
-      const held: HumanSegment.IHeld[] = person.holds.filter(
-        (h: HumanSegment.IHeld): boolean =>
+      const held: IAutoMovieMotionHumanSegment.IHeld[] = person.holds.filter(
+        (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
           h.source !== segment &&
           h.from <= t &&
           (t < h.until ||
@@ -148,12 +135,12 @@ export namespace HumanSegmentPose {
       // that hold keeps carrying through the fade, ahead of the hold the
       // overlay leaves, which carries from there on and under the overlay's
       // way out.
-      const borne: HumanSegment.IHeld[] = held.filter(
-        (h: HumanSegment.IHeld, index: number): boolean =>
+      const borne: IAutoMovieMotionHumanSegment.IHeld[] = held.filter(
+        (h: IAutoMovieMotionHumanSegment.IHeld, index: number): boolean =>
           !held
             .slice(0, index)
             .some(
-              (earlier: HumanSegment.IHeld): boolean =>
+              (earlier: IAutoMovieMotionHumanSegment.IHeld): boolean =>
                 earlier.riding === true && earlier.side === h.side,
             ),
       );
@@ -173,16 +160,16 @@ export namespace HumanSegmentPose {
     };
     const now: ReturnType<typeof shown> = shown(seconds, near);
     for (const [name, seed] of now.seeds) seeds.set(name, seed);
-    let posture: IHumanPosture = now.posture;
-    const carried: HumanSegment.IHeld[] = now.carried;
+    let posture: IAutoMovieMotionHumanPosture = now.posture;
+    const carried: IAutoMovieMotionHumanSegment.IHeld[] = now.carried;
     let pose: IAutoMoviePose = now.pose;
 
     // One more fit of the evaluation, continued where `near` holds its name.
     const fit = (
       name: string,
       at: IAutoMoviePose,
-      limb: IHumanPosture.Limb,
-      goal: IHumanPosture.IGoal,
+      limb: IAutoMovieMotionHumanPosture.Limb,
+      goal: IAutoMovieMotionHumanPosture.IGoal,
     ): IAutoMoviePose => {
       const fitted: IAutoMovieSeededChainFit = resolveHumanPosture.limbSeeded(
         body,
@@ -198,13 +185,13 @@ export namespace HumanSegmentPose {
     // A carried hand no overlay drives keeps its goal as a planted one, so
     // the transition's offset below never moves what it holds. A hand an
     // overlay drives is that overlay's, faded in and out by `overlaid`.
-    const active: HumanSegment.IOverlay[] = HumanSegmentOverlay.running(
+    const active: IAutoMovieMotionHumanSegment.IOverlay[] = HumanSegmentOverlay.running(
       person,
       seconds,
     );
-    const kept: HumanSegment.IHeld[] = carried.filter(
-      (h: HumanSegment.IHeld): boolean =>
-        !active.some((o: HumanSegment.IOverlay): boolean =>
+    const kept: IAutoMovieMotionHumanSegment.IHeld[] = carried.filter(
+      (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+        !active.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
           HumanSegment.drives(o.plan, h.side),
         ),
     );
@@ -232,7 +219,7 @@ export namespace HumanSegmentPose {
         const effector: IAutoMovieResolvedBone = map.get(
           `${side}${arm ? "Hand" : "Foot"}`,
         )!;
-        const goal: IHumanPosture.IGoal = {
+        const goal: IAutoMovieMotionHumanPosture.IGoal = {
           point: effector.worldPosition,
           rotation: effector.worldRotation,
           bend: map.get(`${side}${arm ? "LowerArm" : "LowerLeg"}`)!
@@ -292,10 +279,10 @@ export namespace HumanSegmentPose {
     // declared window: neither a fade, an offset nor the range clamp can
     // move them. The ordinary resolver owns attachment order and arm pairs.
     pose = clampPose(pose, body.skeleton);
-    const plants: IHumanPosture["limbs"] = Object.fromEntries(
+    const plants: IAutoMovieMotionHumanPosture["limbs"] = Object.fromEntries(
       Object.entries(posture.limbs).filter(([, goal]) => goal.planted === true),
     );
-    const planted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
+    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(
       body,
       pose,
       plants,
@@ -335,7 +322,7 @@ export namespace HumanSegmentPose {
     const tolerance: number = samplePoseVelocity.tolerance(STEP, duration);
     let fits: IFits = new Map();
     const samples: IAutoMoviePose[] = [];
-    const state: samplePoseVelocity.IState = samplePoseVelocity(
+    const state: IAutoMovieSamplePoseVelocity.IState = samplePoseVelocity(
       (t: number): IAutoMoviePose => {
         const instant: ISeeded = read(t);
         fits = instant.seeds;
@@ -423,21 +410,21 @@ export namespace HumanSegmentPose {
    */
   export interface IContinued {
     /** The pose at the second, read cold, and its rates. */
-    state: samplePoseVelocity.IState;
+    state: IAutoMovieSamplePoseVelocity.IState;
 
     /** The continued samples at the second and one and two steps toward its side. */
     samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];
   }
   /** A posture with the person's layers added in order. */
   export function layered(
-    person: HumanSegment.IPerson,
-    posture: IHumanPosture,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     // Each layer draws from streams keyed by its own name, as IHumanLayer
     // documents, so two layers that name a channel alike stay independent.
-    const action = (): IHumanLayer.IAction | undefined => {
-      let active: HumanSegment.ISegment | undefined;
+    const action = (): IAutoMovieMotionHumanLayer.IAction | undefined => {
+      let active: IAutoMovieMotionHumanSegment.ISegment | undefined;
       for (const s of person.segments)
         if (s.entryTime <= seconds + 1e-12) active = s;
       return active === undefined
@@ -456,9 +443,9 @@ export namespace HumanSegmentPose {
     };
     return person.layers.reduce(
       (
-        p: IHumanPosture,
-        { layer, from, to, fade }: HumanSegment.ILayered,
-      ): IHumanPosture => {
+        p: IAutoMovieMotionHumanPosture,
+        { layer, from, to, fade }: IAutoMovieMotionHumanSegment.ILayered,
+      ): IAutoMovieMotionHumanPosture => {
         // A windowed layer comes in and goes out on a minimum-jerk ramp, as
         // the weight of what it adds.
         const edge: number = Math.min(seconds - from, to - seconds);
@@ -486,7 +473,7 @@ export namespace HumanSegmentPose {
   }
 
   /** The standing pose before a person's first action. */
-  export function initial(person: HumanSegment.IPerson): IAutoMoviePose {
+  export function initial(person: IAutoMovieMotionHumanSegment.IPerson): IAutoMoviePose {
     return resolveHumanPosture(person.performer.body, person.initial);
   }
 }

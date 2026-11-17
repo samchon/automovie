@@ -1,4 +1,4 @@
-import { AutoMovieBodyRegion } from "../skeleton/AutoMovieBodyRegion";
+import type { AutoMovieBodyRegion } from "../skeleton/AutoMovieBodyRegion";
 
 /**
  * Fields every action verb shares: who performs it and where it sits on the

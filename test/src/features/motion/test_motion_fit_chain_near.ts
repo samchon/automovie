@@ -1,17 +1,7 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelSeed,
-  Vector3,
-  fitSeededChainToTarget,
-  hingedArmSwivel,
-  resolvePose,
-  samplePoseVelocity,
-} from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, IAutoMovieSeededChainFit, IAutoMovieSwivelSeed, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, fitSeededChainToTarget, hingedArmSwivel, resolvePose, samplePoseVelocity } from "@automovie/engine";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -41,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the body, the motion, the tolerance and the 3 scenarios with their bounds.
  */
 export function test_motion_fit_chain_near(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const pose: IAutoMoviePose = {
     skeleton: body.skeleton.id,
     root: null,

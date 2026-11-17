@@ -1,3 +1,6 @@
+import type { IAutoMovieInspectionRequest } from "@automovie/interface";
+
+
 import * as THREE from "three";
 
 import {
@@ -8,7 +11,7 @@ import {
   applyFormationCycleMaterial,
   formationCycleOf,
 } from "../formationCycle/index.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
 /**

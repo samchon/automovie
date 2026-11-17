@@ -1,4 +1,5 @@
-import type { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
+import type { IAutoMovieCompactCurveApproximation, IAutoMovieConicApproximation } from "@automovie/interface";
+
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { NodeCanvasCamera as V } from "./render/NodeCanvasCamera";
 import { CompactCurveSource as S } from "./CompactCurveSource";
@@ -14,7 +15,7 @@ export namespace SurfaceQualityData {
     /** Exact original cubic coefficients and analytic physical-phase callbacks. */
     source: S.Prepared;
     /** Saved complete degree-three result, without fitting or geometric repair. */
-    pieces: readonly C.IPiece[];
+    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[];
     /** Original physical phase period in millimetres. */
     period: number;
     /** Source-only positive-X support phase, normalized by the period. */
@@ -51,19 +52,19 @@ export namespace SurfaceQualityData {
   }
 
   /** Evaluate the exact saved polynomial derivative with respect to a shared normalized source clock, not a new arclength. */
-  export function point(row: Row, q: number, fitted: boolean, anchored: boolean, order: number = 0): P.Point {
+  export function point(row: Row, q: number, fitted: boolean, anchored: boolean, order: number = 0): IAutoMovieConicApproximation.Point {
     const phase: number = (((q + (anchored ? row.anchor : 0)) % 1) + 1) % 1 * row.period;
-    const pieces: readonly C.IPiece[] = fitted ? row.pieces : row.source.pieces;
+    const pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[] = fitted ? row.pieces : row.source.pieces;
     let lo: number = 0, hi: number = pieces.length - 1;
     while (lo < hi) { const mid: number = Math.floor((lo + hi) / 2); if (phase < pieces[mid]!.domain[1]) hi = mid; else lo = mid + 1; }
-    const piece: C.IPiece = pieces[lo]!;
+    const piece: IAutoMovieCompactCurveApproximation.IPiece = pieces[lo]!;
     if (piece.kind !== "polynomial") throw new Error("This registered control excludes independent rational clocks");
     const h: number = piece.domain[1] - piece.domain[0];
     const u: number = Math.max(0, Math.min(1, (phase - piece.domain[0]) / h));
-    let controls: P.Point[] = piece.controls.map((p: P.Point): P.Point => [p[0], p[1]]);
+    let controls: IAutoMovieConicApproximation.Point[] = piece.controls.map((p: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point => [p[0], p[1]]);
     for (let d: number = 0; d < order; ++d) {
       const degree: number = controls.length - 1;
-      controls = controls.slice(1).map((p: P.Point, i: number): P.Point => [(p[0] - controls[i]![0]) * degree * row.period / h, (p[1] - controls[i]![1]) * degree * row.period / h]);
+      controls = controls.slice(1).map((p: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [(p[0] - controls[i]![0]) * degree * row.period / h, (p[1] - controls[i]![1]) * degree * row.period / h]);
     }
     for (let n: number = controls.length - 1; n > 0; --n)
       for (let i: number = 0; i < n; ++i) controls[i] = [(1 - u) * controls[i]![0] + u * controls[i + 1]![0], (1 - u) * controls[i]![1] + u * controls[i + 1]![1]];
@@ -76,7 +77,7 @@ export namespace SurfaceQualityData {
     const curves: N.Curve[] = [];
     for (const row of rows) {
       const points: N.Point[] = [];
-      for (let j: number = 0; j < count; ++j) { const p: P.Point = point(row, j / count, fitted, anchored); positions.push(p[0] / 1000, row.loop.heightMm / 1000, p[1] / 1000); points.push([p[0] / 1000, row.loop.heightMm / 1000, p[1] / 1000]); }
+      for (let j: number = 0; j < count; ++j) { const p: IAutoMovieConicApproximation.Point = point(row, j / count, fitted, anchored); positions.push(p[0] / 1000, row.loop.heightMm / 1000, p[1] / 1000); points.push([p[0] / 1000, row.loop.heightMm / 1000, p[1] / 1000]); }
       curves.push({ id: row.loop.key, points, closed: true, colour: fitted ? "bc4b28" : "316a99" });
     }
     for (let i: number = 0; i + 1 < rows.length; ++i) for (let j: number = 0; j < count; ++j) {
@@ -93,7 +94,7 @@ export namespace SurfaceQualityData {
     let maximumSlope: number = -Infinity, maximumNormal: number = -Infinity;
     let slopeWitness: object | null = null, normalWitness: object | null = null;
     for (const row of rows) for (let j: number = 0; j < count; ++j) for (let order: number = 0; order < 3; ++order) {
-      const a: P.Point = point(row, (j + 0.371) / count, false, anchored, order), b: P.Point = point(row, (j + 0.371) / count, true, anchored, order);
+      const a: IAutoMovieConicApproximation.Point = point(row, (j + 0.371) / count, false, anchored, order), b: IAutoMovieConicApproximation.Point = point(row, (j + 0.371) / count, true, anchored, order);
       [errors, dq, dqq][order]!.push(Math.hypot(b[0] - a[0], b[1] - a[1]));
     }
     for (let i: number = 0; i + 1 < rows.length; ++i) {
@@ -102,18 +103,18 @@ export namespace SurfaceQualityData {
       minH = Math.min(minH, h);
       for (let j: number = 0; j < count; ++j) {
         const q: number = (j + 0.371) / count;
-        const pa: P.Point = point(a, q, false, anchored), pb: P.Point = point(b, q, false, anchored), na: P.Point = point(a, q, true, anchored), nb: P.Point = point(b, q, true, anchored);
+        const pa: IAutoMovieConicApproximation.Point = point(a, q, false, anchored), pb: IAutoMovieConicApproximation.Point = point(b, q, false, anchored), na: IAutoMovieConicApproximation.Point = point(a, q, true, anchored), nb: IAutoMovieConicApproximation.Point = point(b, q, true, anchored);
         const ss: N.Point = [(pb[0] - pa[0]) / h, 1, (pb[1] - pa[1]) / h], ns: N.Point = [(nb[0] - na[0]) / h, 1, (nb[1] - na[1]) / h];
         const errorSlope: number = Math.hypot(ns[0] - ss[0], ns[2] - ss[2]);
         ds.push(errorSlope); sourceSlopes.push(Math.hypot(ss[0], ss[2])); newSlopes.push(Math.hypot(ns[0], ns[2]));
         if (errorSlope > maximumSlope) { maximumSlope = errorSlope; slopeWitness = { lower: a.loop.key, upper: b.loop.key, lowerYmm: a.loop.heightMm, upperYmm: b.loop.heightMm, hMm: h, q, sourceLowerXZmm: pa, sourceUpperXZmm: pb, candidateLowerXZmm: na, candidateUpperXZmm: nb, errorSlopeMmPerMm: errorSlope }; }
         if (i > 0) {
           const previous: Row = rows[i - 1]!, hp: number = a.loop.heightMm - previous.loop.heightMm;
-          const po: P.Point = point(previous, q, false, anchored), pn: P.Point = point(previous, q, true, anchored);
+          const po: IAutoMovieConicApproximation.Point = point(previous, q, false, anchored), pn: IAutoMovieConicApproximation.Point = point(previous, q, true, anchored);
           slopeJumps.push(Math.hypot((ns[0] - ss[0]) - ((na[0] - pn[0]) - (pa[0] - po[0])) / hp, (ns[2] - ss[2]) - ((na[1] - pn[1]) - (pa[1] - po[1])) / hp));
         }
         for (const v of [0, 0.5, 1]) {
-          const ad: P.Point = point(a, q, false, anchored, 1), bd: P.Point = point(b, q, false, anchored, 1), an: P.Point = point(a, q, true, anchored, 1), bn: P.Point = point(b, q, true, anchored, 1);
+          const ad: IAutoMovieConicApproximation.Point = point(a, q, false, anchored, 1), bd: IAutoMovieConicApproximation.Point = point(b, q, false, anchored, 1), an: IAutoMovieConicApproximation.Point = point(a, q, true, anchored, 1), bn: IAutoMovieConicApproximation.Point = point(b, q, true, anchored, 1);
           const so: N.Point = V.cross([(1 - v) * ad[0] + v * bd[0], 0, (1 - v) * ad[1] + v * bd[1]], ss), sn: N.Point = V.cross([(1 - v) * an[0] + v * bn[0], 0, (1 - v) * an[1] + v * bn[1]], ns);
           minSourceJacobian = Math.min(minSourceJacobian, Math.hypot(...so)); minNewJacobian = Math.min(minNewJacobian, Math.hypot(...sn));
           if (V.dot(so, sn) < 0) ++reversedNormals;
@@ -133,11 +134,11 @@ export namespace SurfaceQualityData {
   export function summary(values: number[]): object { const sorted: number[] = values.filter(Number.isFinite).sort((a: number, b: number): number => a - b); return { count: sorted.length, median: sorted[Math.floor(sorted.length * 0.5)] ?? null, p95: sorted[Math.floor(sorted.length * 0.95)] ?? null, maximum: sorted.at(-1) ?? null }; }
 
   /** Positive-X source support is solved analytically on each original cubic; no candidate-dependent seam is introduced. */
-  function support(pieces: readonly C.IPiece[]): number {
+  function support(pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[]): number {
     let maximum: number = -Infinity, phase: number = 0;
     for (const piece of pieces) {
       if (piece.kind !== "polynomial" || piece.degree !== 3) throw new Error("Source cubic required");
-      const p: number[] = piece.controls.map((c: P.Point): number => c[0]);
+      const p: number[] = piece.controls.map((c: IAutoMovieConicApproximation.Point): number => c[0]);
       const a: number = -p[0]! + 3 * p[1]! - 3 * p[2]! + p[3]!, b: number = 2 * (p[0]! - 2 * p[1]! + p[2]!), c: number = p[1]! - p[0]!;
       const roots: number[] = [0, 1];
       if (a === 0) { if (b !== 0) roots.push(-c / b); }

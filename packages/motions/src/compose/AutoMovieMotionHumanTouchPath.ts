@@ -1,10 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3 } from "@automovie/engine";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The direction a hand lies on a surface region when the arm chooses it
@@ -46,9 +43,9 @@ export namespace AutoMovieMotionHumanTouchPath {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lay(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    side: IAutoMovieMotionHumanHand.Side,
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     fallback: IAutoMovieVector3,
@@ -90,9 +87,9 @@ export namespace AutoMovieMotionHumanTouchPath {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function reach(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    side: IAutoMovieMotionHumanHand.Side,
     point: IAutoMovieVector3,
     elbow: "natural" | "level" = "natural",
     from?: IAutoMovieVector3,
@@ -109,9 +106,9 @@ export namespace AutoMovieMotionHumanTouchPath {
 
 /** Where the elbow is read for a hand's lay: hanging under the shoulder, or out to the side at the shoulder's height for an arm held level. */
 function elbowOf(
-  body: IHumanBody,
-  posture: Pick<IHumanPosture, "root" | "yaw">,
-  side: HumanHand.Side,
+  body: IAutoMovieMotionHumanBody,
+  posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+  side: IAutoMovieMotionHumanHand.Side,
   elbow: "natural" | "level",
 ): IAutoMovieVector3 {
   const outward: number = side === "left" ? 1 : -1;

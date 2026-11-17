@@ -1,6 +1,6 @@
-import type { IAutoMovieConvexSupportLoft } from "@automovie/interface";
+import type { IAutoMovieSupportLoftPlan64, IAutoMovieRealizeConvexSupportLoft, IAutoMovieConvexSupportLoft } from "@automovie/interface";
 
-import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
+
 import { emitAutoMovieSupportLoft64 } from "./emitAutoMovieSupportLoft64";
 import { planAutoMovieSupportLoft64 } from "./planAutoMovieSupportLoft64";
 
@@ -22,21 +22,7 @@ import { planAutoMovieSupportLoft64 } from "./planAutoMovieSupportLoft64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The one plan supplies mesh, analytic normal fans, physical correspondence and construction; no camera-dependent refitting or cross-request cache exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only caller-owned mesh, construction and scalar diagnostics transfer after complete generation. All plan/identity scratch expires on return or refusal without file, renderer, task or global state.
  */
-export function realizeAutoMovieConvexSupportLoft(input: {
-  loft: IAutoMovieConvexSupportLoft;
-  topologyDomain: string;
-  tolerance: number;
-  maxPlanes: number;
-  maxEvents: number;
-  maxCells: number;
-  maxVertices: number;
-  minimumDirectionSine: number;
-}): ReturnType<typeof emitAutoMovieSupportLoft64> & {
-  events: number;
-  intervals: number;
-  faceChordBoundMeters: number;
-  eventQualification: "binary64-numerical-not-certified";
-} {
+export function realizeAutoMovieConvexSupportLoft(input: IAutoMovieRealizeConvexSupportLoft.IInput): IAutoMovieRealizeConvexSupportLoft.IResult {
   if (
     !input ||
     !input.loft ||

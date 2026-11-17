@@ -1,10 +1,13 @@
-import type { IAutoMovieCaptureCell } from "../capture/IAutoMovieCaptureCell.js";
-import type { IAutoMovieCapturePlan } from "../capture/IAutoMovieCapturePlan.js";
-import type { IAutoMovieCaptureTime } from "../capture/IAutoMovieCaptureTime.js";
+import type { IAutoMovieCaptureCell, IAutoMovieCapturePlan, IAutoMovieCaptureTime, IAutoMovieDrawCall, IAutoMovieInspectionView } from "@automovie/interface";
+
+
+
+
+
 import { scaleAutoMovieCaptureLabels } from "../capture/scaleAutoMovieCaptureLabels.js";
-import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
+
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
-import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
+
 
 /**
  * Turn one planned capture cell into the call a draw page answers: the cell's second, view and inspection request as given, the subject's raster, the framing span, and the label scale the capture run stamps at.

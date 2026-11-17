@@ -1,12 +1,11 @@
-import { AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
-import type {
-  AutoMovieConstructionAxis,
-  AutoMovieConstructionFullness,
-  IAutoMovieConstructionOutline,
-  IAutoMovieConstructionOutlinePair,
-  IAutoMovieConstructionView,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieViewPart, IAutoMovieConstructionFullness, IAutoMovieConstructionAxis, IAutoMovieConstructionOutline, IAutoMovieConstructionOutlinePair, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
+
+
+import { AutoMovieViewOutline } from "@automovie/engine";
+
+
+
+
 
 /**
  * A body part's view record in the construction tree (`IAutoMovieConstructionView`)
@@ -27,7 +26,7 @@ export namespace AutoMovieHumanConstructionView {
    * @param axis The part's axis record, metres, naming the frame the part was lofted in.
    * @returns The view, metres.
    */
-  export function of(part: IAutoMovieViewPart, axis: AutoMovieConstructionAxis): IAutoMovieConstructionView {
+  export function of(part: IAutoMovieViewPart, axis: IAutoMovieConstructionAxis): IAutoMovieConstructionView {
     return {
       type: "view",
       name: part.name,
@@ -92,7 +91,7 @@ export namespace AutoMovieHumanConstructionView {
   }
 
   /** The fullness owner as the tree's record. */
-  function fullness(f: IAutoMovieViewPart.Fullness): AutoMovieConstructionFullness {
+  function fullness(f: IAutoMovieViewPart.Fullness): IAutoMovieConstructionFullness {
     switch (f.kind) {
       case "girth":
         return { type: "girth", girth: length(f.girth), departures: f.departures === undefined ? null : quarters(f.departures) };

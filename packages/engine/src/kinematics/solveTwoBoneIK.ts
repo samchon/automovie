@@ -1,5 +1,4 @@
-import { ITwoBoneIK } from "./ITwoBoneIK";
-
+import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 const acosDeg: (x: number) => number = (x: number): number =>
   (Math.acos(Math.min(1, Math.max(-1, x))) * 180) / Math.PI;
 
@@ -36,11 +35,11 @@ export const solveTwoBoneIK: (
   upper: number,
   lower: number,
   distance: number,
-) => ITwoBoneIK = (
+) => IAutoMovieTwoBoneIK = (
   upper: number,
   lower: number,
   distance: number,
-): ITwoBoneIK => {
+): IAutoMovieTwoBoneIK => {
   validateSegmentLength("upper", upper);
   validateSegmentLength("lower", lower);
   validateDistance(distance);

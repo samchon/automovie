@@ -1,9 +1,11 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { IAutoMoviePolylineFit, IAutoMovieCurve64, IAutoMovieMeshPlaneIntersection, IAutoMovieMeshSectionOrientation, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryHermiteCurve, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryOrderedLineage, IAutoMovieRecoverySectionObservationOperation } from "@automovie/interface";
+
+
 
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
-import type { AutoMovieRecoveryOrderedLineage } from "../observation/AutoMovieRecoveryOrderedLineage";
-import type { IAutoMovieRecoveryHermiteCurve } from "../structures/curve/IAutoMovieRecoveryHermiteCurve";
-import type { CutPoint } from "./mesh-observations/CutPoint";
+
+
+
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
 import { observeRecoverySection } from "./observeRecoverySection";
@@ -29,18 +31,18 @@ import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Preparation/orientation maps live for this synchronous call; each target owns temporary copied points, accepted trace and replay/converted spans, which expire after its outcome. Returned maps and saved endpoint jets grow with target samples/spans and transfer to the caller; no aggregate byte ceiling, host handle, task, listener or global cache is added. Per-target errors retain diagnostics, completed milestones and obtained scalar replay-quality metadata but no maps or replacement coefficients; an admission throw releases call-local references.
  */
 export function bindRecoveryOrderedFits(
-  input: AutoMovieRecoveryOrderedLineage.Input,
-  cuts: AutoMovieRecoveryOrderedLineage.Cuts,
-  targets: readonly AutoMovieRecoveryOrderedLineage.Target[],
-): AutoMovieRecoveryOrderedLineage.Binding[] {
+  input: IAutoMovieRecoveryOrderedLineage.Input,
+  cuts: IAutoMovieRecoveryOrderedLineage.Cuts,
+  targets: readonly IAutoMovieRecoveryOrderedLineage.Target[],
+): IAutoMovieRecoveryOrderedLineage.Binding[] {
   if (
     cuts.sourceIdentity !== input.sourceIdentity ||
     cuts.sourceSelectionIdentity !== input.sourceSelectionIdentity
   )
     throw new Error("Ordered cut artifact belongs to another source selection");
-  const prepared: ReturnType<typeof prepareRecoveryMeshIncidence> =
+  const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, input.verticesMm);
-  const frame: ReturnType<typeof planeFrame> = planeFrame(
+  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
     [0, 0, 0],
     input.axis,
     input.reference,
@@ -51,31 +53,29 @@ export function bindRecoveryOrderedFits(
       originMm: frame.origin,
       n: frame.n,
       u: frame.u,
-      v: frame.v,
-    })
+      v: frame.v })
   )
     throw new Error("Ordered cut artifact has a different physical frame");
   const orientations: Map<
     1 | -1,
-    ReturnType<typeof sourceOrientation>
+    ReturnType<IAutoMovieMeshSectionOrientation.Operation>
   > = new Map();
   const seen: Set<string> = new Set();
   return targets.map(
     (
-      target: AutoMovieRecoveryOrderedLineage.Target,
-    ): AutoMovieRecoveryOrderedLineage.Binding => {
+      target: IAutoMovieRecoveryOrderedLineage.Target,
+    ): IAutoMovieRecoveryOrderedLineage.Binding => {
       const base: Pick<
-        AutoMovieRecoveryOrderedLineage.Binding,
+        IAutoMovieRecoveryOrderedLineage.Binding,
         "coordinateMm" | "contourIndex" | "observationIdentity"
       > = {
         coordinateMm: target.coordinateMm,
         contourIndex: target.contourIndex,
-        observationIdentity: target.observationIdentity,
-      };
+        observationIdentity: target.observationIdentity };
       const completedStages: NonNullable<
-        AutoMovieRecoveryOrderedLineage.Binding["completedStages"]
+        IAutoMovieRecoveryOrderedLineage.Binding["completedStages"]
       > = [];
-      let replayFitQualification: unknown;
+      let replayFitQualification: Omit<IAutoMoviePolylineFit, "curve"> | undefined;
       try {
         const key: string = JSON.stringify([
           target.coordinateMm,
@@ -84,17 +84,17 @@ export function bindRecoveryOrderedFits(
         if (seen.has(key)) throw new Error("Repeated saved-fit target");
         seen.add(key);
         const section:
-          | AutoMovieRecoveryOrderedLineage.Cuts["sections"][number]
+          | IAutoMovieRecoveryOrderedLineage.Cuts["sections"][number]
           | undefined = cuts.sections.find(
           (
-            s: AutoMovieRecoveryOrderedLineage.Cuts["sections"][number],
+            s: IAutoMovieRecoveryOrderedLineage.Cuts["sections"][number],
           ): boolean =>
             s.coordinateMm === target.coordinateMm &&
             s.observationIdentity === target.observationIdentity,
         );
-        const raw: AutoMovieRecoveryOrderedLineage.Contour | undefined =
+        const raw: IAutoMovieRecoveryOrderedLineage.Contour | undefined =
           section?.contours.find(
-            (c: AutoMovieRecoveryOrderedLineage.Contour): boolean =>
+            (c: IAutoMovieRecoveryOrderedLineage.Contour): boolean =>
               c.contourIndex === target.contourIndex,
           );
         if (!raw || raw.points.length < (raw.closed ? 3 : 2))
@@ -102,10 +102,10 @@ export function bindRecoveryOrderedFits(
             "Saved-fit target has no qualified nondegenerate raw contour",
           );
         const savedSection:
-          | AutoMovieRecoveryOrderedLineage.Input["savedSections"][number]
+          | IAutoMovieRecoveryOrderedLineage.Input["savedSections"][number]
           | undefined = input.savedSections.find(
           (
-            s: AutoMovieRecoveryOrderedLineage.Input["savedSections"][number],
+            s: IAutoMovieRecoveryOrderedLineage.Input["savedSections"][number],
           ): boolean =>
             s.coordinateMm === target.coordinateMm &&
             s.observationIdentity === target.observationIdentity,
@@ -143,35 +143,34 @@ export function bindRecoveryOrderedFits(
         const sign: 1 | -1 = target.policy.sourceOrientationSign;
         if (!orientations.has(sign))
           orientations.set(sign, sourceOrientation(prepared.mesh, sign));
-        /** Current section callback record, not evidence of historical parameters.
+ 
+       /** Current section callback record, not evidence of historical parameters.
          *
          */
         type Trace = Parameters<
           NonNullable<
-            Parameters<typeof observeRecoverySection>[0]["onAcceptedFit"]
+            Parameters<IAutoMovieRecoverySectionObservationOperation.Operation>[0]["onAcceptedFit"]
           >
         >[0];
         const traces: Trace[] = [];
-        const plane: ReturnType<typeof planeFrame> = {
+        const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
           ...frame,
           origin: [
             frame.n[0] * target.coordinateMm,
             frame.n[1] * target.coordinateMm,
             frame.n[2] * target.coordinateMm,
-          ],
-        };
+          ] };
         // The private fitter borrows mutable tuples; own these copies without changing source metadata or casting away readonly.
-        const points: CutPoint[] = raw.points.map(
+        const points: IAutoMovieMeshPlaneIntersection[] = raw.points.map(
           (
-            p: AutoMovieRecoveryOrderedLineage.Contour["points"][number],
-          ): CutPoint => ({
+            p: IAutoMovieRecoveryOrderedLineage.Contour["points"][number],
+          ): IAutoMovieMeshPlaneIntersection => ({
             p: [p.p[0], p.p[1], p.p[2]],
             a: p.a,
             b: p.b,
-            t: p.t,
-          }),
+            t: p.t }),
         );
-        const observed: ReturnType<typeof observeRecoverySection> =
+        const observed: ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> =
           observeRecoverySection({
             coordinateMm: target.coordinateMm,
             plane,
@@ -183,21 +182,16 @@ export function bindRecoveryOrderedFits(
             name: "saved-fit-trace",
             onAcceptedFit: (trace: Trace): void => {
               traces.push(trace);
-            },
-          });
-        const fitted: C.Cubic | undefined =
+            } });
+        const fitted: IAutoMovieCurve64.Cubic | undefined =
           observed.section.loops[0]?.curve ?? observed.report.open[0]?.curve;
         if (fitted !== undefined) {
           const openFit: (typeof observed.report.open)[number] | undefined =
             observed.report.open[0];
-          replayFitQualification =
-            observed.section.loops[0] === undefined && openFit !== undefined
-              ? Object.fromEntries(
-                  Object.entries(openFit).filter(
-                    ([key]: [string, unknown]): boolean => key !== "curve",
-                  ),
-                )
-              : observed.report.fits[0];
+          if (observed.section.loops[0] === undefined && openFit !== undefined) {
+            const { curve: _curve, ...quality }: IAutoMoviePolylineFit = openFit;
+            replayFitQualification = quality;
+          } else replayFitQualification = observed.report.fits[0];
           completedStages.push("replay-fit");
         }
         if (!fitted || traces.length !== 1)
@@ -205,7 +199,7 @@ export function bindRecoveryOrderedFits(
             observed.report.diagnostics.join("; ") ||
               "Replay did not emit one accepted trace",
           );
-        const converted: C.Cubic | IAutoMovieRecoveryHermiteCurve =
+        const converted: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve =
           convertAutoMovieRecoveryCurves(
             fitted,
             target.curve.type === "cubicHermite" ? "hermite" : "bezier",
@@ -229,7 +223,7 @@ export function bindRecoveryOrderedFits(
         for (const h of target.curve.phaseIntervals)
           starts.push(starts.at(-1)! + h);
         const samples: NonNullable<
-          AutoMovieRecoveryOrderedLineage.Binding["samples"]
+          IAutoMovieRecoveryOrderedLineage.Binding["samples"]
         > = [];
         for (const span of trace.spans) {
           if (
@@ -257,29 +251,27 @@ export function bindRecoveryOrderedFits(
               localParameter: parameter,
               fittedPhaseMm:
                 starts[span.span]! +
-                target.curve.phaseIntervals[span.span]! * parameter,
-            });
+                target.curve.phaseIntervals[span.span]! * parameter });
           }
         }
         completedStages.push("accepted-sample-map");
         const hermite: IAutoMovieRecoveryHermiteCurve =
           convertAutoMovieRecoveryCurves(target.curve, "hermite");
         const endpointJets: NonNullable<
-          AutoMovieRecoveryOrderedLineage.Binding["endpointJets"]
+          IAutoMovieRecoveryOrderedLineage.Binding["endpointJets"]
         > = hermite.spans.map(
           (
             s: (typeof hermite.spans)[number],
             spanIndex: number,
           ): NonNullable<
-            AutoMovieRecoveryOrderedLineage.Binding["endpointJets"]
+            IAutoMovieRecoveryOrderedLineage.Binding["endpointJets"]
           >[number] => ({
             spanIndex,
             widthMm: hermite.phaseIntervals[spanIndex]!,
             start: [...s.start],
             end: [...s.end],
             startDerivative: [...s.startDerivative],
-            endDerivative: [...s.endDerivative],
-          }),
+            endDerivative: [...s.endDerivative] }),
         );
         completedStages.push("saved-endpoint-jets");
         return {
@@ -292,8 +284,7 @@ export function bindRecoveryOrderedFits(
           historicalAcceptedTraceVerified: false,
           reversed: trace.reversed,
           samples,
-          endpointJets,
-        };
+          endpointJets };
       } catch (failure: unknown) {
         return {
           ...base,
@@ -306,8 +297,7 @@ export function bindRecoveryOrderedFits(
             : { replayFitQualification }),
           ...(completedStages.includes("replay-fit")
             ? { historicalAcceptedTraceVerified: false as const }
-            : {}),
-        };
+            : {}) };
       }
     },
   );
@@ -319,13 +309,12 @@ export function bindRecoveryOrderedFits(
  * JSON equality treats signed zero alike and is not binary-buffer equality.
  *
  */
-function geometry(curve: C.Cubic | IAutoMovieRecoveryHermiteCurve): string {
+function geometry(curve: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve): string {
   return JSON.stringify({
     type: curve.type,
     closed: curve.closed,
     unit: curve.unit,
     phaseUnit: curve.phaseUnit,
     phaseIntervals: curve.phaseIntervals,
-    spans: curve.spans,
-  });
+    spans: curve.spans });
 }

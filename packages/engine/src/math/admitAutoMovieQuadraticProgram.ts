@@ -1,6 +1,6 @@
+import type { IAutoMovieQuadraticRow, IAutoMovieSolveQuadraticProgram } from "@automovie/interface";
+
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
-import type { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import type { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
  * Check explicit diagonal-program admission rules without building its sparse matrix.
@@ -22,7 +22,7 @@ import type { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticPr
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inputs remain borrowed and unmodified; the call-local marker becomes unreachable on return or throw and is reclaimed by the host rather than explicitly disposed. Explicit refusal creates one Error/host stack without attaching the input, and no matrix, numerical kernel workspace or task is acquired.
  */
 export function admitAutoMovieQuadraticProgram(
-  input: Parameters<typeof solveAutoMovieQuadraticProgram>[0],
+  input: ([IAutoMovieSolveQuadraticProgram.IInput])[0],
 ): void {
   const variables: number = input.diagonal.length;
   if (

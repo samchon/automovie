@@ -1,5 +1,9 @@
+import type { IAutoMovieNaturalSpline, IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkProfileBack } from "@automovie/interface";
+
+
+
 import { AutoMovieNaturalSpline } from "@automovie/engine";
-import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
+
 
 /**
  * The trunk's back median profile alone: the forward place of the back
@@ -16,14 +20,7 @@ import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
  * `apexes` publishes where this curve puts them.
  */
 export namespace AutoMovieHumanTrunkProfileBack {
-  /** The profile. */
-  export interface IProfile {
-    /** The forward place of the back midline at a height, mm. */
-    at: (y: number) => number;
-
-    /** The landmark stations the profile runs through, `[height, forward place]`, mm. */
-    marks: [number, number][];
-  }
+  
 
   /**
    * The profile through the keys.
@@ -31,9 +28,9 @@ export namespace AutoMovieHumanTrunkProfileBack {
    * @param keys The column's keys by rising height.
    * @returns The profile.
    */
-  export function create(keys: readonly IAutoMovieHumanTrunkKey[]): IProfile {
+  export function create(keys: readonly IAutoMovieHumanTrunkKey[]): IAutoMovieHumanTrunkProfileBack.IProfile {
     const used: IAutoMovieHumanTrunkKey[] = keys.filter((k: IAutoMovieHumanTrunkKey): boolean => k.back !== null);
-    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const spline: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
       used.map((k: IAutoMovieHumanTrunkKey): number => k.back!),
     );
@@ -55,10 +52,10 @@ export namespace AutoMovieHumanTrunkProfileBack {
    * @returns The lumbar apex's and the thoracic apex's heights, mm.
    */
   export function apexes(
-    profile: IProfile,
-    lumbar: readonly [number, number],
-    thoracic: readonly [number, number],
-  ): [number, number] {
+    profile: IAutoMovieHumanTrunkProfileBack.IProfile,
+    lumbar: IAutoMovieHumanTrunkProfileBack.ApexesLumbar,
+    thoracic: IAutoMovieHumanTrunkProfileBack.ApexesThoracic,
+  ): IAutoMovieHumanTrunkProfileBack.ApexesResult {
     const scan = (from: number, to: number, sign: 1 | -1): number => {
       let best: number = from;
       let value: number = -Infinity;

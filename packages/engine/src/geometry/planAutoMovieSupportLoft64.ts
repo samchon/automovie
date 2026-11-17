@@ -1,7 +1,8 @@
-import type { IAutoMovieConvexSupportLoft } from "@automovie/interface";
+import type { IAutoMovieSupportLoftPlan64, IAutoMovieCreateSupportSectionQuery, IAutoMoviePlanSupportLoft64, IAutoMovieConvexSupportLoft } from "@automovie/interface";
+
+
 
 import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
-import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 import { createAutoMovieSupportSectionQuery } from "./createAutoMovieSupportSectionQuery";
 import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlgebra64";
 import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBernstein64";
@@ -24,13 +25,7 @@ import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBerns
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each pair's fixed determinant and four X/Z coefficients serve all triple queries and output intervals. A separated four-control positive-slack witness, confirmed by exact signs, excludes that pair's triples over the entire interval by the Bernstein convex-hull property; endpoint samples never supply this exclusion. Unproved pairs retain the full event calculation. Interior stations and their following interval midpoints are queried in phase order so the section query can reuse nearby active-edge seeds; every station and midpoint still receives full admission. Interval incidence and curvature bounds are planned once for the emitter.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local O(S P cubed + (S+E) P) curve/triple/interval records transfer to one synchronous emitter; budget refusal returns no partial mesh or retained resource.
  */
-export function planAutoMovieSupportLoft64(input: {
-  loft: IAutoMovieConvexSupportLoft;
-  minimumDirectionSine: number;
-  tolerance: number;
-  maxEvents: number;
-  maxCells: number;
-}): IAutoMovieSupportLoftPlan64 {
+export function planAutoMovieSupportLoft64(input: IAutoMoviePlanSupportLoft64.IInput): IAutoMovieSupportLoftPlan64 {
   const normals: IAutoMovieSupportLoftPlan64["normals"] = input.loft.planes.map(
     (plane: IAutoMovieConvexSupportLoft["planes"][number]): [number, number] =>
       plane.normal,
@@ -41,7 +36,7 @@ export function planAutoMovieSupportLoft64(input: {
     events: 0,
     tolerance: input.tolerance,
   };
-  const query: ReturnType<typeof createAutoMovieSupportSectionQuery> =
+  const query: (IAutoMovieCreateSupportSectionQuery.IResult) =
     createAutoMovieSupportSectionQuery({
       normals,
       minimumDirectionSine: input.minimumDirectionSine,

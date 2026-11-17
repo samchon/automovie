@@ -1,27 +1,22 @@
+import type { AutoMovieBernsteinGrid64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieBicubicAtlas64, IAutoMovieBicubicAtlasPlan64, IAutoMovieBicubicAtlasRegistry64, IAutoMovieBicubicAtlasTessellation64, IAutoMovieCanonicalBoundaryPhase64 } from "@automovie/interface";
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
-import type { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
-import type { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
-import type { AutoMovieBicubicAtlasTypes64 } from "./AutoMovieBicubicAtlasTypes64";
 import { AutoMovieBicubicAtlasVertex64 } from "./AutoMovieBicubicAtlasVertex64";
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
 
-type Patch = AutoMovieBicubicAtlasTypes64["Patch"];
-type AtlasInput = AutoMovieBicubicAtlasTypes64["AtlasInput"];
+type Patch = IAutoMovieBicubicAtlas64.Patch;
 
-type Range = AutoMovieBicubicAtlasTypes64["Range"];
-type AtlasChunk = AutoMovieBicubicAtlasTypes64["AtlasChunk"];
-type AtlasSummary = AutoMovieBicubicAtlasTypes64["AtlasSummary"];
+type Range = IAutoMovieBicubicAtlas64.Range;
 
-type Plan = AutoMovieBicubicAtlasTypes64["Plan"];
+type Plan = IAutoMovieBicubicAtlas64.Plan;
 
-type Occurrence = AutoMovieBicubicAtlasTypes64["Occurrence"];
-type Vertex = AutoMovieBicubicAtlasTypes64["Vertex"];
-type Phase = AutoMovieBicubicAtlasTypes64["Phase"];
-type Sample = AutoMovieBicubicAtlasTypes64["Sample"];
-type Edge = AutoMovieBicubicAtlasTypes64["Edge"];
+type Occurrence = IAutoMovieBicubicAtlas64.Occurrence;
+type Vertex = IAutoMovieBicubicAtlas64.Vertex;
+type Phase = IAutoMovieCanonicalBoundaryPhase64;
+type Sample = IAutoMovieBicubicAtlas64.Sample;
+type Edge = IAutoMovieBicubicAtlas64.Edge;
 
 /**
  * Emit planned atlas patches with unchanged yield, allocation and cleanup order.
@@ -35,18 +30,18 @@ type Edge = AutoMovieBicubicAtlasTypes64["Edge"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The generator owns live chunks and maps; yielded buffers transfer to callers and cleanup remains at the original resume points.
  */
 export function* AutoMovieBicubicAtlasEmit64(
-  input: AtlasInput,
-  prepared: ReturnType<typeof AutoMovieBicubicAtlasPlan64>,
-  registered: ReturnType<typeof AutoMovieBicubicAtlasRegistry64>,
+  input: IAutoMovieBicubicAtlasTessellation64.Input,
+  prepared: IAutoMovieBicubicAtlasPlan64.IResult,
+  registered: IAutoMovieBicubicAtlasRegistry64.IResult,
   SIDES: readonly (readonly number[])[],
   CORNERS: readonly (readonly [number, number, number])[],
-): Generator<AtlasChunk, AtlasSummary, void> {
+): Generator<IAutoMovieBicubicAtlasTessellation64.Chunk, IAutoMovieBicubicAtlasTessellation64.Summary, void> {
   const {
     plans,
     boundary,
     norm,
     cross,
-  }: ReturnType<typeof AutoMovieBicubicAtlasPlan64> = prepared;
+  }: IAutoMovieBicubicAtlasPlan64.IResult = prepared;
   const { root }: typeof boundary = boundary;
   const {
     corners,
@@ -56,21 +51,21 @@ export function* AutoMovieBicubicAtlasEmit64(
     summary,
     unprocessed,
     comparePhase,
-  }: ReturnType<typeof AutoMovieBicubicAtlasRegistry64> = registered;
+  }: IAutoMovieBicubicAtlasRegistry64.IResult = registered;
   const jet: (
     p: number,
     u: number,
     v: number,
-  ) => { position: B.Vec; normal: B.Vec; regular: boolean } = (
+  ) => { position: AutoMovieVector3Tuple; normal: AutoMovieVector3Tuple; regular: boolean } = (
     p: number,
     u: number,
     v: number,
-  ): { position: B.Vec; normal: B.Vec; regular: boolean } => {
-    const grid: B.Grid = plans[p]!.grid,
-      poly: B.Poly = G.gridValue(grid, v),
-      du: B.Vec = B.value(B.tangent(poly), u),
-      dv: B.Vec = B.value(G.gridValue(G.gridTangent(grid), v), u),
-      n: B.Vec = cross(du, dv),
+  ): { position: AutoMovieVector3Tuple; normal: AutoMovieVector3Tuple; regular: boolean } => {
+    const grid: AutoMovieBernsteinGrid64 = plans[p]!.grid,
+      poly: AutoMovieBernsteinPolynomial64 = G.gridValue(grid, v),
+      du: AutoMovieVector3Tuple = B.value(B.tangent(poly), u),
+      dv: AutoMovieVector3Tuple = B.value(G.gridValue(G.gridTangent(grid), v), u),
+      n: AutoMovieVector3Tuple = cross(du, dv),
       length: number = norm(n);
     const regular: boolean = Number.isFinite(length) && length > 0;
     return {
@@ -105,7 +100,7 @@ export function* AutoMovieBicubicAtlasEmit64(
   for (let p: number = 0; p < plans.length; p++) {
     const plan: Plan = plans[p]!,
       patch: Patch = input.patches[p]!;
-    const fresh: () => AtlasChunk = (): AtlasChunk => ({
+    const fresh: () => IAutoMovieBicubicAtlasTessellation64.Chunk = (): IAutoMovieBicubicAtlasTessellation64.Chunk => ({
       patch: patch.id,
       vertexStart: cursor.nextIndex,
       positions: [],
@@ -116,8 +111,8 @@ export function* AutoMovieBicubicAtlasEmit64(
       ...(input.retainPatchCoefficients && plan.grid.length === 4
         ? {
             patchCoefficients: plan.grid.map(
-              (row: B.Poly): [number, number, number][] =>
-                row.map((point: B.Vec): [number, number, number] => [
+              (row: AutoMovieBernsteinPolynomial64): [number, number, number][] =>
+                row.map((point: AutoMovieVector3Tuple): [number, number, number] => [
                   point[0],
                   point[1],
                   point[2],
@@ -137,7 +132,7 @@ export function* AutoMovieBicubicAtlasEmit64(
         maxErrorBoundMm: 0,
       },
     });
-    let chunk: AtlasChunk = fresh();
+    let chunk: IAutoMovieBicubicAtlasTessellation64.Chunk = fresh();
     const qualify: () => void = (): void => {
       chunk.diagnostics.push(
         "Canonical position identity is separate from analytic normal fans; legacy edges share their first retained owner. Outward orientation, G1, immersion, embedding and original-source fidelity are unverified.",
@@ -280,7 +275,7 @@ export function* AutoMovieBicubicAtlasEmit64(
         phaseMaps,
         local,
         cursor,
-        (): AtlasChunk => chunk,
+        (): IAutoMovieBicubicAtlasTessellation64.Chunk => chunk,
         jet,
         edgeUV,
         SIDES,

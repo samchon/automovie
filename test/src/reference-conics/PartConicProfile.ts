@@ -1,3 +1,4 @@
+import type { IAutoMovieViewChain } from "@automovie/interface";
 import { AutoMovieViewChain as Q } from "@automovie/engine";
 import type { PartConicTypes as T } from "./PartConicTypes";
 
@@ -60,10 +61,10 @@ export namespace PartConicProfile {
   }
 
   /** Reconstruct actual conics from support/contact/fullness fields; no source samples enter the coefficients. */
-  export function section(values: readonly number[], pieces: 1 | 2): Q.ISection {
+  export function section(values: readonly number[], pieces: 1 | 2): IAutoMovieViewChain.ISection {
     const guides: T.P[] = [[values[0]!, values[4]!], [values[5]!, values[2]!], [values[1]!, values[6]!], [values[7]!, values[3]!]];
     const tangent: T.P[] = [[0, 1], [-1, 0], [0, -1], [1, 0]];
-    const input: Q.IInput = { points: [], tangents: [], shoulders: [] };
+    const input: IAutoMovieViewChain.IInput = { points: [], tangents: [], shoulders: [] };
     for (let q: number = 0; q < 4; ++q) {
       input.points.push(guides[q]!);
       input.tangents.push(tangent[q]!);
@@ -79,7 +80,7 @@ export namespace PartConicProfile {
 
   /** Held-out position evidence includes every native polygon vertex phase and a fixed independent angular grid. */
   export function error(points: readonly T.P[], values: readonly number[], pieces: 1 | 2): number {
-    const conic: Q.ISection = section(values, pieces);
+    const conic: IAutoMovieViewChain.ISection = section(values, pieces);
     if (conic.fault !== null) return Infinity;
     let maximum: number = 0;
     const phases: number[] = [...points.map((p: T.P): number => Math.atan2(p[1], p[0])), ...Array.from({ length: 128 }, (_: unknown, i: number): number => 2 * Math.PI * i / 128)];

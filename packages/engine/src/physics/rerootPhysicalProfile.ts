@@ -1,5 +1,4 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
+import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
 /**
  * The same articulated tree held from another segment: every joint on the
  * path from the old root to the new one is inverted, so the new root is the
@@ -24,23 +23,23 @@ import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function rerootPhysicalProfile(profile: P, root: string): P {
-  const parentOf: Map<string, P.IJoint> = new Map(
-    profile.joints.map((joint: P.IJoint): [string, P.IJoint] => [
+export function rerootPhysicalProfile(profile: IAutoMoviePhysicalProfile, root: string): IAutoMoviePhysicalProfile {
+  const parentOf: Map<string, IAutoMoviePhysicalProfile.IJoint> = new Map(
+    profile.joints.map((joint: IAutoMoviePhysicalProfile.IJoint): [string, IAutoMoviePhysicalProfile.IJoint] => [
       joint.child,
       joint,
     ]),
   );
-  if (!profile.segments.some((s: P.ISegment): boolean => s.bone === root))
+  if (!profile.segments.some((s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === root))
     throw new Error(`Unknown physical reroot segment ${root}`);
-  const inverted: Set<P.IJoint> = new Set();
+  const inverted: Set<IAutoMoviePhysicalProfile.IJoint> = new Set();
   for (let bone: string = root; parentOf.has(bone); ) {
-    const joint: P.IJoint = parentOf.get(bone)!;
+    const joint: IAutoMoviePhysicalProfile.IJoint = parentOf.get(bone)!;
     inverted.add(joint);
     bone = joint.parent;
   }
-  const joints: P.IJoint[] = profile.joints.map(
-    (joint: P.IJoint): P.IJoint =>
+  const joints: IAutoMoviePhysicalProfile.IJoint[] = profile.joints.map(
+    (joint: IAutoMoviePhysicalProfile.IJoint): IAutoMoviePhysicalProfile.IJoint =>
       inverted.has(joint)
         ? {
             ...joint,
@@ -49,7 +48,7 @@ export function rerootPhysicalProfile(profile: P, root: string): P {
             parentFrame: joint.childFrame,
             childFrame: joint.parentFrame,
             axes: joint.axes.map(
-              (axis: P.IAxis): P.IAxis => ({
+              (axis: IAutoMoviePhysicalProfile.IAxis): IAutoMoviePhysicalProfile.IAxis => ({
                 ...axis,
                 minimum: -axis.maximum,
                 maximum: -axis.minimum,

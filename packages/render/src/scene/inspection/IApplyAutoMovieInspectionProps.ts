@@ -1,8 +1,12 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark, IAutoMovieInspectionRequest } from "@automovie/interface";
+
+
+
+
 import type * as THREE from "three";
 
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+
 
 /**
  * What `applyAutoMovieInspection` works on: a built scene, the request, and the two things only the caller holds.

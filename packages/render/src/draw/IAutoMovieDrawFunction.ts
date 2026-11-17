@@ -1,6 +1,9 @@
-import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
-import type { IAutoMovieDrawDescription } from "./IAutoMovieDrawDescription.js";
-import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
+import type { IAutoMovieDrawCall, IAutoMovieDrawDescription, IAutoMovieDrawResult } from "@automovie/interface";
+
+
+
+
+
 
 /**
  * The draw-only function a page installs under `AUTO_MOVIE_DRAW_GLOBALS.draw`, which every host calls to get pictures: describe the subject, then draw one call at a time.

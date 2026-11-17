@@ -1,8 +1,8 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type { IAutoMovieConstructionProfileSource, IAutoMovieConstructionProfilePhase, IAutoMovieLoftFrame, IAutoMovieConstructionProfile } from "@automovie/interface";
+
+
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
 
 /** One already admitted original chart and its actual station ownership. */
 type Chart = {
@@ -28,22 +28,6 @@ type Chart = {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionProfilePhase {
-  /**
-   * Actual world value and phase derivatives at one fixed physical station.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Actual world value and phase derivatives at one fixed physical station.
-   * @evidence contracts/development/design.md#principled-representation Represents Actual world value and phase derivatives at one fixed physical station: interface of 3 members (`p`, `t`, `tt`); units and frames named in its text: world, second. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IReading` in packages/engine/src/geometry/construction/AutoMovieConstructionProfilePhase.ts; its surface is the 3 members listed and the text shows 64 other files naming it, mostly packages/human (35), test (19), packages/engine (10), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IReading {
-    /** World point, kernel millimetres. */
-    p: [number, number, number];
-    /** First derivative per normalized piece coordinate. */
-    t: [number, number, number];
-    /** Second normalized phase derivative, or null where not supplied. */
-    tt: [number, number, number] | null;
-  }
 
   /**
    * Borrow already admitted immutable originals; explicit null never falls back to total2.
@@ -59,7 +43,7 @@ export namespace AutoMovieConstructionProfilePhase {
   export function create(
     source: IAutoMovieConstructionProfileSource,
     definition: IAutoMovieConstructionProfile,
-  ): (piece: string, station: number, coordinate: number) => IReading {
+  ): (piece: string, station: number, coordinate: number) => IAutoMovieConstructionProfilePhase.IReading {
     const charts: Map<string, Chart> = new Map();
     for (const loop of definition.loops)
       for (const piece of loop.pieces)
@@ -68,7 +52,7 @@ export namespace AutoMovieConstructionProfilePhase {
           piece,
           curve: source.curves.get(piece.source)!,
         });
-    return (piece: string, station: number, coordinate: number): IReading => {
+    return (piece: string, station: number, coordinate: number): IAutoMovieConstructionProfilePhase.IReading => {
       const chart: Chart | undefined = charts.get(piece);
       if (
         chart === undefined ||
@@ -94,7 +78,7 @@ export namespace AutoMovieConstructionProfilePhase {
       pair(local!.p);
       pair(local!.t);
       if (local!.tt !== null) pair(local!.tt);
-      const frame: AutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
+      const frame: IAutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
       for (const value of [frame.origin, frame.u, frame.v])
         if (
           !Array.isArray(value) ||
@@ -117,7 +101,7 @@ export namespace AutoMovieConstructionProfilePhase {
         ) as [number, number, number];
       const p: [number, number, number] = world(local!.p, 1);
       for (let k: number = 0; k < 3; k++) p[k]! += frame.origin[k]!;
-      const result: IReading = {
+      const result: IAutoMovieConstructionProfilePhase.IReading = {
         p,
         t: world(local!.t, factor),
         tt: local!.tt === null ? null : world(local!.tt, factor * factor),

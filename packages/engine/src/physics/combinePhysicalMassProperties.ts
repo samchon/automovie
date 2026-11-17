@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieCombinePhysicalMassProperties, IAutoMoviePhysicalPrincipalAxes, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { physicalInertiaTensor } from "./physicalInertiaTensor";
@@ -23,8 +21,8 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 33 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function combinePhysicalMassProperties(
-  parts: readonly combinePhysicalMassProperties.IPart[],
-): combinePhysicalMassProperties.IPart {
+  parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
+): IAutoMovieCombinePhysicalMassProperties.IPart {
   if (!parts.length)
     throw new Error("Mass properties require at least one component");
   for (const part of parts) {
@@ -55,7 +53,7 @@ export function combinePhysicalMassProperties(
       throw new Error("Invalid component mass properties");
   }
   const mass: number = parts.reduce(
-    (sum: number, part: combinePhysicalMassProperties.IPart): number =>
+    (sum: number, part: IAutoMovieCombinePhysicalMassProperties.IPart): number =>
       sum + part.mass,
     0,
   );
@@ -67,7 +65,7 @@ export function combinePhysicalMassProperties(
   const centerOfMass: IAutoMovieVector3 = parts.reduce(
     (
       sum: IAutoMovieVector3,
-      part: combinePhysicalMassProperties.IPart,
+      part: IAutoMovieCombinePhysicalMassProperties.IPart,
     ): IAutoMovieVector3 =>
       Vector3.add(sum, Vector3.scale(part.centerOfMass, part.mass / mass)),
     { x: 0, y: 0, z: 0 },
@@ -78,7 +76,7 @@ export function combinePhysicalMassProperties(
   if (!tensor.flat().every(Number.isFinite))
     throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
 
-  const axes3: ReturnType<typeof physicalPrincipalAxes> =
+  const axes3: IAutoMoviePhysicalPrincipalAxes.IResult =
     physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;
@@ -95,22 +93,4 @@ export function combinePhysicalMassProperties(
   )
     throw new Error("Invalid computed aggregate principal frame");
   return { mass, centerOfMass, inertia, inertiaRotation };
-}
-
-/**
- * A component's principal frame and centre use the aggregate's local frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A component's principal frame and centre use the aggregate's local frame) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents A component's principal frame and centre use the aggregate's local frame: companion namespace of 1 member (`IPart`); units and frames named in its text: kilograms, metres, frame. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `combinePhysicalMassProperties` in packages/engine/src/physics/combinePhysicalMassProperties.ts; its surface is the 1 member listed and the text shows 4 other files naming it, mostly packages/engine (2), packages/human (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace combinePhysicalMassProperties {
-  /** SI mass, centre and principal inertia; no collision dimensions inferred. */
-  export interface IPart {
-    /** Kilograms. */ mass: number;
-    /** Metres in the common frame. */ centerOfMass: IAutoMovieVector3;
-    /** Principal moments, kg m². */ inertia: IAutoMovieVector3;
-    /** Principal axes in the common frame. */ inertiaRotation: IAutoMovieQuaternion;
-  }
 }

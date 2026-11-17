@@ -1,9 +1,6 @@
-import {
-  IAutoMovieSweep,
-  IAutoMovieSweepSurface,
-  compileAutoMovieSweep,
-} from "@automovie/engine";
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieSweep, type IAutoMovieSweepSurface, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { compileAutoMovieSweep } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

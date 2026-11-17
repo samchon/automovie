@@ -1,7 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieProjectionIntervals, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
-import type { IAutoMovieProjectionIntervals } from "./IAutoMovieProjectionIntervals";
 
 /**
  * Enclose each point's projection onto a stored direction in an outward

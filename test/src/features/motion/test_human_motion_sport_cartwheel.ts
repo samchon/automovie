@@ -1,17 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  HumanSportThrow,
-  type IHumanBody,
-  type IHumanContactWindow,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance, HumanSignature, HumanSportThrow } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,9 +42,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_sport_cartwheel(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "cartwheel",
@@ -79,15 +69,15 @@ export function test_human_motion_sport_cartwheel(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
-    const wheel: HumanSegment.ISegment = film
+    const wheel: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "cartwheelLeft")!;
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "cartwheelLeft")!;
     const at = (share: number): number =>
       wheel.start + share * wheel.plan.duration;
     const joint = (
@@ -120,8 +110,8 @@ export function test_human_motion_sport_cartwheel(): void {
         );
 
     // 2. A bearing hand stays where it came down.
-    const hands: IHumanContactWindow[] = wheel.plan.contacts.filter(
-      (window: IHumanContactWindow): boolean => window.part.endsWith("Hand"),
+    const hands: IAutoMovieMotionHumanContactWindow[] = wheel.plan.contacts.filter(
+      (window: IAutoMovieMotionHumanContactWindow): boolean => window.part.endsWith("Hand"),
     );
     if (hands.length !== 2)
       complaints.push(

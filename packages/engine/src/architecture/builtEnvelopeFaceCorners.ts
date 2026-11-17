@@ -1,9 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieBuiltEnvelopeCorner, type IAutoMovieBuiltEnvelopeFace, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { IAutoMovieBuiltEnvelopeCorner } from "./IAutoMovieBuiltEnvelopeCorner";
-import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 
 /**

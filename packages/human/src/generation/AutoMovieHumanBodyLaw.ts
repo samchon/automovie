@@ -1,29 +1,34 @@
-import type {
-  AutoMovieLoftContract,
-  IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieHumanBodyLane, IAutoMovieHumanBodyLaw, IAutoMovieHumanBodyMeasures, IAutoMovieHumanBodyPreparation, IAutoMovieHumanBodySources, IAutoMovieHumanExtremityDimensions, IAutoMovieHumanFootConstruction, IAutoMovieHumanFootFrame, IAutoMovieHumanHandMeasures, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadLane, IAutoMovieHumanLegConstruction, IAutoMovieHumanLegIdentity, IAutoMovieHumanParameters, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkBuild, IAutoMovieHumanTrunkInputs } from "@automovie/interface";
 
-import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
-import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
-import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAutoMovieHumanExtremityDimensions";
-import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import { AutoMovieHumanBodyPreparation } from "./AutoMovieHumanBodyPreparation";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadInputs } from "./AutoMovieHumanHeadInputs";
-import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
-import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
-import type { AutoMovieHumanHandBones } from "./hand/AutoMovieHumanHandBones";
+
+
 import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
-import { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
-import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
+
 
 /**
  * The law from the public parameters to the body the generator lofts.
@@ -37,23 +42,7 @@ import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
  * derives from the person's own inputs and the surveys.
  */
 export namespace AutoMovieHumanBodyLaw {
-  /** Public limb definitions shared by construction and source-curve inspection, before any skin. */
-  export interface ILimbInputs {
-    /** Stature in calibration mm. */
-    stature: number;
-
-    /** Leg tapes, anatomical controls and calibration scale. */
-    legs: AutoMovieHumanLegConstruction.IInputs;
-
-    /** Arm tapes and each hand's own dimensions, calibration mm. */
-    arms: AutoMovieHumanArmConstruction.IInputs & { bideltoid: number };
-
-    /** Each foot's own dimensions, calibration mm. */
-    feet: AutoMovieHumanFootConstruction.IInputs;
-
-    /** Crotch height by the inseam definition, calibration mm. */
-    crotch: number;
-  }
+  
 
   /**
    * Resolve the exact production limb inputs without generating a body.
@@ -67,9 +56,9 @@ export namespace AutoMovieHumanBodyLaw {
    * @evidence contracts/performance.md#reuse-equivalent-work Calibrate consumes this exact record instead of repeating a parallel input definition.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned input records and retains no person or generated object.
    */
-  export function limbInputs(params: IAutoMovieHumanParameters): ILimbInputs {
+  export function limbInputs(params: IAutoMovieHumanParameters): IAutoMovieHumanBodyLaw.ILimbInputs {
     const stature: number = statureOf(params);
-    const legs: AutoMovieHumanLegConstruction.IInputs = tapes(params, stature);
+    const legs: IAutoMovieHumanLegConstruction.IInputs = tapes(params, stature);
     return {
       stature,
       legs,
@@ -79,50 +68,13 @@ export namespace AutoMovieHumanBodyLaw {
     };
   }
 
-  /** Calibrations for one parameter set. */
-  export interface IOutput {
-    /** Body chains, events, poles, apertures and globes in calibration mm. */
-    body: IAutoMovieHumanBodyCalibration;
+  
 
-    /** Exterior lip boundary in the same frame. */
-    vermilion: IAutoMovieHumanHermiteCurve;
-  }
+  
 
-  /** The shared production source assembly, explicitly before final solid realization. */
-  export interface IDefinition {
-    /** Identical invocation context for explicit original/raw requests and legacy receiver observations. */
-    prepared: IPrepared;
+  
 
-    /** The exact body tree and source premises consumed by calibration. */
-    lane: AutoMovieHumanBodyLane.IDefinition;
-
-    /** Existing neck/trunk metadata retained for the completed calibration. */
-    standing: IAutoMovieHumanBodyCalibration;
-
-    /** The actual generating head, including its identical composer source. */
-    head: AutoMovieHumanHeadLane.IOutput;
-
-    /** Anatomically placed bind joints used by these same source parts. */
-    skeleton: AutoMovieHumanSkeletonLaw.IBone[];
-
-    /** Identical hand definitions shared by bind joints and original digit curves. */
-    hands: Record<"left" | "right", AutoMovieHumanHandBones.IOutput>;
-
-    /** Stature in the calibration's millimetres. */
-    stature: number;
-
-    /** Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry. */
-    neckRaw(): IAutoMovieLoftChain;
-
-    /** Anatomy and source assembly diagnostics; final joins have not run. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
-
-  /** Direct common definitions and explicitly requested original families, before assembly or raw. */
-  export type IOriginal = AutoMovieHumanBodyPreparation.IOriginal;
-
-  /** Production preparation additionally includes actual head and full bind records. */
-  export type IPrepared = AutoMovieHumanBodyPreparation.IOutput;
+  
 
   /**
    * Resolve direct common anatomical definitions and explicit original factories.
@@ -139,11 +91,11 @@ export namespace AutoMovieHumanBodyLaw {
    * @evidence contracts/performance.md#reuse-equivalent-work Full production completes these same definitions and explicit factories; no original reader acquires a whole neighbour to obtain a boundary.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned records and retains no person or generated body globally.
    */
-  export function prepareSources(params: IAutoMovieHumanParameters): IOriginal {
-    const definitions: ILimbInputs = limbInputs(params);
-    const inputs: AutoMovieHumanLegConstruction.IInputs = definitions.legs;
+  export function prepareSources(params: IAutoMovieHumanParameters): IAutoMovieHumanBodySources.IOriginal {
+    const definitions: IAutoMovieHumanBodyLaw.ILimbInputs = limbInputs(params);
+    const inputs: IAutoMovieHumanLegConstruction.IInputs = definitions.legs;
     const head: IAutoMovieHumanHeadInputs = headInputs(params);
-    const trunkInputs: AutoMovieHumanTrunkConstruction.IInputs =
+    const trunkInputs: IAutoMovieHumanTrunkInputs =
       AutoMovieHumanBodyPreparation.trunkInputs(params, inputs);
     return AutoMovieHumanBodyPreparation.prepareSources({
       params,
@@ -154,7 +106,7 @@ export namespace AutoMovieHumanBodyLaw {
   }
 
   /** Complete production metadata from the same common context; head and whole bind records are explicitly requested here. */
-  export function prepare(params: IAutoMovieHumanParameters, original?: IOriginal): IPrepared {
+  export function prepare(params: IAutoMovieHumanParameters, original?: IAutoMovieHumanBodySources.IOriginal): IAutoMovieHumanBodyPreparation.IOutput {
     return AutoMovieHumanBodyPreparation.complete(original ?? prepareSources(params));
   }
 
@@ -165,20 +117,20 @@ export namespace AutoMovieHumanBodyLaw {
    */
   export function define(
     params: IAutoMovieHumanParameters,
-    prepared?: IPrepared,
-  ): IDefinition {
-    const context: IPrepared = prepared ?? prepare(params);
-    const headLane: AutoMovieHumanHeadLane.IOutput =
+    prepared?: IAutoMovieHumanBodyPreparation.IOutput,
+  ): IAutoMovieHumanBodyLaw.IDefinition {
+    const context: IAutoMovieHumanBodyPreparation.IOutput = prepared ?? prepare(params);
+    const headLane: IAutoMovieHumanHeadLane.IOutput =
       AutoMovieHumanHeadLane.create(
         context.headInputs,
         AutoMovieHumanBodyAnatomy.sexOf(params),
         context.neckSource,
         context.head,
       );
-    const rawSources: Map<string, AutoMovieHumanSiteViewPart.IResult> =
+    const rawSources: Map<string, IAutoMovieHumanSiteViewPart.IResult> =
       context.rawSources ?? new Map();
     context.rawSources = rawSources;
-    const lane: AutoMovieHumanBodyLane.IDefinition =
+    const lane: IAutoMovieHumanBodyLane.IDefinition =
       AutoMovieHumanBodyLane.define({
         ...bodyInput(context),
         preparedTrunk: trunkSource(context),
@@ -205,7 +157,7 @@ export namespace AutoMovieHumanBodyLaw {
   }
 
   /** The same call-owned lazy body input consumed by full production and selected original-source readers. */
-  export function bodyInput(context: IOriginal): AutoMovieHumanBodyLane.IInput {
+  export function bodyInput(context: IAutoMovieHumanBodySources.IOriginal): IAutoMovieHumanBodyLane.IInput {
     return AutoMovieHumanBodyPreparation.bodyInput(context);
   }
 
@@ -215,24 +167,24 @@ export namespace AutoMovieHumanBodyLaw {
    * world2 preserves the old mass exterior clock without a raw parent surface.
    */
   export function trunkSource(
-    context: IOriginal,
-  ): AutoMovieHumanTrunkBuild.IOutput {
+    context: IAutoMovieHumanBodySources.IOriginal,
+  ): IAutoMovieHumanTrunkBuild.IOutput {
     return AutoMovieHumanBodyPreparation.trunkSource(context);
   }
 
   /** Loft one requested final original once in this production context; no other part or operator is realized. */
   export function trunkLoft(
-    context: IOriginal,
+    context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
-  ): AutoMovieHumanSiteViewPart.IResult | null {
+  ): IAutoMovieHumanSiteViewPart.IResult | null {
     return AutoMovieHumanBodyPreparation.loft(context, name);
   }
 
   /** Read a selected production original from this same context, without a raw loft or unrelated regional composition. */
   export function original(
-    context: IOriginal,
+    context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
-  ): AutoMovieHumanSiteViewPart.IDefinition | null {
+  ): IAutoMovieHumanSiteViewPart.IDefinition | null {
     return AutoMovieHumanBodyPreparation.original(context, name);
   }
 
@@ -246,10 +198,10 @@ export namespace AutoMovieHumanBodyLaw {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses source metadata, head composition and bind joints directly.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Publishes fresh calibration records without retaining the definition globally.
    */
-  export function calibrate(params: IAutoMovieHumanParameters): IOutput {
-    const definition: IDefinition = define(params);
+  export function calibrate(params: IAutoMovieHumanParameters): IAutoMovieHumanBodyLaw.IOutput {
+    const definition: IAutoMovieHumanBodyLaw.IDefinition = define(params);
     const { standing, head: headLane, skeleton } = definition;
-    const lane: AutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.realize(
+    const lane: IAutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.realize(
       definition.lane,
     );
     return {
@@ -284,7 +236,7 @@ export namespace AutoMovieHumanBodyLaw {
   /** Resolve the same foot dimensions as construction, in world millimetres, without generating skin. */
   export function footDimensions(
     params: IAutoMovieHumanParameters,
-  ): AutoMovieHumanFootConstruction.IInputs {
+  ): IAutoMovieHumanFootConstruction.IInputs {
     return feet(params, tapes(params, statureOf(params)));
   }
 
@@ -339,7 +291,7 @@ export namespace AutoMovieHumanBodyLaw {
 /** Height of the crotch by the inseam's definition (ISO 8559-1 5.7.6), calibration mm. */
 function crotch(
   params: IAutoMovieHumanParameters,
-  inputs: AutoMovieHumanLegConstruction.IInputs,
+  inputs: IAutoMovieHumanLegConstruction.IInputs,
 ): number {
   const feet: NonNullable<IAutoMovieHumanParameters["extremities"]>["feet"] =
     params.extremities?.feet;
@@ -371,7 +323,7 @@ function statureOf(params: IAutoMovieHumanParameters): number {
 function tapes(
   params: IAutoMovieHumanParameters,
   stature: number,
-): AutoMovieHumanLegConstruction.IInputs {
+): IAutoMovieHumanLegConstruction.IInputs {
   const scale: number = stature / statureOf(params);
   const measures: IAutoMovieHumanBodyMeasures =
     AutoMovieHumanBodyAnatomy.resolve(params);
@@ -412,9 +364,9 @@ type HandGiven = IAutoMovieHumanExtremityDimensions["hands"] extends infer P
  */
 function feet(
   params: IAutoMovieHumanParameters,
-  inputs: AutoMovieHumanLegConstruction.IInputs,
-): AutoMovieHumanFootConstruction.IInputs {
-  const expected: AutoMovieHumanFootConstruction.IDimensions =
+  inputs: IAutoMovieHumanLegConstruction.IInputs,
+): IAutoMovieHumanFootConstruction.IInputs {
+  const expected: IAutoMovieHumanFootFrame.IDimensions =
     AutoMovieHumanFootConstruction.expected(
       statureOf(params),
       inputs.sex,
@@ -422,9 +374,9 @@ function feet(
     );
   const side: (
     given: FootGiven,
-  ) => AutoMovieHumanFootConstruction.IDimensions = (
+  ) => IAutoMovieHumanFootFrame.IDimensions = (
     given: FootGiven,
-  ): AutoMovieHumanFootConstruction.IDimensions =>
+  ): IAutoMovieHumanFootFrame.IDimensions =>
     given === undefined
       ? expected
       : {
@@ -449,18 +401,18 @@ function arms(
   params: IAutoMovieHumanParameters,
   scale: number,
   sex: number,
-): AutoMovieHumanBodyLaw.ILimbInputs["arms"] {
+): IAutoMovieHumanBodyLaw.ILimbInputs["arms"] {
   const measures: IAutoMovieHumanBodyMeasures =
     AutoMovieHumanBodyAnatomy.resolve(params);
-  const expected: AutoMovieHumanArmConstruction.IHand =
+  const expected: IAutoMovieHumanHandMeasures =
     AutoMovieHumanArmConstruction.expected(
       statureOf(params),
       measures.handCircumference,
       scale,
     );
-  const side: (given: HandGiven) => AutoMovieHumanArmConstruction.IHand = (
+  const side: (given: HandGiven) => IAutoMovieHumanHandMeasures = (
     given: HandGiven,
-  ): AutoMovieHumanArmConstruction.IHand =>
+  ): IAutoMovieHumanHandMeasures =>
     given === undefined
       ? expected
       : {

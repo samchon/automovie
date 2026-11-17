@@ -1,8 +1,5 @@
-import {
-  type AutoMoviePhysicsCache as Cache,
-  type AutoMoviePhysicalPlayback as Playback,
-  admitPhysicalPlaybackMetadata,
-} from "@automovie/engine";
+import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicsCache } from "@automovie/interface";
+import { admitPhysicalPlaybackMetadata } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /** Replayed virtual support predictions keep requested minus allocated equal to their residual, independent of an archive's integrity trailer.
@@ -22,9 +19,9 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unsupported prediction, full residual and zero allocation, is admitted.).
  */
 export function test_physical_wrench_replay(): void {
-  const unsupported: Cache.ISupportWrench = wrench(0, 0, [100, 0], [0, 0]);
-  const partial: Cache.ISupportWrench = wrench(1 / 120, 4, [100, 2], [60, 0.5]);
-  const verdicts: [string, Cache.ISupportWrench[], string | null][] = [
+  const unsupported: IAutoMoviePhysicsCache.ISupportWrench = wrench(0, 0, [100, 0], [0, 0]);
+  const partial: IAutoMoviePhysicsCache.ISupportWrench = wrench(1 / 120, 4, [100, 2], [60, 0.5]);
+  const verdicts: [string, IAutoMoviePhysicsCache.ISupportWrench[], string | null][] = [
     ["unsupported prediction", [unsupported], null],
     ["partial allocation", [unsupported, partial], null],
     [
@@ -73,7 +70,7 @@ export function test_physical_wrench_replay(): void {
 }
 
 /** A one-body, one-segment archive header with no contacts and initial dynamic ownership. */
-function header(): Playback.IHeader {
+function header(): IAutoMoviePhysicalPlayback.IHeader {
   return {
     format: 1,
     protocol: "unit",
@@ -94,10 +91,10 @@ function wrench(
   pointCount: number,
   requested: [number, number],
   allocated: [number, number],
-): Cache.ISupportWrench {
-  const of: (value: [number, number]) => Cache.ISupportWrench["requested"] = (
+): IAutoMoviePhysicsCache.ISupportWrench {
+  const of: (value: [number, number]) => IAutoMoviePhysicsCache.ISupportWrench["requested"] = (
     value: [number, number],
-  ): Cache.ISupportWrench["requested"] => ({
+  ): IAutoMoviePhysicsCache.ISupportWrench["requested"] => ({
     force: { x: 0, y: value[0], z: 0 },
     torque: { x: 0, y: value[1], z: 0 },
   });
@@ -114,10 +111,10 @@ function wrench(
 
 /** The same prediction with its vertical force residual moved by `delta` newtons. */
 function nudge(
-  entry: Cache.ISupportWrench,
+  entry: IAutoMoviePhysicsCache.ISupportWrench,
   delta: number,
-): Cache.ISupportWrench {
-  const copy: Cache.ISupportWrench = structuredClone(entry);
+): IAutoMoviePhysicsCache.ISupportWrench {
+  const copy: IAutoMoviePhysicsCache.ISupportWrench = structuredClone(entry);
   copy.residual.force.y += delta;
   return copy;
 }

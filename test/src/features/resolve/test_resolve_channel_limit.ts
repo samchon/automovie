@@ -1,11 +1,6 @@
-import {
-  type IAutoMovieClampOutcome,
-  applyChannelLimit,
-} from "@automovie/engine";
-import {
-  IAutoMovieChannel,
-  IAutoMovieChannelLimit,
-} from "@automovie/interface";
+import { type IAutoMovieClampOutcome, IAutoMovieChannel, IAutoMovieChannelLimit } from "@automovie/interface";
+import { applyChannelLimit } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

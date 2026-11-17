@@ -1,8 +1,10 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanFootToeBreadth, IAutoMovieHumanFootToeRoot } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
-import type { AutoMovieHumanFootToeBreadth } from "./AutoMovieHumanFootToeBreadth";
 
-type Vec3 = G.Vec3;
 
 /**
  * Where a toe's own sections start: from the toe's own anatomy alone, never
@@ -25,12 +27,12 @@ export namespace AutoMovieHumanFootToeRoot {
    * @param cap The toe's cap length.
    */
   export function of(
-    breadth: AutoMovieHumanFootToeBreadth.IBreadth,
-    clefts: readonly Vec3[],
-    depth: (s: number) => number,
+    breadth: IAutoMovieHumanFootToeBreadth.IBreadth,
+    clefts: readonly AutoMovieVector3Tuple[],
+    depth: IAutoMovieHumanFootToeRoot.OfDepth,
     cap: number,
   ): number {
-    const parting: number = Math.max(...clefts.map((c: Vec3): number => G.dot(G.sub(c, breadth.head), breadth.tangent)));
+    const parting: number = Math.max(...clefts.map((c: AutoMovieVector3Tuple): number => G.dot(G.sub(c, breadth.head), breadth.tangent)));
     const first: number = parting + AutoMovieHumanSeamUnion.width(depth(parting), breadth.half(parting));
 
     return Math.min(first, cap - OWN);

@@ -1,6 +1,5 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSite, IAutoMovieRandom } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -28,37 +27,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No place is typed per action: the allowed places and the band are the caller's.
  */
 export namespace AutoMovieMotionHumanSite {
-  /**
-   * An allowed place and how often it is drawn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and range.
-   * @evidence contracts/development/design.md#principled-representation An id and a positive weight, a categorical distribution's entry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `draw`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is relative; no total is stored.
-   */
-  export interface IWeighted {
-    /** The place's id among the target's places. */
-    id: string;
-
-    /** Its relative weight, positive. */
-    weight: number;
-  }
-
-  /**
-   * A band along a handle's axis, metres from its base.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The two ends of the part of a handle a hand may hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `grasp`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The band is the affordance's; nothing is assumed of its length.
-   */
-  export interface IBand {
-    /** The lowest place a hand may hold, metres from the handle's base. */
-    low: number;
-
-    /** The highest, metres from the handle's base; at least `low`. */
-    high: number;
-  }
 
   /**
    * One allowed place drawn by its weight.
@@ -78,24 +46,24 @@ export namespace AutoMovieMotionHumanSite {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function draw(
-    sites: readonly IWeighted[],
+    sites: readonly IAutoMovieMotionHumanSite.IWeighted[],
     random: IAutoMovieRandom,
     index: number,
   ): string {
     if (
       sites.length === 0 ||
-      sites.some((s: IWeighted): boolean => !(s.weight > 0))
+      sites.some((s: IAutoMovieMotionHumanSite.IWeighted): boolean => !(s.weight > 0))
     )
       throw new HumanRefusal({
         kind: "parameter",
         axis: "sites",
-        value: sites.map((s: IWeighted): string => `${s.id}:${s.weight}`),
+        value: sites.map((s: IAutoMovieMotionHumanSite.IWeighted): string => `${s.id}:${s.weight}`),
         reason:
           "a place is drawn among allowed places, each with a positive weight",
         fix: "give at least one allowed place, each with a positive weight",
       });
     const total: number = sites.reduce(
-      (sum: number, s: IWeighted): number => sum + s.weight,
+      (sum: number, s: IAutoMovieMotionHumanSite.IWeighted): number => sum + s.weight,
       0,
     );
     const u: number = random.float(index) * total;
@@ -125,7 +93,7 @@ export namespace AutoMovieMotionHumanSite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its argument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function comfortable(body: IHumanBody): number {
+  export function comfortable(body: IAutoMovieMotionHumanBody): number {
     return body.measure.shoulderHeight - body.measure.upperArm;
   }
 
@@ -149,7 +117,7 @@ export namespace AutoMovieMotionHumanSite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grasp(band: IBand, target: number, comfort: number): number {
+  export function grasp(band: IAutoMovieMotionHumanSite.IBand, target: number, comfort: number): number {
     if (!(band.low <= band.high))
       throw new HumanRefusal({
         kind: "parameter",

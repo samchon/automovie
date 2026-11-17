@@ -1,8 +1,11 @@
-import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandScales } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
 
 /**
  * The hand's map from the form's axes to the left frame: along, across and
@@ -11,11 +14,11 @@ type Vec3 = AutoMovieHumanHandVector.Vec3;
 export namespace AutoMovieHumanHandMap {
   /** A hand's map from the prior's axes to the left frame. */
   export function handPoint(
-    q: readonly [number, number, number],
+    q: Readonly<AutoMovieVector3Tuple>,
     hand: IAutoMovieHumanHandScales,
-    origin: readonly [number, number, number],
-  ): Vec3 {
-    const prior: AutoMovieHumanArmPrior.IHandPrior =
+    origin: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple {
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
     const a: number = q[0] * hand.along;
     const b: number = q[1] * hand.across;

@@ -1,13 +1,6 @@
-import {
-  type AutoMovieGrammarDiagnosticCode,
-  type IAutoMovieGrammarCameraObservation,
-  type IAutoMovieGrammarDiagnostic,
-  type IAutoMovieGrammarInput,
-  type IAutoMovieGrammarShotObservation,
-  lookRotation,
-  readFilmGrammar,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieGrammarDiagnosticCode, IAutoMovieGrammarCameraObservation, IAutoMovieGrammarDiagnostic, IAutoMovieGrammarInput, IAutoMovieGrammarShotObservation, IAutoMovieVector3 } from "@automovie/interface";
+import { lookRotation, readFilmGrammar } from "@automovie/engine";
+
 
 /** Build hand-authored film observations and source readers shared by grammar unit cases. */
 export function createFilmGrammarCase(): {

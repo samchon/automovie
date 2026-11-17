@@ -1,14 +1,12 @@
-import type {
-  IAutoMovieRecoveryCameraPairInput,
-  IAutoMovieRecoveryCameraSceneInput,
-} from "@automovie/interface";
+import type { IAutoMovieRecoveryMapObservation, IAutoMovieRecoverySceneSeedInitializationOperation, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryCameraPairEstimate } from "../structures/image/IAutoMovieRecoveryCameraPairEstimate";
-import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
+
+
+
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
-import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
-import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
+
+
 
 /**
  * Estimate the explicit seed using only globally admitted direct reciprocal links.
@@ -24,13 +22,13 @@ import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the owned pair evidence returns; borrowed features and temporary index sets expire without global cache or external resources.
  */
 export function initializeRecoverySceneSeed(
-  input: IAutoMovieRecoveryCameraSceneInput,
-  features: readonly ReturnType<typeof extractRecoveryImageFeatures>[],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
-  pairs: Parameters<typeof linkRecoveryCameraTracks>[1],
-  tracks: ReturnType<typeof linkRecoveryCameraTracks>["tracks"],
-  checkpoint: (phase: string, completed: number, total: number) => void,
-): IAutoMovieRecoveryCameraPairEstimate {
+  input: Parameters<IAutoMovieRecoverySceneSeedInitializationOperation.Operation>[0],
+  features: Parameters<IAutoMovieRecoverySceneSeedInitializationOperation.Operation>[1],
+  charts: Parameters<IAutoMovieRecoverySceneSeedInitializationOperation.Operation>[2],
+  pairs: Parameters<IAutoMovieRecoverySceneSeedInitializationOperation.Operation>[3],
+  tracks: Parameters<IAutoMovieRecoverySceneSeedInitializationOperation.Operation>[4],
+  checkpoint: Parameters<IAutoMovieRecoverySceneSeedInitializationOperation.Operation>[5],
+): ReturnType<IAutoMovieRecoverySceneSeedInitializationOperation.Operation> {
   const seedKeys: Set<string> = new Set();
   for (const track of tracks) {
     const first: IAutoMovieRecoveryMapObservation | undefined =
@@ -64,8 +62,7 @@ export function initializeRecoverySceneSeed(
     cohort: input.cohort,
     views: input.views.slice(0, 2),
     policy: input.seedPolicy,
-    budget: input.seedBudget,
-  };
+    budget: input.seedBudget };
   return createRecoveryCameraEstimate(
     seedInput,
     features.slice(0, 2),

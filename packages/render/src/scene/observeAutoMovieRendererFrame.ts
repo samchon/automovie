@@ -1,4 +1,7 @@
-import type { IAutoMovieRenderObservation } from "@automovie/interface";
+import type { IAutoMovieObservedRenderResult } from "@automovie/interface";
+
+
+
 import type * as THREE from "three";
 
 /**
@@ -19,10 +22,10 @@ import type * as THREE from "three";
 export const observeAutoMovieRendererFrame: <Output>(
   renderer: THREE.WebGLRenderer,
   draw: () => Output,
-) => { output: Output; observed: IAutoMovieRenderObservation } = <Output>(
+) => IAutoMovieObservedRenderResult<Output> = <Output>(
   renderer: THREE.WebGLRenderer,
   draw: () => Output,
-): { output: Output; observed: IAutoMovieRenderObservation } => {
+): IAutoMovieObservedRenderResult<Output> => {
   const previousAutoReset: boolean = renderer.info.autoReset;
   renderer.info.autoReset = false;
   try {

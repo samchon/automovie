@@ -1,4 +1,4 @@
-import type { HumanArmClearance } from "./HumanArmClearance";
+import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
 
 /**
  * The turn that clears an arm: of the two freedoms that move a forearm
@@ -77,16 +77,16 @@ export namespace HumanArmClearing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(props: {
-    arm: HumanArmClearance.IArm;
-    over: (arm: HumanArmClearance.IArm) => number;
-    range: (arm: HumanArmClearance.IArm) => number;
-  }): HumanArmClearance.IArm {
-    const arm: HumanArmClearance.IArm = props.arm;
+    arm: IAutoMovieMotionHumanArmClearance.IArm;
+    over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+    range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+  }): IAutoMovieMotionHumanArmClearance.IArm {
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
     if (props.over(arm) <= TOLERANCE) return arm;
     const turned = (
       direction: readonly [number, number],
       degrees: number,
-    ): HumanArmClearance.IArm => ({
+    ): IAutoMovieMotionHumanArmClearance.IArm => ({
       upper: [
         arm.upper[0],
         arm.upper[1] + direction[0] * degrees,
@@ -100,7 +100,7 @@ export namespace HumanArmClearing {
       hand: arm.hand,
     });
     const limit: number = props.range(arm) + 1e-9;
-    let best: HumanArmClearance.IArm = arm;
+    let best: IAutoMovieMotionHumanArmClearance.IArm = arm;
     let least: number = props.over(arm);
     for (const direction of ORDER) {
       // `SPAN` bounds each freedom, so a ray between the two runs until its
@@ -112,7 +112,7 @@ export namespace HumanArmClearing {
       let near: number = 0;
       while (near < reach - 1e-9) {
         const far: number = Math.min(near + STEP, reach);
-        const candidate: HumanArmClearance.IArm = turned(direction, far);
+        const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(direction, far);
         if (props.range(candidate) > limit) break;
         const value: number = props.over(candidate);
         if (value <= TOLERANCE) {
@@ -192,20 +192,20 @@ export namespace HumanArmClearing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function course(props: {
-    plain: (share: number) => HumanArmClearance.IArm;
-    planned?: (share: number) => HumanArmClearance.IArm;
+    plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+    planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
     share: number;
     clear: (
-      arm: HumanArmClearance.IArm,
+      arm: IAutoMovieMotionHumanArmClearance.IArm,
       share: number,
-    ) => HumanArmClearance.IArm;
-  }): HumanArmClearance.IArm {
+    ) => IAutoMovieMotionHumanArmClearance.IArm;
+  }): IAutoMovieMotionHumanArmClearance.IArm {
     const turn = (key: number): readonly [number, number] => {
       if (key <= 0 || key >= SHARES.length - 1) return [0, 0];
-      const arm: HumanArmClearance.IArm = (props.planned ?? props.plain)(
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = (props.planned ?? props.plain)(
         SHARES[key]!,
       );
-      const clear: HumanArmClearance.IArm = props.clear(arm, SHARES[key]!);
+      const clear: IAutoMovieMotionHumanArmClearance.IArm = props.clear(arm, SHARES[key]!);
       return [clear.upper[1] - arm.upper[1], clear.lower[0] - arm.lower[0]];
     };
     const share: number = Math.min(1, Math.max(0, props.share));
@@ -215,7 +215,7 @@ export namespace HumanArmClearing {
       (share - SHARES[before]!) / (SHARES[before + 1]! - SHARES[before]!);
     const a: readonly [number, number] = turn(before);
     const b: readonly [number, number] = weight === 0 ? a : turn(before + 1);
-    const arm: HumanArmClearance.IArm = props.plain(props.share);
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.plain(props.share);
     return {
       upper: [
         arm.upper[0],

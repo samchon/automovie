@@ -1,4 +1,6 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
+
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -21,7 +23,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  *
  * Frame and model: as `AutoMovieHumanF1Plate`. The course is 93.4 mm long; each end closes in a point at its end of the course from 3 mm in.
  */
-export const AutoMovieHumanF1Helix: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1Helix: IAutoMovieHumanConicLoft.IFamily = {
   name: "helix",
   centres: AutoMovieHumanF1Joints.helix,
   halves: [3, 3, 3, 3, 3, 3, 3, 3, 3],

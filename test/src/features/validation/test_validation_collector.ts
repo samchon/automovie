@@ -1,8 +1,6 @@
+import { type IAutoMovieViolationCollector, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "@automovie/engine";
-import {
-  IAutoMovieConstraintViolation,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -27,7 +25,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An in-range value (0.5 in [0,1]) pushes nothing, and an empty collector).
  */
 export function test_validation_collector(): void {
-  const empty: ViolationCollector = new ViolationCollector();
+  const empty: IAutoMovieViolationCollector = new ViolationCollector();
   empty.range("$input.a", 0.5, 0, 1);
   TestValidator.equals("in-range pushes nothing", empty.items.length, 0);
   TestValidator.equals(
@@ -36,7 +34,7 @@ export function test_validation_collector(): void {
     true,
   );
 
-  const failing: ViolationCollector = new ViolationCollector();
+  const failing: IAutoMovieViolationCollector = new ViolationCollector();
   failing.range("$input.b", 2, 0, 1);
   TestValidator.equals("out-of-range pushes one", failing.items.length, 1);
   const validation: IAutoMovieValidation = failing.toValidation();
@@ -46,7 +44,7 @@ export function test_validation_collector(): void {
     false,
   );
 
-  const nonFinite: ViolationCollector = new ViolationCollector();
+  const nonFinite: IAutoMovieViolationCollector = new ViolationCollector();
   nonFinite.range("$input.c", Number.NaN, 0, 1);
   TestValidator.equals("non-finite pushes one", nonFinite.items.length, 1);
   TestValidator.predicate(

@@ -1,11 +1,5 @@
-import {
-  IAutoMovieCompiledFormation,
-  IAutoMovieCompiledFormationHero,
-  IAutoMovieDiagnostic,
-  IAutoMovieFormationSlotMotion,
-  IAutoMovieShotContract,
-  IAutoMovieShotParticipant,
-} from "@automovie/interface";
+import { type IAutoMovieValidateFormationSlotMotions, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationHero, IAutoMovieDiagnostic, IAutoMovieFormationSlotMotion, IAutoMovieShotContract, IAutoMovieShotParticipant } from "@automovie/interface";
+
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
@@ -38,25 +32,13 @@ export const validateAutoMovieFormationSlotMotions: (
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
   >,
-  value: {
-    formations: readonly Pick<
-      IAutoMovieCompiledFormation,
-      "id" | "count" | "heroes"
-    >[];
-    formationSlotMotions: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationSlotMotions.IValue,
 ) => IAutoMovieDiagnostic[] = (
   contract: Pick<
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
   >,
-  value: {
-    formations: readonly Pick<
-      IAutoMovieCompiledFormation,
-      "id" | "count" | "heroes"
-    >[];
-    formationSlotMotions: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationSlotMotions.IValue,
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const fail: (field: string, expectation: string) => void = (

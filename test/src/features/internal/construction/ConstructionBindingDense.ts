@@ -1,19 +1,17 @@
-import {
-  type IAutoMovieLoftChain as Chain,
-  AutoMovieLoftSectionSource as Source,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftSectionSource } from "@automovie/interface";
+import { AutoMovieLoftSectionSource as Source } from "@automovie/engine";
 
 /** Numeric groups whose emitted rows and independent snapshots must remain finite, dense and width-compatible. */
 type Field = "coefficients" | "slopes" | "curvatures";
 
 /** Actual public validation of single sparse mutations and complete endpoint numeric-family admission, independent of private comparison implementation. */
-export function ConstructionBindingDense(base: Chain): void {
+export function ConstructionBindingDense(base: IAutoMovieLoftChain): void {
   for (const index of [0, 1])
     for (const field of ["coefficients", "slopes", "curvatures"] as const) {
       const width: number = rows(base, index, field)[0].length;
       for (const position of [0, Math.floor(width / 2), width - 1])
         for (const side of ["left", "right", "both"] as const) {
-          const chain: Chain = copy(base);
+          const chain: IAutoMovieLoftChain = copy(base);
           const [left, right]: [number[], number[]] = rows(chain, index, field);
           if (side !== "right" && !Reflect.deleteProperty(left, position))
             throw new Error("Cannot prepare left-hole fixture");
@@ -30,22 +28,22 @@ export function ConstructionBindingDense(base: Chain): void {
         -Infinity,
         [],
       ]) {
-        const chain: Chain = copy(base);
+        const chain: IAutoMovieLoftChain = copy(base);
         for (const row of rows(chain, index, field))
           Reflect.set(row, 0, invalid);
         refuse(chain);
       }
       for (const length of [0, 1, width - 1]) {
-        const chain: Chain = copy(base);
+        const chain: IAutoMovieLoftChain = copy(base);
         for (const row of rows(chain, index, field)) row.length = length;
         refuse(chain);
       }
-      const aliased: Chain = copy(base);
+      const aliased: IAutoMovieLoftChain = copy(base);
       const aliasRow: number[] = rows(aliased, index, field)[0];
-      const aliasBinding: NonNullable<Chain["nativeSource"]>["rows"][number] =
+      const aliasBinding: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number] =
         aliased.nativeSource!.rows.find(
           (
-            record: NonNullable<Chain["nativeSource"]>["rows"][number],
+            record: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number],
           ): boolean => record.station === aliased.layers[index]!.y,
         )!;
       const aliasKey: "value" | "slope" | "curvature" =
@@ -58,7 +56,7 @@ export function ConstructionBindingDense(base: Chain): void {
       if (!Reflect.deleteProperty(aliasRow, 0))
         throw new Error("Cannot prepare aliased numeric hole");
       refuse(aliased);
-      const inherited: Chain = copy(base);
+      const inherited: IAutoMovieLoftChain = copy(base);
       const left: number[] = rows(inherited, index, field)[0];
       const parent: object = Object.create(Array.prototype) as object;
       Object.defineProperty(parent, 0, { value: left[0], enumerable: true });
@@ -71,12 +69,12 @@ export function ConstructionBindingDense(base: Chain): void {
 }
 
 /** Fresh numeric copies retain the actual immutable scalar owner and independent binding records. */
-function copy(base: Chain): Chain {
+function copy(base: IAutoMovieLoftChain): IAutoMovieLoftChain {
   return {
     ...base,
     nativeSource: structuredClone(base.nativeSource),
     layers: base.layers.map(
-      (row: Chain["layers"][number]): Chain["layers"][number] => ({
+      (row: IAutoMovieLoftChain["layers"][number]): IAutoMovieLoftChain["layers"][number] => ({
         ...row,
         coefficients: [...row.coefficients],
         slopes: [...row.slopes],
@@ -89,12 +87,12 @@ function copy(base: Chain): Chain {
 }
 
 /** Select original numeric rows only; an absent fixture is a failure, never a fabricated zero row. */
-function rows(chain: Chain, index: number, field: Field): [number[], number[]] {
-  const layer: Chain["layers"][number] = chain.layers[index]!;
+function rows(chain: IAutoMovieLoftChain, index: number, field: Field): [number[], number[]] {
+  const layer: IAutoMovieLoftChain["layers"][number] = chain.layers[index]!;
   const binding:
-    | NonNullable<Chain["nativeSource"]>["rows"][number]
+    | NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number]
     | undefined = chain.nativeSource?.rows.find(
-    (row: NonNullable<Chain["nativeSource"]>["rows"][number]): boolean =>
+    (row: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number]): boolean =>
       row.station === layer.y,
   );
   const left: number[] | undefined = layer[field];
@@ -110,7 +108,7 @@ function rows(chain: Chain, index: number, field: Field): [number[], number[]] {
 }
 
 /** Malformed compatibility rows must fail by their public named ownership refusal. */
-function refuse(chain: Chain): void {
+function refuse(chain: IAutoMovieLoftChain): void {
   try {
     Source.validate(chain, 0, 1);
   } catch (error: unknown) {
@@ -121,8 +119,8 @@ function refuse(chain: Chain): void {
 }
 
 /** Both endpoint snapshots and initial native/basis family factories reject incomplete numeric tuples, including identical array references. */
-function endpoints(base: Chain): void {
-  const field: Source.IEndpoint["field"] = {
+function endpoints(base: IAutoMovieLoftChain): void {
+  const field: IAutoMovieLoftSectionSource.IEndpoint["field"] = {
     kind: "native",
     inputs: {
       extents: [
@@ -139,8 +137,8 @@ function endpoints(base: Chain): void {
     },
   };
   for (const both of [false, true]) {
-    const layer: Chain["layers"][number] = copy(base).layers[0]!;
-    const source: Source.IEndpoint = Source.bind(layer, field);
+    const layer: IAutoMovieLoftChain["layers"][number] = copy(base).layers[0]!;
+    const source: IAutoMovieLoftSectionSource.IEndpoint = Source.bind(layer, field);
     if (source.field.kind !== "native" || source.snapshot.kind !== "native")
       throw new Error("Wrong family fixture");
     if (!Reflect.deleteProperty(source.field.inputs.extents[0], 1))
@@ -180,7 +178,7 @@ function endpoints(base: Chain): void {
   }
   if (!refused)
     throw new Error("An incomplete original native family was bound");
-  const basis: Source.IEndpoint["field"] = {
+  const basis: IAutoMovieLoftSectionSource.IEndpoint["field"] = {
     kind: "basis",
     order: base.order,
     rows: [
@@ -204,8 +202,8 @@ function endpoints(base: Chain): void {
   }
   if (!refused)
     throw new Error("An incomplete original basis matrix was bound");
-  const wrongWidth: Chain = copy(base);
-  const layer: Chain["layers"][number] = wrongWidth.layers[0]!;
+  const wrongWidth: IAutoMovieLoftChain = copy(base);
+  const layer: IAutoMovieLoftChain["layers"][number] = wrongWidth.layers[0]!;
   layer.coefficients.length -= 2;
   layer.slopes.length -= 2;
   if (layer.curvatures !== undefined) layer.curvatures.length -= 2;

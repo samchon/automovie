@@ -1,3 +1,4 @@
+import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalPointBound as Bound, IAutoMoviePhysicalProfile as P, IAutoMovieVector3 as V } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
@@ -5,11 +6,7 @@ import {
   physicalPointProjection,
   planPhysicalContactTargets as plan,
 } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalPointBound as Bound,
-  IAutoMoviePhysicalProfile as P,
-  IAutoMovieVector3 as V,
-} from "@automovie/interface";
+
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -38,7 +35,7 @@ export async function test_physical_point_shape_reference(): Promise<void> {
       structuredClone(segment.neutral),
     ]),
   );
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const base: Bound = {
     ...PhysicalPointFixtures.bound(),
     reference: { body: "123", bone: "root", shape: "surface" },

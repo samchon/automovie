@@ -1,11 +1,15 @@
-import { type AutoMovieLoftFrame, AutoMovieSeamStation } from "@automovie/engine";
+import type { IAutoMovieLoftFrame, AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootGuide, IAutoMovieHumanFootWebLine } from "@automovie/interface";
+
+
+
+
+
+import { AutoMovieSeamStation } from "@automovie/engine";
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
+
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootGuideSmoothing } from "./AutoMovieHumanFootGuideSmoothing";
-import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
 
-type Vec3 = G.Vec3;
 
 /**
  * One guide curve of the body, built from its landmarks' knots: the shared
@@ -24,28 +28,9 @@ type Vec3 = G.Vec3;
  * knots, read how) live in its own file.
  */
 export namespace AutoMovieHumanFootGuide {
-  /** A guide: its kept knots' stations and places, and their spline's jets. */
-  export interface IGuide {
-    /** Strictly increasing stations of the kept knots. */
-    stations: number[];
+  
 
-    /** Each kept knot's `[across, up]` in its plane, mm. */
-    values: number[][];
-
-    /** The spline's first derivatives at the knots. */
-    slopes: number[][];
-
-    /** The spline's second derivatives at the knots. */
-    curvatures: number[][];
-  }
-
-  /**
-   * A knot read in the fan's own plane: `[share, a, u, y/L, y/H]`, the plane's
-   * station as a share of the web ring to the ankle ring, and the landmark's
-   * place with its height both in foot lengths and in lateral malleolus
-   * heights (handed from the first to the second over the turn).
-   */
-  export type IFanKnot = readonly [number, number, number, number, number];
+  
 
   /**
    * World points of knots read in the fan's own planes.
@@ -61,13 +46,13 @@ export namespace AutoMovieHumanFootGuide {
    * @param knots The knots.
    */
   export function fanned(
-    frame: AutoMovieHumanFootFrame.IFrame,
-    line: AutoMovieHumanFootWebLine.IWebLine,
-    knots: readonly IFanKnot[],
-  ): Vec3[] {
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+    knots: readonly IAutoMovieHumanFootGuide.IFanKnot[],
+  ): AutoMovieVector3Tuple[] {
     const square: number = line.square / line.end;
 
-    return knots.map((q: IFanKnot): Vec3 => {
+    return knots.map((q: IAutoMovieHumanFootGuide.IFanKnot): AutoMovieVector3Tuple => {
       const w: number = G.smooth((q[0] - square) / (1 - square));
 
       return frame.at(q[1], q[2], (1 - w) * q[3] * frame.L + w * q[4] * frame.H);
@@ -82,20 +67,20 @@ export namespace AutoMovieHumanFootGuide {
    * @param knots World points from the toes back and up to the ring, at least two.
    */
   export function of(
-    frame: AutoMovieHumanFootFrame.IFrame,
-    line: AutoMovieHumanFootWebLine.IWebLine,
-    knots: readonly Vec3[],
-  ): IGuide {
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+    knots: readonly AutoMovieVector3Tuple[],
+  ): IAutoMovieHumanFootGuide.IGuide {
     // The last knot stands on the ankle ring.
-    const list: Vec3[] = knots.map((p: Vec3): Vec3 => [...p]);
-    const top: Vec3 = list[list.length - 1]!;
+    const list: AutoMovieVector3Tuple[] = knots.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [...p]);
+    const top: AutoMovieVector3Tuple = list[list.length - 1]!;
     list[list.length - 1] = [top[0], frame.ring, top[2]];
 
     // Each knot read as its station and its place in that station's plane.
-    const read: IKnot[] = list.map((p: Vec3): IKnot => {
+    const read: IKnot[] = list.map((p: AutoMovieVector3Tuple): IKnot => {
       const station: number = AutoMovieHumanFootFan.station(line, p);
-      const f: AutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
-      const r: Vec3 = G.sub(p, f.origin);
+      const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+      const r: AutoMovieVector3Tuple = G.sub(p, f.origin);
 
       return { station, across: G.dot(r, f.v), up: G.dot(r, f.u) };
     });
@@ -119,7 +104,7 @@ export namespace AutoMovieHumanFootGuide {
   }
 
   /** A guide's point in the plane at a station. */
-  export function at(g: IGuide, line: AutoMovieHumanFootWebLine.IWebLine, station: number): Vec3 {
+  export function at(g: IAutoMovieHumanFootGuide.IGuide, line: IAutoMovieHumanFootWebLine.IWebLine, station: number): AutoMovieVector3Tuple {
     const t: readonly number[] = g.stations;
     const n: number = t.length;
     let q: [number, number];
@@ -146,13 +131,13 @@ export namespace AutoMovieHumanFootGuide {
           (((a ** 3 - a) * g.curvatures[lo]![c]! + (b ** 3 - b) * g.curvatures[hi]![c]!) * h * h) / 6,
       ) as [number, number];
     }
-    const f: AutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+    const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
 
     return G.plus(f.origin, G.plus(G.scale(f.v, q[0]), G.scale(f.u, q[1])));
   }
 
   /** A guide beyond its first or last knot: the end's tangent line. */
-  function tangent(g: IGuide, i: number, station: number): [number, number] {
+  function tangent(g: IAutoMovieHumanFootGuide.IGuide, i: number, station: number): [number, number] {
     const d: number = station - g.stations[i]!;
 
     return [0, 1].map((c: number): number => g.values[i]![c]! + d * g.slopes[i]![c]!) as [number, number];

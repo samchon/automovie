@@ -1,5 +1,5 @@
+import type { IAutoMovieArtifactKey } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import type { IAutoMovieArtifactKey } from "./IAutoMovieArtifactKey";
 
 /**
  * Hash one stage's complete key record into a `sha256:` cache key.

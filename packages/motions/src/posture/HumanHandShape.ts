@@ -1,21 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  AutoMovieHumanoidSocket,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "./HumanHand";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { poseBones } from "./poseBones";
 
 /**
@@ -48,8 +33,8 @@ export namespace HumanHandShape {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    side: HumanHand.Side,
-    form: HumanHand.Shape,
+    side: IAutoMovieMotionHumanHand.Side,
+    form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -83,30 +68,6 @@ export namespace HumanHandShape {
     return out;
   }
 
-  /**
-   * A hand shape that carries a meaning of its own: the shapes of the
-   * emblems the gesture lexicon adds (#3345), beside the four working shapes
-   * of `HumanHand.Shape`.
-   *
-   * - `thumbUp`: the fist with the thumb straight.
-   * - `ok`: the forefinger and the thumb bent into a ring, the others open.
-   * - `victory`: the forefinger and the middle finger straight and spread,
-   *   the others folded.
-   * - `crossed`: the forefinger and the middle finger straight and laid
-   *   toward each other, the others folded.
-   * - `count1` to `count5`: that many digits straight from the forefinger
-   *   on, the thumb last (one convention of several; cultures differ).
-   * - `snap`: the middle finger's tip on the thumb's, as before a snap.
-   * - `quotes`: the forefinger and the middle finger hooked, the others
-   *   folded.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each shape by what the fingers do and states the counting convention.
-   * @evidence contracts/development/design.md#principled-representation A closed union of emblem shapes, each a set of finger joint angles in `emblem`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The shapes the emblem rows read; the working shapes stay `HumanHand.Shape`'s.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate union, so no caller of the working shapes changes.
-   */
-  export type Emblem = (typeof EMBLEMS)[number];
-
   /** The emblem shapes of {@link Emblem}, as data. */
   export const EMBLEMS = [
     "thumbUp",
@@ -120,7 +81,7 @@ export namespace HumanHandShape {
     "count5",
     "snap",
     "quotes",
-  ] as const;
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHandShape.Emblem>[];
 
   /**
    * The finger joints of an emblem shape, clinical degrees (every angle
@@ -139,8 +100,8 @@ export namespace HumanHandShape {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function emblem(
-    side: HumanHand.Side,
-    form: Emblem,
+    side: IAutoMovieMotionHumanHand.Side,
+    form: IAutoMovieMotionHumanHandShape.Emblem,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -236,8 +197,8 @@ export namespace HumanHandShape {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function digit(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
     joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     >,
@@ -353,19 +314,19 @@ export namespace HumanHandShape {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is weak in the body.
    */
   export function tip(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    form: HumanHand.Shape,
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+    form: IAutoMovieMotionHumanHand.Shape,
     curl: number,
-    surface: HumanHand.DigitSurface = "indexTip",
-  ): HumanHand.IFrame {
+    surface: IAutoMovieMotionHumanHand.DigitSurface = "indexTip",
+  ): IAutoMovieMotionHumanHand.IFrame {
     const key: string = `${side}:${surface}:${form}:${curl}`;
-    let memo: Map<string, HumanHand.IFrame> | undefined = TIPS.get(body);
+    let memo: Map<string, IAutoMovieMotionHumanHand.IFrame> | undefined = TIPS.get(body);
     if (memo === undefined) {
       memo = new Map();
       TIPS.set(body, memo);
     }
-    const known: HumanHand.IFrame | undefined = memo.get(key);
+    const known: IAutoMovieMotionHumanHand.IFrame | undefined = memo.get(key);
     if (known !== undefined) return known;
     const joints: IAutoMovieJointPose[] = Object.entries(of(side, form)).map(
       ([bone, a]): IAutoMovieJointPose => ({
@@ -390,7 +351,7 @@ export namespace HumanHandShape {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand.worldRotation,
     );
-    const out: HumanHand.IFrame = {
+    const out: IAutoMovieMotionHumanHand.IFrame = {
       point: Quaternion.rotateVector(
         inverse,
         Vector3.subtract(placed.point, hand.worldPosition),
@@ -405,4 +366,4 @@ export namespace HumanHandShape {
 }
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
-const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();
+const TIPS: WeakMap<IAutoMovieMotionHumanBody, Map<string, IAutoMovieMotionHumanHand.IFrame>> = new WeakMap();

@@ -1,8 +1,5 @@
-import {
-  AutoMovieMeshCourse,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieMeshCourse, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
+import { AutoMovieMeshCourse, AutoMovieViewSection } from "@automovie/engine";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
 
@@ -23,9 +20,9 @@ type Quarters = IAutoMovieViewPart.IQuarters<number>;
  */
 export function test_construction_operator_view_shoulder(): void {
   const failures: string[] = [];
-  const unit: AutoMovieViewSection.IBox = { extents: [1, 1, 1, 1] };
+  const unit: IAutoMovieViewSection.IBox = { extents: [1, 1, 1, 1] };
   const radius = (
-    box: AutoMovieViewSection.IBox,
+    box: IAutoMovieViewSection.IBox,
     rho: number,
     phi: number,
   ): number =>
@@ -61,7 +58,7 @@ export function test_construction_operator_view_shoulder(): void {
     ],
   ];
   for (const [extents, shoulders] of boxes) {
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
       { extents },
       shoulders,
     );
@@ -114,7 +111,7 @@ export function test_construction_operator_view_shoulder(): void {
         return [r * Math.cos(phi), r * Math.sin(phi)];
       },
     );
-    const reading: AutoMovieMeshCourse.IReading =
+    const reading: IAutoMovieMeshCourse.IReading =
       AutoMovieMeshCourse.read(loop);
     const signed: Quarters = [eu, -nu, ev, -nv];
     reading.extents.forEach((e: number, k: number): void => {
@@ -128,7 +125,7 @@ export function test_construction_operator_view_shoulder(): void {
         failures.push(`box [${extents}]: touch ${k} ${t}, expected 0`);
     });
     reading.quarters.forEach(
-      (q: AutoMovieMeshCourse.IQuarter, k: number): void => {
+      (q: IAutoMovieMeshCourse.IQuarter, k: number): void => {
         if (q.rho === null || !(Math.abs(q.rho - expected[k]!) <= 1e-9))
           failures.push(
             `box [${extents}]: quarter ${k} read ${q.rho}, the section's own crossing ${expected[k]}`,
@@ -148,8 +145,8 @@ export function test_construction_operator_view_shoulder(): void {
     [0, -10],
     [10, -10],
   ];
-  const plain: AutoMovieMeshCourse.IReading = AutoMovieMeshCourse.read(square);
-  plain.quarters.forEach((q: AutoMovieMeshCourse.IQuarter, k: number): void => {
+  const plain: IAutoMovieMeshCourse.IReading = AutoMovieMeshCourse.read(square);
+  plain.quarters.forEach((q: IAutoMovieMeshCourse.IQuarter, k: number): void => {
     if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12))
       failures.push(
         `square: quarter ${k} read ${q.rho}, expected 1 (the corner)`,
@@ -162,7 +159,7 @@ export function test_construction_operator_view_shoulder(): void {
     [2, 10],
     ...square.slice(2),
   ];
-  const concave: AutoMovieMeshCourse.IReading =
+  const concave: IAutoMovieMeshCourse.IReading =
     AutoMovieMeshCourse.read(notched);
   const q0: number | null = concave.quarters[0].rho;
   if (q0 === null || !(q0 <= 0))
@@ -171,7 +168,7 @@ export function test_construction_operator_view_shoulder(): void {
     );
   concave.quarters
     .slice(1)
-    .forEach((q: AutoMovieMeshCourse.IQuarter, k: number): void => {
+    .forEach((q: IAutoMovieMeshCourse.IQuarter, k: number): void => {
       if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12))
         failures.push(
           `notched square: quarter ${k + 1} read ${q.rho}, expected 1`,

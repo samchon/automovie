@@ -1,14 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanFoot,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanActionLaw,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HUMAN_LEXICON, HumanChain, HumanFoot, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -59,19 +51,19 @@ export function test_human_motion_base_poses(): void {
     "wince",
   ];
   const rows: readonly string[] = HUMAN_LEXICON.pose!.map(
-    (law: IHumanActionLaw<never>): string => law.name,
+    (law: IAutoMovieMotionHumanActionLaw<never>): string => law.name,
   ).filter((row: string): boolean => !elsewhere.includes(row));
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
   for (let b: number = 0; b < names.length; ++b) {
     const name: "m-average" | "f-small" = names[b]!;
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (let r: number = 0; r < rows.length; ++r) {
       const row: string = rows[r]!;
 
       // Each row is performed on one body, alternating down the rows.
       if ((b + r) % 2 !== 0) continue;
       const label: string = `${name} ${row}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "poses",
@@ -95,8 +87,8 @@ export function test_human_motion_base_poses(): void {
         );
         continue;
       }
-      const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
@@ -105,7 +97,7 @@ export function test_human_motion_base_poses(): void {
       const end: number = segment.end;
       const planted = (side: "left" | "right", t: number): IAutoMovieVector3 =>
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
         )!.point;
 
       // 1. No declared plant slips.

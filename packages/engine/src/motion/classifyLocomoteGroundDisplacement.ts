@@ -1,4 +1,5 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieClassifyLocomoteGroundDisplacement, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
 
@@ -15,26 +16,9 @@ import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
  */
 export const classifyLocomoteGroundDisplacement: (
   displacement: IAutoMovieVector3,
-) => {
-  /** Horizontal XZ displacement length, metres. */ groundDistance: number;
-  /** Full XYZ displacement length, metres. */ travelDistance: number;
-  /** Full displacement is strictly below the shared epsilon. */ alreadyThere: boolean;
-  /** Meaningful full travel with horizontal travel strictly below epsilon. */ verticalOnly: boolean;
-} = (
+) => IAutoMovieClassifyLocomoteGroundDisplacement.IResult = (
   displacement: IAutoMovieVector3,
-): {
-  /** Horizontal XZ displacement length, metres. */
-  groundDistance: number;
-
-  /** Full XYZ displacement length, metres. */
-  travelDistance: number;
-
-  /** Full displacement is strictly below the shared epsilon. */
-  alreadyThere: boolean;
-
-  /** Meaningful full travel with horizontal travel strictly below epsilon. */
-  verticalOnly: boolean;
-} => {
+): IAutoMovieClassifyLocomoteGroundDisplacement.IResult => {
   const groundDistance: number = Math.hypot(displacement.x, displacement.z);
   const travelDistance: number = Math.hypot(
     displacement.x,

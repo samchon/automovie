@@ -1,23 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  getConstraint,
-  jointRomOvershoot,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-} from "@automovie/interface";
-import {
-  HumanArmClearance,
-  HumanColliders,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
+import { getConstraint, jointRomOvershoot } from "@automovie/engine";
+
+import { HumanArmClearance, HumanColliders, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -54,8 +38,8 @@ export function motionArmClearing(
   complaints: motionComplaints.IGatherer,
   name: motionHumanBody.Name,
 ): void {
-  const partner: IHumanBody = motionHumanBody("m-average");
-  const partnered: HumanColliders.IPlaced[] = HumanColliders.placed(
+  const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const partnered: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
     partner,
     poseBones(
       partner,
@@ -65,17 +49,17 @@ export function motionArmClearing(
       ),
     ),
   );
-  const body: IHumanBody = motionHumanBody(name);
-  const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     pose,
   );
-  const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
   for (const side of ["left", "right"] as const) {
     const cell: string = `${name} ${side}`;
-    const own: HumanArmClearance.IArm = {
+    const own: IAutoMovieMotionHumanArmClearance.IArm = {
       upper: triple(pose, `${side}UpperArm`),
       lower: triple(pose, `${side}LowerArm`),
       hand: triple(pose, `${side}Hand`),
@@ -84,7 +68,7 @@ export function motionArmClearing(
     const stance: number = HumanArmClearance.overshoot(
       body,
       placed.filter(
-        (s: HumanColliders.IPlaced): boolean =>
+        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
           TRUNK.includes(s.bone) ||
           s.bone === "leftUpperLeg" ||
           s.bone === "rightUpperLeg" ||
@@ -104,7 +88,7 @@ export function motionArmClearing(
       own,
     );
     // 2. The cells' arms, each cleared only as the function promises.
-    const arms: [string, HumanArmClearance.IArm, HumanColliders.IPlaced[]][] =
+    const arms: [string, IAutoMovieMotionHumanArmClearance.IArm, IAutoMovieMotionHumanColliders.IPlaced[]][] =
       [];
     for (const twist of [-60, 60])
       for (const abduction of [-20, 0])
@@ -137,7 +121,7 @@ export function motionArmClearing(
       );
       if (before <= 1) continue;
       const what: string = `${cell} ${label}`;
-      const after: HumanArmClearance.IArm = HumanArmClearance.cleared(
+      const after: IAutoMovieMotionHumanArmClearance.IArm = HumanArmClearance.cleared(
         body,
         pose,
         side,
@@ -153,7 +137,7 @@ export function motionArmClearing(
           after.lower[2] === arm.lower[2] &&
           JSON.stringify(after.hand) === JSON.stringify(arm.hand),
       );
-      const range = (of: HumanArmClearance.IArm): number =>
+      const range = (of: IAutoMovieMotionHumanArmClearance.IArm): number =>
         outside(body, `${side}UpperArm`, of.upper) +
         outside(body, `${side}LowerArm`, of.lower);
       complaints.check(
@@ -174,7 +158,7 @@ export function motionArmClearing(
       let reachable: number = Infinity;
       for (let a: number = -40; a <= 40; a += 5)
         for (let f: number = -40; f <= 40; f += 5) {
-          const turned: HumanArmClearance.IArm = {
+          const turned: IAutoMovieMotionHumanArmClearance.IArm = {
             upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
             lower: [arm.lower[0] + f, arm.lower[1], arm.lower[2]],
             hand: arm.hand,
@@ -216,7 +200,7 @@ function triple(
 
 /** A joint's range of motion overshoot at a triple, degrees. */
 function outside(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
   of: readonly [number, number, number],
 ): number {

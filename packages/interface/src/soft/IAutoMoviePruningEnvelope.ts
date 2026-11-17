@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * The volume a plant is kept inside.
@@ -14,6 +14,14 @@ export type IAutoMoviePruningEnvelope =
   | IAutoMoviePruningEnvelope.INone
   | IAutoMoviePruningEnvelope.IBox
   | IAutoMoviePruningEnvelope.ISphere;
+/**
+ * Analytic recipe-frame branch-centreline pruning alternatives.
+ *
+ * @evidence contracts/development/design.md#principled-representation Box and sphere records retain metre coordinates; the none arm explicitly disables only pruning.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Plant growth dispatches these records when testing branch bases and analytic exits.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Centreline clipping is not a guarantee that branch thickness or leaf blades remain inside the volume.
+ * @evidence contracts/development/common.md#meaningful-documentation Analytic recipe-frame branch-centreline pruning alternatives. Member documentation specifies their units, references and absence behavior.
+ */
 export namespace IAutoMoviePruningEnvelope {
   /**
    * Unpruned branching structure.

@@ -1,4 +1,5 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieHumanF1, IAutoMovieMark } from "@automovie/interface";
+
 import { AutoMovieHumanF1 } from "@automovie/human";
 import {
   HUMAN_CAPTURE_PEOPLE,
@@ -51,8 +52,8 @@ export function test_human_capture_subjects(): void {
     buildHumanCaptureFigure("f1");
   const scene: THREE.Scene = new THREE.Scene();
   scene.add(figure.object);
-  const named = (members: readonly AutoMovieHumanF1.IMember[]): string[] =>
-    members.flatMap((member: AutoMovieHumanF1.IMember): string[] =>
+  const named = (members: readonly IAutoMovieHumanF1.IMember[]): string[] =>
+    members.flatMap((member: IAutoMovieHumanF1.IMember): string[] =>
       member.mirrored
         ? [`f1/${member.family.name}`, `f1/${member.family.name}.mirror`]
         : [`f1/${member.family.name}`],

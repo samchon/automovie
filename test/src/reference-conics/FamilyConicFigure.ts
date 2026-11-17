@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -27,7 +28,7 @@ namespace FamilyConicFigure {
 
     // Generation first, timed, before any reference byte is read.
     const started: number = performance.now();
-    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generationMs: number = performance.now() - started;
 
     // `--owners`: the sewn skin realized once more, each triangle coloured by the face that owns it (two of its corners agree; else the
@@ -56,8 +57,8 @@ namespace FamilyConicFigure {
           const colour = (name: string): [number, number, number] => (name === "trunk" ? [0.64, 0.65, 0.67] : palette[names.filter((n: string): boolean => n !== "trunk").indexOf(name) % palette.length]!);
           return { meshes: names.map((name: string): N.Mesh => ({ id: name, ...groups.get(name)!, colour: colour(name) })), legend: names.map((name: string) => ({ name, rgb: colour(name).map((x: number): number => Math.round(x * 255)) })) };
         })();
-    const faults: { name: string; diagnostics: unknown }[] = pieces.filter((piece: AutoMovieHumanF1.IPiece): boolean => piece.diagnostics.length > 0).map((piece: AutoMovieHumanF1.IPiece): { name: string; diagnostics: unknown } => ({ name: piece.name, diagnostics: piece.diagnostics }));
-    const generated: N.Mesh[] = pieces.filter((piece: AutoMovieHumanF1.IPiece): boolean => piece.positions.length > 0).map((piece: AutoMovieHumanF1.IPiece): N.Mesh => ({ id: piece.name, positions: piece.positions, indices: piece.indices, colour: [0.64, 0.65, 0.67] }));
+    const faults: { name: string; diagnostics: unknown }[] = pieces.filter((piece: IAutoMovieHumanF1.IPiece): boolean => piece.diagnostics.length > 0).map((piece: IAutoMovieHumanF1.IPiece): { name: string; diagnostics: unknown } => ({ name: piece.name, diagnostics: piece.diagnostics }));
+    const generated: N.Mesh[] = pieces.filter((piece: IAutoMovieHumanF1.IPiece): boolean => piece.positions.length > 0).map((piece: IAutoMovieHumanF1.IPiece): N.Mesh => ({ id: piece.name, positions: piece.positions, indices: piece.indices, colour: [0.64, 0.65, 0.67] }));
     const source: R.ISource = await R.load(root);
     const reference: N.Mesh[] = [source.body, source.head].map((mesh, i: number): N.Mesh => ({ id: "reference." + i, positions: Array.from(mesh.positions, (x: number): number => x / 1000), indices: Array.from(mesh.indices), colour: [0.64, 0.65, 0.67] }));
     const bounds: N.Point[] = [];
@@ -134,7 +135,7 @@ namespace FamilyConicFigure {
         }
       }
     }
-    const receipt = { schema: "f1-family-conic-figure-v1", generationMs: Math.round(generationMs), pieces: pieces.map((piece: AutoMovieHumanF1.IPiece): { name: string; vertices: number; triangles: number } => ({ name: piece.name, vertices: piece.positions.length / 3, triangles: piece.indices.length / 3 })), faults, frames, ...(owned === null ? {} : { owners: owned.legend }) };
+    const receipt = { schema: "f1-family-conic-figure-v1", generationMs: Math.round(generationMs), pieces: pieces.map((piece: IAutoMovieHumanF1.IPiece): { name: string; vertices: number; triangles: number } => ({ name: piece.name, vertices: piece.positions.length / 3, triangles: piece.indices.length / 3 })), faults, frames, ...(owned === null ? {} : { owners: owned.legend }) };
     await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify(receipt, null, 2));
     process.stdout.write(JSON.stringify({ out, generationMs: receipt.generationMs, pieces: pieces.length, faults }) + "\n");
   }

@@ -1,3 +1,4 @@
+import type { IAutoMovieMeshExtract } from "@automovie/interface";
 import { AutoMovieMeshExtract as M } from "@automovie/engine";
 import { PartConicTypes as T } from "./PartConicTypes";
 import type { ConicPaperInput as C } from "./ConicPaperInput";
@@ -34,7 +35,7 @@ export namespace PartConicInput {
       if (index === undefined) { index = positions.length / 3; aliases.set(key, index); positions.push(...p); }
       remap.push(index);
     }
-    const mesh: M.IMesh = { positions, indices: body.geometry.mesh.indices.map((index: number): number => remap[index]!) };
+    const mesh: IAutoMovieMeshExtract.IMesh = { positions, indices: body.geometry.mesh.indices.map((index: number): number => remap[index]!) };
     const exactAliasCount: number = remap.length - positions.length / 3;
     const parts: T.Part[] = [];
     for (const request of [{ family: "leg_l-v2", from: "thigh", to: "calf", fractions: [0.3, 0.7], name: "positive-z-mid-thigh" }, { family: "arm_l-v2", from: "lowerarm", to: "hand", fractions: [0.25, 0.75], name: "positive-z-forearm" }]) {
@@ -70,9 +71,9 @@ export namespace PartConicInput {
         sites.push({ s: selected[i]!.s, heldout: false, station: selected[i]!.station });
         if (i + 1 < selected.length) sites.push({ s: (selected[i]!.s + selected[i + 1]!.s) / 2, heldout: true });
       }
-      const cuts: M.ISection[] = M.outline(mesh, { origin, axes: [n, u, v] }, sites.map((site): number => site.s), 0, 0.5, 0);
-      const rows: T.Row[] = cuts.map((cut: M.ISection, i: number): T.Row => {
-        const loops: M.ILoop[] = cut.loops.filter((loop: M.ILoop): boolean => loop.closed && contains(loop.points));
+      const cuts: IAutoMovieMeshExtract.ISection[] = M.outline(mesh, { origin, axes: [n, u, v] }, sites.map((site): number => site.s), 0, 0.5, 0);
+      const rows: T.Row[] = cuts.map((cut: IAutoMovieMeshExtract.ISection, i: number): T.Row => {
+        const loops: IAutoMovieMeshExtract.ILoop[] = cut.loops.filter((loop: IAutoMovieMeshExtract.ILoop): boolean => loop.closed && contains(loop.points));
         if (loops.length !== 1) throw new Error("Native plane has " + loops.length + " closed loops around its actual source bone at " + request.name + ":" + cut.station);
         const points: T.P[] = loops[0]!.points.slice();
         if (area(points) < 0) points.reverse();

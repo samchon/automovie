@@ -1,12 +1,10 @@
+import type { IAutoMovieResolveHydrodynamicForce, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Vector3,
   resolveHydrodynamicForce,
 } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -45,7 +43,7 @@ export function test_engine_hydrodynamic_force(): void {
     y: number,
     velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
     density?: number,
-  ): resolveHydrodynamicForce.IForce =>
+  ): IAutoMovieResolveHydrodynamicForce.IForce =>
     resolveHydrodynamicForce({
       volume: V,
       centre: { x: 0, y, z: 0 },
@@ -75,7 +73,7 @@ export function test_engine_hydrodynamic_force(): void {
   if (Vector3.length(at(-2 * r).drag) !== 0)
     findings.push("a still segment feels drag");
   const v: IAutoMovieVector3 = { x: 0.6, y: 0, z: 0.8 };
-  const full: resolveHydrodynamicForce.IForce = at(-2 * r, v);
+  const full: IAutoMovieResolveHydrodynamicForce.IForce = at(-2 * r, v);
   const expected: number =
     0.5 * rho * resolveHydrodynamicForce.DRAG * Math.PI * r * r;
   if (
@@ -90,7 +88,7 @@ export function test_engine_hydrodynamic_force(): void {
     findings.push(
       `doubling the speed scales drag by ${faster / Vector3.length(full.drag)}`,
     );
-  const half: resolveHydrodynamicForce.IForce = at(0, v);
+  const half: IAutoMovieResolveHydrodynamicForce.IForce = at(0, v);
   if (!close(Vector3.length(half.drag), expected / 2))
     findings.push(
       `half under: drag ${Vector3.length(half.drag)}, expected ${expected / 2}`,

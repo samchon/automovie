@@ -1,11 +1,15 @@
+import type { IAutoMovieViewOutline, IAutoMovieHumanHeadBackProfile, IAutoMovieHumanHeadLandmarks, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadSection } from "@automovie/interface";
+
+
+
+
+
 import { AutoMovieViewOutline } from "@automovie/engine";
 
 import { AutoMovieHumanHeadBackProfile } from "./AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLandmarks } from "./IAutoMovieHumanHeadLandmarks";
-import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
-import type { IAutoMovieHumanHeadSection } from "./IAutoMovieHumanHeadSection";
+
 
 /**
  * Retained analytic cranial templates and section-gauge helpers: front and
@@ -91,11 +95,11 @@ export namespace AutoMovieHumanHeadVault {
   }
 
   /** The back profile's owners for a person. */
-  export function backProfile(plan: IAutoMovieHumanHeadLayout): AutoMovieHumanHeadBackProfile.IProfile {
-    let ring: AutoMovieHumanHeadBackProfile.IProfile["ring"] = { y: plan.neck.backLevel, x: plan.neck.back, slope: plan.neck.backSlope };
+  export function backProfile(plan: IAutoMovieHumanHeadLayout): IAutoMovieHumanHeadBackProfile.IProfile {
+    let ring: IAutoMovieHumanHeadBackProfile.IProfile["ring"] = { y: plan.neck.backLevel, x: plan.neck.back, slope: plan.neck.backSlope };
     if (plan.neck.curves !== undefined) {
       const neck: NonNullable<typeof plan.neck.curves> = plan.neck.curves;
-      const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(neck.centre);
+      const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(neck.centre);
       if ("detail" in source) throw new Error(`Neck posterior origin: ${source.detail}`);
       const value: number | string = AutoMovieViewOutline.value(source, neck.band[1]);
       if (typeof value === "string") throw new Error(`Neck posterior origin: ${value}`);

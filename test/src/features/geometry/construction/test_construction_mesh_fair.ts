@@ -1,4 +1,5 @@
-import { AutoMovieSolidMesh, fairAutoMovieSolidMesh } from "@automovie/engine";
+import type { IAutoMovieSolidMesh } from "@automovie/interface";
+import { fairAutoMovieSolidMesh } from "@automovie/engine";
 
 /**
  * The sharpest dihedral a G1 fill may keep where it meets the flat flanks round its rim, degrees: between the thin-plate fill's 8.8 and a
@@ -142,7 +143,7 @@ function split(sheet: Sheet): Sheet {
 
 /** Run the fill on a sheet as a mesh with no owners. */
 function fair(sheet: Sheet, discs: { vertices: number[]; radius: number }[]): void {
-  const mesh: AutoMovieSolidMesh.IMesh = { positions: sheet.positions, indices: sheet.indices, coordinates: [], owners: [] };
+  const mesh: IAutoMovieSolidMesh.IMesh = { positions: sheet.positions, indices: sheet.indices, coordinates: [], owners: [] };
   fairAutoMovieSolidMesh(mesh, discs);
 }
 

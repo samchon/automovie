@@ -1,9 +1,7 @@
-import {
-  type IAutoMovieSimplexAtom,
-  adjacentAutoMovieFloat64,
-} from "@automovie/engine";
+import type { IAutoMovieRecoveryFeasibleSqpStepMixingOperation, IAutoMovieRecoverySqpMix, IAutoMovieSimplexAtom } from "@automovie/interface";
+import { adjacentAutoMovieFloat64 } from "@automovie/engine";
 
-import type { IAutoMovieRecoverySqpMix } from "../structures/internal/IAutoMovieRecoverySqpMix";
+
 
 /**
  * Try nominal physical mixing, then one original-row-supported coefficient.
@@ -19,17 +17,16 @@ import type { IAutoMovieRecoverySqpMix } from "../structures/internal/IAutoMovie
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner admits at most two simultaneous candidate vectors before calling. Only the supported vector and scalar status transfer; no trajectory is retained.
  */
 export function mixRecoveryFeasibleSqpStep(
-  rows: readonly IAutoMovieSimplexAtom[],
-  sqp: readonly number[],
-  tilted: readonly number[],
-  nominal: number,
-): IAutoMovieRecoverySqpMix {
+  rows: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[0],
+  sqp: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[1],
+  tilted: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[2],
+  nominal: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation> {
   const result: IAutoMovieRecoverySqpMix = {
     step: null,
     weight: nominal,
     numericalAttempted: false,
-    numericalSupported: false,
-  };
+    numericalSupported: false };
   const candidate: (weight: number) => number[] | null = (
     weight: number,
   ): number[] | null => {

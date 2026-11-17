@@ -1,38 +1,18 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanChannel,
-  HumanChain,
-  HumanColliders,
-  HumanGrip,
-  HumanPerformance,
-  HumanVerdicts,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions";
+import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidRegion, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, physicalShapeSegmentDistance, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+
+import { AutoMovieMotionHumanChannel, HumanChain, HumanColliders, HumanGrip, HumanPerformance, HumanVerdicts, poseBones, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A digit region's world point on a pose. */
 const at = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   region: AutoMovieHumanoidRegion,
 ): IAutoMovieVector3 => {
-  const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+  const frame: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
   return resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
@@ -69,9 +49,9 @@ const at = (
  */
 export function test_human_motion_core_digits(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const m: IHumanBody["measure"] = body.measure;
-  const forward = (side: "left" | "right"): IHumanPosture => ({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  const forward = (side: "left" | "right"): IAutoMovieMotionHumanPosture => ({
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -93,8 +73,8 @@ export function test_human_motion_core_digits(): void {
   // 1. A reachable forefinger point, on both sides.
   for (const side of ["left", "right"] as const) {
     const Side: string = side === "left" ? "Left" : "Right";
-    const base: IHumanPosture = forward(side);
-    const pinch: IHumanPosture = {
+    const base: IAutoMovieMotionHumanPosture = forward(side);
+    const pinch: IAutoMovieMotionHumanPosture = {
       ...base,
       joints: {
         [`${side}IndexProximal`]: [40, 0, 0],
@@ -124,7 +104,7 @@ export function test_human_motion_core_digits(): void {
   }
 
   // 2. A goal on a bone: the thumb's tip on the forefinger's pad.
-  const base: IHumanPosture = {
+  const base: IAutoMovieMotionHumanPosture = {
     ...forward("right"),
     joints: {
       rightIndexProximal: [45, 0, 0],
@@ -132,7 +112,7 @@ export function test_human_motion_core_digits(): void {
       rightIndexDistal: [30, 0, 0],
     },
   };
-  const pad: resolveAutoMovieHumanoidSurfaces.IFrame =
+  const pad: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions.indexPadRight;
   const pinched: IAutoMoviePose = resolveHumanPosture(body, {
     ...base,
@@ -207,16 +187,16 @@ export function test_human_motion_core_digits(): void {
   for (const [label, ok] of facts) if (!ok) complaints.push(label);
 
   // 5. Merge by a digit claim.
-  const under: IHumanPosture = {
+  const under: IAutoMovieMotionHumanPosture = {
     ...forward("right"),
     joints: { rightIndexProximal: [10, 0, 0], rightThumbProximal: [10, 0, 0] },
   };
-  const written: IHumanPosture = {
+  const written: IAutoMovieMotionHumanPosture = {
     ...forward("right"),
     joints: { rightIndexProximal: [50, 0, 0], rightThumbProximal: [50, 0, 0] },
     digits: { rightThumb: { point: { x: 0, y: 1, z: 0 }, surface: "pad" } },
   };
-  const merged: IHumanPosture = C.merge(under, written, ["rightThumb"]);
+  const merged: IAutoMovieMotionHumanPosture = C.merge(under, written, ["rightThumb"]);
   if (
     !(
       merged.joints.rightThumbProximal?.[0] === 50 &&
@@ -235,7 +215,7 @@ export function test_human_motion_core_digits(): void {
   // give, for each place a hand rests against the thigh or hip.
   for (const place of ["pocket", "hip", "side"] as const)
     try {
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "digits",
         performers: [
           {
@@ -250,11 +230,11 @@ export function test_human_motion_core_digits(): void {
           .node,
       });
       const bones = performance.bones("a", performance.duration - 0.05);
-      const others: readonly HumanColliders.IPlaced[] = HumanColliders.placed(
+      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
         body,
         bones,
       ).filter(
-        (p: HumanColliders.IPlaced): boolean =>
+        (p: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
           !/^right(Hand|Thumb|Index|Middle|Ring|Little|LowerArm)/.test(p.bone),
       );
       for (const digit of ["Thumb", "Index", "Middle", "Ring", "Little"] as const) {

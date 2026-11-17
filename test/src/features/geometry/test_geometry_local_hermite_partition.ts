@@ -1,27 +1,23 @@
-import {
-  AutoMovieLocalHermiteField64,
-  type IAutoMovieCurve64 as C,
-  tessellateAutoMovieLocalHermite64 as Stream,
-  tessellateAutoMovieCurveGrid64,
-} from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieLocalHermiteField64, IAutoMovieLocalHermiteStream64 } from "@automovie/interface";
+import { AutoMovieLocalHermiteField64, tessellateAutoMovieLocalHermite64 as Stream, tessellateAutoMovieCurveGrid64 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 
 /** Exact real-arithmetic half restrictions, formed independently of the field and tessellator. */
-const halve: (span: C.Span) => [C.Span, C.Span] = (
-  span: C.Span,
-): [C.Span, C.Span] => {
-  const mean: (a: C.Vector, b: C.Vector) => C.Vector = (
-    a: C.Vector,
-    b: C.Vector,
-  ): C.Vector => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
-  const a: C.Vector = mean(span[0], span[1]),
-    b: C.Vector = mean(span[1], span[2]),
-    c: C.Vector = mean(span[2], span[3]);
-  const d: C.Vector = mean(a, b),
-    e: C.Vector = mean(b, c),
-    middle: C.Vector = mean(d, e);
+const halve: (span: IAutoMovieCurve64.Span) => [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] = (
+  span: IAutoMovieCurve64.Span,
+): [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] => {
+  const mean: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+  const a: Readonly<AutoMovieVector3Tuple> = mean(span[0], span[1]),
+    b: Readonly<AutoMovieVector3Tuple> = mean(span[1], span[2]),
+    c: Readonly<AutoMovieVector3Tuple> = mean(span[2], span[3]);
+  const d: Readonly<AutoMovieVector3Tuple> = mean(a, b),
+    e: Readonly<AutoMovieVector3Tuple> = mean(b, c),
+    middle: Readonly<AutoMovieVector3Tuple> = mean(d, e);
   return [
     [span[0], a, d, middle],
     [middle, e, c, span[3]],
@@ -180,7 +176,7 @@ const translatedStrip: (
  */
 export function test_geometry_local_hermite_partition(): void {
   const count: number = 10000;
-  const course: (station: number) => C.Cubic = (station: number): C.Cubic => ({
+  const course: (station: number) => IAutoMovieCurve64.Cubic = (station: number): IAutoMovieCurve64.Cubic => ({
     type: "cubicBezier",
     name: `affine-${station}`,
     closed: false,
@@ -189,7 +185,7 @@ export function test_geometry_local_hermite_partition(): void {
     phaseIntervals: Array.from({ length: count }, (): number => 1 / count),
     spans: Array.from(
       { length: count },
-      (_: unknown, i: number): C.Span => [
+      (_: unknown, i: number): IAutoMovieCurve64.Span => [
         [i / count, station, 0],
         [(i + 1 / 3) / count, station, 0],
         [(i + 2 / 3) / count, station, 0],
@@ -197,12 +193,12 @@ export function test_geometry_local_hermite_partition(): void {
       ],
     ),
   });
-  const courses: C.Cubic[] = [course(0), course(3)];
-  const field: AutoMovieLocalHermiteField64.Prepared =
+  const courses: IAutoMovieCurve64.Cubic[] = [course(0), course(3)];
+  const field: IAutoMovieLocalHermiteField64.Prepared =
     AutoMovieLocalHermiteField64.prepare([0, 3], courses, "ruled");
   for (const station of [0, 1])
     for (const phase of [0, 0.25, 1]) {
-      const jet: AutoMovieLocalHermiteField64.Jet = field.station(
+      const jet: IAutoMovieLocalHermiteField64.Jet = field.station(
         station,
         phase,
       );
@@ -243,9 +239,9 @@ export function test_geometry_local_hermite_partition(): void {
     nclose(grid.boundaries.stationLast.positions.at(-1)![0], 0.001, 1e-12) &&
       nclose(grid.boundaries.stationLast.positions.at(-1)![1], 0.003, 1e-12),
   );
-  const refuses: (stations: number[], input: C.Cubic[]) => boolean = (
+  const refuses: (stations: number[], input: IAutoMovieCurve64.Cubic[]) => boolean = (
     stations: number[],
-    input: C.Cubic[],
+    input: IAutoMovieCurve64.Cubic[],
   ): boolean => {
     try {
       AutoMovieLocalHermiteField64.prepare(stations, input);
@@ -254,7 +250,7 @@ export function test_geometry_local_hermite_partition(): void {
       return error instanceof Error;
     }
   };
-  const short: C.Cubic = {
+  const short: IAutoMovieCurve64.Cubic = {
     ...courses[0]!,
     phaseIntervals: courses[0]!.phaseIntervals.map(
       (width: number): number => width * 0.9,
@@ -264,7 +260,7 @@ export function test_geometry_local_hermite_partition(): void {
     "short chart refuses",
     refuses([0, 3], [short, courses[1]!]),
   );
-  const collapsed: C.Cubic = {
+  const collapsed: IAutoMovieCurve64.Cubic = {
     ...courses[0]!,
     spans: [courses[0]!.spans[0]!, courses[0]!.spans[1]!],
     phaseIntervals: [1, Number.EPSILON],
@@ -278,8 +274,8 @@ export function test_geometry_local_hermite_partition(): void {
     refuses([0, 0], courses),
   );
   const stations: number[] = [0, 2, 5];
-  const quadratic: C.Cubic[] = stations.map(
-    (s: number): C.Cubic => ({
+  const quadratic: IAutoMovieCurve64.Cubic[] = stations.map(
+    (s: number): IAutoMovieCurve64.Cubic => ({
       type: "cubicBezier",
       name: `quadratic-${s}`,
       closed: false,
@@ -296,10 +292,10 @@ export function test_geometry_local_hermite_partition(): void {
       ],
     }),
   );
-  const physical: AutoMovieLocalHermiteField64.Prepared =
+  const physical: IAutoMovieLocalHermiteField64.Prepared =
     AutoMovieLocalHermiteField64.prepare(stations, quadratic);
   for (let i: number = 0; i < stations.length; i++) {
-    const jet: AutoMovieLocalHermiteField64.Jet = physical.station(i, 0.5);
+    const jet: IAutoMovieLocalHermiteField64.Jet = physical.station(i, 0.5);
     TestValidator.predicate(
       "nonuniform quadratic physical derivative",
       nclose(jet.stationPartial[0], 0) &&
@@ -308,7 +304,7 @@ export function test_geometry_local_hermite_partition(): void {
     );
   }
   for (let i: number = 0; i < stations.length - 1; i++) {
-    const cell: AutoMovieLocalHermiteField64.Cell = physical.interval(i)[0]!;
+    const cell: IAutoMovieLocalHermiteField64.Cell = physical.interval(i)[0]!;
     // A cubic Bernstein row evaluates at t=1/2 with weights 1,3,3,1 over eight.
     const weights: number[] = [1 / 8, 3 / 8, 3 / 8, 1 / 8];
     const z: number = cell.grid.reduce(
@@ -343,9 +339,9 @@ export function test_geometry_local_hermite_partition(): void {
           const height: number = gap * scale,
             k: number = (4 / 3) * Math.tan(Math.PI / 8),
             radiusM: number = scale * 0.001;
-          const source: C.Cubic[] = [0, height, 2 * height].map(
-            (station: number, i: number): C.Cubic => {
-              const span: C.Span = [
+          const source: IAutoMovieCurve64.Cubic[] = [0, height, 2 * height].map(
+            (station: number, i: number): IAutoMovieCurve64.Cubic => {
+              const span: IAutoMovieCurve64.Span = [
                 [scale, station, 0],
                 [scale, station, k * scale],
                 [k * scale, station, scale],
@@ -394,7 +390,7 @@ export function test_geometry_local_hermite_partition(): void {
             let next: ReturnType<typeof iterator.next> = iterator.next();
             let omitted: number = 0;
             while (!next.done) {
-              const chunk: Stream.Chunk = next.value;
+              const chunk: IAutoMovieLocalHermiteStream64.Chunk = next.value;
               record.appendOnly &&=
                 chunk.vertexStart === offset + positions.length / 3 &&
                 chunk.positions.length === chunk.normals.length &&

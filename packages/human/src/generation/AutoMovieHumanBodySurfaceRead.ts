@@ -1,15 +1,15 @@
-import {
-  AutoMovieLoftChain,
-  type IAutoMovieLoftChain,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
+
 
 /** The body surface's readers: a chain by name, a ring's vertices, an end's height and the interval and circular arithmetic of phases. */
 export namespace AutoMovieHumanBodySurfaceRead {
   /** Calibration chain by name; a missing chain is a calibration defect. */
-  export function chain(context: IContext, name: string): IAutoMovieLoftChain {
+  export function chain(context: IAutoMovieHumanSurfaceContext, name: string): IAutoMovieLoftChain {
     const found: IAutoMovieLoftChain | undefined = context.chains.get(name);
     if (found === undefined)
       throw new Error(`Calibration lacks the ${name} chain`);
@@ -75,7 +75,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
    * @returns The new vertex indices, in phase order.
    */
   export function ringVertices(
-    context: IContext,
+    context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     station: number,
     phases: readonly number[],

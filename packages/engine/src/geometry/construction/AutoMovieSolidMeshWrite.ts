@@ -1,9 +1,6 @@
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidMesh } from "@automovie/interface";
 
-/** World-space millimetre vector. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 /** Existing vector arithmetic, with its original evaluation order. */
 const { cross, dot, norm, sub }: typeof AutoMovieSolidVector =
@@ -30,16 +27,16 @@ export namespace AutoMovieSolidMeshWrite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mesh owns the new closure and transitively retains its surface until the mesh is released.
    */
   export function owner(
-    mesh: AutoMovieSolidMesh.IMesh,
+    mesh: IAutoMovieSolidMesh.IMesh,
     surface: IAutoMovieSolidSurface,
   ): number {
     const known: number = mesh.owners.findIndex(
-      (o: AutoMovieSolidMesh.IOwner): boolean => o.name === surface.name,
+      (o: IAutoMovieSolidMesh.IOwner): boolean => o.name === surface.name,
     );
     if (known >= 0) return known;
     mesh.owners.push({
       name: surface.name,
-      point: (a: number, b: number): Vec3 => {
+      point: (a: number, b: number): AutoMovieVector3Tuple => {
         const read: IAutoMovieSolidSurface["point"] = surface.point;
         return read === undefined
           ? surface.jet(a, b).p
@@ -61,8 +58,8 @@ export namespace AutoMovieSolidMeshWrite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mesh owns six appended numbers; the borrowed point vector is not retained.
    */
   export function vertex(
-    mesh: AutoMovieSolidMesh.IMesh,
-    p: Readonly<Vec3>,
+    mesh: IAutoMovieSolidMesh.IMesh,
+    p: Readonly<AutoMovieVector3Tuple>,
     owner: number,
     a: number,
     b: number,
@@ -84,9 +81,9 @@ export namespace AutoMovieSolidMeshWrite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only appended indices persist in mesh; normal vectors and the reference callback are call-local.
    */
   export function emit(
-    mesh: AutoMovieSolidMesh.IMesh,
+    mesh: IAutoMovieSolidMesh.IMesh,
     triangles: readonly [number, number, number][],
-    sign: number | ((t: number) => Vec3),
+    sign: number | ((t: number) => AutoMovieVector3Tuple),
     known: boolean = false,
   ): void {
     let flip: boolean;
@@ -123,10 +120,10 @@ export namespace AutoMovieSolidMeshWrite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no mesh reference.
    */
   export function normal(
-    mesh: Pick<AutoMovieSolidMesh.IMesh, "positions">,
+    mesh: Pick<IAutoMovieSolidMesh.IMesh, "positions">,
     triangle: readonly [number, number, number],
-  ): Vec3 {
-    const point: (index: number) => Vec3 = (index: number): Vec3 => [
+  ): AutoMovieVector3Tuple {
+    const point: (index: number) => AutoMovieVector3Tuple = (index: number): AutoMovieVector3Tuple => [
       mesh.positions[3 * index]!,
       mesh.positions[3 * index + 1]!,
       mesh.positions[3 * index + 2]!,
@@ -149,13 +146,13 @@ export namespace AutoMovieSolidMeshWrite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh vector and retains no mesh, surface or callback after the call.
    */
   export function facing(
-    mesh: AutoMovieSolidMesh.IMesh,
+    mesh: IAutoMovieSolidMesh.IMesh,
     surface: IAutoMovieSolidSurface,
     triangle: readonly [number, number, number],
-  ): Vec3 {
-    const result: Vec3 = [0, 0, 0];
+  ): AutoMovieVector3Tuple {
+    const result: AutoMovieVector3Tuple = [0, 0, 0];
     for (const vertex of triangle) {
-      const out: Vec3 = outward(
+      const out: AutoMovieVector3Tuple = outward(
         surface,
         mesh.coordinates[3 * vertex + 1]!,
         mesh.coordinates[3 * vertex + 2]!,
@@ -183,9 +180,9 @@ export namespace AutoMovieSolidMeshWrite {
     surface: IAutoMovieSolidSurface,
     u: number,
     v: number,
-  ): Vec3 {
+  ): AutoMovieVector3Tuple {
     const jet: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
-    const value: Vec3 = cross(jet.u, jet.v);
+    const value: AutoMovieVector3Tuple = cross(jet.u, jet.v);
     return [
       value[0] * surface.orientation,
       value[1] * surface.orientation,

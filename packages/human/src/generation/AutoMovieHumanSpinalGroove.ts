@@ -1,8 +1,13 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
-import type { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
+import type { IAutoMovieLoftRelief, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame, IAutoMovieHumanTrunkReliefNet } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanSpinalProfile } from "./AutoMovieHumanSpinalProfile";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The spinal furrow merged into the trunk: a groove window centred on the
@@ -18,7 +23,7 @@ export namespace AutoMovieHumanSpinalGroove {
    * @param half Half length of the furrow along it, mm.
    * @returns The furrow as a height field.
    */
-  export function feature(frame: AutoMovieHumanTrunkFeatureFrame.IFrame, half: number): IAutoMovieHumanTrunkFeature {
+  export function feature(frame: IAutoMovieHumanTrunkFeatureFrame.IFrame, half: number): IAutoMovieHumanTrunkFeature {
     const R: number = AutoMovieHumanSpinalProfile.RADIUS;
 
     return {
@@ -39,9 +44,9 @@ export namespace AutoMovieHumanSpinalGroove {
    * @returns The relief.
    */
   export function create(
-    frame: AutoMovieHumanTrunkFeatureFrame.IFrame,
+    frame: IAutoMovieHumanTrunkFeatureFrame.IFrame,
     half: number,
-    base: AutoMovieHumanTrunkReliefNet.Base,
+    base: IAutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
   ): IAutoMovieLoftRelief {
     return AutoMovieHumanTrunkReliefNet.fromFeature(

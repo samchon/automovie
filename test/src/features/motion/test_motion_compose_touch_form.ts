@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieBodyMeasure,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanTouchForm, IAutoMovieBodyMeasure, IAutoMovieVector3 } from "@automovie/interface";
+
 import { AutoMovieMotionHumanTouchForm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,7 +45,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motion_compose_touch_form(): void {
   const FORMS = AutoMovieMotionHumanTouchForm.FORMS;
-  const kinds: AutoMovieMotionHumanTouchForm.Kind[] = [
+  const kinds: IAutoMovieMotionHumanTouchForm.Kind[] = [
     "tap",
     "pat",
     "stroke",

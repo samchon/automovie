@@ -1,18 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanActionRow,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanActionLaw,
-  type IHumanBody,
-  handToFace,
-  seated,
-  sit,
-  touch,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanHandToFace, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanSit, IAutoMovieMotionHumanTouch, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanActionRow, HumanChain, HumanPerformance, HumanRefusal, HumanSignature, handToFace, seated, sit, touch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -67,9 +55,9 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  * @evidence contracts/development/common.md#meaningful-documentation States the example with its source and the 10 scenarios.
  */
 export function test_human_motion_registered_law(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const salute: IHumanActionLaw<
-    Omit<touch.IParams, "target" | "with" | "kind" | "side" | "elbow">
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const salute: IAutoMovieMotionHumanActionLaw<
+    Omit<IAutoMovieMotionHumanTouch.IParams, "target" | "with" | "kind" | "side" | "elbow">
   > = HumanActionRow.of("salute", touch, {
     target: { kind: "self", region: "templeRight" },
     with: "forefinger",
@@ -77,7 +65,7 @@ export function test_human_motion_registered_law(): void {
     side: "right",
     elbow: "level",
   });
-  const chair: seated.ISeat = {
+  const chair: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
       y: seated.popliteal(body),
@@ -86,9 +74,9 @@ export function test_human_motion_registered_law(): void {
     yaw: 0,
     depth: 0.45,
   };
-  const takeSeat: IHumanActionLaw<Omit<sit.IParams, "seat">> =
+  const takeSeat: IAutoMovieMotionHumanActionLaw<Omit<IAutoMovieMotionHumanSit.IParams, "seat">> =
     HumanActionRow.of("takeSeat", sit, { seat: chair });
-  const shave: IHumanActionLaw<Omit<handToFace.IParams, "task">> =
+  const shave: IAutoMovieMotionHumanActionLaw<Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">> =
     HumanActionRow.of("shave", handToFace, {
       task: {
         region: "jawRight",
@@ -107,15 +95,15 @@ export function test_human_motion_registered_law(): void {
         at: "atJaw",
       },
     });
-  const Chain: HumanChain.IExtension<{
+  const Chain: IAutoMovieMotionHumanChain.IExtension<{
     salute: typeof salute;
     takeSeat: typeof takeSeat;
     shave: typeof shave;
   }> = HumanChain.extend({ salute, takeSeat, shave });
   const perform = (
-    composition: HumanChain,
-    laws: readonly IHumanActionLaw<never>[] = [salute, takeSeat, shave],
-  ): HumanPerformance =>
+    composition: IAutoMovieMotionHumanChain,
+    laws: readonly IAutoMovieMotionHumanActionLaw<never>[] = [salute, takeSeat, shave],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "registered",
       performers: [
@@ -147,10 +135,10 @@ export function test_human_motion_registered_law(): void {
 
   // Whether two films show the same body: every joint centre within a
   // nanometre at every quarter second.
-  const same = (one: HumanPerformance, other: HumanPerformance): boolean => {
+  const same = (one: IAutoMovieMotionHumanPerformance, other: IAutoMovieMotionHumanPerformance): boolean => {
     if (Math.abs(one.duration - other.duration) > 1e-9) return false;
     for (let t: number = 0; t <= one.duration; t += 0.25) {
-      const there: ReturnType<HumanPerformance["bones"]> = other.bones("a", t);
+      const there: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = other.bones("a", t);
       for (const [bone, resolved] of one.bones("a", t)) {
         const p: IAutoMovieVector3 = resolved.worldPosition;
         const q: IAutoMovieVector3 | undefined = there.get(bone)?.worldPosition;
@@ -163,15 +151,15 @@ export function test_human_motion_registered_law(): void {
     }
     return true;
   };
-  const scene = (): HumanChain =>
+  const scene = (): IAutoMovieMotionHumanChain =>
     Chain.subject("a")
       .stand({ seconds: 0.5 })
       .salute({ hold: 0.5 })
       .stand({ seconds: 0.5 });
 
   // 1. Performed under its own name, the fingertip at the brow.
-  const first: HumanPerformance = perform(scene());
-  const placed: HumanSegment.ISegment | undefined = first.segments("a")[1];
+  const first: IAutoMovieMotionHumanPerformance = perform(scene());
+  const placed: IAutoMovieMotionHumanSegment.ISegment | undefined = first.segments("a")[1];
   expect(
     `the second action is named ${placed?.name}, salute expected`,
     placed?.name === "salute",
@@ -181,7 +169,7 @@ export function test_human_motion_registered_law(): void {
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ?? 0) *
         placed.plan.duration;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       first,
       "a",
       body,
@@ -216,7 +204,7 @@ export function test_human_motion_registered_law(): void {
   );
 
   // 3. Registering changes no other action.
-  const plain = (): HumanChain =>
+  const plain = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a")
       .stand({ seconds: 0.5 })
       .touch({ target: { kind: "self", region: "sternum" }, kind: "pat" });
@@ -291,11 +279,11 @@ export function test_human_motion_registered_law(): void {
   // 8. Compile time: the method is typed by the law and keeps the chain.
   const typed: Same<
     keyof NonNullable<
-      Parameters<HumanChain.Extended<{ salute: typeof salute }>["salute"]>[0]
+      Parameters<IAutoMovieMotionHumanChain.Extended<{ salute: typeof salute }>["salute"]>[0]
     >,
-    Exclude<keyof touch.IParams, "target" | "with" | "kind" | "side" | "elbow">
+    Exclude<keyof IAutoMovieMotionHumanTouch.IParams, "target" | "with" | "kind" | "side" | "elbow">
   > = true;
-  const chained: HumanChain.Extended<{ salute: typeof salute }> = Chain.subject(
+  const chained: IAutoMovieMotionHumanChain.Extended<{ salute: typeof salute }> = Chain.subject(
     "a",
   )
     .salute()

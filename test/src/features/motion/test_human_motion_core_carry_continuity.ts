@@ -1,16 +1,7 @@
+import type { IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanTarget,
-  HumanHand,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+
+import { AutoMovieMotionHumanArm, AutoMovieMotionHumanTarget, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -54,7 +45,7 @@ export function test_human_motion_core_carry_continuity(): void {
   };
 
   // 1. The span the weight states.
-  const span: AutoMovieMotionHumanArm.ISpan | undefined =
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =
     AutoMovieMotionHumanArm.stated(weight, 0, end);
   TestValidator.predicate(
     "the weight states its span",
@@ -68,9 +59,9 @@ export function test_human_motion_core_carry_continuity(): void {
   );
 
   // 2. A hanging hand carried onto the thigh.
-  const body: IHumanBody = motionHumanBody("m-average");
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-  const side: HumanHand.Side = "right";
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const side: IAutoMovieMotionHumanHand.Side = "right";
   const bones = poseBones(body, resolveHumanPosture(body, quiet));
   const region = body.surfaces.regions.thighOuterRight;
   const surface = resolveAutoMovieHumanoidSurfaces.place(
@@ -98,7 +89,7 @@ export function test_human_motion_core_carry_continuity(): void {
     },
     normal: surface.normal,
   };
-  const goal: IHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
+  const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
     body,
     side,
     AutoMovieMotionHumanTarget.hand(body, quiet, side, thigh, {
@@ -114,11 +105,11 @@ export function test_human_motion_core_carry_continuity(): void {
       resolveHumanPosture(body, quiet),
       side,
     ),
-    goal: (): IHumanPosture.IGoal => goal,
+    goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
     weight,
     span: span!,
   });
-  const before = (): IHumanPosture => quiet;
+  const before = (): IAutoMovieMotionHumanPosture => quiet;
   arm.prepare!(before);
   const palm = (seconds: number): IAutoMovieVector3 =>
     HumanHand.frame(

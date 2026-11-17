@@ -1,10 +1,5 @@
-import {
-  IAutoMovieFormationLayout,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFormationPlacement, type IAutoMovieFormationReform, IAutoMovieFormationLayout, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieFormationPlacement } from "./IAutoMovieFormationPlacement";
-import { IAutoMovieFormationReform } from "./IAutoMovieFormationReform";
 import { formationGroundRelief } from "./formationGroundRelief";
 import { lerp } from "./lerp";
 import { seededValue } from "./math/seededValue";

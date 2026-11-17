@@ -1,25 +1,19 @@
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import type { IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMovieLoftContract, IAutoMovieSolidIntersection, IAutoMovieSolidIntersectionWalk, IAutoMovieSolidTraceLaw } from "@automovie/interface";
+
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidIntersectionWalk } from "./AutoMovieSolidIntersectionWalk";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** Original surface jet used by the closure measurement. */
 type IJet = IAutoMovieSolidSurface.IJet;
 /** The existing public point and its implicit parameter rates. */
-type IPoint = AutoMovieSolidIntersection.IPoint;
+type IPoint = IAutoMovieSolidIntersection.IPoint;
 /** Existing declared parameter kind and angle data. */
-type Parameter = AutoMovieSolidIntersection.Parameter;
+type Parameter = IAutoMovieSolidIntersection.Parameter;
 /** Original public curve with its shared point array and reader. */
-type ICurve = AutoMovieSolidIntersection.ICurve;
-/** Existing borrowed trace inputs and callbacks. */
-type IInput = AutoMovieSolidIntersection.IInput;
-/** Existing nullable curve and ordered diagnostics. */
-type IResult = AutoMovieSolidIntersection.IResult;
+type ICurve = IAutoMovieSolidIntersection.ICurve;
 /** Original world-vector norm used by closure observations. */
 const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
@@ -50,13 +44,13 @@ export namespace AutoMovieSolidIntersectionTrace {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The curve retains those original references and traced points for its lifetime; null results retain diagnostics only and no new task/cache is created.
    */
   export function create(
-    input: IInput,
+    input: IAutoMovieSolidIntersection.IInput,
     walkSteps: number,
     walkPoints: number,
     closingSteps: number,
-  ): IResult {
+  ): IAutoMovieSolidIntersection.IResult {
     /** Read original top-level inputs in the same order before any surface callback. */
-    const { part, count, tolerance, grazing }: IInput = input;
+    const { part, count, tolerance, grazing }: IAutoMovieSolidIntersection.IInput = input;
 
     /** Normalize the original host without copying an existing atlas. */
     const host: IAutoMovieSolidAtlas = atlas(input.host);
@@ -68,13 +62,13 @@ export namespace AutoMovieSolidIntersectionTrace {
     const producer: string = `solid.intersection.${part.name}.${host.name}`;
 
     /** Diagnostics in original traversal and grazing-observation order. */
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
 
     /** Return the unchanged null-curve failure shape. */
-    const report: (contract: string, detail: string) => IResult = (
+    const report: (contract: string, detail: string) => IAutoMovieSolidIntersection.IResult = (
       contract: string,
       detail: string,
-    ): IResult => {
+    ): IAutoMovieSolidIntersection.IResult => {
       diagnostics.push({ producer, level: 6, contract, detail });
       return { curve: null, diagnostics };
     };
@@ -89,7 +83,7 @@ export namespace AutoMovieSolidIntersectionTrace {
     // The parameter's law, the seed's parameter and the seed refined at it.
 
     /** Law selected by the original phase/angle/arc branch. */
-    let law: AutoMovieSolidTraceLaw.ILaw;
+    let law: IAutoMovieSolidTraceLaw.ILaw;
 
     /** Original starting parameter for one turn. */
     let t0: number;
@@ -98,7 +92,7 @@ export namespace AutoMovieSolidIntersectionTrace {
     let first: IPoint | null;
     if (parameter.kind === "arc") {
       /** Arc preparation with the unchanged public step constants. */
-      const walked: ReturnType<typeof AutoMovieSolidIntersectionWalk.create> =
+      const walked: (IAutoMovieSolidIntersectionWalk.IWalk | string) =
         AutoMovieSolidIntersectionWalk.create(
           part,
           host,
@@ -123,7 +117,7 @@ export namespace AutoMovieSolidIntersectionTrace {
       );
     } else {
       /** Original phase/angle law admission result. */
-      const made: AutoMovieSolidTraceLaw.ILaw | null =
+      const made: IAutoMovieSolidTraceLaw.ILaw | null =
         AutoMovieSolidTraceLaw.of(parameter);
       if (made === null)
         return report(

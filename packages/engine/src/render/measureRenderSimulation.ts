@@ -1,3 +1,5 @@
+import type { IAutoMovieRenderPrototypeCost, IAutoMovieRenderSubject, IAutoMovieRenderWaterBody, IAutoMovieMeasureRenderSimulation, AutoMovieRenderMetric, IAutoMovieFluidBudget, IAutoMovieFluidGrid, IAutoMoviePlantingBudget, IAutoMovieRenderAnalysisGap, IAutoMovieRenderOwnerCost, IAutoMovieSoftBodyBudget } from "@automovie/interface";
+
 /**
  * Add bounded effects, cloth, planting and water to the render inventory.
  * Inputs include the cumulative population counts; local accumulation continues
@@ -8,22 +10,11 @@
  * final metrics null. A one-cell surface has no quad and creates no visible draw.
  * This phase must precede material closure, geometry memory and frame-wide passes.
  */
-import type {
-  AutoMovieRenderMetric,
-  IAutoMovieFluidBudget,
-  IAutoMovieFluidGrid,
-  IAutoMoviePlantingBudget,
-  IAutoMovieRenderAnalysisGap,
-  IAutoMovieRenderOwnerCost,
-  IAutoMovieSoftBodyBudget,
-} from "@automovie/interface";
+
 
 import { fluidDomainBudget } from "../fluid/fluidDomainBudget";
 import { plantingBudget } from "../soft/plantingBudget";
 import { softBodyBudget } from "../soft/softBodyBudget";
-import type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
-import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import type { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_FLOW_BYTES } from "./constants/AUTOMOVIE_FLOW_BYTES";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
@@ -42,71 +33,7 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each domain budget is read once for its drawable and per-batch prototype storage is counted once, not per instance; no cross-call result cache assumes mutable topology/host prototype facts remain equivalent.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The orchestrator owns callbacks and rows for the synchronous request; this phase returns counts/gap ids and retains no simulation buffers, native geometry or task.
  */
-export const measureRenderSimulation: (props: {
-  subject: IAutoMovieRenderSubject;
-  triangles: number;
-  vertices: number;
-  drawCalls: number;
-  instanceSlots: number;
-  simulatedNodes: number;
-  gaps: IAutoMovieRenderAnalysisGap[];
-  add: (
-    owner: string,
-    source: string,
-    metric: AutoMovieRenderMetric,
-    cost: number,
-    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
-  ) => void;
-  cite: (
-    material: string | null,
-    owner: string,
-    source: string,
-    cited: string,
-  ) => void;
-}) => {
-  triangles: number;
-  vertices: number;
-  drawCalls: number;
-  instanceSlots: number;
-  simulatedNodes: number;
-  simulatedBytes: number;
-  fluidCells: number;
-  fluidParticles: number;
-  unmeasured: string[];
-  unsolved: IAutoMovieRenderWaterBody[];
-} = (props: {
-  subject: IAutoMovieRenderSubject;
-  triangles: number;
-  vertices: number;
-  drawCalls: number;
-  instanceSlots: number;
-  simulatedNodes: number;
-  gaps: IAutoMovieRenderAnalysisGap[];
-  add: (
-    owner: string,
-    source: string,
-    metric: AutoMovieRenderMetric,
-    cost: number,
-    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
-  ) => void;
-  cite: (
-    material: string | null,
-    owner: string,
-    source: string,
-    cited: string,
-  ) => void;
-}): {
-  triangles: number;
-  vertices: number;
-  drawCalls: number;
-  instanceSlots: number;
-  simulatedNodes: number;
-  simulatedBytes: number;
-  fluidCells: number;
-  fluidParticles: number;
-  unmeasured: string[];
-  unsolved: IAutoMovieRenderWaterBody[];
-} => {
+export const measureRenderSimulation: (props: IAutoMovieMeasureRenderSimulation.IProps) => IAutoMovieMeasureRenderSimulation.IResult = (props: IAutoMovieMeasureRenderSimulation.IProps): IAutoMovieMeasureRenderSimulation.IResult => {
   const {
     subject,
     gaps,

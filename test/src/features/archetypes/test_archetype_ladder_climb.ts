@@ -1,15 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createLadder } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,15 +29,15 @@ export function test_archetype_ladder_climb(): void {
     kind: "fixed",
     spacing: 0.3,
   });
-  const placement: HumanObject.Placement = {
+  const placement: IAutoMovieMotionHumanObject.Placement = {
     at: { x: 0, y: 0, z: 0.35 },
     yaw: 180,
   };
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const perform = (fixed: boolean): HumanPerformance =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const perform = (fixed: boolean): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "ladder",
         laws: [],
@@ -65,7 +58,7 @@ export function test_archetype_ladder_climb(): void {
       });
 
     // 1. It plans.
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = perform(true);
     } catch (error) {
@@ -76,7 +69,7 @@ export function test_archetype_ladder_climb(): void {
     }
 
     // 2. The ladder stays where it was placed.
-    const placed: IHumanProp.IFrame = HumanObject.frame(placement);
+    const placed: IAutoMovieMotionHumanProp.IFrame = HumanObject.frame(placement);
     let moved: number = 0;
     for (let s: number = 0; s <= film.duration; s += 0.1)
       moved = Math.max(
@@ -91,7 +84,7 @@ export function test_archetype_ladder_climb(): void {
       );
 
     // 3. The climber rises three rungs.
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,

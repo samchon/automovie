@@ -1,8 +1,5 @@
-import {
-  type IAutoMovieCurve64 as C,
-  type IAutoMovieContourLoft64 as L,
-  tessellateAutoMovieContourLoft64,
-} from "@automovie/engine";
+import type { IAutoMovieContourLoft64, IAutoMovieCurve64 } from "@automovie/interface";
+import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -20,16 +17,16 @@ const { intervalTriangles, aligned }: typeof B = B;
  * @evidence contracts/development/testing.md#execution-ownership Called by the existing discoverable named test; direct portable imports start no process, browser, GPU or native build and register no dynamic tests.
  */
 export function assertContourLoftMalformedCurves(
-  admissionSections: L.ISection[],
-  complete: L.IInterval[],
+  admissionSections: IAutoMovieContourLoft64.ISection[],
+  complete: IAutoMovieContourLoft64.IInterval[],
 ): void {
-  const originalCurve: C.Cubic = admissionSections[0].loops[1].curve;
+  const originalCurve: IAutoMovieCurve64.Cubic = admissionSections[0].loops[1].curve;
 
   /** Replace only caller-owned first-point data; untouched spans remain the same mathematical fixture. */
-  const firstPointCurve: (point: O.V) => C.Cubic = (point: O.V): C.Cubic => ({
+  const firstPointCurve: (point: O.V) => IAutoMovieCurve64.Cubic = (point: O.V): IAutoMovieCurve64.Cubic => ({
     ...originalCurve,
     spans: originalCurve.spans.map(
-      (span: C.Span, i: number): C.Span =>
+      (span: IAutoMovieCurve64.Span, i: number): IAutoMovieCurve64.Span =>
         i === 0 ? [point, span[1], span[2], span[3]] : span,
     ),
   });
@@ -52,19 +49,19 @@ export function assertContourLoftMalformedCurves(
 
   sparseStorage[2] = -1;
 
-  const missingPhases: C.Cubic = { ...originalCurve };
+  const missingPhases: IAutoMovieCurve64.Cubic = { ...originalCurve };
 
   const missingMetadata: { phaseIntervals?: readonly number[] } = missingPhases;
 
   delete missingMetadata.phaseIntervals;
 
-  const invalidPhases: C.Cubic = { ...originalCurve };
+  const invalidPhases: IAutoMovieCurve64.Cubic = { ...originalCurve };
 
   const invalidMetadata: { phaseIntervals: unknown } = invalidPhases;
 
   invalidMetadata.phaseIntervals = {};
 
-  const wrongUnit: C.Cubic = { ...originalCurve };
+  const wrongUnit: IAutoMovieCurve64.Cubic = { ...originalCurve };
 
   const unitMetadata: { unit: string } = wrongUnit;
 
@@ -72,7 +69,7 @@ export function assertContourLoftMalformedCurves(
 
   const invalidCurves: {
     name: string;
-    curve: C.Cubic;
+    curve: IAutoMovieCurve64.Cubic;
     diagnosticPoints: number;
   }[] = [
     {
@@ -116,7 +113,7 @@ export function assertContourLoftMalformedCurves(
   const invalidCurveId: string = `${originalCurve.name}.section.0.loop.1`;
 
   for (const scenario of invalidCurves) {
-    const changed: L.ISection[] = [
+    const changed: IAutoMovieContourLoft64.ISection[] = [
       {
         ...admissionSections[0],
         loops: [
@@ -126,7 +123,7 @@ export function assertContourLoftMalformedCurves(
       },
       ...admissionSections.slice(1),
     ];
-    const retained: L.IResult = tessellateAutoMovieContourLoft64({
+    const retained: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
       sections: changed,
       intervals: complete,
       events: [],
@@ -140,15 +137,15 @@ export function assertContourLoftMalformedCurves(
     TestValidator.predicate(
       `${scenario.name} has an explicit local source diagnostic`,
       retained.unresolved.some(
-        (record: L.IResult["unresolved"][number]): boolean =>
+        (record: IAutoMovieContourLoft64.IResult["unresolved"][number]): boolean =>
           nclose(record.beforeMm, 0, 0) &&
           nclose(record.afterMm, 2, 0) &&
           record.reason?.toLowerCase().includes("curve") === true,
       ),
     );
-    const diagnostic: L.IResult["construction"][number] | undefined =
+    const diagnostic: IAutoMovieContourLoft64.IResult["construction"][number] | undefined =
       retained.construction.find(
-        (record: L.IResult["construction"][number]): boolean =>
+        (record: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
           record.id === invalidCurveId,
       );
     TestValidator.predicate(
@@ -165,7 +162,7 @@ export function assertContourLoftMalformedCurves(
       retained.mesh.positions.every(Number.isFinite) &&
         retained.mesh.normals!.every(Number.isFinite) &&
         retained.construction.every(
-          (record: L.IResult["construction"][number]): boolean =>
+          (record: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
             record.points.every(
               (point: O.V): boolean =>
                 point.length === 3 &&
@@ -181,7 +178,7 @@ export function assertContourLoftMalformedCurves(
         {
           ...retained,
           construction: retained.construction.filter(
-            (record: L.IResult["construction"][number]): boolean =>
+            (record: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
               record.id !== invalidCurveId,
           ),
         },

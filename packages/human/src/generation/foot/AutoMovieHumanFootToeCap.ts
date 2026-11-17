@@ -1,6 +1,9 @@
+import type { IAutoMovieHumanFootPrior, IAutoMovieHumanFootToeBreadth } from "@automovie/interface";
+
+
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
-import type { AutoMovieHumanFootToeBreadth } from "./AutoMovieHumanFootToeBreadth";
+
 
 /**
  * Where a toe's tip starts to close: the length along the line at which the
@@ -16,8 +19,8 @@ export namespace AutoMovieHumanFootToeCap {
    * @param breadth The toe's line and breadth.
    * @param index Which toe, 0 for the hallux.
    */
-  export function of(breadth: AutoMovieHumanFootToeBreadth.IBreadth, index: number): number {
-    const t: AutoMovieHumanFootPrior.IToe = AutoMovieHumanFootPrior.PRIOR.toes[index]!;
+  export function of(breadth: IAutoMovieHumanFootToeBreadth.IBreadth, index: number): number {
+    const t: IAutoMovieHumanFootPrior.IToe = AutoMovieHumanFootPrior.PRIOR.toes[index]!;
     const closes = (s: number): boolean =>
       Math.sqrt(0.5 * breadth.half(s) * 2 * breadth.shape(s) * t.depth) >= breadth.length - s;
 

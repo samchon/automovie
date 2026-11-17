@@ -1,14 +1,6 @@
-import {
-  type AutoMovieHumanoidBone,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,8 +41,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_inchworm(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "inchworm",
@@ -74,13 +66,13 @@ export function test_human_motion_travel_inchworm(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       0,
     );
-    const [worm]: readonly HumanSegment.ISegment[] = performance.segments("a");
+    const [worm]: readonly IAutoMovieMotionHumanSegment.ISegment[] = performance.segments("a");
     const event = (label: string): number =>
       worm!.start +
       (worm!.plan.events.find(

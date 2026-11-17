@@ -1,4 +1,5 @@
-import { AutoMovieSolidBody, AutoMovieSolidRailSolve, type IAutoMovieSolidAtlas, type IAutoMovieSolidSurface } from "@automovie/engine";
+import type { IAutoMovieSolidAtlas, IAutoMovieSolidBody, IAutoMovieSolidSurface } from "@automovie/interface";
+import { AutoMovieSolidBody, AutoMovieSolidRailSolve } from "@automovie/engine";
 
 type Vec3 = [number, number, number];
 
@@ -33,7 +34,7 @@ export function test_construction_operator_rail_sagitta(): void {
   };
   const n: number = 24;
   const phases: number[] = Array.from({ length: n }, (_: unknown, k: number): number => (2 * Math.PI * k) / n);
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("sagitta", [
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("sagitta", [
     { surface: sheet, stations: [-20, 20], phases },
     { surface: band, stations: [-20, 0], phases },
   ]);

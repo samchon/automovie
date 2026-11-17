@@ -1,9 +1,5 @@
-import {
-  type IAutoMovieRecoveryFeasibleDiagnostics,
-  type IAutoMovieRecoveryFeasibleFit,
-  createRecoveryFeasibleDiagnostics,
-  encodeRecoveryDiagnosticNumber,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryFeasibleDiagnostics, IAutoMovieRecoveryFeasibleFit } from "@automovie/interface";
+import { createRecoveryFeasibleDiagnostics, encodeRecoveryDiagnosticNumber } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**

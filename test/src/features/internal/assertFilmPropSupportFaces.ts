@@ -1,13 +1,6 @@
-import {
-  type IAutoMoviePropSupportFace,
-  propSupportFace,
-  propSupportGap,
-  surfaceHeightAt,
-} from "@automovie/engine";
-import type {
-  IAutoMovieBuiltSurface,
-  IAutoMoviePropBox,
-} from "@automovie/interface";
+import type { IAutoMoviePropSupportFace, IAutoMovieBuiltSurface, IAutoMoviePropBox } from "@automovie/interface";
+import { propSupportFace, propSupportGap, surfaceHeightAt } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmPropUtilityInputs } from "./IFilmPropUtilityInputs";

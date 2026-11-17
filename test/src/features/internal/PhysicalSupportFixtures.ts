@@ -1,15 +1,13 @@
-import type { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMovieFootfallPattern, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
+
 
 import { PhysicalFixtures } from "./PhysicalFixtures";
 
 /** Explicit support and actuator declarations for actual Human and four-support recovery cases. */
 export namespace PhysicalSupportFixtures {
   /** Set the same bounded support policy used by the measured complete native episodes. */
-  export function body(profile: P, duration: number): Simulation.IBody {
+  export function body(profile: P, duration: number): IAutoMoviePhysicalSimulationInput.IBody {
     const endpoints: P.ISegment[] = profile.segments.filter(
       (segment: (typeof profile.segments)[number]): boolean =>
         profile.id === "human"
@@ -68,7 +66,7 @@ export namespace PhysicalSupportFixtures {
         },
       ),
     };
-    const result: Simulation.IBody = PhysicalFixtures.body(
+    const result: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       profile.id,
       profile,
       duration,

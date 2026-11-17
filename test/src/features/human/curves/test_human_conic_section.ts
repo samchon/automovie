@@ -1,3 +1,4 @@
+import type { AutoMovieVector2Tuple, IAutoMovieHumanConicSection, IAutoMovieViewChain } from "@automovie/interface";
 import { AutoMovieViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicSection } from "@automovie/human";
 
@@ -28,7 +29,7 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
 export function test_human_conic_section(): void {
   const failures: string[] = [];
   const S = AutoMovieHumanConicSection;
-  const radius = (values: number[], layout: AutoMovieHumanConicSection.ILayout, phi: number): number => AutoMovieViewChain.radius(S.chain(values, layout), phi);
+  const radius = (values: number[], layout: IAutoMovieHumanConicSection.ILayout, phi: number): number => AutoMovieViewChain.radius(S.chain(values, layout), phi);
   const phases: number[] = Array.from({ length: 72 }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.37)) / 72);
 
   // 1. Ellipse: extremes (40, 0), (0, 25), (-40, 0), (0, -25) and the ellipse shoulder on every quarter.
@@ -66,9 +67,9 @@ export function test_human_conic_section(): void {
   if (opposite !== 0) failures.push(`fuller median: the opposite quarter moved by ${opposite} mm, expected 0`);
 
   // 4. Bilateral layout: front median, side extreme, back median, reflected.
-  const bilateral: AutoMovieHumanConicSection.ILayout = { mirror: true, anchors: [{ kind: "u", mid: true, guide: true }, { kind: "v", guide: true }, { kind: "u", mid: true, guide: true }] };
+  const bilateral: IAutoMovieHumanConicSection.ILayout = { mirror: true, anchors: [{ kind: "u", mid: true, guide: true }, { kind: "v", guide: true }, { kind: "u", mid: true, guide: true }] };
   const body: number[] = [60, 5, 80, -50, 0.42, 0.38];
-  const resolved: AutoMovieHumanConicSection.IChain = S.resolve(body, bilateral);
+  const resolved: IAutoMovieHumanConicSection.IChain = S.resolve(body, bilateral);
   if (resolved.input.points.length !== 4) failures.push(`bilateral chain has ${resolved.input.points.length} points, expected 4`);
   if (resolved.guides.join(",") !== "0,1,2,3") failures.push(`bilateral guides are ${resolved.guides.join(",")}, expected 0,1,2,3`);
   for (const phi of phases.filter((p: number): boolean => p < Math.PI)) {
@@ -84,7 +85,7 @@ export function test_human_conic_section(): void {
   fair[8] = 0.9;
   const bounded: number[] = [...ellipse];
   bounded[8] = 0.85;
-  const chain: AutoMovieViewChain.ISection = S.chain(wild, S.limb(0));
+  const chain: IAutoMovieViewChain.ISection = S.chain(wild, S.limb(0));
   if (chain.fault !== null) failures.push(`out-of-range shoulder: chain refused with ${chain.fault}`);
   else if (!(Math.abs(AutoMovieViewChain.radius(chain, 0.7) - radius(bounded, S.limb(0), 0.7)) <= 1e-12)) failures.push("out-of-range shoulder: not equal to the chain at the model's fair bound 0.85");
   if (!(Math.abs(radius(fair, S.limb(0), 0.7) - radius(bounded, S.limb(0), 0.7)) <= 1e-12)) failures.push("shoulder 0.9: not held at the fair bound 0.85");
@@ -94,10 +95,10 @@ export function test_human_conic_section(): void {
 
   // 6. A guide on its box corner: the forward extreme's touch offset equals the side support, which leaves the first arc no leg unless the model holds the guide back.
   const diamond: number[] = [40, 25, 0, 25, -40, 0, 0, -25, ...new Array<number>(4).fill(0.4)];
-  const cornered: AutoMovieViewChain.ISection = S.chain(diamond, S.limb(0));
+  const cornered: IAutoMovieViewChain.ISection = S.chain(diamond, S.limb(0));
   if (cornered.fault !== null) failures.push(`guide on the corner: chain refused with ${cornered.fault}`);
   else {
-    const held: AutoMovieHumanConicSection.P = S.resolve(diamond, S.limb(0)).input.points[0]!;
+    const held: AutoMovieVector2Tuple = S.resolve(diamond, S.limb(0)).input.points[0]!;
     if (!(held[0] === 40 && held[1] < 25 && held[1] > 20)) failures.push(`guide on the corner: resolved at (${held[0]}, ${held[1]}), expected u 40 and v held below the corner's 25`);
   }
 
@@ -129,13 +130,13 @@ export function test_human_conic_section(): void {
     const d2: number = (2 * r0! - 5 * r1! + 4 * r2! - r3!) / (h * h);
     return (r0! * r0! + 2 * d1 * d1 - r0! * d2) / (r0! * r0! + d1 * d1) ** 1.5;
   };
-  const median: AutoMovieHumanConicSection.P = S.resolve(hip, S.bilateral(1)).input.points[1]!;
+  const median: AutoMovieVector2Tuple = S.resolve(hip, S.bilateral(1)).input.points[1]!;
   const at: number = Math.atan2(median[1], median[0]);
   const [before, after]: number[] = [sided(hip, at, -1), sided(hip, at, 1)];
   const [smoothBefore, smoothAfter]: number[] = [sided(smooth, at, -1), sided(smooth, at, 1)];
   if (!(Math.max(before!, after!) > 20 * Math.min(before!, after!))) failures.push(`hip median as stored: curvatures ${before} and ${after}, expected a jump`);
   if (!(Math.abs(smoothBefore! - smoothAfter!) <= 0.03 * Math.max(smoothBefore!, smoothAfter!))) failures.push(`hip median made continuous: curvatures ${smoothBefore} and ${smoothAfter}, expected equal`);
-  const moved: AutoMovieHumanConicSection.P = S.resolve(smooth, S.bilateral(1)).input.points[1]!;
+  const moved: AutoMovieVector2Tuple = S.resolve(smooth, S.bilateral(1)).input.points[1]!;
   if (!(moved[0] === median[0] && moved[1] === median[1]) || smooth.slice(0, 6).some((x: number, k: number): boolean => x !== hip[k])) failures.push("hip median made continuous: an anchor moved");
 
   // 9. A feature anchor stands where its numbers put it, with its own tangent: on the ellipse of scenario 1, a feature between the forward
@@ -143,7 +144,7 @@ export function test_human_conic_section(): void {
   // from (40, 0) to (0, 25) by plane geometry: the share of the point's projection on it, the distance square to it on its right (outward),
   // and the tangent's angle from the chord's direction. Its fields are a share, mm and an angle, the chain is admitted, and the resolved
   // anchor is that point and that direction.
-  const featured: AutoMovieHumanConicSection.ILayout = { mirror: false, anchors: [S.limb(0).anchors[0]!, { kind: "f", feature: "convex" }, ...S.limb(0).anchors.slice(1)] };
+  const featured: IAutoMovieHumanConicSection.ILayout = { mirror: false, anchors: [S.limb(0).anchors[0]!, { kind: "f", feature: "convex" }, ...S.limb(0).anchors.slice(1)] };
   const at45: [number, number] = [40 * Math.SQRT1_2, 25 * Math.SQRT1_2];
   const heading: number = Math.atan2(25 * Math.SQRT1_2, -40 * Math.SQRT1_2);
   const chordLength: number = Math.hypot(40, 25);
@@ -152,7 +153,7 @@ export function test_human_conic_section(): void {
   const withFeature: number[] = [40, 0, share, offset, heading - Math.atan2(25, -40), 0, 25, -40, 0, 0, -25, ...new Array<number>(5).fill(0.4)];
   const featureUnits: string = S.units(featured).slice(2, 5).join(",");
   if (featureUnits !== "share,mm,angle") failures.push(`feature anchor fields: ${featureUnits}, expected share,mm,angle`);
-  const resolvedFeature: AutoMovieHumanConicSection.IChain = S.resolve(withFeature, featured);
+  const resolvedFeature: IAutoMovieHumanConicSection.IChain = S.resolve(withFeature, featured);
   const point: number[] = resolvedFeature.input.points[1]! as number[];
   const tangent: number[] = resolvedFeature.input.tangents[1]! as number[];
   if (!(Math.hypot(point[0]! - at45[0], point[1]! - at45[1]) <= 1e-12)) failures.push(`feature anchor at ${point.join(",")}, expected ${at45.join(",")}`);
@@ -163,24 +164,24 @@ export function test_human_conic_section(): void {
   // scenario 1 at its parameters 30 and 60 degrees with its tangents there (each on its own frame's chord as in 9, rounded), keep the same
   // numbers while the side extreme stands at (0, 25), (0, 18), (-6, 40) and (12, 30). Each chain is admitted and its anchors' phases rise round the course, as a fading feature's lines need where a section's
   // stretch between two extremes shrinks or swings (free chart coordinates held fixed would stand outside that stretch).
-  const run: AutoMovieHumanConicSection.ILayout = { mirror: false, anchors: [S.limb(0).anchors[0]!, { kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, ...S.limb(0).anchors.slice(1)] };
+  const run: IAutoMovieHumanConicSection.ILayout = { mirror: false, anchors: [S.limb(0).anchors[0]!, { kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, ...S.limb(0).anchors.slice(1)] };
   for (const side of [[0, 25], [0, 18], [-6, 40], [12, 30]] as const) {
     const values: number[] = [40, 0, 0.2375, 7.74, -0.267, 0.4791, 7.76, 0.213, side[0], side[1], -40, 0, 0, -25, ...new Array<number>(6).fill(0.4)];
     const fault: string | null = S.chain(values, run).fault;
     if (fault !== null) failures.push(`features with the side extreme at (${side.join(", ")}): chain refused: ${fault}`);
-    const phases: number[] = S.resolve(values, run).input.points.slice(0, 4).map((p: AutoMovieHumanConicSection.P): number => Math.atan2(p[1], p[0]));
+    const phases: number[] = S.resolve(values, run).input.points.slice(0, 4).map((p: AutoMovieVector2Tuple): number => Math.atan2(p[1], p[0]));
     if (!phases.every((phi: number, k: number): boolean => k === 0 || phi > phases[k - 1]!)) failures.push(`features with the side extreme at (${side.join(", ")}): phases ${phases.map((x: number): string => x.toFixed(3)).join(", ")} do not rise`);
   }
   // 11. Both features of a run stand on one chord, the extremes either side of the run: moving the first one off the chord (its offset by
   // 0.1 mm) or turning its tangent (by 0.01 rad) leaves the second exactly where it was.
   {
     const values: number[] = [40, 0, 0.2375, 7.74, -0.267, 0.4791, 7.76, 0.213, 0, 25, -40, 0, 0, -25, ...new Array<number>(6).fill(0.4)];
-    const second = (v: number[]): AutoMovieHumanConicSection.P => S.resolve(v, run).input.points[2]!;
-    const kept: AutoMovieHumanConicSection.P = second(values);
+    const second = (v: number[]): AutoMovieVector2Tuple => S.resolve(v, run).input.points[2]!;
+    const kept: AutoMovieVector2Tuple = second(values);
     for (const [field, by] of [[3, 0.1], [4, 0.01]] as const) {
       const moved: number[] = [...values];
       moved[field] = moved[field]! + by;
-      const p: AutoMovieHumanConicSection.P = second(moved);
+      const p: AutoMovieVector2Tuple = second(moved);
       if (!(p[0] === kept[0] && p[1] === kept[1])) failures.push(`moving the first feature's field ${field} moved the second from (${kept.join(", ")}) to (${p.join(", ")})`);
     }
   }
@@ -188,7 +189,7 @@ export function test_human_conic_section(): void {
   // 12. The lens layout: its faces' extremes on the median line, one number each, and its ends' extremes free. An ellipse 6 by 40 mm
   // (half extents 3 and 20, its length along v) with the ellipse shoulder reads `(u / 3)^2 + (v / 20)^2 = 1` at every phase from its
   // six numbers and four shoulders, and its four guides are its anchors in order.
-  const lens: AutoMovieHumanConicSection.ILayout = S.lens(0);
+  const lens: IAutoMovieHumanConicSection.ILayout = S.lens(0);
   const thin: number[] = [3, 0, 20, -3, 0, -20, ...new Array<number>(4).fill(Math.SQRT2 - 1)];
   if (S.units(lens).length !== thin.length) failures.push(`lens(0) has ${S.units(lens).length} fields, expected ${thin.length}`);
   else {
@@ -204,7 +205,7 @@ export function test_human_conic_section(): void {
   // shoulder at 0.2 the arcs read the listed least where it is larger and 0.2 elsewhere; one number holds every arc.
   {
     const flat: number[] = [40, 0, 0, 25, -40, 0, 0, -25, ...new Array<number>(4).fill(0.2)];
-    const perArc: AutoMovieHumanConicSection.ILayout = { ...S.limb(0), least: [0.3, 0, 0.25, 0] };
+    const perArc: IAutoMovieHumanConicSection.ILayout = { ...S.limb(0), least: [0.3, 0, 0.25, 0] };
     const read: number[] = S.resolve(flat, perArc).input.shoulders.map((x: number): number => Math.round(x * 1e9) / 1e9);
     if (read.join(",") !== "0.3,0.2,0.25,0.2") failures.push(`a least per arc read shoulders ${read.join(",")}, expected 0.3,0.2,0.25,0.2`);
     const whole: number[] = S.resolve(flat, { ...S.limb(0), least: 0.3 }).input.shoulders.map((x: number): number => Math.round(x * 1e9) / 1e9);

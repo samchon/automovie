@@ -1,11 +1,7 @@
-import {
-  IAutoMovieClearanceBox,
-  IAutoMoviePropSpec,
-  IAutoMovieStageSetPiece,
-} from "@automovie/interface";
+import { type IAutoMoviePropClearanceBounds, IAutoMovieClearanceBox } from "@automovie/interface";
+
 
 import { transformedBoxBounds } from "../math/transformedBoxBounds";
-import { IAutoMoviePropClearanceBounds } from "./IAutoMoviePropClearanceBounds";
 import { setPieceMatrix } from "./staging/setPieceMatrix";
 
 /**
@@ -25,10 +21,7 @@ import { setPieceMatrix } from "./staging/setPieceMatrix";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The staged matrix is composed once and reused for every clearance box of the prop instead of once per box.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned boxes, one per declared clearance.
  */
-export function propClearanceBounds(props: {
-  prop: IAutoMoviePropSpec;
-  piece: IAutoMovieStageSetPiece;
-}): IAutoMoviePropClearanceBounds[] {
+export function propClearanceBounds(props: IAutoMoviePropClearanceBounds.IProps): IAutoMoviePropClearanceBounds[] {
   const matrix: number[] = setPieceMatrix(props.piece);
   return (props.prop.placement?.clearance ?? []).map(
     (clearance: IAutoMovieClearanceBox): IAutoMoviePropClearanceBounds => ({

@@ -1,11 +1,7 @@
+import type { IAutoMovieMotionHumanForce, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanCarriedLean,
-  HumanForce,
-  HumanLoad,
-  type IHumanPosture,
-} from "@automovie/motions";
+
+import { HumanCarriedLean, HumanForce, HumanLoad } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -100,7 +96,7 @@ export function test_human_motion_core_load(): void {
   }
 
   // 2. The carry's layer.
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -109,7 +105,7 @@ export function test_human_motion_core_load(): void {
     limbs: {},
   };
   const context: never = {} as never;
-  const known: IHumanPosture = HumanCarriedLean.layer("cradle", {
+  const known: IAutoMovieMotionHumanPosture = HumanCarriedLean.layer("cradle", {
     mass: 76,
     height: 0.95,
     load: 20,
@@ -129,7 +125,7 @@ export function test_human_motion_core_load(): void {
       `a known load's layer adds ${known.joints.spine![0]} and ${known.joints.chest![0]}, not half of ${balanced}`,
     );
   for (const carry of ["piggyback", "cradle", "overShoulder"] as const) {
-    const unknown: IHumanPosture = HumanCarriedLean.layer(carry).apply(
+    const unknown: IAutoMovieMotionHumanPosture = HumanCarriedLean.layer(carry).apply(
       posture,
       0,
       context,
@@ -145,7 +141,7 @@ export function test_human_motion_core_load(): void {
 
   // 3. Moving support.
   const braking = (): IAutoMovieVector3 => ({ x: 0, y: 0, z: -3 });
-  const inertial: HumanForce.ISustained = HumanLoad.inertial(
+  const inertial: IAutoMovieMotionHumanForce.ISustained = HumanLoad.inertial(
     "a",
     76,
     braking,

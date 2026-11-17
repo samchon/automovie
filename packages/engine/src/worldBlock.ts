@@ -1,6 +1,5 @@
-import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieWorldBlock, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
 import { srgbHexToLinearColor } from "./math/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
 import { Transform } from "./math/Transform";
@@ -16,19 +15,7 @@ import { Transform } from "./math/Transform";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The same supplied dimensions feed the part, translation and bounds within the call; no cheap scalar result cache or separately tunable extent is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh model/node/bounds records; no builder registry, renderer or background task is acquired.
  */
-export const worldBlock: (input: {
-  id: string;
-  kind: "wall" | "building";
-  base: IAutoMovieVector3;
-  size: IAutoMovieVector3;
-  color: string;
-}) => IAutoMovieWorldBlock = (input: {
-  id: string;
-  kind: IAutoMovieWorldBlock["kind"];
-  base: IAutoMovieVector3;
-  size: IAutoMovieVector3;
-  color: string;
-}): IAutoMovieWorldBlock => {
+export const worldBlock: (input: IAutoMovieWorldBlock.IInput) => IAutoMovieWorldBlock = (input: IAutoMovieWorldBlock.IInput): IAutoMovieWorldBlock => {
   assertText(input.id, "World block id");
   for (const [name, value] of Object.entries(input.size))
     if (Number.isFinite(value) === false || value <= 0)

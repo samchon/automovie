@@ -1,14 +1,9 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTouchSite, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 
 /**
  * Where on a region a touch lands (#3357): a region is a patch of skin, not
@@ -27,46 +22,6 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No region is named and no body is special-cased; a negative radius is refused.
  */
 export namespace touchSite {
-  /**
-   * A site on a region: an offset stated in metres, a place drawn by the
-   * seed within a radius, or the place within a radius the rule chooses.
-   * `reach` is the place nearest the touching arm's shoulder, the shortest
-   * reach (#3357's reach rule).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the three forms, the unit and what the one rule chooses.
-   * @evidence contracts/development/design.md#principled-representation The three ways a site is chosen as one closed union: fixed, drawn, ruled.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three forms, each read by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The radius is the author's, in metres, because a region's frame carries no extent to read one from.
-   */
-  export type ISite =
-    | {
-        /** Along the surface toward the head, metres; 0 when absent. */
-        up?: number;
-
-        /** To the right of someone facing the surface, metres; 0 when absent. */
-        out?: number;
-      }
-    | {
-        /** The radius the seed draws the place within, metres, uniform over the disc. */
-        draw: number;
-      }
-    | {
-        /** The rule. */
-        rule: "reach";
-
-        /** The radius the rule chooses within, metres. */
-        within: number;
-      }
-    | {
-        /** On a prop's contact that has a length (a handle, a bar, a ledge): how far along it from its middle, as a share of that length in [-0.5, 0.5], toward the contact's own `+X`. */
-        along: number;
-      };
-
-  /** A region's point and outward unit normal. */
-  export type IFrame = Pick<
-    AutoMovieMotionHumanTarget.IPlace,
-    "point" | "normal"
-  >;
 
   /**
    * Fix a site for one plan.
@@ -85,9 +40,9 @@ export namespace touchSite {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over two drawn numbers.
    */
   export function of(
-    context: Pick<IHumanActionContext, "series">,
-    site: ISite,
-  ): (frame: IFrame, shoulder: IAutoMovieVector3) => IFrame {
+    context: Pick<IAutoMovieMotionHumanActionContext, "series">,
+    site: IAutoMovieMotionHumanTouchSite.ISite,
+  ): (frame: IAutoMovieMotionHumanTouchSite.IFrame, shoulder: IAutoMovieVector3) => IAutoMovieMotionHumanTouchSite.IFrame {
     if ("draw" in site) HumanBound.least("site.draw", site.draw, 0, "m");
     if ("rule" in site) HumanBound.least("site.within", site.within, 0, "m");
     const drawn: [number, number] =
@@ -97,7 +52,7 @@ export namespace touchSite {
             2,
           ) as [number, number])
         : [0, 0];
-    return (frame: IFrame, shoulder: IAutoMovieVector3): IFrame => {
+    return (frame: IAutoMovieMotionHumanTouchSite.IFrame, shoulder: IAutoMovieVector3): IAutoMovieMotionHumanTouchSite.IFrame => {
       const n: IAutoMovieVector3 = frame.normal;
       const lay = (v: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
@@ -152,13 +107,13 @@ export namespace touchSite {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the prop's reader and one vector.
    */
   export function span(
-    context: Pick<IHumanActionContext, "prop">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
     subject: string,
     id: string,
     share: number,
   ): (seconds: number) => IAutoMovieVector3 {
     HumanBound.within("site.along", share, -0.5, 0.5);
-    const read: IHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
     ).find((affordance: IAutoMovieAffordance): boolean => affordance.id === id);

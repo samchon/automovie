@@ -1,15 +1,5 @@
+import type { AutoMovieVector3Tuple, IAutoMoviePlanContourWalks64Plans, IAutoMoviePlanContourWalks64Ring } from "@automovie/interface";
 import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 } from "./AutoMovieCurveMath64";
-
-interface Ring {
-  id: string;
-  points: AutoMovieCurveMath64.V[];
-}
-
-interface Plans<R extends Ring> {
-  prepare: (rings: R[], selection: number[]) => void;
-  resolve: (rings: R[], selection: number[]) => AutoMovieCurveMath64.V[];
-}
 
 /**
  * Freezes branch slit choices before emission and expands them through shared contour refinements.
@@ -26,17 +16,17 @@ interface Plans<R extends Ring> {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Cached slit walks are reused during emission; each resolved boundary index is shared by all adjacent walks in this invocation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan and index maps belong to the returned per-generation closures and expire with their caller; there is no global cache.
  */
-export function planAutoMovieContourWalks64<R extends Ring>(
-  owner: (point: AutoMovieCurveMath64.V) => R | undefined,
-  identity: (point: AutoMovieCurveMath64.V) => string | undefined,
+export function planAutoMovieContourWalks64<R extends IAutoMoviePlanContourWalks64Ring>(
+  owner: (point: AutoMovieVector3Tuple) => R | undefined,
+  identity: (point: AutoMovieVector3Tuple) => string | undefined,
   inserted: (
-    point: AutoMovieCurveMath64.V,
-    a: AutoMovieCurveMath64.V,
-    b: AutoMovieCurveMath64.V,
+    point: AutoMovieVector3Tuple,
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
     t: number,
   ) => void,
-): Plans<R> {
-  const walks: Map<string, AutoMovieCurveMath64.V[]> = new Map();
+): IAutoMoviePlanContourWalks64Plans<R> {
+  const walks: Map<string, AutoMovieVector3Tuple[]> = new Map();
   const indices: Map<R, Map<string, number>> = new Map();
   let resolving: boolean = false;
   const name: (rings: R[], selection: number[]) => string = (
@@ -53,7 +43,7 @@ export function planAutoMovieContourWalks64<R extends Ring>(
     if (selection.length < 2) return;
     const key: string = name(rings, selection);
     if (walks.has(key)) return;
-    let points: AutoMovieCurveMath64.V[] = [...rings[selection[0]].points];
+    let points: AutoMovieVector3Tuple[] = [...rings[selection[0]].points];
     for (let i: number = 1; i < selection.length; i++)
       points = AutoMovieContourLoftCurves64.join(
         [...points],
@@ -65,21 +55,21 @@ export function planAutoMovieContourWalks64<R extends Ring>(
   const resolve: (
     rings: R[],
     selection: number[],
-  ) => AutoMovieCurveMath64.V[] = (
+  ) => AutoMovieVector3Tuple[] = (
     rings: R[],
     selection: number[],
-  ): AutoMovieCurveMath64.V[] => {
+  ): AutoMovieVector3Tuple[] => {
     resolving = true;
     if (selection.length === 1) return rings[selection[0]].points;
-    const walk: AutoMovieCurveMath64.V[] | undefined = walks.get(
+    const walk: AutoMovieVector3Tuple[] | undefined = walks.get(
       name(rings, selection),
     );
     if (!walk)
       throw new Error("Branch contour walk was not prepared before emission");
-    const output: AutoMovieCurveMath64.V[] = [];
+    const output: AutoMovieVector3Tuple[] = [];
     for (let i: number = 0; i < walk.length; i++) {
-      const p: AutoMovieCurveMath64.V = walk[i];
-      const q: AutoMovieCurveMath64.V = walk[(i + 1) % walk.length];
+      const p: AutoMovieVector3Tuple = walk[i];
+      const q: AutoMovieVector3Tuple = walk[(i + 1) % walk.length];
       const ring: R | undefined = owner(p);
       output.push(p);
       if (!ring || owner(q) !== ring || identity(p) === identity(q)) continue;
@@ -89,7 +79,7 @@ export function planAutoMovieContourWalks64<R extends Ring>(
           new Map(
             ring.points.map(
               (
-                point: AutoMovieCurveMath64.V,
+                point: AutoMovieVector3Tuple,
                 index: number,
               ): [string, number] => {
                 const key: string | undefined = identity(point);

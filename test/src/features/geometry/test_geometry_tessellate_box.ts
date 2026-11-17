@@ -1,4 +1,5 @@
-import { type ITessellation, tessellate } from "@automovie/engine";
+import type { IAutoMovieTessellation } from "@automovie/interface";
+import { tessellate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -18,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A 0.4×0.6×0.2 box tessellates to 24 vertices and 36 indices, and no).
  */
 export function test_geometry_tessellate_box(): void {
-  const box: ITessellation = tessellate({
+  const box: IAutoMovieTessellation = tessellate({
     type: "box",
     width: 0.4,
     height: 0.6,

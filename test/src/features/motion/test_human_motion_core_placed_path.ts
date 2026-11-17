@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  HumanSignature,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanEntryState,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -63,11 +54,11 @@ export function test_human_motion_core_placed_path(): void {
   // A law that keeps the posture it is entered in and records what it is
   // told of another person while it plans.
   const reader = (
-    seen: Map<number, IHumanActionContext.IRoot>,
-  ): IHumanActionLaw<{ of: string }> => ({
+    seen: Map<number, IAutoMovieMotionHumanActionContext.IRoot>,
+  ): IAutoMovieMotionHumanActionLaw<{ of: string }> => ({
     name: "reader",
     interrupts: {},
-    plan: (context: IHumanActionContext<{ of: string }>): IHumanActionPlan => {
+    plan: (context: IAutoMovieMotionHumanActionContext<{ of: string }>): IAutoMovieMotionHumanActionPlan => {
       for (const seconds of SECONDS)
         seen.set(seconds, context.performer(context.params.of).root(seconds));
       return {
@@ -75,14 +66,14 @@ export function test_human_motion_core_placed_path(): void {
         events: [],
         contacts: context.entry.supports.map(
           (
-            support: IHumanEntryState.ISupport,
-          ): IHumanActionPlan["contacts"][number] => ({
+            support: IAutoMovieMotionHumanEntryState.ISupport,
+          ): IAutoMovieMotionHumanActionPlan["contacts"][number] => ({
             ...support,
             from: 0,
             to: 1,
           }),
         ),
-        posture: (): ReturnType<IHumanActionPlan["posture"]> =>
+        posture: (): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> =>
           context.entry.posture,
       };
     },
@@ -93,18 +84,18 @@ export function test_human_motion_core_placed_path(): void {
     ["f-small", "m-average"],
   ] as const) {
     const label: string = `${names[0]} reading ${names[1]}`;
-    const bodies: Record<"a" | "b" | "c", IHumanBody> = {
+    const bodies: Record<"a" | "b" | "c", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
       c: motionHumanBody(names[1]),
     };
     const perform = (
-      seen: Map<number, IHumanActionContext.IRoot>,
-      composition: { node: HumanChain["node"] },
-    ): HumanPerformance =>
+      seen: Map<number, IAutoMovieMotionHumanActionContext.IRoot>,
+      composition: { node: IAutoMovieMotionHumanChain["node"] },
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "path",
-        laws: [reader(seen) as IHumanActionLaw<never>],
+        laws: [reader(seen) as IAutoMovieMotionHumanActionLaw<never>],
         performers: (["a", "b", "c"] as const).map(
           (subject: "a" | "b" | "c", index: number) => ({
             subject,
@@ -116,16 +107,16 @@ export function test_human_motion_core_placed_path(): void {
         ),
         composition: composition.node,
       });
-    const leading = (): HumanChain =>
+    const leading = (): IAutoMovieMotionHumanChain =>
       HumanChain.subject("b")
         .stand({ seconds: 0.5 })
         .walk({ to: { x: 0, y: 0, z: 7 } });
-    const reading = (of: string): HumanChain =>
+    const reading = (of: string): IAutoMovieMotionHumanChain =>
       HumanChain.subject("a").registered("reader", { of });
 
     // 1 to 3. The leader composed first.
-    const seen: Map<number, IHumanActionContext.IRoot> = new Map();
-    let film: HumanPerformance;
+    const seen: Map<number, IAutoMovieMotionHumanActionContext.IRoot> = new Map();
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = perform(seen, leading().with(reading("b")));
     } catch (error) {
@@ -134,7 +125,7 @@ export function test_human_motion_core_placed_path(): void {
       );
       continue;
     }
-    const shown: HumanSignature.IReader = HumanSignature.of(
+    const shown: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "b",
       bodies.b,
@@ -144,7 +135,7 @@ export function test_human_motion_core_placed_path(): void {
       HumanSignature.joint(shown, seconds, "hips");
     const walked: number = film.segments("b").at(-1)!.end;
     for (const seconds of SECONDS) {
-      const told: IHumanActionContext.IRoot | undefined = seen.get(seconds);
+      const told: IAutoMovieMotionHumanActionContext.IRoot | undefined = seen.get(seconds);
       if (told === undefined) {
         complaints.push(`${label}: nothing was read at ${seconds} s`);
         continue;
@@ -159,8 +150,8 @@ export function test_human_motion_core_placed_path(): void {
           `${label}: at ${seconds} s the root read while planning lies ${(off * 1000).toFixed(1)} mm from the displayed pelvis on the floor plan, within ${(NEAR * bodies.b.measure.stature * 1000).toFixed(1)} mm (${NEAR} of the stature) expected`,
         );
     }
-    const first: IHumanActionContext.IRoot | undefined = seen.get(0);
-    const last: IHumanActionContext.IRoot | undefined = seen.get(15);
+    const first: IAutoMovieMotionHumanActionContext.IRoot | undefined = seen.get(0);
+    const last: IAutoMovieMotionHumanActionContext.IRoot | undefined = seen.get(15);
     if (first !== undefined && last !== undefined) {
       if (last.position.z - first.position.z < 3.5)
         complaints.push(
@@ -195,10 +186,10 @@ export function test_human_motion_core_placed_path(): void {
 
     // 5. A person with nothing to place.
     try {
-      const idle: Map<number, IHumanActionContext.IRoot> = new Map();
+      const idle: Map<number, IAutoMovieMotionHumanActionContext.IRoot> = new Map();
       perform(idle, reading("c").with(leading()));
-      const starts: IHumanActionContext.IRoot | undefined = idle.get(0);
-      const stays: IHumanActionContext.IRoot | undefined = idle.get(15);
+      const starts: IAutoMovieMotionHumanActionContext.IRoot | undefined = idle.get(0);
+      const stays: IAutoMovieMotionHumanActionContext.IRoot | undefined = idle.get(15);
       if (
         starts === undefined ||
         stays === undefined ||

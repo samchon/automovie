@@ -1,4 +1,4 @@
-import { ViolationCollector } from "../../validation/ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import { isRecord } from "../../validation/isRecord";
 
 /**
@@ -21,7 +21,7 @@ import { isRecord } from "../../validation/isRecord";
 export function validateCameraDepthPrecision(
   value: unknown,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   if (!isRecord(value)) {
     out.push("type", path, "camera depth precision must be an object", value);

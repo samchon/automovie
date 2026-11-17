@@ -1,18 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanBlade,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanSignature,
-  HumanSword,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanBlade, HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature, HumanSword } from "@automovie/motions";
 
 import { motionBladeReach } from "./motionBladeReach";
 import { motionHumanBody } from "./motionHumanBody";
@@ -47,14 +37,14 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   const pell: ReturnType<typeof createPell> = createPell();
   const complaints: string[] = [];
   const placed = (
-    frame: IHumanProp.IFrame,
+    frame: IAutoMovieMotionHumanProp.IFrame,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
   const apart = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(a, b));
 
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const stature: number = body.measure.stature;
 
   // A pell on a bearing (degrees to the performer's left) at a distance,
@@ -93,7 +83,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     blade: "sword",
     target: { kind: "prop", subject: id, point: "target" },
   });
-  const film: HumanPerformance = new HumanPerformance({
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "blade",
     laws: [...Object.values(HumanBlade), HumanSword.cut],
     performers: [
@@ -130,23 +120,23 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
       .registered("lunge", at("right"), "lunge")
       .registered("lunge", at("close"), "short").node,
   });
-  const act = (anchor: string): HumanSegment.ISegment =>
+  const act = (anchor: string): IAutoMovieMotionHumanSegment.ISegment =>
     film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.id === anchor)!;
-  const decisive = (segment: HumanSegment.ISegment): number =>
+      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === anchor)!;
+  const decisive = (segment: IAutoMovieMotionHumanSegment.ISegment): number =>
     segment.start + (segment.plan.contact ?? Number.NaN);
   const point = (seconds: number): IAutoMovieVector3 =>
     placed(
       film.prop("sword", seconds),
       sword.affordance("point").frame.translation,
     );
-  const reader: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
   const toes = (seconds: number, side: "left" | "right"): IAutoMovieVector3 =>
     HumanSignature.joint(reader, seconds, `${side}Toes`);
 
   // 1. A thrust from where they stand.
-  const first: HumanSegment.ISegment = act("first");
+  const first: IAutoMovieMotionHumanSegment.ISegment = act("first");
   const missed: number = apart(point(decisive(first)), target("ahead"));
   if (!(missed <= 0.015))
     complaints.push(
@@ -197,7 +187,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     );
 
   // 4. A lunge.
-  const lunge: HumanSegment.ISegment = act("lunge");
+  const lunge: IAutoMovieMotionHumanSegment.ISegment = act("lunge");
   const short: number = apart(point(decisive(lunge)), target("right"));
   if (!(short <= 0.015))
     complaints.push(
@@ -225,7 +215,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   // is shorter than a full one and lands with the arm as far out as the full
   // lunge's, the reach both are measured to, so the target stands as far from
   // the shoulder.
-  const shorter: HumanSegment.ISegment = act("short");
+  const shorter: IAutoMovieMotionHumanSegment.ISegment = act("short");
   const landed: number = decisive(shorter);
   const close: number = apart(point(landed), target("close"));
   if (!(close <= 0.015))

@@ -1,7 +1,9 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { AutoMovieVector3Tuple, IAutoMovieMeshPlaneCut, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryOrderedLineage, IAutoMovieRecoverySavedSectionCutsBindingOperation, IAutoMovieRecoveryScalarIndex, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
 
-import type { AutoMovieRecoveryOrderedLineage } from "../observation/AutoMovieRecoveryOrderedLineage";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
+
+
+
+
 import { RecoveryScalarIndex } from "./RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "./bindRecoverySavedSectionCuts";
 import { cutExact } from "./mesh-observations/cutExact";
@@ -25,24 +27,23 @@ import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call borrows source arrays and owns O(V+T) preparation plus active cut/binding data; its output grows with all requested contour points, witnesses and face addresses. Temporary references expire on return or throw and copied results transfer to the caller. There is no independent aggregate output-byte limit, handle, background task or cancellation listener.
  */
 export function observeRecoveryOrderedCuts(
-  input: AutoMovieRecoveryOrderedLineage.Input,
-): AutoMovieRecoveryOrderedLineage.Cuts {
-  const prepared: ReturnType<typeof prepareRecoveryMeshIncidence> =
+  input: IAutoMovieRecoveryOrderedLineage.Input,
+): IAutoMovieRecoveryOrderedLineage.Cuts {
+  const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, input.verticesMm);
-  const frame: ReturnType<typeof planeFrame> = planeFrame(
+  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
     [0, 0, 0],
     input.axis,
     input.reference,
   );
-  const physicalFrame: AutoMovieRecoveryOrderedLineage.Cuts["frame"] = {
+  const physicalFrame: IAutoMovieRecoveryOrderedLineage.Cuts["frame"] = {
     originMm: [...frame.origin],
     n: [...frame.n],
     u: [...frame.u],
-    v: [...frame.v],
-  };
+    v: [...frame.v] };
   if (
     ![frame.n, frame.u, frame.v].every(
-      (v: C.Vector): boolean =>
+      (v: Readonly<AutoMovieVector3Tuple>): boolean =>
         v.every(Number.isFinite) && Math.abs(Math.hypot(...v) - 1) < 1e-10,
     )
   )
@@ -73,18 +74,18 @@ export function observeRecoveryOrderedCuts(
       return value;
     });
   const heights: number[] = input.verticesMm.map(
-    (p: C.Vector): number =>
+    (p: Readonly<AutoMovieVector3Tuple>): number =>
       p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2],
   );
-  const index: ReturnType<typeof RecoveryScalarIndex.create> =
+  const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
     RecoveryScalarIndex.create(input.triangles, heights);
-  const cut: ReturnType<typeof cutExact.prepare> = cutExact.prepare(
+  const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
     prepared.mesh,
     heights,
     true,
     true,
   );
-  const sections: AutoMovieRecoveryOrderedLineage.Cuts["sections"] = [];
+  const sections: IAutoMovieRecoveryOrderedLineage.Cuts["sections"] = [];
   const seen: Set<number> = new Set();
   for (const saved of input.savedSections) {
     if (
@@ -99,20 +100,19 @@ export function observeRecoveryOrderedCuts(
         "Saved ordered cut has a duplicate plane or foreign source/frame binding",
       );
     seen.add(saved.coordinateMm);
-    const plane: ReturnType<typeof planeFrame> = {
+    const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
       ...frame,
       origin: [
         frame.n[0] * saved.coordinateMm,
         frame.n[1] * saved.coordinateMm,
         frame.n[2] * saved.coordinateMm,
-      ],
-    };
+      ] };
     const raw: ReturnType<typeof cut> = cut(
       plane,
       saved.coordinateMm,
       index.cut(saved.coordinateMm),
     );
-    const bound: ReturnType<typeof bindRecoverySavedSectionCuts> =
+    const bound: ReturnType<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation> =
       bindRecoverySavedSectionCuts({
         saved: {
           ...saved,
@@ -124,20 +124,17 @@ export function observeRecoveryOrderedCuts(
               sourceTriangleIds: local(r.sourceTriangleIds),
               ...(r.exactSourceTriangleIds === undefined
                 ? {}
-                : { exactSourceTriangleIds: local(r.exactSourceTriangleIds) }),
-            }),
-          ),
-        },
+                : { exactSourceTriangleIds: local(r.exactSourceTriangleIds) }) }),
+          ) },
         contours: raw,
         prepared,
-        checkpoint: (): void => {},
-      });
+        checkpoint: (): void => {} });
     if (bound.status !== "bound") throw new Error(bound.diagnostic);
-    const contours: AutoMovieRecoveryOrderedLineage.Contour[] = raw.map(
+    const contours: IAutoMovieRecoveryOrderedLineage.Contour[] = raw.map(
       (
         c: (typeof raw)[number],
         contourIndex: number,
-      ): AutoMovieRecoveryOrderedLineage.Contour => {
+      ): IAutoMovieRecoveryOrderedLineage.Contour => {
         const cumulative: number[] = [0];
         for (let i: number = 1; i < c.pts.length; i++)
           cumulative.push(
@@ -150,13 +147,13 @@ export function observeRecoveryOrderedCuts(
           throw new Error(
             "The official cutter omitted an ordered source segment",
           );
-        const segments: AutoMovieRecoveryOrderedLineage.Contour["segments"] = (
+        const segments: IAutoMovieRecoveryOrderedLineage.Contour["segments"] = (
           c.orderedSegments ?? []
         ).map(
           (
             s: NonNullable<typeof c.orderedSegments>[number],
             i: number,
-          ): AutoMovieRecoveryOrderedLineage.Contour["segments"][number] => {
+          ): IAutoMovieRecoveryOrderedLineage.Contour["segments"][number] => {
             const to: number = (i + 1) % c.pts.length;
             const startMm: number = cumulative[i]!;
             const endMm: number =
@@ -171,8 +168,7 @@ export function observeRecoveryOrderedCuts(
               endMm,
               originalTriangleIds: s.sourceTriangleIds.map(
                 (id: number): number => input.originalTriangleIds[id]!,
-              ),
-            };
+              ) };
           },
         );
         const lineage: IAutoMovieRecoverySourceLineage =
@@ -190,7 +186,7 @@ export function observeRecoveryOrderedCuts(
           points: c.pts.map(
             (
               p: (typeof c.pts)[number],
-            ): AutoMovieRecoveryOrderedLineage.Contour["points"][number] => ({
+            ): IAutoMovieRecoveryOrderedLineage.Contour["points"][number] => ({
               p: [...p.p],
               a: p.a,
               b: p.b,
@@ -202,31 +198,26 @@ export function observeRecoveryOrderedCuts(
                       (
                         e: NonNullable<typeof p.sourceEdges>[number],
                       ): NonNullable<
-                        AutoMovieRecoveryOrderedLineage.Contour["points"][number]["sourceEdges"]
+                        IAutoMovieRecoveryOrderedLineage.Contour["points"][number]["sourceEdges"]
                       >[number] => ({ ...e, pointMm: [...e.pointMm] }),
-                    ),
-                  }),
-            }),
+                    ) }) }),
           ),
           cumulativePolylineMm: cumulative,
           totalPolylineMm: segments.at(-1)?.endMm ?? 0,
-          segments,
-        };
+          segments };
       },
     );
     sections.push({
       coordinateMm: saved.coordinateMm,
       observationIdentity: saved.observationIdentity,
-      contours,
-    });
+      contours });
   }
   return {
     name: input.name,
     sourceIdentity: input.sourceIdentity,
     sourceSelectionIdentity: input.sourceSelectionIdentity,
     frame: physicalFrame,
-    sections,
-  };
+    sections };
 }
 /** Measure a chord between two registered observation points in mm.
  * Math.hypot limits intermediate sum overflow but is not exact arithmetic;
@@ -234,6 +225,6 @@ export function observeRecoveryOrderedCuts(
  * not independently refuse. No approximation or coordinate correction occurs.
  *
  */
-function distance(a: C.Vector, b: C.Vector): number {
+function distance(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }

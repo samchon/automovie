@@ -1,15 +1,10 @@
+import type { IAutoMovieAngleRange, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupportAim, IAutoMovieMotionHumanSupportCarry, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAngleRange,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { instance } from "../ensemble/instance";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { HumanSupportCarry } from "./HumanSupportCarry";
 
 /**
  * An aim kept on a world target from a moving support, every second (#3491).
@@ -33,21 +28,6 @@ import type { HumanSupportCarry } from "./HumanSupportCarry";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trunk's bound is the range-of-motion table's, never a typed angle; the frames checked are the film's (`instance.RATE`).
  */
 export namespace HumanSupportAim {
-  /**
-   * A line kept on a world target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame.
-   * @evidence contracts/development/design.md#principled-representation Two world points at the act's start.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain points.
-   */
-  export interface IAim {
-    /** The target, world metres; it stays in the world. */
-    target: IAutoMovieVector3;
-
-    /** Where the line was planned from at the start (the eye, the cheek), world metres; it rides the support. */
-    pivot: IAutoMovieVector3;
-  }
 
   /**
    * The correction at a second: the wanted line against the carried one.
@@ -73,8 +53,8 @@ export namespace HumanSupportAim {
    * @returns The yaw and the rise from the carried line to the wanted one.
    */
   export function correction(
-    carry: HumanSupportCarry.ICarry,
-    aim: IAim,
+    carry: IAutoMovieMotionHumanSupportCarry.ICarry,
+    aim: IAutoMovieMotionHumanSupportAim.IAim,
   ): ICorrection {
     const carried: IAutoMovieVector3 = Quaternion.rotateVector(
       carry.turn,
@@ -107,10 +87,10 @@ export namespace HumanSupportAim {
    * @returns The re-aimed posture.
    */
   export function posture(
-    carry: HumanSupportCarry.ICarry,
-    posture: IHumanPosture,
-    aim: IAim,
-  ): IHumanPosture {
+    carry: IAutoMovieMotionHumanSupportCarry.ICarry,
+    posture: IAutoMovieMotionHumanPosture,
+    aim: IAutoMovieMotionHumanSupportAim.IAim,
+  ): IAutoMovieMotionHumanPosture {
     const c: ICorrection = correction(carry, aim);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(up, c.yaw);
@@ -137,9 +117,9 @@ export namespace HumanSupportAim {
     const move = (p: IAutoMovieVector3): IAutoMovieVector3 =>
       about(raised, pivot, about(yawed, posture.root, p));
     const turn: IAutoMovieQuaternion = Quaternion.multiply(raised, yawed);
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const limb of ["leftArm", "rightArm"] as const) {
-      const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
+      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[limb];
       if (goal === undefined || goal.on !== undefined) continue;
       limbs[limb] = {
         ...goal,
@@ -167,13 +147,13 @@ export namespace HumanSupportAim {
    * @throws {Error} When the range-of-motion table gives the chest or the spine no twist.
    */
   export function check(
-    posture: (seconds: number) => IHumanPosture,
+    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
     duration: number,
   ): void {
     const frames: number = Math.ceil(duration * instance.RATE);
     for (let k: number = 0; k <= frames; k++) {
       const seconds: number = Math.min(duration, k / instance.RATE);
-      const joints: IHumanPosture["joints"] = posture(seconds).joints;
+      const joints: IAutoMovieMotionHumanPosture["joints"] = posture(seconds).joints;
       for (const bone of ["chest", "spine"] as const) {
         const range: IAutoMovieAngleRange = twist(bone);
         const value: number = joints[bone]?.[2] ?? 0;
@@ -197,9 +177,9 @@ export namespace HumanSupportAim {
 
   /** The trunk's joints twisted by a yaw, shared as the trunk's turn shares it. */
   function twisted(
-    joints: IHumanPosture["joints"],
+    joints: IAutoMovieMotionHumanPosture["joints"],
     yaw: number,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     if (yaw === 0) return joints;
     const add = (
       bone: "chest" | "spine",

@@ -1,8 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { combinePhysicalMassProperties } from "./combinePhysicalMassProperties";
 
 /**
  * The inertia tensor of rigid parts about one point, in their common frame:
@@ -30,7 +30,7 @@ import type { combinePhysicalMassProperties } from "./combinePhysicalMassPropert
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned rows are fresh.
  */
 export function physicalInertiaTensor(
-  parts: readonly combinePhysicalMassProperties.IPart[],
+  parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
   about: IAutoMovieVector3,
 ): number[][] {
   const basis: IAutoMovieVector3[] = [

@@ -1,3 +1,4 @@
+import type { IAutoMovieCompactCurveApproximation } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -6,7 +7,7 @@ import { PNG } from "pngjs";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import type { AutoMovieRecoveryCompactApproximation as C } from "@automovie/recovery";
+
 import { ConicPaperInput as I } from "./ConicPaperInput";
 import { ConicPaperRender as R } from "./ConicPaperRender";
 import { CompactCurveSource as S } from "./CompactCurveSource";
@@ -127,25 +128,25 @@ async function sizes(root: string, source: string, packet: I.Packet, best: F.Res
   const byKey: Map<string, F.Record> = new Map(best.records.map((r: F.Record): [string, F.Record] => [r.key, r]));
   const selection: { key: string; origin: string }[] = JSON.parse(await fs.readFile(path.join(source, "bestValidated.selection.json"), "utf8"));
   const saved: Set<string> = new Set(selection.filter((s: { origin: string }): boolean => s.origin === "validated-new-coefficients").map((s: { key: string }): string => s.key));
-  const oldCurves: { key: string; y: number; pieces: readonly C.IPiece[] }[] = packet.loops.map((loop: I.Loop): { key: string; y: number; pieces: readonly C.IPiece[] } => ({ key: loop.key, y: loop.heightMm, pieces: S.prepare(loop).pieces }));
+  const oldCurves: { key: string; y: number; pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[] }[] = packet.loops.map((loop: I.Loop): { key: string; y: number; pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[] } => ({ key: loop.key, y: loop.heightMm, pieces: S.prepare(loop).pieces }));
   const newCurves: typeof oldCurves = packet.loops.map((loop: I.Loop): typeof oldCurves[number] => ({ key: loop.key, y: loop.heightMm, pieces: byKey.get(loop.key)!.result?.pieces ?? [] }));
   const encode = (curves: typeof oldCurves): object => {
-    const canonical: object = { schema: "world-xz-independent-coefficients-v1", units: "mm", curves: curves.map((c: typeof oldCurves[number]): object => ({ key: c.key, y: c.y, pieces: c.pieces.map((p: C.IPiece): object => p.kind === "polynomial" ? { kind: p.kind, degree: p.degree, domain: p.domain, controls: p.controls } : { kind: p.kind, domain: p.domain, controls: p.controls, weight: p.weight }) })) };
+    const canonical: object = { schema: "world-xz-independent-coefficients-v1", units: "mm", curves: curves.map((c: typeof oldCurves[number]): object => ({ key: c.key, y: c.y, pieces: c.pieces.map((p: IAutoMovieCompactCurveApproximation.IPiece): object => p.kind === "polynomial" ? { kind: p.kind, degree: p.degree, domain: p.domain, controls: p.controls } : { kind: p.kind, domain: p.domain, controls: p.controls, weight: p.weight }) })) };
     const bytes: Buffer = Buffer.from(JSON.stringify(canonical));
     const scalarCount: number = curves.reduce((sum: number, c: typeof oldCurves[number]): number => sum + S.storage(c.pieces).total, 0);
     const values: number[] = [];
     const equal = (a: readonly number[], b: readonly number[]): boolean => a[0] === b[0] && a[1] === b[1];
     for (const curve of curves) {
       for (let i: number = 0; i < curve.pieces.length; ++i) {
-        const piece: C.IPiece = curve.pieces[i]!;
+        const piece: IAutoMovieCompactCurveApproximation.IPiece = curve.pieces[i]!;
         for (let j: number = 0; j < piece.controls.length; ++j) {
           if (i > 0 && j === 0 && equal(curve.pieces[i - 1]!.controls.at(-1)!, piece.controls[0]!)) continue;
           if (i === curve.pieces.length - 1 && j === piece.controls.length - 1 && equal(piece.controls[j]!, curve.pieces[0]!.controls[0]!)) continue;
           values.push(piece.controls[j]![0], piece.controls[j]![1]);
         }
       }
-      if (curve.pieces.length > 0) values.push(curve.pieces[0]!.domain[0], ...curve.pieces.map((p: C.IPiece): number => p.domain[1]));
-      values.push(...curve.pieces.map((p: C.IPiece): number => p.kind === "polynomial" ? p.degree : p.weight), curve.y);
+      if (curve.pieces.length > 0) values.push(curve.pieces[0]!.domain[0], ...curve.pieces.map((p: IAutoMovieCompactCurveApproximation.IPiece): number => p.domain[1]));
+      values.push(...curve.pieces.map((p: IAutoMovieCompactCurveApproximation.IPiece): number => p.kind === "polynomial" ? p.degree : p.weight), curve.y);
     }
     if (values.length !== scalarCount) throw new Error("Independent scalar schema mismatch");
     const binary: Float64Array = Float64Array.from(values);

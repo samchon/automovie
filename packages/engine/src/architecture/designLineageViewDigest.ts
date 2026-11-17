@@ -1,12 +1,5 @@
-import {
-  IAutoMovieDesignChange,
-  IAutoMovieDesignLineage,
-  IAutoMovieDesignPhaseSnapshot,
-  IAutoMovieDesignPhaseState,
-  IAutoMovieDesignRevision,
-  IAutoMovieDesignSubject,
-  IAutoMovieDesignVariant,
-} from "@automovie/interface";
+import { type IAutoMovieDesignLineageViewDigest, IAutoMovieDesignChange, IAutoMovieDesignLineage, IAutoMovieDesignPhaseSnapshot, IAutoMovieDesignPhaseState, IAutoMovieDesignRevision, IAutoMovieDesignSubject, IAutoMovieDesignVariant } from "@automovie/interface";
+
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -40,10 +33,10 @@ import { requireDesignVariant } from "./requireDesignVariant";
  */
 export const designLineageViewDigest: (
   lineage: IAutoMovieDesignLineage,
-  view: { variant: string | null; phase: string | null },
+  view: IAutoMovieDesignLineageViewDigest.IView,
 ) => string = (
   lineage: IAutoMovieDesignLineage,
-  view: { variant: string | null; phase: string | null },
+  view: IAutoMovieDesignLineageViewDigest.IView,
 ): string => {
   const snapshot: IAutoMovieDesignPhaseSnapshot = designLineagePhaseSnapshot(
     lineage,

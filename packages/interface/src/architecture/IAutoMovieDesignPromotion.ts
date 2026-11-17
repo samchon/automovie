@@ -1,6 +1,6 @@
-import { IAutoMovieDesignPromotedReading } from "./IAutoMovieDesignPromotedReading";
-import { IAutoMovieDesignSkippedAnalysis } from "./IAutoMovieDesignSkippedAnalysis";
-import { IAutoMovieDesignWithholding } from "./IAutoMovieDesignWithholding";
+import type { IAutoMovieDesignPromotedReading } from "./IAutoMovieDesignPromotedReading";
+import type { IAutoMovieDesignSkippedAnalysis } from "./IAutoMovieDesignSkippedAnalysis";
+import type { IAutoMovieDesignWithholding } from "./IAutoMovieDesignWithholding";
 
 /**
  * The complete, deterministic outcome of asking a reference for metric

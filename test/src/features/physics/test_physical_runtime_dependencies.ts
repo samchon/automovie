@@ -1,19 +1,6 @@
-import {
-  PhysicalTargetInterval as Interval,
-  Quaternion,
-  type AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  bindPhysicalWorld,
-  copyPhysicalTarget,
-  preparePhysicalTargetSampler,
-  readPhysicalScene,
-  samplePhysicalAuthoredTargets,
-  samplePhysicalTarget,
-  setPhysicalTargetJointRotation,
-  solvePhysicalChainTarget,
-  warmPhysicalSupportTargets,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalTargetInterval, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import { PhysicalTargetInterval as Interval, Quaternion, Vector3, bindPhysicalWorld, copyPhysicalTarget, preparePhysicalTargetSampler, readPhysicalScene, samplePhysicalAuthoredTargets, samplePhysicalTarget, setPhysicalTargetJointRotation, solvePhysicalChainTarget, warmPhysicalSupportTargets } from "@automovie/engine";
+
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -75,7 +62,7 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
   copied.pose.position = { x: 9, y: 8, z: 7 };
   assert.notEqual(copied.pose.position, expected.pose.position);
 
-  const interval: Interval.IPlan = {
+  const interval: IAutoMoviePhysicalTargetInterval.IPlan = {
     step: 1,
     revision: 0,
     start: 0,
@@ -106,12 +93,12 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
   const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
   try {
     const profile: P = PhysicalPointFixtures.profile();
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "assembly",
       profile,
       1 / 120,
     );
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
       world,
       input,

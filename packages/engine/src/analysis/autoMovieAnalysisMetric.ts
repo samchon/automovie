@@ -1,9 +1,5 @@
-import {
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisMetricGap,
-  IAutoMovieAnalysisTarget,
-  IAutoMovieAnalysisWarning,
-} from "@automovie/interface";
+import { type IAutoMovieAnalysisMetricInput, IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisTarget } from "@automovie/interface";
+
 
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 
@@ -34,39 +30,7 @@ import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call resolves one metric of one run against that study's own targets; there is no completed or in-flight result another call could reuse.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new metric record and appends at most one warning to the caller-owned array, retaining nothing itself.
  */
-export const autoMovieAnalysisMetric: (props: {
-  key: string;
-  unit: string;
-  value: number | null;
-  targets: readonly IAutoMovieAnalysisTarget[];
-  warnings: IAutoMovieAnalysisWarning[];
-  gap?: IAutoMovieAnalysisMetricGap;
-  status?: "unsupported" | "not-run";
-}) => IAutoMovieAnalysisMetric = (props: {
-  /** Open metric key, such as `workplane.total.illuminance`. */
-  key: string;
-
-  /** Unit the value is produced in, compared exactly with a target's unit. */
-  unit: string;
-
-  /** Finite measured value, or `null` when the solver produced none. */
-  value: number | null;
-
-  /** Targets the production declared, already checked for shape and uniqueness. */
-  targets: readonly IAutoMovieAnalysisTarget[];
-
-  /** Caller-owned sink the resolver appends a unit-mismatch warning to. */
-  warnings: IAutoMovieAnalysisWarning[];
-
-  /** Why no value exists; required exactly when `value` is null. */
-  gap?: IAutoMovieAnalysisMetricGap;
-
-  /**
-   * Which kind of absence a null value is: `unsupported` when the solver cannot
-   * compute it at all, `not-run` (the default) when this study lacked an input.
-   */
-  status?: "unsupported" | "not-run";
-}): IAutoMovieAnalysisMetric => {
+export const autoMovieAnalysisMetric: (props: IAutoMovieAnalysisMetricInput.IProps) => IAutoMovieAnalysisMetric = (props: IAutoMovieAnalysisMetricInput.IProps): IAutoMovieAnalysisMetric => {
   const key: string = props.key;
   const unit: string = props.unit;
   const value: number | null = props.value;

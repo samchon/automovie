@@ -1,4 +1,4 @@
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 
 /**
  * One owner's share of one metric.

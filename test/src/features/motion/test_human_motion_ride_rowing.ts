@@ -1,21 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSignature, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createBoat, rowBoat } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanFrame,
-  HumanObject,
-  HumanPerformance,
-  HumanRide,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRide, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -85,8 +72,8 @@ export function test_human_motion_ride_rowing(): void {
     );
     for (const name of ["m-average", "f-small"] as const) {
       const label: string = `${name} on ${water} water`;
-      const body: IHumanBody = motionHumanBody(name);
-      const placed = (seconds: number): IHumanProp.IFrame => {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
         const placement: IAutoMovieTransform = ride.at(
           Math.max(0, seconds - WAIT),
         ).placement;
@@ -100,7 +87,7 @@ export function test_human_motion_ride_rowing(): void {
           id as Parameters<typeof ride.frame>[0],
           Math.max(0, seconds - WAIT),
         );
-      const seat: seated.ISeat = HumanObject.seat(boat, placed(0), thwart);
+      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(boat, placed(0), thwart);
       // The rower stands on the boat's floor before sitting, so the thwart
       // is measured from that floor (`seated.floor`), on the swell too.
       const floor: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -113,7 +100,7 @@ export function test_human_motion_ride_rowing(): void {
         { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
         { x: 0, y: 0, z: 0.4 },
       );
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "rowing",
@@ -144,7 +131,7 @@ export function test_human_motion_ride_rowing(): void {
         );
         continue;
       }
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,

@@ -1,15 +1,14 @@
-import {
-  type AutoMovieLoftFrame,
-  AutoMovieNaturalSpline,
-  type AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { IAutoMovieLoftFrame, IAutoMovieNaturalSpline, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadLipContact } from "@automovie/interface";
 
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
+
+
+
+
+import { AutoMovieNaturalSpline, AutoMovieViewOutline, AutoMovieViewParameter, AutoMovieViewSection } from "@automovie/engine";
+
+
+
 import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
 
 /**
@@ -37,29 +36,9 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
 export namespace AutoMovieHumanHeadLipPart {
-  /**
-   * One actual parent contact reading, with analytic lateral derivatives.
-   * @evidence contracts/common.md#principled-implementation Separates the original point from availability of its implicit lateral derivatives.
-   * @evidence contracts/common.md#clear-and-simple-design A point and one optional derivative pair serve both consumers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular inverse is null, never a zero-filled derivative.
-   * @evidence contracts/common.md#meaningful-documentation Fields state world-mm and physical lateral derivative units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The contact reader owns reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reader returns owned fixed-size vectors.
-   */
-  export type IContactReading = AutoMovieHumanHeadLipContact.IReading;
+  
 
-  /**
-   * Shared original parent field, retained with its frame and full scalar source.
-   * @evidence contracts/common.md#principled-implementation Keeps the actual parent, complete signed scalar source and section frame together.
-   * @evidence contracts/common.md#clear-and-simple-design One field supplies both lip builders.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A corner pair or emitted mesh cannot stand in for this source.
-   * @evidence contracts/common.md#meaningful-documentation Members identify original ownership and world-mm queries.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The factory owns shared preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Its composition retains the actual parent and prepared scalar sources for both lips.
-   */
-  export type IContact = AutoMovieHumanHeadLipContact.IContact;
+  
 
   /** Hidden depth inside the face, mm; the existing lip-root construction allowance. */
   const INSET: number = 3;
@@ -90,7 +69,7 @@ export namespace AutoMovieHumanHeadLipPart {
     plan: IAutoMovieHumanHeadLayout,
     upper: boolean,
     mass: IAutoMovieViewPart,
-    attachment: IContact = contact(mass, plan.stomion),
+    attachment: IAutoMovieHumanHeadLipContact.IContact = contact(mass, plan.stomion),
   ): IAutoMovieViewPart {
     const half: number = plan.mouthWidth;
     const height: number = upper ? plan.upperLip : plan.lowerLip;
@@ -100,18 +79,18 @@ export namespace AutoMovieHumanHeadLipPart {
     const theta: (s: number) => number = (s: number): number =>
       Math.acos(Math.max(-1, Math.min(1, -s / half)));
     const xs: number[] = [0, theta(-peak), Math.PI / 2, theta(peak), Math.PI];
-    const base: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const base: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       xs,
       [0, 0, height, 0, 0],
     );
-    const unit: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const unit: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       xs,
       [0, 1, 0, 1, 0],
     );
     const bowHeight: number =
       -AutoMovieNaturalSpline.derivative(base, xs[3]!)[0] /
       AutoMovieNaturalSpline.derivative(unit, xs[3]!)[0];
-    const bow: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const bow: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       xs,
       [0, bowHeight, height, bowHeight, 0],
     );
@@ -119,7 +98,7 @@ export namespace AutoMovieHumanHeadLipPart {
       { length: INTERVALS + 1 },
       (_: unknown, i: number): number => (Math.PI * i) / INTERVALS,
     );
-    const lower: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const lower: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       angles,
       angles.map((angle: number, i: number): number =>
         i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
@@ -171,8 +150,8 @@ export namespace AutoMovieHumanHeadLipPart {
       (s: number): number => border(s) / 2,
     );
     const prepared:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(positive, {
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(positive, {
       bottom: -half,
       top: half,
     });
@@ -180,15 +159,15 @@ export namespace AutoMovieHumanHeadLipPart {
       throw new Error(`Lip border source: ${prepared.detail}`);
     const sign: number = upper ? 1 : -1;
     let cachedStation: number | undefined;
-    let cachedSection: AutoMovieHumanHeadLipContact.ISection | undefined;
+    let cachedSection: IAutoMovieHumanHeadLipContact.ISection | undefined;
 
     /** Retain just the last actual section for paired value/jet and polar reads. */
-    const section: (s: number) => AutoMovieHumanHeadLipContact.ISection = (
+    const section: (s: number) => IAutoMovieHumanHeadLipContact.ISection = (
       s: number,
-    ): AutoMovieHumanHeadLipContact.ISection => {
+    ): IAutoMovieHumanHeadLipContact.ISection => {
       if (s === cachedStation && cachedSection !== undefined)
         return cachedSection;
-      const own: AutoMovieViewOutline.IReading | string =
+      const own: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(prepared, s);
       if (typeof own === "string") throw new Error(`Lip border: ${own}`);
       cachedSection = attachment.section(
@@ -202,17 +181,17 @@ export namespace AutoMovieHumanHeadLipPart {
       cachedStation = s;
       return cachedSection;
     };
-    const frame: (s: number) => AutoMovieLoftFrame.IFrame = (
+    const frame: (s: number) => IAutoMovieLoftFrame.IFrame = (
       s: number,
-    ): AutoMovieLoftFrame.IFrame => section(s).frame;
-    const axis: AutoMovieViewAxis.IAxis = {
+    ): IAutoMovieLoftFrame.IFrame => section(s).frame;
+    const axis: IAutoMovieViewAxis.IAxis = {
       at: frame,
       jet: (
         s: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
-      ): ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>> => {
+        parameter?: IAutoMovieConstructionOutlineParameter,
+      ): ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>> => {
         const physical: ReturnType<
-          NonNullable<AutoMovieViewAxis.IAxis["jet"]>
+          NonNullable<IAutoMovieViewAxis.IAxis["jet"]>
         > = section(s).jet;
         if (physical === null) return null;
         const inverse: [number, number] | null =
@@ -220,12 +199,12 @@ export namespace AutoMovieHumanHeadLipPart {
             ? [1, 0]
             : AutoMovieViewParameter.inverseJet(parameter, s);
         if (inverse === null) return null;
-        const first: AutoMovieLoftFrame.IFrame = {
+        const first: IAutoMovieLoftFrame.IFrame = {
           origin: [0, 0, 0],
           u: [0, 0, 0],
           v: [0, 0, 0],
         };
-        const second: AutoMovieLoftFrame.IFrame = {
+        const second: IAutoMovieLoftFrame.IFrame = {
           origin: [0, 0, 0],
           u: [0, 0, 0],
           v: [0, 0, 0],
@@ -288,7 +267,7 @@ export namespace AutoMovieHumanHeadLipPart {
   export function contact(
     parent: IAutoMovieViewPart,
     height: number,
-  ): IContact {
+  ): IAutoMovieHumanHeadLipContact.IContact {
     return AutoMovieHumanHeadLipContact.create(parent, height);
   }
 
@@ -307,7 +286,7 @@ export namespace AutoMovieHumanHeadLipPart {
   export function midline(
     plan: IAutoMovieHumanHeadLayout,
     upper: boolean,
-  ): [number, number, number] {
+  ): AutoMovieVector3Tuple {
     const point: [number, number] = upper
       ? plan.landmarks.labraleSuperius
       : plan.landmarks.labraleInferius;

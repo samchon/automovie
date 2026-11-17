@@ -1,16 +1,13 @@
+import type { IAutoMovieRecoveryCameraChartCreationOperation, IAutoMovieRecoveryMapObservation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryScenePointEvaluationOperation, IAutoMovieRecoverySceneTrackTriangulationOperation } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
-import type {
-  IAutoMovieRecoveryCameraMapBudget,
-  IAutoMovieRecoveryCameraMapPolicy,
-} from "@automovie/interface";
+  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
 
-import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneTriangulation } from "../structures/internal/IAutoMovieRecoverySceneTriangulation";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
+
+
+
+
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 
 /**
@@ -27,12 +24,12 @@ import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only an owned point or null and reasons return. Small original rows, factors and rays expire without mutation or external resources.
  */
 export function triangulateRecoverySceneTrack(
-  observations: readonly IAutoMovieRecoveryMapObservation[],
-  poses: readonly (IAutoMovieRecoveryMapPose | null)[],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  budget: IAutoMovieRecoveryCameraMapBudget,
-): IAutoMovieRecoverySceneTriangulation {
+  observations: Parameters<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation>[0],
+  poses: Parameters<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation>[1],
+  charts: Parameters<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation>[2],
+  policy: Parameters<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation>[3],
+  budget: Parameters<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation>[4],
+): ReturnType<IAutoMovieRecoverySceneTrackTriangulationOperation.Operation> {
   if (
     observations.length < 2 ||
     observations.length * 8 > budget.maxLinearEntries ||
@@ -45,13 +42,12 @@ export function triangulateRecoverySceneTrack(
   )
     return {
       point: null,
-      reasons: ["insufficient-distinct-point-observations"],
-    };
+      reasons: ["insufficient-distinct-point-observations"] };
   const rows: number[][] = [];
   for (const observation of observations) {
     const pose: IAutoMovieRecoveryMapPose | null | undefined =
       poses[observation.viewIndex];
-    const chart: ReturnType<typeof createRecoveryCameraChart> | undefined =
+    const chart: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation> | undefined =
       charts[observation.viewIndex];
     if (!pose || !chart)
       return { point: null, reasons: ["unregistered-point-observation"] };
@@ -75,8 +71,7 @@ export function triangulateRecoverySceneTrack(
     factors = decomposeAutoMovieSingularMatrix(rows, {
       maxEntries: budget.maxLinearEntries,
       maxSweeps: budget.maxSingularSweeps,
-      orthogonalityTolerance: 1e-12,
-    });
+      orthogonalityTolerance: 1e-12 });
   } catch (error: unknown) {
     if (
       !(error instanceof Error) ||
@@ -107,7 +102,7 @@ export function triangulateRecoverySceneTrack(
   ];
   if (!point.every(Number.isFinite))
     return { point: null, reasons: ["nonfinite-point"] };
-  const measured: ReturnType<typeof evaluateRecoveryScenePoint> =
+  const measured: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
     evaluateRecoveryScenePoint(point, observations, poses, charts, policy);
   return { point: measured.accepted ? point : null, reasons: measured.reasons };
 }

@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanJointTransition } from "@automovie/interface";
+
+
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 import { AutoMovieHumanSkinStep } from "./AutoMovieHumanSkinStep";
 
@@ -18,47 +21,9 @@ import { AutoMovieHumanSkinStep } from "./AutoMovieHumanSkinStep";
  * their largest shortfall so the profile covers every sector.
  */
 export namespace AutoMovieHumanJointTransition {
-  /** A half width by the angle about a plane's normal. */
-  export interface ISectors {
-    /** First axis square to the normal, where the angle is zero. */
-    u: Math3D.Vector;
+  
 
-    /** Second axis square to the normal, a quarter turn on. */
-    v: Math3D.Vector;
-
-    /** Mean, then cosine and sine of the angle and of twice it, metres. */
-    terms: [number, number, number, number, number];
-
-    /** Least half width, metres. */
-    least: number;
-
-    /** Greatest half width, metres. */
-    most: number;
-  }
-
-  /** What one transition is measured from. */
-  export interface IMeasure {
-    /** Skin samples, metres, three numbers each. */
-    points: Float64Array;
-
-    /** Whether a sample belongs to the joint's two bones and side. */
-    held: (index: number) => boolean;
-
-    /** The plane's point, metres. */
-    at: Math3D.Vector;
-
-    /** The plane's unit normal toward the child. */
-    normal: Math3D.Vector;
-
-    /** The joint's largest turn from the bind, radians. */
-    turn: number;
-
-    /** Least half width, metres. */
-    least: number;
-
-    /** Greatest half width, metres. */
-    most: number;
-  }
+  
 
   /**
    * Principal stretch a ramp may give the skin at its joint's whole turn. Skin
@@ -80,13 +45,13 @@ export namespace AutoMovieHumanJointTransition {
    * @param input The samples, the plane and the joint's turn.
    * @returns The sector profile; its `most` is the widest sector's half.
    */
-  export function measure(input: IMeasure): ISectors {
-    const n: Math3D.Vector = input.normal;
-    const a: Math3D.Vector = Math.abs(n[0]) < 0.9 ? FORWARD : LEFT;
-    const u: Math3D.Vector = Math3D.unit(
+  export function measure(input: IAutoMovieHumanJointTransition.IMeasure): IAutoMovieHumanJointTransition.ISectors {
+    const n: AutoMovieVector3Tuple = input.normal;
+    const a: AutoMovieVector3Tuple = Math.abs(n[0]) < 0.9 ? FORWARD : LEFT;
+    const u: AutoMovieVector3Tuple = Math3D.unit(
       Math3D.sub(a, Math3D.times(n, dot(a, n))),
     );
-    const v: Math3D.Vector = cross(n, u);
+    const v: AutoMovieVector3Tuple = cross(n, u);
     const most: number = Math.max(input.least, input.most);
     // Half width per metre of rho that holds the stretch bound (derived): the
     // step's peak slope SLOPE/h times the blend's angular slope 4 tan(theta/4)
@@ -102,7 +67,7 @@ export namespace AutoMovieHumanJointTransition {
       const rho: number[] = new Array<number>(SECTORS).fill(0);
       for (let i: number = 0; i < points.length / 3; i++) {
         if (!input.held(i)) continue;
-        const r: Math3D.Vector = [
+        const r: AutoMovieVector3Tuple = [
           points[3 * i]! - input.at[0],
           points[3 * i + 1]! - input.at[1],
           points[3 * i + 2]! - input.at[2],
@@ -152,7 +117,7 @@ export namespace AutoMovieHumanJointTransition {
    * @param r The point from the plane's point, metres.
    * @returns The half width in that sector, metres.
    */
-  export function half(sectors: ISectors, r: Math3D.Vector): number {
+  export function half(sectors: IAutoMovieHumanJointTransition.ISectors, r: AutoMovieVector3Tuple): number {
     const phi: number = Math.atan2(dot(r, sectors.v), dot(r, sectors.u));
     return Math.min(
       sectors.most,
@@ -175,11 +140,11 @@ function evaluate(
   );
 }
 
-function dot(a: Math3D.Vector, b: Math3D.Vector): number {
+function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-function cross(a: Math3D.Vector, b: Math3D.Vector): Math3D.Vector {
+function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
@@ -188,7 +153,7 @@ function cross(a: Math3D.Vector, b: Math3D.Vector): Math3D.Vector {
 }
 
 /** Forward in the registered frame. */
-const FORWARD: Math3D.Vector = [1, 0, 0];
+const FORWARD: AutoMovieVector3Tuple = [1, 0, 0];
 
 /** The figure's left in the registered frame. */
-const LEFT: Math3D.Vector = [0, 0, 1];
+const LEFT: AutoMovieVector3Tuple = [0, 0, 1];

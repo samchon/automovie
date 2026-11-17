@@ -1,14 +1,5 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServicePenetration,
-  IAutoMovieServicePort,
-  IAutoMovieServiceSegment,
-  IAutoMovieServiceSystem,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieAppendServiceNetworkSegments, IAutoMovieServicePenetration, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
 import { appendServiceCrossings } from "./appendServiceCrossings";
 import { routeDistanceSquared } from "./routeDistanceSquared";
@@ -24,29 +15,7 @@ import { routeDistanceSquared } from "./routeDistanceSquared";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Supplied system/port/id maps serve all segments; one per-segment seen set detects duplicate sleeve citations and the returned set serves later orphan-sleeve checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Citation sets and scalar route facts are call-local; the returned used-id set and appended findings belong to the parent gate, without a retained source-network cache.
  */
-export function appendServiceNetworkSegments(props: {
-  network: IAutoMovieServiceNetwork;
-  environment: IAutoMovieBuiltEnvironment;
-  systems: ReadonlyMap<string, IAutoMovieServiceSystem>;
-  ports: ReadonlyMap<string, IAutoMovieServicePort>;
-  penetrationIds: ReadonlySet<string>;
-  root: string;
-  out: ViolationCollector;
-  positive: (
-    value: number,
-    path: string,
-    label: string,
-    out: ViolationCollector,
-  ) => void;
-  distance: (one: IAutoMovieVector3, other: IAutoMovieVector3) => number;
-  coincident: (
-    point: IAutoMovieVector3,
-    target: IAutoMovieVector3,
-    path: string,
-    portId: string,
-    out: ViolationCollector,
-  ) => void;
-}): Set<string> {
+export function appendServiceNetworkSegments(props: IAutoMovieAppendServiceNetworkSegments.IProps): Set<string> {
   const {
     network,
     environment,

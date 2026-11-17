@@ -1,3 +1,6 @@
+import type { IAutoMovieDecodedFrame, IAutoMovieDecodedFrameAudit } from "@automovie/interface";
+
+
 /**
  * Admit a decoder's framemd5 listing against a commissioned half-open frame
  * clock: exactly one stream-zero time base, exactly `expectedFrames` video
@@ -23,7 +26,7 @@ export function auditAutoMovieDecodedFrames(
   text: string,
   expectedFrames: number,
   fps: number,
-): auditAutoMovieDecodedFrames.IResult {
+): IAutoMovieDecodedFrameAudit {
   if (
     !Number.isSafeInteger(expectedFrames) ||
     expectedFrames < 1 ||
@@ -33,7 +36,7 @@ export function auditAutoMovieDecodedFrames(
     throw new Error(
       "A decoded audit requires a positive integral frame count and rate",
     );
-  const frames: auditAutoMovieDecodedFrames.IFrame[] = [];
+  const frames: IAutoMovieDecodedFrame[] = [];
   const repeatedImages: number[] = [];
   let timeBase: readonly [number, number] | undefined;
   for (const line of text.split(/\r?\n/u)) {
@@ -94,7 +97,7 @@ export function auditAutoMovieDecodedFrames(
     );
   const scale: bigint = BigInt(timeBase[0]) * BigInt(fps);
   frames.forEach(
-    (frame: auditAutoMovieDecodedFrames.IFrame, index: number): void => {
+    (frame: IAutoMovieDecodedFrame, index: number): void => {
       if (
         BigInt(frame.pts) * scale !== BigInt(index) * BigInt(timeBase![1]) ||
         (BigInt(frame.pts) + BigInt(frame.duration)) * scale !==
@@ -112,46 +115,4 @@ export function auditAutoMovieDecodedFrames(
     frames,
     repeatedImages,
   };
-}
-/**
- * Companion types of {@link auditAutoMovieDecodedFrames}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 2 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 2 members (`IFrame`, `IResult`); units and frames named in its text: frame, bytes, seconds, frames. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `auditAutoMovieDecodedFrames` in packages/render/src/delivery/auditAutoMovieDecodedFrames.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/render (2), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace auditAutoMovieDecodedFrames {
-  /** One decoded frame. */
-  export interface IFrame {
-    /** Decoder stream index. */
-    stream: number;
-
-    /** Presentation timestamp, time-base ticks. */
-    pts: number;
-
-    /** Presentation duration, time-base ticks. */
-    duration: number;
-
-    /** Lowercase MD5 of the decoded image bytes. */
-    md5: string;
-  }
-
-  /** An admitted decoded stream. */
-  export interface IResult {
-    /** Decoded images. */
-    frameCount: number;
-
-    /** Commissioned duration, seconds. */
-    durationSeconds: number;
-
-    /** Decoder time base. */
-    timeBase: readonly [number, number];
-
-    /** Every frame in output order. */
-    frames: IFrame[];
-
-    /** Indices of frames identical to their predecessor. */
-    repeatedImages: number[];
-  }
 }

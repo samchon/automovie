@@ -1,4 +1,4 @@
-import { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat";
+import type { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat";
 
 /**
  * Render parameters for turning a shot or sequence into frames and video. Kept

@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeUnits,
   type ArchetypeAssembly,
@@ -5,16 +6,8 @@ import {
   ArchetypeFrame,
   ArchetypeRide,
 } from "@automovie/archetypes";
-import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanRide,
-  HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanRide, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeCarriage } from "../internal/archetypeCarriage";
@@ -89,8 +82,8 @@ export function test_archetype_assembly_ride(): void {
   }
 
   // 2. A rider on a member's seat is carried with it.
-  const body: IHumanBody = motionHumanBody("m-average");
-  const placed = (seconds: number): IHumanProp.IFrame => {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
     const sample: IAutoMovieTransform = ride.at(seconds).placement;
     return { position: sample.translation, rotation: sample.rotation };
   };
@@ -100,7 +93,7 @@ export function test_archetype_assembly_ride(): void {
     "bench2/seat",
   );
   const radians: number = seat.yaw * ArchetypeUnits.DEGREE;
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "carriage",
     laws: [HumanRide.ride],
     props: [HumanObject.prop("carriage", carriage, placed(0), placed)],
@@ -123,9 +116,9 @@ export function test_archetype_assembly_ride(): void {
       .sit({ seat })
       .registered("ride", { on: "carriage", seconds: ride.duration }).node,
   });
-  const segment: ReturnType<HumanPerformance["segments"]>[number] =
+  const segment: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>[number] =
     performance.segments("a")[1]!;
-  const reader: HumanSignature.IReader = HumanSignature.of(performance, "a", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(performance, "a", body, 0);
   const offset = (seconds: number): number => {
     const now: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
       carriage,

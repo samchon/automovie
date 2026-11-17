@@ -1,11 +1,5 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltOpening,
-  IAutoMovieBuiltSpace,
-  IAutoMovieConnectorLanding,
-  IAutoMovieRoomVisibility,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieRoomVisibilityQuery, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMovieConnectorLanding, IAutoMovieRoomVisibility, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
@@ -63,15 +57,7 @@ const EXTERIOR: string = " exterior";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Parent, open-boundary and edge indices are built once per request; no graph cache assumes mutable environments, openings or camera position remain equivalent.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graph/queue/indices are call-owned and returned id arrays contain only report values; no camera, scene object, handle or background culler is retained.
  */
-export const autoMovieRoomVisibility: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  camera: IAutoMovieVector3;
-}) => IAutoMovieRoomVisibility = (props: {
-  /** Building whose spaces are being culled. */
-  environment: IAutoMovieBuiltEnvironment;
-  /** World-space camera position. */
-  camera: IAutoMovieVector3;
-}): IAutoMovieRoomVisibility => {
+export const autoMovieRoomVisibility: (props: IAutoMovieRoomVisibilityQuery) => IAutoMovieRoomVisibility = (props: IAutoMovieRoomVisibilityQuery): IAutoMovieRoomVisibility => {
   const {
     environment,
     camera,

@@ -1,6 +1,9 @@
-import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
+import type { IAutoMovieHumanGlutealDome, IAutoMovieHumanTrunkFeature } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
-import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
+
 
 /**
  * The gluteal mass: the profile swept over its footprint in the gluteal
@@ -28,23 +31,7 @@ export namespace AutoMovieHumanGlutealDome {
   /** The footprint's outer share of the half width. Conventional, flagged. */
   export const OUTER: number = 0.95;
 
-  /** What the dome reads. */
-  export interface IInput {
-    /** The gluteal frame. */
-    frame: AutoMovieHumanTrunkFeatureFrame.IFrame;
-
-    /** The section's half width at the buttock point, mm. */
-    width: number;
-
-    /** The buttock point's height over the crotch ring, mm: the footprint's lower reach. */
-    lower: number;
-
-    /** Iliocristale's height over the buttock point, mm: the footprint's upper reach. */
-    upper: number;
-
-    /** The buttock point's projection, mm. */
-    projection: number;
-  }
+  
 
   /**
    * The dome as a feature.
@@ -52,7 +39,7 @@ export namespace AutoMovieHumanGlutealDome {
    * @param input The frame, footprint data and projection.
    * @returns The gluteal mass as a height field.
    */
-  export function create(input: IInput): IAutoMovieHumanTrunkFeature {
+  export function create(input: IAutoMovieHumanGlutealDome.IInput): IAutoMovieHumanTrunkFeature {
     const half: number = ((OUTER - MEDIAL) / 2) * input.width;
 
     // The footprint's centre stands outward of the apex by the shares' difference;

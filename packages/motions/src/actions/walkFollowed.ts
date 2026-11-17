@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanActionPlan, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { walkStation } from "./walkStation";
 
 /**
@@ -45,11 +44,11 @@ import { walkStation } from "./walkStation";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the clock for as long as the returned plan is held.
  */
 export function walkFollowed(
-  plan: IHumanActionPlan,
+  plan: IAutoMovieMotionHumanActionPlan,
   where: (seconds: number) => IAutoMovieVector3,
   from: number,
   rests: number,
-): IHumanActionPlan {
+): IAutoMovieMotionHumanActionPlan {
   // The person is a moving point, kept station on by the one speed-matching law.
   return walkStation(plan, where, from, rests);
 }

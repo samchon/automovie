@@ -1,13 +1,10 @@
+import type { IAutoMovieRecoveryImageLoftBudget, IAutoMovieRecoveryImageRealization, IAutoMovieRecoveryResult, IAutoMovieBicubicAtlasGeometry, IAutoMovieEllipticLoft, IAutoMovieRecoveryImageLoft } from "@automovie/interface";
 import { createAutoMovieEllipticLoftAtlas } from "@automovie/engine";
-import type {
-  IAutoMovieBicubicAtlasGeometry,
-  IAutoMovieEllipticLoft,
-  IAutoMovieRecoveryImageLoft,
-} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryImageLoftBudget } from "../structures/image/IAutoMovieRecoveryImageLoftBudget";
-import type { IAutoMovieRecoveryImageRealization } from "../structures/image/IAutoMovieRecoveryImageRealization";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
+
+
 
 /**
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
@@ -82,16 +79,13 @@ export function compileAutoMovieRecoveryImageLoft(
           ) as [number, number, number, number],
           centreZ: span.centreZ.map(
             (value: number): number => value * recipe.dimensions.depthScale,
-          ) as [number, number, number, number],
-        }),
-      ),
-    };
+          ) as [number, number, number, number] }),
+      ) };
     const atlas: ReturnType<typeof createAutoMovieEllipticLoftAtlas> =
       createAutoMovieEllipticLoftAtlas({
         loft: scaled,
         topologyDomain: `image-loft:${recipe.objectId}`,
-        ...budget,
-      });
+        ...budget });
     const geometry: IAutoMovieBicubicAtlasGeometry = atlas.geometry;
     const point: (
       patch: number,
@@ -142,8 +136,7 @@ export function compileAutoMovieRecoveryImageLoft(
         construction.push({
           id: `section.${span}.${row}`,
           closed: true,
-          points,
-        });
+          points });
       }
     for (let meridian: number = 0; meridian < 8; meridian++) {
       const points: [number, number, number][] = [];
@@ -180,21 +173,16 @@ export function compileAutoMovieRecoveryImageLoft(
               material: null,
               attachedBone: null,
               transform: null,
-              geometry,
-            },
-          ],
-        },
+              geometry },
+          ] },
         construction,
-        arcDeviationBoundMeters: atlas.arcDeviationBound,
-      },
-    };
+        arcDeviationBoundMeters: atlas.arcDeviationBound } };
   } catch (failure: unknown) {
     return {
       operator,
       status: "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ],
-    };
+      ] };
   }
 }

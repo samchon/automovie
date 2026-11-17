@@ -1,8 +1,6 @@
-import {
-  AutoMovieMotionAudit as Audit,
-  type AutoMoviePhysicsCache as Cache,
-} from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type { IAutoMovieMotionAudit, IAutoMoviePhysicsCache, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -48,7 +46,7 @@ export async function test_physical_compression_audit(): Promise<void> {
       rate: 120,
       floor: 0,
       allowed: (): boolean => false,
-      sample: (): Cache.IFrame => ({
+      sample: (): IAutoMoviePhysicsCache.IFrame => ({
         seconds: 0,
         bodies: {
           ball: {
@@ -64,7 +62,7 @@ export async function test_physical_compression_audit(): Promise<void> {
     });
     findings.push(
       result.findings.filter(
-        (finding: Audit.IFinding): boolean => finding.kind === "floor",
+        (finding: IAutoMovieMotionAudit.IFinding): boolean => finding.kind === "floor",
       ).length,
     );
   }
@@ -156,8 +154,8 @@ export async function test_physical_compression_audit(): Promise<void> {
   ];
   const pairFindings: number[] = [];
   for (const row of pairCases) {
-    const bodies: Audit.IBody[] = ["a", "b"].map(
-      (id: string, index: number): Audit.IBody => ({
+    const bodies: IAutoMovieMotionAudit.IBody[] = ["a", "b"].map(
+      (id: string, index: number): IAutoMovieMotionAudit.IBody => ({
         id,
         profile: PhysicalFixtures.sphere(
           0.1,
@@ -178,14 +176,14 @@ export async function test_physical_compression_audit(): Promise<void> {
       rate: 120,
       floor: -10,
       allowed: (): boolean => false,
-      sample: (): Cache.IFrame => ({
+      sample: (): IAutoMoviePhysicsCache.IFrame => ({
         seconds: 0,
         bodies: Object.fromEntries(
           bodies.map(
             (
-              body: Audit.IBody,
+              body: IAutoMovieMotionAudit.IBody,
               index: number,
-            ): [string, Record<string, Cache.ISegment>] => [
+            ): [string, Record<string, IAutoMoviePhysicsCache.ISegment>] => [
               body.id,
               {
                 root: {
@@ -202,7 +200,7 @@ export async function test_physical_compression_audit(): Promise<void> {
     });
     pairFindings.push(
       result.findings.filter(
-        (finding: Audit.IFinding): boolean => finding.kind === "overlap",
+        (finding: IAutoMovieMotionAudit.IFinding): boolean => finding.kind === "overlap",
       ).length,
     );
   }

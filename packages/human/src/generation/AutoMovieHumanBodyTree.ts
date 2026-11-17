@@ -1,21 +1,17 @@
-import {
-  type AutoMovieConstructionRealization,
-  type AutoMovieLoftContract,
-  type AutoMovieSolidBody,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
-import type {
-  AutoMovieConstructionNode,
-  IAutoMovieConstructionDiagnostic,
-  IAutoMovieConstructionJoin,
-  IAutoMovieConstructionSplit,
-} from "@automovie/interface";
+import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieConstructionNode, IAutoMovieHumanBodyTree, IAutoMovieHumanMassSource, IAutoMovieHumanSiteViewPart, IAutoMovieConstructionDiagnostic, IAutoMovieConstructionJoin, IAutoMovieConstructionSplit } from "@automovie/interface";
+
+
+
+
+
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+
+
 
 import { AutoMovieHumanConstructionView } from "./limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanMassSource } from "./limb/AutoMovieHumanMassSource";
-import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
+
 
 /**
  * The body's construction tree (#3044, construction step 2; #3047 to #3051)
@@ -35,52 +31,11 @@ import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPa
  * which a per-join merge record on one host face cannot.
  */
 export namespace AutoMovieHumanBodyTree {
-  /** One fold's join onto the subtree built so far, calibration mm. */
-  export interface IFold {
-    /** The joined subtree. */
-    part: AutoMovieConstructionNode;
+  
 
-    /** The part's face that meets the host. */
-    partFace: string;
+  
 
-    /** The host face the seed meets. */
-    hostFace: string;
-    /** Actual original-parent exit used to select a mass's host face, before kept-atlas validation. */
-    sourceSeed?: AutoMovieHumanMassSource.ISeed;
-
-    /** The seed's search: the part face's phase and the shares of its station range to search between. */
-    search: { phase: number; from: number; to: number };
-
-    /** The fold's rolling radius, mm. */
-    radius: number;
-
-    /** The widest chord either side, mm. */
-    cap: number;
-  }
-
-  /** The joins' trace limits and sampling, millimetres and radians. */
-  export interface ILimits {
-    /** Points of each trace per turn and columns of each blend, a multiple of 4 of at least 8. */
-    count: number;
-
-    /** Largest distance between the two surfaces at a traced point, mm. */
-    tolerance: number;
-
-    /** Least angle between the two tangent planes, radians. */
-    grazing: number;
-
-    /** Widest spacing between a blend's rows and the skin's chord, mm. */
-    gap: number;
-  }
-
-  /** The realized subtree as the calibration publishes it. */
-  export interface IOutput {
-    /** Every part's chain, then every blend's. */
-    chains: IAutoMovieLoftChain[];
-
-    /** The realized body of trimmed faces sharing their boundaries, as the calibration publishes it (`IAutoMovieHumanBodyCalibration.bodies`). */
-    body: AutoMovieSolidBody.IPublished;
-  }
+  
 
   /**
    * A fold's join node on a host subtree.
@@ -91,9 +46,9 @@ export namespace AutoMovieHumanBodyTree {
    * @returns The join node, metres.
    */
   export function join(
-    host: AutoMovieConstructionNode,
-    fold: IFold,
-    limits: ILimits,
+    host: IAutoMovieConstructionNode,
+    fold: IAutoMovieHumanBodyTree.IFold,
+    limits: IAutoMovieHumanBodyTree.ILimits,
   ): IAutoMovieConstructionJoin {
     const M: number = AutoMovieHumanConstructionView.METRES;
     const width: IAutoMovieConstructionJoin["partWidth"] = {
@@ -146,13 +101,13 @@ export namespace AutoMovieHumanBodyTree {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a call-owned fold record; diagnostics belong to its caller and no cache is added.
    */
   export function massFold(
-    fold: IFold,
-    sources: readonly AutoMovieHumanSiteViewPart.ISource[],
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
-  ): IFold | null {
-    const source: AutoMovieHumanSiteViewPart.IResult | undefined = sources
+    fold: IAutoMovieHumanBodyTree.IFold,
+    sources: readonly IAutoMovieHumanSiteViewPart.ISource[],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): IAutoMovieHumanBodyTree.IFold | null {
+    const source: IAutoMovieHumanSiteViewPart.IResult | undefined = sources
       .filter(
-        (source: AutoMovieHumanSiteViewPart.ISource): boolean =>
+        (source: IAutoMovieHumanSiteViewPart.ISource): boolean =>
           source.name === fold.partFace,
       )
       .at(-1)?.result;
@@ -166,7 +121,7 @@ export namespace AutoMovieHumanBodyTree {
         detail =
           "The actual mass original or its consumed parent connection is unavailable";
       else {
-        const seed: AutoMovieHumanMassSource.ISeed | string =
+        const seed: IAutoMovieHumanMassSource.ISeed | string =
           AutoMovieHumanMassSource.seed(source.part, source.massConnection);
         if (typeof seed !== "string")
           return { ...fold, hostFace: seed.owner, sourceSeed: seed };
@@ -190,10 +145,10 @@ export namespace AutoMovieHumanBodyTree {
    * A missing original is a named premise failure, never a sampled fallback.
    */
   export function sources(
-    root: AutoMovieConstructionNode | null,
+    root: IAutoMovieConstructionNode | null,
     parts: ReadonlyMap<string, IAutoMovieViewPart>,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
-  ): AutoMovieConstructionNode | null {
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): IAutoMovieConstructionNode | null {
     if (root === null) return null;
     try {
       return sourceNode(root, parts);
@@ -211,10 +166,7 @@ export namespace AutoMovieHumanBodyTree {
   /** Retain only each builder's last actual original, including failed replacements. */
   export function context(
     head: ReadonlyMap<string, IAutoMovieViewPart> | undefined,
-    records: readonly {
-      name: string;
-      result: { part: IAutoMovieViewPart | null };
-    }[],
+    records: IAutoMovieHumanBodyTree.ContextRecords,
   ): ReadonlyMap<string, IAutoMovieViewPart> {
     const parts: Map<string, IAutoMovieViewPart> = new Map(head);
     for (const record of records)
@@ -225,9 +177,9 @@ export namespace AutoMovieHumanBodyTree {
 
   /** Resolve the original leaves without changing unchanged operator or head subtree identities. */
   function sourceNode(
-    root: AutoMovieConstructionNode,
+    root: IAutoMovieConstructionNode,
     parts: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): AutoMovieConstructionNode {
+  ): IAutoMovieConstructionNode {
     // Profiles resolve their own original functions through the engine's
     // separate profiles context; they are not native view declarations.
     if (root.type === "profile") return root;
@@ -243,7 +195,7 @@ export namespace AutoMovieHumanBodyTree {
         throw new Error(`Construction view ${root.name} has no original owner`);
       return { type: "source", name: root.name, source: root.name };
     }
-    const host: AutoMovieConstructionNode = sourceNode(root.host, parts);
+    const host: IAutoMovieConstructionNode = sourceNode(root.host, parts);
     if (root.type === "trim")
       return host === root.host ? root : { ...root, host };
     // A split's two children resolve like a join's part, each keeping its identity when unchanged.
@@ -258,7 +210,7 @@ export namespace AutoMovieHumanBodyTree {
         ? root
         : { ...root, host, children };
     }
-    const part: AutoMovieConstructionNode = sourceNode(root.part, parts);
+    const part: IAutoMovieConstructionNode = sourceNode(root.part, parts);
     return host === root.host && part === root.part
       ? root
       : { ...root, host, part };
@@ -283,12 +235,12 @@ export namespace AutoMovieHumanBodyTree {
    */
   export function realize(
     name: string,
-    root: AutoMovieConstructionNode,
-    limits: ILimits,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
+    root: IAutoMovieConstructionNode,
+    limits: IAutoMovieHumanBodyTree.ILimits,
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
     sources?: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): IOutput {
-    const result: AutoMovieConstructionRealization.IWithoutSkin =
+  ): IAutoMovieHumanBodyTree.IOutput {
+    const result: IAutoMovieConstructionRealization.IWithoutSkin =
       realizeAutoMovieConstruction(
         { name, root },
         {
@@ -301,7 +253,7 @@ export namespace AutoMovieHumanBodyTree {
       ...result.diagnostics.map(
         (
           d: IAutoMovieConstructionDiagnostic,
-        ): AutoMovieLoftContract.IDiagnostic => ({
+        ): IAutoMovieLoftContract.IDiagnostic => ({
           producer: `tree.${d.node}`,
           level: 3,
           contract: d.contract,
@@ -315,7 +267,7 @@ export namespace AutoMovieHumanBodyTree {
       chains: [
         ...result.chains,
         ...result.joins.map(
-          (j: AutoMovieConstructionRealization.IJoin): IAutoMovieLoftChain =>
+          (j: IAutoMovieConstructionRealization.IJoin): IAutoMovieLoftChain =>
             j.blend.chain,
         ),
       ],

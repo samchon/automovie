@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanTarget,
-  HumanHand,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanArm, AutoMovieMotionHumanTarget, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -41,21 +32,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the scenario and its bounds.
  */
 export function test_human_motion_core_bimanual_rod(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const span = { start: 0, ready: 0.6, relax: 1.1, end: 1.5 };
   const lift = (seconds: number): number => {
     const s: number = Math.min(1, Math.max(0, (seconds - 0.65) / 0.4));
     return 0.15 * s * s * s * (10 - 15 * s + 6 * s * s);
   };
-  const place = (side: HumanHand.Side, seconds: number): IAutoMovieVector3 => ({
+  const place = (side: IAutoMovieMotionHumanHand.Side, seconds: number): IAutoMovieVector3 => ({
     x: side === "left" ? 0.03 : -0.03,
     y: 1.0 + lift(seconds),
     z: 0.35,
   });
   const goal =
-    (side: HumanHand.Side) =>
-    (_: IHumanPosture, seconds: number): IHumanPosture.IGoal =>
+    (side: IAutoMovieMotionHumanHand.Side) =>
+    (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture.IGoal =>
       AutoMovieMotionHumanArm.goal(
         body,
         side,
@@ -70,7 +61,7 @@ export function test_human_motion_core_bimanual_rod(): void {
   const arms = (): IAutoMovieMotionHumanPrimitive[] => {
     const together = AutoMovieMotionHumanArm.together();
     return (["right", "left"] as const).map(
-      (side: HumanHand.Side): IAutoMovieMotionHumanPrimitive =>
+      (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanPrimitive =>
         AutoMovieMotionHumanArm.carried({
           body,
           side,
@@ -90,15 +81,15 @@ export function test_human_motion_core_bimanual_rod(): void {
         }),
     );
   };
-  const before = (): IHumanPosture => quiet;
+  const before = (): IAutoMovieMotionHumanPosture => quiet;
 
   const held: IAutoMovieMotionHumanPrimitive[] = arms();
   held[0]!.prepare!(before);
   const palms = (
     seconds: number,
-  ): Record<HumanHand.Side, IAutoMovieVector3> => {
-    const posture: IHumanPosture = held.reduce(
-      (p: IHumanPosture, arm: IAutoMovieMotionHumanPrimitive): IHumanPosture =>
+  ): Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> => {
+    const posture: IAutoMovieMotionHumanPosture = held.reduce(
+      (p: IAutoMovieMotionHumanPosture, arm: IAutoMovieMotionHumanPrimitive): IAutoMovieMotionHumanPosture =>
         arm.write(p, seconds, before),
       quiet,
     );

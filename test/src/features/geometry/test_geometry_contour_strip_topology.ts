@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieContourLoft64 as L,
-  tessellateAutoMovieContourStrip64,
-} from "@automovie/engine";
+import type { IAutoMovieContourLoft64 } from "@automovie/interface";
+import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -10,7 +8,7 @@ import { throwsError } from "../internal/throwsError.ts";
 
 /** Strip metadata before its enclosing loft adds a slab address. */
 type Observation = Omit<
-  NonNullable<L.IResult["stripObservations"]>[number],
+  NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number],
   "beforeMm" | "afterMm" | "group"
 >;
 

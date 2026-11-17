@@ -1,4 +1,5 @@
-import { IAutoMovieNode, IAutoMovieSkeleton } from "@automovie/interface";
+import { type IAutoMovieLowerSkeletonNodes, IAutoMovieNode } from "@automovie/interface";
+
 
 import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
 import { Transform } from "../math/Transform";
@@ -14,18 +15,7 @@ import { Transform } from "../math/Transform";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Scene/motion consumers share naming; changed mutable skeleton contents require new lowering instead of an identity-only cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns node/root records and the skeleton owns borrowed rest data; no native node, handle or task is retained.
  */
-export const lowerSkeletonNodes: (props: {
-  skeleton: IAutoMovieSkeleton;
-  prefix?: string;
-  rootParent?: string | null;
-}) => IAutoMovieNode[] = (props: {
-  /** The rig to lower. */
-  skeleton: IAutoMovieSkeleton;
-  /** Node-id prefix for every lowered node. Defaults to `""` (bare names). */
-  prefix?: string;
-  /** Parent node id for the synthetic root, or `null` for a graph root. */
-  rootParent?: string | null;
-}): IAutoMovieNode[] => {
+export const lowerSkeletonNodes: (props: IAutoMovieLowerSkeletonNodes.IProps) => IAutoMovieNode[] = (props: IAutoMovieLowerSkeletonNodes.IProps): IAutoMovieNode[] => {
   const prefix: string = props.prefix ?? "";
   const rootId: string = `${prefix}${MOTION_ROOT_NODE_ID}`;
   const nodes: IAutoMovieNode[] = [

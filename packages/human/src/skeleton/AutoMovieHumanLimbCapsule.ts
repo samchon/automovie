@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBindingLimb } from "./IAutoMovieHumanBindingLimb";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanBindingLimb } from "@automovie/interface";
+
+
+
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
 /**
@@ -39,7 +42,7 @@ export namespace AutoMovieHumanLimbCapsule {
    * @returns Distance to the capsule's surface, metres; negative inside it.
    */
   export function height(
-    p: Math3D.Vector,
+    p: AutoMovieVector3Tuple,
     limb: IAutoMovieHumanBindingLimb,
   ): number {
     // Componentwise, without a vector per call: this runs per skin sample
@@ -74,7 +77,7 @@ export namespace AutoMovieHumanLimbCapsule {
    * @returns The least height, metres; infinity for no capsule.
    */
   export function nearest(
-    p: Math3D.Vector,
+    p: AutoMovieVector3Tuple,
     limbs: readonly IAutoMovieHumanBindingLimb[],
   ): number {
     let best: number = Infinity;
@@ -111,7 +114,7 @@ export namespace AutoMovieHumanLimbCapsule {
    * @param skin Skin samples, metres, three numbers each.
    * @returns The distance, metres; infinity for no sample.
    */
-  export function depth(p: Math3D.Vector, skin: Float64Array): number {
+  export function depth(p: AutoMovieVector3Tuple, skin: Float64Array): number {
     let best: number = Infinity;
     for (let i: number = 0; i < skin.length; i += 3) {
       const x: number = skin[i]! - p[0];

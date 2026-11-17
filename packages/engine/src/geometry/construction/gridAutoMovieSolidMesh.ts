@@ -1,88 +1,14 @@
+import type { IAutoMovieSolidSurface, AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieGridSolidMeshGrid, IAutoMovieGridSolidMeshSample, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshLoop, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidMeshAuthorities } from "./AutoMovieSolidMeshAuthorities";
 import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshLoop } from "./AutoMovieSolidMeshLoop";
-import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
-
-/** Native station/phase point. */
-type Point = readonly [number, number];
-/** World-space millimetre vector. */
-type Vec3 = AutoMovieSolidVector.Vec3;
 /** Existing vector lengths and analytic chart-cross arithmetic. */
 const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
-
-/** One locally evaluated, not yet published sampling point. */
-interface Sample {
-  /** Copied world point. */
-  point: Vec3;
-
-  /** Its owner-local chart. */
-  chart: Point;
-}
-
-/** Face-local grid, source partition and provisional point catalogue. */
-interface Grid {
-  /** Existing global vertex count before any face write. */
-  base: number;
-
-  /** Face-specific charts, including foreign-owner shared source indices. */
-  chart: Map<number, Point>;
-
-  /** New provisional IDs and their evaluated source points. */
-  samples: Map<number, Sample>;
-
-  /** Original indexed trim segments. */
-  trim: AutoMovieSolidMeshConstraints.ISegment[];
-
-  /** Domain segments after authoritative-boundary precedence. */
-  domain: AutoMovieSolidMeshConstraints.ISegment[];
-
-  /** Retained full cells' complete directed boundary incidence. */
-  boundary: AutoMovieSolidMeshConstraints.ISegment[];
-
-  /** Retained full-cell triangles in positive native-chart order. */
-  full: AutoMovieSolidMeshPlan.ITriangle[];
-
-  /** Originally metric-kept sampling points not already part of a full cell/domain. */
-  interior: number[];
-
-  /** Original kept source, independent of the sampling margin. */
-  source: (u: number, v: number) => boolean;
-
-  /** Original source minus already retained full cells. */
-  residual: (u: number, v: number) => boolean;
-
-  /**
-   * Phase scale of the face's uniform metric, length units per radian: the
-   * mean first fundamental form over the grid jets without its shear term,
-   * `sqrt(mean G / mean E)` with `E = |S_u|^2` and `G = |S_v|^2`. It carries
-   * the length unit, so a body in another unit legalizes alike.
-   */
-  metric: number;
-
-  /**
-   * A quadrilateral's own first fundamental form, as the map
-   * `(u, v) -> (u + shear v, scale v)` under which its chart lengths are its
-   * skin's up to one factor: the least-squares linear map `J` from its four
-   * chart points to their skin points about their centroids, with
-   * `E = |J_u|^2`, `F = J_u . J_v`, `G = |J_v|^2`, `shear = F / E` and
-   * `scale = sqrt(G / E - shear^2)`. Residual legalization reads it, so a face
-   * whose metric changes across it is made Delaunay in the metric each
-   * quadrilateral actually spans, not the face's mean: beside the armscye's
-   * loop the trunk spans 231 mm a radian where its mean is about half that,
-   * and triangles fair in the mean metric stood 4 to 7 degrees thin on the
-   * skin and folded 135 degrees. Read instead from the grid jets of the cell
-   * holding the centroid, a band's corner column at f1's crotch fork, where
-   * the band's columns converge within one cell, took the wrong diagonal and
-   * folded 63 degrees. Points with no skin point yet read the face's mean.
-   */
-  local: (ids: readonly number[], charts: readonly Point[]) => [number, number];
-}
 
 /**
  * Prepare a trimmed face's sampling grid without changing any mesh buffer.
@@ -112,10 +38,10 @@ interface Grid {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(G+S+L) grid/constraint/catalogue state is local; returned closures retain their source readers and cell table only until the caller finishes this face, with no global cache.
  */
 export function gridAutoMovieSolidMesh(
-  mesh: AutoMovieSolidMesh.IMesh,
-  input: AutoMovieSolidMesh.IFace,
-): Grid | null | string {
-  const { surface, stations, phases, loops }: AutoMovieSolidMesh.IFace = input;
+  mesh: IAutoMovieSolidMesh.IMesh,
+  input: IAutoMovieSolidMesh.IFace,
+): IAutoMovieGridSolidMeshGrid | null | string {
+  const { surface, stations, phases, loops }: IAutoMovieSolidMesh.IFace = input;
   const period: number | undefined = surface.period;
   if (
     mesh.positions.length % 3 !== 0 ||
@@ -145,14 +71,14 @@ export function gridAutoMovieSolidMesh(
   )
     return "periodic face needs at least three phases inside one unrepeated period";
   const base: number = mesh.positions.length / 3;
-  const chart: Map<number, Point> = new Map();
-  const trim: AutoMovieSolidMeshConstraints.ISegment[] | string =
+  const chart: Map<number, Readonly<AutoMovieVector2Tuple>> = new Map();
+  const trim: IAutoMovieSolidMeshConstraints.ISegment[] | string =
     AutoMovieSolidMeshAuthorities.collect(mesh, loops, chart, period);
   if (typeof trim === "string") return trim;
-  const domainAuthorities: AutoMovieSolidMeshConstraints.ISegment[] | string =
+  const domainAuthorities: IAutoMovieSolidMeshConstraints.ISegment[] | string =
     AutoMovieSolidMeshAuthorities.domainSegments(mesh, input, chart, period);
   if (typeof domainAuthorities === "string") return domainAuthorities;
-  const barriers: AutoMovieSolidMeshConstraints.ISegment[] =
+  const barriers: IAutoMovieSolidMeshConstraints.ISegment[] =
     domainAuthorities.length === 0 ? trim : [...trim, ...domainAuthorities];
   const jets: IAutoMovieSolidSurface.IJet[][] = [];
   for (const u of stations) {
@@ -185,7 +111,7 @@ export function gridAutoMovieSolidMesh(
   const metric: number = Math.sqrt(second / first);
   if (!(Number.isFinite(metric) && metric > 0))
     return "face grid has no representable uniform metric";
-  const samples: Map<number, Sample> = new Map();
+  const samples: Map<number, IAutoMovieGridSolidMeshSample> = new Map();
   const reserved: Map<number, number> = new Map();
   const authorities: Map<string, number> = new Map();
   const coordinateKey: (u: number, v: number) => string = (
@@ -194,7 +120,7 @@ export function gridAutoMovieSolidMesh(
   ): string =>
     `${u}/${period === undefined ? v : v - period * Math.floor((v - phases[0]!) / period)}`;
   for (const entry of chart) {
-    const [id, point]: [number, Point] = entry;
+    const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
     const key: string = coordinateKey(point[0], point[1]);
     const known: number | undefined = authorities.get(key);
     if (known !== undefined && known !== id)
@@ -209,7 +135,7 @@ export function gridAutoMovieSolidMesh(
     const key: number = i * phases.length + column;
     const previous: number | undefined = reserved.get(key);
     if (previous !== undefined) return previous;
-    const point: Point = [stations[i]!, phases[column]!];
+    const point: Readonly<AutoMovieVector2Tuple> = [stations[i]!, phases[column]!];
     const authority: number | undefined = authorities.get(
       coordinateKey(point[0], point[1]),
     );
@@ -228,19 +154,19 @@ export function gridAutoMovieSolidMesh(
     id < base
       ? [mesh.positions[3 * id]!, mesh.positions[3 * id + 1]!, mesh.positions[3 * id + 2]!]
       : samples.get(id)?.point;
-  const local = (ids: readonly number[], charts: readonly Point[]): [number, number] => {
+  const local = (ids: readonly number[], charts: readonly Readonly<AutoMovieVector2Tuple>[]): [number, number] => {
     const skins: (readonly number[] | undefined)[] = ids.map(point);
     if (skins.some((x: readonly number[] | undefined): boolean => x === undefined)) return [0, metric];
     const n: number = charts.length;
-    const cu: number = charts.reduce((s: number, c: Point): number => s + c[0], 0) / n;
-    const cv: number = charts.reduce((s: number, c: Point): number => s + c[1], 0) / n;
+    const cu: number = charts.reduce((s: number, c: Readonly<AutoMovieVector2Tuple>): number => s + c[0], 0) / n;
+    const cv: number = charts.reduce((s: number, c: Readonly<AutoMovieVector2Tuple>): number => s + c[1], 0) / n;
     const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: readonly number[] | undefined): number => s + x![a]!, 0) / n);
     let suu: number = 0;
     let suv: number = 0;
     let svv: number = 0;
     const xu: number[] = [0, 0, 0];
     const xv: number[] = [0, 0, 0];
-    charts.forEach((c: Point, k: number): void => {
+    charts.forEach((c: Readonly<AutoMovieVector2Tuple>, k: number): void => {
       const du: number = c[0] - cu;
       const dv: number = c[1] - cv;
       suu += du * du;
@@ -265,7 +191,7 @@ export function gridAutoMovieSolidMesh(
       ? [shear, scale]
       : [0, metric];
   };
-  const classify: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
+  const classify: IAutoMovieSolidMeshLoop.Classifier =
     AutoMovieSolidMeshLoop.prepare(loops, period);
   const du: number[] = stations.map((u: number, i: number): number =>
     Math.min(
@@ -307,9 +233,9 @@ export function gridAutoMovieSolidMesh(
     { length: stations.length - 1 },
     (): boolean[] => new Array<boolean>(columns).fill(false),
   );
-  const full: AutoMovieSolidMeshPlan.ITriangle[] = [];
+  const full: IAutoMovieSolidMeshPlan.ITriangle[] = [];
   const cuts: { a: number; b: number; c: number; d: number; wrap: number; choice: "first" | "other" | "tie"; first: number; other: number }[] = [];
-  const boundary: Map<string, AutoMovieSolidMeshConstraints.ISegment> =
+  const boundary: Map<string, IAutoMovieSolidMeshConstraints.ISegment> =
     new Map();
 
   // The barriers each station interval can meet, in their own order: a
@@ -320,8 +246,8 @@ export function gridAutoMovieSolidMesh(
     (): number[] => [],
   );
   for (const [index, edge] of barriers.entries()) {
-    const a: Point | undefined = chart.get(edge.a);
-    const b: Point | undefined = chart.get(edge.b);
+    const a: Readonly<AutoMovieVector2Tuple> | undefined = chart.get(edge.a);
+    const b: Readonly<AutoMovieVector2Tuple> | undefined = chart.get(edge.b);
     // A barrier without both chart points is offered to every interval, so
     // the cell test meets it exactly as before.
     const low: number =
@@ -375,7 +301,7 @@ export function gridAutoMovieSolidMesh(
       // line ran across the face (f1's upper lip).
       // A cell neither of whose splits is clearly flatter takes the diagonal its face's other such cells take, decided once for the face
       // below (`DIAGONAL`), so the rule reads the geometry alone and a chart and its mirror image cut mirror-image cells.
-      const [pa, pb, pc, pd]: Vec3[] = [jets[i]![j]!.p, jets[i + 1]![j]!.p, jets[i + 1]![next]!.p, jets[i]![next]!.p];
+      const [pa, pb, pc, pd]: AutoMovieVector3Tuple[] = [jets[i]![j]!.p, jets[i + 1]![j]!.p, jets[i + 1]![next]!.p, jets[i]![next]!.p];
       const [first, other]: number[] = [bend(pa, pb, pc, pd), bend(pb, pc, pd, pa)];
       cuts.push({ a, b, c, d, wrap, choice: other < BEND * first ? "other" : first < BEND * other ? "first" : "tie", first: norm(sub(pc, pa)), other: norm(sub(pd, pb)) });
       for (const edge of [
@@ -414,7 +340,7 @@ export function gridAutoMovieSolidMesh(
         { vertices: [cut.a, cut.c, cut.d], lifts: [0, cut.wrap, cut.wrap] },
       );
   const readers: ((u: number, v: number) => boolean)[] = loops.map(
-    (loop: AutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
+    (loop: IAutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
       AutoMovieSolidCycle.prepare(loop, period),
   );
   const source: (u: number, v: number) => boolean = (
@@ -455,7 +381,7 @@ export function gridAutoMovieSolidMesh(
       return false;
     return source(u, v);
   };
-  const domain: AutoMovieSolidMeshConstraints.ISegment[] | string =
+  const domain: IAutoMovieSolidMeshConstraints.ISegment[] | string =
     domainAutoMovieSolidMesh(chart, barriers, stations, phases, at, period);
   if (typeof domain === "string") return domain;
   const interior: number[] = [];
@@ -526,10 +452,10 @@ const DIAGONAL_ROUNDING: number = 1e-9;
  * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and
  * `(p, r, s)`; 0 for a planar or degenerate quadrilateral.
  */
-function bend(p: Vec3, q: Vec3, r: Vec3, s: Vec3): number {
-  const minus = (x: Vec3, y: Vec3): Vec3 => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
-  const n1: Vec3 = cross(minus(q, p), minus(r, p));
-  const n2: Vec3 = cross(minus(r, p), minus(s, p));
+function bend(p: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple, r: AutoMovieVector3Tuple, s: AutoMovieVector3Tuple): number {
+  const minus = (x: AutoMovieVector3Tuple, y: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
+  const n1: AutoMovieVector3Tuple = cross(minus(q, p), minus(r, p));
+  const n2: AutoMovieVector3Tuple = cross(minus(r, p), minus(s, p));
   const l1: number = norm(n1);
   const l2: number = norm(n2);
   if (!(l1 > 0 && l2 > 0)) return 0;
@@ -541,16 +467,16 @@ function bend(p: Vec3, q: Vec3, r: Vec3, s: Vec3): number {
 function copy(
   jet: IAutoMovieSolidSurface.IJet,
 ): IAutoMovieSolidSurface.IJet | string {
-  const vectors: Vec3[] = [jet.p, jet.u, jet.v, jet.uu, jet.uv, jet.vv];
+  const vectors: AutoMovieVector3Tuple[] = [jet.p, jet.u, jet.v, jet.uu, jet.uv, jet.vv];
   if (
     !vectors.every(
-      (value: Vec3): boolean =>
+      (value: AutoMovieVector3Tuple): boolean =>
         value.length === 3 && value.every(Number.isFinite),
     )
   )
     return "face source jet must contain finite three-component vectors";
-  const values: Vec3[] = vectors.map(
-    (value: Vec3): Vec3 => [value[0], value[1], value[2]],
+  const values: AutoMovieVector3Tuple[] = vectors.map(
+    (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [value[0], value[1], value[2]],
   );
   const length: number = norm(cross(values[1]!, values[2]!));
   if (!(Number.isFinite(length) && length > 0))
@@ -567,8 +493,8 @@ function copy(
 
 /** True cuts retain their conservative bound; exactly consumed domain sides do not discard a source grid cell. `candidates` are the indices of the barriers whose station range meets the cell's, in increasing order. */
 function touches(
-  chart: ReadonlyMap<number, Point>,
-  trim: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  chart: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  trim: readonly IAutoMovieSolidMeshConstraints.ISegment[],
   candidates: readonly number[],
   u0: number,
   u1: number,
@@ -578,9 +504,9 @@ function touches(
   domainFrom: number,
 ): boolean | string {
   for (const index of candidates) {
-    const edge: AutoMovieSolidMeshConstraints.ISegment = trim[index]!;
-    const a: Point = chart.get(edge.a)!;
-    const b: Point = chart.get(edge.b)!;
+    const edge: IAutoMovieSolidMeshConstraints.ISegment = trim[index]!;
+    const a: Readonly<AutoMovieVector2Tuple> = chart.get(edge.a)!;
+    const b: Readonly<AutoMovieVector2Tuple> = chart.get(edge.b)!;
     if (Math.max(a[0], b[0]) < u0 || Math.min(a[0], b[0]) > u1) continue;
     const nearest: number =
       period === undefined ? 0 : Math.round((v0 / 2 + v1 / 2 - a[1]) / period);

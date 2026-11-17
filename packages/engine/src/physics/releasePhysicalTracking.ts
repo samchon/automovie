@@ -1,6 +1,5 @@
+import type { IAutoMoviePhysicalReleasedQuality, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import type { World } from "@dimforge/rapier3d-compat";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { configurePhysicalBodyQuality } from "./configurePhysicalBodyQuality";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
@@ -19,8 +18,8 @@ import { physicalReleasedQuality } from "./physicalReleasedQuality";
  */
 export function releasePhysicalTracking(
   world: World,
-  input: Simulation.IInput,
-  body: Simulation.IBody,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
   bound: Bound,
 ): void {
   configurePhysicalBodyQuality(bound, input, body, true);
@@ -40,7 +39,7 @@ export function releasePhysicalTracking(
       targetVelocity: { x: 0, y: 0, z: 0 },
       strength: 0,
     });
-  const budget: ReturnType<typeof physicalReleasedQuality> =
+  const budget: IAutoMoviePhysicalReleasedQuality.IResult =
     physicalReleasedQuality({
       quality: body.releasedQuality,
       released: true,

@@ -1,6 +1,4 @@
-/** One finite point in a face's native station/phase chart. */
-type Point = readonly [number, number];
-
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 /** Exact integer significand multiplied by two to exponent. */
 interface Dyadic {
   /** Signed integer significand; zero has no relevant exponent. */
@@ -34,9 +32,9 @@ interface Dyadic {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One synchronous module-local eight-byte decoding view is retained; integer/tuple scratch is call-local and no input reference survives.
  */
 export function orientAutoMovieSolidChart(
-  a: Point,
-  b: Point,
-  c: Point,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+  c: Readonly<AutoMovieVector2Tuple>,
 ): number {
   const ax: number = a[0];
   const ay: number = a[1];

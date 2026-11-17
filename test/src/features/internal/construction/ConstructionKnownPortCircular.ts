@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieConstructionKnownPortSource,
-  IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type { IAutoMovieConstructionKnownPortSource, IAutoMovieSolidSurface } from "@automovie/interface";
+
 
 /**
  * Independent plane/cylinder originals for a closed known-port analytic oracle.

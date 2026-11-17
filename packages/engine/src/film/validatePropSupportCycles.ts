@@ -1,10 +1,5 @@
-import {
-  IAutoMoviePropRelation,
-  IAutoMoviePropRelationTarget,
-  IAutoMoviePropSpec,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMoviePropRelation, IAutoMoviePropRelationTarget, IAutoMoviePropSpec } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**
  * Refuse a prop that transitively rests on, plugs into, or hangs from itself
@@ -25,10 +20,10 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  */
 export const validatePropSupportCycles: (
   props: readonly IAutoMoviePropSpec[],
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   props: readonly IAutoMoviePropSpec[],
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const counts: Map<string, number> = new Map();
   for (const prop of props)

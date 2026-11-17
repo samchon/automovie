@@ -1,16 +1,6 @@
-import {
-  IAutoMovieActionSynthesizer,
-  IAutoMovieActorContext,
-  makeActorSynthesizer,
-} from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieActionTarget,
-  IAutoMovieGait,
-  IAutoMovieJointPose,
-  IAutoMovieMotion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieActionSynthesizer, type IAutoMovieActorContext, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieGait, IAutoMovieJointPose, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import { makeActorSynthesizer } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, makePose } from "../internal/fixtures";

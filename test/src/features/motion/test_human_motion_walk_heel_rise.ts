@@ -1,9 +1,5 @@
-import {
-  HumanFoot,
-  type IHumanBody,
-  walkStanceCourse,
-  walkStanceSolve,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse } from "@automovie/interface";
+import { HumanFoot, walkStanceCourse, walkStanceSolve } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,22 +54,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_walk_heel_rise(): void {
   const out: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const left = body.rest.get("leftUpperLeg")!;
     const right = body.rest.get("rightUpperLeg")!;
     const ankle: number = body.rest.get("rightFoot")!.y;
     for (let k: number = 0; k <= 10; k += 2) {
       const back: number = 0.05 * k;
-      const placement: HumanFoot.IPlacement = {
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: { x: right.x, y: ankle, z: -back },
         rotation: HumanFoot.rotation(0, 0),
       };
-      const knots: walkStanceCourse.IKnot[] = Array.from(
+      const knots: IAutoMovieMotionHumanWalkStanceCourse.IKnot[] = Array.from(
         { length: 251 },
-        (_: unknown, m: number): walkStanceCourse.IKnot => ({
+        (_: unknown, m: number): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
           seconds: m / 48,
           stances: [{ side: "right", placement }],
-          pelvis: (): walkStanceCourse.IPelvis => ({
+          pelvis: (): IAutoMovieMotionHumanWalkStanceCourse.IPelvis => ({
             rotation: { x: 0, y: 0, z: 0, w: 1 },
             hips: { left: { ...left, z: 0 }, right: { ...right, z: 0 } },
           }),
@@ -107,7 +103,7 @@ export function test_human_motion_walk_heel_rise(): void {
             body,
             Array.from(
               { length: 51 },
-              (_: unknown, j: number): walkStanceCourse.IKnot => ({
+              (_: unknown, j: number): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
                 ...knots[0]!,
                 seconds: j / 48,
                 drop: (from + j * step) * 1e-3,

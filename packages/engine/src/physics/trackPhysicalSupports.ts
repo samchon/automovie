@@ -1,18 +1,14 @@
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget, IAutoMovieVector3 } from "@automovie/interface";
+
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Track explicitly enabled world endpoints through bounded forces, retaining all actual native motion.
@@ -26,10 +22,10 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function trackPhysicalSupports(input: {
-  /** Provider and explicit endpoint actuator budgets. */ body: Simulation.IBody;
-  /** Current admitted authored phase strengths. */ target: Simulation.ITarget;
+  /** Provider and explicit endpoint actuator budgets. */ body: IAutoMoviePhysicalSimulationInput.IBody;
+  /** Current admitted authored phase strengths. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Interpolated world motor goals, including accepted recovery offsets. */ goals: Readonly<
-    Record<string, ReturnType<typeof samplePhysicalTarget>>
+    Record<string, IAutoMovieSamplePhysicalTarget.IResult>
   >;
   /** Native segment wrappers. */ segments: ReadonlyMap<string, RigidBody>;
   /** Native integration seconds. */ dt: number;
@@ -43,7 +39,7 @@ export function trackPhysicalSupports(input: {
   /** Declared horizontal floor height, metres. */ floor: number;
   /** Existing admitted contact tolerance, metres. */ tolerance: number;
 }): void {
-  const policy: Simulation.IBody["supportTracking"] =
+  const policy: IAutoMoviePhysicalSimulationInput.IBody["supportTracking"] =
     input.body.supportTracking;
   if (!policy) return;
   for (const limb of policy.pattern.limbs) {
@@ -66,7 +62,7 @@ export function trackPhysicalSupports(input: {
         limb.localPoint,
       ),
     );
-    const goal: ReturnType<typeof samplePhysicalTarget> =
+    const goal: IAutoMovieSamplePhysicalTarget.IResult =
       input.goals[limb.bone]!;
     const desired: IAutoMovieVector3 = physicalSupportPoint(
       goal.pose,
@@ -119,25 +115,25 @@ export function trackPhysicalSupports(input: {
   /** A stationary task may yield to stance only while its declared surface geometry remains floor-compatible. Explicit witnesses all share the plane; otherwise the declared patch's lowest convex point owns contact. */
   function matchesFloor(
     limb: NonNullable<
-      Simulation.IBody["supportTracking"]
+      IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
     >["pattern"]["limbs"][number],
   ): boolean {
-    const parts: P.ISegment[] = input.body.profile.segments.filter(
-      (segment: P.ISegment): boolean =>
+    const parts: IAutoMoviePhysicalProfile.ISegment[] = input.body.profile.segments.filter(
+      (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
         (limb.contacts ?? [limb.bone]).includes(segment.bone),
     );
     if (limb.floorPoints?.length)
       return limb.floorPoints.every(
         (point: NonNullable<typeof limb.floorPoints>[number]): boolean => {
-          const segment: P.ISegment = parts.find(
-            (segment: P.ISegment): boolean => segment.bone === point.bone,
+          const segment: IAutoMoviePhysicalProfile.ISegment = parts.find(
+            (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === point.bone,
           )!;
           const compression: number = Math.max(
             0,
             ...segment.shapes.map(
-              (shape: P.IShape): number =>
+              (shape: IAutoMoviePhysicalProfile.IShape): number =>
                 input.body.profile.materials.find(
-                  (material: P.IMaterial): boolean =>
+                  (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
                     material.id === shape.material,
                 )!.maximumCompression ?? 0,
             ),
@@ -155,16 +151,16 @@ export function trackPhysicalSupports(input: {
       );
     const lowest: { height: number; compression: number } = parts
       .flatMap(
-        (segment: P.ISegment): { height: number; compression: number }[] =>
+        (segment: IAutoMoviePhysicalProfile.ISegment): { height: number; compression: number }[] =>
           segment.shapes.map(
-            (shape: P.IShape): { height: number; compression: number } => ({
+            (shape: IAutoMoviePhysicalProfile.IShape): { height: number; compression: number } => ({
               height: physicalShapeBounds(
                 input.goals[segment.bone]!.pose,
                 shape,
               ).min.y,
               compression:
                 input.body.profile.materials.find(
-                  (material: P.IMaterial): boolean =>
+                  (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
                     material.id === shape.material,
                 )!.maximumCompression ?? 0,
             }),

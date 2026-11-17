@@ -1,12 +1,7 @@
+import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieContourLoftCurves64, IAutoMovieRefineContourInteractions64, IAutoMovieRefineContourInteractions64Ring } from "@automovie/interface";
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-
-interface Ring {
-  id: string;
-  points: M.V[];
-  winding: number;
-}
 
 /**
  * Refine interacting display chords from their retained Bernstein restrictions before slit ownership freezes.
@@ -25,21 +20,14 @@ interface Ring {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Encoded point coordinates are reused during this invocation. Existing point objects and source leaves survive refinement, and all adjacent slabs consume the same updated ring.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Point encodings and contact scratch are call-local; shared source knots transfer to the loft invocation and expire with it. Witness strings contain counts, source intervals and reasons rather than retained mesh buffers.
  */
-export function refineAutoMovieContourInteractions64<R extends Ring>(
+export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineContourInteractions64Ring>(
   rings: R[],
   selection: number[],
-  leaf: (point: M.V) => C.Leaf | undefined,
-  register: (ring: R, knot: C.Knot) => void,
+  leaf: (point: AutoMovieVector3Tuple) => IAutoMovieContourLoftCurves64.Leaf | undefined,
+  register: (ring: R, knot: IAutoMovieContourLoftCurves64.Knot) => void,
   toleranceMm: number,
   observeWork: boolean = false,
-): {
-  qualified: boolean;
-  diagnostics: string[];
-  refinements: number;
-  chordPairs: number;
-  exactOrientationTests: number;
-  elapsedMs: number | null;
-} {
+): IAutoMovieRefineContourInteractions64.IResult {
   const started: number | null = observeWork ? performance.now() : null;
   const diagnostics: string[] = [];
   let qualified: boolean = true;
@@ -55,16 +43,16 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
       exactOrientationTests,
       elapsedMs: started === null ? null : performance.now() - started,
     };
-  const points: M.V[] = rings[selection[0]].points;
-  const origin: M.V = points[0];
-  const endpoint: M.V = points.find((p: M.V): boolean =>
+  const points: AutoMovieVector3Tuple[] = rings[selection[0]].points;
+  const origin: AutoMovieVector3Tuple = points[0];
+  const endpoint: AutoMovieVector3Tuple = points.find((p: AutoMovieVector3Tuple): boolean =>
     p.some((x: number, k: number): boolean => x !== origin[k]),
   )!;
-  const axis: M.V = M.sub(endpoint, origin);
-  let normal: M.V = [0, 0, 0];
+  const axis: AutoMovieVector3Tuple = M.sub(endpoint, origin);
+  let normal: AutoMovieVector3Tuple = [0, 0, 0];
   for (const point of points) {
-    const p: M.V = M.sub(point, origin);
-    const candidate: M.V = [
+    const p: AutoMovieVector3Tuple = M.sub(point, origin);
+    const candidate: AutoMovieVector3Tuple = [
       axis[1] * p[2] - axis[2] * p[1],
       axis[2] * p[0] - axis[0] * p[2],
       axis[0] * p[1] - axis[1] * p[0],
@@ -77,7 +65,7 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
     0,
   );
   const axes: number[] = [0, 1, 2].filter((k: number): boolean => k !== drop);
-  const encoded: WeakMap<M.V, [bigint, bigint]> = new WeakMap();
+  const encoded: WeakMap<AutoMovieVector3Tuple, [bigint, bigint]> = new WeakMap();
   const bits: DataView = new DataView(new ArrayBuffer(8));
   const integer = (x: number): bigint => {
     // Every finite binary64 value scaled by 2^1074 is an integer, including subnormals.
@@ -91,12 +79,12 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
         : ((1n << 52n) | fraction) << BigInt(exponent - 1);
     return value >> 63n ? -unsigned : unsigned;
   };
-  const encode = (p: M.V): [bigint, bigint] => {
+  const encode = (p: AutoMovieVector3Tuple): [bigint, bigint] => {
     if (!encoded.has(p))
       encoded.set(p, [integer(p[axes[0]]), integer(p[axes[1]])]);
     return encoded.get(p)!;
   };
-  const orient = (a: M.V, b: M.V, c: M.V): bigint => {
+  const orient = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, c: AutoMovieVector3Tuple): bigint => {
     exactOrientationTests++;
     const p: [bigint, bigint] = encode(a),
       q: [bigint, bigint] = encode(b),
@@ -105,7 +93,7 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
       (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
     return value < 0n ? -1n : value > 0n ? 1n : 0n;
   };
-  const intersects = (a: M.V, b: M.V, p: M.V, q: M.V): boolean => {
+  const intersects = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, p: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple): boolean => {
     chordPairs++;
     if (
       axes.some(
@@ -120,24 +108,24 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
       orient(p, q, a) * orient(p, q, b) <= 0n
     );
   };
-  const error = (point: M.V): number => {
-    const source: C.Leaf | undefined = leaf(point);
+  const error = (point: AutoMovieVector3Tuple): number => {
+    const source: IAutoMovieContourLoftCurves64.Leaf | undefined = leaf(point);
     if (source === undefined) return 0;
-    const net: M.V[] = C.controls(source);
+    const net: AutoMovieVector3Tuple[] = C.controls(source);
     return Math.max(
       C.closest(net[1], net[0], net[3]).distance,
       C.closest(net[2], net[0], net[3]).distance,
     );
   };
-  const refine = (ring: R, point: M.V): boolean => {
-    const source: C.Leaf | undefined = leaf(point);
+  const refine = (ring: R, point: AutoMovieVector3Tuple): boolean => {
+    const source: IAutoMovieContourLoftCurves64.Leaf | undefined = leaf(point);
     if (source === undefined || source.depth >= 30 || !(error(point) > 0))
       return false;
     const mid: number = (source.start + source.end) / 2;
     if (!(mid > source.start && mid < source.end)) return false;
-    let children: C.Leaf[];
+    let children: IAutoMovieContourLoftCurves64.Leaf[];
     try {
-      const halves: ReturnType<typeof S.split> = S.split(
+      const halves: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = S.split(
         C.controls(source),
         0.5,
       );
@@ -168,8 +156,8 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
       return false;
     }
     if (
-      children.some((child: C.Leaf): boolean =>
-        C.controls(child).every((p: M.V): boolean =>
+      children.some((child: IAutoMovieContourLoftCurves64.Leaf): boolean =>
+        C.controls(child).every((p: AutoMovieVector3Tuple): boolean =>
           p.every(
             (x: number, k: number): boolean => x === C.controls(child)[0][k],
           ),
@@ -180,15 +168,15 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
     const at: number = ring.points.indexOf(point);
     if (at < 0)
       throw new Error("Interaction refinement lost shared source ownership");
-    const knots: C.Knot[] = children.map(
-      (child: C.Leaf, i: number): C.Knot => ({
+    const knots: IAutoMovieContourLoftCurves64.Knot[] = children.map(
+      (child: IAutoMovieContourLoftCurves64.Leaf, i: number): IAutoMovieContourLoftCurves64.Knot => ({
         p: i === 0 ? point : M.clone(C.controls(child)[0]),
         phase: child.start,
         leaf: child,
       }),
     );
     for (const knot of knots) register(ring, knot);
-    const replacement: M.V[] = knots.map((knot: C.Knot): M.V => knot.p);
+    const replacement: AutoMovieVector3Tuple[] = knots.map((knot: IAutoMovieContourLoftCurves64.Knot): AutoMovieVector3Tuple => knot.p);
     ring.points.splice(
       at,
       1,
@@ -206,7 +194,7 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
         b: R = rings[selection[second]];
       let changes: number = 0;
       for (;;) {
-        let contact: [M.V, M.V] | undefined;
+        let contact: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] | undefined;
         for (
           let i: number = 0;
           i < a.points.length && contact === undefined;
@@ -237,12 +225,12 @@ export function refineAutoMovieContourInteractions64<R extends Ring>(
         diagnostics.push(
           `Projected chord contact: ${a.id}@${leaf(contact[0])?.start}..${leaf(contact[0])?.end}; ${b.id}@${leaf(contact[1])?.start}..${leaf(contact[1])?.end}; dropped axis ${drop}`,
         );
-        const choices: [R, M.V][] = [
+        const choices: [R, AutoMovieVector3Tuple][] = [
           [a, contact[0]],
           [b, contact[1]],
         ];
         choices.sort(
-          (x: [R, M.V], y: [R, M.V]): number => error(y[1]) - error(x[1]),
+          (x: [R, AutoMovieVector3Tuple], y: [R, AutoMovieVector3Tuple]): number => error(y[1]) - error(x[1]),
         );
         if (refine(...choices[0]) || refine(...choices[1])) {
           changes++;

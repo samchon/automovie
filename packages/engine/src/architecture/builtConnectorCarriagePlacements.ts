@@ -1,16 +1,8 @@
-import {
-  IAutoMovieBuiltConnector,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieCarriageValue,
-  IAutoMovieConnectorCarriage,
-  IAutoMovieConnectorState,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieConnectorCarriagePlacement, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieCarriageValue, IAutoMovieConnectorCarriage, IAutoMovieConnectorState, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieConnectorCarriagePlacement } from "./IAutoMovieConnectorCarriagePlacement";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 

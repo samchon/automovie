@@ -1,4 +1,5 @@
-import type { IAutoMovieCaptureStorage } from "@automovie/render";
+import type { IAutoMovieCaptureStorage } from "@automovie/interface";
+
 
 /**
  * An in-memory file system that a capture writes through, recording every call, so a test reads which files a capture wrote, in what order, and that nothing left its root.

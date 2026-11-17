@@ -1,12 +1,10 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanVariation, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanSkill } from "../skill/HumanSkill";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
-import type { AutoMovieMotionManner } from "./AutoMovieMotionManner";
 
 /**
  * The seeded offset of a symbolic slot: how one performance of an action
@@ -124,38 +122,6 @@ export namespace AutoMovieMotionHumanVariation {
   };
 
   /**
-   * What the slots of one action instance draw from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member states its range or its key.
-   * @evidence contracts/development/design.md#principled-representation The three things a spread and a draw need: the skill that sets the spread, the factor on it and the action's seeded series.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, built by `of` and read by every slot function.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A source exists only when variation is positive, so "no variation" is the absent source and no function tests a zero.
-   */
-  export interface ISource {
-    /** The skill the spreads are read on; a stated proficiency replaces its `path` and `timing` axes. */
-    skill: HumanSkill.ISkill;
-
-    /** The factor on every spread, in (0, 1]. */
-    variation: number;
-
-    /**
-     * The draws of one slot.
-     *
-     * @param key The slot key, a short stable string such as `reach.place`.
-     * @returns The slot's stream and the repeat's index in it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what a key is and what the result holds.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature with no body; `of` builds the function and answers for it.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature with no body; it declares one read and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature with no body; nothing here can special-case a key.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature with no body; it chooses no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature with no body; it coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature with no body; it holds nothing.
-     */
-    series(key: string): IHumanActionContext.ISeries;
-  }
-
-  /**
    * The source of an action's variation.
    *
    * @param context The action's skill and series.
@@ -172,11 +138,11 @@ export namespace AutoMovieMotionHumanVariation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The source holds the context's own series function and nothing else.
    */
   export function of(
-    context: Pick<IHumanActionContext, "skill" | "series">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "series">,
     manner:
-      | Pick<AutoMovieMotionManner.IManner, "variation" | "proficiency">
+      | Pick<IAutoMovieMotionManner.IManner, "variation" | "proficiency">
       | undefined,
-  ): ISource | undefined {
+  ): IAutoMovieMotionHumanVariation.ISource | undefined {
     const variation: number = manner?.variation ?? 0;
     HumanBound.within("manner.variation", variation, 0, 1);
     if (variation === 0) return undefined;
@@ -196,48 +162,13 @@ export namespace AutoMovieMotionHumanVariation {
               },
             },
       variation,
-      series: (key: string): IHumanActionContext.ISeries =>
+      series: (key: string): IAutoMovieMotionHumanActionContext.ISeries =>
         context.series(`variation/${key}`),
     };
   }
 
-  /**
-   * A point of a region's tangent plane, from the region's own point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and each member's unit and direction.
-   * @evidence contracts/development/design.md#principled-representation Two tangent coordinates in the region's own frame, which the engine puts back on the body's surface; depth is the contact owner's.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; returned by `strike` and read by the region's placement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No normal component, so an offset can never lift a strike off the surface.
-   */
-  export interface ITangent {
-    /** Along the region's bone toward the head, metres. */
-    up: number;
-
-    /** Toward the body's left, metres. */
-    out: number;
-  }
-
   /** The tangent offset of no variation: the region's own point. */
-  export const CENTRE: ITangent = { up: 0, out: 0 };
-
-  /**
-   * What a strike point's spread is read from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and its value when absent.
-   * @evidence contracts/development/design.md#principled-representation The region's radius bounds the point and scales the intent; the weapon's end point scatter and its direction on the tangent plane give the miss.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `strike`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The radius is derived from the body by its owner and passed in, never typed here.
-   */
-  export interface IStrike {
-    /** The region's radius, metres: every point within it is nearer to this region than to any other. */
-    radius: number;
-
-    /** The end point scatter of the striking hand or foot, metres (`HumanSkill.scatter`). */
-    scatter: number;
-
-    /** The weapon's travel projected on the tangent plane; absent or zero, the travel runs along the normal. */
-    along?: ITangent;
-  }
+  export const CENTRE: IAutoMovieMotionHumanVariation.ITangent = { up: 0, out: 0 };
 
   /**
    * A strike point's tangent offset within its region.
@@ -262,10 +193,10 @@ export namespace AutoMovieMotionHumanVariation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function strike(
-    source: ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
-    props: IStrike,
-  ): ITangent {
+    props: IAutoMovieMotionHumanVariation.IStrike,
+  ): IAutoMovieMotionHumanVariation.ITangent {
     if (source === undefined || !(props.radius > 0)) return CENTRE;
     const intent: number =
       AutoMovieMotionHumanVariationDraw.quantity(
@@ -277,7 +208,7 @@ export namespace AutoMovieMotionHumanVariation {
       props.along?.up ?? 0,
       props.along?.out ?? 0,
     );
-    const along: ITangent =
+    const along: IAutoMovieMotionHumanVariation.ITangent =
       length > 1e-9
         ? { up: props.along!.up / length, out: props.along!.out / length }
         : { up: 1, out: 0 };
@@ -323,7 +254,7 @@ export namespace AutoMovieMotionHumanVariation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function direction(
-    source: ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     vector: IAutoMovieVector3,
     gap?: number,
@@ -392,7 +323,7 @@ export namespace AutoMovieMotionHumanVariation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function duration(
-    source: ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     seconds: number,
   ): number {
@@ -432,7 +363,7 @@ export namespace AutoMovieMotionHumanVariation {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function pause(
-    source: ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     seconds: number,
   ): number {

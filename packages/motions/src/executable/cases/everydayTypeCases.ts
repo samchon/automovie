@@ -1,11 +1,10 @@
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanTypeText, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Transform, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/seated";
 import { typeText } from "../../everyday/typeText";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./everydayCaseKit";
@@ -34,13 +33,13 @@ export function everydayTypeCases(
   const within = everydayVerdicts.within;
   const { figure } = everydayCaseKit;
   const one = (
-    chain: HumanChain,
-    props: readonly IHumanProp[] = [],
-  ): HumanPerformance => everydayCaseKit.one(c, chain, props);
+    chain: IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
+  ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain, props);
   // Seated at a desk: the keyboard at seated elbow height ahead of the
   // shoulders by the forearm (ANSI/HFES 100-2007 posture), the desk top
   // under it; and standing at a standing desk at standing elbow height.
-  const seat: seated.ISeat = {
+  const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
       y: seated.popliteal(body),
@@ -49,12 +48,12 @@ export function everydayTypeCases(
     yaw: 0,
     depth: 0.45,
   };
-  const sitting: HumanPerformance = one(
+  const sitting: IAutoMovieMotionHumanPerformance = one(
     HumanChain.subject("a").sit({ seat, seconds: 0.2 }),
   );
   const held = sitting.posture("a", sitting.duration);
   const reach: number = body.measure.forearm + 0.5 * body.measure.hand;
-  const setups: [string, HumanChain, IAutoMovieVector3][] = [
+  const setups: [string, IAutoMovieMotionHumanChain, IAutoMovieVector3][] = [
     [
       "seated",
       HumanChain.subject("a").sit({ seat, seconds: 0.2 }),
@@ -75,9 +74,9 @@ export function everydayTypeCases(
     ],
   ];
   for (const [label, start, at] of setups) {
-    const keyboard: typeText.IBoard = { at, yaw: 0 };
+    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = { at, yaw: 0 };
     const text: string = "hello world";
-    const performance: HumanPerformance = one(
+    const performance: IAutoMovieMotionHumanPerformance = one(
       start.typeText({ keyboard: "keyboard", text }),
       [board(at)],
     );
@@ -181,7 +180,7 @@ export function everydayTypeCases(
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function board(at: IAutoMovieVector3): IHumanProp {
+function board(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   return {
     subject: "keyboard",
     frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },

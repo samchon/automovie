@@ -1,5 +1,5 @@
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import type { IAutoMovieSeededChainFit, IAutoMovieFitChainToTargetProps } from "@automovie/interface";
+
 import { fitChainBend } from "./fitChainBend";
 import { orientChainEffector } from "./orientChainEffector";
 
@@ -21,9 +21,9 @@ import { orientChainEffector } from "./orientChainEffector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays are bounded by32 entries and all temporary poses/maps are released after completion; the caller owns the selected pose, which may be the original, and no handles or background tasks exist.
  */
 export const fitSeededChainToTarget: (
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
 ) => IAutoMovieSeededChainFit = (
-  input: IFitChainToTargetProps,
+  input: IAutoMovieFitChainToTargetProps,
 ): IAutoMovieSeededChainFit => {
   const bend: IAutoMovieSeededChainFit = fitChainBend(input);
   return {

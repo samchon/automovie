@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieSwingTwistRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion } from "@automovie/interface";
 import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
@@ -7,12 +8,8 @@ import {
   skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
-import type {
-  IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
-  IAutoMovieQuaternion,
-} from "@automovie/interface";
-import { type IHumanBody, blendHumanJoint } from "@automovie/motions";
+
+import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -59,12 +56,12 @@ import { makeRng } from "../internal/random";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the draws, the four scenarios with their bounds, what is judged and what a failing row carries.
  */
 export function test_human_motion_core_joint_blend_sweep(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const axes: IAutoMovieJointAxes = skeletonJointAxes(
     body.skeleton,
     HUMANOID_JOINT_AXES,
   ).rightUpperArm!;
-  const joint: swingTwistRange.IJoint = {
+  const joint: IAutoMovieSwingTwistRange.IJoint = {
     axes,
     frame: HUMANOID_REST_FRAME.rightUpperArm,
   };

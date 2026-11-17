@@ -1,16 +1,10 @@
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
+
 import {
   DEFAULT_HUMANOID_ROM,
   jointRomOvershoot,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FootSlip } from "./FootSlip";
@@ -42,9 +36,9 @@ export namespace everydayVerdicts {
    * @returns Metres, with the action, the foot and the film second of the worst slip.
    */
   export function slip(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): { value: number; where: string } {
     let worst: { value: number; where: string } = { value: 0, where: "none" };
     for (const plant of plants(performance, subject)) {
@@ -79,9 +73,9 @@ export namespace everydayVerdicts {
    * @returns Metres, with the action, the foot and the film second of the worst height.
    */
   export function grounded(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): { value: number; where: string } {
     let worst: { value: number; where: string } = { value: 0, where: "none" };
     for (const plant of plants(performance, subject)) {
@@ -114,7 +108,7 @@ export namespace everydayVerdicts {
    * @returns Metres per 1/24 s.
    */
   export function travel(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     bone: AutoMovieHumanoidBone,
     from: number,
@@ -139,7 +133,7 @@ export namespace everydayVerdicts {
    * @returns Degrees; zero when every joint stays inside its range.
    */
   export function overshoot(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
   ): number {
     let worst: number = 0;
@@ -167,12 +161,12 @@ export namespace everydayVerdicts {
    * @returns Metres.
    */
   export function stability(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     seconds: number,
   ): number {
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const com = (t: number): IAutoMovieVector3 =>
       resolveAutoMovieCenterOfMass.place(model, performance.bones(subject, t));
@@ -229,9 +223,9 @@ export namespace everydayVerdicts {
    * @returns The verdicts.
    */
   export function standard(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): IMotionCaptureCase.IVerdict[] {
     const slipped = slip(performance, subject, body);
     const verdict: IMotionCaptureCase.IVerdict = within(
@@ -263,7 +257,7 @@ interface IPlant {
 }
 
 /** Every foot plant window of a person's performance. */
-function plants(performance: HumanPerformance, subject: string): IPlant[] {
+function plants(performance: IAutoMovieMotionHumanPerformance, subject: string): IPlant[] {
   const out: IPlant[] = [];
   for (const segment of performance.segments(subject))
     for (const contact of segment.plan.contacts) {

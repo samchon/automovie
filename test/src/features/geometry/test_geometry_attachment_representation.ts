@@ -1,15 +1,6 @@
-import {
-  type IAutoMovieMeshSeparationQuery,
-  type IAutoMovieMeshSeparationResult,
-  type IAutoMovieTriangleAttachmentContactBound,
-  boundAutoMovieTriangleAttachmentContact,
-  createAutoMovieMeshSeparationQuery,
-  interpolateAutoMovieTrianglePoint,
-} from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMeshSeparationQuery, IAutoMovieMeshSeparationResult, IAutoMovieTriangleAttachmentContactBound, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import { boundAutoMovieTriangleAttachmentContact, createAutoMovieMeshSeparationQuery, interpolateAutoMovieTrianglePoint } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";

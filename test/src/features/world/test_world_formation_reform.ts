@@ -1,14 +1,6 @@
-import {
-  IAutoMovieFormationPlacement,
-  type IAutoMovieSampledFormationMotion,
-  formationSlotPosition,
-  sampleFormationMotion,
-} from "@automovie/engine";
-import {
-  IAutoMovieFormationDesign,
-  IAutoMovieFormationMotion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieFormationPlacement, type IAutoMovieSampledFormationMotion, IAutoMovieFormationDesign, IAutoMovieFormationMotion, IAutoMovieVector3 } from "@automovie/interface";
+import { formationSlotPosition, sampleFormationMotion } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";

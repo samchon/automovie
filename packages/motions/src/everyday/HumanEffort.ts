@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanEffort } from "@automovie/interface";
+
 import { HumanBound } from "../law/HumanBound";
 
 /**
@@ -45,54 +47,12 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanEffort {
-  /** The four factors, each in [-1, 1]; absent is 0. */
-  export interface IEffort {
-    /** -1 light to 1 strong. */
-    weight?: number;
-
-    /** -1 sustained to 1 sudden. */
-    time?: number;
-
-    /** -1 indirect to 1 direct. */
-    space?: number;
-
-    /** -1 free to 1 bound. */
-    flow?: number;
-  }
-
-  /** What a law reads. */
-  export interface IModifiers {
-    /** Duration multiplier. */
-    tempo: number;
-
-    /** Movement extent multiplier (gesture amplitude, reach of a stroke). */
-    extent: number;
-
-    /** Step length multiplier. */
-    step: number;
-
-    /** Arm swing multiplier. */
-    swing: number;
-
-    /** Extra outward elbow offset, upper-arm lengths; negative draws the elbows in. */
-    elbow: number;
-
-    /** Lateral path deviation, a share of the path length. */
-    curvature: number;
-  }
 
   /** Named moods as Effort settings: Laban's eight basic Effort actions use Weight, Time and Space; a mood adds Flow. */
   export const ACTIONS: Readonly<
     Record<
-      | "punch"
-      | "dab"
-      | "press"
-      | "glide"
-      | "slash"
-      | "flick"
-      | "wring"
-      | "float",
-      IEffort
+      IAutoMovieMotionHumanEffort.Action,
+      IAutoMovieMotionHumanEffort.IEffort
     >
   > = {
     punch: { weight: 1, time: 1, space: 1 },
@@ -112,7 +72,7 @@ export namespace HumanEffort {
    * @returns The modifiers.
    * @throws {HumanRefusal} When a factor lies outside [-1, 1].
    */
-  export function modifiers(effort: IEffort = {}): IModifiers {
+  export function modifiers(effort: IAutoMovieMotionHumanEffort.IEffort = {}): IAutoMovieMotionHumanEffort.IModifiers {
     const f = (value: number | undefined, name: string): number => {
       const v: number = value ?? 0;
       return HumanBound.within(`effort.${name}`, v, -1, 1);

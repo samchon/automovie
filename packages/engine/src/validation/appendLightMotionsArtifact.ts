@@ -1,12 +1,9 @@
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import { type AutoMovieLightProperty, type IAutoMovieClipChannelGate, type IAutoMovieLightChannelProperty, type IAutoMovieLightPointer, IAutoMovieConstraintViolation } from "@automovie/interface";
+
 
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
-import { AutoMovieLightProperty } from "../resolve/AutoMovieLightProperty";
-import { IAutoMovieLightChannelProperty } from "../resolve/IAutoMovieLightChannelProperty";
-import { IAutoMovieLightPointer } from "../resolve/IAutoMovieLightPointer";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
-import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { asArray } from "./asArray";
 import { channelValueWidth } from "./channelValueWidth";
 import { isRecord } from "./isRecord";

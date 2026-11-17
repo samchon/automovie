@@ -1,10 +1,16 @@
-import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
-import type { IAutoMovieHumanEar } from "../structures/head/IAutoMovieHumanEar";
-import type { IAutoMovieHumanEye } from "../structures/head/IAutoMovieHumanEye";
-import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
+import type { AutoMovieHumanSexPair, IAutoMovieAffineCoefficients, IAutoMovieHumanBodyMeasures, IAutoMovieHumanEar, IAutoMovieHumanEye, IAutoMovieHumanHeadAnatomy, IAutoMovieHumanHeadIdentity, IAutoMovieHumanParameters } from "@automovie/interface";
+
+
+
+
+
+
+
+
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
+
 
 /**
  * The head's measures, each the person's own or the adult survey default of
@@ -22,11 +28,9 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  * carry more than the sex's mean.
  */
 export namespace AutoMovieHumanHeadAnatomy {
-  /** A record in which every measure, at any depth, may be omitted. */
-  export type Partially<T> = { [K in keyof T]?: T[K] extends number ? T[K] : Partially<T[K]> };
+  
 
-  /** A head input in which every measure may be omitted. */
-  export type IInput = Partially<IAutoMovieHumanHeadIdentity>;
+  
 
   /**
    * Every head measure of a person, supplied or derived.
@@ -38,9 +42,9 @@ export namespace AutoMovieHumanHeadAnatomy {
     const body: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
     const k: 0 | 1 = body.sex === AutoMovieHumanSex.Female ? 0 : 1;
     const S: number = body.stature;
-    const given: IInput = params.head ?? {};
+    const given: IAutoMovieHumanHeadAnatomy.IInput = params.head ?? {};
     const of = (pair: readonly [number, number]): number => pair[k];
-    const line = (fit: readonly [AutoMovieHumanBodyAnatomy.ILine, AutoMovieHumanBodyAnatomy.ILine]): number => fit[k].a + fit[k].b * S;
+    const line = (fit: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients]): number => fit[k].a + fit[k].b * S;
     const length: number = given.length ?? line(HEAD_LENGTH_ON_STATURE);
     const eye = (side: Partial<IAutoMovieHumanEye> | undefined): IAutoMovieHumanEye => ({
       palpebralFissureLength: side?.palpebralFissureLength ?? of(FACE.palpebralFissureLength),
@@ -103,25 +107,25 @@ export namespace AutoMovieHumanHeadAnatomy {
   }
 
   /** Head length g-op on stature, mm; ANSUR II, women then men. */
-  export const HEAD_LENGTH_ON_STATURE: readonly [AutoMovieHumanBodyAnatomy.ILine, AutoMovieHumanBodyAnatomy.ILine] = [
+  export const HEAD_LENGTH_ON_STATURE: AutoMovieHumanSexPair<IAutoMovieAffineCoefficients> = [
     { a: 122.19, b: 0.0415 },
     { a: 133.08, b: 0.0378 },
   ];
 
   /** Head breadth eu-eu on stature, mm; ANSUR II. */
-  export const HEAD_BREADTH_ON_STATURE: readonly [AutoMovieHumanBodyAnatomy.ILine, AutoMovieHumanBodyAnatomy.ILine] = [
+  export const HEAD_BREADTH_ON_STATURE: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
     { a: 127.19, b: 0.0126 },
     { a: 143.69, b: 0.0061 },
   ];
 
   /** Head circumference on stature, mm; ANSUR II. */
-  export const HEAD_CIRCUMFERENCE_ON_STATURE: readonly [AutoMovieHumanBodyAnatomy.ILine, AutoMovieHumanBodyAnatomy.ILine] = [
+  export const HEAD_CIRCUMFERENCE_ON_STATURE: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
     { a: 406.66, b: 0.0948 },
     { a: 433.53, b: 0.0802 },
   ];
 
   /** Bizygomatic breadth zy-zy on stature, mm; ANSUR II. */
-  export const FACE_WIDTH_ON_STATURE: readonly [AutoMovieHumanBodyAnatomy.ILine, AutoMovieHumanBodyAnatomy.ILine] = [
+  export const FACE_WIDTH_ON_STATURE: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
     { a: 107.09, b: 0.0164 },
     { a: 120.01, b: 0.0129 },
   ];
@@ -129,25 +133,10 @@ export namespace AutoMovieHumanHeadAnatomy {
   /** Stature over menton-vertex head height in late adolescence (Snyder et al. 1977, UM-HSRI-77-17). */
   export const STATURE_OVER_HEAD_HEIGHT: number = 8.0;
 
-  /** A head measure that defaults to its sex's adult mean. */
-  export type FaceMean =
-    | "faceHeight"
-    | "mandibularWidth"
-    | "minimumFrontalWidth"
-    | "mouthOpening"
-    | "mandibularLaterotrusion"
-    | "palpebralFissureLength"
-    | "palpebralFissureHeight"
-    | "intercanthalWidth"
-    | "noseWidth"
-    | "noseHeight"
-    | "noseProtrusion"
-    | "mouthWidth"
-    | "upperVermilionHeight"
-    | "lowerVermilionHeight";
+  
 
   /** Adult means by sex, women then men, mm. */
-  export const FACE: Readonly<Record<FaceMean, readonly [number, number]>> = {
+  export const FACE: Readonly<Record<IAutoMovieHumanHeadAnatomy.FaceMean, readonly [number, number]>> = {
     /** Morphological face height n-gn; Weinberg 2016: 118.6 (6.1) and 127.2 (6.6). */
     faceHeight: [118.6, 127.2],
 

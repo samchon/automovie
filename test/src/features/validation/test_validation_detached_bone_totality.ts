@@ -1,20 +1,6 @@
-import {
-  IAutoMovieBodyCollisionResult,
-  IAutoMovieCollisionActor,
-  detectBodyCollision,
-  validateBalanceSupport,
-  validateFootSkate,
-  validateSelfIntersection,
-} from "@automovie/engine";
-import {
-  IAutoMovieConstraintViolation,
-  IAutoMovieKeyframe,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieTransform,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieBodyCollisionResult, type IAutoMovieCollisionActor, IAutoMovieConstraintViolation, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieValidation } from "@automovie/interface";
+import { detectBodyCollision, validateBalanceSupport, validateFootSkate, validateSelfIntersection } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "../internal/predicates";

@@ -1,8 +1,7 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMeshClearanceWitness, IAutoMovieQuadraticRow, IAutoMovieMinimizeMeshClearance, IAutoMovieMesh } from "@automovie/interface";
 
-import { IAutoMovieQuadraticRow } from "../math/IAutoMovieQuadraticRow";
+
 import { solveAutoMovieBoundedDisplacement } from "../math/solveAutoMovieBoundedDisplacement";
-import { type IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 
 /**
@@ -49,7 +48,7 @@ export function minimizeAutoMovieMeshClearance(
   back: IAutoMovieMesh,
   axis: "x" | "y" | "z",
   clearance: number = 0,
-): { vertex: number; distance: number }[] {
+): IAutoMovieMinimizeMeshClearance.IResult {
   if (!Number.isFinite(clearance) || clearance < 0)
     throw new Error("Minimum mesh clearance must be finite and nonnegative.");
   const witnesses: IAutoMovieMeshClearanceWitness[] = [];

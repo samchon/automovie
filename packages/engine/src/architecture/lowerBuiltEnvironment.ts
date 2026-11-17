@@ -1,18 +1,5 @@
-import {
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltPopulation,
-  IAutoMovieBuiltSpace,
-  IAutoMovieConstraintViolation,
-  IAutoMovieQuaternion,
-  IAutoMovieSpace,
-  IAutoMovieStageSetPiece,
-  IAutoMovieSurface,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieSubjectContribution, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieBuiltSpace, IAutoMovieConstraintViolation, IAutoMovieQuaternion, IAutoMovieSpace, IAutoMovieStageSetPiece, IAutoMovieSurface, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";

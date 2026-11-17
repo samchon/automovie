@@ -1,9 +1,10 @@
+import type { IAutoMovieBicubicAtlasTessellation64, IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
 import {
   admitAutoMovieBicubicAtlas,
   realizeAutoMovieBicubicAtlas64,
   tessellateAutoMovieBicubicAtlas64,
 } from "@automovie/engine";
-import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
@@ -440,7 +441,7 @@ export function test_geometry_bicubic_atlas_admission(): void {
     );
   }
 
-  const direct: tessellateAutoMovieBicubicAtlas64.Input = {
+  const direct: IAutoMovieBicubicAtlasTessellation64.Input = {
     topologyDomain: "direct",
     controlsMm: [[0, 0, 0]],
     patches: [],

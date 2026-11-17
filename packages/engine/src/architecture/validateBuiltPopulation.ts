@@ -1,12 +1,5 @@
-import {
-  IAutoMovieBuiltPopulation,
-  IAutoMovieExplicitInstanceTransform,
-  IAutoMovieInstanceSetDesign,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieViolationCollector, IAutoMovieBuiltPopulation, IAutoMovieExplicitInstanceTransform, IAutoMovieInstanceSetDesign, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 
 /** Largest deviation from unit norm a stated slot rotation may carry. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
@@ -50,11 +43,11 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 export const validateBuiltPopulation: (
   population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   validatePrototypeBounds(
     population.prototypeBounds,
@@ -67,11 +60,11 @@ export const validateBuiltPopulation: (
 const validatePrototypeBounds: (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   finiteVector(
     bounds.min,
@@ -98,11 +91,11 @@ const validatePrototypeBounds: (
 const validateSet: (
   set: IAutoMovieInstanceSetDesign,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   set: IAutoMovieInstanceSetDesign,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   positiveInteger(
     set.count,
@@ -125,11 +118,11 @@ const validateSet: (
 const validateVariation: (
   variation: IAutoMovieInstanceSetDesign["variation"],
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   variation: IAutoMovieInstanceSetDesign["variation"],
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   positive(
     variation.scale.min,
@@ -204,11 +197,11 @@ const validateVariation: (
 const validateLayout: (
   set: IAutoMovieInstanceSetDesign,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   set: IAutoMovieInstanceSetDesign,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const layout: IAutoMovieInstanceSetDesign["layout"] = set.layout;
   if (layout.kind === "along-route") {
@@ -318,12 +311,12 @@ const positiveInteger: (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (!Number.isSafeInteger(value) || value <= 0)
     collector.push(
@@ -338,12 +331,12 @@ const finiteNumber: (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (!Number.isFinite(value))
     collector.push(
@@ -358,12 +351,12 @@ const finiteVector: (
   value: IAutoMovieVector3,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: IAutoMovieVector3,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   for (const axis of AXES)
     finiteNumber(value[axis], `${path}.${axis}`, `${label} ${axis}`, collector);
@@ -375,13 +368,13 @@ const ordered: (
   max: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   min: number,
   max: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (Number.isFinite(min) && Number.isFinite(max) && min > max)
     collector.push(
@@ -397,12 +390,12 @@ const positive: (
   value: number | undefined,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number | undefined,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (value === undefined || !Number.isFinite(value) || value <= 0)
     collector.push(
@@ -417,12 +410,12 @@ const unitQuaternion: (
   value: IAutoMovieQuaternion,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: IAutoMovieQuaternion,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const norm: number = Math.hypot(value.x, value.y, value.z, value.w);
   if (!Number.isFinite(norm) || Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)

@@ -1,9 +1,15 @@
-import { AutoMovieViewLoft, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieHumanEar, IAutoMovieHumanPair, IAutoMovieHumanHeadComposer, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadOriginalSources } from "@automovie/interface";
 
-import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import type { AutoMovieHumanHeadComposer } from "./AutoMovieHumanHeadComposer";
-import type { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
+
+
+
+
+
+
+
+import { AutoMovieViewLoft } from "@automovie/engine";
+
+
 import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
 import { AutoMovieHumanHeadEyeParts } from "./AutoMovieHumanHeadEyeParts";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
@@ -29,11 +35,7 @@ import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
  * the existing native bank; it is not the planned composed S01 source.
  */
 export namespace AutoMovieHumanHeadOriginalSources {
-  /** Source requests before tree assembly or any regional raw loft. */
-  export interface IOutput {
-    /** Empty is unrequested, unknown names throw before host work, tape-invariant names use the pre-closure host, exact top-level names select their closed-host factories, and absent/mixed/nested names retain the existing whole regional path. */
-    request(names?: readonly string[]): AutoMovieHumanHeadComposer.IDefinition;
-  }
+  
 
   /**
    * Existing public regional-name protocol, before any host or source is acquired.
@@ -79,12 +81,12 @@ export namespace AutoMovieHumanHeadOriginalSources {
 
   /** Retain actual original objects and failures in this one immutable source invocation. */
   export function create(
-    base: AutoMovieHumanHeadComposer.IBase,
-    ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
-    places?: AutoMovieHumanHeadComposer.IPlaces,
-  ): IOutput {
+    base: IAutoMovieHumanHeadComposer.IBase,
+    ears: IAutoMovieHumanPair<IAutoMovieHumanEar>,
+    places?: IAutoMovieHumanHeadComposer.IPlaces,
+  ): IAutoMovieHumanHeadOriginalSources.IOutput {
     const known: Set<string> = new Set([...names(), base.guides.name]);
-    const empty: AutoMovieHumanHeadComposer.IDefinition = {
+    const empty: IAutoMovieHumanHeadComposer.IDefinition = {
       base,
       requestScope: "unrequested",
       parts: [],
@@ -92,26 +94,26 @@ export namespace AutoMovieHumanHeadOriginalSources {
       attachments: [],
       studies: [],
       lofts: new Map(),
-      loft(name: string): AutoMovieViewLoft.IResult {
+      loft(name: string): IAutoMovieViewLoft.IResult {
         throw new Error("No head original was requested: " + name);
       },
     };
-    const attempts: AutoMovieHumanHeadDome.IAttempt[] = [];
-    const lofts: Map<string, AutoMovieViewLoft.IResult> = new Map();
-    let top: AutoMovieHumanHeadFeatures.IPrepared | undefined;
-    let complete: AutoMovieHumanHeadComposer.IDefinition | undefined;
+    const attempts: IAutoMovieHumanHeadDome.IAttempt[] = [];
+    const lofts: Map<string, IAutoMovieViewLoft.IResult> = new Map();
+    let top: IAutoMovieHumanHeadFeatures.IPrepared | undefined;
+    let complete: IAutoMovieHumanHeadComposer.IDefinition | undefined;
 
     // The pre-closure host keeps its own attempts and lofts, so a later
     // closed-host request neither repeats nor inherits these records.
-    const lowerAttempts: AutoMovieHumanHeadDome.IAttempt[] = [];
-    const lowerLofts: Map<string, AutoMovieViewLoft.IResult> = new Map();
-    let lowerTop: AutoMovieHumanHeadFeatures.IPrepared | undefined;
-    let lowerInner: AutoMovieHumanHeadFeatures.IFeature[] | undefined;
+    const lowerAttempts: IAutoMovieHumanHeadDome.IAttempt[] = [];
+    const lowerLofts: Map<string, IAutoMovieViewLoft.IResult> = new Map();
+    let lowerTop: IAutoMovieHumanHeadFeatures.IPrepared | undefined;
+    let lowerInner: IAutoMovieHumanHeadFeatures.IFeature[] | undefined;
     let lowerStudies: IAutoMovieViewPart[] | undefined;
 
     /** Prepare only the canonical host and the five factory closures at explicit regional demand. */
-    const prepare: () => AutoMovieHumanHeadFeatures.IPrepared =
-      (): AutoMovieHumanHeadFeatures.IPrepared => {
+    const prepare: () => IAutoMovieHumanHeadFeatures.IPrepared =
+      (): IAutoMovieHumanHeadFeatures.IPrepared => {
         top ??= AutoMovieHumanHeadFeatures.prepare(
           base.closed().tape.plan,
           base.closed().tape.part,
@@ -123,35 +125,35 @@ export namespace AutoMovieHumanHeadOriginalSources {
     /** Publish only requested actual originals on their host; raw remains an explicit request on these sources. */
     const publish: (
       host: IHost,
-      parts: AutoMovieHumanHeadFeatures.IFeature[],
+      parts: IAutoMovieHumanHeadFeatures.IFeature[],
       studies: IAutoMovieViewPart[],
       requestScope: NonNullable<
-        AutoMovieHumanHeadComposer.IDefinition["requestScope"]
+        IAutoMovieHumanHeadComposer.IDefinition["requestScope"]
       >,
       names?: readonly string[],
-    ) => AutoMovieHumanHeadComposer.IDefinition = (
+    ) => IAutoMovieHumanHeadComposer.IDefinition = (
       host: IHost,
-      parts: AutoMovieHumanHeadFeatures.IFeature[],
+      parts: IAutoMovieHumanHeadFeatures.IFeature[],
       studies: IAutoMovieViewPart[],
       requestScope: NonNullable<
-        AutoMovieHumanHeadComposer.IDefinition["requestScope"]
+        IAutoMovieHumanHeadComposer.IDefinition["requestScope"]
       >,
       names?: readonly string[],
-    ): AutoMovieHumanHeadComposer.IDefinition => {
+    ): IAutoMovieHumanHeadComposer.IDefinition => {
       const mass: IAutoMovieViewPart = host.part;
       const sources: ReadonlyMap<string, IAutoMovieViewPart> = new Map([
         [mass.name, mass],
         ...parts.map(
           (
-            feature: AutoMovieHumanHeadFeatures.IFeature,
+            feature: IAutoMovieHumanHeadFeatures.IFeature,
           ): [string, IAutoMovieViewPart] => [feature.part.name, feature.part],
         ),
       ]);
-      const relevant: AutoMovieHumanHeadDome.IAttempt[] =
+      const relevant: IAutoMovieHumanHeadDome.IAttempt[] =
         requestScope === "complete-regional-catalogue"
           ? host.attempts
           : host.attempts.filter(
-              (attempt: AutoMovieHumanHeadDome.IAttempt): boolean =>
+              (attempt: IAutoMovieHumanHeadDome.IAttempt): boolean =>
                 names?.includes(attempt.name) ?? false,
             );
       return {
@@ -162,7 +164,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
         studies,
         lofts: host.lofts,
         requestScope,
-        loft(name: string): AutoMovieViewLoft.IResult {
+        loft(name: string): IAutoMovieViewLoft.IResult {
           const part: IAutoMovieViewPart | undefined =
             sources.get(name) ??
             studies.find(
@@ -174,7 +176,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
                 name +
                 " is unavailable: " +
                 (host.attempts.find(
-                  (attempt: AutoMovieHumanHeadDome.IAttempt): boolean =>
+                  (attempt: IAutoMovieHumanHeadDome.IAttempt): boolean =>
                     attempt.name === name,
                 )?.error ?? "no original source in this definition"),
             );
@@ -185,10 +187,10 @@ export namespace AutoMovieHumanHeadOriginalSources {
             throw new Error(
               "The pre-closure head host is exact only below nasion; request the closed head mass for its raw loft",
             );
-          const previous: AutoMovieViewLoft.IResult | undefined =
+          const previous: IAutoMovieViewLoft.IResult | undefined =
             host.lofts.get(name);
           if (previous !== undefined) return previous;
-          const result: AutoMovieViewLoft.IResult =
+          const result: IAutoMovieViewLoft.IResult =
             part === mass ? base.loft() : AutoMovieViewLoft.create(part);
           host.lofts.set(name, result);
           return result;
@@ -199,9 +201,9 @@ export namespace AutoMovieHumanHeadOriginalSources {
     /** Author exactly the requested tape-invariant originals on the pre-closure host, without the closure. */
     const invariant: (
       names: readonly string[],
-    ) => AutoMovieHumanHeadComposer.IDefinition = (
+    ) => IAutoMovieHumanHeadComposer.IDefinition = (
       names: readonly string[],
-    ): AutoMovieHumanHeadComposer.IDefinition => {
+    ): IAutoMovieHumanHeadComposer.IDefinition => {
       const host: { plan: IAutoMovieHumanHeadLayout; part: IAutoMovieViewPart } =
         base.tapeInvariant;
       lowerTop ??= AutoMovieHumanHeadFeatures.prepare(
@@ -209,14 +211,14 @@ export namespace AutoMovieHumanHeadOriginalSources {
         host.part,
         lowerAttempts,
       );
-      const factories: AutoMovieHumanHeadFeatures.IPrepared = lowerTop;
-      const outer: AutoMovieHumanHeadFeatures.IFeature[] = factories.read(
+      const factories: IAutoMovieHumanHeadFeatures.IPrepared = lowerTop;
+      const outer: IAutoMovieHumanHeadFeatures.IFeature[] = factories.read(
         names.filter((name: string): boolean => TOP.has(name)),
       );
 
       // The nested parts take the mass and the nose as parents; both are the
       // tape-invariant sources, so the nose is read from this same host.
-      const inner: AutoMovieHumanHeadFeatures.IFeature[] = names.some(
+      const inner: IAutoMovieHumanHeadFeatures.IFeature[] = names.some(
         (name: string): boolean => INNER.has(name),
       )
         ? (lowerInner ??= AutoMovieHumanHeadInnerParts.of(
@@ -226,7 +228,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
               ["nose", factories.read(["nose"])[0]!.part],
             ]),
             lowerAttempts,
-          )).filter((feature: AutoMovieHumanHeadFeatures.IFeature): boolean =>
+          )).filter((feature: IAutoMovieHumanHeadFeatures.IFeature): boolean =>
             names.includes(feature.part.name),
           )
         : [];
@@ -262,7 +264,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
     return {
       request(
         names?: readonly string[],
-      ): AutoMovieHumanHeadComposer.IDefinition {
+      ): IAutoMovieHumanHeadComposer.IDefinition {
         if (names !== undefined) {
           if (names.length === 0) return empty;
           const unavailable: string[] = names.filter(
@@ -275,7 +277,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
           if (names.every(tapeInvariant)) return invariant(names);
         }
         if (names === undefined && complete !== undefined) return complete;
-        const factories: AutoMovieHumanHeadFeatures.IPrepared = prepare();
+        const factories: IAutoMovieHumanHeadFeatures.IPrepared = prepare();
         if (
           names !== undefined &&
           names.every(
@@ -293,12 +295,12 @@ export namespace AutoMovieHumanHeadOriginalSources {
         if (complete !== undefined) return complete;
         const { plan, part: mass }: ReturnType<typeof base.closed>["tape"] =
           base.closed().tape;
-        const outer: AutoMovieHumanHeadFeatures.IFeature[] = factories.read();
+        const outer: IAutoMovieHumanHeadFeatures.IFeature[] = factories.read();
         const parents: Map<string, IAutoMovieViewPart> = new Map([
           [mass.name, mass],
           ...outer.map(
             (
-              feature: AutoMovieHumanHeadFeatures.IFeature,
+              feature: IAutoMovieHumanHeadFeatures.IFeature,
             ): [string, IAutoMovieViewPart] => [
               feature.part.name,
               feature.part,
@@ -332,10 +334,10 @@ export namespace AutoMovieHumanHeadOriginalSources {
     part: IAutoMovieViewPart;
 
     /** Dome attempts authored on this host. */
-    attempts: AutoMovieHumanHeadDome.IAttempt[];
+    attempts: IAutoMovieHumanHeadDome.IAttempt[];
 
     /** Raw results already requested on this host. */
-    lofts: Map<string, AutoMovieViewLoft.IResult>;
+    lofts: Map<string, IAutoMovieViewLoft.IResult>;
 
     /** True for the closed member, the only one lofted as the head. */
     closed: boolean;

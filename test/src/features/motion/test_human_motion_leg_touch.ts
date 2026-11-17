@@ -1,15 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  HumanSignature,
-  type IHumanBody,
-  legTouch,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLegTouch, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { HumanChain, HumanPerformance, HumanSignature, legTouch } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,11 +40,11 @@ export function test_human_motion_leg_touch(): void {
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const hip: IAutoMovieVector3 = body.rest.get("rightUpperLeg")!;
     const stood: number = body.rest.get("rightFoot")!.y;
     const places: Record<
-      legTouch.With,
+      IAutoMovieMotionHumanLegTouch.With,
       { at: IAutoMovieVector3; normal: IAutoMovieVector3 }
     > = {
       toes: {
@@ -72,7 +63,7 @@ export function test_human_motion_leg_touch(): void {
     for (const part of ["toes", "heel", "knee"] as const) {
       const label: string = `${name}: ${part}`;
       try {
-        const performance: HumanPerformance = new HumanPerformance({
+        const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "leg",
           laws: [legTouch],
           performers: [
@@ -96,14 +87,14 @@ export function test_human_motion_leg_touch(): void {
               with: part,
             }).node,
         });
-        const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+        const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +
           (placed.plan.events.find((e): boolean => e.name === event)?.share ??
             NaN) *
             placed.plan.duration;
         const held: number = (instant("ready") + instant("relax")) / 2;
-        const reader: HumanSignature.IReader = HumanSignature.of(
+        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
           performance,
           "a",
           body,

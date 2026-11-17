@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieCurve64 as C,
-  realizeAutoMovieBicubicAtlas64 as realize,
-} from "@automovie/engine";
-import {
-  type IAutoMovieRecoveryEventChartInput as Chart,
-  AutoMovieRecoveryEventCurve as E,
-  type IAutoMovieRecoveryEventCurvePiece,
-  assembleAutoMovieRecoveryFieldComplex as assemble,
-} from "@automovie/recovery";
+import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryEventCurvePiece } from "@automovie/interface";
+import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import { AutoMovieRecoveryEventCurve as E, assembleAutoMovieRecoveryFieldComplex as assemble } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -37,14 +30,14 @@ export function test_geometry_recovery_field_complex(): void {
     maxVertices: 4096,
     toleranceMm: 0.01,
   };
-  const square: (id: string, x: number) => Chart = (
+  const square: (id: string, x: number) => IAutoMovieRecoveryEventChartInput = (
     id: string,
     x: number,
-  ): Chart => {
-    const a: C.Vector = [x, 0, 0],
-      b: C.Vector = [x + 3, 0, 0],
-      c: C.Vector = [x, 3, 0],
-      d: C.Vector = [x + 3, 3, 0];
+  ): IAutoMovieRecoveryEventChartInput => {
+    const a: Readonly<AutoMovieVector3Tuple> = [x, 0, 0],
+      b: Readonly<AutoMovieVector3Tuple> = [x + 3, 0, 0],
+      c: Readonly<AutoMovieVector3Tuple> = [x, 3, 0],
+      d: Readonly<AutoMovieVector3Tuple> = [x + 3, 3, 0];
     return {
       id,
       winding: 1,
@@ -56,10 +49,10 @@ export function test_geometry_recovery_field_complex(): void {
       },
     };
   };
-  const first: Chart = square("first", 0),
-    other: Chart = square("other", 3),
-    far: Chart = square("far", 20);
-  const second: Chart = {
+  const first: IAutoMovieRecoveryEventChartInput = square("first", 0),
+    other: IAutoMovieRecoveryEventChartInput = square("other", 3),
+    far: IAutoMovieRecoveryEventChartInput = square("far", 20);
+  const second: IAutoMovieRecoveryEventChartInput = {
     ...other,
     chart: { ...other.chart, left: first.chart.right },
   };
@@ -161,7 +154,7 @@ export function test_geometry_recovery_field_complex(): void {
     new Set(shared!.controlIds).size,
     4,
   );
-  const bad: Chart = {
+  const bad: IAutoMovieRecoveryEventChartInput = {
     ...second,
     chart: {
       ...second.chart,
@@ -171,8 +164,8 @@ export function test_geometry_recovery_field_complex(): void {
           (
             piece: IAutoMovieRecoveryEventCurvePiece,
           ): IAutoMovieRecoveryEventCurvePiece => {
-            const parent: C.Span = E.fullparentControls(piece.source);
-            const net: C.Span = [
+            const parent: IAutoMovieCurve64.Span = E.fullparentControls(piece.source);
+            const net: IAutoMovieCurve64.Span = [
               parent[0],
               [parent[1][0] + 1, parent[1][1], parent[1][2]],
               parent[2],
@@ -225,7 +218,7 @@ export function test_geometry_recovery_field_complex(): void {
     "unrelated physical area retained",
     nclose(area(quarantined.recipe), 9e-6, 1e-14),
   );
-  const wrongCorner: Chart = {
+  const wrongCorner: IAutoMovieRecoveryEventChartInput = {
     ...second,
     chart: {
       ...second.chart,

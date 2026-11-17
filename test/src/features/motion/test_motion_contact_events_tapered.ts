@@ -1,5 +1,6 @@
+import type { IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -57,7 +58,7 @@ export function test_motion_contact_events_tapered(): void {
     );
     return Math.hypot(s - u, h) - (r[0] + k * u) - 0.02;
   };
-  const forearm: resolveAutoMovieContactEvents.IBody = {
+  const forearm: IAutoMovieResolveContactEvents.IBody = {
     id: "F",
     distance: (p: IAutoMovieVector3): number =>
       Math.hypot(p.x - post, p.y) - 0.02,
@@ -65,11 +66,11 @@ export function test_motion_contact_events_tapered(): void {
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
       _t: number,
-      _stops: resolveAutoMovieContactEvents.IStops,
+      _stops: IAutoMovieResolveContactEvents.IStops,
       taper?: readonly [number, number],
     ): number => toForearm(a, b, taper ?? [0, 0]),
   };
-  const run = (tailRadius?: number): resolveAutoMovieContactEvents.IEvent[] =>
+  const run = (tailRadius?: number): IAutoMovieResolveContactEvents.IEvent[] =>
     resolveAutoMovieContactEvents({
       weapons: [
         {

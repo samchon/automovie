@@ -1,4 +1,4 @@
-import { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
+import type { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
 
 /**
  * One block of a formation design: a compact layout of some of its slots,
@@ -24,7 +24,13 @@ export interface IAutoMovieFormationBlock {
   count: number;
 
   /** Where its origin stands in the design's frame, metres; the frame's origin when absent. */
-  offset?: { lateral: number; depth: number };
+  offset?: {
+    /** Metres along the formation design frame's X axis. */
+    lateral: number;
+
+    /** Metres along the formation design frame's Z axis. */
+    depth: number;
+  };
 
   /** Which way it faces relative to the design, degrees; 0 when absent. */
   facing?: number;

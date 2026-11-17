@@ -1,11 +1,15 @@
-import { physicalShapeBounds } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import type {
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { physicalShapeBounds } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * How a displayed body meets the floor: whether any collider sinks below it,
@@ -45,7 +49,7 @@ export namespace AutoMovieMotionHumanAuditGround {
   export function floor(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
     let worst: IAutoMovieMotionHumanAuditMeasure = {
@@ -53,11 +57,7 @@ export namespace AutoMovieMotionHumanAuditGround {
       seconds: 0,
       where: "none",
     };
-    for (const t of IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    ))
+    for (const t of HumanAuditMotion.grid(0, motion.duration, rate))
       for (const { bone, pose, shapes } of HumanColliders.placed(
         body,
         motion.bones(subject, t),
@@ -82,7 +82,7 @@ export namespace AutoMovieMotionHumanAuditGround {
   export function slip(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
     return plants(motion, subject, body, rate, false);
@@ -101,7 +101,7 @@ export namespace AutoMovieMotionHumanAuditGround {
   export function lift(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
     return plants(motion, subject, body, rate, true);
@@ -112,7 +112,7 @@ export namespace AutoMovieMotionHumanAuditGround {
 const plants = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   rate: number,
   height: boolean,
 ): IAutoMovieMotionHumanAuditMeasure => {
@@ -121,15 +121,8 @@ const plants = (
     seconds: 0,
     where: "none",
   };
-  const frames: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-    0,
-    motion.duration,
-    rate,
-  );
-  for (const window of IAutoMovieMotionHumanAuditMotion.windows(
-    motion,
-    subject,
-  )) {
+  const frames: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
+  for (const window of HumanAuditMotion.windows(motion, subject)) {
     const part: string = window.contact.part;
     if (
       window.contact.kind !== "plant" ||
@@ -137,7 +130,8 @@ const plants = (
     )
       continue;
     if (height && window.contact.support.kind !== "ground") continue;
-    const anchors: Map<HumanFoot.Socket, IAutoMovieVector3> = new Map();
+    const anchors: Map<IAutoMovieMotionHumanFoot.Socket, IAutoMovieVector3> =
+      new Map();
     for (const t of [
       window.from,
       ...frames.filter(
@@ -145,12 +139,12 @@ const plants = (
       ),
       ...(window.to > window.from ? [window.to] : []),
     ]) {
-      const sole: HumanFoot.ISocket[] = HumanFoot.sockets(
+      const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
         body,
         motion.bones(subject, t),
         part === "leftFoot" ? "left" : "right",
       );
-      let contact: HumanFoot.ISocket = sole[0]!;
+      let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
       for (const socket of sole)
         if (socket.point.y < contact.point.y - 1e-6) contact = socket;
       const anchor: IAutoMovieVector3 =

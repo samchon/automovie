@@ -1,10 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanPosture } from "./IHumanPosture";
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 /**
  * A posture part of the way from one to another: the weight of an additive
@@ -35,10 +31,10 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function mixHumanPosture(
-  from: IHumanPosture,
-  to: IHumanPosture,
+  from: IAutoMovieMotionHumanPosture,
+  to: IAutoMovieMotionHumanPosture,
   weight: number,
-): IHumanPosture {
+): IAutoMovieMotionHumanPosture {
   if (weight <= 0) return from;
   if (weight >= 1) return to;
   const lerp = (a: number, b: number): number => a + (b - a) * weight;
@@ -47,7 +43,7 @@ export function mixHumanPosture(
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), weight));
-  const joints: IHumanPosture["joints"] = {};
+  const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const bone of new Set([
     ...Object.keys(from.joints),
     ...Object.keys(to.joints),
@@ -56,11 +52,11 @@ export function mixHumanPosture(
     const b: readonly [number, number, number] = to.joints[bone] ?? [0, 0, 0];
     joints[bone] = [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2])];
   }
-  const limbs: IHumanPosture["limbs"] = {};
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
-    const a: IHumanPosture.IGoal | undefined = from.limbs[limb];
-    const b: IHumanPosture.IGoal | undefined = to.limbs[limb];
-    const goal: IHumanPosture.IGoal | undefined =
+    const a: IAutoMovieMotionHumanPosture.IGoal | undefined = from.limbs[limb];
+    const b: IAutoMovieMotionHumanPosture.IGoal | undefined = to.limbs[limb];
+    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
       a === undefined || b === undefined
         ? (a ?? b)
         : {
@@ -73,9 +69,9 @@ export function mixHumanPosture(
   // A whole-body turn blends as a rotation: the shorter-arc slerp of the two
   // turns and a line between their points, a missing one the identity turn
   // about the other's point.
-  const a: IHumanPosture.IRotation | undefined = from.rotation;
-  const b: IHumanPosture.IRotation | undefined = to.rotation;
-  const rotation: IHumanPosture.IRotation | undefined =
+  const a: IAutoMovieMotionHumanPosture.IRotation | undefined = from.rotation;
+  const b: IAutoMovieMotionHumanPosture.IRotation | undefined = to.rotation;
+  const rotation: IAutoMovieMotionHumanPosture.IRotation | undefined =
     a === undefined && b === undefined
       ? undefined
       : {

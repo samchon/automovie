@@ -1,5 +1,10 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieLoftChain, IAutoMovieHumanApertureSeam, IAutoMovieHumanApertureSpan, IAutoMovieHumanLoftAperture } from "@automovie/interface";
+
+
+
+
+import { AutoMovieLoftChain } from "@automovie/engine";
+
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 
 /**
@@ -31,18 +36,18 @@ export namespace AutoMovieHumanApertureSeam {
    * @param across The chain beyond an end of a chain, at a phase of its ring, through the ring they share, or null.
    */
   export function drawn(
-    points: readonly AutoMovieHumanApertureSpan.IPoint[],
+    points: readonly IAutoMovieHumanApertureSpan.IPoint[],
     seam: NonNullable<IAutoMovieHumanLoftAperture["seam"]>,
-    chainOf: (name: string) => IAutoMovieLoftChain,
-    across: (name: string, end: "bottom" | "top", t: number) => IAutoMovieLoftChain | null,
-  ): AutoMovieHumanApertureSpan.IPoint[] {
+    chainOf: IAutoMovieHumanApertureSeam.DrawnChainOf,
+    across: IAutoMovieHumanApertureSeam.DrawnAcross,
+  ): IAutoMovieHumanApertureSpan.IPoint[] {
     const n: number = seam.contact.length - 1;
     const line = (z: number): number => {
       const u: number = Math.min(1, Math.abs(z) / seam.width) * n;
       const i: number = Math.min(n - 1, Math.floor(u));
       return seam.contact[i]! + (u - i) * (seam.contact[i + 1]! - seam.contact[i]!);
     };
-    return points.map((p: AutoMovieHumanApertureSpan.IPoint): AutoMovieHumanApertureSpan.IPoint => {
+    return points.map((p: IAutoMovieHumanApertureSpan.IPoint): IAutoMovieHumanApertureSpan.IPoint => {
       let chain: IAutoMovieLoftChain = chainOf(p.chain);
       let s: number = p.s;
       let t: number = p.t;

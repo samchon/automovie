@@ -1,17 +1,21 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandJoints, IAutoMovieHumanHandScales, IAutoMovieHumanHandWrist } from "@automovie/interface";
+
+
+
+
+
+
+
+
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanFingerBones } from "./AutoMovieHumanFingerBones";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanThumbBones } from "./AutoMovieHumanThumbBones";
-import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
-import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
-import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanHandJoints } from "./IAutoMovieHumanHandJoints";
-import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
-import type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 const { STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
@@ -40,7 +44,7 @@ export namespace AutoMovieHumanHandFingers {
     law: IAutoMovieHumanHandWrist,
     joints: IAutoMovieHumanHandJoints,
   ): IAutoMovieHumanHandFinger[] {
-    const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+    const prior: IAutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
     const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, measures, law.wrist);
     const reach3: number = measures.length - STYLION - norm(sub(joints.mcps[2]!, law.crease));
     const crests: Vec3[] = hand.crests.map((c: Vec3): Vec3 => map(c));

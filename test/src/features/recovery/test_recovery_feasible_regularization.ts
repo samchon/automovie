@@ -1,11 +1,5 @@
-import {
-  type IAutoMovieRecoveryFeasibleFit,
-  type IAutoMovieRecoveryFeasibleModel,
-  type IAutoMovieRecoveryFeasibleProblem,
-  type IAutoMovieRecoveryRegularizationUpdate,
-  refineRecoveryFeasibleState,
-  updateRecoveryRegularization,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryFeasibleFit, IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoveryFeasibleProblem, IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
+import { refineRecoveryFeasibleState, updateRecoveryRegularization } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { AutoRecoveryRegularizationMode } from "../internal/AutoRecoveryRegularizationMode";

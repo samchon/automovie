@@ -1,11 +1,6 @@
-import type { IAutoMovieDrawingFeatureResolution } from "@automovie/engine";
-import type {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieDrawingFeature,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieDrawingFeatureResolution, IAutoMovieBuiltEnvironment, IAutoMovieDrawingFeature, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingPlace } from "./drawingFixtures";

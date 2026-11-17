@@ -1,5 +1,6 @@
+import type { IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3, convexHull2D, pointInHull } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { walkStanceCourse } from "../actions/walkStanceCourse";
 import {
@@ -43,7 +44,7 @@ export namespace staggerStep {
     kinematic: boolean;
 
     /** The course of the steps before this one, its start. */
-    checking: walkStanceCourse.ICourse | undefined;
+    checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined;
   }
 
   /** A step's outcome. */
@@ -52,7 +53,7 @@ export namespace staggerStep {
     done: boolean | null;
 
     /** The course the next step starts from. */
-    checking: walkStanceCourse.ICourse | undefined;
+    checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined;
   }
 
   /**
@@ -104,7 +105,7 @@ export namespace staggerStep {
         ? LATERAL.footOff * forth - AutoMovieMotionHumanTiming.seconds(REACTION)
         : AutoMovieMotionHumanTiming.seconds(TRANSFER),
     );
-    const from: HumanFoot.IPlacement = pendulum.feet[side];
+    const from: IAutoMovieMotionHumanFoot.IPlacement = pendulum.feet[side];
     const swing: number = unloaded
       ? (LATERAL.swing * (STEP_TIME.forward + STEP_TIME.backward)) / 2
       : pendulum.bound(
@@ -170,7 +171,7 @@ export namespace staggerStep {
           pendulum.bound(travel, STEP_LENGTH) * body.measure.stature,
       ];
     };
-    const placed: HumanFoot.IPlacement = {
+    const placed: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: { ...ankle0, y: from.ankle.y },
       rotation: from.rotation,
     };
@@ -186,7 +187,7 @@ export namespace staggerStep {
           across,
         ) <
       width;
-    const crossed = (way: number): HumanFoot.IPlacement => {
+    const crossed = (way: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const ahead: number = Vector3.dot(
         Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
         forward,
@@ -231,9 +232,9 @@ export namespace staggerStep {
     const t: number = pendulum.t;
     const steps = pendulum.steps;
     const solveFrom = (
-      origin: HumanFoot.IPlacement,
-      warm: walkStanceCourse.ICourse | undefined,
-    ): { course: walkStanceCourse.ICourse; to: HumanFoot.IPlacement } => {
+      origin: IAutoMovieMotionHumanFoot.IPlacement,
+      warm: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined,
+    ): { course: IAutoMovieMotionHumanWalkStanceCourse.ICourse; to: IAutoMovieMotionHumanFoot.IPlacement } => {
       const knots: staggerKnots.IKnot[] = staggerKnots.of(
         body,
         pendulum.entry,
@@ -260,7 +261,7 @@ export namespace staggerStep {
               warm.knots.length,
               Math.floor(steps.at(-1)!.land * KNOTS + 1e-9),
             );
-      const course: walkStanceCourse.ICourse = staggerSequential.solve(
+      const course: IAutoMovieMotionHumanWalkStanceCourse.ICourse = staggerSequential.solve(
         body,
         knots,
         warm,
@@ -322,10 +323,10 @@ export namespace staggerStep {
     }
     pendulum.phases.pop();
     // The next step's course starts from this one.
-    const checking: walkStanceCourse.ICourse = landed.course;
+    const checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse = landed.course;
     if (landed.course.unmet > walkStanceCourse.MET)
       return { done: null, checking };
-    const to: HumanFoot.IPlacement = landed.to;
+    const to: IAutoMovieMotionHumanFoot.IPlacement = landed.to;
     pendulum.steps.push({ side, from, to, start, land: pendulum.t });
     pendulum.feet[side] = to;
     // Caught once the extrapolated centre of mass lies inside the base the

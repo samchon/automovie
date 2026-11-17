@@ -1,14 +1,5 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieLoftRelief,
-  AutoMovieViewAxis,
-  AutoMovieViewLoft,
-  AutoMovieViewSection,
-  type IAutoMovieLoftChain,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieLoftRelief, IAutoMovieViewPart } from "@automovie/interface";
+import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieLoftRelief, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
 
 type V3 = [number, number, number];
 
@@ -79,11 +70,11 @@ export function test_construction_relief_turn(): void {
   // The samples stand off the net's knots (stations 20 + 10 i, phases -1.4 + 0.2333 j): at a knot the height's third derivative jumps and a
   // central difference of its first derivative is off by half the step times that jump.
   for (const [s, t] of [[43, 0.8], [55, -1.0], [47, 1.25]] as [number, number][]) {
-    const got = (pick: (jet: AutoMovieLoftJet.IJet) => readonly number[]): V3 => added((chain: IAutoMovieLoftChain): readonly number[] => pick(AutoMovieLoftJet.at(chain, s, t)));
+    const got = (pick: (jet: IAutoMovieLoftJet.IJet) => readonly number[]): V3 => added((chain: IAutoMovieLoftChain): readonly number[] => pick(AutoMovieLoftJet.at(chain, s, t)));
     const first: V3 = slope(added((chain: IAutoMovieLoftChain): readonly number[] => at(chain, s, t + step)), added((chain: IAutoMovieLoftChain): readonly number[] => at(chain, s, t - step)));
     const second: V3 = slope(added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s, t + step).t), added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s, t - step).t));
     const mixed: V3 = slope(added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s + step, t).t), added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s - step, t).t));
-    for (const [name, value, want] of [["t", got((jet: AutoMovieLoftJet.IJet): readonly number[] => jet.t), first], ["tt", got((jet: AutoMovieLoftJet.IJet): readonly number[] => jet.tt), second], ["st", got((jet: AutoMovieLoftJet.IJet): readonly number[] => jet.st), mixed]] as [string, V3, V3][]) {
+    for (const [name, value, want] of [["t", got((jet: IAutoMovieLoftJet.IJet): readonly number[] => jet.t), first], ["tt", got((jet: IAutoMovieLoftJet.IJet): readonly number[] => jet.tt), second], ["st", got((jet: IAutoMovieLoftJet.IJet): readonly number[] => jet.st), mixed]] as [string, V3, V3][]) {
       const off: number = norm(sub(value, want));
       if (!(off <= 1e-5)) failures.push(`station ${s} phase ${t}: the relief's part of jet.${name} is ${off} off the difference`);
     }

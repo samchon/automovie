@@ -1,12 +1,5 @@
-import {
-  type IAutoMovieCaptureCell,
-  type IAutoMovieCapturePlan,
-  type IAutoMovieCaptureSubject,
-  type IAutoMovieDrawCall,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  planAutoMovieDrawCall,
-} from "@automovie/render";
+import type { IAutoMovieCaptureCell, IAutoMovieCapturePlan, IAutoMovieCaptureSubject, IAutoMovieDrawCall } from "@automovie/interface";
+import { parseAutoMovieCapturePlanRequest, planAutoMovieCapture, planAutoMovieDrawCall } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** A subject of four seconds at 10 fps, drawn 48 by 30, offering the named viewpoint `side`. */

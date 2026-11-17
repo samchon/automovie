@@ -1,3 +1,4 @@
+import type { IAutoMovieRecoveryCameraResidualsScoreOperation } from "@automovie/interface";
 /**
  * Collect finite absolute residuals within an inclusive pixel threshold.
  * Returned indices preserve observation order; quantiles use linear interpolation
@@ -12,9 +13,9 @@
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only owned indices and nullable scalars escape; sorted temporary errors expire and no observation array, image, cache or external handle is retained.
  */
 export function scoreRecoveryCameraResiduals(
-  residuals: readonly (number | null)[],
-  thresholdPx: number,
-): { indices: number[]; medianPx: number | null; p90Px: number | null } {
+  residuals: Parameters<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>[0],
+  thresholdPx: Parameters<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> {
   if (!(thresholdPx > 0) || !Number.isFinite(thresholdPx))
     throw new Error("camera-score: finite positive pixel threshold required");
   const indices: number[] = [],
@@ -44,6 +45,5 @@ export function scoreRecoveryCameraResiduals(
         (medianAt - medianLower),
     p90Px:
       values[p90Lower]! +
-      (values[Math.ceil(p90At)]! - values[p90Lower]!) * (p90At - p90Lower),
-  };
+      (values[Math.ceil(p90At)]! - values[p90Lower]!) * (p90At - p90Lower) };
 }

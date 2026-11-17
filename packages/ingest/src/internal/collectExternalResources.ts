@@ -1,4 +1,4 @@
-import type { IAutoMovieExternalModelResource } from "../IAutoMovieExternalModelResource";
+import type { IAutoMovieExternalModelResource } from "@automovie/interface";
 import { compareCodeUnits } from "./compareCodeUnits";
 import { object } from "./object";
 

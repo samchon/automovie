@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
 import {
   AutoMoviePhysicsCache as Cache,
   AutoMoviePhysicalPlayback as Playback,
@@ -25,20 +26,20 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every sampled and fractional seek equals the original cached state exactly.).
  */
 export async function test_physical_playback_archive(): Promise<void> {
-  const input: Simulation.IInput = PhysicalFixtures.input(
+  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
     [PhysicalFixtures.body("ball", PhysicalFixtures.sphere(), 2)],
     2,
   );
   input.floor = 0;
   input.gravity.y = -9.81;
-  const simulation: Simulation = await Simulation.compute(input);
+  const simulation: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
   const bytes: Uint8Array = await Playback.encode(simulation.cache, 1_000_000);
   const budget: {
     maximumBytes: number;
     maximumFrames: number;
     maximumSegments: number;
   } = { maximumBytes: 1_000_000, maximumFrames: 241, maximumSegments: 1 };
-  const playback: Playback = await Playback.decode(
+  const playback: IAutoMoviePhysicalPlayback = await Playback.decode(
     bytes,
     physicalInputDigest(input),
     budget,
@@ -94,39 +95,39 @@ export async function test_physical_playback_archive(): Promise<void> {
   // A valid SHA trailer proves byte integrity, not metadata semantics. These
   // producer fixtures deliberately retain the expected input identity while
   // supplying causal rows that would crash or mislead the real overlay.
-  const mutations: ((cache: Cache) => void)[] = [
-    (cache: Cache): void => {
+  const mutations: ((cache: IAutoMoviePhysicsCache) => void)[] = [
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.samples![0]!.appliedImpulse = { a: -1, b: 0 };
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.samples![0]!.appliedImpulse = { a: 0, b: Infinity };
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       Reflect.set(cache.contacts[0]!.samples![0]!, "appliedImpulse", []);
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.normal = { x: 0, y: 0, z: 0 };
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.endSeconds = 3;
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.a.bone = "absent-owner";
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.impulse = -1;
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.samples![0]!.duration = 0;
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.source = "geometric";
       cache.contacts[0]!.impulse = null;
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts.push(structuredClone(cache.contacts[0]!));
     },
-    (cache: Cache): void => {
+    (cache: IAutoMoviePhysicsCache): void => {
       cache.recovery.ball = {
         last: "supported",
         steps: [],
@@ -137,12 +138,12 @@ export async function test_physical_playback_archive(): Promise<void> {
   // This independent DTO tests codec semantics, not a claim that the falling
   // ball performed these recovery motions. Its values deliberately separate
   // the latest root offset from the latest endpoint offset.
-  const recovery: Cache["recovery"][string] = {
+  const recovery: IAutoMoviePhysicsCache["recovery"][string] = {
     last: "supported",
     offsets: {},
     rootOffset: { x: 0.2, y: 0, z: 0 },
     steps: [0.2, 0.6].map(
-      (start: number): Cache["recovery"][string]["steps"][number] => ({
+      (start: number): IAutoMoviePhysicsCache["recovery"][string]["steps"][number] => ({
         bone: "root",
         kind: "swing",
         start,
@@ -156,7 +157,7 @@ export async function test_physical_playback_archive(): Promise<void> {
       (
         seconds: number,
         index: number,
-      ): NonNullable<Cache["recovery"][string]["landings"]>[number] => ({
+      ): NonNullable<IAutoMoviePhysicsCache["recovery"][string]["landings"]>[number] => ({
         bone: "root",
         seconds,
         position: { x: 0.1, y: 0, z: 0 },
@@ -170,8 +171,8 @@ export async function test_physical_playback_archive(): Promise<void> {
     ],
   };
   /** Own only codec metadata; the existing numeric frame stream is borrowed unchanged. */
-  const copy: () => Cache = (): Cache => {
-    const cache: Cache = new Cache(simulation.cache.identity, 120, 2);
+  const copy: () => IAutoMoviePhysicsCache = (): IAutoMoviePhysicsCache => {
+    const cache: IAutoMoviePhysicsCache = new Cache(simulation.cache.identity, 120, 2);
     cache.frames.push(...simulation.cache.frames);
     cache.contacts.push(...structuredClone(simulation.cache.contacts));
     cache.ownership.push(...structuredClone(simulation.cache.ownership));
@@ -181,7 +182,7 @@ export async function test_physical_playback_archive(): Promise<void> {
     cache.recovery.ball = structuredClone(recovery);
     return cache;
   };
-  const ordered: Playback = await Playback.decode(
+  const ordered: IAutoMoviePhysicalPlayback = await Playback.decode(
     await Playback.encode(copy(), 1_000_000),
     simulation.cache.identity,
     budget,
@@ -191,7 +192,7 @@ export async function test_physical_playback_archive(): Promise<void> {
     samplePhysicalRecoverySupport(ordered.recovery.ball, "root", 0.8).offset.x,
     0.3,
   );
-  const cancelled: Cache = copy();
+  const cancelled: IAutoMoviePhysicsCache = copy();
   cancelled.recovery.ball!.steps[0]!.resolved = {
     seconds: 0.25,
     status: "cancelled",
@@ -210,7 +211,7 @@ export async function test_physical_playback_archive(): Promise<void> {
     "early-landing",
     "early-failure",
   ] as const) {
-    const cache: Cache = copy();
+    const cache: IAutoMoviePhysicsCache = copy();
     if (kind === "steps") cache.recovery.ball!.steps.reverse();
     else if (kind === "landings") cache.recovery.ball!.landings!.reverse();
     else if (kind === "handoffs") cache.recovery.ball!.handoffs!.reverse();
@@ -229,7 +230,7 @@ export async function test_physical_playback_archive(): Promise<void> {
     } catch {}
   }
   for (const [index, mutate] of mutations.entries()) {
-    const malformed: Cache = new Cache(simulation.cache.identity, 120, 2);
+    const malformed: IAutoMoviePhysicsCache = new Cache(simulation.cache.identity, 120, 2);
     malformed.frames.push(...simulation.cache.frames);
     malformed.contacts.push(...structuredClone(simulation.cache.contacts));
     malformed.ownership.push(...structuredClone(simulation.cache.ownership));

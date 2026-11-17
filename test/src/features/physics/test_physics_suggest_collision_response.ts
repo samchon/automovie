@@ -1,16 +1,14 @@
-import {
-  IAutoMovieImpactBody,
-  suggestCollisionResponse,
-} from "@automovie/engine";
+import type { IAutoMovieImpactBodyState } from "@automovie/interface";
+import { suggestCollisionResponse } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/fixtures";
 import { nclose, vclose } from "../internal/predicates";
 
-const bodyAt: (mass: number, vx: number) => IAutoMovieImpactBody = (
+const bodyAt: (mass: number, vx: number) => IAutoMovieImpactBodyState = (
   mass: number,
   vx: number,
-): IAutoMovieImpactBody => ({
+): IAutoMovieImpactBodyState => ({
   mass,
   velocity: { x: vx, y: 0, z: 0 },
   restitution: 0,

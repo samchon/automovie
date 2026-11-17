@@ -1,12 +1,9 @@
-import type {
-  IAutoMovieRecoveryCameraMapBudget,
-  IAutoMovieRecoveryCameraMapInput,
-  IAutoMovieRecoveryCameraSceneInput,
-} from "@automovie/interface";
+import type { IAutoMovieRecoveryCameraChartCreationOperation, IAutoMovieRecoveryCameraSceneAdmissionOperation, IAutoMovieRecoveryCameraMapBudget, IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
+
 
 import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+
 
 /**
  * Admit a closed bounded calibrated image set before observing any raster.
@@ -20,8 +17,8 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only owned fixed-size charts escape. Borrowed RGB arrays are not copied, and no global cache or external resource is acquired.
  */
 export function admitRecoveryCameraScene(
-  input: IAutoMovieRecoveryCameraSceneInput,
-): ReturnType<typeof createRecoveryCameraChart>[] {
+  input: Parameters<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> {
   const closed: (value: object, keys: readonly string[]) => void = (
     value: object,
     keys: readonly string[],
@@ -92,15 +89,13 @@ export function admitRecoveryCameraScene(
     maxLocalRefinements: input.budget.maxLocalRefinements,
     maxRefinementIterations: input.budget.maxRefinementIterations,
     maxLinearEntries: input.budget.maxLinearEntries,
-    maxSingularSweeps: input.budget.maxSingularSweeps,
-  };
+    maxSingularSweeps: input.budget.maxSingularSweeps };
   const triad: IAutoMovieRecoveryCameraMapInput = {
     ...input,
     schema: "automovie-recovery-camera-map-input-v1",
     views: input.views.slice(0, 3),
-    budget: mapBudget,
-  };
-  const charts: ReturnType<typeof createRecoveryCameraChart>[] =
+    budget: mapBudget };
+  const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] =
     admitRecoveryCameraMap(triad);
   const ids: Set<string> = new Set(
     input.views.map((view: (typeof input.views)[number]): string => view.id),
@@ -140,8 +135,7 @@ export function admitRecoveryCameraScene(
         cohort: input.cohort,
         views: [input.views[0]!, input.views[index]!],
         policy: input.seedPolicy,
-        budget: { ...input.seedBudget, maxPixels: input.budget.maxPixels },
-      }).charts[1],
+        budget: { ...input.seedBudget, maxPixels: input.budget.maxPixels } }).charts[1],
     );
   return charts;
 }

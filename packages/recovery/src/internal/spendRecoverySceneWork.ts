@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+import type { IAutoMovieRecoverySceneWork, IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
 
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
+
+
 
 /**
  * Charge aggregate scene work before an action, without geometry rollback.
@@ -32,8 +33,7 @@ export function spendRecoverySceneWork(
     jointFits: budget.maxJointFits,
     linearWork: budget.maxLinearWork,
     jointIterationAttempts:
-      budget.maxJointFits * budget.maxRefinementIterations,
-  };
+      budget.maxJointFits * budget.maxRefinementIterations };
   if (
     !Number.isSafeInteger(amount) ||
     amount < 0 ||

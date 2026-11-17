@@ -1,9 +1,10 @@
-import { IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
+
+
 
 import { midpoint } from "../math/midpoint";
 import { footprintContains } from "../space/footprintContains";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
-import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
 
 /**
  * How far a staged prop's underside stands above the face it rests on, in metres: negative where it sinks into the support, zero where it touches it, positive where it floats. `null` when no probe of the prop's footprint lies over the face at all, which is the answer for a prop that does not stand over its support rather than one standing at the wrong height on it.
@@ -23,13 +24,7 @@ import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Measures one prop against one face per call and coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the probe arrays are released on return.
  */
-export function propSupportGap(props: {
-  /** The face the prop claims to rest on. */
-  face: IAutoMoviePropSupportFace;
-
-  /** The prop's world occupancy, from {@link propOccupancyBounds}. */
-  bounds: IAutoMoviePropBox;
-}): number | null {
+export function propSupportGap(props: IAutoMoviePropSupportGap.IProps): number | null {
   const bounds: IAutoMoviePropBox = props.bounds;
   const probes: IAutoMovieVector3[] = [
     ...footprintProbes(bounds).filter((probe: IAutoMovieVector3): boolean =>

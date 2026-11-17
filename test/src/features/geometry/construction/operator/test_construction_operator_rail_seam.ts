@@ -1,4 +1,5 @@
-import { AutoMovieSolidRailSolve, type IAutoMovieSolidAtlas, type IAutoMovieSolidSurface } from "@automovie/engine";
+import type { IAutoMovieSolidAtlas, IAutoMovieSolidSurface } from "@automovie/interface";
+import { AutoMovieSolidRailSolve } from "@automovie/engine";
 
 type Vec3 = [number, number, number];
 

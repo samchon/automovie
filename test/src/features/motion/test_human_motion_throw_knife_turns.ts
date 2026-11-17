@@ -1,14 +1,8 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createRelayBaton } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanThrownWeapon,
-  HumanVerdicts,
-  type IHumanBody,
-} from "@automovie/motions";
+
+import { HumanChain, HumanObject, HumanPerformance, HumanThrownWeapon, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -48,11 +42,11 @@ export function test_human_motion_throw_knife_turns(): void {
   );
   const bound: number =
     (Math.atan(HumanVerdicts.SKIN / length) * 180) / Math.PI;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const turns: number[] = [];
   for (const distance of [4, 8]) {
     const target: IAutoMovieVector3 = { x: 0, y: 0, z: distance };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "knife",

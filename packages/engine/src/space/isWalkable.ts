@@ -1,6 +1,5 @@
-import { IAutoMovieSpace } from "@automovie/interface";
+import { type IAutoMoviePreparedSpace, IAutoMovieSpace } from "@automovie/interface";
 
-import { IAutoMoviePreparedSpace } from "./IAutoMoviePreparedSpace";
 import { heightAt } from "./heightAt";
 import { prepareSpace } from "./prepareSpace";
 

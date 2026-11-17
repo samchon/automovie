@@ -1,4 +1,5 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey } from "@automovie/interface";
+
 import { ExerciseKey } from "../exercise/ExerciseKey";
 
 /**
@@ -27,7 +28,7 @@ export namespace handspringKeys {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ExerciseKey.from.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lunged(body: IHumanBody): ExerciseKey.IKey {
+  export function lunged(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { neck: -15 },
@@ -52,7 +53,7 @@ export namespace handspringKeys {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ExerciseKey.from.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function arched(body: IHumanBody): ExerciseKey.IKey {
+  export function arched(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [-10, 0, 0], chest: [-10, 0, 0] },

@@ -1,4 +1,5 @@
-import type { HumanForce } from "@automovie/motions";
+import type { IAutoMovieMotionHumanForce } from "@automovie/interface";
+
 
 /**
  * A composition as the playground holds it: plain data that the editor
@@ -29,7 +30,7 @@ export interface IPlaygroundComposition {
   objects?: IPlaygroundComposition.IObject[];
 
   /** Authored impulses in world newton seconds at film seconds, as the public performance input takes them; none when absent. Only the serializable impulse form is offered here, not a sustained force callback. */
-  forces?: HumanForce.IImpulse[];
+  forces?: IAutoMovieMotionHumanForce.IImpulse[];
 }
 export namespace IPlaygroundComposition {
   /** One archetype placed on the floor. */

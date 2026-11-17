@@ -1,32 +1,10 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
-  integrateMotionTrajectory,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-  resolveAutoMovieMomentum,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanForceThrow, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieGravity, Quaternion, Vector3, integrateAirborneRotation, integrateMotionTrajectory, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieMomentum } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanForce } from "../perform/HumanForce";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanForceExchange } from "./HumanForceExchange";
-import type { HumanForceResponse } from "./HumanForceResponse";
 
 /**
  * The throw of a pulled body whose base has broken (#3439): the swing over
@@ -43,58 +21,6 @@ import type { HumanForceResponse } from "./HumanForceResponse";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No angle or landing is scripted: the swing and the flight are integrated.
  */
 export namespace HumanForceThrow {
-  /**
-   * What the response hands the throw: the pulled body's model, the pull's
-   * direction, the instant its base breaks, its pose frozen there, its
-   * centre's speed then, its yield before and its feet's plant windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The state of the pulled body at the broken base, the throw's initial condition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ten members, each read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The yield and the plant are the response's own functions, so the throw does not restate them.
-   */
-  export interface IProps {
-    /** The body's mass model. */
-    model: resolveAutoMovieCenterOfMass.IModel;
-
-    /** The pull's horizontal direction, unit, world. */
-    direction: IAutoMovieVector3;
-
-    /** Seconds from the action's start to the broken base. */
-    broken: number;
-
-    /** The body's pose at the broken base, written by joints alone. */
-    frozen: IHumanPosture;
-
-    /** The centre's speed along the pull at the broken base, m/s. */
-    speed: number;
-
-    /** The pull, newtons, horizontal along `direction`. */
-    force: number;
-
-    /** The grip sites' mean height, world metres. */
-    grip: number;
-
-    /** Seconds the pull lasts after the broken base. */
-    remaining: number;
-
-    /**
-     * The yield's posture before the broken base.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns The posture.
-     */
-    yieldAt(seconds: number): IHumanPosture;
-
-    /**
-     * A foot's plant on the floor from the start.
-     *
-     * @param part The foot.
-     * @param to The share it ends at.
-     * @returns The window.
-     */
-    plant(part: "leftFoot" | "rightFoot", to: number): IHumanContactWindow;
-  }
 
   /**
    * Plan the throw after the broken base: the swing about the thrower's
@@ -114,16 +40,16 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the swing's and the flight's trajectories for as long as the performance does.
    */
   export function plan(
-    context: IHumanActionContext<HumanForceResponse.IParams>,
-    props: IProps,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
+    props: IAutoMovieMotionHumanForceThrow.IProps,
+  ): IAutoMovieMotionHumanActionPlan {
     const { model, direction, broken, frozen } = props;
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const by: string | undefined = context.params.by;
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
-    const thrower: IHumanActionContext.IPerformer | undefined =
+    const thrower: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
       by === undefined ? undefined : context.performer(by);
-    const placed: IHumanPosture | undefined = thrower?.posture?.(
+    const placed: IAutoMovieMotionHumanPosture | undefined = thrower?.posture?.(
       context.start + broken,
     );
     if (
@@ -180,7 +106,7 @@ export namespace HumanForceThrow {
         ),
       0,
     );
-    const swing: HumanForceExchange.ISwing | null = HumanForceExchange.swing({
+    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null = HumanForceExchange.swing({
       mass: model.mass,
       inertia: about,
       radius,
@@ -225,7 +151,7 @@ export namespace HumanForceThrow {
       z: from.z + velocity.z * tau,
     });
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(frozen);
-    const own: IHumanPosture = {
+    const own: IAutoMovieMotionHumanPosture = {
       ...frozen,
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
@@ -238,7 +164,7 @@ export namespace HumanForceThrow {
       Quaternion.rotateVector(turned, apply(tensor, axis)),
       rate,
     );
-    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+    const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
       {
         history: integrateAirborneRotation.history(model, () => local),
         t0: 0,
@@ -302,7 +228,7 @@ export namespace HumanForceThrow {
           support: { kind: "person", subject: by, region: fulcrum },
         },
       ],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         if (seconds <= broken) return props.yieldAt(seconds);
         if (seconds <= release)
           return {
@@ -340,9 +266,9 @@ export namespace HumanForceThrow {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function site(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    at: HumanForce.At,
+    at: IAutoMovieMotionHumanForce.At,
   ): IAutoMovieVector3 {
     if (typeof at !== "string") {
       const bone: IAutoMovieResolvedBone = bones.get(at.bone)!;
@@ -351,7 +277,7 @@ export namespace HumanForceThrow {
         Quaternion.rotateVector(bone.worldRotation, at.point),
       );
     }
-    const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+    const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[at];
     return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
       .point;

@@ -1,11 +1,9 @@
-import type {
-  IAutoMovieRecoveryInput,
-  IAutoMovieRecoveryRegistration,
-} from "@automovie/interface";
+import type { IAutoMovieRecoveryPreparedInput, IAutoMovieRecoveryRegisteredInput, IAutoMovieRecoveryResult, IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryPreparedInput } from "../structures/mesh/IAutoMovieRecoveryPreparedInput";
-import type { IAutoMovieRecoveryRegisteredInput } from "../structures/mesh/IAutoMovieRecoveryRegisteredInput";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+
+
+
+
 
 /**
  * Admit already evaluated, registered indexed triangles for the observation API.
@@ -60,8 +58,7 @@ export function prepareAutoMovieRecoveryInput(
       status: "refused",
       diagnostics: [
         "Explicit supported millimetre registration, evaluated pose, component policy and finite applied transform are required",
-      ],
-    };
+      ] };
   if (
     !Array.isArray(input.verticesMm) ||
     !input.verticesMm.length ||
@@ -73,8 +70,7 @@ export function prepareAutoMovieRecoveryInput(
       status: "refused",
       diagnostics: [
         "Nonempty evaluated position and triangle arrays are required",
-      ],
-    };
+      ] };
   for (let i: number = 0; i < input.verticesMm.length; i++) {
     const point: IAutoMovieRecoveryInput["verticesMm"][number] =
       input.verticesMm[i]!;
@@ -82,8 +78,7 @@ export function prepareAutoMovieRecoveryInput(
       return {
         operator,
         status: "refused",
-        diagnostics: [`verticesMm[${i}] must be a finite millimetre triple`],
-      };
+        diagnostics: [`verticesMm[${i}] must be a finite millimetre triple`] };
   }
   for (let i: number = 0; i < input.triangles.length; i++) {
     const face: IAutoMovieRecoveryInput["triangles"][number] =
@@ -101,8 +96,7 @@ export function prepareAutoMovieRecoveryInput(
       return {
         operator,
         status: "refused",
-        diagnostics: [`triangles[${i}] must address three existing vertices`],
-      };
+        diagnostics: [`triangles[${i}] must address three existing vertices`] };
   }
   return {
     operator,
@@ -111,10 +105,7 @@ export function prepareAutoMovieRecoveryInput(
       observation: {
         ...input.policy,
         verticesMm: input.verticesMm,
-        triangles: input.triangles,
-      },
-      registration,
-    },
-    diagnostics: registration.uncertainty.slice(),
-  };
+        triangles: input.triangles },
+      registration },
+    diagnostics: registration.uncertainty.slice() };
 }

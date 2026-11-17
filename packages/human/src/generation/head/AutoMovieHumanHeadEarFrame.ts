@@ -1,6 +1,10 @@
-import { AutoMovieViewCurves, AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
-import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+import type { IAutoMovieViewCurves, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanEar, IAutoMovieHumanHeadEarFrame, IAutoMovieHumanHeadLayout } from "@automovie/interface";
+
+
+
+
+import { AutoMovieViewCurves, AutoMovieViewOutline } from "@automovie/engine";
+
 
 /**
  * The auricle's own measurement chord and fixed orientation site.
@@ -19,29 +23,7 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fixed-size vectors/scalars and retains no head source globally.
  */
 export namespace AutoMovieHumanHeadEarFrame {
-  /** Own-side dimensions and orientation in calibration mm. */
-  export interface IFrame {
-    /** Outward side-outline normal at the selected tragion height. */
-    n: [number, number, number];
-    /** Unit sa-sba chord direction, upward. */
-    a: [number, number, number];
-    /** Forward unit direction perpendicular to a and n. */
-    b: [number, number, number];
-    /** Selected highest superaurale height. */
-    top: number;
-    /** Lowest subaurale height, top - length*a.y. */
-    bottom: number;
-    /** Public sa-sba chord length. */
-    length: number;
-    /** Public c-j chord length. */
-    breadth: number;
-    /** Public scalp-to-rim distance at the tragal level. */
-    protrusion: number;
-    /** Retained relief-row scale, world breadth/31 mm. */
-    scale: number;
-    /** Own side, positive left and negative right. */
-    sign: 1 | -1;
-  }
+  
 
   /** Retained 17.5-degree sagittal lean within Banks/Cheney's 15-20 range. */
   export const LEAN: number = 17.5 * Math.PI / 180;
@@ -61,14 +43,14 @@ export namespace AutoMovieHumanHeadEarFrame {
    * @evidence contracts/performance.md#reuse-equivalent-work One frame serves the plate and all its reliefs.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned vectors/scalars survive the call.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, mass: IAutoMovieViewPart, sign: 1 | -1, ear: IAutoMovieHumanEar, top?: number): IFrame {
-    const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(mass);
-    const outline: AutoMovieViewOutline.IOutline | null = source.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "side.positive")?.outline ?? null;
+  export function of(plan: IAutoMovieHumanHeadLayout, mass: IAutoMovieViewPart, sign: 1 | -1, ear: IAutoMovieHumanEar, top?: number): IAutoMovieHumanHeadEarFrame.IFrame {
+    const source: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(mass);
+    const outline: IAutoMovieViewOutline.IOutline | null = source.curves.find((curve: IAutoMovieViewCurves.ICurve): boolean => curve.name === "side.positive")?.outline ?? null;
     if (outline === null)
       throw new Error(
         `Ear orientation needs the actual original head side guide: ${source.diagnostics.map((d: { detail: string }): string => d.detail).join("; ")}`,
       );
-    const reading: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(outline, plan.landmarks.tragion[1]);
+    const reading: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(outline, plan.landmarks.tragion[1]);
     if (typeof reading === "string" || reading.stationJet === null) throw new Error("Ear orientation needs a finite side-guide derivative at tragion");
     const n: [number, number, number] = unit([0, -reading.stationJet[0], sign]);
     const a: [number, number, number] = unit(reject([-Math.sin(LEAN), Math.cos(LEAN), 0], n));

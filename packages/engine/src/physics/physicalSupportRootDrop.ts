@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieFootfallPattern,
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalSupportRootDrop, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Vector3 } from "../math/Vector3";
 import { physicalJointPoint } from "./physicalJointPoint";
@@ -19,17 +16,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
-export function physicalSupportRootDrop(input: {
-  /** Actual provider joint frames. */ profile: P;
-  /** Declared support paths and optional reach landmarks. */ pattern: IAutoMovieFootfallPattern;
-  /** Root-intent frame and coherent articulated placements. */ targets: Readonly<
-    Record<string, P.ITransform>
-  >;
-  /** Explicit world endpoint intent. */ goals: Readonly<
-    Record<string, IAutoMovieVector3>
-  >;
-  /** Nonnegative lowering cap in metres. */ maximumRootDrop: number;
-}): number {
+export function physicalSupportRootDrop(input: IAutoMoviePhysicalSupportRootDrop.IInput): number {
   let rootDrop: number = 0;
   for (const limb of input.pattern.limbs) {
     const endpoint: IAutoMovieVector3 = physicalSupportPoint(

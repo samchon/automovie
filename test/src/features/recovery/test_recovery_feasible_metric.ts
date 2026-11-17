@@ -1,13 +1,6 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
-import {
-  type IAutoMovieRecoveryMapLandmark,
-  createRecoveryCameraChart,
-  factorRecoveryMapDesign,
-  factorRecoveryMapMetric,
-  prepareRecoveryMapJointBlocks,
-  refineRecoveryCameraMap,
-  solveRecoveryMapJointStep,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoveryMapLandmark, IAutoMovieSimplexAtom } from "@automovie/interface";
+
+import { createRecoveryCameraChart, factorRecoveryMapDesign, factorRecoveryMapMetric, prepareRecoveryMapJointBlocks, refineRecoveryCameraMap, solveRecoveryMapJointStep } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";

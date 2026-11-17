@@ -1,67 +1,22 @@
-import {
-  AutoMovieConstructionViews,
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieSolidVector,
-  AutoMovieViewOutline,
-  AutoMovieViewParameter,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanGlutealParent, IAutoMovieHumanMassSource, IAutoMovieHumanSiteViewPart, IAutoMovieConstructionView } from "@automovie/interface";
 
-import type { AutoMovieHumanGlutealParent } from "../trunk/AutoMovieHumanGlutealParent";
+
+
+
+
+import { AutoMovieConstructionViews, AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieSolidVector, AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
+
+
+
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
-import type { AutoMovieHumanSiteViewPart as Site } from "./AutoMovieHumanSiteViewPart";
 
-/** World calibration-mm point. */
-type Vec3 = [number, number, number];
 
 /** Preserve an actual supported mass source, or prepend only an inward extension while retaining all its old scalar functions and both jets. */
 export namespace AutoMovieHumanMassSource {
-  /** Actual root-curve point and the same parent chord that supports it. */
-  export interface IContact {
-    /** World point in calibration mm. */
-    point: Vec3;
-    /** Whole-parent boundary owners, physical stations and phases. */
-    chord: AutoMovieHumanGlutealParent.IChord;
-  }
-  /** Actual parent-derived placement, not a central curvature estimate. */
-  export interface IConnection {
-    /** Identical whole-parent fields consumed by the actual parent lofts. */
-    parent: AutoMovieHumanGlutealParent.IParent;
-    /** Original wall at the unchanged public apex Y/Z, mm. */
-    wall: Vec3;
-    /** Anatomical AP outward unit axis. */
-    normal: Vec3;
-    /** Public apex's positive distance from the actual wall, mm. */
-    amplitude: number;
-    /** Shared-parent-supported internal root origin, mm. */
-    root: Vec3;
-    /** Root-to-wall distance along the outward axis, mm. */
-    embed: number;
-    /** Parent-derived common AP interval for the same footprint, after bounded numerical phase refinement; not an interval certificate. */
-    rootInterval?: readonly [number, number];
-    /** Exact source before any internal extension, retained for source ownership and comparison. */
-    original?: { part: IAutoMovieViewPart; view: IAutoMovieConstructionView };
-    /** Whether the original supported root was kept or only a new inward prefix was authored. */
-    transfer?: "original-root" | "inner-prefix";
-    /** Same whole-parent reader that determined the root, with its explicit absence. */
-    contact(phi: number): IContact | string;
-  }
+  
+  
 
-  /** Actual original-parent exit on the declared lower source guide; the final kept atlas still validates this owner. */
-  export interface ISeed {
-    /** Boundary source name consumed by the join's hostFace. */
-    owner: string;
-    /** Actual mass chart [physical station mm, phase radians]. */
-    part: [number, number];
-    /** Actual original-parent chart [physical station mm, phase radians]. */
-    host: [number, number];
-    /** Original world point, calibration mm. */
-    point: Vec3;
-  }
+  
 
   /**
    * Locate the lower guide's actual exit from the same composite parent.
@@ -75,13 +30,13 @@ export namespace AutoMovieHumanMassSource {
    */
   export function seed(
     part: IAutoMovieViewPart,
-    connection: IConnection,
-  ): ISeed | string {
+    connection: IAutoMovieHumanMassSource.IConnection,
+  ): IAutoMovieHumanMassSource.ISeed | string {
     const first: number = part.stations[0]!;
     const last: number = part.stations.at(-1)!;
     const outline:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       part.front.negative,
       { top: last },
     );
@@ -89,16 +44,16 @@ export namespace AutoMovieHumanMassSource {
     const at: (station: number) =>
       | {
           residual: number;
-          point: Vec3;
-          boundary: AutoMovieHumanGlutealParent.IBoundary;
+          point: AutoMovieVector3Tuple;
+          boundary: IAutoMovieHumanGlutealParent.IBoundary;
         }
       | string = (
       station: number,
     ):
       | {
           residual: number;
-          point: Vec3;
-          boundary: AutoMovieHumanGlutealParent.IBoundary;
+          point: AutoMovieVector3Tuple;
+          boundary: IAutoMovieHumanGlutealParent.IBoundary;
         }
       | string => {
       const edge: number | string = AutoMovieViewOutline.value(
@@ -107,16 +62,16 @@ export namespace AutoMovieHumanMassSource {
       );
       if (typeof edge === "string") return edge;
       const frame: ReturnType<typeof part.axis.at> = part.axis.at(station);
-      const point: Vec3 = AutoMovieSolidVector.add(
+      const point: AutoMovieVector3Tuple = AutoMovieSolidVector.add(
         frame.origin,
         AutoMovieSolidVector.scale(frame.u, edge),
       );
-      const chords: AutoMovieHumanGlutealParent.IChord[] | string =
+      const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         connection.parent.chord(point[1], point[2]);
       if (typeof chords === "string") return chords;
       if (chords.length !== 1)
         return "The lower source guide has no unique admitted parent chord";
-      const boundary: AutoMovieHumanGlutealParent.IBoundary =
+      const boundary: IAutoMovieHumanGlutealParent.IBoundary =
         connection.normal[0] > 0 ? chords[0]!.front : chords[0]!.back;
       return {
         residual: connection.normal[0] * (point[0] - boundary.x),
@@ -203,9 +158,9 @@ export namespace AutoMovieHumanMassSource {
    * The added prefix and numerical root support do not certify a final join.
    */
   export function rebase(
-    definition: Site.IDefinition,
-    connection: IConnection,
-  ): Site.IDefinition {
+    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+    connection: IAutoMovieHumanMassSource.IConnection,
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
     if (definition.part === null || definition.view === null) return definition;
     const original: IAutoMovieViewPart = definition.part;
     const record: IAutoMovieConstructionView = definition.view;
@@ -235,11 +190,11 @@ export namespace AutoMovieHumanMassSource {
       ].every(Number.isFinite)
     )
       throw new Error("A mass connection needs finite source placement");
-    const n: Vec3 = AutoMovieSolidVector.cross(
+    const n: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(
       [record.axis.v.x, record.axis.v.y, record.axis.v.z],
       [record.axis.u.x, record.axis.u.y, record.axis.u.z],
     );
-    const oldOrigin: Vec3 = AutoMovieConstructionViews.point(
+    const oldOrigin: AutoMovieVector3Tuple = AutoMovieConstructionViews.point(
       record.axis.origin,
     );
     const scale: number = Math.max(
@@ -265,33 +220,33 @@ export namespace AutoMovieHumanMassSource {
       throw new Error(
         "A mass connection changed the original wall-to-apex clock",
       );
-    const prepared: AutoMovieLoftViewSource.IResult | null =
+    const prepared: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(original);
     if (prepared === null || prepared.source === null)
       throw new Error("The original mass root field is unavailable");
-    const values: AutoMovieLoftViewRead.IValues | string =
+    const values: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(prepared.source, 0);
     if (typeof values === "string") throw new Error(values);
     const rootShape: ReturnType<typeof AutoMovieLoftSectionNative.point> =
       AutoMovieLoftSectionNative.point(values);
     const rootFrame: ReturnType<typeof original.axis.at> = original.axis.at(0);
-    const originalContact: (phi: number) => IContact | string = (
+    const originalContact: (phi: number) => IAutoMovieHumanMassSource.IContact | string = (
       phi: number,
-    ): IContact | string => {
+    ): IAutoMovieHumanMassSource.IContact | string => {
       if (!Number.isFinite(phi)) return "Mass contact needs a finite phase";
       const local: [number, number] = rootShape(phi);
-      const point: Vec3 = AutoMovieSolidVector.add(
+      const point: AutoMovieVector3Tuple = AutoMovieSolidVector.add(
         rootFrame.origin,
         AutoMovieSolidVector.add(
           AutoMovieSolidVector.scale(rootFrame.u, local[0]),
           AutoMovieSolidVector.scale(rootFrame.v, local[1]),
         ),
       );
-      const chords: AutoMovieHumanGlutealParent.IChord[] | string =
+      const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         connection.parent.chord(point[1], point[2]);
       if (typeof chords === "string") return chords;
-      const chord: AutoMovieHumanGlutealParent.IChord | undefined = chords.find(
-        (candidate: AutoMovieHumanGlutealParent.IChord): boolean =>
+      const chord: IAutoMovieHumanGlutealParent.IChord | undefined = chords.find(
+        (candidate: IAutoMovieHumanGlutealParent.IChord): boolean =>
           point[0] > candidate.back.x && point[0] < candidate.front.x,
       );
       return chord === undefined
@@ -312,7 +267,7 @@ export namespace AutoMovieHumanMassSource {
       oldOrigin[0] < connection.rootInterval[1]
     ) {
       for (let k: number = 0; k < 64; k++) {
-        const contact: IContact | string = originalContact(
+        const contact: IAutoMovieHumanMassSource.IContact | string = originalContact(
           (2 * Math.PI * k) / 64,
         );
         if (typeof contact === "string") throw new Error(contact);
@@ -343,8 +298,8 @@ export namespace AutoMovieHumanMassSource {
       radial: boolean,
     ): IAutoMovieViewPart.IOutline => {
       const source:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
         outline,
         radial ? { top: oldTop } : {},
       );
@@ -361,7 +316,7 @@ export namespace AutoMovieHumanMassSource {
         AutoMovieViewParameter.at(parameter, 0);
       const knots: IAutoMovieViewPart.IKnot[] = source.knots.map(
         (knot: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
-          const read: AutoMovieViewOutline.IReading | string =
+          const read: IAutoMovieViewOutline.IReading | string =
             AutoMovieViewOutline.at(source, knot.station);
           if (typeof read === "string") throw new Error(read);
           return {
@@ -389,8 +344,8 @@ export namespace AutoMovieHumanMassSource {
         knots,
       };
       const check:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
         result,
         radial ? { top: newTop } : {},
       );

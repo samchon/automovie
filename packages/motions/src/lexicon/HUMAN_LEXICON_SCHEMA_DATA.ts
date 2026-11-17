@@ -1,5 +1,4 @@
-// Written by `pnpm --filter @automovie/motions schemas` from the lexicon laws' parameter types (src/executable/lexiconSchemas.ts); do not edit by hand.
-import type { HUMAN_LEXICON_SCHEMAS } from "./HUMAN_LEXICON_SCHEMAS";
+import type { IAutoMovieMotionHumanLexiconSchemas } from "@automovie/interface";
 
 /**
  * The generated schemas as data: OpenAPI 3.1 JSON schemas of every lexicon
@@ -11,7 +10,7 @@ import type { HUMAN_LEXICON_SCHEMAS } from "./HUMAN_LEXICON_SCHEMAS";
  * @evidence contracts/development/design.md#minimal-and-owned-surface One constant, read by `HUMAN_LEXICON_SCHEMAS`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is written by hand; a stale file fails CI.
  */
-export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
+export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICollection = {
   "$comment": "Written by `pnpm --filter @automovie/motions schemas` from the lexicon laws' parameter types (src/executable/lexiconSchemas.ts); do not edit by hand.",
   "version": "3.1",
   "rows": {
@@ -14439,7 +14438,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "mass": {
             "type": "number",
             "minimum": 0,
-            "description": "Kilograms the carried person carries besides their body, as their `borne` states it; none when absent."
+            "description": "Kilograms the carried person carries besides their body, as their `borne` states it; none when absent.",
+            "x-unit": "kg"
           },
           "beside": {
             "type": "string",
@@ -14519,7 +14519,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "mass": {
             "type": "number",
             "minimum": 0,
-            "description": "Kilograms the carried person carries besides their body (a pack, gear), which the carrier bears too; none when absent."
+            "description": "Kilograms the carried person carries besides their body (a pack, gear), which the carrier bears too; none when absent.",
+            "x-unit": "kg"
           },
           "with": {
             "type": "string",

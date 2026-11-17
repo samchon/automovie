@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanArmGeometry } from "@automovie/interface";
+
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLimits } from "./HumanArmTrajectoryLimits";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -54,8 +56,8 @@ export namespace HumanArmTrajectoryInvalid {
     q: readonly (readonly number[])[],
     forwardCertified: boolean = false,
   ): { value: number; what: string } {
-    const placed: G.IPlaced[] = q.map(
-      (v: readonly number[], a: number): G.IPlaced =>
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = q.map(
+      (v: readonly number[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         G.placed(c.setups[a]!, c.frames[a]![k]!, v),
     );
     let worst: { value: number; what: string } = { value: -Infinity, what: "" };
@@ -67,7 +69,7 @@ export namespace HumanArmTrajectoryInvalid {
       if (site !== undefined && site.limits !== undefined) {
         const at: P.ILocated = P.located(
           c,
-          (arm: number): G.IPlaced => placed[arm]!,
+          (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced => placed[arm]!,
           a,
           k,
           site,

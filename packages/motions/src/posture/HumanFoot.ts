@@ -1,16 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanFootOutline } from "./HumanFootOutline";
 
 /**
@@ -38,29 +28,9 @@ import { HumanFootOutline } from "./HumanFootOutline";
  * lifting them; `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
-  /** A foot's world placement. */
-  export interface IPlacement {
-    /** The ankle joint, world metres. */
-    ankle: IAutoMovieVector3;
-
-    /** The foot's world rotation from its rest. */
-    rotation: IAutoMovieQuaternion;
-  }
-
-  /** A sole socket that bears on the floor. */
-  export type Socket = (typeof SOCKETS)[number];
 
   /** The sole sockets of {@link Socket}, as data. */
-  export const SOCKETS = ["heel", "ball", "toe"] as const;
-
-  /** A sole socket's place on a displayed foot. */
-  export interface ISocket {
-    /** Which socket. */
-    socket: Socket;
-
-    /** Where it is, world metres. */
-    point: IAutoMovieVector3;
-  }
+  export const SOCKETS = ["heel", "ball", "toe"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanFoot.Socket>[];
 
   /**
    * A foot's three sole sockets on displayed bones, heel first, each placed
@@ -73,11 +43,11 @@ export namespace HumanFoot {
    * @returns The heel, the ball and the toe.
    */
   export function sockets(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
-  ): ISocket[] {
-    return (["heel", "ball", "toe"] as const).map((socket: Socket): ISocket => {
+  ): IAutoMovieMotionHumanFoot.ISocket[] {
+    return (["heel", "ball", "toe"] as const).map((socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieMotionHumanFoot.ISocket => {
       const frame =
         body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
       return {
@@ -118,17 +88,17 @@ export namespace HumanFoot {
    * @returns The left foot's bearing points, then the right foot's, world metres.
    */
   export function base(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     sides: readonly ("left" | "right")[] = ["left", "right"],
   ): IAutoMovieVector3[] {
     return sides.flatMap((side: "left" | "right"): IAutoMovieVector3[] => {
       const points: IAutoMovieVector3[] = [
         ...sockets(body, bones, side).map(
-          (s: ISocket): IAutoMovieVector3 => s.point,
+          (s: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieVector3 => s.point,
         ),
         ...outline(body, side).map(
-          (frame: resolveAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+          (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
             resolveAutoMovieHumanoidSurfaces.place(
               frame,
               bones.get(frame.bone)!,
@@ -153,17 +123,17 @@ export namespace HumanFoot {
    * @returns The heel, the ball and the toe, then the outline's corners.
    */
   export function sole(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    foot: IPlacement,
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieVector3[] {
     const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
     return [
       ...SOCKETS.map(
-        (socket: Socket): IAutoMovieVector3 => point(body, side, socket, foot),
+        (socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 => point(body, side, socket, foot),
       ),
       ...outline(body, side).map(
-        (frame: resolveAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+        (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
           Vector3.add(
             foot.ankle,
             Quaternion.rotateVector(
@@ -193,7 +163,7 @@ export namespace HumanFoot {
    * @param degrees The turn about +Y, degrees.
    * @returns The turned placement; the same one for no turn.
    */
-  export function turned(foot: IPlacement, degrees: number): IPlacement {
+  export function turned(foot: IAutoMovieMotionHumanFoot.IPlacement, degrees: number): IAutoMovieMotionHumanFoot.IPlacement {
     if (degrees === 0) return foot;
     return {
       ankle: foot.ankle,
@@ -295,7 +265,7 @@ export namespace HumanFoot {
    * @returns The offset, metres.
    */
   export function offset(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     point: "heel" | "ball" | "toe" | "sole" | "mtp",
     toes: number = 0,
@@ -340,7 +310,7 @@ export namespace HumanFoot {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pivot(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
     at: IAutoMovieVector3,
@@ -348,7 +318,7 @@ export namespace HumanFoot {
     pitch: number,
     toes: number = 0,
     roll: number = 0,
-  ): IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     const r: IAutoMovieQuaternion = rotation(heading, pitch, roll);
     const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
     return {
@@ -377,7 +347,7 @@ export namespace HumanFoot {
     reached: IAutoMovieQuaternion,
     anchor: IAutoMovieVector3,
     contact: IAutoMovieVector3,
-  ): { ankle: IAutoMovieVector3; toes: number } {
+  ): IAutoMovieMotionHumanFoot.IHeelOffResult {
     return {
       ankle: Vector3.subtract(
         anchor,
@@ -398,10 +368,10 @@ export namespace HumanFoot {
    * @returns The point, world metres.
    */
   export function point(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     point: "heel" | "ball" | "toe" | "sole" | "mtp",
-    foot: IPlacement,
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
     toes: number = 0,
   ): IAutoMovieVector3 {
     return Vector3.add(

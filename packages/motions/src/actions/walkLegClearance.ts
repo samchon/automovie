@@ -1,16 +1,11 @@
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanWalkLegClearance, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
 import {
   AutoMovieMotionHumanAuditTangleModel,
 } from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { HumanLegChain } from "../posture/HumanLegChain";
 import { walkLegBinding } from "./walkLegBinding";
 import { walkLegCapsules } from "./walkLegCapsules";
 
@@ -33,38 +28,6 @@ import { walkLegCapsules } from "./walkLegCapsules";
 export namespace walkLegClearance {
   /** How far two legs may pass into each other beyond their reference depths, metres: the skin's give, the tangle audit's own limit (`AutoMovieMotionHumanAuditTangleModel.BUILT`). */
   export const BOUND: number = AutoMovieMotionHumanAuditTangleModel.BUILT;
-
-  /**
-   * A reading of two legs' clearance (`reading`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The excess and its binding linear piece, as an active-set linearisation reads a piecewise-linear constraint.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the stance course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The piece is the audit's own reading of the binding probe.
-   */
-  export interface IReading {
-    /** The excess, metres. */
-    excess: number;
-
-    /** The binding piece read for the two legs moved, metres; equal to the excess for the legs read. */
-    at: (one: ILeg, other: ILeg) => number;
-  }
-
-  /**
-   * A leg as posed (`HumanLegChain.IPosed`) with its side and its foot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame.
-   * @evidence contracts/development/design.md#principled-representation The posed leg's joints and bones, and the foot's world rotation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The posed leg and two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanLegChain.IPosed`.
-   */
-  export interface ILeg extends HumanLegChain.IPosed {
-    /** The leg. */
-    side: "left" | "right";
-
-    /** The foot's world rotation from its rest. */
-    rotation: IAutoMovieQuaternion;
-  }
   /**
    * A leg's collider segments as posed: the thigh at the hip and the shank at
    * the knee at their rotations, and the foot and the toes at the foot's
@@ -83,9 +46,9 @@ export namespace walkLegClearance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh segments and retains nothing.
    */
   export function placed(
-    body: IHumanBody,
-    leg: ILeg,
-  ): HumanColliders.IPlaced[] {
+    body: IAutoMovieMotionHumanBody,
+    leg: IAutoMovieMotionHumanWalkLegClearance.ILeg,
+  ): IAutoMovieMotionHumanColliders.IPlaced[] {
     return HumanColliders.placed(body, walkLegCapsules.bones(body, leg));
   }
 
@@ -111,15 +74,15 @@ export namespace walkLegClearance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the per-body memos.
    */
   export function reading(
-    body: IHumanBody,
-    one: ILeg,
-    other: ILeg,
-  ): IReading {
+    body: IAutoMovieMotionHumanBody,
+    one: IAutoMovieMotionHumanWalkLegClearance.ILeg,
+    other: IAutoMovieMotionHumanWalkLegClearance.ILeg,
+  ): IAutoMovieMotionHumanWalkLegClearance.IReading {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
     const fits: ReadonlyMap<AutoMovieHumanoidBone, walkLegCapsules.ICapsule> = walkLegCapsules.capsules(body);
     const index: ReadonlyMap<AutoMovieHumanoidBone, number> = walkLegCapsules.indices(body);
-    const legs = [one, other].map((leg: ILeg) => {
+    const legs = [one, other].map((leg: IAutoMovieMotionHumanWalkLegClearance.ILeg) => {
       const k: IAutoMovieVector3 = leg.knee;
       const names: Record<string, AutoMovieHumanoidBone> = walkLegCapsules.NAMES[leg.side];
       const toes: IAutoMovieVector3 = Vector3.add(
@@ -206,16 +169,16 @@ export namespace walkLegClearance {
     // its depth the least of its distances inside the hull's face planes,
     // less its reference; the deepest is kept with the probe, the hull and
     // the face that bound it.
-    const segmentsOf = (leg: ILeg): Map<number, HumanColliders.IPlaced> =>
+    const segmentsOf = (leg: IAutoMovieMotionHumanWalkLegClearance.ILeg): Map<number, IAutoMovieMotionHumanColliders.IPlaced> =>
       new Map(
         HumanColliders.placed(body, walkLegCapsules.bones(body, leg)).map(
-          (segment: HumanColliders.IPlaced): [number, HumanColliders.IPlaced] => [
+          (segment: IAutoMovieMotionHumanColliders.IPlaced): [number, IAutoMovieMotionHumanColliders.IPlaced] => [
             index.get(segment.bone)!,
             segment,
           ],
         ),
       );
-    const segments: Map<number, HumanColliders.IPlaced>[] = [
+    const segments: Map<number, IAutoMovieMotionHumanColliders.IPlaced>[] = [
       segmentsOf(one),
       segmentsOf(other),
     ];
@@ -223,8 +186,8 @@ export namespace walkLegClearance {
     let binding: walkLegBinding.IBinding | undefined;
     for (const [from, i, to, j] of meeting) {
       const { probes, references } = walkLegCapsules.readable(m, body, i, j);
-      const a: HumanColliders.IPlaced = segments[from]!.get(i)!;
-      const b: HumanColliders.IPlaced = segments[to]!.get(j)!;
+      const a: IAutoMovieMotionHumanColliders.IPlaced = segments[from]!.get(i)!;
+      const b: IAutoMovieMotionHumanColliders.IPlaced = segments[to]!.get(j)!;
       // A probe outside the bounding sphere of the second segment's corners
       // lies outside every hull of it.
       const sphere: AutoMovieMotionHumanAuditTangleModel.IPart = m.parts[j]!;
@@ -257,19 +220,19 @@ export namespace walkLegClearance {
     const bound: walkLegBinding.IBinding | undefined = binding;
     return {
       excess: worst,
-      at: (first: ILeg, second: ILeg): number => {
+      at: (first: IAutoMovieMotionHumanWalkLegClearance.ILeg, second: IAutoMovieMotionHumanWalkLegClearance.ILeg): number => {
         if (bound === undefined) return 0;
-        const moved: Map<number, HumanColliders.IPlaced>[] = [
+        const moved: Map<number, IAutoMovieMotionHumanColliders.IPlaced>[] = [
           segmentsOf(first),
           segmentsOf(second),
         ];
-        const b: HumanColliders.IPlaced = moved[bound.to]!.get(bound.j)!;
+        const b: IAutoMovieMotionHumanColliders.IPlaced = moved[bound.to]!.get(bound.j)!;
         const local: IAutoMovieVector3 = walkLegBinding.relative(
           bound.probe,
           moved[bound.from]!.get(bound.i)!,
           b,
         );
-        const shape: HumanColliders.IPlaced["shapes"][number] = b.shapes[bound.shape]!;
+        const shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number] = b.shapes[bound.shape]!;
         return (
           (bound.face === undefined
             ? walkLegBinding.inside(shape, local, -Infinity).depth
@@ -296,7 +259,7 @@ export namespace walkLegClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `reading`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function excess(body: IHumanBody, one: ILeg, other: ILeg): number {
+  export function excess(body: IAutoMovieMotionHumanBody, one: IAutoMovieMotionHumanWalkLegClearance.ILeg, other: IAutoMovieMotionHumanWalkLegClearance.ILeg): number {
     return reading(body, one, other).excess;
   }
 
@@ -321,15 +284,15 @@ export namespace walkLegClearance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `placed` and the audit's model.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function moved(body: IHumanBody, one: ILeg, other: ILeg): number {
+  export function moved(body: IAutoMovieMotionHumanBody, one: IAutoMovieMotionHumanWalkLegClearance.ILeg, other: IAutoMovieMotionHumanWalkLegClearance.ILeg): number {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
     const index: ReadonlyMap<AutoMovieHumanoidBone, number> = walkLegCapsules.indices(body);
-    const a: HumanColliders.IPlaced[] = placed(body, one);
-    const b: HumanColliders.IPlaced[] = placed(body, other);
+    const a: IAutoMovieMotionHumanColliders.IPlaced[] = placed(body, one);
+    const b: IAutoMovieMotionHumanColliders.IPlaced[] = placed(body, other);
     let out: number = 0;
-    a.forEach((segment: HumanColliders.IPlaced, s: number): void => {
-      const twin: HumanColliders.IPlaced = b[s]!;
+    a.forEach((segment: IAutoMovieMotionHumanColliders.IPlaced, s: number): void => {
+      const twin: IAutoMovieMotionHumanColliders.IPlaced = b[s]!;
       for (const probe of m.parts[index.get(segment.bone)!]!.probes)
         out = Math.max(
           out,

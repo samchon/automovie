@@ -1,19 +1,21 @@
-import type { IAutoMovieRecoveryInput } from "@automovie/interface";
+import type { IAutoMovieRecoveryMeshSections, IAutoMovieRecoverySourceLineage, IAutoMovieRecoveryInput } from "@automovie/interface";
+
 
 import { extractRecoveryMeshSections } from "../internal/extractRecoveryMeshSections";
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
+
+
 
 /**
  * Automatic section extraction and source-independent cubic publication.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Inputs and results distinguish physical registration, exact coordinate aliases, open gaps and unsupported events.
- * @evidence contracts/development/design.md#principled-representation Represents Automatic section extraction and source-independent cubic publication: companion namespace of 1 member (`extract`); units and frames named in its text: local, second. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieRecoveryMeshSections` in packages/recovery/src/observation/AutoMovieRecoveryMeshSections.ts; its surface is the 1 member listed and the text shows 3 other files naming it, mostly packages/recovery (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation Registered millimetre source observations and explicit station/fit limits produce complete or explicitly truncated section populations.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The namespace delegates to one section-extraction owner; common section reports and lineage callbacks carry its public data.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Open paths, isolated contacts and unsupported events remain visible; a station prefix cannot be presented as full source coverage.
  */
 export namespace AutoMovieRecoveryMeshSections {
-  /**
+ 
+ /**
    * Extract every section component with automatic stations, feature corners and PL critical brackets.
    * Physical ties remain explicit; cutting and PL topology share one immutable scalar chart.
    * The optional progress observer reports completed plane and slab populations without changing geometry.

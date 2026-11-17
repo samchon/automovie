@@ -1,16 +1,7 @@
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionTarget } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  HumanVerdicts,
-  type IHumanBody,
-  type IHumanLayer,
-  type IHumanPosture,
-  type IHumanProp,
-  seated,
-} from "@automovie/motions";
+
+import { HumanChain, HumanPerformance, HumanRefusal, HumanVerdicts, seated } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -58,10 +49,10 @@ export namespace motionCompositionProbe {
    * @returns Nothing when it plans with a clean report; otherwise one line naming the refusal or the broken bounds.
    */
   export function run(name: Name): string[] {
-    const a: IHumanBody = motionHumanBody("m-average");
-    const b: IHumanBody = motionHumanBody("f-small");
+    const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+    const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
     const reach: number = a.measure.upperArm + a.measure.forearm;
-    const door: IHumanProp = {
+    const door: IAutoMovieMotionHumanProp = {
       subject: "door",
       frame: {
         position: { x: 0, y: 0, z: 0.75 * reach },
@@ -77,7 +68,7 @@ export namespace motionCompositionProbe {
     const probe: IProbe = probes(a, reach)[name];
     let outcome: string;
     try {
-      const performance: HumanPerformance = new HumanPerformance({
+      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "probe",
         performers: [
           {
@@ -124,20 +115,20 @@ export namespace motionCompositionProbe {
     partner?: true;
 
     /** Production layers by performer. */
-    layers?: Record<string, IHumanLayer[]>;
+    layers?: Record<string, IAutoMovieMotionHumanLayer[]>;
 
     /** The composition. */
-    composition: () => HumanChain["node"];
+    composition: () => IAutoMovieMotionHumanChain["node"];
   }
 
   /** Every probe's scene for a performer of an arm's reach. */
-  function probes(a: IHumanBody, reach: number): Record<Name, IProbe> {
-    const panel: AutoMovieMotionTarget = {
+  function probes(a: IAutoMovieMotionHumanBody, reach: number): Record<Name, IProbe> {
+    const panel: IAutoMovieMotionTarget = {
       kind: "prop",
       subject: "door",
       point: "panel",
     };
-    const chair: seated.ISeat = {
+    const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
         y: seated.popliteal(a),
@@ -146,9 +137,9 @@ export namespace motionCompositionProbe {
       yaw: 0,
       depth: 0.45,
     };
-    const texting: IHumanLayer = {
+    const texting: IAutoMovieMotionHumanLayer = {
       name: "texting",
-      apply: (posture: IHumanPosture): IHumanPosture => {
+      apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
         const yaw: number = (posture.yaw * Math.PI) / 180;
         const ahead = (
           x: number,
@@ -171,9 +162,9 @@ export namespace motionCompositionProbe {
         };
       },
     };
-    const start = (subject: string = "a"): HumanChain =>
+    const start = (subject: string = "a"): IAutoMovieMotionHumanChain =>
       HumanChain.subject(subject);
-    const chestOfB: AutoMovieMotionTarget = {
+    const chestOfB: IAutoMovieMotionTarget = {
       kind: "person",
       subject: "b",
       region: "sternum",
@@ -181,31 +172,31 @@ export namespace motionCompositionProbe {
     return {
       knock: {
         gap: 3,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start().touch({ target: panel, kind: "tap", with: "fist", count: 3 })
             .node,
       },
       turnInPlace: {
         gap: 3,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start().walk({ to: { x: 0, y: 0, z: 0 }, face: 90 }).node,
       },
       seatedDrink: {
         gap: 3,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
             .sit({ seat: chair, seconds: 0.5 })
             .handToFace({ task: "drink" }).node,
       },
       seatedWave: {
         gap: 3,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start().sit({ seat: chair, seconds: 0.5 }).gesture({ kind: "wave" })
             .node,
       },
       seatedTouch: {
         gap: 3,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
             .sit({ seat: chair, seconds: 0.5 })
             .touch({ target: { kind: "self", region: "sternum" }, kind: "pat" })
@@ -214,13 +205,13 @@ export namespace motionCompositionProbe {
       textingWalk: {
         gap: 6,
         layers: { a: [texting] },
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start().walk({ to: { x: 0, y: 0, z: 3 } }).node,
       },
       push: {
         gap: 0.75 * reach,
         partner: true,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
             .touch({ target: chestOfB, kind: "press" }, "push")
             .with(
@@ -236,7 +227,7 @@ export namespace motionCompositionProbe {
       chaseApproach: {
         gap: 2,
         partner: true,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
             .approach({ target: chestOfB, pace: "fast" })
             .with(start("b").walk({ to: { x: 0, y: 0, z: 6 } })).node,
@@ -244,7 +235,7 @@ export namespace motionCompositionProbe {
       chaseRun: {
         gap: 2,
         partner: true,
-        composition: (): HumanChain["node"] =>
+        composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
             .run({ to: { x: 0, y: 0, z: 5 } })
             .with(start("b").walk({ to: { x: 0, y: 0, z: 6 } })).node,

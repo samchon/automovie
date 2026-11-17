@@ -1,11 +1,16 @@
-import { AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain, IAutoMovieHumanShoulderRing, IAutoMovieHumanTrunkChains, IAutoMovieHumanTrunkLandmarks, IAutoMovieHumanTrunkSolution } from "@automovie/interface";
+
+
+
+
+
+import { AutoMovieSeamStation } from "@automovie/engine";
 import { AutoMovieHumanShoulderRing } from "./AutoMovieHumanShoulderRing";
 import { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
-import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
-import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
+
 
 /**
  * The trunk's two chains from a solved trunk: `trunk` from the crotch ring to
@@ -35,14 +40,7 @@ import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolutio
  * pole, runs on across it.
  */
 export namespace AutoMovieHumanTrunkChains {
-  /** The chains' sampling: uniform phases of each ring and the phase rule. */
-  export interface ISampling {
-    /** Uniform phases of the chains' rings. */
-    samples: number;
-
-    /** Phase correspondence rule. */
-    rule: IAutoMovieLoftChain["rule"];
-  }
+  
 
   /**
    * The chains.
@@ -51,7 +49,7 @@ export namespace AutoMovieHumanTrunkChains {
    * @param sampling The chains' ring sampling.
    * @returns `trunk` and `upper`, bottom first.
    */
-  export function build(solution: IAutoMovieHumanTrunkSolution, sampling: ISampling): [IAutoMovieLoftChain, IAutoMovieLoftChain] {
+  export function build(solution: IAutoMovieHumanTrunkSolution, sampling: IAutoMovieHumanTrunkChains.ISampling): IAutoMovieHumanTrunkChains.BuildResult {
     const l: IAutoMovieHumanTrunkLandmarks = solution.landmarks;
     const neck: IAutoMovieLoftChain | undefined = solution.neck ?? solution.rawNeck?.();
     if (neck === undefined) throw new Error("The explicit legacy trunk loft has no actual neck supplier");
@@ -70,7 +68,7 @@ export namespace AutoMovieHumanTrunkChains {
     const higher: number[] = AutoMovieHumanTrunkRows.stations(l.axilla, top.y, [l.glenohumeral[1], solution.line.from], spacing);
     const rows: number[] = [...lower, ...higher.slice(1)];
     const vault: number = lower.length - 1;
-    const shoulder: AutoMovieHumanShoulderRing.IInput = {
+    const shoulder: IAutoMovieHumanShoulderRing.IInput = {
       column: solution.column,
       line: solution.line,
       oval: solution.oval,

@@ -1,4 +1,6 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
+
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -19,7 +21,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
  * 0.07 mm from it on average and at most 0.28 mm. 65 independent numbers.
  */
-export const AutoMovieHumanF1ToeIndex: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1ToeIndex: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.index",
   centres: [AutoMovieHumanF1Joints.indextoe1, AutoMovieHumanF1Joints.indextoe2, AutoMovieHumanF1Joints.indextoeEnd],
   halves: [5],

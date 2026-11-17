@@ -1,14 +1,11 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
-import type { rest } from "./rest";
 
 /**
  * The supporting hand's rest goal: its palm under the other arm's elbow (the
@@ -31,14 +28,14 @@ import type { rest } from "./rest";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restElbowSupport(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  side: HumanHand.Side,
-  chin: rest.IGoal,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  side: IAutoMovieMotionHumanHand.Side,
+  chin: IAutoMovieMotionHumanRest.IGoal,
   elbow: IAutoMovieVector3,
-): rest.IGoal {
-  const other: HumanHand.Side = side === "left" ? "right" : "left";
-  const solved: IHumanPosture = handGoals(
+): IAutoMovieMotionHumanRest.IGoal {
+  const other: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
+  const solved: IAutoMovieMotionHumanPosture = handGoals(
     body,
     {
       ...posture,

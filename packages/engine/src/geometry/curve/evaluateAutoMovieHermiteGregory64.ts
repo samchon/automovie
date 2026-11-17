@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple, IAutoMovieEvaluateHermiteGregory64 } from "@automovie/interface";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /** Evaluate a rational Hermite transfinite chart and its analytic first partials.
@@ -18,14 +19,14 @@ import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
  */
 export function evaluateAutoMovieHermiteGregory64(
   edges: readonly ((t: number) => {
-    point: M.V;
-    tangent: M.V;
-    cross: M.V;
-    crossTangent: M.V;
+    point: AutoMovieVector3Tuple;
+    tangent: AutoMovieVector3Tuple;
+    cross: AutoMovieVector3Tuple;
+    crossTangent: AutoMovieVector3Tuple;
   })[],
   u: number,
   v: number,
-): { point: M.V; du: M.V; dv: M.V } {
+): IAutoMovieEvaluateHermiteGregory64.IResult {
   if (
     edges.length !== 4 ||
     !Number.isFinite(u) ||
@@ -51,7 +52,7 @@ export function evaluateAutoMovieHermiteGregory64(
   ]);
   const hu: number[][] = basis(u),
     hv: number[][] = basis(v);
-  const result: { point: M.V; du: M.V; dv: M.V } = {
+  const result: { point: AutoMovieVector3Tuple; du: AutoMovieVector3Tuple; dv: AutoMovieVector3Tuple } = {
     point: [0, 0, 0],
     du: [0, 0, 0],
     dv: [0, 0, 0],
@@ -88,17 +89,17 @@ export function evaluateAutoMovieHermiteGregory64(
       const b: number = y === 0 ? v : 1 - v;
       const denominator: number = a + b;
       if (denominator === 0) continue; // Its Hermite product and both first derivatives vanish.
-      const side: M.V = vertical[x]![y]!.crossTangent;
-      const bottom: M.V = horizontal[y]![x]!.crossTangent;
-      const twist: M.V = M.scale(
+      const side: AutoMovieVector3Tuple = vertical[x]![y]!.crossTangent;
+      const bottom: AutoMovieVector3Tuple = horizontal[y]![x]!.crossTangent;
+      const twist: AutoMovieVector3Tuple = M.scale(
         M.add(M.scale(side, a), M.scale(bottom, b)),
         1 / denominator,
       );
-      const du: M.V = M.scale(
+      const du: AutoMovieVector3Tuple = M.scale(
         M.sub(side, twist),
         (x === 0 ? 1 : -1) / denominator,
       );
-      const dv: M.V = M.scale(
+      const dv: AutoMovieVector3Tuple = M.scale(
         M.sub(bottom, twist),
         (y === 0 ? 1 : -1) / denominator,
       );
@@ -124,13 +125,13 @@ export function evaluateAutoMovieHermiteGregory64(
     ];
   }
   /** Accumulate one vector contribution and its explicit product derivatives. */
-  function add(p: M.V, weight: number, du: number, dv: number): void {
+  function add(p: AutoMovieVector3Tuple, weight: number, du: number, dv: number): void {
     result.point = M.add(result.point, M.scale(p, weight));
     result.du = M.add(result.du, M.scale(p, du));
     result.dv = M.add(result.dv, M.scale(p, dv));
   }
   /** The corner tensor uses the same basis and derivatives as both interpolants. */
-  function subtract(p: M.V, i: number, j: number): void {
+  function subtract(p: AutoMovieVector3Tuple, i: number, j: number): void {
     add(
       p,
       -hu[0]![i]! * hv[0]![j]!,

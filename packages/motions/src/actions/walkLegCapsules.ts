@@ -1,20 +1,10 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWalkLegClearance, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
   AutoMovieMotionHumanAuditTangleModel,
 } from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import type { IHumanBody } from "../body/IHumanBody";
-import { walkLegClearance } from "./walkLegClearance";
 
 /**
  * The legs' geometry the clearance reads (`walkLegClearance`): a leg's
@@ -30,8 +20,8 @@ import { walkLegClearance } from "./walkLegClearance";
 export namespace walkLegCapsules {
   /** The leg's four bones as posed, world frame (`walkLegClearance.placed`). */
   export function bones(
-    body: IHumanBody,
-    leg: walkLegClearance.ILeg,
+    body: IAutoMovieMotionHumanBody,
+    leg: IAutoMovieMotionHumanWalkLegClearance.ILeg,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const names: Record<string, AutoMovieHumanoidBone> = NAMES[leg.side];
     const resolved = (
@@ -100,7 +90,7 @@ export namespace walkLegCapsules {
    * is its joint.
    */
   export function capsules(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
   ): ReadonlyMap<AutoMovieHumanoidBone, ICapsule> {
     const known: Map<AutoMovieHumanoidBone, ICapsule> | undefined =
       CAPSULES.get(body);
@@ -181,7 +171,7 @@ export namespace walkLegCapsules {
   }
 
   /** Each segment's index among the audit model's parts, read once per body. */
-  export function indices(body: IHumanBody): ReadonlyMap<AutoMovieHumanoidBone, number> {
+  export function indices(body: IAutoMovieMotionHumanBody): ReadonlyMap<AutoMovieHumanoidBone, number> {
     const known: Map<AutoMovieHumanoidBone, number> | undefined =
       INDICES.get(body);
     if (known !== undefined) return known;
@@ -216,7 +206,7 @@ export namespace walkLegCapsules {
    */
   export function readable(
     m: AutoMovieMotionHumanAuditTangleModel.IModel,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     i: number,
     j: number,
   ): IReadable {
@@ -242,15 +232,15 @@ export namespace walkLegCapsules {
   }
 
   /** Each body's bounding capsules of its leg segments (`capsules`). */
-  const CAPSULES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
+  const CAPSULES: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
     new WeakMap();
 
   /** Each body's segment indices among the audit model's parts (`indices`). */
-  const INDICES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, number>> =
+  const INDICES: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidBone, number>> =
     new WeakMap();
 
   /** Each body's readable probes by ordered pair of segments (`readable`). */
-  const READABLE: WeakMap<IHumanBody, Map<number, IReadable>> = new WeakMap();
+  const READABLE: WeakMap<IAutoMovieMotionHumanBody, Map<number, IReadable>> = new WeakMap();
 
   /** The identity frame a shape's distance is read in. */
   export const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {

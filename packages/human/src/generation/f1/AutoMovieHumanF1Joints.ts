@@ -1,3 +1,6 @@
+import type { AutoMovieVector3Tuple, IAutoMovieHumanF1Joints } from "@automovie/interface";
+
+
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
@@ -11,155 +14,154 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * replaces the table and every course follows.
  */
 export namespace AutoMovieHumanF1Joints {
-  /** A point in the figure's frame, mm. */
-  export type V3 = [number, number, number];
+  
 
   /** Reference joint `upperarm_r`. */
-  export const upperarm: V3 = AutoMovieHumanF1Placement.point("upperarm");
+  export const upperarm: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("upperarm");
 
   /** Reference joint `lowerarm_r`. */
-  export const lowerarm: V3 = AutoMovieHumanF1Placement.point("lowerarm");
+  export const lowerarm: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("lowerarm");
 
   /** Reference joint `hand_r`. */
-  export const hand: V3 = AutoMovieHumanF1Placement.point("hand");
+  export const hand: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("hand");
 
   /** Reference joint `thigh_r`. */
-  export const thigh: V3 = AutoMovieHumanF1Placement.point("thigh");
+  export const thigh: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("thigh");
 
   /** Reference joint `calf_r`. */
-  export const calf: V3 = AutoMovieHumanF1Placement.point("calf");
+  export const calf: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("calf");
 
   /** Reference joint `foot_r`. */
-  export const foot: V3 = AutoMovieHumanF1Placement.point("foot");
+  export const foot: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("foot");
 
   /** Reference joint `index_01_r`. */
-  export const index1: V3 = AutoMovieHumanF1Placement.point("index1");
+  export const index1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("index1");
 
   /** Reference joint `index_02_r`. */
-  export const index2: V3 = AutoMovieHumanF1Placement.point("index2");
+  export const index2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("index2");
 
   /** Reference joint `index_03_r`. */
-  export const index3: V3 = AutoMovieHumanF1Placement.point("index3");
+  export const index3: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("index3");
 
   /** Reference joint `middle_01_r`. */
-  export const middle1: V3 = AutoMovieHumanF1Placement.point("middle1");
+  export const middle1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middle1");
 
   /** Reference joint `middle_02_r`. */
-  export const middle2: V3 = AutoMovieHumanF1Placement.point("middle2");
+  export const middle2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middle2");
 
   /** Reference joint `middle_03_r`. */
-  export const middle3: V3 = AutoMovieHumanF1Placement.point("middle3");
+  export const middle3: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middle3");
 
   /** Reference joint `ring_01_r`. */
-  export const ring1: V3 = AutoMovieHumanF1Placement.point("ring1");
+  export const ring1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ring1");
 
   /** Reference joint `ring_02_r`. */
-  export const ring2: V3 = AutoMovieHumanF1Placement.point("ring2");
+  export const ring2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ring2");
 
   /** Reference joint `ring_03_r`. */
-  export const ring3: V3 = AutoMovieHumanF1Placement.point("ring3");
+  export const ring3: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ring3");
 
   /** Reference joint `pinky_01_r`. */
-  export const pinky1: V3 = AutoMovieHumanF1Placement.point("pinky1");
+  export const pinky1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("pinky1");
 
   /** Reference joint `pinky_02_r`. */
-  export const pinky2: V3 = AutoMovieHumanF1Placement.point("pinky2");
+  export const pinky2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("pinky2");
 
   /** Reference joint `pinky_03_r`. */
-  export const pinky3: V3 = AutoMovieHumanF1Placement.point("pinky3");
+  export const pinky3: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("pinky3");
 
   /** Reference joint `thumb_01_r`. */
-  export const thumb1: V3 = AutoMovieHumanF1Placement.point("thumb1");
+  export const thumb1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("thumb1");
 
   /** Reference joint `thumb_02_r`. */
-  export const thumb2: V3 = AutoMovieHumanF1Placement.point("thumb2");
+  export const thumb2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("thumb2");
 
   /** Reference joint `thumb_03_r`. */
-  export const thumb3: V3 = AutoMovieHumanF1Placement.point("thumb3");
+  export const thumb3: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("thumb3");
 
   /** Reference joint `bigtoe_01_r`. */
-  export const bigtoe1: V3 = AutoMovieHumanF1Placement.point("bigtoe1");
+  export const bigtoe1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("bigtoe1");
 
   /** Reference joint `bigtoe_02_r`. */
-  export const bigtoe2: V3 = AutoMovieHumanF1Placement.point("bigtoe2");
+  export const bigtoe2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("bigtoe2");
 
   /** Reference joint `indextoe_01_r`. */
-  export const indextoe1: V3 = AutoMovieHumanF1Placement.point("indextoe1");
+  export const indextoe1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("indextoe1");
 
   /** Reference joint `indextoe_02_r`. */
-  export const indextoe2: V3 = AutoMovieHumanF1Placement.point("indextoe2");
+  export const indextoe2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("indextoe2");
 
   /** Reference joint `middletoe_01_r`. */
-  export const middletoe1: V3 = AutoMovieHumanF1Placement.point("middletoe1");
+  export const middletoe1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middletoe1");
 
   /** Reference joint `middletoe_02_r`. */
-  export const middletoe2: V3 = AutoMovieHumanF1Placement.point("middletoe2");
+  export const middletoe2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middletoe2");
 
   /** Reference joint `ringtoe_01_r`. */
-  export const ringtoe1: V3 = AutoMovieHumanF1Placement.point("ringtoe1");
+  export const ringtoe1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ringtoe1");
 
   /** Reference joint `ringtoe_02_r`. */
-  export const ringtoe2: V3 = AutoMovieHumanF1Placement.point("ringtoe2");
+  export const ringtoe2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ringtoe2");
 
   /** Reference joint `littletoe_01_r`. */
-  export const littletoe1: V3 = AutoMovieHumanF1Placement.point("littletoe1");
+  export const littletoe1: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("littletoe1");
 
   /** Reference joint `littletoe_02_r`. */
-  export const littletoe2: V3 = AutoMovieHumanF1Placement.point("littletoe2");
+  export const littletoe2: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("littletoe2");
 
   /** The far point of the index finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const indexPad: V3 = AutoMovieHumanF1Placement.point("indexPad");
+  export const indexPad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("indexPad");
 
   /** The far point of the middle finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const middlePad: V3 = AutoMovieHumanF1Placement.point("middlePad");
+  export const middlePad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middlePad");
 
   /** The far point of the ring finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const ringPad: V3 = AutoMovieHumanF1Placement.point("ringPad");
+  export const ringPad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ringPad");
 
   /** The far point of the pinky finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const pinkyPad: V3 = AutoMovieHumanF1Placement.point("pinkyPad");
+  export const pinkyPad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("pinkyPad");
 
   /** The far point of the thumb's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const thumbPad: V3 = AutoMovieHumanF1Placement.point("thumbPad");
+  export const thumbPad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("thumbPad");
 
   /** The far point of the big toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const bigtoePad: V3 = AutoMovieHumanF1Placement.point("bigtoePad");
+  export const bigtoePad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("bigtoePad");
 
   /** The far point of the index toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const indextoePad: V3 = AutoMovieHumanF1Placement.point("indextoePad");
+  export const indextoePad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("indextoePad");
 
   /** The far point of the middle toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const middletoePad: V3 = AutoMovieHumanF1Placement.point("middletoePad");
+  export const middletoePad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middletoePad");
 
   /** The far point of the ring toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const ringtoePad: V3 = AutoMovieHumanF1Placement.point("ringtoePad");
+  export const ringtoePad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ringtoePad");
 
   /** The far point of the little toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
-  export const littletoePad: V3 = AutoMovieHumanF1Placement.point("littletoePad");
+  export const littletoePad: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("littletoePad");
 
   /** Foot of the vertical axis the trunk is read about, below the crotch on the median line. */
-  export const axisFloor: V3 = AutoMovieHumanF1Placement.point("axisFloor");
+  export const axisFloor: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("axisFloor");
 
   /** Top of the trunk's axis, above the crown. */
-  export const axisCrown: V3 = AutoMovieHumanF1Placement.point("axisCrown");
+  export const axisCrown: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("axisCrown");
 
   /** Where the leg's course ends past the ankle, in the ball of the foot. */
-  export const footBall: V3 = AutoMovieHumanF1Placement.point("footBall");
+  export const footBall: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("footBall");
 
   /**
    * The armpit's crease, where the arm's inner side meets the trunk's side. The armscye is the sagittal plane at its side distance: the trunk
    * owns the skin medial of that plane, the arm the rest.
    */
-  export const armpit: V3 = AutoMovieHumanF1Placement.point("armpit");
+  export const armpit: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("armpit");
 
   /**
    * Where the arm's course starts, inside the trunk beside the armscye's plane, 35 mm above the armpit's crease and midway between the
    * shoulder's fore and aft edges. The course leaves it straight to the side, so the arm's first sections lie beside that plane.
    */
-  export const armRoot: V3 = AutoMovieHumanF1Placement.point("armRoot");
+  export const armRoot: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("armRoot");
 
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
-  export const armTurn: V3 = AutoMovieHumanF1Placement.point("armTurn");
+  export const armTurn: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("armTurn");
 
   /**
    * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the
@@ -178,7 +180,7 @@ export namespace AutoMovieHumanF1Joints {
    * front limb is sunk 2 mm and carried on down the helix's crus into the head, its first centre [16, 1578, 72] under the crus's skin,
    * so its front end is buried in the head. Its lower limb from 1,570 to 1,555 mm stands 1 mm farther out, clear of the antihelix (below).
    */
-  export const helix: V3[] = AutoMovieHumanF1Placement.points("helix");
+  export const helix: AutoMovieVector3Tuple[] = AutoMovieHumanF1Placement.points("helix");
 
   /**
    * The ear's plate's course, along the auricle's long axis from below the lobule to above the helix's top, through the middle of the plate's
@@ -191,7 +193,7 @@ export namespace AutoMovieHumanF1Joints {
    * [8, 1602, 80.5] the cap closed 8 mm inside the tube's line and its square end showed under the helix's arch (`ear.left`). Every
    * section holds the course.
    */
-  export const plate: V3[] = AutoMovieHumanF1Placement.points("plate");
+  export const plate: AutoMovieVector3Tuple[] = AutoMovieHumanF1Placement.points("plate");
 
   /**
    * The antihelix's course, along its crest from its lower end at the antitragus up its body and on along its superior crus to the
@@ -207,90 +209,90 @@ export namespace AutoMovieHumanF1Joints {
    * 1,577 mm, so their blends met: the lower four centres stand 2 mm farther in along the plate and the helix's lower limb 1 mm farther
    * out, the antihelix 1.5 mm and the helix's limb 2 mm round there, and the two tubes stay at least 2.95 mm apart everywhere.
    */
-  export const antihelix: V3[] = AutoMovieHumanF1Placement.points("antihelix");
+  export const antihelix: AutoMovieVector3Tuple[] = AutoMovieHumanF1Placement.points("antihelix");
 
   /** Where the nose's course starts, inside the face 5 mm behind the frontal plane through the alar grooves. */
-  export const noseRoot: V3 = AutoMovieHumanF1Placement.point("noseRoot");
+  export const noseRoot: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("noseRoot");
 
   /** Where the nose's course ends, straight forward past its tip. */
-  export const noseTip: V3 = AutoMovieHumanF1Placement.point("noseTip");
+  export const noseTip: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("noseTip");
 
   /**
    * Where the course of the concha's bowl starts, over the bowl's deepest point, 6 mm deeper than read off the leaf: the cutter stood
    * 6 mm shallower than the reference's floor and closed in a rounded cap at 71 mm (EA2), and its walls met the head only inside that cap,
    * where no seed is sought (a scratch probe along its four quarter lines).
    */
-  export const conchaRoot: V3 = AutoMovieHumanF1Placement.point("conchaRoot");
+  export const conchaRoot: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("conchaRoot");
 
   /** Where it ends, square into the head under the bowl. */
-  export const conchaTip: V3 = AutoMovieHumanF1Placement.point("conchaTip");
+  export const conchaTip: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("conchaTip");
 
   /**
    * Where the breast's course starts, inside the chest 30 mm behind the dome's top along the skin's normal there: the top is the skin's
    * point farthest along that normal, and the normal the vector area of the skin within 12 mm of the top.
    */
-  export const breastRoot: V3 = AutoMovieHumanF1Placement.point("breastRoot");
+  export const breastRoot: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("breastRoot");
 
   /** Where the breast's course ends, along the same normal 8 mm past the top. */
-  export const breastTip: V3 = AutoMovieHumanF1Placement.point("breastTip");
+  export const breastTip: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("breastTip");
 
   /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
-  export const nostrilRoot: V3 = AutoMovieHumanF1Placement.point("nostrilRoot");
+  export const nostrilRoot: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("nostrilRoot");
 
   /** Where a nostril's course ends, straight up inside the nose. */
-  export const nostrilTip: V3 = AutoMovieHumanF1Placement.point("nostrilTip");
+  export const nostrilTip: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("nostrilTip");
 
   /**
    * Where the arm's and the hand's courses end: 40 mm past the middle finger's first joint along the mean direction of the four fingers'
    * first segments (`toward(middle1, [[index1, index2], [middle1, middle2], [ring1, ring2], [pinky1, pinky2]], 40)` at the reference
    * pose), a point of the hand, about which the palm's sections past the knuckles are read.
    */
-  export const handEnd: V3 = AutoMovieHumanF1Placement.point("handEnd");
+  export const handEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("handEnd");
 
   /**
    * Where the leg's course ends: 40 mm past the ball of the foot along the mean direction of the five toes' first segments
    * (`toward(footBall, [[bigtoe1, bigtoe2], ..., [littletoe1, littletoe2]], 40)` at the reference pose), a point of the foot.
    */
-  export const footEnd: V3 = AutoMovieHumanF1Placement.point("footEnd");
+  export const footEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("footEnd");
 
   /** Where the index finger's course ends: 4 mm past its pad's far point on the line from its last joint (`beyond(index3, indexPad, 4)`), a point of its distal phalanx. */
-  export const indexEnd: V3 = AutoMovieHumanF1Placement.point("indexEnd");
+  export const indexEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("indexEnd");
 
   /** Where the middle finger's course ends: `beyond(middle3, middlePad, 4)`, a point of its distal phalanx. */
-  export const middleEnd: V3 = AutoMovieHumanF1Placement.point("middleEnd");
+  export const middleEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middleEnd");
 
   /** Where the ring finger's course ends: `beyond(ring3, ringPad, 4)`, a point of its distal phalanx. */
-  export const ringEnd: V3 = AutoMovieHumanF1Placement.point("ringEnd");
+  export const ringEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ringEnd");
 
   /** Where the pinky finger's course ends: `beyond(pinky3, pinkyPad, 4)`, a point of its distal phalanx. */
-  export const pinkyEnd: V3 = AutoMovieHumanF1Placement.point("pinkyEnd");
+  export const pinkyEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("pinkyEnd");
 
   /** Where the thumb's course ends: `beyond(thumb3, thumbPad, 4)`, a point of its distal phalanx. */
-  export const thumbEnd: V3 = AutoMovieHumanF1Placement.point("thumbEnd");
+  export const thumbEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("thumbEnd");
 
   /** Where the big toe's course ends: `beyond(bigtoe2, bigtoePad, 4)`, a point of its distal segment. */
-  export const bigtoeEnd: V3 = AutoMovieHumanF1Placement.point("bigtoeEnd");
+  export const bigtoeEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("bigtoeEnd");
 
   /** Where the index toe's course ends: `beyond(indextoe2, indextoePad, 4)`, a point of its distal segment. */
-  export const indextoeEnd: V3 = AutoMovieHumanF1Placement.point("indextoeEnd");
+  export const indextoeEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("indextoeEnd");
 
   /** Where the middle toe's course ends: `beyond(middletoe2, middletoePad, 4)`, a point of its distal segment. */
-  export const middletoeEnd: V3 = AutoMovieHumanF1Placement.point("middletoeEnd");
+  export const middletoeEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("middletoeEnd");
 
   /** Where the ring toe's course ends: `beyond(ringtoe2, ringtoePad, 4)`, a point of its distal segment. */
-  export const ringtoeEnd: V3 = AutoMovieHumanF1Placement.point("ringtoeEnd");
+  export const ringtoeEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("ringtoeEnd");
 
   /** Where the little toe's course ends: `beyond(littletoe2, littletoePad, 4)`, a point of its distal segment. */
-  export const littletoeEnd: V3 = AutoMovieHumanF1Placement.point("littletoeEnd");
+  export const littletoeEnd: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("littletoeEnd");
 
   /**
    * The course of the armpit's slit cutter (`AutoMovieHumanF1Axilla`), through the slit's air from under the crease's front to the cusp
    * behind it, as `test/src/reference-conics/FamilyConicBody.ts` laid it (`AXILLA`); points of the thorax, on whose side the slit was read.
    */
-  export const axilla: V3[] = AutoMovieHumanF1Placement.points("axilla");
+  export const axilla: AutoMovieVector3Tuple[] = AutoMovieHumanF1Placement.points("axilla");
 
   /** The course of the vault cutter (`AutoMovieHumanF1Vault`, a constructed form outside the body), as `FamilyConicBody.ts` laid it (`VAULT`); points of the thorax. */
-  export const vault: V3[] = AutoMovieHumanF1Placement.points("vault");
+  export const vault: AutoMovieVector3Tuple[] = AutoMovieHumanF1Placement.points("vault");
 
   /**
    * Where the breast's band fans against the trunk below the breast's side (`AutoMovieHumanF1.BREAST_FAN_FILL_MM` fairs the skin about
@@ -298,16 +300,16 @@ export namespace AutoMovieHumanF1Joints {
    * [98..101, 1243..1247, 109..111] in the reference pose, where the port loop's distance falls from 56 to 47 mm within an eighth of a
    * turn. A point of the thorax.
    */
-  export const breastFan: V3 = AutoMovieHumanF1Placement.point("breastFan");
+  export const breastFan: AutoMovieVector3Tuple = AutoMovieHumanF1Placement.point("breastFan");
 
   /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */
-  export function beyond(a: V3, b: V3, length: number): V3 {
+  export function beyond(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, length: number): AutoMovieVector3Tuple {
     const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
     return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
   }
 
   /** The point `length` millimetres past `from` along the mean of the unit directions of `segments`: where a limb's course runs on past its knuckles toward its digits. */
-  export function toward(from: V3, segments: [V3, V3][], length: number): V3 {
+  export function toward(from: AutoMovieVector3Tuple, segments: IAutoMovieHumanF1Joints.TowardSegments, length: number): AutoMovieVector3Tuple {
     const sum: number[] = [0, 0, 0];
     for (const [a, b] of segments) {
       const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);

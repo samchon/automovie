@@ -1,9 +1,9 @@
-import { IAutoMovieBoneTarget } from "./IAutoMovieBoneTarget";
-import { IAutoMovieDirectionTarget } from "./IAutoMovieDirectionTarget";
-import { IAutoMovieGroupTarget } from "./IAutoMovieGroupTarget";
-import { IAutoMovieNodeTarget } from "./IAutoMovieNodeTarget";
-import { IAutoMovieOffscreenTarget } from "./IAutoMovieOffscreenTarget";
-import { IAutoMoviePointTarget } from "./IAutoMoviePointTarget";
+import type { IAutoMovieBoneTarget } from "./IAutoMovieBoneTarget";
+import type { IAutoMovieDirectionTarget } from "./IAutoMovieDirectionTarget";
+import type { IAutoMovieGroupTarget } from "./IAutoMovieGroupTarget";
+import type { IAutoMovieNodeTarget } from "./IAutoMovieNodeTarget";
+import type { IAutoMovieOffscreenTarget } from "./IAutoMovieOffscreenTarget";
+import type { IAutoMoviePointTarget } from "./IAutoMoviePointTarget";
 
 /**
  * Where an action points. Prefer a node identity when the target is staged; whether it follows live motion depends on the consuming verb and supplied host resolver, rather than on this union.

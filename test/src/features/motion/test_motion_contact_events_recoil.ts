@@ -1,5 +1,6 @@
+import type { IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -43,7 +44,7 @@ export function test_motion_contact_events_recoil(): void {
     p: IAutoMovieVector3,
   ): number =>
     Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - radius;
-  const run = (recoil: boolean): resolveAutoMovieContactEvents.IEvent[] =>
+  const run = (recoil: boolean): IAutoMovieResolveContactEvents.IEvent[] =>
     resolveAutoMovieContactEvents({
       weapons: [
         {
@@ -65,7 +66,7 @@ export function test_motion_contact_events_recoil(): void {
           distance: (
             p: IAutoMovieVector3,
             t: number,
-            stops: resolveAutoMovieContactEvents.IStops,
+            stops: IAutoMovieResolveContactEvents.IStops,
           ): number => {
             const s: number | undefined = stops.get("a:fist");
             if (s === undefined || t <= s + 0.015)

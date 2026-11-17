@@ -1,3 +1,4 @@
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C, approximateAutoMovieRecoveryConicsAhn, approximateAutoMovieRecoveryConicsGhosh } from "@automovie/recovery";
 import { ConicPaperInput as I } from "./ConicPaperInput";
 
@@ -10,7 +11,7 @@ export namespace ConicPaperFit {
     /** Complete covers every source chart; partial/refused omit charts; unattempted reached the global wall budget. */
     status: "complete" | "partial" | "refused" | "unattempted";
     /** Accepted rational quadratics only, with no cubic or mesh fallback for missing intervals. */
-    arcs: C.IArc[];
+    arcs: IAutoMovieConicApproximation.IArc[];
     /** Actual source evaluation and derivative callbacks, including a budget-triggering call. */
     queries: number;
     /** Distinct algorithm admission failures, numerical qualifications and experiment limits. */
@@ -75,7 +76,7 @@ export namespace ConicPaperFit {
         let failures: number = 0;
         for (let i: number = 0; i < loop.curve.spans.length; ++i) {
           try {
-            const chart: C.ICurve = I.chart(loop.curve.spans[i]!, i, (): void => {
+            const chart: IAutoMovieConicApproximation.ICurve = I.chart(loop.curve.spans[i]!, i, (): void => {
               ++record.queries;
               if (record.queries > result.queryBudgetPerCurve) throw new Error("Experiment query budget reached; remaining source charts omitted.");
             }, method, (summary: I.CriticalSummary, diagnostics: readonly string[]): void => {
@@ -83,7 +84,7 @@ export namespace ConicPaperFit {
               for (const message of diagnostics)
                 if (!record.diagnostics.includes("critical: " + message)) record.diagnostics.push("critical: " + message);
             });
-            const fitted: C.IResult = solver(chart, { toleranceMm: result.toleranceMm, maximumArcs: 32, maximumDepth: result.maximumDepth });
+            const fitted: IAutoMovieConicApproximation.IResult = solver(chart, { toleranceMm: result.toleranceMm, maximumArcs: 32, maximumDepth: result.maximumDepth });
             record.arcs.push(...fitted.arcs);
             if (fitted.status !== "complete") ++failures;
             for (const message of fitted.diagnostics)
@@ -122,12 +123,12 @@ export namespace ConicPaperFit {
   }
 
   /** A finite bidirectional point-to-polyline estimate on one independently selected complete curve per region. */
-  function compare(loop: I.Loop, arcs: readonly C.IArc[]): number {
+  function compare(loop: I.Loop, arcs: readonly IAutoMovieConicApproximation.IArc[]): number {
     let maximum: number = 0;
     for (const arc of arcs) {
       const ordinal: number = Math.min(loop.curve.spans.length - 1, Math.floor(arc.domain[0]));
-      const source: C.Point[] = [];
-      const fitted: C.Point[] = [];
+      const source: IAutoMovieConicApproximation.Point[] = [];
+      const fitted: IAutoMovieConicApproximation.Point[] = [];
       for (let i: number = 0; i <= 32; ++i) {
         source.push(I.value(loop.curve.spans[ordinal]!, arc.domain[0] - ordinal + (arc.domain[1] - arc.domain[0]) * i / 32, 0));
         fitted.push(C.evaluate(arc, i / 32));
@@ -143,7 +144,7 @@ export namespace ConicPaperFit {
   }
 
   /** Euclidean point-to-segment distance, in the original millimetre chart. */
-  function distance(p: C.Point, a: C.Point, b: C.Point): number {
+  function distance(p: IAutoMovieConicApproximation.Point, a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point): number {
     const x: number = b[0] - a[0];
     const y: number = b[1] - a[1];
     const square: number = x * x + y * y;

@@ -1,9 +1,5 @@
-import {
-  AutoMovieMotionHumanChannel,
-  HumanRide,
-  type IHumanPosture,
-  stand,
-} from "@automovie/motions";
+import type { AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import { AutoMovieMotionHumanChannel, HumanRide, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -26,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the three numbered scenarios.
  */
 export function test_human_motion_channel_trunk_turn(): void {
-  const claims: AutoMovieMotionHumanChannel.Claim[] = ["trunkTurn"];
+  const claims: AutoMovieMotionHumanChannelType.Claim[] = ["trunkTurn"];
 
   // 1. Coverage.
   for (const bone of ["spine", "chest", "upperChest"] as const)
@@ -41,7 +37,7 @@ export function test_human_motion_channel_trunk_turn(): void {
     );
 
   // 2. A merge.
-  const base: IHumanPosture = {
+  const base: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 1, z: 0 },
     yaw: 0,
     pitch: 1,
@@ -54,7 +50,7 @@ export function test_human_motion_channel_trunk_turn(): void {
     },
     limbs: {},
   };
-  const written: IHumanPosture = {
+  const written: IAutoMovieMotionHumanPosture = {
     root: { x: 5, y: 5, z: 5 },
     yaw: 30,
     pitch: 9,
@@ -67,7 +63,7 @@ export function test_human_motion_channel_trunk_turn(): void {
     },
     limbs: {},
   };
-  const merged: IHumanPosture = AutoMovieMotionHumanChannel.merge(
+  const merged: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanChannel.merge(
     base,
     written,
     claims,

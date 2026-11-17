@@ -1,17 +1,6 @@
-import {
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
-import {
-  IAutoMovieBlockingCoverage,
-  IAutoMovieCameraIntent,
-  IAutoMovieClip,
-  IAutoMovieShotCoverage,
-  IAutoMovieSkeleton,
-  IAutoMovieTrack,
-} from "@automovie/interface";
+import { type IAutoMoviePerformedShot, type IAutoMovieStagedSet, IAutoMovieBlockingCoverage, IAutoMovieCameraIntent, IAutoMovieClip, IAutoMovieShotCoverage, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
+import { performShot, stageScene } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

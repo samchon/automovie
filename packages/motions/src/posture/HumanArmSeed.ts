@@ -1,8 +1,8 @@
+import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -40,7 +40,7 @@ export namespace HumanArmSeed {
     /** The arms, each with the arm its inverse kinematics starts from first. */
     arms: readonly (HumanArmTrajectoryContext.IProblem["arms"][number] & {
       /** The arm the goal's own solution gives at the hold's start, the first start of its inverse kinematics. */
-      guess?: HumanArmClearance.IArm;
+      guess?: IAutoMovieMotionHumanArmClearance.IArm;
     })[];
     /** The share of the reach made at a second of the reach, and of the return left at a second of the return, 0 at rest and 1 on the hold. */
     share: (seconds: number) => number;
@@ -293,7 +293,7 @@ export namespace HumanArmSeed {
       q: readonly number[],
       site: M.ISite,
     ): IAutoMovieVector3 => {
-      const p: G.IPlaced = G.placed(
+      const p: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
         context.setups[a]!,
         context.frames[a]![k]!,
         q,

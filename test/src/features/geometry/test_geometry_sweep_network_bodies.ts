@@ -1,8 +1,5 @@
-import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieSurfaceNetwork,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import type { AutoMovieSurfaceTier, IAutoMovieSurfaceNetwork } from "@automovie/interface";
+import { sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBottle } from "../internal/sweepBottle";

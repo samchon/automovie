@@ -1,8 +1,5 @@
-import type {
-  IAutoMovieCompiledEffect,
-  IAutoMovieContactReceipt,
-  IAutoMovieEffectRecipe,
-} from "@automovie/interface";
+import type { IAutoMovieCompileImpactEffects, IAutoMovieCompiledEffect, IAutoMovieContactReceipt, IAutoMovieEffectRecipe } from "@automovie/interface";
+
 
 import { materializeCompiledEffects } from "../effectRuntime/materializeCompiledEffects";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
@@ -24,26 +21,7 @@ import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 23 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function compileImpactEffects(input: {
-  /** Chronological actual contact episodes, including source identity. */
-  contacts: readonly IAutoMovieContactReceipt[];
-  /** Formula-derived N s estimates for geometry-only receipts. */
-  geometricImpulses: Readonly<Record<string, number>>;
-  /** Provider-authored effect appearance, transport and budget. */
-  recipe: IAutoMovieEffectRecipe;
-  /** Film end, seconds; stains remain only to this cue end. */
-  endSeconds: number;
-  /** Absolute effect sample step in seconds. */
-  fixedStepSeconds: number;
-  /** Particle count per N s, before the recipe budget cap. */
-  particlesPerImpulse: number;
-  /** Outward speed in m/s per N s. */
-  speedPerImpulse: number;
-  /** World-up velocity fraction relative to outward speed. */
-  upwardFraction: number;
-  /** Explicit total stream cap; excess is refused, never silently dropped. */
-  maximumEffects: number;
-}): IAutoMovieCompiledEffect[] {
+export function compileImpactEffects(input: IAutoMovieCompileImpactEffects.IInput): IAutoMovieCompiledEffect[] {
   if (
     !(input.endSeconds > 0) ||
     !(input.fixedStepSeconds > 0) ||

@@ -1,17 +1,6 @@
-import {
-  type IAutoMovieRenderSubject,
-  type IAutoMovieRenderTextureSource,
-  deriveAutoMovieSemanticMask,
-  evaluateAutoMovieRenderBudget,
-  measureAutoMovieRenderInventory,
-  sealAutoMovieRenderTarget,
-} from "@automovie/engine";
-import type {
-  IAutoMovieModel,
-  IAutoMovieRenderAnalysisGap,
-  IAutoMovieRenderFinding,
-  IAutoMovieScene,
-} from "@automovie/interface";
+import type { IAutoMovieRenderSubject, IAutoMovieRenderTextureSource, IAutoMovieModel, IAutoMovieRenderAnalysisGap, IAutoMovieRenderFinding, IAutoMovieScene } from "@automovie/interface";
+import { deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, measureAutoMovieRenderInventory, sealAutoMovieRenderTarget } from "@automovie/engine";
+
 import {
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,

@@ -1,5 +1,5 @@
-import { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
-import { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotState";
+import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotState";
 
 /**
  * One source-authored exception naming members inside one compiled formation.

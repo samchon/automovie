@@ -1,15 +1,12 @@
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bend } from "../everyday/bend";
 import { bendLower } from "../everyday/bendLower";
 import { seated } from "../everyday/seated";
-import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -48,13 +45,13 @@ export namespace pickUpPosture {
   /** The body a pick up reaches from. */
   export interface IStance {
     /** The posture at the bottom: the entry's, or the entry lowered. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
 
     /** The body at a share of the way down, from the entry at 0 to `posture` at 1. */
-    at: (share: number) => IHumanPosture;
+    at: (share: number) => IAutoMovieMotionHumanPosture;
 
     /** Any posture of the same base lowered or leaned the same way, a share of it: the lowering carried onto a body that walks. */
-    lower: (posture: IHumanPosture, share: number) => IHumanPosture;
+    lower: (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture;
 
     /** The adjustment step the stance takes, if any: the stepping foot and the shares of the way down at which it leaves the floor and lands. */
     step?: { side: "left" | "right"; off: number; on: number };
@@ -79,12 +76,12 @@ export namespace pickUpPosture {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the entry posture and the solved lowering.
    */
   export function lowered(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: IAutoMovieMotionHumanHand.Side,
     grip: IAutoMovieVector3,
     reach?: number,
   ): IStance {
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     if (context.entry.base.kind === "seated")
       return leaned(context, side, grip, reach);
     if (context.entry.base.kind !== "standing")
@@ -96,7 +93,7 @@ export namespace pickUpPosture {
         reason: `${context.subject}: the grip at ${grip.y.toFixed(3)} m is beyond the ${side} arm from a ${context.entry.base.kind} body, which a pick up does not lower`,
         fix: "stand and step closer first, or bring the prop within the arm's reach",
       });
-    let solved: bendLower.ISolved;
+    let solved: IAutoMovieMotionHumanBendLower.ISolved;
     try {
       solved = bend.lowering(context.body, entry, grip, side, "auto", reach);
     } catch (error) {
@@ -108,7 +105,7 @@ export namespace pickUpPosture {
         fix: "step closer to the prop first",
       });
     }
-    const lower = (posture: IHumanPosture, share: number): IHumanPosture =>
+    const lower = (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
       bendLower.lower(
         context.body,
         posture,
@@ -117,7 +114,7 @@ export namespace pickUpPosture {
         share,
         solved.lean * Math.sin((solved.pitch * share * Math.PI) / 180),
       );
-    const at = (share: number): IHumanPosture => lower(entry, share);
+    const at = (share: number): IAutoMovieMotionHumanPosture => lower(entry, share);
     return { posture: at(1), at, lower };
   }
 
@@ -137,28 +134,28 @@ export namespace pickUpPosture {
    * @throws {HumanRefusal} When the grip lies beyond the seated reach, or no lean up to `SEATED_LEAN` brings the shoulder within reach: the person stands and steps closer first.
    */
   const leaned = (
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: IAutoMovieMotionHumanHand.Side,
     grip: IAutoMovieVector3,
     reach?: number,
   ): IStance => {
-    const entry: IHumanPosture = context.entry.posture;
-    const base: HumanBase = context.entry.base;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const base: IAutoMovieMotionHumanBase = context.entry.base;
     if (base.kind !== "seated")
       throw new Error("A seated lean of a body that is not seated");
     const limit: number =
       reach ?? context.body.measure.upperArm + context.body.measure.forearm;
-    const lower = (posture: IHumanPosture, pitch: number): IHumanPosture => {
+    const lower = (posture: IAutoMovieMotionHumanPosture, pitch: number): IAutoMovieMotionHumanPosture => {
       if (pitch <= 0) return posture;
       const socket: IAutoMovieVector3 = seated.socket(context.body, posture);
-      const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
+      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] } =
         HumanTrunk.incline(posture.joints, pitch);
-      const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
         yaw: posture.yaw,
         pitch: posture.pitch + tilt.pitch,
         roll: posture.roll,
       };
-      const leant: IHumanPosture = resolveHumanPosture.lower(context.body, {
+      const leant: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(context.body, {
         ...posture,
         ...heading,
         root: seated.root(context.body, socket, heading),
@@ -168,7 +165,7 @@ export namespace pickUpPosture {
       // the armrest, as it rested sitting; a hand that holds keeps its goal.
       // The rest is read from the leaned body's legs alone, as `seated.rested`
       // takes it: the arms' own goals would only be solved to be replaced.
-      const rested: IHumanPosture = seated.rested(
+      const rested: IAutoMovieMotionHumanPosture = seated.rested(
         context.body,
         {
           ...leant,
@@ -194,9 +191,9 @@ export namespace pickUpPosture {
         y: 0,
         z: Math.cos(yaw),
       };
-      const limbs: IHumanPosture["limbs"] = { ...leant.limbs };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...leant.limbs };
       for (const hand of ["left", "right"] as const) {
-        const goal: IHumanPosture.IGoal | undefined =
+        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
           rested.limbs[`${hand}Arm`];
         if (context.entry.holds[hand] !== undefined || goal === undefined)
           continue;
@@ -262,11 +259,11 @@ export namespace pickUpPosture {
       else low = middle;
     }
     const pitch: number = far(0) <= limit ? 0 : high;
-    const at = (share: number): IHumanPosture => lower(entry, pitch * share);
+    const at = (share: number): IAutoMovieMotionHumanPosture => lower(entry, pitch * share);
     return {
       posture: at(1),
       at,
-      lower: (posture: IHumanPosture, share: number): IHumanPosture =>
+      lower: (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
         lower(posture, pitch * share),
     };
   };
@@ -291,14 +288,14 @@ export namespace pickUpPosture {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The predicate closes over the shoulder and the reach.
    */
   export function reaches(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
-    posture: IHumanPosture = context.entry.posture,
-  ): (wrist: HumanHand.IWrist) => boolean {
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: IAutoMovieMotionHumanHand.Side,
+    posture: IAutoMovieMotionHumanPosture = context.entry.posture,
+  ): (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean {
     const from: IAutoMovieVector3 = shoulder(context, side, posture);
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
-    return (wrist: HumanHand.IWrist): boolean =>
+    return (wrist: IAutoMovieMotionHumanHand.IWrist): boolean =>
       Vector3.length(Vector3.subtract(wrist.point, from)) <= limit + 1e-6;
   }
 
@@ -321,10 +318,10 @@ export namespace pickUpPosture {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reachable(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: IAutoMovieMotionHumanHand.Side,
     wrist: IAutoMovieVector3,
-    posture: IHumanPosture = context.entry.posture,
+    posture: IAutoMovieMotionHumanPosture = context.entry.posture,
   ): void {
     const distance: number = Vector3.length(
       Vector3.subtract(wrist, shoulder(context, side, posture)),
@@ -344,9 +341,9 @@ export namespace pickUpPosture {
 
   /** The shoulder joint of an arm in a posture, world metres. */
   const shoulder = (
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: IAutoMovieMotionHumanHand.Side,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!
       .worldPosition;

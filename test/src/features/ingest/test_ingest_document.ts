@@ -1,5 +1,6 @@
+import { type IAutoMovieIngestResult, IAutoMovieNode } from "@automovie/interface";
 import { ingestDocument } from "@automovie/ingest";
-import { IAutoMovieNode } from "@automovie/interface";
+
 import { Document } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
@@ -166,7 +167,7 @@ export function test_ingest_document(): void {
     .addChannel(cS);
   doc.createAnimation(); // unnamed, empty
 
-  const { nodes, clips }: import("@automovie/ingest").IAutoMovieIngestResult =
+  const { nodes, clips }: IAutoMovieIngestResult =
     ingestDocument(doc);
 
   // 1. node count + parent references
@@ -323,7 +324,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation channel without target rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(missingTarget.doc),
       "animation channel must target a node",
     ),
@@ -334,7 +335,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation channel without sampler rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(missingSampler.doc),
       'animation channel for node "node_0" must have a sampler',
     ),
@@ -348,7 +349,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation sampler without input rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(missingInput.doc),
       'animation channel for node "node_0" must have input times',
     ),
@@ -362,7 +363,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation sampler without output rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(missingOutput.doc),
       'animation channel for node "node_0" must have output values',
     ),
@@ -378,7 +379,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation input accessor without data rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(emptyInput.doc),
       'animation channel for node "node_0" input times must have data',
     ),
@@ -394,7 +395,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation output accessor without data rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(emptyOutput.doc),
       'animation channel for node "node_0" output values must have data',
     ),
@@ -415,7 +416,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation input accessor with empty data rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(emptyInputArray.doc),
       'animation channel for node "node_0" input times must not be empty',
     ),
@@ -437,7 +438,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation output accessor with empty data rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(emptyOutputArray.doc),
       'animation channel for node "node_0" output values must not be empty',
     ),
@@ -459,7 +460,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "translation output arity rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(shortTranslationOutput.doc),
       ["translation output values length", "6", "5"],
     ),
@@ -483,7 +484,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "cubic output arity rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(shortCubicOutput.doc),
       ["scale output values length", "18", "6"],
     ),
@@ -504,7 +505,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "weights output arity rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(unevenWeightsOutput.doc),
       ["weights output values length", "multiple of 2", "3"],
     ),
@@ -524,7 +525,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation channel without a target path rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(noPath.doc),
       'animation channel for node "node_0" target path must be translation, rotation, scale, or weights, but was null',
     ),
@@ -537,7 +538,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "unknown interpolation rejects instead of reading as linear",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(unknownInterpolation.doc),
       'interpolation must be LINEAR, STEP, or CUBICSPLINE, but was "BEZIER"',
     ),
@@ -548,7 +549,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "keyframe times that do not increase reject",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(backwardTimes.doc),
       "input times must be finite, non-negative and strictly increasing, but key 1 is 0",
     ),
@@ -559,7 +560,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "a non-finite output value rejects",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieIngestResult =>
+      (): IAutoMovieIngestResult =>
         ingestDocument(nonFiniteOutput.doc),
       "output values must be finite",
     ),

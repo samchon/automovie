@@ -1,15 +1,9 @@
-import type {
-  IAutoMovieMotion,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieActorContext, IAutoMovieActorWorldFrame, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
-import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 
 /**

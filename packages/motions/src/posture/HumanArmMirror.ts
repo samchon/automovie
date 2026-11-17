@@ -1,11 +1,6 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanColliders, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanArmGeometry } from "./HumanArmGeometry";
-import type { HumanColliders } from "./HumanColliders";
 
 /**
  * The mirror image across the world's x = 0 plane of what an arm is read
@@ -58,8 +53,8 @@ export namespace HumanArmMirror {
    * @returns Their mirror image.
    */
   export function reflected(
-    placed: HumanColliders.IPlaced,
-  ): HumanColliders.IPlaced {
+    placed: IAutoMovieMotionHumanColliders.IPlaced,
+  ): IAutoMovieMotionHumanColliders.IPlaced {
     return {
       ...placed,
       bone: opposite(placed.bone),
@@ -69,7 +64,7 @@ export namespace HumanArmMirror {
         rotation: turn(placed.pose.rotation),
       },
       shapes: placed.shapes.map(
-        (shape: HumanColliders.IPlaced["shapes"][number]) => ({
+        (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]) => ({
           ...shape,
           transform: {
             ...shape.transform,
@@ -78,7 +73,7 @@ export namespace HumanArmMirror {
           },
           ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
         }),
-      ) as HumanColliders.IPlaced["shapes"],
+      ) as IAutoMovieMotionHumanColliders.IPlaced["shapes"],
     };
   }
 

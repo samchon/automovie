@@ -1,3 +1,4 @@
+import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalShapeNearest, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -9,10 +10,7 @@ import {
   physicalShapePairDistance,
   physicalShapeSpan,
 } from "@automovie/engine";
-import type {
-  IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
-} from "@automovie/interface";
+
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -94,7 +92,7 @@ export function test_physical_hull_shape(): void {
   });
 
   // 1. Faces, vertices and the buried point.
-  const faces: physicalHullFaces.IHull = physicalHullFaces([
+  const faces: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces([
     ...corners(half),
     { x: 0.5, y: 0, z: 0 },
     { x: 0.1, y: 0, z: 0 },
@@ -104,7 +102,7 @@ export function test_physical_hull_shape(): void {
     faces.faces.length === 6 &&
       faces.vertices.length === 8 &&
       faces.faces.every(
-        (face: physicalHullFaces.IFace): boolean => face.loop.length === 4,
+        (face: IAutoMoviePhysicalHullFaces.IFace): boolean => face.loop.length === 4,
       ) &&
       Math.abs(faces.buried - 0.1) < 1e-12 &&
       close(faces.centre, { x: 0, y: 0, z: 0 }, 1e-12) &&
@@ -163,18 +161,18 @@ export function test_physical_hull_shape(): void {
   const point = (
     pose: P.ITransform,
     p: IAutoMovieVector3,
-  ): physicalShapeNearest.IResult => physicalShapeNearest(pose, hull, p, p);
-  const off: physicalShapeNearest.IResult = point(quarter, {
+  ): IAutoMoviePhysicalShapeNearest.IResult => physicalShapeNearest(pose, hull, p, p);
+  const off: IAutoMoviePhysicalShapeNearest.IResult = point(quarter, {
     x: 0,
     y: 0,
     z: 3.8,
   });
-  const within: physicalShapeNearest.IResult = point(quarter, {
+  const within: IAutoMoviePhysicalShapeNearest.IResult = point(quarter, {
     x: 0.03,
     y: 0,
     z: 3.3,
   });
-  const corner: physicalShapeNearest.IResult = point(still, {
+  const corner: IAutoMoviePhysicalShapeNearest.IResult = point(still, {
     x: 0.8,
     y: 0.6,
     z: 0.4,

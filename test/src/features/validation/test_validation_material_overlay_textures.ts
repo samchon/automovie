@@ -1,16 +1,6 @@
-import {
-  IAutoMovieTextureImageFacts,
-  validateModel,
-  validateTextureAssets,
-  validateTextureScale,
-} from "@automovie/engine";
-import {
-  IAutoMovieAssetProvenance,
-  IAutoMovieMaterial,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { type IAutoMovieTextureImageFacts, IAutoMovieAssetProvenance, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
+import { validateModel, validateTextureAssets, validateTextureScale } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";

@@ -1,10 +1,13 @@
-import type { IAutoMovieHumanLoftAperture } from "../../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanBodyCalibration, IAutoMovieHumanHeadLayout, IAutoMovieHumanLoftAperture } from "@automovie/interface";
+
+
+
+
 import { AutoMovieHumanLoftAperture } from "../../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanHeadEyeMargin } from "../AutoMovieHumanHeadEyeMargin";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+
 
 /**
  * Attachment sites from the head lane's own profile and planned eye margins.

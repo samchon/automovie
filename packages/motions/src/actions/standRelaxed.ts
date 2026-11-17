@@ -1,17 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  ROM_TOLERANCE,
-  getConstraint,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
-  IAutoMovieBone,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMoviePose, IAutoMovieResolvedBone } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
 import { HumanDigitFit } from "../posture/HumanDigitFit";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -38,7 +27,7 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak cache retains no body; its record is released with that body, and the search holds no external resource.
  */
 export function standRelaxed(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
   const known:
     | Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
@@ -116,7 +105,7 @@ export function standRelaxed(
 
 /** Each body's relaxed hanging arms, solved once. */
 const HUNG: WeakMap<
-  IHumanBody,
+  IAutoMovieMotionHumanBody,
   Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
 > = new WeakMap();
 

@@ -1,8 +1,6 @@
-import { type IAutoMovieForgedProp, forgeProp } from "@automovie/engine";
-import type {
-  IAutoMovieConstraintViolation,
-  IAutoMoviePropSpec,
-} from "@automovie/interface";
+import type { IAutoMovieForgedProp, IAutoMovieConstraintViolation, IAutoMoviePropSpec } from "@automovie/interface";
+import { forgeProp } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmImportedLodInputs } from "./IFilmImportedLodInputs";

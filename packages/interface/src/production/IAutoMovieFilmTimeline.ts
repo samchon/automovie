@@ -1,8 +1,8 @@
-import { IAutoMovieAudioCue } from "./IAutoMovieAudioCue";
-import { IAutoMovieEffectCue } from "./IAutoMovieEffectCue";
-import { IAutoMovieFilmOmission } from "./IAutoMovieFilmOmission";
-import { IAutoMovieFilmTimelineSegment } from "./IAutoMovieFilmTimelineSegment";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
+import type { IAutoMovieAudioCue } from "./IAutoMovieAudioCue";
+import type { IAutoMovieEffectCue } from "./IAutoMovieEffectCue";
+import type { IAutoMovieFilmOmission } from "./IAutoMovieFilmOmission";
+import type { IAutoMovieFilmTimelineSegment } from "./IAutoMovieFilmTimelineSegment";
+import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
 /**
  * Canonical frame-grid film edit consumed by review, oracle and render layers.

@@ -1,4 +1,5 @@
-import type { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type { IAutoMovieHumanCanonicalBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
+
 import { HumanPerformance } from "@automovie/motions";
 
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
@@ -21,13 +22,13 @@ export namespace PlaygroundPerformance {
     body: string;
 
     /** The performer's canonical body. */
-    canonical: AutoMovieHumanCanonicalBody.IBody;
+    canonical: IAutoMovieHumanCanonicalBody.IBody;
   }
 
   /** A built performance and what drawing it needs. */
   export interface IBuilt {
     /** The performance. */
-    performance: HumanPerformance;
+    performance: IAutoMovieMotionHumanPerformance;
 
     /** Each performer's body, in the composition's order. */
     figures: IFigure[];
@@ -44,12 +45,12 @@ export namespace PlaygroundPerformance {
   export function build(composition: IPlaygroundComposition): IBuilt {
     const built: PlaygroundChain.IBuilt = PlaygroundChain.build(composition);
     const figures: IFigure[] = [];
-    const input: HumanPerformance.IInput = {
+    const input: IAutoMovieMotionHumanPerformance.IInput = {
       seed: composition.seed,
       performers: composition.performers.map(
         (
           performer: IPlaygroundComposition.IPerformer,
-        ): HumanPerformance.IInput["performers"][number] => {
+        ): IAutoMovieMotionHumanPerformance.IInput["performers"][number] => {
           const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(
             performer.body,
           );
@@ -75,10 +76,10 @@ export namespace PlaygroundPerformance {
 
     // Props exist only where the composition places objects; lexicon rows are
     // registered only where the installed package takes registered laws.
-    const props: HumanPerformance.IInput["props"] = PlaygroundObjects.props(
+    const props: IAutoMovieMotionHumanPerformance.IInput["props"] = PlaygroundObjects.props(
       composition.objects ?? [],
     );
-    const full: HumanPerformance.IInput = {
+    const full: IAutoMovieMotionHumanPerformance.IInput = {
       ...input,
       ...(props === undefined || props.length === 0 ? {} : { props }),
     };
@@ -86,7 +87,7 @@ export namespace PlaygroundPerformance {
       performance: new HumanPerformance(
         built.laws.length === 0
           ? full
-          : ({ ...full, laws: built.laws } as HumanPerformance.IInput),
+          : ({ ...full, laws: built.laws } as IAutoMovieMotionHumanPerformance.IInput),
       ),
       figures,
     };

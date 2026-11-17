@@ -1,14 +1,9 @@
-import {
-  IAutoMovieMesh,
-  IAutoMovieMeshPhysicalSource,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { type IAutoMovieMeshTransform, IAutoMovieMesh, IAutoMovieMeshPhysicalSource, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 import { finiteVector } from "./finiteVector";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 

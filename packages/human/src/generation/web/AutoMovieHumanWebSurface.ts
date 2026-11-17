@@ -1,12 +1,15 @@
-import type { IAutoMovieHumanWeb } from "./IAutoMovieHumanWeb";
-import type { IAutoMovieHumanWebChild } from "./IAutoMovieHumanWebChild";
-import type { IAutoMovieHumanWebColumn } from "./IAutoMovieHumanWebColumn";
-import type { IAutoMovieHumanWebSurface } from "./IAutoMovieHumanWebSurface";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanWeb, IAutoMovieHumanWebChild, IAutoMovieHumanWebColumn, IAutoMovieHumanWebSurface } from "@automovie/interface";
+
+
+
+
+
+
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { sub, plus: add, scale, dot, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { sampled }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
 

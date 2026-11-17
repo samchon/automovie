@@ -1,15 +1,17 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
-import type { IAutoMovieBicubicAtlasGeometry as Geometry } from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryChartPatchBudgetFailure, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryFieldComplex, IAutoMovieRecoveryFieldComplexInput, IAutoMovieRecoveryFieldComplexPiece, IAutoMovieRecoveryFieldComplexPolicy, IAutoMovieRecoveryNativeChartCompilation, IAutoMovieRecoveryUnsupportedDomain } from "@automovie/interface";
+
+
+
 
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
-import type { IAutoMovieRecoveryChartPatchBudgetFailure } from "../structures/domain/IAutoMovieRecoveryChartPatchBudgetFailure";
-import type { IAutoMovieRecoveryEventChartInput } from "../structures/domain/IAutoMovieRecoveryEventChartInput";
-import type { IAutoMovieRecoveryFieldComplex } from "../structures/domain/IAutoMovieRecoveryFieldComplex";
-import type { IAutoMovieRecoveryFieldComplexInput } from "../structures/domain/IAutoMovieRecoveryFieldComplexInput";
-import type { IAutoMovieRecoveryFieldComplexPiece } from "../structures/domain/IAutoMovieRecoveryFieldComplexPiece";
-import type { IAutoMovieRecoveryFieldComplexPolicy } from "../structures/domain/IAutoMovieRecoveryFieldComplexPolicy";
-import type { IAutoMovieRecoveryNativeChartCompilation } from "../structures/domain/IAutoMovieRecoveryNativeChartCompilation";
-import type { IAutoMovieRecoveryUnsupportedDomain } from "../structures/domain/IAutoMovieRecoveryUnsupportedDomain";
+
+
+
+
+
+
+
+
 import { compileAutoMovieRecoveryNativeNamedChart as compile } from "./compileAutoMovieRecoveryNativeNamedChart";
 
 /**
@@ -50,7 +52,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
     throw new Error(
       "A named complex and positive physical tolerance are required",
     );
-  type Point = Geometry["controls"][number];
+  type Point = IAutoMovieBicubicAtlasGeometry["controls"][number];
   type Diagnostic = IAutoMovieRecoveryUnsupportedDomain;
   type Compiled = IAutoMovieRecoveryNativeChartCompilation;
   type Candidate = {
@@ -58,12 +60,12 @@ export function assembleAutoMovieRecoveryFieldComplex(
     result: Compiled;
   };
   type Owner = {
-    net: readonly C.Vector[];
+    net: readonly Readonly<AutoMovieVector3Tuple>[];
     incidents: Set<number>;
     occurrences: {
       chart: string;
       side: string;
-      coefficients: readonly C.Vector[];
+      coefficients: readonly Readonly<AutoMovieVector3Tuple>[];
     }[];
     conflict: boolean;
   };
@@ -106,7 +108,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
           const declarations: [
             Map<string, Owner>,
             string,
-            readonly C.Vector[],
+            readonly Readonly<AutoMovieVector3Tuple>[],
           ][] = [
             [native, source.authority, E.fullparentControls(source)],
             [
@@ -124,7 +126,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
             if (
               !id.trim() ||
               net.some(
-                (point: C.Vector): boolean =>
+                (point: Readonly<AutoMovieVector3Tuple>): boolean =>
                   point.length !== 3 || !point.every(Number.isFinite),
               )
             )
@@ -135,14 +137,13 @@ export function assembleAutoMovieRecoveryFieldComplex(
             const occurrence: Owner["occurrences"][number] = {
               chart: chart.id,
               side,
-              coefficients: net,
-            };
+              coefficients: net };
             if (prior) {
               prior.incidents.add(i);
               prior.occurrences.push(occurrence);
               if (
                 net.length !== prior.net.length ||
-                !net.every((point: C.Vector, j: number): boolean =>
+                !net.every((point: Readonly<AutoMovieVector3Tuple>, j: number): boolean =>
                   point.every(
                     (value: number, k: number): boolean =>
                       value === prior.net[j]![k],
@@ -157,8 +158,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
                 net,
                 incidents: new Set([i]),
                 occurrences: [occurrence],
-                conflict: false,
-              });
+                conflict: false });
             }
           }
         }
@@ -192,8 +192,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
             authority,
             coefficientOccurrences: owner.occurrences,
             incidentDomainOmitted: true,
-            unrelatedFiniteChartsRetained: true,
-          },
+            unrelatedFiniteChartsRetained: true },
         );
       }
   const candidates: Candidate[] = [];
@@ -206,12 +205,10 @@ export function assembleAutoMovieRecoveryFieldComplex(
       if (result.complete) candidates.push({ chart, result });
       else
         reject([chart], result.reason, {
-          requiredPatches: result.requiredPatches,
-        });
+          requiredPatches: result.requiredPatches });
     } catch (error: unknown) {
       reject([chart], "Named chart coefficient construction failed", {
-        error: String(error),
-      });
+        error: String(error) });
     }
   }
   const equal: (a: Point, b: Point) => boolean = (
@@ -250,8 +247,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
         constructed.set(boundary.id, {
           net,
           incidents: [{ candidate, net }],
-          conflict: false,
-        });
+          conflict: false });
     }
   const conflicted: Set<Candidate> = new Set();
   for (const [authority, owner] of constructed)
@@ -270,10 +266,8 @@ export function assembleAutoMovieRecoveryFieldComplex(
           incidentCoefficients: owner.incidents.map(
             (row: { candidate: Candidate; net: Point[] }): object => ({
               chart: row.candidate.chart.id,
-              coefficients: row.net,
-            }),
-          ),
-        },
+              coefficients: row.net }),
+          ) },
       );
     }
   const controls: Point[] = [],
@@ -307,7 +301,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
   let patchCount: number = 0;
   for (const candidate of candidates) {
     if (conflicted.has(candidate)) continue;
-    const recipe: Geometry = candidate.result.recipe;
+    const recipe: IAutoMovieBicubicAtlasGeometry = candidate.result.recipe;
     if (patchCount + recipe.patches.length > policy.maxTotalPatches) {
       reject([candidate.chart], "Declared aggregate patch budget");
       continue;
@@ -349,8 +343,8 @@ export function assembleAutoMovieRecoveryFieldComplex(
     }
     return result;
   };
-  const patches: Geometry["patches"] = [],
-    boundaryBindings: Geometry["boundaryBindings"] = [];
+  const patches: IAutoMovieBicubicAtlasGeometry["patches"] = [],
+    boundaryBindings: IAutoMovieBicubicAtlasGeometry["boundaryBindings"] = [];
   const sourcePieces: IAutoMovieRecoveryFieldComplexPiece[] = [];
   for (const { candidate, ids } of compiled) {
     for (const patch of candidate.result.recipe.patches) {
@@ -359,8 +353,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
       );
       patches.push({
         ...patch,
-        controlIds: remapped as Geometry["patches"][number]["controlIds"],
-      });
+        controlIds: remapped as IAutoMovieBicubicAtlasGeometry["patches"][number]["controlIds"] });
     }
     boundaryBindings.push(...candidate.result.recipe.boundaryBindings!);
     sourcePieces.push(
@@ -369,31 +362,29 @@ export function assembleAutoMovieRecoveryFieldComplex(
           piece: Compiled["sourcePieces"][number],
         ): IAutoMovieRecoveryFieldComplexPiece => ({
           ...piece,
-          owningChart: candidate.chart.id,
-        }),
+          owningChart: candidate.chart.id }),
       ),
     );
   }
   if (
     new Set(
-      patches.map((patch: Geometry["patches"][number]): string => patch.id),
+      patches.map((patch: IAutoMovieBicubicAtlasGeometry["patches"][number]): string => patch.id),
     ).size !== patches.length
   )
     throw new Error("Patch identities collide across named domains");
-  const boundaryAuthorities: NonNullable<Geometry["boundaryAuthorities"]> = [
+  const boundaryAuthorities: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]> = [
     ...boundaryOwners,
   ].map(
     ([id, ids]: [string, number[]]): NonNullable<
-      Geometry["boundaryAuthorities"]
+      IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
     >[number] => {
       const mapped: number[] = ids.map(finalId);
       return {
         id,
-        controlIds: [mapped[0]!, mapped[1]!, mapped[2]!, mapped[3]!],
-      };
+        controlIds: [mapped[0]!, mapped[1]!, mapped[2]!, mapped[3]!] };
     },
   );
-  const recipe: Geometry = {
+  const recipe: IAutoMovieBicubicAtlasGeometry = {
     type: "bicubic-atlas",
     topologyDomain: input.id,
     controls: finalControls,
@@ -408,13 +399,11 @@ export function assembleAutoMovieRecoveryFieldComplex(
       qualified: false,
       maximumResidual: null,
       unqualifiedPatches: patches.map(
-        (patch: Geometry["patches"][number]): string => patch.id,
+        (patch: IAutoMovieBicubicAtlasGeometry["patches"][number]): string => patch.id,
       ),
       diagnostics: [
         "Named chart ownership and finite interpolation do not certify source-interior fidelity, material phase, regularity or embedding.",
-      ],
-    },
-  };
+      ] } };
   return {
     recipe,
     sourcePieces,
@@ -424,12 +413,10 @@ export function assembleAutoMovieRecoveryFieldComplex(
       compiledCharts: compiled.length,
       patches: patches.length,
       sharedCubicAuthorities: boundaryAuthorities.length,
-      controls: finalControls.length,
-    },
+      controls: finalControls.length },
     coverageComplete: unsupported.length === 0 && input.observationComplete,
     observationComplete: input.observationComplete,
     sourceFitQualified: false,
     embeddingQualified: false,
-    sourceTopologyPublic: false,
-  };
+    sourceTopologyPublic: false };
 }

@@ -1,8 +1,6 @@
-import type { AutoMoviePhysicsCache, IAutoMovieMark } from "@automovie/engine";
-import type {
-  IAutoMovieContactReceipt,
-  IAutoMoviePhysicalProfile,
-} from "@automovie/interface";
+import type { IAutoMovieMark, IAutoMoviePhysicsCache, IAutoMovieContactReceipt, IAutoMoviePhysicalProfile } from "@automovie/interface";
+
+
 import type * as THREE from "three";
 
 /**
@@ -28,7 +26,7 @@ export interface IFilmProduction {
     /** Scene ids and profiles for the displayed bodies. */
     bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
     /** Exact world state used by the current displayed frame. */
-    frame: () => AutoMoviePhysicsCache.IFrame;
+    frame: () => IAutoMoviePhysicsCache.IFrame;
     /** Actual geometric or solved contact episodes. */
     contacts: () => readonly IAutoMovieContactReceipt[];
     /** Inspection vector length per newton of step-mean force. */

@@ -1,4 +1,5 @@
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
+import type { IAutoMovieSchedule, IAutoMovieMeasureSchedule } from "@automovie/interface";
+
 
 /**
  * Measure a schedule's pacing against the production's own classification:
@@ -21,8 +22,8 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  */
 export function measureAutoMovieSchedule(
   schedule: IAutoMovieSchedule,
-  classify: measureAutoMovieSchedule.IClassify,
-): measureAutoMovieSchedule.IMeasure {
+  classify: IAutoMovieMeasureSchedule.IClassify,
+): IAutoMovieMeasureSchedule.IMeasure {
   const minutes: number = schedule.duration / 60;
   const actions: IAutoMovieSchedule.IEntry[] = schedule.entries.filter(
     (e: IAutoMovieSchedule.IEntry): boolean => classify.action(e),
@@ -37,7 +38,7 @@ export function measureAutoMovieSchedule(
   }
 
   // Per subject: displacement shares, and idle time over its presence.
-  const subjects: Record<string, measureAutoMovieSchedule.ISubject> = {};
+  const subjects: Record<string, IAutoMovieMeasureSchedule.ISubject> = {};
   for (const subject of new Set(
     schedule.entries.map((e: IAutoMovieSchedule.IEntry): string => e.subject),
   )) {
@@ -89,69 +90,6 @@ export function measureAutoMovieSchedule(
     cameraMotionShare: schedule.duration > 0 ? moving / schedule.duration : 0,
     cutsPerMinute: minutes > 0 ? cuts / minutes : 0,
   };
-}
-/**
- * Companion types of {@link measureAutoMovieSchedule}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 3 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 3 members (`IClassify`, `ISubject`, `IMeasure`); units and frames named in its text: seconds, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `measureAutoMovieSchedule` in packages/engine/src/composition/measureAutoMovieSchedule.ts; its surface is the 3 members listed and the text shows 3 other files naming it, mostly movies (1), packages/engine (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace measureAutoMovieSchedule {
-  /** The production's classification of entries. */
-  export interface IClassify {
-    /** Whether an entry counts as an action. */
-    action(entry: IAutoMovieSchedule.IEntry): boolean;
-
-    /** Seconds within which a subject's next action is a combination; 0.5 by default. */
-    combinationGap?: number;
-
-    /** An entry's lateral and linear displacement, metres. */
-    displacement?(entry: IAutoMovieSchedule.IEntry): {
-      lateral: number;
-      linear: number;
-    };
-
-    /** Whether an entry is idle time. */
-    idle?(entry: IAutoMovieSchedule.IEntry): boolean;
-
-    /** A subject's presence; the whole schedule by default. */
-    presence?(subject: string): { start: number; end: number };
-
-    /** Whether an entry is a moving camera. */
-    cameraMoves?(entry: IAutoMovieSchedule.IEntry): boolean;
-
-    /** Whether an entry is a cut. */
-    cut?(entry: IAutoMovieSchedule.IEntry): boolean;
-  }
-
-  /** One subject's numbers. */
-  export interface ISubject {
-    /** Lateral share of total displacement, in [0, 1]. */
-    lateralShare: number;
-
-    /** Seconds of presence without a non-idle entry. */
-    idleSeconds: number;
-  }
-
-  /** The measurements. */
-  export interface IMeasure {
-    /** Actions per minute. */
-    actionsPerMinute: number;
-
-    /** Share of actions following the same subject's previous action within the gap. */
-    combinationShare: number;
-
-    /** Per subject. */
-    subjects: Record<string, ISubject>;
-
-    /** Share of the schedule a camera entry moves. */
-    cameraMotionShare: number;
-
-    /** Cuts per minute. */
-    cutsPerMinute: number;
-  }
 }
 
 /** Total length of a union of intervals. */
