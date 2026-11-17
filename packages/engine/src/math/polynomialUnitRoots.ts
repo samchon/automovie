@@ -64,6 +64,6 @@ function horner(coefficients: readonly number[], degree: number, x: number): num
 
 /** Append a root unless one equal by SameValueZero is already kept (a set's membership). */
 function keep(roots: number[], root: number): void {
-  for (const kept of roots) if (kept === root || (kept !== kept && root !== root)) return;
+  for (const kept of roots) if (kept === root || (Number.isNaN(kept) && Number.isNaN(root))) return;
   roots.push(root);
 }
