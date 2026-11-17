@@ -92,9 +92,9 @@ export namespace HumanArmTrajectoryKnots {
    * @evidence contracts/development/implementation.md#principled-implementation With the grid's step `d = W s` for the knots' step `s`: `1/2 d'Pd + q'd = 1/2 s'(W'PW)s + (W'q)'s` and a row `a.d` is `(aW).s`; a knot the problem holds fixed takes no step, so its column is left out. The grid's upper band is read as the symmetric matrix it stores.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The weights of each grid instant's moving knots, then the curvature, the gradient and the rows in turn.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is carried; one whose coefficients all fall on fixed knots constrains no step and is omitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into a dense square of the knots' few variables, whose band is then read off.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into the knots' upper band of the widest coupling those pairs can write (V x W doubles for V variables, not V x V), whose nonzero band is then read off.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each linearisation is carried once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The dense square is released on return; the returned subproblem is the caller's.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The upper band is released on return; the returned subproblem is the caller's.
    */
   export function reduce(
     c: M.IContext,
@@ -114,7 +114,37 @@ export namespace HumanArmTrajectoryKnots {
         return out;
       },
     );
-    const dense: Float64Array = new Float64Array(vars * vars);
+    // The widest coupling the curvature can write: two grid instants it
+    // couples touch knots between the least and the greatest of theirs.
+    let wide: number = 0;
+    for (let r: number = 0; r < model.n; ++r) {
+      const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
+      const row: Float64Array = model.p[r]!;
+      for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
+        if (row[off] === 0) continue;
+        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
+        let least: number = Infinity;
+        let most: number = -Infinity;
+        for (const [j] of from) {
+          least = Math.min(least, j);
+          most = Math.max(most, j);
+        }
+        for (const [i] of to) {
+          least = Math.min(least, i);
+          most = Math.max(most, i);
+        }
+        if (most >= least) wide = Math.max(wide, (most - least + 1) * width - 1);
+      }
+    }
+    wide = Math.min(wide, Math.max(0, vars - 1));
+    // The curvature's upper band, `upper[a][b - a]` for `b >= a`: each
+    // product lands in the cell it lands in the symmetric square, in the same
+    // order, and a cell below the diagonal, which the band never reads, is
+    // not written.
+    const upper: Float64Array[] = Array.from(
+      { length: vars },
+      (): Float64Array => new Float64Array(wide + 1),
+    );
     const q: Float64Array = new Float64Array(vars);
     for (let r: number = 0; r < model.n; ++r) {
       const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
@@ -131,8 +161,9 @@ export namespace HumanArmTrajectoryKnots {
           for (const [i, wi] of to) {
             const a: number = (j - 1) * width + slot;
             const b: number = (i - 1) * width + other;
-            dense[a * vars + b] = dense[a * vars + b]! + value * wj * wi;
-            if (off !== 0) dense[b * vars + a] = dense[b * vars + a]! + value * wj * wi;
+            if (b >= a) upper[a]![b - a] = upper[a]![b - a]! + value * wj * wi;
+            if (off !== 0 && a >= b)
+              upper[b]![a - b] = upper[b]![a - b]! + value * wj * wi;
           }
       }
     }
@@ -161,9 +192,9 @@ export namespace HumanArmTrajectoryKnots {
     // since the solver's reduced system couples a row's variables.
     let band: number = 0;
     for (let a: number = 0; a < vars; ++a)
-      for (let b: number = vars - 1; b > a + band; --b)
-        if (dense[a * vars + b] !== 0) {
-          band = b - a;
+      for (let off: number = wide; off > band; --off)
+        if (upper[a]![off] !== 0) {
+          band = off;
           break;
         }
     for (const row of rows)
@@ -173,7 +204,7 @@ export namespace HumanArmTrajectoryKnots {
       (_: unknown, a: number): Float64Array => {
         const row: Float64Array = new Float64Array(band + 1);
         for (let off: number = 0; off <= band && a + off < vars; ++off)
-          row[off] = dense[a * vars + a + off]!;
+          row[off] = off <= wide ? upper[a]![off]! : 0;
         return row;
       },
     );
