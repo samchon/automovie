@@ -200,6 +200,7 @@ export namespace HumanSegmentTable {
     const root: IAutoMoviePose["root"] = a.root === null || b.root === null ? null : {
       translation: Vector3.lerp(a.root.translation, b.root.translation, u),
       rotation: Quaternion.prepareSlerp(a.root.rotation, b.root.rotation)(u),
+      scale: Vector3.lerp(a.root.scale, b.root.scale, u),
     };
     return prepared.clamp({ ...a, root, joints });
   }
