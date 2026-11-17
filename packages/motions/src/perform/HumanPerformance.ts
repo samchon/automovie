@@ -44,7 +44,8 @@ import type { IHumanProp } from "./IHumanProp";
  * (an intent's `until`) is legal only inside a window of the cut action's
  * interrupt table for the next action; otherwise construction throws with
  * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
- * the first frame within the distance and bisecting 20 times, about 1e-7 s,
+ * the first frame within the distance and closing on the crossing by a
+ * bracketed root search to `HumanPerformanceSchedule.CUT`, about 4e-8 s,
  * deterministic on a fixed grid whose last sample is the action's end; a
  * distance never met leaves the action uncut. Given rules, the placed schedule is checked
  * with the engine's legality check and a violation refuses the performance.

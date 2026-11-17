@@ -25,8 +25,9 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * every moving weapon's first time of impact against the bodies it does not
  * belong to, stop only the earliest, and re-evaluate every other weapon
  * against the poses that stop produces, until no weapon meets anything.
- * Each first impact is found by a fixed-step scan of the signed gap and 24
- * bisections of the first crossing, so the result is deterministic; a
+ * Each first impact is found by a fixed-step scan of the signed gap and a
+ * bracketed root search of the first crossing to a nanosecond
+ * (`firstAutoMovieContactImpact`), so the result is deterministic; a
  * contact shorter than one step (a weapon and a body passing through each
  * other within it) is the scan's stated blind spot, so the step must stay
  * below the time either needs to cross the other's thickness. A weapon
