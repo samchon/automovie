@@ -60,7 +60,7 @@ export namespace swingTwistRegion {
    * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, widened for a proximal twist and raised to the slope bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup by identity, and the build in three steps on a miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays a scan of up to 360 half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising compares all 360 squared ray pairs; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays a scan of up to 360 half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising reads, for each ray, only the rays near enough to lend a positive radius (60 degrees either way at a radius of 180 and the slope of 3); speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the kept table. During one cold build, the admitted basis fixes its cross/dot, each ray fixes its azimuth, and each test fixes its projected direction; every actual swing test and clinical-range reading retains its original order and arithmetic.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in weak maps keyed by the constraint and the axes and released with either; the frame map under them holds the rest-frame records, which are table constants.
    */
@@ -214,18 +214,29 @@ function widen(
  * is raised to the least function at or above it that turns no faster than
  * `SLOPE` degrees of radius per degree of azimuth: the region gains a sliver
  * beside such an edge and loses nothing.
+ *
+ * A ray `apart` rays away lends `table[other] - SLOPE * apart * width`,
+ * which is not positive once `SLOPE * apart * width` reaches the table's
+ * greatest radius, and the raised radius is never below zero: only the rays
+ * nearer than that are read, each by the same expression, so every value is
+ * the one all rays would give.
  */
 function raise(table: Float64Array): Float64Array {
-  const raised: Float64Array = new Float64Array(swingTwistBasis.RAYS);
-  const width: number = 360 / swingTwistBasis.RAYS;
-  for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
+  const rays: number = swingTwistBasis.RAYS;
+  const raised: Float64Array = new Float64Array(rays);
+  const width: number = 360 / rays;
+  let top: number = 0;
+  for (let ray: number = 0; ray < rays; ++ray) top = Math.max(top, table[ray]!);
+  for (let ray: number = 0; ray < rays; ++ray) {
     let most: number = 0;
-    for (let other: number = 0; other < swingTwistBasis.RAYS; ++other) {
-      const apart: number = Math.min(
-        Math.abs(ray - other),
-        swingTwistBasis.RAYS - Math.abs(ray - other),
+    for (let apart: number = 0; 2 * apart <= rays; ++apart) {
+      const drop: number = SLOPE * apart * width;
+      if (!(drop < top)) break;
+      most = Math.max(
+        most,
+        table[(ray + apart) % rays]! - drop,
+        table[(ray + rays - apart) % rays]! - drop,
       );
-      most = Math.max(most, table[other]! - SLOPE * apart * width);
     }
     raised[ray] = Math.min(180, most);
   }
