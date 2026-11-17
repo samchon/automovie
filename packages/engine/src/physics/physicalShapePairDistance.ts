@@ -6,7 +6,9 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { physicalHullFaces } from "./physicalHullFaces";
+import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 
 /**
@@ -35,7 +37,7 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * @evidence contracts/development/implementation.md#principled-implementation The nearest features of two disjoint convex polytopes are a vertex and a face or two edges (Ericson, Real-Time Collision Detection, 2005, ch. 5 and 9), each of which contains a point of an edge of one polytope, so the least edge-to-solid distance over both is the distance; a round shape is its axis offset by its radius.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One wire frame per shape kind with an exhaustive check, and one loop each way over the single proximity owner; no second distance formula exists here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, sample count or margin is added; every wire is queried exactly by the owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms One proximity query per wire of each shape: one for a round shape, twelve for a box, the edge count for a hull, a few dozen for a body module.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most one proximity query per wire of each shape: one for a round shape, twelve for a box, the edge count for a hull, a few dozen for a body module; a wire farther from the sphere about the other shape's bounds than the least distance found so far costs one point-to-segment distance instead, which leaves the least as it is.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's edges are read from the faces `physicalHullFaces` already shares per point list and kept beside them per point list.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The edge lists live in a weak map keyed by the point list, so they go when the shape goes.
  */
@@ -61,12 +63,29 @@ export function physicalShapePairDistance(
     const world = (p: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(centre, Quaternion.rotateVector(rotation, p));
     const frame: IWires = wires(shape);
-    for (const [a, b] of frame.segments)
+
+    // The other shape lies inside the sphere about its bounds, so a wire is
+    // no nearer it than the wire is to that sphere, inside the shape or out:
+    // a wire that far cannot lower the least found so far and is not queried.
+    const bounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(otherPose, other);
+    const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(bounds.min, bounds.max), 0.5);
+    const around: number = Vector3.distance(middle, bounds.max);
+    for (const [a, b] of frame.segments) {
+      const from: IAutoMovieVector3 = world(a);
+      const to: IAutoMovieVector3 = a === b ? from : world(b);
+      if (
+        closestPointsBetweenSegments(from, to, middle, middle).distance -
+          around -
+          frame.radius >=
+        least
+      )
+        continue;
       least = Math.min(
         least,
-        physicalShapeNearest(otherPose, other, world(a), world(b)).distance -
+        physicalShapeNearest(otherPose, other, from, to).distance -
           frame.radius,
       );
+    }
   }
   return least;
 }
