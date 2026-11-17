@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -62,7 +62,10 @@ export namespace AutoMovieMotionHumanTouchUpright {
   /**
    * The facing an upright vessel's arm reaches best, with its tilt: of the
    * candidate facings, the one whose reached hand keeps the vessel's axis
-   * nearest the world's up, the nearest to head on on a tie. A vessel at
+   * nearest the world's up, the nearest to head on on a tie: two tilts
+   * within the joints' tolerance (`ROM_TOLERANCE`, the resolution a fit
+   * meets a rotation to) are one, so a rounding-sized difference between a
+   * hand's fit and its mirror's never chooses another facing. A vessel at
    * the lips is `AutoMovieMotionHumanTouchDrink.drinking`'s.
    *
    * @param body The body.
@@ -95,7 +98,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
       AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
     let best: IAutoMovieVector3 = place.normal;
     let least: number = Infinity;
-    for (const facing of facings(place.normal, level)) {
+    for (const facing of facings(place.normal, level, SPAN, side)) {
       const error: number = tilt(
         body,
         posture,
@@ -106,13 +109,13 @@ export namespace AutoMovieMotionHumanTouchUpright {
         facing,
         read,
       );
-      if (error < least - 1e-9) {
+      if (error < least - ROM_TOLERANCE) {
         least = error;
         best = facing;
       }
       // A tilt is an angle, never below 0, so once the best is within the
-      // margin of 0 no later facing can replace it.
-      if (least <= 1e-9) break;
+      // tolerance of 0 no later facing can replace it.
+      if (least <= ROM_TOLERANCE) break;
     }
     return { facing: best, lean: 0, tilt: least };
   }
@@ -201,15 +204,19 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * The candidate facings of an upright vessel at a region: its level
    * normal turned by multiples of `STEP` degrees within `SPAN` either way,
    * head on first and then alternately either way, so a search that keeps
-   * the first of equals keeps the one nearest head on.
+   * the first of equals keeps the one nearest head on. Of the two turns of
+   * one size the hand's side decides which comes first, a left hand's the
+   * mirror image of a right hand's, so a scene and its mirror image search
+   * mirrored facings in one order.
    *
    * @param normal The region's outward normal, world.
    * @param level The length of the normal's level part.
    * @param span The turn either way of head on, degrees, a multiple of `STEP`; `SPAN` when absent. A search whose vessel's side about its own axis is free as well (`handToFaceVessel`) needs only the turn between two sides.
+   * @param side The hand the vessel is in; the right when absent.
    * @returns The level unit directions, world.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the candidates, their span and their order.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn about the world's up of the level normal, by the step either way.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn about the world's up of the level normal, by the step either way; a mirror across the sagittal plane reverses a turn about the up axis, so the left hand's first turn is the reverse of the right's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller passes a level part it has checked is not zero.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `solve` and by the drinking search (`AutoMovieMotionHumanTouchDrink`).
@@ -220,11 +227,13 @@ export namespace AutoMovieMotionHumanTouchUpright {
     normal: IAutoMovieVector3,
     level: number,
     span: number = SPAN,
+    side: HumanHand.Side = "right",
   ): IAutoMovieVector3[] {
+    const first: 1 | -1 = side === "left" ? -1 : 1;
     const out: IAutoMovieVector3[] = [];
     for (let k: number = 0; k <= 2 * Math.floor(span / STEP + 1e-9); k++) {
       const turn: number =
-        ((k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * STEP * Math.PI) / 180;
+        ((k % 2 === 0 ? 1 : -1) * first * Math.ceil(k / 2) * STEP * Math.PI) / 180;
       out.push({
         x: (normal.x * Math.cos(turn) + normal.z * Math.sin(turn)) / level,
         y: 0,

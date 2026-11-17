@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -442,6 +442,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       place.normal,
       level,
       span,
+      side,
     )) {
       // A wrist no reaching elbow in the drinking range can place is
       // refused before any fit (`AutoMovieMotionHumanSwivelBound.admits`).
@@ -457,14 +458,18 @@ export namespace AutoMovieMotionHumanTouchDrink {
         arm,
         `at a lean of ${lean} degrees facing (${facing.x.toFixed(2)}, ${facing.z.toFixed(2)}) with the vessel's axis (fingers ${anatomy("fingers")}, palm ${anatomy("palm")}, thumb ${anatomy("thumb")}) in the hand`,
       );
-      if (holds(arm) && arm.tilt < tilt - 1e-9) {
+      // Two tilts within the joints' tolerance (the resolution a fit meets
+      // a rotation to) are one, so a rounding-sized difference between a
+      // hand's fit and its mirror's never chooses another facing.
+      if (holds(arm) && arm.tilt < tilt - ROM_TOLERANCE) {
         tilt = arm.tilt;
         best = facing;
       }
 
       // A tilt is an angle, never below 0, and a later facing replaces the
-      // best only below it by the margin, so none can replace a tilt of 0.
-      if (tilt <= 1e-9) break;
+      // best only below it by the tolerance, so none can replace a tilt
+      // within it of 0.
+      if (tilt <= ROM_TOLERANCE) break;
     }
     if (best === undefined) return undefined;
     const shown: AutoMovieMotionHumanDrinkingArm.IArm =
