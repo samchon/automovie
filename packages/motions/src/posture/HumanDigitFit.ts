@@ -158,9 +158,10 @@ export namespace HumanDigitFit {
    * @param body The body.
    * @param bones Its posed bones, world frame.
    * @param side The hand; the deeper of both hands when absent.
+   * @param placed The body's colliders as these bones place them, when the caller already holds them (a search that moves the arms alone places the rest of the body once); absent, they are placed from `bones`, which must then list every collider's bone. The depth is a greatest value, so their order plays no part.
    * @returns The depth, metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measure, its unit, its sign and who reads it.
+   * @evidence contracts/development/common.md#meaningful-documentation States the measure, its unit, its sign, who reads it and what a supplied placement must be.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's exact segment-to-shape distance (`physicalShapeSegmentDistance`) from each phalanx's axis, less the phalanx's radius, against the body's own profile colliders.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider placement, then each requested hand's near colliders and three segments per digit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every digit and every near collider is read; none is skipped but those beyond a hand's length of the hand.
@@ -172,8 +173,8 @@ export namespace HumanDigitFit {
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side?: "left" | "right",
+    placed: readonly HumanColliders.IPlaced[] = HumanColliders.placed(body, bones),
   ): number {
-    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
     return side === undefined
       ? Math.max(depthAt(body, bones, placed, "left"), depthAt(body, bones, placed, "right"))
       : depthAt(body, bones, placed, side);
