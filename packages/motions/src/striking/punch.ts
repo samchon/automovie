@@ -22,6 +22,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { punchGeometry } from "./punchGeometry";
 import { punchLaunch } from "./punchLaunch";
 
@@ -259,6 +260,10 @@ export namespace punch {
           side,
           seconds,
         ),
+      read: StrikingWeaponTable.reader(
+        (seconds: number, near: Parameters<typeof StrikingWeapon.arm>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.arm>[5]>): IAutoMovieVector3[] =>
+          StrikingWeapon.arm(context.body, course, side, seconds, near, kept),
+      ),
       on: (): object => geometry(),
     };
 

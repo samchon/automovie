@@ -18,6 +18,7 @@ import { KickForm } from "./KickForm";
 import { StrikingWeaponBones } from "./StrikingWeaponBones";
 import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
@@ -85,8 +86,14 @@ export namespace StrikingWeapon {
     course: Course,
     side: "left" | "right",
     seconds: number,
+    near?: Parameters<typeof StrikingWeaponBones>[5],
+    kept?: Parameters<typeof StrikingWeaponBones>[6],
   ): IAutoMovieVector3[] {
-    return posed(body, StrikingWeaponBones(body, course, seconds, ENDS[`${side}Arm`]), side);
+    return posed(
+      body,
+      StrikingWeaponBones(body, course, seconds, ENDS[`${side}Arm`], undefined, near, kept),
+      side,
+    );
   }
 
   /**
@@ -156,6 +163,8 @@ export namespace StrikingWeapon {
     course: Course,
     side: "left" | "right",
     seconds: number,
+    near?: Parameters<typeof StrikingWeaponBones>[5],
+    kept?: Parameters<typeof StrikingWeaponBones>[6],
   ): IAutoMovieVector3[] {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = StrikingWeaponBones(
       body,
@@ -163,6 +172,8 @@ export namespace StrikingWeapon {
       seconds,
       ENDS[`${side}Leg`],
       LEG_CHANNELS[side],
+      near,
+      kept,
     );
     const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return [
@@ -224,6 +235,9 @@ export namespace StrikingWeapon {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's weapons retain their chain callback and weak chain/index metadata; sampled poses/maps end on return or throw and only actual endpoint vectors escape.
      */
     ends(seconds: number): readonly IAutoMovieVector3[];
+
+    /** The same ends with the limb's fits continued from a neighbouring second's and their seeds returned; with it the capsules read the course off its knot table (`StrikingWeaponTable`) instead of solving every second cold. */
+    read?: StrikingWeaponTable.IRead;
   }
 
   /**
@@ -252,17 +266,25 @@ export namespace StrikingWeapon {
     // once for a geometry and forgotten when the law builds another.
     const posed: Map<number, readonly IAutoMovieVector3[]> = new Map();
     let on: object | undefined;
-    const free: IChain["ends"] = chain.ends;
+    //
+    // A chain that can continue a fit is read off its knot table, one table a
+    // geometry: the first knot cold, each later one from the knot before.
+    let free: IChain["ends"] | undefined;
     const shared: IChain = {
       ...chain,
       ends: (seconds: number): readonly IAutoMovieVector3[] => {
         const now: object = chain.on();
         if (now !== on) {
           posed.clear();
+          free = undefined;
           on = now;
         }
         let ends: readonly IAutoMovieVector3[] | undefined = posed.get(seconds);
         if (ends === undefined) {
+          free ??=
+            chain.read === undefined
+              ? chain.ends
+              : StrikingWeaponTable.of(chain.read, chain.from);
           ends = free(seconds);
           posed.set(seconds, ends);
         }

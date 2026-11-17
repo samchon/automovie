@@ -19,6 +19,8 @@ import type { StrikingWeapon } from "./StrikingWeapon";
  * @param seconds Its exact film second under the consumer's current context.
  * @param requested One of StrikingWeapon's four private immutable limb output sets.
  * @param channels Optional proven observational course demand, omitted for arms.
+ * @param near Each limb's fit of a neighbouring second of the same course to continue (`StrikingWeaponTable`); absent, every limb is solved cold. A continued resolve fits every limb, as the resolver's own rule for a continuation asks.
+ * @param kept Receives the seeds this second's fits were chosen at, for the next second's continuation.
  * @returns Fresh actual endpoint bone frames at this invocation's pose.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fixed body/name metadata from changing course/time/actor context, with fresh bone output and synchronous reader ownership.
@@ -35,6 +37,8 @@ export function StrikingWeaponBones(
   seconds: number,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
   channels?: readonly AutoMovieMotionHumanChannel[],
+  near?: resolveHumanPosture.INear,
+  kept?: (seeds: resolveHumanPosture.ISeeded["seeds"]) => void,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   let demands: Map<ReadonlySet<AutoMovieHumanoidBone>, ReturnType<typeof poseBones.prepare>> | undefined = KEPT.get(body);
   if (demands === undefined) {
@@ -50,10 +54,11 @@ export function StrikingWeaponBones(
   let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
   const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
     (projector ??= prepareHumanPostureProjection(body));
-  const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(
-    body, course(seconds, channels, resolution, projection), undefined, {}, resolution, requested, projection(),
-  ).pose;
-  return frames(pose, resolution());
+  const solved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+    body, course(seconds, channels, resolution, projection), undefined, near ?? {}, resolution, requested, projection(),
+  );
+  kept?.(solved.seeds);
+  return frames(solved.pose, resolution());
 }
 
 /** Only real fixed-demand producers; no current numerical pose or FK workspace. */

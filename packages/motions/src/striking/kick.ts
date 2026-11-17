@@ -24,6 +24,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot
@@ -195,6 +196,10 @@ export namespace kick {
           timing.side,
           seconds,
         ),
+      read: StrikingWeaponTable.reader(
+        (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
+          StrikingWeapon.leg(context.body, course, timing.side, seconds, near, kept),
+      ),
       on: (): object => geometry(),
     };
 

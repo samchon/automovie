@@ -36,6 +36,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
  * A knee strike: the knee driven up and forward onto the target while the
@@ -322,6 +323,10 @@ export namespace knee {
           side,
           seconds,
         ),
+      read: StrikingWeaponTable.reader(
+        (seconds: number, near: Parameters<typeof StrikingWeapon.leg>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.leg>[5]>): IAutoMovieVector3[] =>
+          StrikingWeapon.leg(context.body, course, side, seconds, near, kept),
+      ),
       on: (): object => shown,
     };
 
