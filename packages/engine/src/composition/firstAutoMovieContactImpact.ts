@@ -29,7 +29,7 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * @evidence contracts/development/implementation.md#principled-implementation The signed-gap scan brackets the first admitted crossing, and the Illinois false-position search (`bracketedRoot`, Dowell and Jarratt 1971) closes the bracket to `RESOLUTION`, a thousandth of the microsecond the contact specifications and hit ids resolve; the root stays inside the bracket, so the touching end it tracks is within that width of the crossing. Physical departure information establishes when a previously resolved pair can next enter; a clearance witness is checked against the actual pair gap before it is used.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan owns the grid, the pair distances, the departure admission and the crossing search; this entry reads it alone against a horizon, and resolveAutoMovieContactEvents reads many in step. sampleAutoMovieContactWeapon supplies actual combined or legacy endpoints to every path.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown departure preserves initial penetration/touch reporting. A clearance witness must be finite, strictly later, inside the live search and strictly outside the actual body. No epsilon, shifted query clock, permanent collider exclusion or bounce cap is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Work is proportional to bodies times the scan steps plus the crossing search's evaluations: superlinear on a smooth gap where a bisection to the same width takes about 23 halvings of a 1/120 s step, and at most the search's limit of 64. The bracket's clear end is the gap the scan read one step before, not read again. No measured count is claimed. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Work is proportional to bodies times the scan steps plus the crossing search's evaluations: superlinear on a smooth gap where a bisection to the same width takes about 23 halvings of a 1/120 s step, and at most the search's limit of 64. The bracket's clear end is the gap the scan read one step before, not read again. Where a weapon and every body it can meet state a speed bound, a clear gap certifies the grid steps it cannot close within, which are not read (conservative advancement), with the same bracket and contact. No measured count is claimed. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Sphere, capsule and tapered-capsule gaps share one reader. Each exact sample produces endpoints once for all bodies at that sample; witnesses also read actual endpoints through the shared primitive. The body supplies model-specific departure knowledge once per initial pair; all source/stop-dependent certificates are rebuilt for each event search, with no retained pose/time cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body, and the scan one gap of its last clear step. Returned ids/times retain no callback, body, certificate object or map.
  */
@@ -96,6 +96,12 @@ export namespace firstAutoMovieContactImpact {
       | Map<resolveAutoMovieContactEvents.IBody, number | null>
       | undefined;
 
+    // How long after the last gap read, seconds, no body can be met: the
+    // least over the bodies of the clear gap over the rate it can close at
+    // (the weapon's and the body's speed bounds together), 0 where a bound
+    // is not stated or the weapon is not live.
+    let safe: number = 0;
+
     /** The same actual pair measurement, before any departure eligibility gate. */
     const distance: (
       body: resolveAutoMovieContactEvents.IBody,
@@ -126,8 +132,10 @@ export namespace firstAutoMovieContactImpact {
       t: number,
       initial: boolean = false,
     ): { distance: number; against: string } => {
+      safe = 0;
       if (t < live || t > (weapon.to ?? Infinity))
         return { distance: Infinity, against: "" };
+      let free: number = Infinity;
       const frame: resolveAutoMovieContactEvents.IWeaponFrame =
         sampleAutoMovieContactWeapon(weapon, t, stops);
       let best: { distance: number; against: string } = {
@@ -137,8 +145,22 @@ export namespace firstAutoMovieContactImpact {
       for (const body of input.bodies) {
         if (body.id === weapon.owner) continue;
         const release: number | null | undefined = departures?.get(body);
-        if (release === null || (release !== undefined && t < release)) continue;
+        if (release === null) continue;
+        if (release !== undefined && t < release) {
+          free = Math.min(free, release - t);
+          continue;
+        }
         const d: number = distance(body, t, frame);
+
+        // The gap closes no faster than the two speed bounds together.
+        free = Math.min(
+          free,
+          weapon.speed === undefined || body.speed === undefined || !(d > 0)
+            ? 0
+            : weapon.speed + body.speed > 0
+              ? d / (weapon.speed + body.speed)
+              : Infinity,
+        );
         if (initial && d <= 0 && body.departure !== undefined) {
           const proof: resolveAutoMovieContactEvents.Departure | undefined =
             body.departure({
@@ -185,6 +207,7 @@ export namespace firstAutoMovieContactImpact {
         }
         if (d < best.distance) best = { distance: d, against: body.id };
       }
+      safe = free;
       return best;
     };
     const first: number =
@@ -259,6 +282,24 @@ export namespace firstAutoMovieContactImpact {
         previous = t;
         cleared = reached.distance;
         next = t >= until ? Infinity : next + 1;
+
+        // Conservative advancement (Mirtich 1996): nothing is met before
+        // `t + safe`, so the grid steps short of it are clear unread. The
+        // scan resumes at the first step not certified, with the step before
+        // it as the bracket's clear end, which is the bracket every step
+        // read would have left; a window certified to its end is finished.
+        if (next !== Infinity && safe > 0) {
+          if (t + safe > until) next = Infinity;
+          else {
+            let clear: number = Math.floor((t + safe - from) / input.step);
+            while (clear >= next && !(from + clear * input.step < t + safe)) --clear;
+            if (clear >= next) {
+              previous = from + clear * input.step;
+              cleared = undefined;
+              next = clear + 1;
+            }
+          }
+        }
         return undefined;
       },
     };

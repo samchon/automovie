@@ -315,6 +315,18 @@ export namespace resolveAutoMovieContactEvents {
      */
     tailRadius?: number;
 
+    /**
+     * A bound of the speed of every point of the weapon's sphere or capsule
+     * on its free path, metres a second, at every second of its live span
+     * and under any stops; finite and not negative. With it, and the same of
+     * a body, the gap between the two closes no faster than the two bounds
+     * together, so a clear gap rules out a contact for that gap over that
+     * rate, and the scan reads no grid step inside that time. A bound that
+     * a point exceeds lets a contact be missed, so only a certified one is
+     * stated; absent, every grid step is read.
+     */
+    speed?: number;
+
     /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
     from?: number;
 
@@ -363,6 +375,14 @@ export namespace resolveAutoMovieContactEvents {
   export interface IBody {
     /** Its id, matching the `owner` of the weapons it carries. */
     id: string;
+
+    /**
+     * A bound of the speed of every point of the body's surface, metres a
+     * second, at every second of the span and under any stops; finite and
+     * not negative. Read with a weapon's own bound (`IWeapon.speed`);
+     * absent, every grid step is read against this body.
+     */
+    speed?: number;
 
     /**
      * Certify departure of an already-present pair only when its physical
