@@ -1,6 +1,13 @@
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
-/** Data and callback contracts shared by the LoftCapSource operations. */
+/**
+ * Data and callback contracts shared by the LoftCapSource operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation ISource binds an original closed mm station, adjacent row and world pole to its axis and independent numeric snapshots.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface LoftCapSource supplies retained cap ownership to LoftChain and solid source readers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A finite pole does not imply available physical derivatives, and stale snapshot bindings remain an admission failure.
+ * @evidence contracts/development/common.md#meaningful-documentation Names closed-end ownership, station units and snapshot independence.
+ */
 export namespace IAutoMovieLoftCapSource {
   /**
    * Immutable source capability for one actual retained closed end.

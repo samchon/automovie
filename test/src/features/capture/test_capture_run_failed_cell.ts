@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureRecord,
@@ -96,7 +97,7 @@ export async function test_capture_run_failed_cell(): Promise<void> {
   // 2. Rows with causes.
   TestValidator.equals(
     "every cell has a row",
-    record.rows.map((row: IAutoMovieCaptureRecord.Row): unknown[] => [
+    record.rows.map((row: IAutoMovieCaptureCellRecord): unknown[] => [
       row.state,
       row.state === "failed" ? row.cause : row.file,
       row.column,

@@ -1,9 +1,9 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPushPull,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -101,10 +101,8 @@ export namespace pushPull {
     const right: string = p.right ?? "right";
 
     // The lean for the declared load at the handles' height above the floor.
-    const handles: Record<
-      IAutoMovieMotionHumanHand.Side,
-      pushSledHandles.IHandle
-    > = pushSledHandles.of(context, p.prop, left, right);
+    const handles: Record<AutoMovieHumanSide, pushSledHandles.IHandle> =
+      pushSledHandles.of(context, p.prop, left, right);
     const height: number =
       (handles.left.frame.point.y + handles.right.frame.point.y) / 2 -
       pushSledStance.floor(context.body, context.entry.feet);

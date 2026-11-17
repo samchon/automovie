@@ -2,7 +2,14 @@ import type { IAutoMovieSubdivisionParameter } from "../IAutoMovieSubdivisionPar
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 
-/** Incident-face addresses to convert into pose-independent network locations. */
+/**
+ * Incident-face addresses to convert into pose-independent network locations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Incident quad u/v addresses transfer to dimensionless network patch and sweep coordinates in supplied vertex order. Ordered patch names are checked, but callers must supply corresponding charts; shared physical edges can have different patch addresses.
+ * @evidence contracts/development/design.md#principled-representation Incident quad u/v addresses transfer to dimensionless network patch and sweep coordinates in supplied vertex order.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface locateAutoMovieSurfaceVertices consumes one sampled cage, network layout and canonical subdivision parameters.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Ordered patch names are checked, but callers must supply corresponding charts; shared physical edges can have different patch addresses.
+ */
 export namespace IAutoMovieLocateSurfaceVertices {
   /**
    * Locate every vertex of a subdivided surface network in the network's own

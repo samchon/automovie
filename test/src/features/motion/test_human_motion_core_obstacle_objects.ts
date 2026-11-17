@@ -3,6 +3,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
   IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionObstacleAperture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanObstacle } from "@automovie/motions";
@@ -54,7 +55,7 @@ export function test_human_motion_core_obstacle_objects(): void {
     height: 1.75,
   };
   const read = (
-    scene: IAutoMovieMotionHumanObstacle.IObstacle,
+    scene: IAutoMovieMotionHumanObstacle,
     x: number,
     need: IAutoMovieMotionHumanObstacle.INeed = body,
   ): unknown => {
@@ -86,7 +87,7 @@ export function test_human_motion_core_obstacle_objects(): void {
   const opening: IAutoMovieAffordance = door.affordance("aperture");
   const clear: number = opening.width!;
   const middle: number = opening.frame.translation.x;
-  const doorway: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.object(
+  const doorway: IAutoMovieMotionHumanObstacle = HumanObstacle.object(
     "door",
     door,
     {
@@ -100,7 +101,7 @@ export function test_human_motion_core_obstacle_objects(): void {
     "a door is an obstacle with its own opening",
     [
       (doorway.apertures ?? []).map(
-        (a: IAutoMovieMotionHumanObstacle.IAperture): unknown[] => [
+        (a: IAutoMovieMotionObstacleAperture): unknown[] => [
           a.id,
           round(a.width),
           round(a.height),
@@ -147,7 +148,7 @@ export function test_human_motion_core_obstacle_objects(): void {
   const height: number = table.dimensions.height!;
   const length: number = table.dimensions.length!;
   const depth: number = table.dimensions.depth!;
-  const desk: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.object(
+  const desk: IAutoMovieMotionHumanObstacle = HumanObstacle.object(
     "table",
     table,
     {

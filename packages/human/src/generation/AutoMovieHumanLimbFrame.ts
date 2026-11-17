@@ -3,7 +3,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLimbFrame,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 /**
@@ -57,14 +57,14 @@ export namespace AutoMovieHumanLimbFrame {
     origin: AutoMovieVector3Tuple,
     normal: AutoMovieVector3Tuple,
     u: AutoMovieVector3Tuple,
-  ): IAutoMovieLoftFrame.IFrame {
+  ): IAutoMovieLoftSectionFrame {
     const n: AutoMovieVector3Tuple = unit(normal);
     const a: AutoMovieVector3Tuple = orthogonal(u, n);
     return { origin, u: a, v: cross(a, n) };
   }
 
   /** The frame's normal `v x u`, toward increasing station. */
-  export function normal(f: IAutoMovieLoftFrame.IFrame): AutoMovieVector3Tuple {
+  export function normal(f: IAutoMovieLoftSectionFrame): AutoMovieVector3Tuple {
     return cross(f.v, f.u);
   }
 
@@ -73,8 +73,8 @@ export namespace AutoMovieHumanLimbFrame {
    * `v` turned over so its normal still points up the chain.
    */
   export function mirror(
-    f: IAutoMovieLoftFrame.IFrame,
-  ): IAutoMovieLoftFrame.IFrame {
+    f: IAutoMovieLoftSectionFrame,
+  ): IAutoMovieLoftSectionFrame {
     return {
       origin: [f.origin[0], f.origin[1], -f.origin[2]],
       u: [f.u[0], f.u[1], -f.u[2]],
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanLimbFrame {
     sample: IAutoMovieHumanLimbFrame.ISample,
     order: number,
   ): IAutoMovieHumanLimbFrame.IControlsResult {
-    const f: IAutoMovieLoftFrame.IFrame = sample.frame;
+    const f: IAutoMovieLoftSectionFrame = sample.frame;
     const n: AutoMovieVector3Tuple = normal(f);
     const local: AutoMovieVector3Tuple[] = sample.ring.map(
       (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
@@ -123,7 +123,7 @@ export namespace AutoMovieHumanLimbFrame {
     const span: number = after.station - before.station;
     const slope = (lo: readonly number[], hi: readonly number[]): number[] =>
       lo.map((v: number, i: number): number => (hi[i]! - v) / span);
-    const flat = (f: IAutoMovieLoftFrame.IFrame): number[] => [
+    const flat = (f: IAutoMovieLoftSectionFrame): number[] => [
       ...f.origin,
       ...f.u,
       ...f.v,

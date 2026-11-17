@@ -13,7 +13,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * The carry is the rigid transform `D(t) = F(t) F(start)^-1` of the
  * support's frame `F`: a point `p` goes to `F(t) F(start)^-1 p`, a rotation
  * is turned by the support's turn, and the heading by that turn's yaw about
- * the vertical. A goal attached to a bone (`IAutoMovieMotionHumanPosture.IGoal.on`) rides
+ * the vertical. A goal attached to a bone (`IAutoMovieHumanLimbGoal.on`) rides
  * its bone already and is left alone. On the ground the carry is the
  * identity, so nothing changes there.
  *
@@ -32,7 +32,17 @@ export namespace IAutoMovieMotionHumanSupportCarry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ICarry {
-    /** A world point at the start, where the support has carried it. */
+    /**
+     * A world point at the start, where the support has carried it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSupportCarry.ICarry.point: A world point at the start, where the support has carried it.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSupportCarry.ICarry.point is used through packages/motions/src/carrier/HumanSupportCarry.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSupportCarry.ICarry.point is used through packages/motions/src/carrier/HumanSupportCarry.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSupportCarry.ICarry.point is used through packages/motions/src/carrier/HumanSupportCarry.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSupportCarry.ICarry.point is used through packages/motions/src/carrier/HumanSupportCarry.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSupportCarry.ICarry.point is used through packages/motions/src/carrier/HumanSupportCarry.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSupportCarry.ICarry.point is used through packages/motions/src/carrier/HumanSupportCarry.ts.
+     */
     point(p: IAutoMovieVector3): IAutoMovieVector3;
 
     /** The support's turn since the start. */

@@ -1,7 +1,12 @@
 import type {
+  AutoMovieHumanJointName,
+  AutoMovieHumanPoseChannel,
+  AutoMovieHumanPoseDegreeChannel,
+  AutoMovieHumanPoseMillimetreChannel,
+  IAutoMovieHumanAnatomicalChain,
   IAutoMovieHumanPose,
+  IAutoMovieHumanPoseClamp,
   IAutoMovieHumanRigControls,
-  IAutoMovieHumanSkeleton,
 } from "@automovie/interface";
 
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
@@ -9,21 +14,17 @@ import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 /** Typed clinical controls derived from the public pose and the canonical joint/channel table. */
 export namespace AutoMovieHumanRigControls {
   /** Admit a drawing/asset string at the explicit canonical Human-joint boundary. */
-  export function joint(value: string): IAutoMovieHumanRigControls.Joint {
+  export function joint(value: string): AutoMovieHumanJointName {
     if (!isJoint(value))
       throw new Error(`Unknown canonical Human joint: ${value}`);
     return value;
   }
   /** Check exact canonical Human joint identity without preparing a body. */
-  export function isJoint(
-    value: string,
-  ): value is IAutoMovieHumanRigControls.Joint {
+  export function isJoint(value: string): value is AutoMovieHumanJointName {
     return JOINTS.has(value);
   }
   /** Admit an angular channel from untyped input; jaw millimetres remain a distinct API. */
-  export function channel(
-    value: string,
-  ): IAutoMovieHumanRigControls.DegreeChannel {
+  export function channel(value: string): AutoMovieHumanPoseDegreeChannel {
     if (!isChannel(value))
       throw new Error(`Unknown Human degree channel: ${value}`);
     return value;
@@ -31,12 +32,12 @@ export namespace AutoMovieHumanRigControls {
   /** Check exact registered angular pose paths; no spelling aliases or invented knobs. */
   export function isChannel(
     value: string,
-  ): value is IAutoMovieHumanRigControls.DegreeChannel {
+  ): value is AutoMovieHumanPoseDegreeChannel {
     return ANGLES.has(value);
   }
   /** Read the canonical degree interval; an optional current pose applies FK's flexion-dependent tibial interval. */
   export function bounds(
-    path: IAutoMovieHumanRigControls.DegreeChannel,
+    path: AutoMovieHumanPoseDegreeChannel,
     pose?: IAutoMovieHumanPose,
   ): IAutoMovieHumanRigControls.IBoundsResult {
     const row: CompiledChannel | undefined = ANGLES.get(path);
@@ -62,7 +63,7 @@ export namespace AutoMovieHumanRigControls {
   }
   /** Read canonical jaw millimetre bounds without admitting a jaw path as degrees. */
   export function millimetreBounds(
-    path: IAutoMovieHumanRigControls.MillimetreChannel,
+    path: AutoMovieHumanPoseMillimetreChannel,
   ): IAutoMovieHumanRigControls.IMillimetreBoundsResult {
     const row: CompiledChannel | undefined = MILLIMETRES.get(path);
     if (!row) throw new Error(`Unknown Human millimetre channel: ${path}`);
@@ -83,8 +84,8 @@ export namespace AutoMovieHumanRigControls {
    */
   export function readApplied(
     pose: IAutoMovieHumanPose,
-    path: IAutoMovieHumanRigControls.Channel,
-    clamped: readonly IAutoMovieHumanSkeleton.IClamp[],
+    path: AutoMovieHumanPoseChannel,
+    clamped: readonly IAutoMovieHumanPoseClamp[],
   ): number {
     const selected: CompiledChannel | undefined =
       ANGLES.get(path) ?? MILLIMETRES.get(path);
@@ -119,8 +120,8 @@ export namespace AutoMovieHumanRigControls {
    * JavaScript requests rather than silently selecting a default side.
    */
   export function chain(
-    selection: IAutoMovieHumanRigControls.IChain,
-  ): IAutoMovieHumanRigControls.DegreeChannel[] {
+    selection: IAutoMovieHumanAnatomicalChain,
+  ): AutoMovieHumanPoseDegreeChannel[] {
     if (
       "side" in selection &&
       selection.side !== "left" &&
@@ -156,11 +157,11 @@ export namespace AutoMovieHumanRigControls {
       default:
         throw new Error("Unknown Human anatomical chain");
     }
-    const paths: IAutoMovieHumanRigControls.DegreeChannel[] = [
-      ...ANGLES.keys(),
-    ].filter(isChannel);
-    const result: IAutoMovieHumanRigControls.DegreeChannel[] = paths.filter(
-      (path: IAutoMovieHumanRigControls.DegreeChannel): boolean =>
+    const paths: AutoMovieHumanPoseDegreeChannel[] = [...ANGLES.keys()].filter(
+      isChannel,
+    );
+    const result: AutoMovieHumanPoseDegreeChannel[] = paths.filter(
+      (path: AutoMovieHumanPoseDegreeChannel): boolean =>
         path.startsWith(prefix) &&
         !(
           selection.region === "arm" &&

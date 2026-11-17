@@ -1,5 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 import type { IAutoMovieLocalHermiteStream64Counts } from "./IAutoMovieLocalHermiteStream64Counts";
 import type { IAutoMovieLocalHermiteStream64FaceRange } from "./IAutoMovieLocalHermiteStream64FaceRange";
 
@@ -32,7 +32,7 @@ export namespace IAutoMovieLocalHermiteStream64 {
     /** At least two finite strictly increasing physical station coordinates in millimetres, one per course; adjacent widths must remain finite. */
     stations: readonly number[];
     /** Open cubicBezier millimetre courses with normalized phase, one per station. Span endpoints must match exactly; complete common-partition restriction preserves different authored knot layouts. */
-    courses: readonly IAutoMovieCurve64.Cubic[];
+    courses: readonly IAutoMovieCubicBezierCurve64[];
     /** Positive finite field-to-piecewise-linear Taylor estimate request in millimetres; binary64 evaluation is not an outward-rounded or source-fidelity certificate. */
     toleranceMm: number;
     /** Positive safe integer bound on pending plus retained adaptive leaves per interval. Exceeding it discards that interval's entire plan with a reason. */

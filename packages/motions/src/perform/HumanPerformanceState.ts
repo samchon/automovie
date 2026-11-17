@@ -1,5 +1,6 @@
 import { checkAutoMovieLegality } from "@automovie/engine";
 import type {
+  AutoMovieMotionHumanScheduledInstant,
   IAutoMovieCheckLegality,
   IAutoMovieComposition,
   IAutoMovieIntent,
@@ -17,8 +18,8 @@ import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieMotionMeeting,
   IAutoMovieMotionTarget,
-  IAutoMovieResolveSchedule,
   IAutoMovieSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
@@ -72,7 +73,7 @@ export class HumanPerformanceState {
   /** The placed actions that carry an anchor, by the anchor, with their performer. */
   public readonly anchors: Map<
     string,
-    IAutoMovieMotionHumanSegment.ISegment & { subject: string }
+    IAutoMovieMotionHumanSegment & { subject: string }
   >;
 
   /** The spans in which each prop is held or worn, by the prop: who holds it in which hand or wears it on which bone, from when to when and at which offset from the hand or the bone; found once the performance is placed. */
@@ -84,7 +85,7 @@ export class HumanPerformanceState {
   /** The meetings of the mutual actions, by their kind, start and performers: the performer who computed each and the meeting every role reads. */
   public readonly meetings: Map<
     string,
-    { subject: string; meeting: IAutoMovieMotionMeeting.IMeeting }
+    { subject: string; meeting: IAutoMovieMotionMeeting }
   > = new Map();
 
   /** Every law the performance runs, by name: the vocabulary's and the ones it was given. */
@@ -94,24 +95,22 @@ export class HumanPerformanceState {
   public readonly riding: Set<number> = new Set();
 
   /** What stands in the performers' way. */
-  public readonly obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[];
+  public readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
 
   /** The forces on the performers (`HumanPerformance.IInput.forces`). */
-  public readonly forces: readonly IAutoMovieMotionHumanForce.IForce[];
+  public readonly forces: readonly IAutoMovieMotionHumanForce[];
 
   /** The cue tracks, by name. */
   public readonly cues: Readonly<
-    Record<string, readonly IAutoMovieResolveSchedule.ICue[]>
+    Record<string, readonly IAutoMovieScheduleCue[]>
   >;
 
   /** Where an action aligned into its performer's previous one ended that one, by the previous one's schedule entry. */
   public readonly clipped: Map<number, number> = new Map();
 
   /** The instants of every anchored layer, by its anchor: those known before the schedule from the start, the others once it is placed. */
-  public readonly layered: Map<
-    string,
-    readonly IAutoMovieResolveSchedule.ICue[]
-  > = new Map();
+  public readonly layered: Map<string, readonly IAutoMovieScheduleCue[]> =
+    new Map();
 
   /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
   public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
@@ -178,7 +177,7 @@ export class HumanPerformanceState {
         performer.at,
         performer.yaw,
       );
-      const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+      const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
         performer.proficiency,
         input.seed,
       );
@@ -263,7 +262,7 @@ export class HumanPerformanceState {
             fix: "give every anchored layer a name of its own, different from every cue track's",
           });
         const early = (
-          at: IAutoMovieMotionHumanLayer.Instant | undefined,
+          at: AutoMovieMotionHumanScheduledInstant | undefined,
           absent: number | undefined,
         ): number | undefined =>
           at === undefined
@@ -338,11 +337,10 @@ export class HumanPerformanceState {
     for (const entry of this.schedule.entries) {
       const person: IAutoMovieMotionHumanSegment.IPerson =
         HumanPerformanceRead.person(this, entry.subject);
-      const segment: IAutoMovieMotionHumanSegment.ISegment | undefined = (
+      const segment: IAutoMovieMotionHumanSegment | undefined = (
         this.riding.has(entry.index) ? person.overlays : person.segments
       ).find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.entry === entry.index,
+        (s: IAutoMovieMotionHumanSegment): boolean => s.entry === entry.index,
       );
       if (segment !== undefined)
         segment.end = this.clipped.get(entry.index) ?? entry.end;

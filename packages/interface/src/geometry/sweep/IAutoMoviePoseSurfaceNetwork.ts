@@ -2,7 +2,14 @@ import type { IAutoMovieResolvedBone } from "../../pose/IAutoMovieResolvedBone";
 import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 import type { IAutoMovieSurfaceNetworkBindings } from "./IAutoMovieSurfaceNetworkBindings";
 
-/** Name-based rigid and sweep bindings for posing an entire rest network. */
+/**
+ * Name-based rigid and sweep bindings for posing an entire rest network.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Name-based bindings apply resolved model-frame rigid transforms while preserving network topology and metre geometry. Absent bindings retain rest components, while requested missing names fail; the returned network may share unchanged source objects.
+ * @evidence contracts/development/design.md#principled-representation Name-based bindings apply resolved model-frame rigid transforms while preserving network topology and metre geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface poseAutoMovieSurfaceNetwork consumes rest declarations and delegates bound sweep motion to poseAutoMovieSweep.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent bindings retain rest components, while requested missing names fail; the returned network may share unchanged source objects.
+ */
 export namespace IAutoMoviePoseSurfaceNetwork {
   /**
    * Pose a whole surface network: re-sweep its bound sweeps and carry its free

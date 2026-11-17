@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -15,7 +16,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCatchObject,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanThrowObjectLaunch,
@@ -147,7 +147,7 @@ export namespace catchObject {
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...standing.root, y: 0 },
       yaw: standing.yaw,
     };
@@ -222,16 +222,13 @@ export namespace catchObject {
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      held + 0.6,
-      [
-        { name: "reach", seconds: reach },
-        { name: "prepare", seconds: Math.max(reach, contact - 0.1) },
-        { name: "contact", seconds: contact },
-        { name: "secured", seconds: secured },
-        { name: "held", seconds: held },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(held + 0.6, [
+      { name: "reach", seconds: reach },
+      { name: "prepare", seconds: Math.max(reach, contact - 0.1) },
+      { name: "contact", seconds: contact },
+      { name: "secured", seconds: secured },
+      { name: "held", seconds: held },
+    ]);
     const duration: number = clock.duration;
 
     // The object: on its path before contact, given with after it, then
@@ -270,7 +267,7 @@ export namespace catchObject {
       { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const sides: IAutoMovieMotionHumanHand.Side[] =
+    const sides: AutoMovieHumanSide[] =
       (context.params.hands ?? "two") === "two"
         ? ["left", "right"]
         : [context.params.side ?? "right"];
@@ -281,7 +278,7 @@ export namespace catchObject {
     // The hand on the ball: its palm's target, or with a glove the palm's
     // turn moved so the pocket meets the ball.
     const meeting = (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
       posture: IAutoMovieMotionHumanPosture,
       back: IAutoMovieVector3,
       outward: IAutoMovieVector3,
@@ -309,7 +306,7 @@ export namespace catchObject {
     // normal, upward first, the one the arm holds at the contact with the
     // least strain, so the wrist's range decides it.
     const pointing = (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
       outward: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -366,9 +363,7 @@ export namespace catchObject {
       }
       return best.fingers;
     };
-    const hand = (
-      side: IAutoMovieMotionHumanHand.Side,
-    ): IAutoMovieMotionHumanPrimitive => {
+    const hand = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => {
       const outward: IAutoMovieVector3 =
         sides.length === 2
           ? Vector3.scale(left, side === "left" ? 1 : -1)

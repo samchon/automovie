@@ -2,7 +2,7 @@ import type {
   IAutoMovieHumanBodyLane,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieSolidBody,
 } from "@automovie/interface";
 
@@ -29,8 +29,8 @@ export namespace AutoMovieHumanBodyPublication {
     const finite: (values: readonly number[] | undefined) => boolean = (
       values: readonly number[] | undefined,
     ): boolean => values === undefined || values.every(Number.isFinite);
-    const plane: (f: IAutoMovieLoftFrame.IFrame | undefined) => boolean = (
-      f: IAutoMovieLoftFrame.IFrame | undefined,
+    const plane: (f: IAutoMovieLoftSectionFrame | undefined) => boolean = (
+      f: IAutoMovieLoftSectionFrame | undefined,
     ): boolean =>
       f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
     const sound: (c: IAutoMovieLoftChain) => boolean = (

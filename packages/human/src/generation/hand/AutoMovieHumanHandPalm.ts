@@ -3,16 +3,17 @@ import {
   tessellateAutoMovieContourStrip64,
 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieHumanArmF1Lines,
   IAutoMovieHumanArmPrior,
   IAutoMovieHumanHandForm,
   IAutoMovieHumanHandPalm,
   IAutoMovieHumanLimbFrame,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
@@ -46,7 +47,7 @@ export namespace AutoMovieHumanHandPalm {
   /** Restore cubic tuple widths and literal tags without moving any control. */
   export function fixedCurve(
     value: IAutoMovieHumanHandPalm.IFixedCurveInput,
-  ): IAutoMovieCurve64.Cubic {
+  ): IAutoMovieCubicBezierCurve64 {
     if (
       value.type !== "cubicBezier" ||
       value.unit !== "mm" ||
@@ -62,16 +63,18 @@ export namespace AutoMovieHumanHandPalm {
       type: value.type,
       unit: value.unit,
       phaseUnit: value.phaseUnit,
-      spans: value.spans.map((span: number[][]): IAutoMovieCurve64.Span => {
-        if (span.length !== 4)
-          throw new Error("A fixed F1 cubic needs four ordered controls");
-        return [
-          fixedPoint(span[0]!),
-          fixedPoint(span[1]!),
-          fixedPoint(span[2]!),
-          fixedPoint(span[3]!),
-        ];
-      }),
+      spans: value.spans.map(
+        (span: number[][]): AutoMovieCubicBezierControls3 => {
+          if (span.length !== 4)
+            throw new Error("A fixed F1 cubic needs four ordered controls");
+          return [
+            fixedPoint(span[0]!),
+            fixedPoint(span[1]!),
+            fixedPoint(span[2]!),
+            fixedPoint(span[3]!),
+          ];
+        },
+      ),
     };
   }
 
@@ -141,9 +144,9 @@ export namespace AutoMovieHumanHandPalm {
   function linearRing(
     name: string,
     points: readonly AutoMovieVector3Tuple[],
-  ): IAutoMovieCurve64.Cubic {
-    const spans: IAutoMovieCurve64.Span[] = points.map(
-      (a: AutoMovieVector3Tuple, i: number): IAutoMovieCurve64.Span => {
+  ): IAutoMovieCubicBezierCurve64 {
+    const spans: AutoMovieCubicBezierControls3[] = points.map(
+      (a: AutoMovieVector3Tuple, i: number): AutoMovieCubicBezierControls3 => {
         const b: AutoMovieVector3Tuple = points[(i + 1) % points.length]!;
         const d: AutoMovieVector3Tuple = difference(b, a);
         return [a, added(a, scaled(d, 1 / 3)), added(a, scaled(d, 2 / 3)), b];
@@ -235,7 +238,7 @@ export namespace AutoMovieHumanHandPalm {
       orientation(boundary, chart) * orientation(observedRoot, chart) > 0
         ? boundary
         : [...boundary].reverse();
-    const edge: IAutoMovieCurve64.Cubic = linearRing(
+    const edge: IAutoMovieCubicBezierCurve64 = linearRing(
       "shared conic edge",
       ordered.map(
         (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
@@ -247,7 +250,7 @@ export namespace AutoMovieHumanHandPalm {
         row: IAutoMovieHumanHandPalm.IFixedSection,
         i: number,
       ): IAutoMovieContourLoft64.ISection => {
-        const curve: IAutoMovieCurve64.Cubic = row.loops[0]!.curve;
+        const curve: IAutoMovieCubicBezierCurve64 = row.loops[0]!.curve;
 
         /** Express this source cubic in the numerical chart of its own plane. */
         const read: (
@@ -255,7 +258,7 @@ export namespace AutoMovieHumanHandPalm {
         ) => AutoMovieVector3Tuple = (
           p: Readonly<AutoMovieVector3Tuple>,
         ): AutoMovieVector3Tuple => coordinates!.into(i, world(p));
-        const observed: IAutoMovieCurve64.Cubic =
+        const observed: IAutoMovieCubicBezierCurve64 =
           coordinates === undefined
             ? curve
             : {
@@ -266,7 +269,7 @@ export namespace AutoMovieHumanHandPalm {
                     b,
                     c,
                     d,
-                  ]: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+                  ]: AutoMovieCubicBezierControls3): AutoMovieCubicBezierControls3 => [
                     read(a),
                     read(b),
                     read(c),
@@ -625,7 +628,7 @@ export namespace AutoMovieHumanHandPalm {
           mean(points, 1),
           mean(points, 2),
         ];
-        const frame: IAutoMovieLoftFrame.IFrame = AutoMovieHumanLimbFrame.frame(
+        const frame: IAutoMovieLoftSectionFrame = AutoMovieHumanLimbFrame.frame(
           c,
           normal,
           [...prior.through],

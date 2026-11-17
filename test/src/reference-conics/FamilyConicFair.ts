@@ -1,4 +1,9 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
 
 import type { FamilyConicSection as C } from "./FamilyConicSection";
@@ -65,7 +70,7 @@ export namespace FamilyConicFair {
     domain: readonly [number, number];
 
     /** Its rational quadratic: endpoint, tangent intersection, endpoint, chart mm. */
-    controls: IAutoMovieConicApproximation.IArc["controls"];
+    controls: IAutoMovieRegisteredConicArc["controls"];
 
     /** Its middle weight; the shoulder `rho = w / (1 + w)`. */
     weight: number;
@@ -179,7 +184,7 @@ export namespace FamilyConicFair {
   export function curve(
     points: readonly C.P[],
     options: Pick<IOptions, "fairMm" | "closures"> = {},
-  ): IAutoMovieConicApproximation.ICurve & {
+  ): IAutoMoviePlanarCurveSource & {
     radius: (phi: number) => number;
     girth: number;
   } {
@@ -267,7 +272,7 @@ export namespace FamilyConicFair {
     const derivative = (
       phi: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point => {
+    ): Readonly<AutoMovieVector2Tuple> => {
       let x: number = 0,
         y: number = 0;
       for (let j: number = 0; j <= order; ++j) {
@@ -288,8 +293,8 @@ export namespace FamilyConicFair {
     // bisected, and 16 of 443 sections ran out of arcs. A pair of them costs two short arcs.
     const breaks: number[] = [];
     const numerator = (phi: number): number => {
-      const d1: IAutoMovieConicApproximation.Point = derivative(phi, 1),
-        d2: IAutoMovieConicApproximation.Point = derivative(phi, 2);
+      const d1: Readonly<AutoMovieVector2Tuple> = derivative(phi, 1),
+        d2: Readonly<AutoMovieVector2Tuple> = derivative(phi, 2);
       return d1[0] * d2[1] - d1[1] * d2[0];
     };
     const steps: number = 16 * H;
@@ -324,7 +329,7 @@ export namespace FamilyConicFair {
       domain,
       breaks,
       closed: true,
-      evaluate: (phi: number): IAutoMovieConicApproximation.Point => [
+      evaluate: (phi: number): Readonly<AutoMovieVector2Tuple> => [
         rAt(phi, 0) * Math.cos(phi),
         rAt(phi, 0) * Math.sin(phi),
       ],
@@ -484,11 +489,11 @@ export namespace FamilyConicFair {
     const arcs: IArc[] = [...result.arcs]
       .sort(
         (
-          p: IAutoMovieConicApproximation.IArc,
-          q: IAutoMovieConicApproximation.IArc,
+          p: IAutoMovieRegisteredConicArc,
+          q: IAutoMovieRegisteredConicArc,
         ): number => p.domain[0] - q.domain[0],
       )
-      .map((arc: IAutoMovieConicApproximation.IArc): IArc => {
+      .map((arc: IAutoMovieRegisteredConicArc): IArc => {
         const [p0, p1, p2] = arc.controls;
         const cross: number =
           (p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]);
@@ -550,8 +555,8 @@ export namespace FamilyConicFair {
       const run: IArc[] = [];
       for (let j: number = k; inward(j) && run.length < n; ++j)
         run.push(arcs[((j % n) + n) % n]!);
-      const a: IAutoMovieConicApproximation.Point = run[0]!.controls[0],
-        b: IAutoMovieConicApproximation.Point = run.at(-1)!.controls[2];
+      const a: Readonly<AutoMovieVector2Tuple> = run[0]!.controls[0],
+        b: Readonly<AutoMovieVector2Tuple> = run.at(-1)!.controls[2];
       const chord: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
       // The floor: the farthest of the run's arc ends and middles from the chord, on the course's side.
       let depth: number = 0,
@@ -577,7 +582,7 @@ export namespace FamilyConicFair {
   /** The point at the middle of a rational quadratic. */
   export function middle(
     arc: Pick<IArc, "controls" | "weight">,
-  ): IAutoMovieConicApproximation.Point {
+  ): Readonly<AutoMovieVector2Tuple> {
     const [p0, p1, p2] = arc.controls;
     const w: number = arc.weight;
     return [

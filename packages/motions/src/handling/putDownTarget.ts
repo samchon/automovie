@@ -2,9 +2,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDown,
   IAutoMoviePose,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -44,7 +45,7 @@ export namespace putDownTarget {
       "params" | "body" | "prop" | "start"
     >,
     pose: IAutoMoviePose,
-  ): IAutoMovieMotionHumanProp.IFrame | undefined {
+  ): IAutoMovieRigidTransform | undefined {
     const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
       context.params.onto;
     if (onto === undefined) {
@@ -57,8 +58,7 @@ export namespace putDownTarget {
     }
 
     const socket = (prop: string, id: string): IAutoMovieAffordance => {
-      const record: IAutoMovieMotionHumanActionContext.IProp =
-        context.prop(prop);
+      const record: IAutoMovieMotionHumanPropReader = context.prop(prop);
       const contacts: readonly IAutoMovieAffordance[] =
         record.prop.articulate === undefined
           ? (record.prop.affordances ?? [])
@@ -82,21 +82,22 @@ export namespace putDownTarget {
       return found;
     };
     const receiver: IAutoMovieAffordance = socket(onto.prop, onto.point);
-    const destination: IAutoMovieMotionHumanProp.IFrame =
-      HumanPropFrame.compose(context.prop(onto.prop).frame(context.start), {
+    const destination: IAutoMovieRigidTransform = HumanPropFrame.compose(
+      context.prop(onto.prop).frame(context.start),
+      {
         position: receiver.frame.translation,
         rotation: receiver.frame.rotation,
-      });
+      },
+    );
     if (onto.via === undefined) return destination;
 
     const source: IAutoMovieAffordance = socket(context.params.prop, onto.via);
-    const rotation: IAutoMovieMotionHumanProp.IFrame["rotation"] =
-      Quaternion.normalize(
-        Quaternion.multiply(
-          destination.rotation,
-          Quaternion.inverse(source.frame.rotation),
-        ),
-      );
+    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.normalize(
+      Quaternion.multiply(
+        destination.rotation,
+        Quaternion.inverse(source.frame.rotation),
+      ),
+    );
     return {
       position: Vector3.subtract(
         destination.position,

@@ -8,7 +8,7 @@ import type {
   IAutoMovieHumanDigitWalk,
   IAutoMovieHumanHandBones,
   IAutoMovieHumanHandParent,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
 } from "@automovie/interface";
 
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
@@ -128,8 +128,8 @@ export namespace AutoMovieHumanArmSources {
           { frame: frame(), hand: shared() },
         ),
     );
-    const armDefinition: () => IAutoMovieHumanSiteViewPart.IDefinition = lazy(
-      (): IAutoMovieHumanSiteViewPart.IDefinition =>
+    const armDefinition: () => IAutoMovieHumanSourceDefinition = lazy(
+      (): IAutoMovieHumanSourceDefinition =>
         AutoMovieHumanSiteViewPart.fromControls(armControls()),
     );
     const handParent: () => IAutoMovieHumanHandParent.IOutput = lazy(

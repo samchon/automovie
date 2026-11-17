@@ -1,8 +1,8 @@
 import type {
   IAutoMovieLoftChain,
   IAutoMovieLoftCoefficientSource,
-  IAutoMovieLoftFrame,
   IAutoMovieLoftPhaseReading,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionPhase,
   IAutoMovieStationHermite,
 } from "@automovie/interface";
@@ -54,7 +54,7 @@ export namespace AutoMovieLoftPoint {
       AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
       source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
-    const f: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
 
     // A lifted section leaves its plane along the frame normal by the
     // spline of its lift values, evaluated as the x block of a section
@@ -157,7 +157,7 @@ export namespace AutoMovieLoftPoint {
       AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
       source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
-    const f: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
     const n: [number, number, number] = normal(f);
     const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
     const lifted: number[] | null = l === null ? null : [...l, ...l];
@@ -219,7 +219,7 @@ export namespace AutoMovieLoftPoint {
     const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
     const H: number = b.y - a.y;
     const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
-    const f: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
     const n: [number, number, number] = normal(f);
     const N: number = chain.order;
 
@@ -358,7 +358,7 @@ export namespace AutoMovieLoftPoint {
   }
 
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
-  function normal(f: IAutoMovieLoftFrame.IFrame): [number, number, number] {
+  function normal(f: IAutoMovieLoftSectionFrame): [number, number, number] {
     return [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
       f.v[2] * f.u[0] - f.v[0] * f.u[2],

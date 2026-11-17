@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -58,7 +59,7 @@ export function resolveAutoMovieCenterOfMass(
   const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
     profile.segments.map(
       (
-        s: IAutoMoviePhysicalProfile.ISegment,
+        s: IAutoMoviePhysicalSegment,
       ): IAutoMovieResolveCenterOfMass.ISegment => {
         const bone: IAutoMovieResolvedBone | undefined = rest.get(
           s.bone as AutoMovieHumanoidBone,

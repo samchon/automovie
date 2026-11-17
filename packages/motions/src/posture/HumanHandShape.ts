@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
@@ -49,7 +50,7 @@ export namespace HumanHandShape {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const out: Partial<
@@ -116,7 +117,7 @@ export namespace HumanHandShape {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function emblem(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHandShape.Emblem,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const out: Partial<
@@ -214,7 +215,7 @@ export namespace HumanHandShape {
    */
   export function digit(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     >,
@@ -331,7 +332,7 @@ export namespace HumanHandShape {
    */
   export function tip(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
     curl: number,
     surface: IAutoMovieMotionHumanHand.DigitSurface = "indexTip",

@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
@@ -80,7 +81,7 @@ export function test_motion_compose_phrase(): void {
 
   // 1. A pass through an instant.
   const window = ["strokeStart", "stroke", "strokeEnd"] as const;
-  const pass = (clock: IAutoMovieMotionClock.IClock, s: number): number =>
+  const pass = (clock: IAutoMovieMotionClock, s: number): number =>
     AutoMovieMotionClock.through(clock, window, s);
   TestValidator.predicate(
     "a free pass crosses 1 with speed and rests at 2",
@@ -216,7 +217,7 @@ export function test_motion_compose_phrase(): void {
 
   // 4. A strike.
   const strike = (
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
   ): IAutoMovieMotionHumanPrimitive =>
     AutoMovieMotionHumanArm.strike({
       ...arm,
@@ -282,8 +283,7 @@ export function test_motion_compose_phrase(): void {
   const foot = (
     primitive: IAutoMovieMotionHumanPrimitive,
     s: number,
-  ): IAutoMovieMotionHumanPosture.IGoal =>
-    primitive.write(posture, s).limbs.leftLeg!;
+  ): IAutoMovieHumanLimbGoal => primitive.write(posture, s).limbs.leftLeg!;
   const lift = AutoMovieMotionHumanLegPhrase.lift({
     ...leg,
     clock: free,

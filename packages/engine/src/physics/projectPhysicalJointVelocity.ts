@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJointAxis,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,7 +25,7 @@ import { Vector3 } from "../math/Vector3";
  */
 export function projectPhysicalJointVelocity(
   current: IAutoMovieQuaternion,
-  axes: readonly IAutoMoviePhysicalProfile.IAxis[],
+  axes: readonly IAutoMoviePhysicalJointAxis[],
   requested: IAutoMovieVector3,
   dt: number,
 ): IAutoMovieVector3 {
@@ -62,7 +62,7 @@ export function projectPhysicalJointVelocity(
     for (const coordinate of ["x", "y", "z"] as const)
       if (
         !axes.some(
-          (free: IAutoMoviePhysicalProfile.IAxis): boolean =>
+          (free: IAutoMoviePhysicalJointAxis): boolean =>
             free.axis === coordinate,
         )
       )

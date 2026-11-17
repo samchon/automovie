@@ -3,7 +3,14 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanGlutealParent } from "./IAutoMovieHumanGlutealParent";
 
-/** Type contracts exchanged by AutoMovieHumanGlutealConnection; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanGlutealConnection; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanGlutealConnection exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IInput, IContact, IConnection. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanGlutealConnection; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IInput, IContact, IConnection contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanGlutealConnection {
   /** Independent mass law and the identical original parent definitions.
    *
@@ -73,7 +80,17 @@ export namespace IAutoMovieHumanGlutealConnection {
     rootInterval: readonly [number, number];
     /** Final numerical phase budget; not a continuous containment certificate. */
     phases: number;
-    /** Exact candidate-ring contact query; a retained original root must publish its own matching contact reader. */
+    /**
+     * Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Exact candidate-ring contact query; a retained original root must publish its own matching contact reader.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanGlutealConnection owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanGlutealConnection.IConnection.contact declares the invocation boundary only; AutoMovieHumanGlutealConnection and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanGlutealConnection.IConnection.contact must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanGlutealConnection.IConnection.contact owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanGlutealConnection and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanGlutealConnection producer or caller supplying the callback owns captured state and its lifetime.
+     */
     contact(phi: number): IContact | string;
   }
 }

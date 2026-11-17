@@ -1,7 +1,7 @@
 import type {
   IAutoMovieCollectPhysicalSupports,
   IAutoMovieDistributePhysicalSupportWrench,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
@@ -83,10 +83,8 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
   }
   let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   if (rootDynamic && body.rootTorque && rootStrength > 0) {
-    const axes: IAutoMoviePhysicalProfile.IAxis[] = (
-      ["x", "y", "z"] as const
-    ).map(
-      (axis: "x" | "y" | "z"): IAutoMoviePhysicalProfile.IAxis => ({
+    const axes: IAutoMoviePhysicalJointAxis[] = (["x", "y", "z"] as const).map(
+      (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
         axis,
         minimum: -Math.PI,
         maximum: Math.PI,

@@ -1,9 +1,9 @@
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
+import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord.js";
 import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
 import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
-import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
-import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
+import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource.js";
 import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
 
 /**
@@ -65,7 +65,7 @@ export type IAutoMovieCaptureRecord =
       windows: IAutoMovieCaptureWindow[];
 
       /** One row per planned cell, in plan order. */
-      rows: IAutoMovieCaptureRecord.Row[];
+      rows: IAutoMovieCaptureCellRecord[];
 
       /** File names of the contact sheets, in order. */
       sheets: string[];
@@ -74,7 +74,7 @@ export type IAutoMovieCaptureRecord =
       comparison: IAutoMovieCaptureComparison | null;
 
       /** The video file the stills were taken from, with its detected cuts, or null for a drawn subject. */
-      video: IAutoMovieCaptureRecord.IVideo | null;
+      video: IAutoMovieCaptureVideoSource | null;
 
       /** The subject owner's own section, such as a motion case's verdicts and metrics, as the host handed it over, or null when the owner has none. */
       section: Readonly<Record<string, unknown>> | null;
@@ -82,107 +82,3 @@ export type IAutoMovieCaptureRecord =
       /** Every file name the capture wrote in its folder, this record included. */
       files: string[];
     };
-
-/**
- * Video provenance and per-cell outcomes used by capture persistence and later round comparison.
- *
- * @evidence contracts/development/design.md#principled-representation Video provenance and per-cell outcomes used by capture persistence and later round comparison.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These members belong to IAutoMovieCaptureRecord and are consumed with its enclosing record, rather than a second top-level vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Member discriminants and documented null/empty cases preserve the enclosing record's supported states.
- * @evidence contracts/development/common.md#meaningful-documentation Member comments state the relevant coordinate frames, units and outcome semantics.
- */
-export namespace IAutoMovieCaptureRecord {
-  /**
-   * What a capture of a video file records about the file: its path, the threshold its cuts were detected at, and every cut with its score.
-   *
-   * @evidence contracts/development/design.md#principled-representation The file, the `scdet` threshold on its 0 to 100 score and each cut's second in the file's time with its score, so a reader knows which cuts the windows came from and that an empty list means none at that threshold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written by `runAutoMovieVideoCapture`, read by the record's reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No cut is an empty list, not an absent member.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and its unit.
-   */
-  export interface IVideo {
-    /** Path of the video file. */
-    file: string;
-
-    /** `scdet` score at which a frame started a new scene. */
-    threshold: number;
-
-    /** Every detected cut: the second its new scene starts and its score. */
-    cuts: {
-      /** Video-local second of the first frame after the detected cut. */
-      seconds: number;
-      /** FFmpeg scdet change score on its 0 to 100 scale. */
-      score: number;
-    }[];
-  }
-
-  /**
-   * One planned cell: what fixed it, where it sits on the sheets, and whether it was drawn.
-   *
-   * @evidence contracts/development/design.md#principled-representation The cell's fixing values and sheet position shared by both outcomes, then a drawn still's file, hash, backend, camera and the paths each of its patterns resolved to, or the cause it was not drawn.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the reader of the record and by a later comparison, which pairs rows by these values.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The two outcomes are union members keyed by `state`.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and its unit.
-   */
-  export type Row = {
-    /** Position in the plan, from zero. */
-    index: number;
-
-    /** The cell's name, its still's file stem. */
-    name: string;
-
-    /** Which objects the cell draws. */
-    selection: IAutoMovieCaptureSelection;
-
-    /** The instant drawn. */
-    time: IAutoMovieCaptureTime;
-
-    /** The view text drawn through. */
-    view: string;
-
-    /** The shade drawn in. */
-    pass: string;
-
-    /** Label of the subject's named instant at the cell's second, or null when the second is not one. */
-    label: string | null;
-
-    /** File name of the sheet the cell is on. */
-    sheet: string;
-
-    /** Row of the cell on its sheet, from zero at the top. */
-    row: number;
-
-    /** Column of the cell on its sheet, from zero at the left. */
-    column: number;
-  } & (
-    | {
-        /** The still was drawn and written. */
-        state: "drawn";
-
-        /** File name of the still. */
-        file: string;
-
-        /** Content hash of the still's pixels, from `hashAutoMovieRasterImage`. */
-        hash: string;
-
-        /** Identity of the renderer that drew it, or null when the host did not state it. */
-        backend: string | null;
-
-        /** The camera the view resolved to, as the host wrote it (a draw page writes the JSON of its `IAutoMovieInspectionCamera`), or null when the host did not state it. */
-        camera: string | null;
-
-        /** The view text that draws that camera again, a fixed view with its scale and up when needed, which a later round copies as is; null when the host did not state it. */
-        repeat: string | null;
-
-        /** What each pattern of the cell's request and view resolved to, topmost paths and counts, or null when the host did not state it. */
-        resolved: IAutoMovieCaptureResolution[] | null;
-      }
-    | {
-        /** The draw function failed; the sheet shows a marked cell in its place. */
-        state: "failed";
-
-        /** The failure's message. */
-        cause: string;
-      }
-  );
-}

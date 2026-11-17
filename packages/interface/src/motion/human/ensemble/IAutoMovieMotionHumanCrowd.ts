@@ -26,7 +26,7 @@ import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanForm
  * @evidence contracts/development/common.md#meaningful-documentation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
  * @evidence contracts/development/design.md#principled-representation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.desired, request); ensemble/HumanCrowd.ts (HumanCrowd.steer, request); ensemble/HumanCrowd.ts (HumanCrowd.desired, return); ensemble/HumanCrowd.ts (HumanCrowd.steer, return); ensemble/HumanCrowd.ts (HumanCrowd.steer.agents); ensemble/HumanManoeuvre.ts (steered).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle.IObstacle, IAutoMovieMotionHumanEnsemble.IGroup, IAutoMovieMotionHumanFormation.ICourse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanEnsemble.IGroup, IAutoMovieMotionHumanFormation.ICourse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCrowd {
   /**
@@ -35,10 +35,20 @@ export namespace IAutoMovieMotionHumanCrowd {
    * @evidence contracts/development/common.md#meaningful-documentation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
    * @evidence contracts/development/design.md#principled-representation latency: Each member's delay after the cue; none when absent. flight: Whether they flee: morale then raises the desired speed and the herding share. Not when absent. groups: Groups that walk together, each steered as one agent of its members' combined breadth; none when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanCrowd.ts (HumanCrowd.desired, request); ensemble/HumanCrowd.ts (HumanCrowd.steer, request).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle.IObstacle, IAutoMovieMotionHumanEnsemble.IGroup identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEnsemble.IMember, IAutoMovieVector3, IAutoMovieMotionHumanResponse.Latency, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanEnsemble.IGroup identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IRequest {
-    /** Each member's goals: a point, or points in order. */
+    /**
+     * Each member's goals: a point, or points in order.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrowd.IRequest.goals: Each member's goals: a point, or points in order.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
+     */
     goals: (
       member: IAutoMovieMotionHumanEnsemble.IMember,
     ) => IAutoMovieVector3 | readonly IAutoMovieVector3[];
@@ -59,7 +69,7 @@ export namespace IAutoMovieMotionHumanCrowd {
     flight?: boolean;
 
     /** What they steer round. */
-    obstacles?: readonly IAutoMovieMotionHumanObstacle.IObstacle[];
+    obstacles?: readonly IAutoMovieMotionHumanObstacle[];
 
     /** Groups that walk together, each steered as one agent of its members' combined breadth; none when absent. */
     groups?: readonly IAutoMovieMotionHumanEnsemble.IGroup[];

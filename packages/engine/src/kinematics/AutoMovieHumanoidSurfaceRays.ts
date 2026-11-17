@@ -5,8 +5,11 @@ import type {
   IAutoMovieHumanoidSurfaceRegions,
   IAutoMovieHumanoidSurfaces,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -32,8 +35,8 @@ import { resolvePose } from "./resolvePose";
 export namespace AutoMovieHumanoidSurfaceRays {
   /** The farthest distance along a unit ray at which it is still inside a shape, or -Infinity on a miss. */
   function shapeExit(
-    frame: IAutoMoviePhysicalProfile.ITransform,
-    shape: IAutoMoviePhysicalProfile.IShape,
+    frame: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
     origin: IAutoMovieVector3,
     d: IAutoMovieVector3,
   ): number {
@@ -173,11 +176,10 @@ export namespace AutoMovieHumanoidSurfaceRays {
     };
     const segment = (
       bone: AutoMovieHumanoidBone,
-    ): IAutoMoviePhysicalProfile.ISegment => {
-      const s: IAutoMoviePhysicalProfile.ISegment | undefined =
-        profile.segments.find(
-          (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === bone,
-        );
+    ): IAutoMoviePhysicalSegment => {
+      const s: IAutoMoviePhysicalSegment | undefined = profile.segments.find(
+        (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
+      );
       if (s === undefined)
         throw new Error(`Surfaces need the profile segment ${bone}`);
       return s;
@@ -185,7 +187,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const bounds = (
       bone: AutoMovieHumanoidBone,
     ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-      const s: IAutoMoviePhysicalProfile.ISegment = segment(bone);
+      const s: IAutoMoviePhysicalSegment = segment(bone);
       const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
       const max: IAutoMovieVector3 = {
         x: -Infinity,
@@ -246,9 +248,9 @@ export namespace AutoMovieHumanoidSurfaceRays {
       direction: IAutoMovieVector3,
     ): IAutoMovieHumanoidSurfaceRays.ISurfacePoint => {
       const d: IAutoMovieVector3 = Vector3.normalize(direction);
-      const s: IAutoMoviePhysicalProfile.ISegment = segment(bone);
+      const s: IAutoMoviePhysicalSegment = segment(bone);
       let far: number = -Infinity;
-      let left: IAutoMoviePhysicalProfile.IShape | undefined;
+      let left: IAutoMoviePhysicalShape | undefined;
       for (const shape of s.shapes) {
         const t: number = shapeExit(s.neutral, shape, origin, d);
         if (t > far) {

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieCurlChainUntilContact,
@@ -9,9 +10,11 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -68,8 +71,7 @@ export namespace HumanGrasp {
     id: string,
     seconds: number,
   ): IAutoMovieMotionHumanGrasp.ITarget {
-    const prop: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(subject);
     return HumanGrasp.at(prop.prop, id, prop.frame(seconds));
   }
 
@@ -86,7 +88,7 @@ export namespace HumanGrasp {
   export function at(
     prop: IAutoMovieMotionHumanProp,
     id: string,
-    frame: IAutoMovieMotionHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanGrasp.ITarget {
     const subject: string = prop.subject;
     const affordance: IAutoMovieAffordance | undefined = prop.affordances?.find(
@@ -106,8 +108,7 @@ export namespace HumanGrasp {
         reason: `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id).join(", ") || "none"}`,
         fix: "name one of the prop's affordances, or declare this one on the prop",
       });
-    const shapes: readonly IAutoMoviePhysicalProfile.IShape[] =
-      prop.shapes ?? [];
+    const shapes: readonly IAutoMoviePhysicalShape[] = prop.shapes ?? [];
     if (shapes.length === 0)
       throw new HumanRefusal({
         kind: "affordance",
@@ -127,7 +128,7 @@ export namespace HumanGrasp {
     });
     const colliders: IAutoMovieCurlChainUntilContact.ICollider[] = shapes.map(
       (
-        shape: IAutoMoviePhysicalProfile.IShape,
+        shape: IAutoMoviePhysicalShape,
       ): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame }),
     );
     const point: IAutoMovieVector3 = Vector3.add(
@@ -172,7 +173,7 @@ export namespace HumanGrasp {
    */
   export function hand(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     target: IAutoMovieMotionHumanGrasp.ITarget,
     tilt: number = 0,
   ): IAutoMovieMotionHumanHand.IWrist {
@@ -250,7 +251,7 @@ export namespace HumanGrasp {
   export function reachable(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     bend: IAutoMovieVector3,
     goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
     tilts: readonly number[] = [0],

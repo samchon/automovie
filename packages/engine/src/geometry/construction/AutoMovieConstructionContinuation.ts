@@ -1,6 +1,6 @@
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
@@ -184,16 +184,16 @@ export namespace AutoMovieConstructionContinuation {
       );
     /** Value and derivative frame records follow their separate station/chart signs. */
     const frame: (
-      f: IAutoMovieLoftFrame.IFrame,
+      f: IAutoMovieLoftSectionFrame,
       ko: number,
       ku: number,
       kv: number,
-    ) => IAutoMovieLoftFrame.IFrame = (
-      f: IAutoMovieLoftFrame.IFrame,
+    ) => IAutoMovieLoftSectionFrame = (
+      f: IAutoMovieLoftSectionFrame,
       ko: number,
       ku: number,
       kv: number,
-    ): IAutoMovieLoftFrame.IFrame => ({
+    ): IAutoMovieLoftSectionFrame => ({
       origin: [ko * f.origin[0], ko * f.origin[1], ko * f.origin[2]],
       u: [ku * f.u[0], ku * f.u[1], ku * f.u[2]],
       v: [kv * f.v[0], kv * f.v[1], kv * f.v[2]],

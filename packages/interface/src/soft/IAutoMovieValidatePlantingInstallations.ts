@@ -4,7 +4,14 @@ import type { IAutoMoviePlantingCluster } from "./IAutoMoviePlantingCluster";
 import type { IAutoMoviePlantingDomain } from "./IAutoMoviePlantingDomain";
 import type { IAutoMoviePlantingInstallation } from "./IAutoMoviePlantingInstallation";
 
-/** Building, growth and arrangement catalogues joined by planting-installation admission. */
+/**
+ * Building, growth and arrangement catalogues joined by planting-installation admission.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers catalogue admission, last-record lookup, empty requests, sampled canopy containment, authored fluid levels and result ownership.
+ * @evidence contracts/development/design.md#principled-representation Canonical identities join independent building, cluster and recipe records; world-metre placements and transformed recipe-local boxes are checked at runtime.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface validatePlantingInstallations consumes the four required catalogues and an optional fluid catalogue solely for declared aquatic references.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional fluids mean no available fluid references, not invented water; sampled containment and id membership are not promoted to full clearance or service validation.
+ */
 export namespace IAutoMovieValidatePlantingInstallations {
   /**
    * Borrowed catalogues for validating installation references, unique cluster use, support and irrigation rules, and initial placement containment. All supplied recipes and clusters receive their own admission checks even when installations is empty. Duplicate recipe/cluster ids are reported; lookup maps still select the last record. Input records remain unchanged and returned violations may retain offending values.

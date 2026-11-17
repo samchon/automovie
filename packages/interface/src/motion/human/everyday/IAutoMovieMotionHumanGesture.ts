@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanHandShape } from "../posture/IAutoMovieMotionHumanHandShape";
 import type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
 import type { IAutoMovieMotionHumanGestureStroke } from "./IAutoMovieMotionHumanGestureStroke";
@@ -43,7 +43,7 @@ import type { IAutoMovieMotionHumanGestureStroke } from "./IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation side: The hand of a one-hand gesture; `right` when absent. region: The face region a `touchFace` reaches; `forehead` when absent. count: Stroke repetitions (waves, nods, claps); the gesture's own count when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation side: The hand of a one-hand gesture; `right` when absent. region: The face region a `touchFace` reaches; `forehead` when absent. count: Stroke repetitions (waves, nods, claps); the gesture's own count when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.gesture, params); everyday/gesture.ts (gesture.plan, context); everyday/gestureHands.ts (gestureHands.hand, p); everyday/gesture.ts (gesture.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGestureStroke.Kind, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionTarget, IAutoMovieMotionHumanGestureStroke.FaceRegion, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieMotionHumanHandShape.Emblem identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGestureStroke.Kind, AutoMovieHumanSide, IAutoMovieMotionTarget, IAutoMovieMotionHumanGestureStroke.FaceRegion, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieMotionHumanHandShape.Emblem identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGesture {
   /**
@@ -63,7 +63,7 @@ export namespace IAutoMovieMotionHumanGesture {
     kind: IAutoMovieMotionHumanGestureStroke.Kind;
 
     /** The hand of a one-hand gesture; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** What to point at; required by `point`. */
     target?: IAutoMovieMotionTarget;
@@ -108,6 +108,6 @@ export namespace IAutoMovieMotionHumanGesture {
      * replaces the performer's skill for those spreads. Absent or 0, every
      * repeat is the same.
      */
-    manner?: Pick<IAutoMovieMotionManner.IManner, "variation" | "proficiency">;
+    manner?: Pick<IAutoMovieMotionManner, "variation" | "proficiency">;
   }
 }

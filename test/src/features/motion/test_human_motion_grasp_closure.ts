@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -41,7 +41,7 @@ export function test_human_motion_grasp_closure(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   for (const kind of ["sword", "musket"] as const) {
-    const prospective: IAutoMovieMotionHumanProp.IFrame[] = [];
+    const prospective: IAutoMovieRigidTransform[] = [];
     const points: IAutoMovieMotionHumanStrikingHeld.IPoints =
       kind === "sword"
         ? { tip: "point", edge: "edge" }
@@ -63,7 +63,7 @@ export function test_human_motion_grasp_closure(): void {
       plan: (
         context: IAutoMovieMotionHumanActionContext<{ prop: string }>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const actual: IAutoMovieMotionHumanProp.IFrame = StrikingHeld.of(
+        const actual: IAutoMovieRigidTransform = StrikingHeld.of(
           context,
           "right",
           context.params.prop,

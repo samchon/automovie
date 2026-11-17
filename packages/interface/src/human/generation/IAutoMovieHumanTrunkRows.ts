@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanTrunkRows; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanTrunkRows; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanTrunkRows exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups StationsSpacing. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanTrunkRows; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the StationsSpacing contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanTrunkRows {
   /** The spacing argument of AutoMovieHumanTrunkRows.stations. The rows of a chain from its first station to its last.
   @param from The chain's first station, mm.

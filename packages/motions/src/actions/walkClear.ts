@@ -2,6 +2,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionObstacleAperture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -37,7 +38,7 @@ export function walkClear(
     via?: IAutoMovieVector3[];
   }>,
 ): void {
-  const obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[] =
+  const obstacles: readonly IAutoMovieMotionHumanObstacle[] =
     context.obstacles();
   if (obstacles.length === 0) return;
   const body: IAutoMovieMotionHumanBody = context.body;
@@ -64,10 +65,10 @@ export function walkClear(
           kind: "alternatives",
           values: (
             obstacles.find(
-              (o: IAutoMovieMotionHumanObstacle.IObstacle): boolean =>
+              (o: IAutoMovieMotionHumanObstacle): boolean =>
                 o.subject === block.subject,
             )?.apertures ?? []
-          ).map((a: IAutoMovieMotionHumanObstacle.IAperture): string => a.id),
+          ).map((a: IAutoMovieMotionObstacleAperture): string => a.id),
         },
         reason: `the way goes through ${where}, which has no opening there`,
         fix: "pass by one of its openings, or by places that go round it",

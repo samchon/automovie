@@ -1,4 +1,4 @@
-import type { IAutoMovieNaturalSpline } from "../../construction/IAutoMovieNaturalSpline";
+import type { IAutoMovieNaturalCubicSpline } from "../../construction/IAutoMovieNaturalCubicSpline";
 import type { IAutoMovieHumanHeadEyeOpening } from "./IAutoMovieHumanHeadEyeOpening";
 import type { IAutoMovieHumanHeadLandmarks } from "./IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadMandible } from "./IAutoMovieHumanHeadMandible";
@@ -7,14 +7,13 @@ import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
 /**
  * Stations and sizes of one person, calibration millimetres.
  *
- * @evidence contracts/common.md#principled-implementation Keeps public chords, shared datums, original neck sources and explicitly separate shape priors available to actual source authors.
- * @evidence contracts/common.md#clear-and-simple-design One layout feeds head mass and regional builders before any tree realization.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Data does not certify reference fit, actual tape closure, internal overlap or final join success.
- * @evidence contracts/common.md#meaningful-documentation Fields state calibration units and distinguish border direction, bulk relief, measurements and retained conventions.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data interface performs no calculation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Producers own each original preparation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns numeric records and call-owned source closures; no global figure is retained.
- *
+ * Keeps public chords, shared datums, original neck sources and explicitly separate shape priors available to actual source authors.
+ * One layout feeds head mass and regional builders before any tree realization.
+ * Data does not certify reference fit, actual tape closure, internal overlap or final join success.
+ * Fields state calibration units and distinguish border direction, bulk relief, measurements and retained conventions.
+ * A data interface performs no calculation.
+ * Producers own each original preparation.
+ * The caller owns numeric records and call-owned source closures; no global figure is retained.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Stations and sizes of one person, calibration millimetres.
  * @evidence contracts/development/design.md#principled-representation `scale`: Calibration millimetres per world millimetre. `sex`: Masculine-feminine control. `fat`: Fat control.
@@ -129,7 +128,7 @@ export interface IAutoMovieHumanHeadLayout {
   right: IAutoMovieHumanHeadEyeOpening;
 
   /** Station map. */
-  station: IAutoMovieNaturalSpline.ISpline;
+  station: IAutoMovieNaturalCubicSpline;
 
   /** Columella's rise above the horizontal, radians. */
   columella: number;
@@ -141,7 +140,7 @@ export interface IAutoMovieHumanHeadLayout {
   landmarks: IAutoMovieHumanHeadLandmarks;
 
   /** The midline profile's departure from the vault's ellipse along the height. */
-  profile: IAutoMovieNaturalSpline.ISpline;
+  profile: IAutoMovieNaturalCubicSpline;
 
   /** The jaw, once the chin and the ears are placed. */
   mandible?: IAutoMovieHumanHeadMandible;

@@ -10,10 +10,10 @@ import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActio
  * role stands and no role chases another. `HumanChain.mutual` joins the
  * cast's chains through it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a mutual action is, what the record says and who joins the chains.
- * @evidence contracts/development/design.md#principled-representation The roles as a closed list of names and each role's action as a function of the shared parameters and the cast, so one statement yields every role's intent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A name, the roles and one function.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The role names type the cast, so a missing or a misspelt role is refused by the type checker.
+ * @evidence contracts/development/common.md#meaningful-documentation States what a mutual action is, what the record says and who joins the chains. name: The action: a vocabulary name or a registered one. params: Its parameters.
+ * @evidence contracts/development/design.md#principled-representation The roles as a closed list of names and each role's action as a function of the shared parameters and the cast, so one statement yields every role's intent. name: The action: a vocabulary name or a registered one. params: Its parameters.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A name, the roles and one function. Runtime boundary references: HumanChain.ts (HumanChain.mutual, mutual); actions/HumanMutual.ts (HumanMutual.handshake); actions/HumanMutual.ts (HumanMutual.highFive); actions/HumanMutual.ts (HumanMutual.handOver); actions/HumanMutual.ts (HumanMutual.kiss); actions/HumanMutual.ts (HumanMutual.pass).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The role names type the cast, so a missing or a misspelt role is refused by the type checker. Shares the canonical AutoMovieMotionHumanActionKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanMutual<
   Params = object,
@@ -33,6 +33,14 @@ export interface IAutoMovieMotionHumanMutual<
    * @param cast Who performs each role, by subject id.
    * @param anchor The joined action's anchor, when the author gave one: each role's action is anchored `${anchor}.${role}`, so a role can name another's instants (a catch reads its throw). Absent when the author gave none.
    * @returns The action's name and its own parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanMutual.act: The action one role performs.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
    */
   act(
     role: Role,
@@ -45,10 +53,6 @@ export interface IAutoMovieMotionHumanMutual<
 /**
  * Contracts used by HumanChain.mutual, HumanMutual.handshake, HumanMutual.highFive, HumanMutual.handOver.
  *
- * @evidence contracts/development/common.md#meaningful-documentation name: The action: a vocabulary name or a registered one. params: Its parameters.
- * @evidence contracts/development/design.md#principled-representation name: The action: a vocabulary name or a registered one. params: Its parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: HumanChain.ts (HumanChain.mutual, mutual); actions/HumanMutual.ts (HumanMutual.handshake); actions/HumanMutual.ts (HumanMutual.highFive); actions/HumanMutual.ts (HumanMutual.handOver); actions/HumanMutual.ts (HumanMutual.kiss); actions/HumanMutual.ts (HumanMutual.pass).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanActionKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanMutual {
   /**

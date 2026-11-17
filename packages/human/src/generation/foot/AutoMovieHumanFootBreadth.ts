@@ -7,10 +7,10 @@ import type {
   IAutoMovieHumanFootBreadth,
   IAutoMovieHumanFootPart,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanToePart,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewOutline,
   IAutoMovieViewParallelAxis,
   IAutoMovieViewPart,
@@ -51,7 +51,7 @@ export namespace AutoMovieHumanFootBreadth {
     foot: IAutoMovieHumanFootPart.IInput,
     toes: readonly IAutoMovieHumanToePart.IInput[],
     definition?:
-      | IAutoMovieHumanSiteViewPart.IDefinition
+      | IAutoMovieHumanSourceDefinition
       | IAutoMovieHumanSiteControls.IOutput,
   ): IAutoMovieHumanFootBreadth.ISupport | string {
     if (
@@ -61,7 +61,7 @@ export namespace AutoMovieHumanFootBreadth {
     )
       return "Metatarsal group breadth needs a finite increasing foot-along region";
     const declarations: ((
-      | IAutoMovieHumanSiteViewPart.IDefinition
+      | IAutoMovieHumanSourceDefinition
       | IAutoMovieHumanSiteControls.IOutput
     ) & {
       origin?: IAutoMovieViewParallelAxis.IOrigin;
@@ -115,7 +115,7 @@ export namespace AutoMovieHumanFootBreadth {
         return `${part.name}: group breadth requires the closed two-pole source`;
       const first: number = part.stations[0]!;
       const last: number = part.stations.at(-1)!;
-      const start: IAutoMovieLoftFrame.IFrame = axis.at(first);
+      const start: IAutoMovieLoftSectionFrame = axis.at(first);
       if (start.u[0] !== 0 || start.u[1] !== 1 || start.u[2] !== 0)
         return `${part.name}: breadth requires the fixed world-up chart`;
       if (
@@ -169,7 +169,7 @@ export namespace AutoMovieHumanFootBreadth {
             station,
           );
           if (typeof edge === "string") return `${part.name}: ${edge}`;
-          const frame: IAutoMovieLoftFrame.IFrame = axis.at(station);
+          const frame: IAutoMovieLoftSectionFrame = axis.at(station);
           const point: AutoMovieVector3Tuple = frame.origin.map(
             (value: number, c: number): number => value + frame.v[c]! * edge,
           ) as AutoMovieVector3Tuple;

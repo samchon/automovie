@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -126,7 +126,7 @@ export namespace AutoMovieSolidChain {
     const last: number = chain.layers[chain.layers.length - 1]!.y;
     const domain: [number, number] = AutoMovieLoftCapSource.bounds(chain);
     const middle: number = (first + last) / 2;
-    let j: IAutoMovieLoftJet.IJet;
+    let j: IAutoMovieLoftSurfaceJet;
     try {
       j = AutoMovieLoftJet.at(chain, middle, 0);
     } catch (error: unknown) {
@@ -187,7 +187,7 @@ export namespace AutoMovieSolidChain {
           throw new AutoMovieLoftAdmissionError(
             "The requested jet is outside the loft's owned original domain.",
           );
-        const q: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, u, v);
+        const q: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, u, v);
         return { p: q.p, u: q.s, v: q.t, uu: q.ss, uv: q.st, vv: q.tt };
       },
     };

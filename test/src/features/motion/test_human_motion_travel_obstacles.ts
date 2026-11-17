@@ -60,7 +60,7 @@ export function test_human_motion_travel_obstacles(): void {
   const wall = (door?: {
     width: number;
     height: number;
-  }): IAutoMovieMotionHumanObstacle.IObstacle =>
+  }): IAutoMovieMotionHumanObstacle =>
     HumanObstacle.wall(
       "wall",
       { x: -2, y: 0, z: 2 },
@@ -80,7 +80,7 @@ export function test_human_motion_travel_obstacles(): void {
           ],
     );
   const walk = (
-    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
     round: boolean = false,
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
@@ -109,7 +109,7 @@ export function test_human_motion_travel_obstacles(): void {
     });
   const refused = (
     label: string,
-    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
     least?: number,
   ): void => {
     let thrown: unknown = null;
@@ -230,7 +230,7 @@ export function test_human_motion_travel_obstacles(): void {
 
   // 7. Through the doorway from off its line, and no doorway to go through.
   const passing = (
-    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "obstacles",

@@ -2,7 +2,9 @@ import type {
   AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieMeshCourse,
-  IAutoMovieMeshExtract,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 
 import { AutoMovieMeshExtract } from "./AutoMovieMeshExtract";
@@ -57,7 +59,7 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained state or handle; only the returned sections remain.
    */
   export function cut(
-    mesh: IAutoMovieMeshExtract.IMesh,
+    mesh: IAutoMovieMillimeterMesh,
     planes: readonly IAutoMovieMeshCourse.IPlane[],
     tolerance: number = 0.5,
     bridge: number = 25,
@@ -65,17 +67,16 @@ export namespace AutoMovieMeshCourse {
     const sections: IAutoMovieMeshCourse.ISection[] = planes.map(
       (plane: IAutoMovieMeshCourse.IPlane): IAutoMovieMeshCourse.ISection => {
         const n: AutoMovieVector3Tuple = cross(plane.v, plane.u);
-        const cut: IAutoMovieMeshExtract.ISection =
-          AutoMovieMeshExtract.outline(
-            mesh,
-            { origin: plane.origin, axes: [n, plane.u, plane.v] },
-            [0],
-            0,
-            tolerance,
-            bridge,
-          )[0]!;
-        const held: IAutoMovieMeshExtract.ILoop | undefined = cut.outer.find(
-          (l: IAutoMovieMeshExtract.ILoop): boolean => contains(l.points, 0, 0),
+        const cut: IAutoMovieMeshSectionCut = AutoMovieMeshExtract.outline(
+          mesh,
+          { origin: plane.origin, axes: [n, plane.u, plane.v] },
+          [0],
+          0,
+          tolerance,
+          bridge,
+        )[0]!;
+        const held: IAutoMovieMeshSectionChain | undefined = cut.outer.find(
+          (l: IAutoMovieMeshSectionChain): boolean => contains(l.points, 0, 0),
         );
         if (held === undefined)
           return {

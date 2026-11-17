@@ -80,10 +80,22 @@ export namespace AutoMovieHumanFootSectors {
         for (const i of list) {
           const p: IAutoMovieHumanFootSectors.IPiece = pieces[i]!;
           const L: number = p.lengths[p.lengths.length - 1]!;
-          for (let j: number = 0; j + 1 < p.points.length; j++) {
+          for (let j: number = 0; j < p.points.length; j++) {
             const a: AutoMovieVector2Tuple = p.points[j]!;
-            const b: AutoMovieVector2Tuple = p.points[j + 1]!;
-            if ((a[0] - v) * (b[0] - v) <= 0 && a[0] !== b[0]) {
+            const b: AutoMovieVector2Tuple | undefined = p.points[j + 1];
+
+            // Every vertex is a candidate, including a terminal endpoint and
+            // an exact hit on a segment with constant across coordinate.
+            if (a[0] === v)
+              return G.wrap(
+                ((starts[i]! + (p.lengths[j]! / L) * shares[i]!) / total) *
+                  G.TWO_PI,
+              );
+            if (
+              b !== undefined &&
+              (a[0] - v) * (b[0] - v) <= 0 &&
+              a[0] !== b[0]
+            ) {
               const w: number = (v - a[0]) / (b[0] - a[0]);
               const f: number =
                 (p.lengths[j]! + w * (p.lengths[j + 1]! - p.lengths[j]!)) / L;

@@ -1,11 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
@@ -73,9 +73,7 @@ export namespace HumanLimbPair {
   export function fitted(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    goals: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanPosture.IGoal>
-    >,
+    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
     near: Readonly<
       Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
     > = {},
@@ -84,17 +82,16 @@ export namespace HumanLimbPair {
       pose,
       others: [],
     }).pose;
-    const image: Record<"left" | "right", IAutoMovieMotionHumanPosture.IGoal> =
-      {
-        left: HumanLimbFit.reflected(goals.right),
-        right: HumanLimbFit.reflected(goals.left),
-      };
+    const image: Record<"left" | "right", IAutoMovieHumanLimbGoal> = {
+      left: HumanLimbFit.reflected(goals.right),
+      right: HumanLimbFit.reflected(goals.left),
+    };
     // The inputs serialised by content, each joint under its bone's name in
     // name order, so the mirror's exchange of the sides' names reorders
     // nothing.
     const key = (
       p: IAutoMoviePose,
-      g: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture.IGoal>>,
+      g: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
     ): string =>
       JSON.stringify([
         p.root,
@@ -149,12 +146,10 @@ export namespace HumanLimbPair {
 function solved(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture.IGoal>>,
+  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
 ): HumanLimbPair.IFitted {
-  const world = (
-    limb: "leftArm" | "rightArm",
-  ): IAutoMovieMotionHumanPosture.IGoal =>
+  const world = (limb: "leftArm" | "rightArm"): IAutoMovieHumanLimbGoal =>
     HumanLimbFit.world(
       body,
       pose,
@@ -243,7 +238,7 @@ function solved(
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
   const site = (side: "left" | "right"): M.ISite => {
-    const goal: IAutoMovieMotionHumanPosture.IGoal = world(
+    const goal: IAutoMovieHumanLimbGoal = world(
       side === "left" ? "leftArm" : "rightArm",
     );
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };

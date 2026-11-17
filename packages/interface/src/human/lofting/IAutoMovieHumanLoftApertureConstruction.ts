@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanLoftAperture; runtime evaluation remains in Human. */
+/**
+ * Projected aperture margins, depth windows and segment-addressed spatial grids. Runtime construction and admission remain with AutoMovieHumanLoftAperture in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes projected aperture margins, depth windows and segment-addressed spatial grids; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Projected aperture margins, depth windows and segment-addressed spatial grids. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLoftAperture; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LoftApertureConstruction contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLoftApertureConstruction {
   /**
    * The margin seen along the aperture's `forward` axis.
@@ -72,13 +79,13 @@ export namespace IAutoMovieHumanLoftApertureConstruction {
     bands: number[][];
   }
 
-  /** Result of AutoMovieHumanLoftAperture.range. Lowest and highest world height of the margin, mm.
+  /**
+   * Lowest and highest world heights of the aperture margin, in millimetres, in that order.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lowest and highest world height of the margin, mm.
-   * @evidence contracts/development/design.md#principled-representation Lowest and highest world height of the margin, mm. Ordered tuple slots are 0, 1; fixed arity preserves their correspondence.
+   * @evidence contracts/development/common.md#meaningful-documentation Lowest and highest world heights of the aperture margin, in millimetres, in that order.
+   * @evidence contracts/development/design.md#principled-representation Lowest and highest world heights of the aperture margin, in millimetres, in that order.
    * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLoftApertureConstruction.RangeResult is the canonical exchange used by AutoMovieHumanLoftAperture.range.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLoftAperture.range for lowest and highest world height of the margin, mm.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanLoftAperture input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
    */
   export type RangeResult = [number, number];
 }

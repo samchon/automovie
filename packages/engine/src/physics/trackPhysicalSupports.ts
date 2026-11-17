@@ -1,5 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalMaterial,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
@@ -122,24 +124,24 @@ export function trackPhysicalSupports(input: {
       IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
     >["pattern"]["limbs"][number],
   ): boolean {
-    const parts: IAutoMoviePhysicalProfile.ISegment[] =
+    const parts: IAutoMoviePhysicalSegment[] =
       input.body.profile.segments.filter(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+        (segment: IAutoMoviePhysicalSegment): boolean =>
           (limb.contacts ?? [limb.bone]).includes(segment.bone),
       );
     if (limb.floorPoints?.length)
       return limb.floorPoints.every(
         (point: NonNullable<typeof limb.floorPoints>[number]): boolean => {
-          const segment: IAutoMoviePhysicalProfile.ISegment = parts.find(
-            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          const segment: IAutoMoviePhysicalSegment = parts.find(
+            (segment: IAutoMoviePhysicalSegment): boolean =>
               segment.bone === point.bone,
           )!;
           const compression: number = Math.max(
             0,
             ...segment.shapes.map(
-              (shape: IAutoMoviePhysicalProfile.IShape): number =>
+              (shape: IAutoMoviePhysicalShape): number =>
                 input.body.profile.materials.find(
-                  (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+                  (material: IAutoMoviePhysicalMaterial): boolean =>
                     material.id === shape.material,
                 )!.maximumCompression ?? 0,
             ),
@@ -158,11 +160,11 @@ export function trackPhysicalSupports(input: {
     const lowest: { height: number; compression: number } = parts
       .flatMap(
         (
-          segment: IAutoMoviePhysicalProfile.ISegment,
+          segment: IAutoMoviePhysicalSegment,
         ): { height: number; compression: number }[] =>
           segment.shapes.map(
             (
-              shape: IAutoMoviePhysicalProfile.IShape,
+              shape: IAutoMoviePhysicalShape,
             ): { height: number; compression: number } => ({
               height: physicalShapeBounds(
                 input.goals[segment.bone]!.pose,
@@ -170,7 +172,7 @@ export function trackPhysicalSupports(input: {
               ).min.y,
               compression:
                 input.body.profile.materials.find(
-                  (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+                  (material: IAutoMoviePhysicalMaterial): boolean =>
                     material.id === shape.material,
                 )!.maximumCompression ?? 0,
             }),

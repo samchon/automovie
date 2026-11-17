@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -95,7 +96,7 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       composition: composition.node,
     });
   const instant = (
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     event: string,
   ): number =>
     segment.start +
@@ -109,10 +110,7 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
     seconds: number,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-      subject,
-      seconds,
-    );
+    const frame: IAutoMovieRigidTransform = performance.prop(subject, seconds);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, local),
@@ -170,7 +168,7 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
           .stand({ seconds: 0.5 }),
       (performance: IAutoMovieMotionHumanPerformance): void => {
         // 1. The rim at the mouth through the hold.
-        const drink: IAutoMovieMotionHumanSegment.ISegment =
+        const drink: IAutoMovieMotionHumanSegment =
           performance.segments("a")[1]!;
         const reader: IAutoMovieMotionHumanSignature.IReader =
           HumanSignature.of(performance, "a", body, 0);

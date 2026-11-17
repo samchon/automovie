@@ -1,8 +1,8 @@
 import type {
   IAutoMovieContactReceipt,
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalShapeBounds,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import RAPIER from "@dimforge/rapier3d-compat";
 
@@ -69,14 +69,8 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
         )
       )
         return null;
-      const first: IAutoMoviePhysicalProfile.ITransform = place(
-        a.pose,
-        a.shape.transform,
-      );
-      const second: IAutoMoviePhysicalProfile.ITransform = place(
-        b.pose,
-        b.shape.transform,
-      );
+      const first: IAutoMovieRigidTransform = place(a.pose, a.shape.transform);
+      const second: IAutoMovieRigidTransform = place(b.pose, b.shape.transform);
       const search: number = prediction + rounding;
       if (!isPhysicalNativeNumber(search))
         throw new Error("Derived native contact prediction exceeds f32 range");
@@ -127,9 +121,9 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
     },
     project: (
       collider: IAutoMoviePreparePhysicalGeometry.ICollider,
-      point: IAutoMoviePhysicalProfile.ITransform["position"],
-    ): IAutoMoviePhysicalProfile.ITransform["position"] => {
-      const pose: IAutoMoviePhysicalProfile.ITransform = place(
+      point: IAutoMovieRigidTransform["position"],
+    ): IAutoMovieRigidTransform["position"] => {
+      const pose: IAutoMovieRigidTransform = place(
         collider.pose,
         collider.shape.transform,
       );
@@ -149,10 +143,10 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
 
 /** Compose bone and local shape transforms in the same world frame. */
 function place(
-  parent: IAutoMoviePhysicalProfile.ITransform,
-  local: IAutoMoviePhysicalProfile.ITransform,
-): IAutoMoviePhysicalProfile.ITransform {
-  const result: IAutoMoviePhysicalProfile.ITransform = {
+  parent: IAutoMovieRigidTransform,
+  local: IAutoMovieRigidTransform,
+): IAutoMovieRigidTransform {
+  const result: IAutoMovieRigidTransform = {
     position: Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, local.position),

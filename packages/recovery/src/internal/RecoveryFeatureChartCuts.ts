@@ -1,7 +1,9 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDirectedEdgeIncidence,
   IAutoMovieRecoveryFeatureChartCuts,
   IAutoMovieRecoveryFeatureChartCutsSubdivide,
+  IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
 import { RecoveryFeatureChartCutsFans } from "./RecoveryFeatureChartCutsFans";
@@ -39,17 +41,6 @@ import { RecoveryFeatureChartCutsTopology } from "./RecoveryFeatureChartCutsTopo
 export function RecoveryFeatureChartCuts(
   input: Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation> {
-  type Row = { a: number; b: number; face: number };
-  type Topology = {
-    edges: Map<string, Row[]>;
-    vertexEdges: string[][];
-    incident: number[][];
-    components: number[][];
-    faceComponent: Int32Array;
-    cycles: number[][];
-    areas: number[];
-    normals: Readonly<AutoMovieVector3Tuple>[];
-  };
   type Feature = (typeof input.featureEdges)[number];
   const fail: (reason: string) => never = (reason: string): never => {
     throw new Error(`Unsupported feature chart cuts: ${reason}`);
@@ -104,15 +95,20 @@ export function RecoveryFeatureChartCuts(
   const analyze: (
     vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
-  ) => Topology = RecoveryFeatureChartCutsTopology(fail, edge);
-  const source: Topology = analyze(input.verticesMm, input.triangles);
+  ) => IAutoMovieRecoveryObservedMeshTopology =
+    RecoveryFeatureChartCutsTopology(fail, edge);
+  const source: IAutoMovieRecoveryObservedMeshTopology = analyze(
+    input.verticesMm,
+    input.triangles,
+  );
   if (source.components.length !== 1)
     fail("one edge-connected source component is required");
   const features: Map<string, Feature> = new Map(),
     provenance: Map<string, string> = new Map();
   for (const feature of input.featureEdges) {
     const key: string = edge(feature.a, feature.b),
-      rows: Row[] | undefined = source.edges.get(key);
+      rows: IAutoMovieRecoveryDirectedEdgeIncidence[] | undefined =
+        source.edges.get(key);
     if (
       !Number.isSafeInteger(feature.a) ||
       !Number.isSafeInteger(feature.b) ||
@@ -133,7 +129,10 @@ export function RecoveryFeatureChartCuts(
         "features need unique interior edges and finite original crease provenance",
       );
     const pair: number[] = rows
-        .map((row: Row): number => input.triangleSourceFaces[row.face]!)
+        .map(
+          (row: IAutoMovieRecoveryDirectedEdgeIncidence): number =>
+            input.triangleSourceFaces[row.face]!,
+        )
         .sort((a: number, b: number): number => a - b),
       declared: number[] = [...feature.sourceFaces].sort(
         (a: number, b: number): number => a - b,
@@ -158,7 +157,7 @@ export function RecoveryFeatureChartCuts(
       JSON.stringify(t.map((id: number): string => keys[id]!).sort(lex)),
     );
   const fanLabels: (
-    topology: Topology,
+    topology: IAutoMovieRecoveryObservedMeshTopology,
     keys: readonly string[],
     triangles: readonly (readonly [number, number, number])[],
     cuts: ReadonlyMap<string, Feature>,
@@ -171,7 +170,8 @@ export function RecoveryFeatureChartCuts(
     ),
     collisions: Set<string> = new Set();
   for (const [key, feature] of features) {
-    const rows: Row[] = source.edges.get(key)!;
+    const rows: IAutoMovieRecoveryDirectedEdgeIncidence[] =
+      source.edges.get(key)!;
     if (
       initialFans[feature.a]!.get(rows[0]!.face) ===
         initialFans[feature.a]!.get(rows[1]!.face) &&
@@ -248,7 +248,10 @@ export function RecoveryFeatureChartCuts(
         number,
       ],
   );
-  const actual: Topology = analyze(cutVertices, cutTriangles);
+  const actual: IAutoMovieRecoveryObservedMeshTopology = analyze(
+    cutVertices,
+    cutTriangles,
+  );
   for (let face: number = 0; face < cutTriangles.length; face++) {
     if (owners[face] !== input.triangleSourceFaces[parents[face]!])
       fail("fan materialization changed original face ownership");
@@ -264,8 +267,9 @@ export function RecoveryFeatureChartCuts(
   }
   for (const [key, rows] of subdivided.edges)
     if (!expanded.has(key)) {
-      const images: string[] = rows.map((row: Row): string =>
-        edge(remap[row.a]!.get(row.face)!, remap[row.b]!.get(row.face)!),
+      const images: string[] = rows.map(
+        (row: IAutoMovieRecoveryDirectedEdgeIncidence): string =>
+          edge(remap[row.a]!.get(row.face)!, remap[row.b]!.get(row.face)!),
       );
       if (
         images.some((word: string): boolean => word !== images[0]) ||
@@ -274,11 +278,16 @@ export function RecoveryFeatureChartCuts(
         fail("fan materialization cut an undeclared edge");
     }
   for (const [key, feature] of expanded) {
-    const rows: Row[] | undefined = subdivided.edges.get(key);
+    const rows: IAutoMovieRecoveryDirectedEdgeIncidence[] | undefined =
+      subdivided.edges.get(key);
     if (rows?.length !== 2)
       fail("an expanded feature lost its two original face incidents");
-    const banks: string[] = rows.map((row: Row): string =>
-      edge(remap[feature.a]!.get(row.face)!, remap[feature.b]!.get(row.face)!),
+    const banks: string[] = rows.map(
+      (row: IAutoMovieRecoveryDirectedEdgeIncidence): string =>
+        edge(
+          remap[feature.a]!.get(row.face)!,
+          remap[feature.b]!.get(row.face)!,
+        ),
     );
     if (
       banks[0] === banks[1] ||

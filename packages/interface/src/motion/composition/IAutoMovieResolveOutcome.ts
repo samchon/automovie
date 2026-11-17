@@ -1,6 +1,13 @@
 import type { IAutoMovieIntent } from "./IAutoMovieIntent";
 
-/** Production-defined decisions evaluated by resolveAutoMovieOutcome in array order. No vocabulary or rule-id validation is performed by the engine. */
+/**
+ * Production-defined decisions evaluated by resolveAutoMovieOutcome in array order. No vocabulary or rule-id validation is performed by the engine.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Rules carry production-owned outcome literals and synchronous predicates over borrowed intents; first matching rule wins and the fallback covers no match. The resolver neither validates the production vocabulary nor retains the predicates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts This namespace groups the IAutoMovieResolveOutcome contracts used by packages/engine/src/composition/resolveAutoMovieOutcome.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
+ * @evidence contracts/development/design.md#principled-representation Rules carry production-owned outcome literals and synchronous predicates over borrowed intents; first matching rule wins and the fallback covers no match. The resolver neither validates the production vocabulary nor retains the predicates. The namespace groups these type contracts without implementing the operation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieResolveOutcome contract belongs to interface; packages/engine/src/composition/resolveAutoMovieOutcome.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
+ */
 export namespace IAutoMovieResolveOutcome {
   /**
    * One ordered rule.
@@ -14,7 +21,17 @@ export namespace IAutoMovieResolveOutcome {
     /** Stable rule id, reported with the outcome. */
     id: string;
 
-    /** Synchronous predicate over the caller's borrowed intent array. Called once if reached, stops evaluation when true, must not mutate inputs, and is not retained. Exceptions abort resolution unchanged. */
+    /**
+     * Synchronous predicate over the caller's borrowed intent array. Called once if reached, stops evaluation when true, must not mutate inputs, and is not retained. Exceptions abort resolution unchanged.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveOutcome.IRule.when: Synchronous predicate over the caller's borrowed intent array. Called once if reached, stops evaluation when true, must not mutate inputs, and is not retained. Exceptions abort resolution unchanged.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieResolveOutcome.IRule.when is used through packages/engine/src/composition/resolveAutoMovieOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieResolveOutcome.IRule.when is used through packages/engine/src/composition/resolveAutoMovieOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieResolveOutcome.IRule.when is used through packages/engine/src/composition/resolveAutoMovieOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieResolveOutcome.IRule.when is used through packages/engine/src/composition/resolveAutoMovieOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieResolveOutcome.IRule.when is used through packages/engine/src/composition/resolveAutoMovieOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieResolveOutcome.IRule.when is used through packages/engine/src/composition/resolveAutoMovieOutcome.ts.
+     */
     when(intents: readonly IAutoMovieIntent[]): boolean;
 
     /** The outcome it decides. */

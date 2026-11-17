@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootWebLine,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -30,7 +30,7 @@ export namespace AutoMovieHumanFootFan {
   export function plane(
     line: IAutoMovieHumanFootWebLine.IWebLine,
     station: number,
-  ): IAutoMovieLoftFrame.IFrame {
+  ): IAutoMovieLoftSectionFrame {
     const turn: { phi: number; theta: number } = angles(line, station);
     const phi: number = turn.phi;
     const theta: number = turn.theta;
@@ -72,7 +72,7 @@ export namespace AutoMovieHumanFootFan {
 
     // Inside it, the side of the plane a point is on changes once.
     const side = (s: number): number => {
-      const f: IAutoMovieLoftFrame.IFrame = plane(line, s);
+      const f: IAutoMovieLoftSectionFrame = plane(line, s);
       return G.dot(r, G.cross(f.u, f.v));
     };
     let lo: number = line.square - w;

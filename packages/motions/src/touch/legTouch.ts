@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -114,7 +115,7 @@ export namespace legTouch {
     const moved = (
       posture: IAutoMovieMotionHumanPosture,
       shift: IAutoMovieVector3,
-      goal?: IAutoMovieMotionHumanPosture.IGoal,
+      goal?: IAutoMovieHumanLimbGoal,
     ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       root: Vector3.add(posture.root, shift),
@@ -157,7 +158,7 @@ export namespace legTouch {
         `${side}UpperLeg`,
       )!.worldPosition;
     let shift: IAutoMovieVector3 = over;
-    let goal: IAutoMovieMotionHumanPosture.IGoal;
+    let goal: IAutoMovieHumanLimbGoal;
     if (part === "knee") {
       const knee: IAutoMovieVector3 = Vector3.add(
         place.point,

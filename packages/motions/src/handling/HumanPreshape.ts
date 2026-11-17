@@ -1,7 +1,7 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPreshape,
 } from "@automovie/interface";
@@ -43,7 +43,7 @@ export namespace HumanPreshape {
    */
   export function open(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     closed: IAutoMovieMotionHumanPosture["joints"],
     width: number,
   ): IAutoMovieMotionHumanPreshape.IOpenResult {

@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmPhrase,
   IAutoMovieMotionHumanArmTarget,
@@ -130,7 +131,7 @@ export function test_motion_compose_arm_transport(): void {
     seconds: number,
     posture: IAutoMovieMotionHumanPosture = standing(),
     side: "left" | "right" = "right",
-  ): IAutoMovieMotionHumanPosture.IGoal =>
+  ): IAutoMovieHumanLimbGoal =>
     primitive.write(posture, seconds).limbs[`${side}Arm`]!;
 
   // 1. An origin's world point.
@@ -161,7 +162,7 @@ export function test_motion_compose_arm_transport(): void {
     origin: IAutoMovieVector3 = { x: -0.2, y: 1, z: 0 },
     to: IAutoMovieVector3 = { x: -0.2, y: 1, z: 0.4 },
     posture: IAutoMovieMotionHumanPosture = standing(),
-  ): IAutoMovieMotionHumanPosture.IGoal =>
+  ): IAutoMovieHumanLimbGoal =>
     goal(
       AutoMovieMotionHumanArm.move({
         body,
@@ -177,7 +178,7 @@ export function test_motion_compose_arm_transport(): void {
       posture,
       side,
     );
-  const half: IAutoMovieMotionHumanPosture.IGoal = blend(0.5);
+  const half: IAutoMovieHumanLimbGoal = blend(0.5);
   TestValidator.predicate(
     "a move is on its origin at 0, on its target at 1 and half way between",
     at(blend(0).point, -0.2, 1, 0) &&
@@ -275,7 +276,7 @@ export function test_motion_compose_arm_transport(): void {
   );
 
   // 4. The clocked weights.
-  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,

@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 
 /**
@@ -29,7 +30,7 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
  * requested shape and kept per body, surface and shape.
  *
  * A rotation is the hand's world rotation from its rest, the form
- * `IAutoMovieMotionHumanPosture.IGoal.rotation` and `fitChainToTarget`'s `effectorRotation`
+ * `IAutoMovieHumanLimbGoal.rotation` and `fitChainToTarget`'s `effectorRotation`
  * take. It is built by aligning two directions: {@link HumanHand.align} turns
  * a surface's rest normal onto a world normal exactly and its rest forward
  * onto a world forward as closely as a direction across the normal allows;
@@ -71,16 +72,6 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHand {
-  /**
-   * A hand, or the side of any paired part.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A hand, or the side of any paired part.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "left", "right" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/stand.ts (stand.plan, side); affordance/operateInsert.ts (operateInsert.tool, side); carrying/carry.ts (carry.place, side); carrying/carry.ts (carry.place, loaded); carrying/carry.ts (carry.plan, side); compose/AutoMovieMotionHumanArmAngles.ts (AutoMovieMotionHumanArmAngles.angles, side).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in stand.plan.
-   */
-  export type Side = (readonly ["left", "right"])[number];
-
   /**
    * A surface of the hand brought to a target.
    *
@@ -143,7 +134,7 @@ export namespace IAutoMovieMotionHumanHand {
    */
   export interface IShape {
     /** The hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The shape at weight 1. */
     shape: IAutoMovieMotionHumanHand.Shape;
@@ -308,13 +299,13 @@ export namespace IAutoMovieMotionHumanHand {
    * @evidence contracts/development/common.md#meaningful-documentation body: Borrowed body whose shoulder, elbow and wrist geometry define the arm-fit strain.
    * @evidence contracts/development/design.md#principled-representation body: Borrowed body whose shoulder, elbow and wrist geometry define the arm-fit strain.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanBend.ts (AutoMovieMotionHumanBend.strainOf, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand.Side, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanSide, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IStrainOfProps = {
     /** Borrowed body whose shoulder, elbow and wrist geometry define the arm-fit strain. */
     body: IAutoMovieMotionHumanBody;
     /** Arm side whose elbow placement is ranked by strain. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
     /** Optional desired hand world rotation whose turn contributes to strain; omitted excludes that requested hand-turn contribution. */
     rotation?: IAutoMovieQuaternion | undefined;
   };

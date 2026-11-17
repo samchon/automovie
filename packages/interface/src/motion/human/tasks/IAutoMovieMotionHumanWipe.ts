@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Wiping a table, counter or other level surface with the flat palm in
@@ -28,7 +28,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation hand: The hand; `right` when absent. cycles: How many circles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation hand: The hand; `right` when absent. cycles: How many circles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.wipe, params); tasks/wipe.ts (wipe.plan, context); executable/cases/householdCases.ts (householdCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWipe {
   /**
@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanWipe {
     on: IAutoMovieMotionTarget;
 
     /** The hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** How many circles; 3 when absent.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -54,6 +54,6 @@ export namespace IAutoMovieMotionHumanWipe {
     cycles?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 }

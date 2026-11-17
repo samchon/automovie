@@ -1,5 +1,8 @@
 import { rootsAutoMovieViewPolynomial } from "@automovie/engine";
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieCubicCriticalParameters,
+} from "@automovie/interface";
 
 /**
  * Locate isolated cubic regularity and affine-curvature candidates analytically.
@@ -30,18 +33,18 @@ import type { IAutoMovieConicApproximation } from "@automovie/interface";
  */
 export function findAutoMovieRecoveryCubicCriticalParameters(
   controls: readonly [
-    IAutoMovieConicApproximation.Point,
-    IAutoMovieConicApproximation.Point,
-    IAutoMovieConicApproximation.Point,
-    IAutoMovieConicApproximation.Point,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
   ],
-): IAutoMovieConicApproximation.ICubicCriticalParameters {
+): IAutoMovieCubicCriticalParameters {
   if (controls.length !== 4)
     throw new RangeError(
       "Cubic critical parameters require four finite planar Bernstein controls.",
     );
   for (let i: number = 0; i < 4; ++i) {
-    const p: IAutoMovieConicApproximation.Point | undefined = controls[i];
+    const p: Readonly<AutoMovieVector2Tuple> | undefined = controls[i];
     if (
       p === undefined ||
       !Array.isArray(p) ||
@@ -53,19 +56,19 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
         "Cubic critical parameters require four finite planar Bernstein controls.",
       );
   }
-  const raw: IAutoMovieConicApproximation.Point[] = controls
+  const raw: Readonly<AutoMovieVector2Tuple>[] = controls
     .slice(1)
     .map(
       (
-        p: IAutoMovieConicApproximation.Point,
+        p: Readonly<AutoMovieVector2Tuple>,
         i: number,
-      ): IAutoMovieConicApproximation.Point => [
+      ): Readonly<AutoMovieVector2Tuple> => [
         p[0] - controls[i]![0],
         p[1] - controls[i]![1],
       ],
     );
   const scale: number = Math.max(
-    ...raw.flatMap((p: IAutoMovieConicApproximation.Point): number[] => [
+    ...raw.flatMap((p: Readonly<AutoMovieVector2Tuple>): number[] => [
       Math.abs(p[0]),
       Math.abs(p[1]),
     ]),
@@ -85,29 +88,30 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
         "Constant cubic: every parameter is stationary; no isolated critical parameters exist.",
       ],
     };
-  const edges: IAutoMovieConicApproximation.Point[] = raw.map(
-    (
-      p: IAutoMovieConicApproximation.Point,
-    ): IAutoMovieConicApproximation.Point => [p[0] / scale, p[1] / scale],
+  const edges: Readonly<AutoMovieVector2Tuple>[] = raw.map(
+    (p: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> => [
+      p[0] / scale,
+      p[1] / scale,
+    ],
   );
-  const a: IAutoMovieConicApproximation.Point = [
+  const a: Readonly<AutoMovieVector2Tuple> = [
     edges[2]![0] - 2 * edges[1]![0] + edges[0]![0],
     edges[2]![1] - 2 * edges[1]![1] + edges[0]![1],
   ];
-  const b: IAutoMovieConicApproximation.Point = [
+  const b: Readonly<AutoMovieVector2Tuple> = [
     3 * (edges[1]![0] - edges[0]![0]),
     3 * (edges[1]![1] - edges[0]![1]),
   ];
-  const c: IAutoMovieConicApproximation.Point = [
+  const c: Readonly<AutoMovieVector2Tuple> = [
     3 * edges[0]![0],
     3 * edges[0]![1],
   ];
   const determinant: (
-    x: IAutoMovieConicApproximation.Point,
-    y: IAutoMovieConicApproximation.Point,
+    x: Readonly<AutoMovieVector2Tuple>,
+    y: Readonly<AutoMovieVector2Tuple>,
   ) => number = (
-    x: IAutoMovieConicApproximation.Point,
-    y: IAutoMovieConicApproximation.Point,
+    x: Readonly<AutoMovieVector2Tuple>,
+    y: Readonly<AutoMovieVector2Tuple>,
   ): number => x[0] * y[1] - x[1] * y[0];
   const d0: number = 2 * determinant(c, b);
   const e0: number = 6 * determinant(c, a);

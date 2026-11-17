@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -140,14 +140,13 @@ export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
       );
       continue;
     }
-    const act: IAutoMovieMotionHumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === swing.row,
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === swing.row,
       )!;
     const at: number = act.start + (act.plan.contact ?? Number.NaN);
-    const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("tool", at);
+    const frame: IAutoMovieRigidTransform = film.prop("tool", at);
     const off: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -52,7 +54,7 @@ export namespace StrikingRide {
      *
      * @returns Their body and bone query.
      */
-    other(): IAutoMovieMotionHumanActionContext.IPerformer;
+    other(): IAutoMovieMotionHumanPerformerReader;
 
     /** Film second of the stop. */
     stop: number;
@@ -86,7 +88,7 @@ export namespace StrikingRide {
      */
     carry(
       posture: IAutoMovieMotionHumanPosture,
-      limb: IAutoMovieMotionHumanPosture.Limb,
+      limb: AutoMovieHumanLimb,
       seconds: number,
     ): IAutoMovieMotionHumanPosture;
   }
@@ -143,8 +145,7 @@ export namespace StrikingRide {
       filling = true;
       try {
         while (frames.length <= index) {
-          const other: IAutoMovieMotionHumanActionContext.IPerformer =
-            props.other();
+          const other: IAutoMovieMotionHumanPerformerReader = props.other();
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             other.bones(props.stop + frames.length * STEP);
           if (bone === undefined) {
@@ -175,8 +176,7 @@ export namespace StrikingRide {
     // where no side of the surface is defined and nothing is carried.
     const contact = (): IContact | null => {
       if (touch !== undefined) return touch;
-      const other: IAutoMovieMotionHumanActionContext.IPerformer =
-        props.other();
+      const other: IAutoMovieMotionHumanPerformerReader = props.other();
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         other.bones(props.stop);
       const [a, b] = props.axis(props.stop);
@@ -238,11 +238,10 @@ export namespace StrikingRide {
     return {
       carry: (
         posture: IAutoMovieMotionHumanPosture,
-        limb: IAutoMovieMotionHumanPosture.Limb,
+        limb: AutoMovieHumanLimb,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => {
-        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-          posture.limbs[limb];
+        const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
         const lagged: number = seconds - 2 * STEP - props.stop;
         if (goal === undefined || goal.on !== undefined || !(lagged > 0))
           return posture;

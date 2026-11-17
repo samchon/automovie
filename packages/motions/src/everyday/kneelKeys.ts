@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -319,8 +320,7 @@ export namespace kneelKeys {
     const flat = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        standing.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(yaw),

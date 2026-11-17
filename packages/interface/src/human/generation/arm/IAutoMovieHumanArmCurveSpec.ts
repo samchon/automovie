@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanArmCurveSpec; runtime evaluation remains in Human. */
+/**
+ * Segment transforms, sourced datums, curve constraints and source-parameter outline jets. Runtime construction and admission remain with AutoMovieHumanArmCurveSpec in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes segment transforms, sourced datums, curve constraints and source-parameter outline jets; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Segment transforms, sourced datums, curve constraints and source-parameter outline jets. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanArmCurveSpec; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing ArmCurveSpec contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanArmCurveSpec {
   /**
    * Rigid transform of a child frame into its parent: a child point `p` lies
@@ -79,10 +86,10 @@ export namespace IAutoMovieHumanArmCurveSpec {
     relative: ITransform;
   }
 
-  /** A named point (and optional direction) expressed in one frame.
+  /** A named point expressed in one frame.
    *
    *
-   * @evidence contracts/development/common.md#meaningful-documentation A named point (and optional direction) expressed in one frame.
+   * @evidence contracts/development/common.md#meaningful-documentation A named point expressed in one frame.
    * @evidence contracts/development/design.md#principled-representation `name`: Datum name. `frame`: Frame the coordinates are expressed in. `point`: Local coordinates, calibration mm.
    * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanArmCurveSpec.IDatum is the canonical exchange used by IAutoMovieHumanArmCurveSpec.ICurveSpec.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `name`, `frame`, `point`, `source`; callers supply the complete record.

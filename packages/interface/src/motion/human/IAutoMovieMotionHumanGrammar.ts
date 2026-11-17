@@ -4,10 +4,10 @@
  * Entries describe capabilities; reading this catalogue plans no motion and
  * validates no composition. The named runtime operations perform those checks.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes descriptive catalogue entries from executable motion and admission.
- * @evidence contracts/development/design.md#principled-representation Separate closed axis and operator names prevent an operator being advertised as an action axis.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Reference consumers read the name, owning API and explanation of each catalogue entry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The public vocabulary constrains the runtime catalogue without deriving its types from that catalogue.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes descriptive catalogue entries from executable motion and admission. name: Stable machine-readable vocabulary name; it is not an arbitrary label. carriedBy: Human-readable runtime API references that implement this capability, not code to execute. says: Short explanation of what the author decides or composes with this entry.
+ * @evidence contracts/development/design.md#principled-representation Separate closed axis and operator names prevent an operator being advertised as an action axis. name: Stable machine-readable vocabulary name; it is not an arbitrary label. carriedBy: Human-readable runtime API references that implement this capability, not code to execute. says: Short explanation of what the author decides or composes with this entry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Reference consumers read the name, owning API and explanation of each catalogue entry. Runtime boundary references: HUMAN_GRAMMAR.ts (HUMAN_GRAMMAR).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The public vocabulary constrains the runtime catalogue without deriving its types from that catalogue. Axis and operator vocabularies remain distinct from their descriptive rows; HUMAN_GRAMMAR supplies data and performs no action planning.
  */
 export interface IAutoMovieMotionHumanGrammar {
   /** Ordered independent decisions used to describe an action; readers borrow this catalogue. */
@@ -20,10 +20,6 @@ export interface IAutoMovieMotionHumanGrammar {
 /**
  * Contracts used by HUMAN_GRAMMAR.
  *
- * @evidence contracts/development/common.md#meaningful-documentation name: Stable machine-readable vocabulary name; it is not an arbitrary label. carriedBy: Human-readable runtime API references that implement this capability, not code to execute. says: Short explanation of what the author decides or composes with this entry.
- * @evidence contracts/development/design.md#principled-representation name: Stable machine-readable vocabulary name; it is not an arbitrary label. carriedBy: Human-readable runtime API references that implement this capability, not code to execute. says: Short explanation of what the author decides or composes with this entry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: HUMAN_GRAMMAR.ts (HUMAN_GRAMMAR).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Axis and operator vocabularies remain distinct from their descriptive rows; HUMAN_GRAMMAR supplies data and performs no action planning.
  */
 export namespace IAutoMovieMotionHumanGrammar {
   /**

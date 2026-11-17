@@ -68,7 +68,7 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const RAD: number = Math.PI / 180;
   const all: motionComplaints.IGatherer = motionComplaints();
-  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,

@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanLegSourceFamily,
   IAutoMovieHumanLegWalk,
   IAutoMovieHumanSiteRegionControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanWalkPart,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -113,7 +113,7 @@ export namespace AutoMovieHumanLegSourceFamily {
         return ankle;
       },
       bind(
-        parent: IAutoMovieHumanSiteViewPart.IDefinition,
+        parent: IAutoMovieHumanSourceDefinition,
         station: number,
       ): IAutoMovieHumanLegWalk.IDefinition {
         coupled = AutoMovieHumanLegWalk.reparent(base(), {

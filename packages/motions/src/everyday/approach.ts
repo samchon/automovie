@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanApproach,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEffort,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -130,8 +131,9 @@ export namespace approach {
       });
 
     // Where and when the person comes to rest: their placed root is read ahead in half seconds over the horizon, and the last instant it moved is kept.
-    const leader: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(target.subject);
+    const leader: IAutoMovieMotionHumanPerformerReader = context.performer(
+      target.subject,
+    );
     const began: IAutoMovieMotionHumanActionContext.IRoot = leader.root(
       context.start,
     );

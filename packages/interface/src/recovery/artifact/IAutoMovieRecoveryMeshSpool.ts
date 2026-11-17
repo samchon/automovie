@@ -8,26 +8,18 @@ import type {
 } from "../../index";
 
 /**
- * Run-owned append-only mesh storage and immutable prefix publication operations.
+ * Run-owned append-only mesh channels and immutable prefix publication ports.
+ * The exposed arrays are identity placeholders: createAutoMovieRecoveryMeshSpool
+ * keeps generated values in pending buffers and persisted fragments, and publish
+ * substitutes those fragments when serializing these exact array objects.
+ * Consumers must not treat their empty resident lengths as the mesh population;
+ * counts is the live mutable population record. Pending channels are bounded,
+ * while fragment/frontier descriptors and immutable lineage files grow with output.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Append-only generated mesh placeholders. Generated construction placeholders backed by persisted fragments.
- * @evidence contracts/development/design.md#principled-representation Append one admitted globally indexed engine chunk.
-@evidence contracts/development/implementation.md#principled-implementation The spool checks finite aligned positions and normals, valid global indices and append-only chunk offsets before writing channels.
-@evidence contracts/development/implementation.md#clear-and-simple-structure One append keeps mesh, physical identities, construction and ownership channels aligned.
-@evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source geometry, fabricated indices or repaired chunk offsets enter the spool.
-@evidence contracts/development/common.md#meaningful-documentation The chunk uses the engine global index space and the owner binds it to its run.
-@evidence contracts/development/implementation.md#efficient-algorithms Visits chunk scalar arrays and ownership ranges linearly and writes bounded channel fragments.
-@evidence contracts/development/implementation.md#reuse-equivalent-work Uses the generated chunk once for each required output channel without regenerating geometry.
-@evidence contracts/development/implementation.md#bound-retention-and-release-resources The run owns staging channels and flushes bounded buffers; appended data are released after writing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieRecoveryMeshSpool share IAutoMovieRecoveryMeshSpool's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Append one admitted globally indexed engine chunk.
-@evidence contracts/development/implementation.md#principled-implementation The spool checks finite aligned positions and normals, valid global indices and append-only chunk offsets before writing channels.
-@evidence contracts/development/implementation.md#clear-and-simple-structure One append keeps mesh, physical identities, construction and ownership channels aligned.
-@evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source geometry, fabricated indices or repaired chunk offsets enter the spool.
-@evidence contracts/development/common.md#meaningful-documentation The chunk uses the engine global index space and the owner binds it to its run.
-@evidence contracts/development/implementation.md#efficient-algorithms Visits chunk scalar arrays and ownership ranges linearly and writes bounded channel fragments.
-@evidence contracts/development/implementation.md#reuse-equivalent-work Uses the generated chunk once for each required output channel without regenerating geometry.
-@evidence contracts/development/implementation.md#bound-retention-and-release-resources The run owns staging channels and flushes bounded buffers; appended data are released after writing.
+ * @evidence contracts/development/common.md#meaningful-documentation States placeholder identity, live counts, append-only indexing, publication ownership and retained lineage lifetime.
+ * @evidence contracts/development/design.md#principled-representation One spool binds mesh, construction and ownership placeholders to aligned generated channels; global vertex indices survive chunk and run boundaries.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The reconstruction host uses append for generation, commit for incremental frontiers and publish for a standalone artifact, sharing the same immutable fragments.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not materialize missing geometry or certify resumability; numeric chunk admission belongs to append, and generator replay needs separate verification.
  */
 
 export interface IAutoMovieRecoveryMeshSpool {

@@ -130,16 +130,13 @@ export namespace knockdown {
     const lie: number = context.params.seconds ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      DOWN + lie,
-      [
-        { name: "rolling", seconds: ROLLING * SEATED },
-        { name: "seated", seconds: SEATED },
-        { name: "stroke", seconds: SEATED },
-        { name: "down", seconds: DOWN },
-        { name: "relax", seconds: DOWN },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(DOWN + lie, [
+      { name: "rolling", seconds: ROLLING * SEATED },
+      { name: "seated", seconds: SEATED },
+      { name: "stroke", seconds: SEATED },
+      { name: "down", seconds: DOWN },
+      { name: "relax", seconds: DOWN },
+    ]);
     const duration: number = clock.duration;
     const sit = (seconds: number): number =>
       clock.progress(AutoMovieMotionClock.START, "seated", seconds);

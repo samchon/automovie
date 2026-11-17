@@ -1,6 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -27,8 +28,8 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function physicalShapeSpan(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   axis: IAutoMovieVector3,
 ): readonly [number, number] {
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(

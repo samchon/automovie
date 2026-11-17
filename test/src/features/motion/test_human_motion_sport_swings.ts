@@ -96,7 +96,7 @@ export function test_human_motion_sport_swings(): void {
             .stand({ seconds: 0.3 })
             .registered(law.name, given[law.name] ?? {}).node,
         });
-        const act: IAutoMovieMotionHumanSegment.ISegment | undefined =
+        const act: IAutoMovieMotionHumanSegment | undefined =
           film.segments("a")[1];
         if (act === undefined || act.name !== law.name)
           complaints.push(

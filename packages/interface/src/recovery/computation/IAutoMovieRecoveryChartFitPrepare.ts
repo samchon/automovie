@@ -1,8 +1,8 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryChartControlRelations,
-  IAutoMovieRecoveryChartFit,
 } from "../../index";
+import type { IAutoMovieRecoveryChartFit as IAutoMovieRecoveryChartFit_2 } from "./IAutoMovieRecoveryChartFit";
 
 /**
  * Admit and normalize one chart before sparse observation assembly.
@@ -23,7 +23,7 @@ export namespace IAutoMovieRecoveryChartFitPrepare {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Checks finite Cartesian coordinates without repairing or clamping values.
    */
 
-  export type Operation = (input: IAutoMovieRecoveryChartFitPrepare.Input) => {
+  export type Operation = (input: IAutoMovieRecoveryChartFit_2.Input) => {
     /** Checks finite Cartesian coordinates without repairing or clamping values. */
     finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean;
 
@@ -60,14 +60,4 @@ export namespace IAutoMovieRecoveryChartFitPrepare {
     /** Evaluates the normalized cubic Bernstein basis at the supplied local parameter. */
     basis: (t: number) => number[];
   };
-
-  /**
-   * Input observations and explicit numerical policy for RecoveryChartFitPrepare. The supplying workflow owns admission before execution.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Admit and normalize one chart before sparse observation assembly.
-   * @evidence contracts/development/design.md#principled-representation Admit and normalize one chart before sparse observation assembly.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartFit, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartFitPrepare's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
-   */
-  export type Input = IAutoMovieRecoveryChartFit.Input;
 }

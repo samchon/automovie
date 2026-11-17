@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the HandAnthropometry operations. */
+/**
+ * Data and callback contracts shared by the HandAnthropometry operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IJoint pairs caliper breadth and tape girth in millimetres for the population hand table's joint observations.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHandAnthropometry owns the empirical table; human geometry and object-clearance readers reuse this pair of measurements.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The contract does not universalize the sample or fabricate a missing dimension; source population and study limits remain with the table.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the two measurement methods and their millimetre unit.
+ */
 export namespace IAutoMovieHandAnthropometry {
   /**
    * One joint's caliper breadth and tape girth, mm.

@@ -1,3 +1,5 @@
+import type { AutoMovieHumanLimb } from "../posture/AutoMovieHumanLimb";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -14,7 +16,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * @evidence contracts/development/common.md#meaningful-documentation from: Seconds since the action's start from which the limb is written. to: Seconds since the action's start until which the limb is written. origin: The goal at weight 0; the goal the posture so far holds when absent.
  * @evidence contracts/development/design.md#principled-representation from: Seconds since the action's start from which the limb is written. to: Seconds since the action's start until which the limb is written. origin: The goal at weight 0; the goal the posture so far holds when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.toward, props); compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.drive, props); compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.pulse, goal); compose/AutoMovieMotionHumanGoal.ts (AutoMovieMotionHumanGoal.pulse, origin).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPosture.IGoal, IAutoMovieMotionHumanPosture.Limb identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieHumanLimbGoal, AutoMovieHumanLimb identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGoal {
   /**
@@ -29,7 +31,7 @@ export namespace IAutoMovieMotionHumanGoal {
   export type Frame = (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-  ) => IAutoMovieMotionHumanPosture.IGoal;
+  ) => IAutoMovieHumanLimbGoal;
 
   /**
    * One limb driven toward a goal.
@@ -41,7 +43,7 @@ export namespace IAutoMovieMotionHumanGoal {
    */
   export interface IToward {
     /** The limb. */
-    limb: IAutoMovieMotionHumanPosture.Limb;
+    limb: AutoMovieHumanLimb;
 
     /** Seconds since the action's start from which the limb is written. */
     from: number;

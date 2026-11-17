@@ -8,6 +8,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieGripKind,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
@@ -15,7 +16,8 @@ import type {
   IAutoMovieMotionHumanGrip,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -76,7 +78,7 @@ export namespace HumanGrip {
    * @returns The three bones.
    */
   export function bones(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     digit: IAutoMovieMotionHumanGrip.Digit,
   ): AutoMovieHumanoidBone[] {
     const segments: string[] =
@@ -102,22 +104,18 @@ export namespace HumanGrip {
    */
   export function chain(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     digit: IAutoMovieMotionHumanGrip.Digit,
   ): IAutoMovieCurlChainUntilContact.IChain {
     const list: AutoMovieHumanoidBone[] = bones(side, digit);
     const capsule = (
       bone: AutoMovieHumanoidBone,
-    ): Extract<IAutoMoviePhysicalProfile.IShape, { kind: "capsule" }> => {
-      const shape: IAutoMoviePhysicalProfile.IShape | undefined =
-        body.profile.segments
-          .find(
-            (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === bone,
-          )
-          ?.shapes.find(
-            (s: IAutoMoviePhysicalProfile.IShape): boolean =>
-              s.kind === "capsule",
-          );
+    ): Extract<IAutoMoviePhysicalShape, { kind: "capsule" }> => {
+      const shape: IAutoMoviePhysicalShape | undefined = body.profile.segments
+        .find((s: IAutoMoviePhysicalSegment): boolean => s.bone === bone)
+        ?.shapes.find(
+          (s: IAutoMoviePhysicalShape): boolean => s.kind === "capsule",
+        );
       if (shape === undefined || shape.kind !== "capsule")
         throw new Error(
           `The body's profile declares no capsule on ${bone}; a grasp needs its digits' colliders`,
@@ -154,7 +152,7 @@ export namespace HumanGrip {
    */
   export function close(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     kind: AutoMovieGripKind,
     hand: IAutoMovieMotionHumanHand.IWrist,
     colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
@@ -241,7 +239,7 @@ export namespace HumanGrip {
    */
   export function fingers(
     pose: IAutoMoviePose,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanPosture["joints"] {
     const out: IAutoMovieMotionHumanPosture["joints"] = {};
     const digits: Set<string> = new Set(
@@ -266,7 +264,7 @@ export namespace HumanGrip {
    */
   export function aperture(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     joints: IAutoMovieMotionHumanPosture["joints"],
   ): number {
     const pose: IAutoMoviePose = {

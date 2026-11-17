@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionTarget,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -148,8 +149,9 @@ export namespace StrikingRoom {
     launch: number,
   ): number {
     if (target.kind !== "person") return Infinity;
-    const other: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(target.subject);
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
+      target.subject,
+    );
     return along({
       body: context.body,
       bones,
@@ -269,8 +271,9 @@ export namespace StrikingRoom {
     feint: IFeint,
   ): number {
     if (target.kind !== "person") return feint.declared;
-    const other: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(target.subject);
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
+      target.subject,
+    );
     const theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       other.bones(feint.launch - StrikingTarget.LOOK);
     const guard: number = Math.max(

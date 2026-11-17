@@ -10,7 +10,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieSolidBlendChain,
   IAutoMovieSolidJoin,
   IAutoMovieSolidSurface,
@@ -321,15 +321,15 @@ function admission(failures: string[]): void {
   }
 
   const base: IAutoMovieLoftChain = annulus(1, 1, "identity");
-  const frame: IAutoMovieLoftFrame.IFrame = base.layers[0]!.frame!;
-  const still: IAutoMovieLoftFrame.IFrame = {
+  const frame: IAutoMovieLoftSectionFrame = base.layers[0]!.frame!;
+  const still: IAutoMovieLoftSectionFrame = {
     origin: [0, 0, 0],
     u: [0, 0, 0],
     v: [0, 0, 0],
   };
   const marker: Error = new Error("actual axis callback identity");
   const axis: IAutoMovieViewPart["axis"] = {
-    at: (): IAutoMovieLoftFrame.IFrame => frame,
+    at: (): IAutoMovieLoftSectionFrame => frame,
     jet: (
       station: number,
     ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
@@ -353,7 +353,7 @@ function admission(failures: string[]): void {
   // Values remain available when only the interior physical jet is absent.
   for (const unavailable of ["null", "nonfinite"] as const) {
     const valueAxis: IAutoMovieViewPart["axis"] = {
-      at: (): IAutoMovieLoftFrame.IFrame => frame,
+      at: (): IAutoMovieLoftSectionFrame => frame,
       jet: (
         station: number,
       ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
@@ -421,12 +421,12 @@ function annulus(
       ),
     ),
   );
-  const frame: IAutoMovieLoftFrame.IFrame = {
+  const frame: IAutoMovieLoftSectionFrame = {
     origin: [17 * scale, -11 * scale, 5 * scale],
     u: [transform === "mirror" ? -1 : 1, 0, 0],
     v: [0, 0, 1],
   };
-  const still: IAutoMovieLoftFrame.IFrame = {
+  const still: IAutoMovieLoftSectionFrame = {
     origin: [0, 0, 0],
     u: [0, 0, 0],
     v: [0, 0, 0],

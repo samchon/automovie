@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoverySlabConnectivityGroup } from "./IAutoMovieRecoverySlabConnectivityGroup";
+
 /**
  * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity. Triangle and edge addresses are transient observation evidence and never leave the result.
  *
@@ -8,29 +10,6 @@
  */
 
 export namespace IAutoMovieRecoverySlabGraph {
-  /** Local curve indices in one observed source-preimage component.
-   * @evidence contracts/development/design.md#principled-representation Disjoint index sets state indexed-source continuation under the supplied binary64 scalar comparisons instead of a geometric-nearest guess.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Support and a reason distinguish displayable matched loops from missing or ambiguous source sheets.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Source triangle, vertex and edge addresses are absent from this record.
-   * @evidence contracts/development/common.md#meaningful-documentation Before/after are local boundary-support indices, used as saved curve numbers by publication; optional observation probes have a distinct ordinal list. Unsupported groups remain open.
-   */
-  export interface Group {
-    /** Local boundary-support indices at the lower cut. */
-    before: number[];
-
-    /** Local boundary-support indices at the upper cut. */
-    after: number[];
-
-    /** False identifies an open, ambiguous or unsupported source preimage. */
-    supported: boolean;
-
-    /** Null for supported continuation; otherwise a local omission reason. */
-    reason: string | null;
-
-    /** Private observation-probe ordinals, present only when requested; never curve indices. */
-    probes?: number[];
-  }
-
   /**
    * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity. Triangle and edge addresses are transient observation evidence and never leave the result.
    *
@@ -70,7 +49,7 @@ export namespace IAutoMovieRecoverySlabGraph {
 
     /** Optional private face-support queries with independent ordinals; they cannot authorize a missing physical boundary. */
     probes?: readonly ReadonlySet<number>[];
-  }) => IAutoMovieRecoverySlabGraph.Group[];
+  }) => IAutoMovieRecoverySlabConnectivityGroup[];
 
   /**
    * Admit immutable source incidence and scalar heights once for multiple slabs. Queries supply complete original face IDs in strictly increasing order, including every face with maximum height above beforeMm and minimum height below afterMm. Omitting candidates observes every source face. Boundary supports retain original IDs. Optional private probes query those same components with a separate ordinal namespace; a probe never supplies a missing physical boundary or makes a hidden component supported.
@@ -95,5 +74,5 @@ export namespace IAutoMovieRecoverySlabGraph {
       Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
       "triangles" | "canon" | "heights"
     >,
-  ) => IAutoMovieRecoverySlabGraph.Group[];
+  ) => IAutoMovieRecoverySlabConnectivityGroup[];
 }

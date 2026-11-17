@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouchEffector,
@@ -66,7 +66,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
   export function solve(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
@@ -153,7 +153,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
   export function tilt(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,

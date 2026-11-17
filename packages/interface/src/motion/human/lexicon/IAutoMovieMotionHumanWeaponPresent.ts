@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWeaponTrack";
 
 /**
@@ -34,7 +34,7 @@ import type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWe
  * @evidence contracts/development/common.md#meaningful-documentation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
  * @evidence contracts/development/design.md#principled-representation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponPose.ts (HumanWeaponPose.of, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, ahead); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.hand, p); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionManner.IManner, IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWeaponPresent {
   /**
@@ -43,14 +43,14 @@ export namespace IAutoMovieMotionHumanWeaponPresent {
    * @evidence contracts/development/common.md#meaningful-documentation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
    * @evidence contracts/development/design.md#principled-representation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.hand, p); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.carried, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.fire, context); lexicon/HumanWeaponFirearm.ts (HumanWeaponFirearm.fire).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanWeaponPresent.Anchor, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanWeaponPresent.Anchor, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IWield {
     /** The held weapon's prop subject id; the bare hand when absent. */
     gun?: string;
 
     /** The shooting hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** How many hands hold it; 2 when absent. */
     hands?: 1 | 2;
@@ -68,7 +68,7 @@ export namespace IAutoMovieMotionHumanWeaponPresent {
     anchor?: IAutoMovieMotionHumanWeaponPresent.Anchor;
 
     /** How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
 
     /**
      * What a shot launches (#3488): the prop that flies (a ball the scene

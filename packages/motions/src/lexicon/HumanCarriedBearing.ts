@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanActionContext,
@@ -128,10 +129,9 @@ export namespace HumanCarriedBearing {
             HumanCarried.CARRIES[keyed],
             role,
           );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      seconds,
-      [{ name: "held", seconds: Math.min(seconds, HumanCarried.TAKE) }],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(seconds, [
+      { name: "held", seconds: Math.min(seconds, HumanCarried.TAKE) },
+    ]);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
@@ -147,7 +147,7 @@ export namespace HumanCarriedBearing {
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
             goal: (
               posture: IAutoMovieMotionHumanPosture,
-            ): IAutoMovieMotionHumanPosture.IGoal => {
+            ): IAutoMovieHumanLimbGoal => {
               const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold | null =
                 coupled?.places[index] ?? null;
               if (coupled !== null && local !== null) {
@@ -170,7 +170,7 @@ export namespace HumanCarriedBearing {
                     inverse,
                     Vector3.subtract(point, anchor.worldPosition),
                   );
-                const world: IAutoMovieMotionHumanPosture.IGoal =
+                const world: IAutoMovieHumanLimbGoal =
                   AutoMovieMotionHumanArmTarget.goal(
                     body,
                     side,

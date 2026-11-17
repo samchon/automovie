@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
@@ -13,7 +14,7 @@ import type { IAutoMovieMotionHumanTouchForm } from "../compose/IAutoMovieMotion
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHeldUse } from "../handling/IAutoMovieMotionHumanHeldUse";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTouchEffectors } from "./IAutoMovieMotionHumanTouchEffectors";
 import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouchSite";
@@ -54,7 +55,7 @@ import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouc
  * @evidence contracts/development/common.md#meaningful-documentation kind: The kind; `pat` when absent. with: The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. side: The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`).
  * @evidence contracts/development/design.md#principled-representation kind: The kind; `pat` when absent. with: The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. side: The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`).
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.touch, params); touch/touch.ts (touch.plan, context); touch/touchHold.ts (touchHold.lay, context); touch/touchHold.ts (rubbed, elbow); touch/touchSide.ts (touchSide.of, context); compose/AutoMovieMotionHumanDrinkingArm.ts (AutoMovieMotionHumanDrinkingArm.carried, touch).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanTouchForm.Kind, IAutoMovieMotionHumanTouchEffectors.With, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanTouchSite.ISite, IAutoMovieMotionHumanHeldUse.IGrasp identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanTouchForm.Kind, IAutoMovieMotionHumanTouchEffectors.With, AutoMovieHumanSide, IAutoMovieMotionHumanTouchSite.ISite, IAutoMovieMotionHumanHeldUse.IGrasp identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTouch {
   /**
@@ -78,7 +79,7 @@ export namespace IAutoMovieMotionHumanTouch {
     with?: IAutoMovieMotionHumanTouchEffectors.With;
 
     /** The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`). */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** Where on the region the first hand lands (`touchSite`): an offset, a place the seed draws, or the place a rule chooses; the region's own point when absent. */
     site?: IAutoMovieMotionHumanTouchSite.ISite;
@@ -126,7 +127,7 @@ export namespace IAutoMovieMotionHumanTouch {
     tangent?: IAutoMovieMotionHumanTouchForm.Tangent;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**
@@ -142,10 +143,10 @@ export namespace IAutoMovieMotionHumanTouch {
     body: IAutoMovieMotionHumanBody;
 
     /** A phrase clock: arrive by `ready`, repeat from `strokeStart` to `strokeEnd`, leave from `relax`. */
-    clock: IAutoMovieMotionClock.IClock;
+    clock: IAutoMovieMotionClock;
 
     /** The hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The arm's angles before and after the touch. */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
@@ -192,7 +193,7 @@ export namespace IAutoMovieMotionHumanTouch {
     bend: IAutoMovieVector3;
 
     /** The arm laid on the region at the entry (`laid`), which every second's fit is held to; no reference when absent. */
-    reference?: NonNullable<IAutoMovieMotionHumanPosture.IGoal["reference"]>;
+    reference?: NonNullable<IAutoMovieHumanLimbGoal["reference"]>;
 
     /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`; the tangent when absent. */
     lay?: "tangent" | "arm" | "reach" | "upright";
@@ -237,7 +238,7 @@ export namespace IAutoMovieMotionHumanTouch {
     on?: AutoMovieHumanoidBone;
 
     /**
-     * Another body's placed colliders the arm keeps clear of at a second (`IAutoMovieMotionHumanPosture.IGoal.clear`), and the ones it lays the hand on (`IAutoMovieMotionHumanPosture.IGoal.rests`); none when absent.
+     * Another body's placed colliders the arm keeps clear of at a second (`IAutoMovieHumanLimbGoal.clear`), and the ones it lays the hand on (`IAutoMovieHumanLimbGoal.rests`); none when absent.
      *
      * @param posture The posture written so far in this frame.
      * @param seconds Seconds since the action's start.
@@ -254,6 +255,6 @@ export namespace IAutoMovieMotionHumanTouch {
     others?(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): Pick<IAutoMovieMotionHumanPosture.IGoal, "clear" | "rests">;
+    ): Pick<IAutoMovieHumanLimbGoal, "clear" | "rests">;
   }
 }

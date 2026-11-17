@@ -1,13 +1,15 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRide,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -105,12 +107,9 @@ export namespace HumanRide {
             reason: `a ride is entered seated on its support, and the performer is ${context.entry.base.kind}`,
             fix: "sit on the support's seat first, then ride it",
           });
-        const support: IAutoMovieMotionHumanActionContext.IProp =
-          context.prop(on);
+        const support: IAutoMovieMotionHumanPropReader = context.prop(on);
         const seated: IAutoMovieMotionHumanPosture = context.entry.posture;
-        const origin: IAutoMovieMotionHumanProp.IFrame = support.frame(
-          context.start,
-        );
+        const origin: IAutoMovieRigidTransform = support.frame(context.start);
         const bears = (
           part: IAutoMovieMotionHumanContactWindow["part"],
           kind: IAutoMovieMotionHumanContactWindow["kind"],
@@ -236,7 +235,7 @@ export namespace HumanRide {
           id: string,
           began: IAutoMovieVector3,
           film: number,
-          now: IAutoMovieMotionHumanProp.IFrame,
+          now: IAutoMovieRigidTransform,
         ): IAutoMovieVector3 => {
           const moved: IAutoMovieVector3 | undefined = support.prop.point?.(
             id,
@@ -271,7 +270,7 @@ export namespace HumanRide {
               ? context.entry.base
               : { kind: "seated" },
           posture: (at: number): IAutoMovieMotionHumanPosture => {
-            const now: IAutoMovieMotionHumanProp.IFrame = support.frame(
+            const now: IAutoMovieRigidTransform = support.frame(
               context.start + Math.min(seconds, Math.max(0, at)),
             );
             const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
@@ -314,7 +313,7 @@ export namespace HumanRide {
               ...carried.limbs,
             };
             for (const pedal of pedals) {
-              const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+              const goal: IAutoMovieHumanLimbGoal | undefined =
                 carried.limbs[`${pedal.side}Leg`];
               if (goal === undefined) continue;
               limbs[`${pedal.side}Leg`] = {
@@ -375,7 +374,7 @@ export namespace HumanRide {
               out.joints.hips,
             );
             for (const pedal of pedals) {
-              const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+              const goal: IAutoMovieHumanLimbGoal | undefined =
                 limbs[`${pedal.side}Leg`];
               if (goal !== undefined)
                 limbs[`${pedal.side}Leg`] = HumanMountRider.ankled(

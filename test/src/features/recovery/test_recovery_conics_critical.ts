@@ -1,4 +1,10 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMovieCubicCriticalParameters,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryConicApproximation as C,
   approximateAutoMovieRecoveryConicsAhn as approximate,
@@ -27,10 +33,10 @@ import { nclose } from "../internal/nclose";
 export function test_recovery_conics_critical(): void {
   const alpha: number = 1 / 3;
   const controls: readonly [
-    IAutoMovieConicApproximation.Point,
-    IAutoMovieConicApproximation.Point,
-    IAutoMovieConicApproximation.Point,
-    IAutoMovieConicApproximation.Point,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
   ] = [
     [0, -1 / 27],
     [1 / 3, 2 / 27],
@@ -38,7 +44,7 @@ export function test_recovery_conics_critical(): void {
     [1, 8 / 27],
   ];
   const before: string = JSON.stringify(controls);
-  const critical: IAutoMovieConicApproximation.ICubicCriticalParameters =
+  const critical: IAutoMovieCubicCriticalParameters =
     C.cubicCriticalParameters(controls);
   TestValidator.equals(
     "one regular inflection",
@@ -60,24 +66,24 @@ export function test_recovery_conics_critical(): void {
     origin: number,
     width: number,
     height: number,
-  ) => IAutoMovieConicApproximation.ICurve = (
+  ) => IAutoMoviePlanarCurveSource = (
     origin: number,
     width: number,
     height: number,
-  ): IAutoMovieConicApproximation.ICurve => ({
+  ): IAutoMoviePlanarCurveSource => ({
     domain: [origin, origin + width],
     breaks: critical.zeroCurvature.map(
       (u: number): number => origin + width * u,
     ),
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point => {
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {
       const u: number = (t - origin) / width;
       return [u, height * (u - alpha) ** 3];
     },
     derivative: (
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point => {
+    ): Readonly<AutoMovieVector2Tuple> => {
       const u: number = (t - origin) / width;
       return order === 1
         ? [1 / width, (3 * height * (u - alpha) ** 2) / width]
@@ -93,12 +99,8 @@ export function test_recovery_conics_critical(): void {
     [7, 4, 1],
     [0, 1, 1e-10],
   ] as const) {
-    const curve: IAutoMovieConicApproximation.ICurve = source(
-      origin,
-      width,
-      height,
-    );
-    const beforeJet: IAutoMovieConicApproximation.Point = curve.derivative(
+    const curve: IAutoMoviePlanarCurveSource = source(origin, width, height);
+    const beforeJet: Readonly<AutoMovieVector2Tuple> = curve.derivative(
       curve.breaks[0]!,
       2,
     );
@@ -116,7 +118,7 @@ export function test_recovery_conics_critical(): void {
       "finite positive conics",
       fitted.arcs.length >= 2 &&
         fitted.arcs.every(
-          (arc: IAutoMovieConicApproximation.IArc): boolean =>
+          (arc: IAutoMovieRegisteredConicArc): boolean =>
             Number.isFinite(arc.weight) && arc.weight > 0,
         ),
     );
@@ -136,7 +138,7 @@ export function test_recovery_conics_critical(): void {
       "covers full original domain",
       nclose(previous, origin + width, 0),
     );
-    const afterJet: IAutoMovieConicApproximation.Point = curve.derivative(
+    const afterJet: Readonly<AutoMovieVector2Tuple> = curve.derivative(
       curve.breaks[0]!,
       2,
     );
@@ -148,25 +150,23 @@ export function test_recovery_conics_critical(): void {
     TestValidator.equals("sampled fit not certified", fitted.certified, false);
   }
 
-  const arch: IAutoMovieConicApproximation.ICubicCriticalParameters =
-    C.cubicCriticalParameters([
-      [-2 / 3, 1 / 2],
-      [-2 / 3, -1 / 6],
-      [2 / 3, -1 / 6],
-      [2 / 3, 1 / 2],
-    ]);
+  const arch: IAutoMovieCubicCriticalParameters = C.cubicCriticalParameters([
+    [-2 / 3, 1 / 2],
+    [-2 / 3, -1 / 6],
+    [2 / 3, -1 / 6],
+    [2 / 3, 1 / 2],
+  ]);
   TestValidator.equals("arch regular curvature", arch.zeroCurvature.length, 0);
   TestValidator.predicate(
     "arch affine extremum",
     arch.affineCritical.some((t: number): boolean => nclose(t, 0.5, 1e-12)),
   );
-  const cusp: IAutoMovieConicApproximation.ICubicCriticalParameters =
-    C.cubicCriticalParameters([
-      [-1 / 24, 1 / 8],
-      [1 / 24, -1 / 24],
-      [-1 / 24, -1 / 24],
-      [1 / 24, 1 / 8],
-    ]);
+  const cusp: IAutoMovieCubicCriticalParameters = C.cubicCriticalParameters([
+    [-1 / 24, 1 / 8],
+    [1 / 24, -1 / 24],
+    [-1 / 24, -1 / 24],
+    [1 / 24, 1 / 8],
+  ]);
   TestValidator.predicate(
     "double curvature root retained",
     cusp.zeroCurvature.some((t: number): boolean => nclose(t, 0.5, 1e-12)),
@@ -175,13 +175,12 @@ export function test_recovery_conics_critical(): void {
     "stationary velocity root retained",
     cusp.stationary.some((t: number): boolean => nclose(t, 0.5, 1e-12)),
   );
-  const line: IAutoMovieConicApproximation.ICubicCriticalParameters =
-    C.cubicCriticalParameters([
-      [0, 0],
-      [1, 1],
-      [2, 2],
-      [3, 3],
-    ]);
+  const line: IAutoMovieCubicCriticalParameters = C.cubicCriticalParameters([
+    [0, 0],
+    [1, 1],
+    [2, 2],
+    [3, 3],
+  ]);
   TestValidator.equals("line curvature continuum", line.collinear, true);
   TestValidator.equals(
     "line no isolated curvature roots",
@@ -189,13 +188,14 @@ export function test_recovery_conics_critical(): void {
     0,
   );
   TestValidator.equals("line no stationary source", line.stationary.length, 0);
-  const constant: IAutoMovieConicApproximation.ICubicCriticalParameters =
-    C.cubicCriticalParameters([
+  const constant: IAutoMovieCubicCriticalParameters = C.cubicCriticalParameters(
+    [
       [2, 3],
       [2, 3],
       [2, 3],
       [2, 3],
-    ]);
+    ],
+  );
   TestValidator.equals(
     "constant no fabricated isolated roots",
     constant.breaks.length,
@@ -210,19 +210,19 @@ export function test_recovery_conics_critical(): void {
 
   /** Map all four coefficients without changing parameterization. */
   const transform: (
-    point: IAutoMovieConicApproximation.Point,
+    point: Readonly<AutoMovieVector2Tuple>,
     mode: number,
-  ) => IAutoMovieConicApproximation.Point = (
-    point: IAutoMovieConicApproximation.Point,
+  ) => Readonly<AutoMovieVector2Tuple> = (
+    point: Readonly<AutoMovieVector2Tuple>,
     mode: number,
-  ): IAutoMovieConicApproximation.Point =>
+  ): Readonly<AutoMovieVector2Tuple> =>
     mode === 0
       ? [-point[1] + 2000, point[0] - 1000]
       : mode === 1
         ? [5 * point[0], 5 * point[1]]
         : [point[0], -point[1]];
   for (const mode of [0, 1, 2]) {
-    const transformed: IAutoMovieConicApproximation.ICubicCriticalParameters =
+    const transformed: IAutoMovieCubicCriticalParameters =
       C.cubicCriticalParameters([
         transform(controls[0], mode),
         transform(controls[1], mode),

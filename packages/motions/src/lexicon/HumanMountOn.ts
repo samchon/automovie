@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -97,7 +98,7 @@ export namespace HumanMountOn {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<{
       seconds?: number;
-      manner?: IAutoMovieMotionManner.IManner;
+      manner?: IAutoMovieMotionManner;
     }>,
     seat: IAutoMovieMotionHumanSeated.ISeat,
     final: {
@@ -428,7 +429,7 @@ export namespace HumanMountOn {
             limbs[limb] = HumanMount.leg(body, side, places[side].foot, true);
             continue;
           }
-          const planted: IAutoMovieMotionHumanPosture.IGoal = standing[limb]!;
+          const planted: IAutoMovieHumanLimbGoal = standing[limb]!;
           const [leaves, arrives]: readonly [number, number] = flight[side];
           if (onFloor[side] && t <= leaves) {
             limbs[limb] = planted;

@@ -1,6 +1,6 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMoviePhysicalProfile } from "../physics/IAutoMoviePhysicalProfile";
+import type { IAutoMoviePhysicalShape } from "../physics/IAutoMoviePhysicalShape";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
@@ -8,7 +8,14 @@ import type { IAutoMoviePose } from "./IAutoMoviePose";
 import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 
-/** Sequential digit closing against placed physical colliders. curlChainUntilContact checks positive steps/radii and collider dimensions; callers supply nonempty ordered chains, finite frames and matching topology. */
+/**
+ * Sequential digit closing against placed physical colliders. curlChainUntilContact checks positive steps/radii and collider dimensions; callers supply nonempty ordered chains, finite frames and matching topology.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents closing order, collider frames, step defaults and empty-input behavior. Defines proximal-to-distal chain ordering, rest-local tip and capsule radius.
+ * @evidence contracts/development/design.md#principled-representation Clinical increments use degrees and geometry metres; the solver checks positive step/radii and collider dimensions, while callers supply nonempty individual chains and coherent topology. Each chain must be nonempty with resolvable parent-linked bones, a metre tip offset and positive radius; the solver checks radius but assumes ordering.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface curlChainUntilContact borrows pose/skeleton data and replaces only tested flexion entries in a new shallow pose. The curl solver searches each listed flexion and tests all downstream capsules against the object's colliders.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional axes, rest frames and topology reuse established FK contracts rather than carrying an implementation-specific rig. The same ordered chain contract handles any digit length without fixed finger-joint fields.
+ */
 export namespace IAutoMovieCurlChainUntilContact {
   /**
    * The curl request.
@@ -73,7 +80,7 @@ export namespace IAutoMovieCurlChainUntilContact {
    */
   export interface ICollider {
     /** The shape; its own `transform` is relative to `frame`. */
-    shape: IAutoMoviePhysicalProfile.IShape;
+    shape: IAutoMoviePhysicalShape;
 
     /** The shape owner's world frame. */
     frame: {

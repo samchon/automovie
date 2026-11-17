@@ -5,6 +5,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -50,11 +53,11 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body, posture or bone.
    */
   export function of(
-    kind: IAutoMovieMotionMeeting.IKind,
-    roles: readonly IAutoMovieMotionMeeting.IRole[],
+    kind: IAutoMovieMotionMeetingKind,
+    roles: readonly IAutoMovieMotionMeetingRole[],
     context: IAutoMovieMotionMeeting.IOfContext,
     window?: IAutoMovieMotionMeeting.IWindow,
-  ): IAutoMovieMotionMeeting.IMeeting {
+  ): IAutoMovieMotionMeeting {
     if (roles.length === 0 || roles.length > kind.roles.length)
       throw new HumanRefusal({
         kind: "participant",
@@ -80,10 +83,10 @@ export namespace AutoMovieMotionMeeting {
           reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
           fix: "name one of the kind's roles",
         });
-    const ordered: IAutoMovieMotionMeeting.IRole[] = [...roles].sort(
+    const ordered: IAutoMovieMotionMeetingRole[] = [...roles].sort(
       (
-        a: IAutoMovieMotionMeeting.IRole,
-        b: IAutoMovieMotionMeeting.IRole,
+        a: IAutoMovieMotionMeetingRole,
+        b: IAutoMovieMotionMeetingRole,
       ): number =>
         a.name !== b.name
           ? a.name < b.name
@@ -97,7 +100,7 @@ export namespace AutoMovieMotionMeeting {
     );
     const solid: boolean = ordered.length === kind.roles.length;
     const floors: IAutoMovieVector3[] = ordered.map(
-      (r: IAutoMovieMotionMeeting.IRole): IAutoMovieVector3 => ({
+      (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 => ({
         x: r.posture.root.x,
         y: 0,
         z: r.posture.root.z,
@@ -112,7 +115,7 @@ export namespace AutoMovieMotionMeeting {
       ordered.length < 2
         ? { x: 0, y: 0, z: 0 }
         : Vector3.subtract(mean(floors.slice(1)), floors[0]!);
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin,
       yaw:
         Vector3.length(across) < 1e-9
@@ -131,7 +134,7 @@ export namespace AutoMovieMotionMeeting {
                 name,
                 mean(
                   ordered.map(
-                    (r: IAutoMovieMotionMeeting.IRole): IAutoMovieVector3 =>
+                    (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
                       AutoMovieMotionHumanTarget.fallback(
                         r.body,
                         r.posture,
@@ -142,14 +145,14 @@ export namespace AutoMovieMotionMeeting {
               ],
             ),
           );
-    const timings: IAutoMovieMotionMeeting.ITiming[] = ordered.map(
-      (r: IAutoMovieMotionMeeting.IRole): IAutoMovieMotionMeeting.ITiming =>
+    const timings: IAutoMovieMotionMeetingTiming[] = ordered.map(
+      (r: IAutoMovieMotionMeetingRole): IAutoMovieMotionMeetingTiming =>
         kind.timing(r, world),
     );
-    const latest = (key: keyof IAutoMovieMotionMeeting.ITiming): number =>
+    const latest = (key: keyof IAutoMovieMotionMeetingTiming): number =>
       context.start +
       Math.max(
-        ...timings.map((t: IAutoMovieMotionMeeting.ITiming): number => t[key]),
+        ...timings.map((t: IAutoMovieMotionMeetingTiming): number => t[key]),
       );
 
     // A window moves the whole meeting later to its start and holds the
@@ -168,7 +171,7 @@ export namespace AutoMovieMotionMeeting {
         reason: `the ${kind.name} cannot make its contact before ${stroke.toFixed(2)} s, so a window that ends at ${window.to.toFixed(2)} s holds nothing`,
         fix: "end the window later, or start the action earlier",
       });
-    const instants: IAutoMovieMotionMeeting.ITiming = {
+    const instants: IAutoMovieMotionMeetingTiming = {
       ready: latest("ready") + shift,
       stroke,
       relax: window?.to ?? latest("relax") + shift,
@@ -194,8 +197,8 @@ export namespace AutoMovieMotionMeeting {
       instants,
       roles: ordered.map(
         (
-          r: IAutoMovieMotionMeeting.IRole,
-        ): Pick<IAutoMovieMotionMeeting.IRole, "name" | "subject"> => ({
+          r: IAutoMovieMotionMeetingRole,
+        ): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
           name: r.name,
           subject: r.subject,
         }),
@@ -224,7 +227,7 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
-    meeting: IAutoMovieMotionMeeting.IMeeting,
+    meeting: IAutoMovieMotionMeeting,
     contact: string,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
   ): IAutoMovieMotionHumanTarget.IPlace {
@@ -276,9 +279,9 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function local(
-    meeting: IAutoMovieMotionMeeting.IMeeting,
+    meeting: IAutoMovieMotionMeeting,
     start: number,
-  ): IAutoMovieMotionMeeting.ITiming {
+  ): IAutoMovieMotionMeetingTiming {
     return {
       ready: meeting.instants.ready - start,
       stroke: meeting.instants.stroke - start,

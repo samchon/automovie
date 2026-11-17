@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 
@@ -15,7 +15,7 @@ import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
  * @evidence contracts/development/common.md#meaningful-documentation depth: How far the hips sink at the lowest, metres; not negative. pitch: The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. legs: The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place.
  * @evidence contracts/development/design.md#principled-representation depth: How far the hips sink at the lowest, metres; not negative. pitch: The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. legs: The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanTrunk.ts (AutoMovieMotionHumanTrunk.crouch, props); everyday/HumanTrunk.ts (HumanTrunk.incline, return); everyday/HumanTrunk.ts (HumanTrunk.region, return); everyday/HumanTrunk.ts (HumanTrunk.surface, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionClock.IClock, IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionClock, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTrunk {
   /**
@@ -34,7 +34,7 @@ export namespace IAutoMovieMotionHumanTrunk {
     standing: IAutoMovieMotionHumanPosture;
 
     /** The action's clock. */
-    clock: IAutoMovieMotionClock.IClock;
+    clock: IAutoMovieMotionClock;
 
     /** The instants the body starts sinking and is lowest at. */
     rise: readonly [string, string];
@@ -49,7 +49,7 @@ export namespace IAutoMovieMotionHumanTrunk {
     pitch: number;
 
     /** The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place. */
-    legs?: readonly IAutoMovieMotionHumanHand.Side[];
+    legs?: readonly AutoMovieHumanSide[];
   }
 
   /**

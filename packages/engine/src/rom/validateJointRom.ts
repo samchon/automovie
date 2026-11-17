@@ -3,6 +3,7 @@ import {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   type IAutoMovieScanJointRom,
+  type IAutoMovieSwingTwistLimit,
   type IAutoMovieValidateJointRom,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
@@ -44,7 +45,7 @@ export const validateJointRom: (
       actual: number,
       overshoot: number | undefined,
     ): void => {
-      const swingTwist: IAutoMovieJointConstraint.ISwingTwist | null =
+      const swingTwist: IAutoMovieSwingTwistLimit | null =
         constraint.swingTwist ?? null;
       if (swingTwist !== null && overshoot !== undefined) {
         collector.push(

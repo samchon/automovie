@@ -1,7 +1,14 @@
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 
-/** A network chart address and the sampled tier in which to locate it. */
+/**
+ * A network chart address and the sampled tier in which to locate it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A dimensionless patch s/t address locates a quad in one sampled cage chart without projecting physical positions. Missing patches and out-of-range coordinates are runtime failures; transition inversion need not find a containing face.
+ * @evidence contracts/development/design.md#principled-representation A dimensionless patch s/t address locates a quad in one sampled cage chart without projecting physical positions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface locateAutoMovieSurfaceCoordinate consumes existing surface-coordinate and cage contracts for subdivision binding.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing patches and out-of-range coordinates are runtime failures; transition inversion need not find a containing face.
+ */
 export namespace IAutoMovieLocateSurfaceCoordinate {
   /**
    * Find the cage face and local coordinates of a surface coordinate on one

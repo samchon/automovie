@@ -1,6 +1,7 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanJumpAirborne,
@@ -213,9 +214,8 @@ export namespace jumpAirborne {
     const twist: number = rotation?.twist ?? 0;
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
-    let rotated:
-      | ((seconds: number) => IAutoMovieMotionHumanPosture.IRotation)
-      | null = null;
+    let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null =
+      null;
     const declared: Pick<
       IAutoMovieMotionHumanActionPlan,
       "flight" | "airborne"
@@ -241,9 +241,7 @@ export namespace jumpAirborne {
               },
             },
             airborne: (
-              handed: (
-                seconds: number,
-              ) => IAutoMovieMotionHumanPosture.IRotation,
+              handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
               rotated = handed;
             },

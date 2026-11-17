@@ -1,6 +1,6 @@
 import { AutoMovieViewAxis } from "@automovie/engine";
 import type {
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
@@ -61,7 +61,7 @@ export function test_construction_zero_turn(): void {
       continue;
     }
     for (const s of [0, 0.005, 0.01, 0.015, 0.03]) {
-      const frame: IAutoMovieLoftFrame.IFrame = axis.at(s);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(s);
       const expected: number[] = [0, s, 0, 1, 0, 0, 0, 0, 1];
       equal(
         `straight frame ${half}/${s}`,
@@ -172,8 +172,8 @@ export function test_construction_zero_turn(): void {
       );
     }
     for (const s of [0, 0.5, 1, 1.5, 1.9, 2, 2.05, 2.5]) {
-      const actual: IAutoMovieLoftFrame.IFrame = mixed.at(s);
-      const expected: IAutoMovieLoftFrame.IFrame = base.at(s);
+      const actual: IAutoMovieLoftSectionFrame = mixed.at(s);
+      const expected: IAutoMovieLoftSectionFrame = base.at(s);
       equal(
         `mixed frame ${s}`,
         [...actual.origin, ...actual.u, ...actual.v],

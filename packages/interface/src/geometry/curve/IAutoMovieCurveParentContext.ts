@@ -1,5 +1,7 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { IAutoMovieCurveBoundary64 } from "./IAutoMovieCurveBoundary64";
+import type { IAutoMovieCurveBoundaryPublication64 } from "./IAutoMovieCurveBoundaryPublication64";
+import type { IAutoMovieCurveHierarchyFrame64 } from "./IAutoMovieCurveHierarchyFrame64";
 
 /**
  * Resolve a parent-first proper rigid hierarchy before constructing controls, then authenticate named boundary sharing within this exact context. Points use millimetres; rotations preserve the units of directions and derivative vectors. Composition accumulates binary64 roundoff, so a transpose inverse is subject to the admitted-basis tolerance and accumulated error.
@@ -90,7 +92,7 @@ export interface IAutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolved frame is reused as the snapshot source; returned snapshots are independent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clone and the context retains only its original frame.
    */
-  frame(bone: string): IAutoMovieCurve64.Frame;
+  frame(bone: string): IAutoMovieCurveHierarchyFrame64;
 
   /**
    * Admit an owner boundary once, clone and deep-freeze its complete field, then retain the genuine token for later binding. Deep freezing expects the supported acyclic plain coefficient record; arbitrary cyclic extra properties are outside this input contract.
@@ -106,8 +108,8 @@ export interface IAutoMovieCurveParentContext {
   publish(
     region: string,
     bone: string,
-    boundary: IAutoMovieCurve64.Boundary,
-  ): IAutoMovieCurve64.Operator;
+    boundary: IAutoMovieCurveBoundary64,
+  ): IAutoMovieCurveBoundaryPublication64;
 
   /**
    * Authenticate the declared consumer against this context's genuine publication and return the same immutable boundary object.
@@ -123,6 +125,6 @@ export interface IAutoMovieCurveParentContext {
   bind(
     region: string,
     bone: string,
-    operator: IAutoMovieCurve64.Operator,
-  ): IAutoMovieCurve64.Boundary;
+    operator: IAutoMovieCurveBoundaryPublication64,
+  ): IAutoMovieCurveBoundary64;
 }

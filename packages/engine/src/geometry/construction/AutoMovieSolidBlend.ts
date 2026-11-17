@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieSolidRibbon,
+  IAutoMovieBlendCrossJet,
 } from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -50,10 +50,10 @@ export namespace AutoMovieSolidBlend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates call-local weights and sums, returning three fresh vectors without retaining either input ribbon.
    */
   export function jet(
-    start: IAutoMovieSolidRibbon.IRibbon,
-    end: IAutoMovieSolidRibbon.IRibbon,
+    start: IAutoMovieBlendCrossJet,
+    end: IAutoMovieBlendCrossJet,
     w: number,
-  ): IAutoMovieSolidRibbon.IRibbon {
+  ): IAutoMovieBlendCrossJet {
     const h: number[][] = basis(w);
     const at = (k: number): AutoMovieVector3Tuple =>
       combine([

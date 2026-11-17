@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieRecoveryOrderedCuts,
   IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySavedCurveBinding,
   IAutoMovieRecoverySectionsInput,
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
@@ -78,7 +80,7 @@ export function test_recovery_ordered_observations(): void {
       },
     ],
   };
-  const cuts: IAutoMovieRecoveryOrderedLineage.Cuts =
+  const cuts: IAutoMovieRecoveryOrderedCuts =
     AutoMovieRecoveryOrderedLineage.observeCuts(input);
   TestValidator.equals(
     "all three directed source edges retained",
@@ -108,7 +110,7 @@ export function test_recovery_ordered_observations(): void {
       sourceOrientationSign: mesh.sourceOrientationSign,
     },
   };
-  const bound: IAutoMovieRecoveryOrderedLineage.Binding =
+  const bound: IAutoMovieRecoverySavedCurveBinding =
     AutoMovieRecoveryOrderedLineage.bindSavedFits(input, cuts, [target])[0]!;
   TestValidator.equals(
     "same saved geometry binds",
@@ -142,7 +144,7 @@ export function test_recovery_ordered_observations(): void {
           : span,
     ),
   };
-  const rejected: IAutoMovieRecoveryOrderedLineage.Binding =
+  const rejected: IAutoMovieRecoverySavedCurveBinding =
     AutoMovieRecoveryOrderedLineage.bindSavedFits(input, cuts, [changed])[0]!;
   TestValidator.equals(
     "changed saved geometry remains unavailable",

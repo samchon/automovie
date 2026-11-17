@@ -3,24 +3,24 @@ import type { IAutoMovieViewSection } from "../../../construction/IAutoMovieView
 import type { IAutoMovieCurveLengthMeasurement64 } from "../../../geometry/curve/IAutoMovieCurveLengthMeasurement64";
 import type { IAutoMovieHumanHeadNeck } from "../IAutoMovieHumanHeadNeck";
 
-/** Type contracts exchanged by AutoMovieHumanHeadNeckCurves; runtime evaluation remains in Human. */
+/**
+ * Neck radius, origin and base-height declarations with numerical observations kept distinct from certificates. Runtime construction and admission remain with AutoMovieHumanHeadNeckCurves in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes neck radius, origin and base-height declarations with numerical observations kept distinct from certificates; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Neck radius, origin and base-height declarations with numerical observations kept distinct from certificates. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanHeadNeckCurves; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing HeadNeckCurves contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanHeadNeckCurves {
   /**
    * The source declarations and their explicitly limited measurement metadata.
    *
-   * @evidence contracts/common.md#principled-implementation Publishes the actual radius/origin/height sources separately from their numeric solve and quadrature observations.
-   * @evidence contracts/common.md#clear-and-simple-design The mass and independent observer share explicit declarations rather than a hidden registry or second neck skin.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Measurements are not certificates or anatomical-site identities; no failed source is replaced by a successful fallback.
-   * @evidence contracts/common.md#meaningful-documentation Fields distinguish world heights, physical source parameter, lateral scale, extents, pose slope and numerical observation.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This output record performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This output record coordinates no requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One composition owns bounded numeric source arrays and metadata; no prepared callback, global cache or retained body escapes.
-   *
+   * One composition owns bounded numeric source arrays and metadata; no prepared callback, global cache or retained body escapes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The source declarations and their explicitly limited measurement metadata.
-   * @evidence contracts/development/design.md#principled-representation `radius`: Original radius in the mass's crown-root parameter; only its lower domain is authored here. `centre`: Physical-station origin X, continuing the same adopted affine axis through the lower course. `height`: Base height in [0,baseClock], with four C2 spans through front, AP quarter-depth side proxies and C7; these are not native section quarters or measured clinical phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadNeckBase.create, AutoMovieHumanHeadNeckCurves.of, AutoMovieHumanHeadNeckCurves.close. Read by AutoMovieHumanNeckBoundary.create. Also types AutoMovieHumanHeadNeckLayout.curves.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `radius`, `centre`, `height`, `bottom`, `band`, `planeOrigin`, `planeNormal`, `lateral`, `extents`, `normalMeasured`, `slope`, `baseClock`, `baseRadius`, `measured`, `baseLandmarkPolygon`, `baseDatums`; callers supply the complete record.
+   * @evidence contracts/development/design.md#principled-representation Publishes the actual radius/origin/height sources separately from their numeric solve and quadrature observations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The mass and independent observer share explicit declarations rather than a hidden registry or second neck skin.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Measurements are not certificates or anatomical-site identities; no failed source is replaced by a successful fallback.
    */
   export interface IOutput {
     /** Original radius in the mass's crown-root parameter; only its lower domain is authored here. */
@@ -87,19 +87,12 @@ export namespace IAutoMovieHumanHeadNeckCurves {
   /**
    * Inputs in one calibration-mm frame; slope is dimensionless dx/dy.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps public base length/heights separate from retained pose/site data and cranial/clinical neighbours.
-   * @evidence contracts/common.md#clear-and-simple-design The one owning solve receives explicit scalar context rather than a body, skin or reference model.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no person selector, expected answer or independent source evaluator.
-   * @evidence contracts/common.md#meaningful-documentation Each field names its calibration units, ownership and anatomical versus retained meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This input record performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This input record coordinates no work or cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fixed-size scalar/point context; no generated body or asynchronous handle is retained.
-   *
+   * The caller owns the fixed-size scalar/point context; no generated body or asynchronous handle is retained.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Inputs in one calibration-mm frame; slope is dimensionless dx/dy.
-   * @evidence contracts/development/design.md#principled-representation `neck`: Retained mean, C7 posterior point, circle-equivalent lateral scale and posterior skin secant. `base`: Public base target/heights and common C7 datum, already scaled once. `bottom`: Existing internal overlap mean, distinct from the base course.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanHeadNeckBase.create, AutoMovieHumanHeadNeckBase.admissible, AutoMovieHumanHeadNeckBaseTrial.create.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `neck`, `base`, `bottom`, `menton`, `cranialCentre`, `tragion`, `crown`, `spacing`; callers supply the complete record.
+   * @evidence contracts/development/design.md#principled-representation Keeps public base length/heights separate from retained pose/site data and cranial/clinical neighbours.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The one owning solve receives explicit scalar context rather than a body, skin or reference model.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no person selector, expected answer or independent source evaluator.
    */
   export interface IInputs {
     /** Retained mean, C7 posterior point, circle-equivalent lateral scale and posterior skin secant. */

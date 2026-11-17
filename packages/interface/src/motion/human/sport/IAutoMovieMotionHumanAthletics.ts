@@ -30,7 +30,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation front: The front foot; `left` when absent. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. seconds: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation front: The front foot; `left` when absent. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. seconds: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.athletics, params); sport/athletics.ts (athletics.plan, context); sport/athletics.ts (athletics.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanAthletics {
   /**
@@ -56,6 +56,6 @@ export namespace IAutoMovieMotionHumanAthletics {
     seconds?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 }

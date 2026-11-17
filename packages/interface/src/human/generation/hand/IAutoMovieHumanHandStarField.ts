@@ -1,4 +1,4 @@
-import type { IAutoMovieNaturalSpline } from "../../../construction/IAutoMovieNaturalSpline";
+import type { IAutoMovieNaturalCubicSpline } from "../../../construction/IAutoMovieNaturalCubicSpline";
 
 /**
  * A star read at any station: the natural splines, along the hand, of the
@@ -16,5 +16,5 @@ export interface IAutoMovieHumanHandStarField {
   stations: readonly number[];
 
   /** One natural spline per series column, over the stations. */
-  splines: IAutoMovieNaturalSpline.ISpline[];
+  splines: IAutoMovieNaturalCubicSpline[];
 }

@@ -8,10 +8,10 @@ import type { IAutoMovieMotionHumanExerciseKey } from "./IAutoMovieMotionHumanEx
  * passes through, what bears the body while it works, and how the body gets
  * there from standing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its three parts.
- * @evidence contracts/development/design.md#principled-representation A route of keyed postures and a pin, so a push-up, a pull-up and a deadlift differ in data and share one planner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the workout law reads; the kind tables fill them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The route is a function of the body, so an angle that must fit a body's lengths is solved from them.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its three parts. seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
+ * @evidence contracts/development/design.md#principled-representation A route of keyed postures and a pin, so a push-up, a pull-up and a deadlift differ in data and share one planner. seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the workout law reads; the kind tables fill them. Runtime boundary references: exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, base); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, route); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, return); exercise/WorkoutFeet.ts (WorkoutFeet.keep, kind); exercise/WorkoutGym.ts (WorkoutGym.pair, return); exercise/WorkoutHanging.ts (WorkoutHanging.kind, route).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The route is a function of the body, so an angle that must fit a body's lengths is solved from them. Shares the canonical IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanWorkoutKind {
   /** What bears the body while it works. */
@@ -130,10 +130,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
 /**
  * Companion types of {@link WorkoutKind}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
- * @evidence contracts/development/design.md#principled-representation seconds: Seconds taken to reach it from the step before. hold: Seconds stayed in it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, base); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, route); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, return); exercise/WorkoutFeet.ts (WorkoutFeet.keep, kind); exercise/WorkoutGym.ts (WorkoutGym.pair, return); exercise/WorkoutHanging.ts (WorkoutHanging.kind, route).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWorkoutKind {
   /**

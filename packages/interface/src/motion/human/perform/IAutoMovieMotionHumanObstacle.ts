@@ -1,86 +1,51 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionObstacleAperture } from "./IAutoMovieMotionObstacleAperture";
 
 /**
- * What stands in a person's way: a wall, a piece of furniture, a door frame,
- * each a solid of the scene with the openings a person may pass through.
+ * A performance obstacle described by its footprint, vertical extent and optional apertures and film-time motion. Human action planning queries this common scene capability.
  *
- * An obstacle is a convex footprint on the floor with the heights its solid
- * spans, and its apertures: an opening is a line across the footprint with
- * a clear width and a clear height (a doorway, a gap in a fence, the space
- * under a beam). A law that moves a body across the floor asks `blocking`
- * whether a straight stretch of its path meets a solid, and where: a path
- * that meets none is free, one that crosses an obstacle through an opening
- * wide and tall enough for the body is free too, and any other is blocked,
- * with the reason a refusal reports (a wall in the way, an opening too
- * narrow, too little headroom).
- *
- * Nothing here plans a way round: a law refuses or steers, and the
- * production's own path gives the way.
- *
- * @evidence contracts/development/common.md#meaningful-documentation footprint: Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. bottom: The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. top: The height its solid ends at, metres above the floor.
+ * @evidence contracts/development/common.md#meaningful-documentation A performance obstacle described by its footprint, vertical extent and optional apertures and film-time motion. Human action planning queries this common scene capability.
  * @evidence contracts/development/design.md#principled-representation footprint: Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. bottom: The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. top: The height its solid ends at, metres above the floor.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkClear.ts (walkClear, o); ensemble/HumanCrowd.ts (HumanCrowd.steer.obstacles, o); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough.obstacle, o); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough, o); perform/HumanObstacle.ts (HumanObstacle.wall, return); perform/HumanObstacle.ts (HumanObstacle.object, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Performance input and action contexts share the same obstacle description queried by HumanObstacle and moving-obstacle planning.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Footprint, vertical extent and apertures retain their documented metre frames; optional motion is a film-time capability. Obstacle queries own clearance and passage refusal.
  */
+export interface IAutoMovieMotionHumanObstacle {
+  /** Its subject id, which a refusal names. */
+  subject: string;
+
+  /** Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. */
+  footprint: readonly IAutoMovieVector3[];
+
+  /** The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. */
+  bottom: number;
+
+  /** The height its solid ends at, metres above the floor. */
+  top: number;
+
+  /** Its openings; none when absent. */
+  apertures?: readonly IAutoMovieMotionObstacleAperture[];
+
+  /**
+   * Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObstacle.motion: Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
+   */
+  motion?: (seconds: number) => {
+    /** Obstacle root position in world metres. */
+    position: IAutoMovieVector3;
+    /** Obstacle yaw in degrees about world +Y. */
+    yaw: number;
+  };
+}
+
+/** Operation-local contracts supporting IAutoMovieMotionHumanObstacle. */
 export namespace IAutoMovieMotionHumanObstacle {
-  /**
-   * A solid of the scene on the floor plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation footprint: Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. bottom: The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. top: The height its solid ends at, metres above the floor.
-   * @evidence contracts/development/design.md#principled-representation footprint: Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. bottom: The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. top: The height its solid ends at, metres above the floor.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkClear.ts (walkClear, o); ensemble/HumanCrowd.ts (HumanCrowd.steer.obstacles, o); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough.obstacle, o); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough, o); perform/HumanObstacle.ts (HumanObstacle.wall, return); perform/HumanObstacle.ts (HumanObstacle.object, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanObstacle.IAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-   */
-  export interface IObstacle {
-    /** Its subject id, which a refusal names. */
-    subject: string;
-
-    /** Its footprint on the floor: a convex polygon's corners in order, world metres; `y` is not read. */
-    footprint: readonly IAutoMovieVector3[];
-
-    /** The height its solid starts at, metres above the floor: 0 for a wall, the underside of a beam. */
-    bottom: number;
-
-    /** The height its solid ends at, metres above the floor. */
-    top: number;
-
-    /** Its openings; none when absent. */
-    apertures?: readonly IAutoMovieMotionHumanObstacle.IAperture[];
-
-    /** Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent. */
-    motion?: (seconds: number) => {
-      /** Obstacle root position in world metres. */
-      position: IAutoMovieVector3;
-      /** Obstacle yaw in degrees about world +Y. */
-      yaw: number;
-    };
-  }
-
-  /**
-   * An opening through an obstacle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation at: The middle of its sill on the floor plan, world metres; `y` is the sill's height. width: Its clear width, metres. height: Its clear height above the sill, metres.
-   * @evidence contracts/development/design.md#principled-representation at: The middle of its sill on the floor plan, world metres; `y` is the sill's height. width: Its clear width, metres. height: Its clear height above the sill, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkClear.ts (walkClear, a); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough.opening, a); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough, a); perform/HumanObstacle.ts (HumanObstacle.wall, apertures); perform/HumanObstacle.ts (HumanObstacle.apertures, return); lexicon/HumanTravelDoor.ts (HumanTravelDoor.passThrough).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-   */
-  export interface IAperture {
-    /** Its id within the obstacle. */
-    id: string;
-
-    /** The middle of its sill on the floor plan, world metres; `y` is the sill's height. */
-    at: IAutoMovieVector3;
-
-    /** The level unit direction its width runs along, world. */
-    across: IAutoMovieVector3;
-
-    /** Its clear width, metres. */
-    width: number;
-
-    /** Its clear height above the sill, metres. */
-    height: number;
-  }
-
   /**
    * The first obstacle a straight stretch of a path cannot pass, if any. What a body needs of a passage.
    *

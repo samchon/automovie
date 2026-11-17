@@ -4,9 +4,9 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -130,14 +130,11 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
       );
       continue;
     }
-    const named = (row: string): IAutoMovieMotionHumanSegment.ISegment =>
+    const named = (row: string): IAutoMovieMotionHumanSegment =>
       film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
-    const present: IAutoMovieMotionHumanSegment.ISegment =
-      named("presentFirearm");
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
+    const present: IAutoMovieMotionHumanSegment = named("presentFirearm");
     const stroke: number =
       present.start +
       (present.plan.events.find((e): boolean => e.name === "stroke")?.share ??
@@ -162,10 +159,7 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
 
     // 3. The pistol stays in the hand.
     const held = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "pistol",
-        seconds,
-      );
+      const frame: IAutoMovieRigidTransform = film.prop("pistol", seconds);
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;
@@ -180,7 +174,7 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
         ),
       );
     };
-    const draw: IAutoMovieMotionHumanSegment.ISegment = named("drawFirearm");
+    const draw: IAutoMovieMotionHumanSegment = named("drawFirearm");
     const closed: number =
       draw.start +
       (draw.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??

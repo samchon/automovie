@@ -73,7 +73,7 @@ export function motionWalkFacingAbout(
   /** A walk performed, and its displayed hips and pelvis's facing. */
   interface IWalked {
     performance: IAutoMovieMotionHumanPerformance;
-    segment: IAutoMovieMotionHumanSegment.ISegment;
+    segment: IAutoMovieMotionHumanSegment;
     reader: IAutoMovieMotionHumanSignature.IReader;
     hips: (t: number) => IAutoMovieVector3;
     pelvis: (t: number) => number;

@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieRecoveryOpenArcAddress,
   IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenContinuationEdge,
   IAutoMovieRecoveryOpenRunsPreparationOperation,
 } from "@automovie/interface";
 
@@ -19,10 +21,8 @@ export function prepareRecoveryOpenRuns(
   graph: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[1],
   operator: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[2],
 ): ReturnType<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation> {
-  const key: (
-    n: IAutoMovieRecoveryOpenRunsPreparationOperation.Node,
-  ) => string = (
-    n: IAutoMovieRecoveryOpenRunsPreparationOperation.Node,
+  const key: (n: IAutoMovieRecoveryOpenArcAddress) => string = (
+    n: IAutoMovieRecoveryOpenArcAddress,
   ): string => `${n.section}:${n.arc}`;
   if (
     (operator !== "quadratic" && operator !== "ruled") ||
@@ -44,12 +44,9 @@ export function prepareRecoveryOpenRuns(
     throw new Error(
       "A complete source-free open-continuation sidecar is required",
     );
-  const outgoing: Map<
-      string,
-      IAutoMovieRecoveryOpenRunsPreparationOperation.Edge
-    > = new Map(),
-    incoming: Map<string, IAutoMovieRecoveryOpenRunsPreparationOperation.Edge> =
-      new Map();
+  const outgoing: Map<string, IAutoMovieRecoveryOpenContinuationEdge> =
+      new Map(),
+    incoming: Map<string, IAutoMovieRecoveryOpenContinuationEdge> = new Map();
   let pairs: number = 0,
     unsupportedGroups: number = 0,
     unsupportedGroupsWithOpenArcs: number = 0;
@@ -92,7 +89,7 @@ export function prepareRecoveryOpenRuns(
       claim(1, pair.after);
       if (typeof pair.reverseAfter !== "boolean")
         throw new Error("Endpoint reversal must be explicit");
-      const edge: IAutoMovieRecoveryOpenRunsPreparationOperation.Edge = {
+      const edge: IAutoMovieRecoveryOpenContinuationEdge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
         reverse: pair.reverseAfter,

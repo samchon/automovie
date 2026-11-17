@@ -85,7 +85,7 @@ export namespace IAutoMovieMotionHumanTiming {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the record; each member states its phase and its value when absent.
    * @evidence contracts/development/design.md#principled-representation The members of the action clock's phrase, each a `Span` instead of seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Mirrors `IAutoMovieMotionClock.IPhrase` member for member; read by `phrase`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Mirrors `IAutoMovieMotionPhraseDurations` member for member; read by `phrase`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent hold stays absent, so the clock's own rule for a missing phase applies.
    */
   export interface IRoles {

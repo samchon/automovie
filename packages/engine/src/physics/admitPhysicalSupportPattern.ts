@@ -1,6 +1,8 @@
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -25,7 +27,7 @@ export function admitPhysicalSupportPattern(
 ): void {
   const known: Set<string> = new Set(
     profile.segments.map(
-      (segment: IAutoMoviePhysicalProfile.ISegment): string => segment.bone,
+      (segment: IAutoMoviePhysicalSegment): string => segment.bone,
     ),
   );
   const vector: (value: IAutoMovieVector3) => boolean = (
@@ -61,7 +63,7 @@ export function admitPhysicalSupportPattern(
         (bone: string, index: number): boolean =>
           index > 0 &&
           !profile.joints.some(
-            (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+            (joint: IAutoMoviePhysicalJoint): boolean =>
               joint.parent === limb.chain[index - 1] && joint.child === bone,
           ),
       ) ||

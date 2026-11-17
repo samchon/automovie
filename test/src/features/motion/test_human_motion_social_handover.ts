@@ -98,7 +98,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
         composition: composition.node,
       });
     const instant = (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       event: string,
     ): number =>
       segment.start +
@@ -163,8 +163,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
           { prop: "mug", handle: "body" },
         ),
       );
-      const give: IAutoMovieMotionHumanSegment.ISegment =
-        passed.segments("a")[1]!;
+      const give: IAutoMovieMotionHumanSegment = passed.segments("a")[1]!;
       const grip: number = instant(passed.segments("a")[0]!, "gripClosed");
       const offered: number = instant(give, "offered");
       const release: number = instant(give, "release");

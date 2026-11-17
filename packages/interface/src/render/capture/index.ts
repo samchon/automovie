@@ -1,5 +1,7 @@
 export type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget";
 export type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell";
+export type { IAutoMovieCaptureCellComparison } from "./IAutoMovieCaptureCellComparison";
+export type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
 export type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison";
 export type { IAutoMovieCaptureComparisonProps } from "./IAutoMovieCaptureComparisonProps";
 export type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing";
@@ -7,6 +9,7 @@ export type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder";
 export type { IAutoMovieCaptureFolderOpenProps } from "./IAutoMovieCaptureFolderOpenProps";
 export type { IAutoMovieCaptureFramePlan } from "./IAutoMovieCaptureFramePlan";
 export type { IAutoMovieCaptureFramePlanProps } from "./IAutoMovieCaptureFramePlanProps";
+export type { IAutoMovieCaptureInstant } from "./IAutoMovieCaptureInstant";
 export type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout";
 export type { IAutoMovieCaptureLayoutProps } from "./IAutoMovieCaptureLayoutProps";
 export type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan";
@@ -15,10 +18,12 @@ export type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanReques
 export type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord";
 export type { IAutoMovieCaptureRequestSource } from "./IAutoMovieCaptureRequestSource";
 export type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
+export type { IAutoMovieCaptureSampling } from "./IAutoMovieCaptureSampling";
 export type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection";
 export type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage";
 export type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
 export type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
+export type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource";
 export type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow";
 export type { IAutoMoviePlanVideoFramesProps } from "./IAutoMoviePlanVideoFramesProps";
 export type { IAutoMoviePlanVideoSceneCutsProps } from "./IAutoMoviePlanVideoSceneCutsProps";

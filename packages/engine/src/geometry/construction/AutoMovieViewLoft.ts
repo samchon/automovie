@@ -2,7 +2,7 @@ import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMoviePolarSector,
@@ -35,7 +35,7 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 /** One emitted station's plane, radius reader and four-quarter metadata, in station order. */
 interface Row {
   station: number;
-  frame: IAutoMovieLoftFrame.IFrame;
+  frame: IAutoMovieLoftSectionFrame;
   radius: (phi: number) => number;
   view: IAutoMovieLoftChain.IView | undefined;
 }

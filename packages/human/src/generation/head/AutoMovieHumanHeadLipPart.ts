@@ -9,8 +9,8 @@ import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadLipContact,
-  IAutoMovieLoftFrame,
-  IAutoMovieNaturalSpline,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewAxis,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -85,18 +85,18 @@ export namespace AutoMovieHumanHeadLipPart {
     const theta: (s: number) => number = (s: number): number =>
       Math.acos(Math.max(-1, Math.min(1, -s / half)));
     const xs: number[] = [0, theta(-peak), Math.PI / 2, theta(peak), Math.PI];
-    const base: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const base: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       xs,
       [0, 0, height, 0, 0],
     );
-    const unit: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const unit: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       xs,
       [0, 1, 0, 1, 0],
     );
     const bowHeight: number =
       -AutoMovieNaturalSpline.derivative(base, xs[3]!)[0] /
       AutoMovieNaturalSpline.derivative(unit, xs[3]!)[0];
-    const bow: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const bow: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       xs,
       [0, bowHeight, height, bowHeight, 0],
     );
@@ -104,13 +104,12 @@ export namespace AutoMovieHumanHeadLipPart {
       { length: INTERVALS + 1 },
       (_: unknown, i: number): number => (Math.PI * i) / INTERVALS,
     );
-    const lower: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(
-        angles,
-        angles.map((angle: number, i: number): number =>
-          i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
-        ),
-      );
+    const lower: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      angles,
+      angles.map((angle: number, i: number): number =>
+        i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
+      ),
+    );
     /** The border height in the engine's two-pole parameter; endpoints are exact shared corners. */
     const border: (s: number) => number = (s: number): number =>
       Math.abs(s) >= half
@@ -188,9 +187,9 @@ export namespace AutoMovieHumanHeadLipPart {
       cachedStation = s;
       return cachedSection;
     };
-    const frame: (s: number) => IAutoMovieLoftFrame.IFrame = (
+    const frame: (s: number) => IAutoMovieLoftSectionFrame = (
       s: number,
-    ): IAutoMovieLoftFrame.IFrame => section(s).frame;
+    ): IAutoMovieLoftSectionFrame => section(s).frame;
     const axis: IAutoMovieViewAxis.IAxis = {
       at: frame,
       jet: (
@@ -206,12 +205,12 @@ export namespace AutoMovieHumanHeadLipPart {
             ? [1, 0]
             : AutoMovieViewParameter.inverseJet(parameter, s);
         if (inverse === null) return null;
-        const first: IAutoMovieLoftFrame.IFrame = {
+        const first: IAutoMovieLoftSectionFrame = {
           origin: [0, 0, 0],
           u: [0, 0, 0],
           v: [0, 0, 0],
         };
-        const second: IAutoMovieLoftFrame.IFrame = {
+        const second: IAutoMovieLoftSectionFrame = {
           origin: [0, 0, 0],
           u: [0, 0, 0],
           v: [0, 0, 0],

@@ -1,4 +1,7 @@
-import type { IAutoMovieCaptureSubject } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureInstant,
+  IAutoMovieCaptureSubject,
+} from "@automovie/interface";
 import { planAutoMovieCaptureFrames } from "@automovie/render";
 
 /**
@@ -62,24 +65,21 @@ export namespace ArchetypeRoundTiming {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local event list and pair are plain data with no retained state.
    */
   export function stride(meta: IAutoMovieCaptureSubject): [number, number] {
-    const events: readonly IAutoMovieCaptureSubject.IInstant[] =
-      meta.instants ?? [];
+    const events: readonly IAutoMovieCaptureInstant[] = meta.instants ?? [];
     const start: number =
       events.find(
-        (item: IAutoMovieCaptureSubject.IInstant): boolean =>
-          item.label === "cruise",
+        (item: IAutoMovieCaptureInstant): boolean => item.label === "cruise",
       )?.seconds ?? 0;
     const stop: number =
       events.find(
-        (item: IAutoMovieCaptureSubject.IInstant): boolean =>
-          item.label === "brake",
+        (item: IAutoMovieCaptureInstant): boolean => item.label === "brake",
       )?.seconds ?? meta.durationSeconds;
     const on: number[] = events
       .filter(
-        (item: IAutoMovieCaptureSubject.IInstant): boolean =>
+        (item: IAutoMovieCaptureInstant): boolean =>
           item.label === "leftForeOn",
       )
-      .map((item: IAutoMovieCaptureSubject.IInstant): number => item.seconds)
+      .map((item: IAutoMovieCaptureInstant): number => item.seconds)
       .sort((a: number, b: number): number => a - b);
     for (let k: number = 0; k + 1 < on.length; k++)
       if (on[k]! >= start && on[k + 1]! <= stop && on[k + 1]! > on[k]!)
@@ -99,11 +99,9 @@ export namespace ArchetypeRoundTiming {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No process, scene or retained data is acquired.
    */
   export function event(meta: IAutoMovieCaptureSubject, label: string): number {
-    const found: IAutoMovieCaptureSubject.IInstant | undefined =
-      meta.instants?.find(
-        (item: IAutoMovieCaptureSubject.IInstant): boolean =>
-          item.label === label,
-      );
+    const found: IAutoMovieCaptureInstant | undefined = meta.instants?.find(
+      (item: IAutoMovieCaptureInstant): boolean => item.label === label,
+    );
     if (found === undefined)
       throw new Error(`${meta.name} has no ${label} event`);
     return found.seconds;

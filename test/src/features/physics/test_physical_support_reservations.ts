@@ -4,7 +4,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalBalance,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalSupportPatch,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -59,16 +62,18 @@ export function test_physical_support_reservations(): void {
     }
   }
   TestValidator.equals("all malformed reservations refuse", refusals, 2);
-  const supports: IAutoMoviePhysicalBalance.ISupport[] =
+  const supports: IAutoMoviePhysicalSupportPatch[] =
     body.balance!.pattern.limbs.map(
       (
         limb: NonNullable<
           IAutoMoviePhysicalSimulationInput.IBody["balance"]
         >["pattern"]["limbs"][number],
-      ): IAutoMoviePhysicalBalance.ISupport => {
-        const position: P.ITransform["position"] = profile.segments.find(
-          (segment: P.ISegment): boolean => segment.bone === limb.bone,
-        )!.neutral.position;
+      ): IAutoMoviePhysicalSupportPatch => {
+        const position: IAutoMovieRigidTransform["position"] =
+          profile.segments.find(
+            (segment: IAutoMoviePhysicalSegment): boolean =>
+              segment.bone === limb.bone,
+          )!.neutral.position;
         return { bone: limb.bone, position, points: [{ ...position, y: 0 }] };
       },
     );
@@ -89,7 +94,7 @@ export function test_physical_support_reservations(): void {
   const reserved: IAutoMoviePhysicalBalance.IResult = Balance.assess({
     ...common,
     unavailable: supports.map(
-      (support: IAutoMoviePhysicalBalance.ISupport): string => support.bone,
+      (support: IAutoMoviePhysicalSupportPatch): string => support.bone,
     ),
   });
   TestValidator.predicate(

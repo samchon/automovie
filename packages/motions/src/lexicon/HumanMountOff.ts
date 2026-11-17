@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBase,
@@ -116,11 +117,11 @@ export namespace HumanMountOff {
     const follower: "left" | "right" = leader === "left" ? "right" : "left";
 
     // Where it stands afterwards: the pelvis clear of the seat, the feet at their rest places under it.
-    const under: IAutoMovieMotionHumanFrame.IFrame = {
+    const under: IAutoMovieMotionHumanFrame = {
       origin: { ...start, y: seated.floor(body, entry) },
       yaw,
     };
-    const stood: IAutoMovieMotionHumanFrame.IFrame = {
+    const stood: IAutoMovieMotionHumanFrame = {
       origin: HumanFrame.point(
         under,
         sideways
@@ -325,7 +326,7 @@ export namespace HumanMountOff {
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
-          const down: IAutoMovieMotionHumanPosture.IGoal = standing[limb]!;
+          const down: IAutoMovieHumanLimbGoal = standing[limb]!;
           const [departs, arrives]: readonly [number, number] = flight[side];
           if (t >= arrives) limbs[limb] = down;
           else if (t <= departs)

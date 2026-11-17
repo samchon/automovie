@@ -1,4 +1,11 @@
-/** Compile-time length scales for fitting a feature course in the sweep's cylindrical domain. */
+/**
+ * Compile-time length scales for fitting a feature course in the sweep's cylindrical domain.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Metre spine length and mean metre radius define knot spacing in normalized u and radian angle. The compile-time and query metrics remain distinct; this helper assumes admitted scales and does not guarantee a global nearest course point.
+ * @evidence contracts/development/design.md#principled-representation Metre spine length and mean metre radius define knot spacing in normalized u and radian angle.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface compileAutoMovieSweep supplies IScale to compileAutoMovieSweepFeature; displacement queries use their own local radius metric.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The compile-time and query metrics remain distinct; this helper assumes admitted scales and does not guarantee a global nearest course point.
+ */
 export namespace IAutoMovieCompileSweepFeature {
   /**
    * Compile one feature curve of a sweep into the radius change it makes at a

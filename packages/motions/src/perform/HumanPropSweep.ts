@@ -1,14 +1,15 @@
 import { Vector3, projectileFirstContact } from "@automovie/engine";
 import type {
   IAutoMovieHit,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionPropLaunch,
+  IAutoMoviePhysicalShape,
   IAutoMovieProjectile,
   IAutoMovieProjectileFirstContact,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -114,13 +115,13 @@ export namespace HumanPropSweep {
         },
       });
     }
-    const solid: IAutoMoviePhysicalProfile.IShape[] = [];
+    const solid: IAutoMoviePhysicalShape[] = [];
     for (const other of self.props.values()) {
       if (other.subject === prop.subject || other.shapes === undefined)
         continue;
       if (launched(self, other.subject)) continue;
       other.shapes.forEach(
-        (shape: IAutoMoviePhysicalProfile.IShape, k: number): void => {
+        (shape: IAutoMoviePhysicalShape, k: number): void => {
           const id: string = `prop:${other.subject}:${k}`;
           if (id === leave) return;
           solid.push(shape);
@@ -128,7 +129,7 @@ export namespace HumanPropSweep {
             projectileFirstContact.shape(
               id,
               shape,
-              (t: number): IAutoMoviePhysicalProfile.ITransform =>
+              (t: number): IAutoMovieRigidTransform =>
                 HumanPerformanceRead.prop(self, other.subject, seconds + t),
             ),
           );
@@ -182,8 +183,7 @@ export namespace HumanPropSweep {
       for (const segment of [...person.segments, ...person.overlays])
         if (
           (segment.plan.launches ?? []).some(
-            (l: IAutoMovieMotionHumanActionPlan.ILaunch): boolean =>
-              l.prop === subject,
+            (l: IAutoMovieMotionPropLaunch): boolean => l.prop === subject,
           )
         )
           return true;
@@ -199,7 +199,7 @@ export namespace HumanPropSweep {
   function thinnest(
     self: IAutoMovieMotionHumanPerformanceState,
     launcher: string,
-    props: readonly IAutoMoviePhysicalProfile.IShape[],
+    props: readonly IAutoMoviePhysicalShape[],
   ): number {
     let least: number = Infinity;
     for (const shape of props) least = Math.min(least, size(shape));
@@ -218,7 +218,7 @@ export namespace HumanPropSweep {
   }
 
   /** A shape's least thickness, metres: a round shape's diameter, a box's least full extent; a hull is not counted. */
-  function size(shape: IAutoMoviePhysicalProfile.IShape): number {
+  function size(shape: IAutoMoviePhysicalShape): number {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? 2 * shape.radius
       : shape.kind === "box"

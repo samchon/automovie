@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -13,8 +14,10 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanKnee,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionWeaponContact,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -342,8 +345,9 @@ export namespace knee {
       );
       const hands = StrikingStance.guard(body, posture, { lead });
       if (p.at.kind === "person") {
-        const other: IAutoMovieMotionHumanActionContext.IPerformer =
-          context.performer(p.at.subject);
+        const other: IAutoMovieMotionHumanPerformerReader = context.performer(
+          p.at.subject,
+        );
         const nape: IAutoMovieVector3 = other
           .bones(seconds - StrikingTarget.LOOK)
           .get("neck")!.worldPosition;
@@ -351,7 +355,7 @@ export namespace knee {
         const aside: number =
           KneeForm.CLINCH_SHARE * other.body.measure.shoulderHalfWidth;
         for (const arm of ["leftArm", "rightArm"] as const) {
-          const g0: IAutoMovieMotionHumanPosture.IGoal | undefined = hands[arm];
+          const g0: IAutoMovieHumanLimbGoal | undefined = hands[arm];
           if (g0 === undefined) continue;
           const hold: IAutoMovieVector3 = Vector3.add(
             Vector3.add(nape, Vector3.scale(g.heading, KneeForm.CLINCH_DEPTH)),
@@ -405,16 +409,16 @@ export namespace knee {
 
     // The contact the performance committed, and the stopped leg's ride on
     // the body it met ({@link StrikingRide}), built on first use.
-    let met: IAutoMovieMotionHumanActionPlan.IContactEvent | null = null;
+    let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       if (met === null) return posture;
-      const event: IAutoMovieMotionHumanActionPlan.IContactEvent = met;
+      const event: IAutoMovieMotionWeaponContact = met;
       ride ??= StrikingRide.create({
-        other: (): IAutoMovieMotionHumanActionContext.IPerformer =>
+        other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
@@ -436,9 +440,7 @@ export namespace knee {
       ...(p.at.kind === "person"
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (
-              found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
-            ): void => {
+            stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;

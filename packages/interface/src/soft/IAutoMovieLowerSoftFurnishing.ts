@@ -1,7 +1,14 @@
 import type { IAutoMovieSoftBodyDomain } from "./IAutoMovieSoftBodyDomain";
 import type { IAutoMovieSoftFurnishing } from "./IAutoMovieSoftFurnishing";
 
-/** Furnishing selection and shot clock used to derive one cloth frame. */
+/**
+ * Furnishing selection and shot clock used to derive one cloth frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States branch precedence, status/null results, time use, fresh result ownership and propagated failures.
+ * @evidence contracts/development/design.md#principled-representation Canonical furnishing/domain identity and named-state references feed world-metre cloth data; seconds are quantized only for simulated mode by softBodyStepAt.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface lowerSoftFurnishing consumes the existing furnishing, domain and one shot second; it needs no environment or live actor callback.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The existing furnishing mode drives explicit rest/simulated branches; unsupported self-contact is surfaced without claiming a solved result.
+ */
 export namespace IAutoMovieLowerSoftFurnishing {
   /**
    * Borrowed furnishing and domain for deriving fresh cloth state and surface arrays. Domain/reference/named-state failures return not-run with null geometry. After domain admission, selfCollision requests return unsupported with the step-zero configuration, even for a cord the core can otherwise solve; rest mode also uses step zero. Neither path consumes time.

@@ -1,7 +1,7 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanHand,
   IAutoMoviePose,
 } from "@automovie/interface";
 
@@ -36,7 +36,7 @@ export namespace AutoMovieMotionHumanArmAngles {
    */
   export function angles(
     pose: IAutoMoviePose,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmAngles.IAngles {
     const read = (
       bone: AutoMovieHumanoidBone,

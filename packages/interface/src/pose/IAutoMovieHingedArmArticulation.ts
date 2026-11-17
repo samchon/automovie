@@ -1,8 +1,15 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieHingedArmSwivel } from "./IAutoMovieHingedArmSwivel";
+import type { IAutoMovieHingedChainGeometry } from "./IAutoMovieHingedChainGeometry";
 import type { IAutoMovieSwivelNear } from "./IAutoMovieSwivelNear";
 
-/** Geometry and scoring policy for a hinged chain's swivel search. Callers supply finite geometry, unit rest rotations and valid ranges; the solver checks continuation tolerance and returns null for its documented degenerate geometry. */
+/**
+ * Geometry and scoring policy for a hinged chain's swivel search. Callers supply finite geometry, unit rest rotations and valid ranges; the solver checks continuation tolerance and returns null for its documented degenerate geometry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates radian hinge limits, degree swivel, local quaternion scoring and lazy callback lifetime.
+ * @evidence contracts/development/design.md#principled-representation Finite coherent rest geometry and ordered at-most-one-turn hinge range are caller premises; degenerate chains return null and invalid continuation tolerance throws.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface hingedArmArticulation searches geometry shared with hingedArmSwivel while caller scoring owns clinical decomposition, ROM and effort objectives.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional exact and tiebreak callbacks expose bounded scoring work without smuggling a rig policy into the geometric solver.
+ */
 export namespace IAutoMovieHingedArmArticulation {
   /**
    * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
@@ -76,7 +83,7 @@ export namespace IAutoMovieHingedArmArticulation {
    * @evidence contracts/development/design.md#minimal-and-owned-surface hingedArmArticulation searches geometry shared with hingedArmSwivel while caller scoring owns clinical decomposition, ROM and effort objectives.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional exact and tiebreak callbacks expose bounded scoring work without smuggling a rig policy into the geometric solver.
    */
-  export type IProps = IAutoMovieHingedArmSwivel.IChain & {
+  export type IProps = IAutoMovieHingedChainGeometry & {
     /**
      * Score one candidate's bone-local root and mid rotations: `overshoot` is
      * the total ROM overshoot in degrees, compared first, and `deviation` the

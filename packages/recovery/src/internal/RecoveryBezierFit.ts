@@ -4,8 +4,8 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMoviePolylineFit,
   IAutoMoviePolylineFitInput,
 } from "@automovie/interface";
@@ -109,7 +109,7 @@ export namespace RecoveryBezierFit {
       (a: number, b: number): number => a - b,
     );
     const declared: Set<number> = new Set(input.corners);
-    const spans: IAutoMovieCurve64.Span[] = [];
+    const spans: AutoMovieCubicBezierControls3[] = [];
     const widths: number[] = [];
     let sampleMaximumMm: number = 0,
       polylineUpperEstimateMm: number = 0;
@@ -228,7 +228,7 @@ export namespace RecoveryBezierFit {
       }
       if (errors.bound <= input.toleranceMm || p.length === 2) {
         observeCorrespondence?.(spans.length, job.first, job.last, u.slice());
-        spans.push(controls as unknown as IAutoMovieCurve64.Span);
+        spans.push(controls as unknown as AutoMovieCubicBezierControls3);
         widths.push(cumulative[job.last]! - cumulative[job.first]!);
         sampleMaximumMm = Math.max(sampleMaximumMm, errors.sample);
         polylineUpperEstimateMm = Math.max(

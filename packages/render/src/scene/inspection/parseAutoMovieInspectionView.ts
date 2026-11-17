@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieInspectionFocus,
   IAutoMovieInspectionView,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -124,7 +125,7 @@ export function parseAutoMovieInspectionView(
     return refuse("is the film camera, which takes no switch");
   let orthographic: boolean = false;
   let follow: boolean = false;
-  let focus: IAutoMovieInspectionView.IFocus | null = null;
+  let focus: IAutoMovieInspectionFocus | null = null;
   for (const written of switches) {
     const key: string = once(written);
     if (

@@ -3,7 +3,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLegAxis,
   IAutoMovieHumanLegReflection,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
@@ -28,7 +28,7 @@ export namespace AutoMovieHumanLegReflection {
   export function placed(
     f: IAutoMovieHumanLegAxis.IFrame,
     sign: 1 | -1,
-  ): IAutoMovieLoftFrame.IFrame {
+  ): IAutoMovieLoftSectionFrame {
     return {
       origin: [f.origin[0], f.origin[1], sign * f.origin[2]],
       u: [f.u[0], f.u[1], sign * f.u[2]],

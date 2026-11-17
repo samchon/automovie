@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
-  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -49,7 +49,7 @@ export namespace HumanSegment {
    * @returns The key.
    */
   export function weapon(
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     id: string,
   ): string {
     return `${segment.index}:${id}`;
@@ -92,8 +92,8 @@ export namespace HumanSegment {
    */
   export function row(
     subject: string,
-    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
-    before: IAutoMovieSchedule.IEntry | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
+    before: IAutoMovieScheduleEntry | undefined,
     name: AutoMovieMotionHumanActionKey,
     start: number,
     accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {},
@@ -149,7 +149,7 @@ export namespace HumanSegment {
    */
   export function entry(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     blend?: number,
   ): IAutoMovieMotionHumanEntryState {

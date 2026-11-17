@@ -12,9 +12,11 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePhysicalHullFaces,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -326,7 +328,7 @@ export namespace HumanColliders {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bound(
-    shape: IAutoMoviePhysicalProfile.IShape,
+    shape: IAutoMoviePhysicalShape,
   ): IAutoMovieMotionHumanColliders.IBall {
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     if (shape.kind === "sphere")
@@ -349,8 +351,8 @@ export namespace HumanColliders {
   interface ISided {
     /** The bone. */ bone: string;
     /** The neutral frame's offset from the bone's rest joint, metres. */ offset: IAutoMovieVector3;
-    /** The neutral frame's rotation. */ rotation: IAutoMoviePhysicalProfile.ITransform["rotation"];
-    /** The shapes in the neutral frame. */ shapes: IAutoMoviePhysicalProfile.IShape[];
+    /** The neutral frame's rotation. */ rotation: IAutoMovieRigidTransform["rotation"];
+    /** The shapes in the neutral frame. */ shapes: IAutoMoviePhysicalShape[];
   }
 
   /** Each body's segments as placed, a left one the mirror of its right twin, built once per body. */
@@ -363,9 +365,7 @@ export namespace HumanColliders {
     // The rest joints read by the segments' string names, as `placed` reads
     // the posed bones.
     const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
-    const own = (
-      segment: IAutoMoviePhysicalProfile.ISegment,
-    ): ISided | null => {
+    const own = (segment: IAutoMoviePhysicalSegment): ISided | null => {
       const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
       return rest === undefined
         ? null
@@ -378,10 +378,10 @@ export namespace HumanColliders {
     };
     const out: ISided[] = [];
     for (const segment of body.profile.segments) {
-      const twin: IAutoMoviePhysicalProfile.ISegment | undefined =
+      const twin: IAutoMoviePhysicalSegment | undefined =
         segment.bone.startsWith("left")
           ? body.profile.segments.find(
-              (s: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              (s: IAutoMoviePhysicalSegment): boolean =>
                 s.bone === `right${segment.bone.slice(4)}`,
             )
           : undefined;
@@ -403,8 +403,8 @@ export namespace HumanColliders {
       z: p.z,
     });
     const turn = (
-      q: IAutoMoviePhysicalProfile.ITransform["rotation"],
-    ): IAutoMoviePhysicalProfile.ITransform["rotation"] => ({
+      q: IAutoMovieRigidTransform["rotation"],
+    ): IAutoMovieRigidTransform["rotation"] => ({
       x: q.x,
       y: -q.y,
       z: -q.z,
@@ -415,10 +415,8 @@ export namespace HumanColliders {
       offset: point(segment.offset),
       rotation: turn(segment.rotation),
       shapes: segment.shapes.map(
-        (
-          shape: IAutoMoviePhysicalProfile.IShape,
-        ): IAutoMoviePhysicalProfile.IShape => {
-          const transform: IAutoMoviePhysicalProfile.ITransform = {
+        (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
+          const transform: IAutoMovieRigidTransform = {
             position: point(shape.transform.position),
             rotation: turn(shape.transform.rotation),
           };

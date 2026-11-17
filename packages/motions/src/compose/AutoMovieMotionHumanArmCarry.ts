@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanArmClearance,
@@ -6,7 +7,6 @@ import type {
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
@@ -77,20 +77,14 @@ export namespace AutoMovieMotionHumanArmCarry {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     from: Partial<
-      Record<
-        IAutoMovieMotionHumanHand.Side,
-        IAutoMovieMotionHumanArmAngles.IAngles
-      >
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >,
     share: number,
     planned?: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture {
     const s: number = Math.min(1, Math.max(0, share));
-    const sides: IAutoMovieMotionHumanHand.Side[] = (
-      ["left", "right"] as const
-    ).filter(
-      (side: IAutoMovieMotionHumanHand.Side): boolean =>
-        from[side] !== undefined,
+    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
     const solved: IAutoMoviePose | null =
@@ -113,8 +107,8 @@ export namespace AutoMovieMotionHumanArmCarry {
     // arms that travel together keep clear of each other as they are shown,
     // and a course does not depend on the instant it is read at.
     type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-    const plains: Partial<Record<IAutoMovieMotionHumanHand.Side, Arm>> = {};
-    const courses: Partial<Record<IAutoMovieMotionHumanHand.Side, Arm>> = {};
+    const plains: Partial<Record<AutoMovieHumanSide, Arm>> = {};
+    const courses: Partial<Record<AutoMovieHumanSide, Arm>> = {};
     for (const side of sides) {
       const held: IAutoMovieMotionHumanArmAngles.IAngles = from[side]!;
       const goal: IAutoMovieMotionHumanArmAngles.IAngles =

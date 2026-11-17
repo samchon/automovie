@@ -45,7 +45,7 @@ export namespace climbStairsPelvis {
    */
   export function of(
     stance: readonly IAutoMovieVector3[],
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     steps: number,
     duration: number,
   ): (seconds: number) => IAutoMovieVector3 {

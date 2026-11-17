@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
+  AutoMovieVector2Tuple,
+  IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
 
 import type { CompactCurveFit as F } from "./CompactCurveFit";
@@ -18,7 +18,7 @@ export namespace SurfaceQualityData {
     /** Exact original cubic coefficients and analytic physical-phase callbacks. */
     source: S.Prepared;
     /** Saved complete degree-three result, without fitting or geometric repair. */
-    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[];
+    pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[];
     /** Original physical phase period in millimetres. */
     period: number;
     /** Source-only positive-X support phase, normalized by the period. */
@@ -78,10 +78,10 @@ export namespace SurfaceQualityData {
     fitted: boolean,
     anchored: boolean,
     order: number = 0,
-  ): IAutoMovieConicApproximation.Point {
+  ): Readonly<AutoMovieVector2Tuple> {
     const phase: number =
       ((((q + (anchored ? row.anchor : 0)) % 1) + 1) % 1) * row.period;
-    const pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[] = fitted
+    const pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[] = fitted
       ? row.pieces
       : row.source.pieces;
     let lo: number = 0,
@@ -91,17 +91,18 @@ export namespace SurfaceQualityData {
       if (phase < pieces[mid]!.domain[1]) hi = mid;
       else lo = mid + 1;
     }
-    const piece: IAutoMovieCompactCurveApproximation.IPiece = pieces[lo]!;
+    const piece: IAutoMovieRegisteredPlanarCurvePiece = pieces[lo]!;
     if (piece.kind !== "polynomial")
       throw new Error(
         "This registered control excludes independent rational clocks",
       );
     const h: number = piece.domain[1] - piece.domain[0];
     const u: number = Math.max(0, Math.min(1, (phase - piece.domain[0]) / h));
-    let controls: IAutoMovieConicApproximation.Point[] = piece.controls.map(
-      (
-        p: IAutoMovieConicApproximation.Point,
-      ): IAutoMovieConicApproximation.Point => [p[0], p[1]],
+    let controls: Readonly<AutoMovieVector2Tuple>[] = piece.controls.map(
+      (p: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> => [
+        p[0],
+        p[1],
+      ],
     );
     for (let d: number = 0; d < order; ++d) {
       const degree: number = controls.length - 1;
@@ -109,9 +110,9 @@ export namespace SurfaceQualityData {
         .slice(1)
         .map(
           (
-            p: IAutoMovieConicApproximation.Point,
+            p: Readonly<AutoMovieVector2Tuple>,
             i: number,
-          ): IAutoMovieConicApproximation.Point => [
+          ): Readonly<AutoMovieVector2Tuple> => [
             ((p[0] - controls[i]![0]) * degree * row.period) / h,
             ((p[1] - controls[i]![1]) * degree * row.period) / h,
           ],
@@ -139,7 +140,7 @@ export namespace SurfaceQualityData {
     for (const row of rows) {
       const points: N.Point[] = [];
       for (let j: number = 0; j < count; ++j) {
-        const p: IAutoMovieConicApproximation.Point = point(
+        const p: Readonly<AutoMovieVector2Tuple> = point(
           row,
           j / count,
           fitted,
@@ -202,14 +203,14 @@ export namespace SurfaceQualityData {
     for (const row of rows)
       for (let j: number = 0; j < count; ++j)
         for (let order: number = 0; order < 3; ++order) {
-          const a: IAutoMovieConicApproximation.Point = point(
+          const a: Readonly<AutoMovieVector2Tuple> = point(
               row,
               (j + 0.371) / count,
               false,
               anchored,
               order,
             ),
-            b: IAutoMovieConicApproximation.Point = point(
+            b: Readonly<AutoMovieVector2Tuple> = point(
               row,
               (j + 0.371) / count,
               true,
@@ -226,15 +227,15 @@ export namespace SurfaceQualityData {
       minH = Math.min(minH, h);
       for (let j: number = 0; j < count; ++j) {
         const q: number = (j + 0.371) / count;
-        const pa: IAutoMovieConicApproximation.Point = point(
+        const pa: Readonly<AutoMovieVector2Tuple> = point(
             a,
             q,
             false,
             anchored,
           ),
-          pb: IAutoMovieConicApproximation.Point = point(b, q, false, anchored),
-          na: IAutoMovieConicApproximation.Point = point(a, q, true, anchored),
-          nb: IAutoMovieConicApproximation.Point = point(b, q, true, anchored);
+          pb: Readonly<AutoMovieVector2Tuple> = point(b, q, false, anchored),
+          na: Readonly<AutoMovieVector2Tuple> = point(a, q, true, anchored),
+          nb: Readonly<AutoMovieVector2Tuple> = point(b, q, true, anchored);
         const ss: N.Point = [(pb[0] - pa[0]) / h, 1, (pb[1] - pa[1]) / h],
           ns: N.Point = [(nb[0] - na[0]) / h, 1, (nb[1] - na[1]) / h];
         const errorSlope: number = Math.hypot(ns[0] - ss[0], ns[2] - ss[2]);
@@ -260,13 +261,13 @@ export namespace SurfaceQualityData {
         if (i > 0) {
           const previous: Row = rows[i - 1]!,
             hp: number = a.loop.heightMm - previous.loop.heightMm;
-          const po: IAutoMovieConicApproximation.Point = point(
+          const po: Readonly<AutoMovieVector2Tuple> = point(
               previous,
               q,
               false,
               anchored,
             ),
-            pn: IAutoMovieConicApproximation.Point = point(
+            pn: Readonly<AutoMovieVector2Tuple> = point(
               previous,
               q,
               true,
@@ -280,28 +281,28 @@ export namespace SurfaceQualityData {
           );
         }
         for (const v of [0, 0.5, 1]) {
-          const ad: IAutoMovieConicApproximation.Point = point(
+          const ad: Readonly<AutoMovieVector2Tuple> = point(
               a,
               q,
               false,
               anchored,
               1,
             ),
-            bd: IAutoMovieConicApproximation.Point = point(
+            bd: Readonly<AutoMovieVector2Tuple> = point(
               b,
               q,
               false,
               anchored,
               1,
             ),
-            an: IAutoMovieConicApproximation.Point = point(
+            an: Readonly<AutoMovieVector2Tuple> = point(
               a,
               q,
               true,
               anchored,
               1,
             ),
-            bn: IAutoMovieConicApproximation.Point = point(
+            bn: Readonly<AutoMovieVector2Tuple> = point(
               b,
               q,
               true,
@@ -382,7 +383,7 @@ export namespace SurfaceQualityData {
 
   /** Positive-X source support is solved analytically on each original cubic; no candidate-dependent seam is introduced. */
   function support(
-    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[],
+    pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[],
   ): number {
     let maximum: number = -Infinity,
       phase: number = 0;
@@ -390,7 +391,7 @@ export namespace SurfaceQualityData {
       if (piece.kind !== "polynomial" || piece.degree !== 3)
         throw new Error("Source cubic required");
       const p: number[] = piece.controls.map(
-        (c: IAutoMovieConicApproximation.Point): number => c[0],
+        (c: Readonly<AutoMovieVector2Tuple>): number => c[0],
       );
       const a: number = -p[0]! + 3 * p[1]! - 3 * p[2]! + p[3]!,
         b: number = 2 * (p[0]! - 2 * p[1]! + p[2]!),

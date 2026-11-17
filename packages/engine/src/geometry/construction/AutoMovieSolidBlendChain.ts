@@ -1,8 +1,8 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidBlendChain,
   IAutoMovieSolidJoin,
 } from "@automovie/interface";
@@ -207,7 +207,7 @@ export namespace AutoMovieSolidBlendChain {
    * outward normal at column 0. A join's blend ({@link of}) and a split's
    * bands (`AutoMovieConstructionSplitRealize`) publish through it.
    *
-   * A profiled strip (a port's `IAutoMovieConstructionPort.IProfile`) adds interior layers: at a share `t` of the span, each column's point,
+   * A profiled strip (a port's `IAutoMovieConstructionBandProfile`) adds interior layers: at a share `t` of the span, each column's point,
    * cross derivative and second cross derivative per unit share, so the strip is the piecewise quintic Hermite through its rails and those
    * cross sections, C2 across each, and its rails keep their own 2-jets.
    *
@@ -354,7 +354,7 @@ export namespace AutoMovieSolidBlendChain {
     // Its rail continues the start surface's oriented surface. A regular
     // connected strip keeps that sign; one anchor is not a global
     // certificate for the periodic interpolation between columns.
-    const edge: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, 0, 0);
+    const edge: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, 0, 0);
     const facing: number = AutoMovieSolidVector.dot(
       AutoMovieSolidVector.cross(edge.s, edge.t),
       outward,
@@ -366,14 +366,14 @@ export namespace AutoMovieSolidBlendChain {
 }
 
 /** The world's level frame: `u = +X`, `v = +Z`, normal `v x u = +Y`. */
-const LEVEL: IAutoMovieLoftFrame.IFrame = {
+const LEVEL: IAutoMovieLoftSectionFrame = {
   origin: [0, 0, 0],
   u: [1, 0, 0],
   v: [0, 0, 1],
 };
 
 /** A frame that does not move with station. */
-const STILL: IAutoMovieLoftFrame.IFrame = {
+const STILL: IAutoMovieLoftSectionFrame = {
   origin: [0, 0, 0],
   u: [0, 0, 0],
   v: [0, 0, 0],

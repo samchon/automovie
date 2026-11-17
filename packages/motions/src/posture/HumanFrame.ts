@@ -23,7 +23,7 @@ export namespace HumanFrame {
    * @returns The world point.
    */
   export function point(
-    frame: IAutoMovieMotionHumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
@@ -44,7 +44,7 @@ export namespace HumanFrame {
    * @returns `x` left, `y` up, `z` forward, metres.
    */
   export function local(
-    frame: IAutoMovieMotionHumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     world: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;

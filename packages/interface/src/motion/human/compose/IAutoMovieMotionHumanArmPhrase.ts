@@ -1,7 +1,8 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
@@ -20,7 +21,7 @@ import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
  * inverse kinematics: the goal carries the surface as its contact, so where
  * the arm cannot turn the hand as asked the resolver re-aims the wrist until
  * the surface stays on its point and the rotation gives way
- * (`IAutoMovieMotionHumanPosture.IGoal.contact`).
+ * (`IAutoMovieHumanLimbGoal.contact`).
  *
  * Between its origin and its target the surface moves on a straight path,
  * or one that bows to the arm's own side when the movement states a
@@ -33,7 +34,7 @@ import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation contact: What the hand bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's sizes: the extent scales a place in the air and a free-space amplitude, and the curvature bows the hand's way out and back. A phrase that states a contact keeps its place whatever the extent. Extent defaults to 1 and curvature to 0 when absent. upper: The upper arm's `[flexion, abduction, twist]`, degrees.
  * @evidence contracts/development/design.md#principled-representation contact: What the hand bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's sizes: the extent scales a place in the air and a free-space amplitude, and the curvature bows the hand's way out and back. A phrase that states a contact keeps its place whatever the extent. Extent defaults to 1 and curvature to 0 when absent. upper: The upper arm's `[flexion, abduction, twist]`, degrees.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.extended, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.bearing, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.visit, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.stroke, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.strike, props); compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.oscillate, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionClock.IClock, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanArmTarget.IOrigin, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanArmTarget.IOrigin, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanArmPhrase {
   /**
@@ -53,10 +54,10 @@ export namespace IAutoMovieMotionHumanArmPhrase {
     body: IAutoMovieMotionHumanBody;
 
     /** A clock with the standard instants of a phrase. */
-    clock: IAutoMovieMotionClock.IClock;
+    clock: IAutoMovieMotionClock;
 
     /** The arm. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** Where the hand is before and after the phrase. */
     origin: IAutoMovieMotionHumanArmTarget.IOrigin;
@@ -129,7 +130,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/common.md#meaningful-documentation offset: The target's point moved in the performer's frame by shares of the arm's length; none when absent. from: A stroke's start, by the same shares from the target's point; the target's point when absent. swing: An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent.
    * @evidence contracts/development/design.md#principled-representation offset: The target's point moved in the performer's frame by shares of the arm's length; none when absent. from: A stroke's start, by the same shares from the target's point; the target's point when absent. swing: An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/armPhrase.ts (armPhrase.plan, context); everyday/armPhrase.ts (armPhrase.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmPhrase.Phrase, IAutoMovieMotionTarget, IAutoMovieMotionHumanArmPhrase.IOffset, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmPhrase.Phrase, IAutoMovieMotionTarget, IAutoMovieMotionHumanArmPhrase.IOffset, AutoMovieHumanSide, IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The phrase. */
@@ -159,7 +160,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
     mirror?: boolean;
 
     /** The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent. */
-    side?: IAutoMovieMotionHumanHand.Side | "both";
+    side?: AutoMovieHumanSide | "both";
 
     /** The hand's surface brought to the target; the palm when absent. */
     surface?: IAutoMovieMotionHumanHand.Surface;
@@ -174,7 +175,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
     hold?: IAutoMovieMotionHumanTiming.Pause;
 
     /** The manner; neutral when absent. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
 
     /**
      * A prop the hand holds through the phrase and keeps after it (a hammer,
@@ -229,7 +230,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/common.md#meaningful-documentation chamber: Retained callback giving the prepared arm target in action-relative seconds; sampled when the primitive writes, including zero-weight writes. Exceptions propagate. target: Retained strike target callback in action-relative seconds; captured inputs must stay stable and callback exceptions propagate. weapons: Borrowed weapon records passed through to the primitive; omitted means no weapon declarations. The readonly array is not copied into an independent ownership boundary.
    * @evidence contracts/development/design.md#principled-representation chamber: Retained callback giving the prepared arm target in action-relative seconds; sampled when the primitive writes, including zero-weight writes. Exceptions propagate. target: Retained strike target callback in action-relative seconds; captured inputs must stay stable and callback exceptions propagate. weapons: Borrowed weapon records passed through to the primitive; omitted means no weapon declarations. The readonly array is not copied into an independent ownership boundary.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanArmPhrase.ts (AutoMovieMotionHumanArmPhrase.strike, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmPhrase.IPhrase, IAutoMovieMotionHumanArmTarget.Frame, IAutoMovieMotionHumanActionPlan.IWeapon identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmPhrase.IPhrase, IAutoMovieMotionHumanArmTarget.Frame, IAutoMovieMotionWeaponPath identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IStrikeProps = IAutoMovieMotionHumanArmPhrase.IPhrase & {
     /** Retained callback giving the prepared arm target in action-relative seconds; sampled when the primitive writes, including zero-weight writes. Exceptions propagate. */
@@ -237,7 +238,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
     /** Retained strike target callback in action-relative seconds; captured inputs must stay stable and callback exceptions propagate. */
     target: IAutoMovieMotionHumanArmTarget.Frame;
     /** Borrowed weapon records passed through to the primitive; omitted means no weapon declarations. The readonly array is not copied into an independent ownership boundary. */
-    weapons?: readonly IAutoMovieMotionHumanActionPlan.IWeapon[];
+    weapons?: readonly IAutoMovieMotionWeaponPath[];
   };
 
   /**

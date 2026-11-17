@@ -1,6 +1,7 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryChartBoundary,
   IAutoMovieRecoveryChartBoundaryNetworkBindings,
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
@@ -225,7 +226,7 @@ export function RecoveryChartBoundaryNetworkBindings(
       );
       if (!(total > 0 && Number.isFinite(total)))
         throw new Error("A composite boundary has no finite physical length");
-      const spans: IAutoMovieCurve64.Span[] = [],
+      const spans: AutoMovieCubicBezierControls3[] = [],
         knots: number[] = [0],
         parameters: number[] = [];
       let prefix: number = 0,
@@ -240,13 +241,15 @@ export function RecoveryChartBoundaryNetworkBindings(
         const orientedKnots: number[] = reverse
           ? [...base.knots].reverse().map((v: number): number => 1 - v)
           : [...base.knots];
-        const curve: IAutoMovieCurve64.Cubic = reverse
+        const curve: IAutoMovieCubicBezierCurve64 = reverse
           ? {
               ...base.fit.curve,
               spans: [...base.fit.curve.spans]
                 .reverse()
                 .map(
-                  (net: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+                  (
+                    net: AutoMovieCubicBezierControls3,
+                  ): AutoMovieCubicBezierControls3 => [
                     net[3],
                     net[2],
                     net[1],
@@ -327,7 +330,7 @@ export function RecoveryChartBoundaryNetworkBindings(
           "Composite boundary registration lost points or strict normalized phases",
         );
       const id: string = `network.side.${chart.name}.${s}`,
-        curve: IAutoMovieCurve64.Cubic = {
+        curve: IAutoMovieCubicBezierCurve64 = {
           type: "cubicBezier",
           name: id,
           closed: false,

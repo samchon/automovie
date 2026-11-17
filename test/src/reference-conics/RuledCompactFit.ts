@@ -1,6 +1,6 @@
 import type {
   IAutoMovieCompactCurveApproximation,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 import { approximateAutoMovieRecoveryCompactCurves as approximate } from "@automovie/recovery";
 import { once } from "node:events";
@@ -92,7 +92,7 @@ export namespace RuledCompactFit {
       process.memoryUsage.rss() <= 8 * 1024 ** 3;
     for (const entry of loaded.cohort) {
       const begin: number = performance.now();
-      const original: IAutoMovieCurve64.Cubic = entry.holder.curve;
+      const original: IAutoMovieCubicBezierCurve64 = entry.holder.curve;
       const oldSpans: number = original.spans.length;
       const counts: Counts = summary.cohorts[entry.kind];
       ++counts.curves;
@@ -119,11 +119,8 @@ export namespace RuledCompactFit {
             const fitted: IAutoMovieCompactCurveApproximation.IResult =
               approximate(prepared.source, options);
             queries = fitted.queries;
-            const candidate: IAutoMovieCurve64.Cubic | null = A.materialize(
-              original,
-              prepared,
-              fitted,
-            );
+            const candidate: IAutoMovieCubicBezierCurve64 | null =
+              A.materialize(original, prepared, fitted);
             if (candidate === null)
               reason =
                 fitted.status !== "complete"

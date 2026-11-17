@@ -1,11 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -48,11 +51,10 @@ export namespace HumanGlove {
       "body" | "entry" | "prop" | "start" | "subject"
     >,
     subject: string,
-    sides: readonly IAutoMovieMotionHumanHand.Side[],
+    sides: readonly AutoMovieHumanSide[],
   ): IAutoMovieVector3 {
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
-    const side: IAutoMovieMotionHumanHand.Side = sides[0]!;
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+    const side: AutoMovieHumanSide = sides[0]!;
     const worn: IAutoMovieMotionHumanProp.IWorn | undefined = read.prop.worn;
     if (
       sides.length !== 1 ||
@@ -87,7 +89,7 @@ export namespace HumanGlove {
         reason: `${subject} declares no pocket to catch in`,
         fix: "wear a glove that declares its pocket, as createGlove does",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const at: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, pocket.frame.translation),

@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureRecord,
@@ -138,7 +139,7 @@ export async function test_capture_plan_instants(): Promise<void> {
   TestValidator.equals(
     "rows carry the labels",
     record.rows.map(
-      (row: IAutoMovieCaptureRecord.Row): string | null => row.label,
+      (row: IAutoMovieCaptureCellRecord): string | null => row.label,
     ),
     [null, "arrive"],
   );

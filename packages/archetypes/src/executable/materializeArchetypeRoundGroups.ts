@@ -1,4 +1,7 @@
-import type { IAutoMovieCaptureSubject } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureInstant,
+  IAutoMovieCaptureSubject,
+} from "@automovie/interface";
 import { planAutoMovieCaptureFrames } from "@automovie/render";
 
 import { ArchetypeRoundPlan as Round } from "./ArchetypeRoundPlan";
@@ -83,13 +86,13 @@ export async function materializeArchetypeRoundGroups(props: {
                   name === "ride-dog-gallop" ? 10 : 5,
                   (meta.instants ?? [])
                     .filter(
-                      (event: IAutoMovieCaptureSubject.IInstant): boolean =>
+                      (event: IAutoMovieCaptureInstant): boolean =>
                         event.label.endsWith("On") &&
                         event.seconds >= pair[0] &&
                         event.seconds <= pair[1],
                     )
                     .map(
-                      (event: IAutoMovieCaptureSubject.IInstant): number =>
+                      (event: IAutoMovieCaptureInstant): number =>
                         event.seconds,
                     ),
                   [pair[1]],
@@ -126,7 +129,7 @@ export async function materializeArchetypeRoundGroups(props: {
                   [
                     0,
                     ...(meta.instants ?? []).map(
-                      (event: IAutoMovieCaptureSubject.IInstant): number =>
+                      (event: IAutoMovieCaptureInstant): number =>
                         event.seconds,
                     ),
                   ],

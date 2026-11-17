@@ -221,12 +221,9 @@ export function test_human_motion_scene_line_infantry(): void {
   const elite: IScene = battalion("elite");
   const militia: IScene = battalion("militia");
   const strikes = (scene: IScene, subject: string): number[] => {
-    const s: IAutoMovieMotionHumanSegment.ISegment = scene.performance
+    const s: IAutoMovieMotionHumanSegment = scene.performance
       .segments(subject)
-      .find(
-        (x: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          x.name === "march",
-      )!;
+      .find((x: IAutoMovieMotionHumanSegment): boolean => x.name === "march")!;
     return s.plan.events
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /^(left|right)HeelStrike\d+$/.test(e.name),
@@ -309,23 +306,20 @@ export function test_human_motion_scene_line_infantry(): void {
   const answered = (scene: IScene): number[] => {
     const out: number[] = [];
     for (const m of scene.ensemble.members) {
-      const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const segments: readonly IAutoMovieMotionHumanSegment[] =
         scene.performance.segments(m.subject);
-      const halted: IAutoMovieMotionHumanSegment.ISegment = segments.find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "stand",
+      const halted: IAutoMovieMotionHumanSegment = segments.find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "stand",
       )!;
       if (halted.entryTime < word("halt") + 0.1 - 1e-9)
         findings.push(`${m.subject} halts before the word`);
       // Make ready rides its recover as an overlay; the recover carries the body and answers the word.
-      const ready: IAutoMovieMotionHumanSegment.ISegment | undefined =
+      const ready: IAutoMovieMotionHumanSegment | undefined = segments.find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "recover",
+      );
+      const presenting: IAutoMovieMotionHumanSegment | undefined =
         segments.find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === "recover",
-        );
-      const presenting: IAutoMovieMotionHumanSegment.ISegment | undefined =
-        segments.find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          (s: IAutoMovieMotionHumanSegment): boolean =>
             s.name === "presentMusket",
         );
       if (ready === undefined)
@@ -337,11 +331,9 @@ export function test_human_motion_scene_line_infantry(): void {
         !(ready.entryTime < presenting.entryTime)
       )
         findings.push(`${m.subject} presents before it makes ready`);
-      const fired: IAutoMovieMotionHumanSegment.ISegment | undefined =
-        segments.find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === "fireMusket",
-        );
+      const fired: IAutoMovieMotionHumanSegment | undefined = segments.find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "fireMusket",
+      );
       if (scene.misfires.includes(m.index)) {
         if (fired !== undefined)
           findings.push(`${m.subject} was picked to misfire and fires`);

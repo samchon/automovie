@@ -6,9 +6,10 @@ import {
   trackPhysicalRootSupportTargets,
 } from "@automovie/engine";
 import type {
-  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
@@ -66,7 +67,7 @@ export async function test_physical_support_target_clock(): Promise<void> {
       input,
       false,
     );
-    const root: P.ISegment = body.profile.segments[0]!;
+    const root: IAutoMoviePhysicalSegment = body.profile.segments[0]!;
     const base: RigidBody = bound.segments.get(body.id)!.get(root.bone)!;
     base.setTranslation(
       { ...base.translation(), y: base.translation().y - 0.015 },
@@ -78,7 +79,7 @@ export async function test_physical_support_target_clock(): Promise<void> {
       { ...carrier.translation(), x: carrier.translation().x + 0.02 },
       true,
     );
-    const state: IAutoMovieAdvancePhysicalBalance.IState = {
+    const state: IAutoMoviePhysicalRecoveryState = {
       last: "supported",
       steps: [],
       offsets: {},
@@ -93,7 +94,7 @@ export async function test_physical_support_target_clock(): Promise<void> {
     ): Record<string, ReturnType<typeof samplePhysicalTarget>> =>
       Object.fromEntries(
         Object.entries(body.targets[1]!.segments).map(
-          ([bone, pose]: [string, P.ITransform]): [
+          ([bone, pose]: [string, IAutoMovieRigidTransform]): [
             string,
             ReturnType<typeof samplePhysicalTarget>,
           ] => [

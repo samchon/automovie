@@ -4,7 +4,10 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieModel,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -30,9 +33,9 @@ import { derivePhysicalActuators } from "./derivePhysicalActuators";
  */
 export function derivePhysicalModelJoints(
   model: IAutoMovieModel,
-  segments: readonly IAutoMoviePhysicalProfile.ISegment[],
+  segments: readonly IAutoMoviePhysicalSegment[],
   actuator: IAutoMovieDerivePhysicalActuators.IOptions,
-): IAutoMoviePhysicalProfile.IJoint[] {
+): IAutoMoviePhysicalJoint[] {
   if (
     ![actuator.frequency, actuator.torquePerKg].every(
       (value: number): boolean => Number.isFinite(value) && value > 0,
@@ -41,16 +44,14 @@ export function derivePhysicalModelJoints(
     actuator.dampingRatio < 0
   )
     throw new Error("Invalid model actuator assumptions");
-  const joints: IAutoMoviePhysicalProfile.IJoint[] = (
-    model.skeleton?.bones ?? []
-  )
+  const joints: IAutoMoviePhysicalJoint[] = (model.skeleton?.bones ?? [])
     .filter((bone: IAutoMovieBone): boolean => bone.parent !== null)
-    .map((bone: IAutoMovieBone): IAutoMoviePhysicalProfile.IJoint => {
-      const parent: IAutoMoviePhysicalProfile.ISegment = segments.find(
+    .map((bone: IAutoMovieBone): IAutoMoviePhysicalJoint => {
+      const parent: IAutoMoviePhysicalSegment = segments.find(
         (segment: (typeof segments)[number]): boolean =>
           segment.bone === bone.parent,
       )!;
-      const child: IAutoMoviePhysicalProfile.ISegment = segments.find(
+      const child: IAutoMoviePhysicalSegment = segments.find(
         (segment: (typeof segments)[number]): boolean =>
           segment.bone === bone.bone,
       )!;
@@ -67,7 +68,7 @@ export function derivePhysicalModelJoints(
         Math.abs(Math.abs(Vector3.dot(z, abduction)) - 1) > 1e-6
       )
         throw new Error(`Physical model axes are not orthogonal: ${bone.bone}`);
-      const basis: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const basis: IAutoMovieRigidTransform["rotation"] =
         quaternionFromAutoMovieBasis(x, y, z);
       const constraint: IAutoMovieJointConstraint | null = getConstraint(
         bone.bone,
@@ -78,13 +79,13 @@ export function derivePhysicalModelJoints(
         child.inertia.y,
         child.inertia.z,
       );
-      const axes: IAutoMoviePhysicalProfile.IAxis[] = (
+      const axes: IAutoMoviePhysicalJointAxis[] = (
         ["flexion", "twist", "abduction"] as const
       ).flatMap(
         (
           name: "flexion" | "twist" | "abduction",
           index: number,
-        ): IAutoMoviePhysicalProfile.IAxis[] => {
+        ): IAutoMoviePhysicalJointAxis[] => {
           const range: IAutoMovieJointConstraint["flexion"] | undefined =
             constraint?.[name];
           if (constraint && range === null) return [];

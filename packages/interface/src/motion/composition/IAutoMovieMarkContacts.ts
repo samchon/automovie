@@ -1,6 +1,13 @@
 import type { IAutoMovieContactReceipt } from "../../physics/IAutoMovieContactReceipt";
 
-/** Inputs for drawing the force carried by solved contact steps. */
+/**
+ * Inputs for drawing the force carried by solved contact steps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Receipt samples and the query share a seconds clock, contact points are world metres, impulses are newton-seconds and arrow scale is metres per newton. The mark producer admits positive finite scale and acting-step duration; geometric receipts produce no force arrow.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts This namespace groups the IAutoMovieMarkContacts contracts used by packages/engine/src/composition/markAutoMovieContacts.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
+ * @evidence contracts/development/design.md#principled-representation Receipt samples and the query share a seconds clock, contact points are world metres, impulses are newton-seconds and arrow scale is metres per newton. The mark producer admits positive finite scale and acting-step duration; geometric receipts produce no force arrow. The namespace groups these type contracts without implementing the operation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieMarkContacts contract belongs to interface; packages/engine/src/composition/markAutoMovieContacts.ts uses its nested records and callbacks. Runtime computation remains with those consumers.
+ */
 export namespace IAutoMovieMarkContacts {
   /**
    * Turn the solved contacts acting at one second into inspection marks: one arrow per contact, at the contact point along its normal, as long as the mean force times a stated scale.

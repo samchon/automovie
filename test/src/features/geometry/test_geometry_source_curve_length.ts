@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieViewOutline,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -236,7 +236,7 @@ export function test_geometry_source_curve_length(): void {
   near(failures, "finite zero-speed difference", zero.differenceMm, 0, 0);
 
   // Bernstein PH speed is1+t²; the second span is a3mm line in a different chart width.
-  const cubic: IAutoMovieCurve64.Cubic = {
+  const cubic: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "original PH and line",
     closed: false,
@@ -308,7 +308,7 @@ export function test_geometry_source_curve_length(): void {
 
   // Legacy finite-final admission is distinct from strict source endpoint/underflow admission.
   const large: number = (Number.MAX_VALUE / 3) * 1.01;
-  const extreme: IAutoMovieCurve64.Cubic = {
+  const extreme: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "finite final endpoint overflow",
     closed: false,
@@ -363,7 +363,7 @@ export function test_geometry_source_curve_length(): void {
     oldMessage === "Cubic speed integration overflow",
   );
   const tiny: number = Number.MIN_VALUE;
-  const subnormal: IAutoMovieCurve64.Cubic = {
+  const subnormal: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "legacy subnormal rounding",
     closed: false,

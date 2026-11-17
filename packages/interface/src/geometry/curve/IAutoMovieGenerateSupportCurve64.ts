@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 
 /**
  * Fourier support-function input and qualified polynomial approximation output.
@@ -57,7 +57,7 @@ export namespace IAutoMovieGenerateSupportCurve64 {
    */
   export type IResult = {
     /** Polynomial approximation in the local X/Z plane, phase in turns. */
-    curve: IAutoMovieCurve64.Cubic;
+    curve: IAutoMovieCubicBezierCurve64;
     /** Integral of the analytic convex support function, millimetres. */
     analyticPerimeter: number;
     /** Positive minimum sampled h+h'' minus its analytic angular Lipschitz remainder, in millimetres. The grid doubles from 16 through at most 4096 samples; this finite estimate is not outward rounded. */

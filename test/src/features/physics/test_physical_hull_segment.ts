@@ -7,9 +7,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,11 +39,11 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 scenarios and what each pins.
  */
 export function test_physical_hull_segment(): void {
-  const still: P.ITransform = {
+  const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
-  const hullOf = (points: IAutoMovieVector3[]): P.IShape => ({
+  const hullOf = (points: IAutoMovieVector3[]): IAutoMoviePhysicalShape => ({
     id: "hull",
     material: "solid",
     transform: still,
@@ -50,7 +51,7 @@ export function test_physical_hull_segment(): void {
     points,
   });
   const segment = (
-    shape: P.IShape,
+    shape: IAutoMoviePhysicalShape,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMoviePhysicalShapeNearest.IResult =>
@@ -58,7 +59,7 @@ export function test_physical_hull_segment(): void {
 
   // 1. Hand cases on a box hull.
   const half: IAutoMovieVector3 = { x: 0.5, y: 0.2, z: 0.1 };
-  const box: P.IShape = hullOf(
+  const box: IAutoMoviePhysicalShape = hullOf(
     [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
       [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
         [-1, 1].map(
@@ -211,7 +212,7 @@ export function test_physical_hull_segment(): void {
     );
     const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
     if (!hull.faces.length) continue;
-    const shape: P.IShape = hullOf(points);
+    const shape: IAutoMoviePhysicalShape = hullOf(points);
     const inner = (): IAutoMovieVector3 => {
       const vertex: IAutoMovieVector3 =
         hull.vertices[Math.floor(random() * hull.vertices.length)]!;

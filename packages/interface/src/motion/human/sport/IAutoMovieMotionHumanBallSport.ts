@@ -38,7 +38,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation side: The dribbling hand; `right` when absent. count: Dribble bounces; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. prop: The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only.
  * @evidence contracts/development/design.md#principled-representation side: The dribbling hand; `right` when absent. count: Dribble bounces; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. prop: The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.ballSport, params); sport/ballSport.ts (ballSport.plan, context); sport/ballSport.ts (ballSport.plan); executable/cases/ballSportCases.ts (ballSportCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanBallSport {
   /**
@@ -64,7 +64,7 @@ export namespace IAutoMovieMotionHumanBallSport {
     count?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
 
     /** The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only. */
     prop?: string;

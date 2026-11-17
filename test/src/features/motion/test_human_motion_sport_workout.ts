@@ -138,14 +138,12 @@ export function test_human_motion_sport_workout(): void {
       body,
       0,
     );
-    const segment = (row: string): IAutoMovieMotionHumanSegment.ISegment =>
+    const segment = (row: string): IAutoMovieMotionHumanSegment =>
       film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
     const when = (row: string, event: string): number => {
-      const found: IAutoMovieMotionHumanSegment.ISegment = segment(row);
+      const found: IAutoMovieMotionHumanSegment = segment(row);
       const share: number | undefined = found.plan.events.find(
         (e): boolean => e.name === event,
       )?.share;

@@ -9,7 +9,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieSolidTrim } from "./IAutoMovieSolidTrim";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
-/** Data and callback contracts shared by the ConstructionRealization operations. */
+/**
+ * Data and callback contracts shared by the ConstructionRealization operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Realization records distinguish metre authoring/mesh values from kernel-mm operator data and explicitly represent an unrequested skin by null.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The interface groups realization controls, retained operator references and skin buffers used by realizeAutoMovieConstruction and inspection readers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Diagnostics and partial geometry remain observable; a populated result does not certify a closed or globally error-bounded skin.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines units, collection order, source lifetimes, diagnostics and absent-skin meaning.
+ */
 export namespace IAutoMovieConstructionRealization {
   /**
    * Realization controls and this invocation's optional evaluated source context.

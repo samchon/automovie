@@ -225,8 +225,7 @@ export function motionDoorFollow(
       body,
       stage.stand.yaw,
     );
-    const hold: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const hold: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
 
     // 1. It steps.
     const plants = hold.plan.contacts.filter(

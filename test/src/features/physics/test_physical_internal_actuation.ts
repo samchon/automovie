@@ -6,6 +6,7 @@ import {
 import type {
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -85,10 +86,8 @@ export async function test_physical_internal_actuation(): Promise<void> {
           ],
         ),
       );
-      const rotation: P.ITransform["rotation"] = Quaternion.fromAxisAngle(
-        { x: 0, y: 0, z: 1 },
-        (15 * step) / 60,
-      );
+      const rotation: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, (15 * step) / 60);
       for (const pose of Object.values(target.segments)) {
         pose.position = Vector3.add(
           profile.centerOfMass,
@@ -130,7 +129,7 @@ export async function test_physical_internal_actuation(): Promise<void> {
         Vector3.scale(position, segment.mass / profile.mass),
       );
       linear = Vector3.add(linear, momentum);
-      const axes: P.ITransform["rotation"] = Quaternion.multiply(
+      const axes: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
         state.rotation,
         segment.inertiaRotation,
       );

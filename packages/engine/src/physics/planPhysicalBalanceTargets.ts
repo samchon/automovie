@@ -1,9 +1,9 @@
 import type {
   IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile,
   IAutoMoviePlanPhysicalBalanceTargets,
   IAutoMoviePlanPhysicalFloorSupportTargets,
   IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,9 +26,8 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 export function planPhysicalBalanceTargets(
   input: IAutoMoviePlanPhysicalBalanceTargets.IInput,
 ): IAutoMoviePlanPhysicalSupportTargets.IResult {
-  const original: IAutoMoviePhysicalProfile.ITransform =
-    input.targets[input.root.bone]!;
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+  const original: IAutoMovieRigidTransform = input.targets[input.root.bone]!;
+  const targets: Record<string, IAutoMovieRigidTransform> =
     rebasePhysicalTargets(
       input.seed ?? input.targets,
       input.root.bone,

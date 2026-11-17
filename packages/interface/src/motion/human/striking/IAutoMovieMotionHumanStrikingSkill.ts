@@ -26,25 +26,6 @@
  */
 export namespace IAutoMovieMotionHumanStrikingSkill {
   /**
-   * The ex-Gaussian parameters of a reaction time, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member names its part of the distribution; all are seconds.
-   * @evidence contracts/development/design.md#principled-representation The three ex-Gaussian parameters in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the draw and the band read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IReaction {
-    /** Mean of the normal part. */
-    mu: number;
-
-    /** Standard deviation of the normal part. */
-    sigma: number;
-
-    /** Mean of the exponential part. */
-    tau: number;
-  }
-
-  /**
    * A guard drop after a strike.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and the meaning of zero.

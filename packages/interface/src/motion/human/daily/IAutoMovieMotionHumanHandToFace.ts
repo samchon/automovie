@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHeldUse } from "../handling/IAutoMovieMotionHumanHeldUse";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanHandToFaceRows } from "./IAutoMovieMotionHumanHandToFaceRows";
 
 /**
@@ -45,7 +45,7 @@ import type { IAutoMovieMotionHumanHandToFaceRows } from "./IAutoMovieMotionHuma
  * @evidence contracts/development/common.md#meaningful-documentation side: The hand of a one-hand task; `right` when absent. count: Repetitions at the face; the row's when absent. seconds: Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation side: The hand of a one-hand task; `right` when absent. count: Repetitions at the face; the row's when absent. seconds: Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.handToFace, params); daily/handToFace.ts (handToFace.plan, context); daily/handToFace.ts (handToFace.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHandToFaceRows.Task, IAutoMovieMotionHumanHandToFaceRows.IRow, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHeldUse.IGrasp, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHandToFaceRows.Task, IAutoMovieMotionHumanHandToFaceRows.IRow, AutoMovieHumanSide, IAutoMovieMotionHumanHeldUse.IGrasp, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHandToFace {
   /**
@@ -65,7 +65,7 @@ export namespace IAutoMovieMotionHumanHandToFace {
       | IAutoMovieMotionHumanHandToFaceRows.IRow;
 
     /** The hand of a one-hand task; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** Repetitions at the face; the row's when absent. */
     count?: number;
@@ -99,6 +99,6 @@ export namespace IAutoMovieMotionHumanHandToFace {
     other?: string;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 }

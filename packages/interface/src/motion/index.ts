@@ -1,5 +1,6 @@
 export type { AutoMovieEasing } from "./AutoMovieEasing";
 export type { AutoMovieGenericGesture } from "./AutoMovieGenericGesture";
+export type { AutoMovieMotionSampleSide } from "./AutoMovieMotionSampleSide";
 export type { AutoMoviePathGround } from "./AutoMoviePathGround";
 export type { AutoMovieRetargetContactPolicy } from "./AutoMovieRetargetContactPolicy";
 export type { AutoMovieRetargetFacing } from "./AutoMovieRetargetFacing";
@@ -43,6 +44,8 @@ export type { IAutoMoviePlacement } from "./IAutoMoviePlacement";
 export type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 export type { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
 export type { IAutoMoviePlantStanceFeet } from "./IAutoMoviePlantStanceFeet";
+export type { IAutoMoviePoseState } from "./IAutoMoviePoseState";
+export type { IAutoMoviePoseVelocity } from "./IAutoMoviePoseVelocity";
 export type { IAutoMoviePreparedChainPlant } from "./IAutoMoviePreparedChainPlant";
 export type { IAutoMoviePreserveRetargetContacts } from "./IAutoMoviePreserveRetargetContacts";
 export type { IAutoMovieRekeyPlantedFeet } from "./IAutoMovieRekeyPlantedFeet";
@@ -50,7 +53,6 @@ export type { IAutoMovieResolveHydrodynamicForce } from "./IAutoMovieResolveHydr
 export type { IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps } from "./IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps";
 export type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 export type { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
-export type { IAutoMovieSamplePoseVelocity } from "./IAutoMovieSamplePoseVelocity";
 export type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 export type { IAutoMovieSolveAirborneTakeoff } from "./IAutoMovieSolveAirborneTakeoff";
 export type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";

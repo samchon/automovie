@@ -1,5 +1,5 @@
 import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 
 import type { ConicPaperFit as F } from "./ConicPaperFit";
@@ -83,15 +83,15 @@ export namespace ConicPaperLoft {
         ++result.unavailableRings;
         continue;
       }
-      const points: IAutoMovieConicApproximation.Point[] = [];
+      const points: Readonly<AutoMovieVector2Tuple>[] = [];
       const count: number =
         fitted === undefined ? loop.curve.spans.length : record!.arcs.length;
       for (let i: number = 0; i < count; ++i) {
-        const evaluate = (u: number): IAutoMovieConicApproximation.Point =>
+        const evaluate = (u: number): Readonly<AutoMovieVector2Tuple> =>
           fitted === undefined
             ? I.value(loop.curve.spans[i]!, u, 0)
             : C.evaluate(record!.arcs[i]!, u);
-        const samples: IAutoMovieConicApproximation.Point[] = sample(evaluate);
+        const samples: Readonly<AutoMovieVector2Tuple>[] = sample(evaluate);
         points.push(...samples.slice(0, -1));
       }
       if (points.length > 512) {
@@ -241,21 +241,21 @@ export namespace ConicPaperLoft {
 
   /** Adaptive rational or polynomial evaluation; a fixed 0.25 mm midpoint/quarter chord test is sampled evidence. */
   function sample(
-    evaluate: (u: number) => IAutoMovieConicApproximation.Point,
-  ): IAutoMovieConicApproximation.Point[] {
-    const output: IAutoMovieConicApproximation.Point[] = [evaluate(0)];
+    evaluate: (u: number) => Readonly<AutoMovieVector2Tuple>,
+  ): Readonly<AutoMovieVector2Tuple>[] {
+    const output: Readonly<AutoMovieVector2Tuple>[] = [evaluate(0)];
     const visit = (
       a: number,
       b: number,
-      p: IAutoMovieConicApproximation.Point,
-      q: IAutoMovieConicApproximation.Point,
+      p: Readonly<AutoMovieVector2Tuple>,
+      q: Readonly<AutoMovieVector2Tuple>,
       depth: number,
     ): void => {
       const m: number = (a + b) / 2;
-      const middle: IAutoMovieConicApproximation.Point = evaluate(m);
+      const middle: Readonly<AutoMovieVector2Tuple> = evaluate(m);
       const error: number = Math.max(
         ...[0.25, 0.5, 0.75].map((fraction: number): number => {
-          const point: IAutoMovieConicApproximation.Point = evaluate(
+          const point: Readonly<AutoMovieVector2Tuple> = evaluate(
             a + (b - a) * fraction,
           );
           const dx: number = q[0] - p[0];

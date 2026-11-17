@@ -1,4 +1,7 @@
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 
 /**
  * Read a proximal-to-distal actuator path from an admitted tree. The fixed root has no incoming actuator and is omitted.
@@ -16,20 +19,19 @@ export function physicalJointChain(
   bone: string,
 ): string[] {
   const chain: string[] = [bone];
-  let joint: IAutoMoviePhysicalProfile.IJoint | undefined = profile.joints.find(
-    (candidate: IAutoMoviePhysicalProfile.IJoint): boolean =>
-      candidate.child === bone,
+  let joint: IAutoMoviePhysicalJoint | undefined = profile.joints.find(
+    (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
   );
   while (
     joint &&
     profile.joints.some(
-      (candidate: IAutoMoviePhysicalProfile.IJoint): boolean =>
+      (candidate: IAutoMoviePhysicalJoint): boolean =>
         candidate.child === joint!.parent,
     )
   ) {
     chain.unshift(joint.parent);
     joint = profile.joints.find(
-      (candidate: IAutoMoviePhysicalProfile.IJoint): boolean =>
+      (candidate: IAutoMoviePhysicalJoint): boolean =>
         candidate.child === joint!.parent,
     );
   }

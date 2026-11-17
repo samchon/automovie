@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLegChain,
   IAutoMovieMotionHumanPosture,
@@ -71,8 +72,7 @@ export function test_human_motion_core_leg_chain(): void {
   for (const [label, posture] of postures) {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
     for (const side of ["left", "right"] as const) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        posture.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
       const pelvis = bones.get("hips")!.worldRotation;
       const hip: IAutoMovieVector3 = bones.get(
         `${side}UpperLeg`,

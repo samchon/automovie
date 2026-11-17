@@ -11,7 +11,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieCurlChainUntilContact,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
@@ -77,7 +77,7 @@ export function test_motion_handling_curl(): void {
 
   // 1-2. Each shape kind under the finger: the curl ends touching, not inside.
   const below = (
-    shape: IAutoMoviePhysicalProfile.IShape,
+    shape: IAutoMoviePhysicalShape,
   ): IAutoMovieCurlChainUntilContact.ICollider => ({
     shape,
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
@@ -260,7 +260,7 @@ function finger(): IAutoMovieSkeleton {
 function box(
   at: IAutoMovieVector3,
   half: IAutoMovieVector3,
-): IAutoMoviePhysicalProfile.IShape {
+): IAutoMoviePhysicalShape {
   return {
     id: "b",
     material: "m",
@@ -294,7 +294,7 @@ function clearance(
       Quaternion.rotateVector(distal.worldRotation, { x: 0.02, y: 0, z: 0 }),
     ),
   );
-  const shape: IAutoMoviePhysicalProfile.IShape = collider.shape;
+  const shape: IAutoMoviePhysicalShape = collider.shape;
   const c: IAutoMovieVector3 = shape.transform.position;
   const distance = (p: IAutoMovieVector3): number => {
     if (shape.kind === "sphere")

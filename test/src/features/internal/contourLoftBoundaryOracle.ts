@@ -1,6 +1,6 @@
 import type {
   IAutoMovieContourLoft64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -110,10 +110,13 @@ export namespace contourLoftBoundaryOracle {
                   construction.id,
               ),
           );
-        const curve: IAutoMovieCurve64.Cubic | undefined = section?.loops.find(
-          (loop: IAutoMovieContourLoft64.ISection["loops"][number]): boolean =>
-            construction.id.startsWith(`${loop.curve.name}.section.`),
-        )?.curve;
+        const curve: IAutoMovieCubicBezierCurve64 | undefined =
+          section?.loops.find(
+            (
+              loop: IAutoMovieContourLoft64.ISection["loops"][number],
+            ): boolean =>
+              construction.id.startsWith(`${loop.curve.name}.section.`),
+          )?.curve;
         return (
           curve !== undefined &&
           construction.phases?.length === construction.points.length &&

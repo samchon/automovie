@@ -87,8 +87,7 @@ export function test_human_motion_core_meeting_window(): void {
     return;
   }
   const instant = (who: "a" | "b", event: string): number => {
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments(who)[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments(who)[1]!;
     return (
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??

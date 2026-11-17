@@ -1,9 +1,18 @@
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanFootSource } from "../foot/IAutoMovieHumanFootSource";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 
-/** Type contracts exchanged by AutoMovieHumanLegProximal; runtime evaluation remains in Human. */
+/**
+ * Original parent/child contact coordinates and physical frame derivatives for proximal leg-source transfer.
+ *
+ * The interface package owns these declarations; AutoMovieHumanLegProximal in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Original parent/child contact coordinates and physical frame derivatives for proximal leg-source transfer. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IContact, IParent, FrameJet, IResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IContact, IParent, FrameJet, IResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanLegProximal exchanges the named IContact, IParent, FrameJet, IResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanLegProximal {
   /** Actual parent/child coordinates and separately qualified transfer jets.
    *
@@ -44,7 +53,7 @@ export namespace IAutoMovieHumanLegProximal {
    */
   export interface IParent {
     /** Actual trial/final parent, not an independently reconstructed hip box. */
-    definition: IAutoMovieHumanSiteViewPart.IDefinition;
+    definition: IAutoMovieHumanSourceDefinition;
     /** Named canonical parent station, calibration mm. */
     station: number;
   }

@@ -1,6 +1,13 @@
 import type { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
 
-/** Data and callback contracts shared by the SolveBoundedDisplacement operations. */
+/**
+ * Data and callback contracts shared by the SolveBoundedDisplacement operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Input weights, box caps and affine rows define a nonnegative displacement problem; the result records accepted travel and complete-row violation in caller-chosen numerical units.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface solveAutoMovieBoundedDisplacement owns the grouped solve while IInput and IResult share existing quadratic-row contracts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Grouping schedules work without deleting constraints; unsuccessful or budget-exhausted solves cannot publish partial travel.
+ * @evidence contracts/development/common.md#meaningful-documentation The nested records state variable alignment, row units, exact box clipping, work limits and zero-start status.
+ */
 export namespace IAutoMovieSolveBoundedDisplacement {
   /**
    * Minimum squared nonnegative travel under box caps and every supplied affine condition.

@@ -3,7 +3,8 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanLadder,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -48,8 +49,7 @@ export namespace HumanLadder {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IAutoMovieMotionHumanLadder.ILadder {
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     if (read.prop.fixed !== true)
       throw new HumanRefusal({
         kind: "affordance",
@@ -59,7 +59,7 @@ export namespace HumanLadder {
         reason: `${subject} is not a fixture, so the hands that grip its rungs would carry it off`,
         fix: "place the ladder as a fixture (`fixed: true`)",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const rungs: IAutoMovieAffordance[] = (read.prop.affordances ?? [])
       .filter((a: IAutoMovieAffordance): boolean => /^rung\d+$/.test(a.id))
       .sort(

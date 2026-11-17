@@ -1,7 +1,10 @@
 import type {
   IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -61,10 +64,10 @@ export function validatePhysicalProfile(
     !!q &&
     [q.x, q.y, q.z, q.w].every(Number.isFinite) &&
     Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6;
-  const transform: (
-    t: IAutoMoviePhysicalProfile.ITransform,
+  const transform: (t: IAutoMovieRigidTransform, path: string) => void = (
+    t: IAutoMovieRigidTransform,
     path: string,
-  ) => void = (t: IAutoMoviePhysicalProfile.ITransform, path: string): void => {
+  ): void => {
     fail(!!t && vector(t.position), `${path}.position`);
     fail(!!t && rotation(t.rotation), `${path}.rotation`);
   };
@@ -197,7 +200,7 @@ export function validatePhysicalProfile(
           `${location}.points`,
         );
       } else fail(false, `${location}.kind`);
-      const material: IAutoMoviePhysicalProfile.IMaterial | undefined =
+      const material: IAutoMoviePhysicalMaterial | undefined =
         profile.materials.find(
           (candidate: (typeof profile.materials)[number]): boolean =>
             !!candidate && candidate.id === shape.material,
@@ -311,16 +314,14 @@ export function validatePhysicalProfile(
     parents.set(joint.child, joint.parent);
     transform(joint.parentFrame, `${path}.parentFrame`);
     transform(joint.childFrame, `${path}.childFrame`);
-    const parent: IAutoMoviePhysicalProfile.ISegment | undefined =
-      profile.segments.find(
-        (segment: (typeof profile.segments)[number]): boolean =>
-          segment?.bone === joint.parent,
-      );
-    const child: IAutoMoviePhysicalProfile.ISegment | undefined =
-      profile.segments.find(
-        (segment: (typeof profile.segments)[number]): boolean =>
-          segment?.bone === joint.child,
-      );
+    const parent: IAutoMoviePhysicalSegment | undefined = profile.segments.find(
+      (segment: (typeof profile.segments)[number]): boolean =>
+        segment?.bone === joint.parent,
+    );
+    const child: IAutoMoviePhysicalSegment | undefined = profile.segments.find(
+      (segment: (typeof profile.segments)[number]): boolean =>
+        segment?.bone === joint.child,
+    );
     if (
       parent?.neutral &&
       child?.neutral &&

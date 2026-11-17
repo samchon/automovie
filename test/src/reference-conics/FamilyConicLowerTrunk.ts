@@ -13,8 +13,8 @@ import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
-  IAutoMovieLoftFrame,
   IAutoMovieLoftRelief,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewChain,
   IAutoMovieViewLoft,
@@ -541,7 +541,7 @@ namespace FamilyConicLowerTrunk {
       const key: number = Math.round(s * 1000);
       const hit = cache.get(key);
       if (hit !== undefined) return hit;
-      const frame: IAutoMovieLoftFrame.IFrame = axis.at(s);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(s);
       const origin: number[] = frame.origin as number[];
       const height = (p: readonly number[]): number =>
         (p[0]! - origin[0]!) * along[0] +
@@ -870,7 +870,7 @@ namespace FamilyConicLowerTrunk {
         drop += section.dropped;
         const read: (t: number) => [number, number, number] =
           AutoMovieLoftChain.sampler(bare, s);
-        const frame: IAutoMovieLoftFrame.IFrame = t.axis.at(s);
+        const frame: IAutoMovieLoftSectionFrame = t.axis.at(s);
         const ring: P2[] = Array.from(
           { length: RING },
           (_: unknown, j: number): P2 => {
@@ -1269,7 +1269,7 @@ namespace FamilyConicLowerTrunk {
     const ringAt = (s: number): { ring: P2[]; read: (t: number) => P2 } => {
       const read: (t: number) => [number, number, number] =
         AutoMovieLoftChain.sampler(chain, s);
-      const frame: IAutoMovieLoftFrame.IFrame = t.axis.at(s);
+      const frame: IAutoMovieLoftSectionFrame = t.axis.at(s);
       const chart = (p: readonly number[]): P2 => {
         const d: number[] = [
           p[0]! - frame.origin[0],
@@ -1884,7 +1884,7 @@ namespace FamilyConicLowerTrunk {
       for (const s of stations(DENSE_MM)) {
         const read: (phase: number) => [number, number, number] =
           AutoMovieLoftChain.sampler(chain, s);
-        const frame: IAutoMovieLoftFrame.IFrame = t.axis.at(s);
+        const frame: IAutoMovieLoftSectionFrame = t.axis.at(s);
         const ring: P2[] = Array.from(
           { length: RING },
           (_: unknown, j: number): P2 => {

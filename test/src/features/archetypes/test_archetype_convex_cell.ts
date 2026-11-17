@@ -8,16 +8,14 @@ import {
 } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  convexCellObservation as observation,
-} from "../internal/convexCellObservation";
+import { convexCellObservation as observation } from "../internal/convexCellObservation";
 import { nclose, qclose, throwsError, vclose } from "../internal/predicates";
 
 /**
@@ -162,13 +160,13 @@ export function test_archetype_convex_cell(): void {
     observation.frame({ x: right, y: 0, z: 0 }),
     thick * height * depth,
   );
-  const wallShapes: IAutoMoviePhysicalProfile.IShape[] = walls.shapes();
+  const wallShapes: IAutoMoviePhysicalShape[] = walls.shapes();
   TestValidator.predicate(
     "two wall cells leave their entire middle interval empty",
     walls.parts.length === 2 &&
       wallShapes.length === 2 &&
       wallShapes.every(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+        (shape: IAutoMoviePhysicalShape): boolean =>
           shape.kind === "hull" &&
           shape.points.every((point: IAutoMovieVector3): boolean => {
             const x: number = observation.transformed(
@@ -408,14 +406,12 @@ export function test_archetype_convex_cell(): void {
     const fixed: IAutoMovieModelPart | undefined = instance.parts.find(
       (part: IAutoMovieModelPart): boolean => part.id.endsWith("fixed"),
     );
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = instance.shapes();
-    const movingHull: IAutoMoviePhysicalProfile.IShape | undefined =
-      shapes.find((shape: IAutoMoviePhysicalProfile.IShape): boolean =>
-        shape.id.endsWith("moving"),
-      );
-    const fixedHull: IAutoMoviePhysicalProfile.IShape | undefined = shapes.find(
-      (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
-        shape.id.endsWith("fixed"),
+    const shapes: IAutoMoviePhysicalShape[] = instance.shapes();
+    const movingHull: IAutoMoviePhysicalShape | undefined = shapes.find(
+      (shape: IAutoMoviePhysicalShape): boolean => shape.id.endsWith("moving"),
+    );
+    const fixedHull: IAutoMoviePhysicalShape | undefined = shapes.find(
+      (shape: IAutoMoviePhysicalShape): boolean => shape.id.endsWith("fixed"),
     );
     TestValidator.predicate(
       "rigid cell instances reuse geometry with independent colliders",
@@ -489,4 +485,3 @@ function expectMass(
       ),
   );
 }
-

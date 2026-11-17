@@ -10,7 +10,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeatedReach,
-  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingRole,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -65,7 +65,7 @@ export namespace HumanSeatedReach {
    */
   export function rooms(
     role: Pick<
-      IAutoMovieMotionMeeting.IRole,
+      IAutoMovieMotionMeetingRole,
       "body" | "posture" | "bones" | "seated"
     >,
   ): IAutoMovieMotionHumanSeatedReach.IJoint[] {
@@ -156,7 +156,7 @@ export namespace HumanSeatedReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lean(
-    role: Pick<IAutoMovieMotionMeeting.IRole, "bones" | "posture">,
+    role: Pick<IAutoMovieMotionMeetingRole, "bones" | "posture">,
     joints: readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
     point: IAutoMovieVector3,
     share: number,
@@ -267,10 +267,7 @@ export namespace HumanSeatedReach {
     Side extends { shoulder: IAutoMovieVector3 },
     Result = IAutoMovieVector3,
   >(
-    roles: readonly [
-      IAutoMovieMotionMeeting.IRole,
-      IAutoMovieMotionMeeting.IRole,
-    ],
+    roles: readonly [IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingRole],
     sides: readonly [Side, Side],
     resolve: (a: Side, b: Side) => Result,
   ): Result {
@@ -334,7 +331,7 @@ export namespace HumanSeatedReach {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function need(
-    role: IAutoMovieMotionMeeting.IRole,
+    role: IAutoMovieMotionMeetingRole,
     shoulder: IAutoMovieVector3,
     point: IAutoMovieVector3,
     limit: number,
@@ -360,7 +357,7 @@ export namespace HumanSeatedReach {
   /** The share step that moves no shoulder by more than the square root of machine epsilon of its distance to the hips. */
   const resolution = (
     arms: readonly (readonly [
-      Pick<IAutoMovieMotionMeeting.IRole, "bones">,
+      Pick<IAutoMovieMotionMeetingRole, "bones">,
       readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
       IAutoMovieVector3,
     ])[],

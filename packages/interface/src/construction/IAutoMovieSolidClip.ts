@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the SolidClip operations. */
+/**
+ * Data and callback contracts shared by the SolidClip operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IRailPoint couples a mesh vertex and radian blend phase with one or two face-local charts; across is absent at a crossing.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface SolidClip consumes this interface record while clipping and inserting the same shared rail vertices.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The record permits arbitrary face counts structurally; crossing construction supplies the documented one/two incidence and unit-world-speed direction.
+ * @evidence contracts/development/common.md#meaningful-documentation States mesh identity, chart ownership, phase order and crossing absence.
+ */
 export namespace IAutoMovieSolidClip {
   /**
    * A mesh vertex with its host-rail parameter and one or two incident face charts.

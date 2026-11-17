@@ -7,7 +7,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadDome,
   IAutoMovieHumanHeadDomeHost,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewOutline,
@@ -45,7 +45,7 @@ export namespace AutoMovieHumanHeadDomeHost {
       AutoMovieLoftViewRead.values(host.source, host.station);
     if (typeof inputs === "string")
       throw new Error(`Dome parent ${host.part.name}: ${inputs}`);
-    const frame: IAutoMovieLoftFrame.IFrame = host.frame;
+    const frame: IAutoMovieLoftSectionFrame = host.frame;
     const local: [number, number] = [frame.u, frame.v].map(
       (direction: [number, number, number]): number =>
         direction.reduce(
@@ -121,7 +121,7 @@ export namespace AutoMovieHumanHeadDomeHost {
         `Dome parent ${parent.name} has no admitted original direct field`,
       );
     const source: IAutoMovieLoftViewSource.ISource = admitted.source;
-    const first: IAutoMovieLoftFrame.IFrame = parent.axis.at(source.domain[0]);
+    const first: IAutoMovieLoftSectionFrame = parent.axis.at(source.domain[0]);
     const normal: [number, number, number] = [
       first.v[1] * first.u[2] - first.v[2] * first.u[1],
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
@@ -352,14 +352,14 @@ export namespace AutoMovieHumanHeadDomeHost {
     source: IAutoMovieLoftViewSource.ISource,
     point: [number, number, number],
   ): IAutoMovieHumanHeadDomeHost.IHost {
-    const first: IAutoMovieLoftFrame.IFrame = parent.axis.at(source.domain[0]);
+    const first: IAutoMovieLoftSectionFrame = parent.axis.at(source.domain[0]);
     const normal: [number, number, number] = [
       first.v[1] * first.u[2] - first.v[2] * first.u[1],
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
       first.v[0] * first.u[1] - first.v[1] * first.u[0],
     ];
     const plane: (station: number) => number = (station: number): number => {
-      const frame: IAutoMovieLoftFrame.IFrame = parent.axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = parent.axis.at(station);
       if (
         Math.hypot(
           ...frame.u.map(

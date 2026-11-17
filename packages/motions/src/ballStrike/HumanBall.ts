@@ -2,7 +2,8 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -52,8 +53,7 @@ export namespace HumanBall {
     seconds: number,
     axis: string,
   ): IBall {
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const grip: IAutoMovieAffordance | undefined = affordances.find(
@@ -71,7 +71,7 @@ export namespace HumanBall {
         reason: `${subject} declares no ${grip === undefined ? "grip" : "aperture on its grip"} to read a ball's centre and size from`,
         fix: "name a ball whose grip is its centre with its diameter as the aperture, as createBall declares",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(seconds);
+    const frame: IAutoMovieRigidTransform = read.frame(seconds);
     return {
       centre: Vector3.add(
         frame.position,

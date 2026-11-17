@@ -1,7 +1,7 @@
 import { admitPhysicalPlaybackMetadata } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalSupportWrench,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,56 +22,53 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unsupported prediction, full residual and zero allocation, is admitted.).
  */
 export function test_physical_wrench_replay(): void {
-  const unsupported: IAutoMoviePhysicsCache.ISupportWrench = wrench(
+  const unsupported: IAutoMoviePhysicalSupportWrench = wrench(
     0,
     0,
     [100, 0],
     [0, 0],
   );
-  const partial: IAutoMoviePhysicsCache.ISupportWrench = wrench(
+  const partial: IAutoMoviePhysicalSupportWrench = wrench(
     1 / 120,
     4,
     [100, 2],
     [60, 0.5],
   );
-  const verdicts: [
-    string,
-    IAutoMoviePhysicsCache.ISupportWrench[],
-    string | null,
-  ][] = [
-    ["unsupported prediction", [unsupported], null],
-    ["partial allocation", [unsupported, partial], null],
+  const verdicts: [string, IAutoMoviePhysicalSupportWrench[], string | null][] =
     [
-      "rounding at the bound",
-      [nudge(partial, 32 * Number.EPSILON * 100)],
-      null,
-    ],
-    [
-      "false residual",
-      [nudge(partial, 1)],
-      "Inconsistent physical playback allocation residual",
-    ],
-    [
-      "residual past rounding",
-      [nudge(partial, 128 * Number.EPSILON * 100)],
-      "Inconsistent physical playback allocation residual",
-    ],
-    [
-      "negative witness count",
-      [{ ...partial, pointCount: -1 }],
-      "Malformed physical playback support-wrench prediction",
-    ],
-    [
-      "fractional witness count",
-      [{ ...partial, pointCount: 1.5 }],
-      "Malformed physical playback support-wrench prediction",
-    ],
-    [
-      "repeated instant",
-      [partial, partial],
-      "Malformed physical playback support-wrench prediction",
-    ],
-  ];
+      ["unsupported prediction", [unsupported], null],
+      ["partial allocation", [unsupported, partial], null],
+      [
+        "rounding at the bound",
+        [nudge(partial, 32 * Number.EPSILON * 100)],
+        null,
+      ],
+      [
+        "false residual",
+        [nudge(partial, 1)],
+        "Inconsistent physical playback allocation residual",
+      ],
+      [
+        "residual past rounding",
+        [nudge(partial, 128 * Number.EPSILON * 100)],
+        "Inconsistent physical playback allocation residual",
+      ],
+      [
+        "negative witness count",
+        [{ ...partial, pointCount: -1 }],
+        "Malformed physical playback support-wrench prediction",
+      ],
+      [
+        "fractional witness count",
+        [{ ...partial, pointCount: 1.5 }],
+        "Malformed physical playback support-wrench prediction",
+      ],
+      [
+        "repeated instant",
+        [partial, partial],
+        "Malformed physical playback support-wrench prediction",
+      ],
+    ];
   const failures: string[] = [];
   for (const [label, supportWrenches, expected] of verdicts) {
     let refusal: string | null = null;
@@ -108,12 +105,12 @@ function wrench(
   pointCount: number,
   requested: [number, number],
   allocated: [number, number],
-): IAutoMoviePhysicsCache.ISupportWrench {
+): IAutoMoviePhysicalSupportWrench {
   const of: (
     value: [number, number],
-  ) => IAutoMoviePhysicsCache.ISupportWrench["requested"] = (
+  ) => IAutoMoviePhysicalSupportWrench["requested"] = (
     value: [number, number],
-  ): IAutoMoviePhysicsCache.ISupportWrench["requested"] => ({
+  ): IAutoMoviePhysicalSupportWrench["requested"] => ({
     force: { x: 0, y: value[0], z: 0 },
     torque: { x: 0, y: value[1], z: 0 },
   });
@@ -130,10 +127,10 @@ function wrench(
 
 /** The same prediction with its vertical force residual moved by `delta` newtons. */
 function nudge(
-  entry: IAutoMoviePhysicsCache.ISupportWrench,
+  entry: IAutoMoviePhysicalSupportWrench,
   delta: number,
-): IAutoMoviePhysicsCache.ISupportWrench {
-  const copy: IAutoMoviePhysicsCache.ISupportWrench = structuredClone(entry);
+): IAutoMoviePhysicalSupportWrench {
+  const copy: IAutoMoviePhysicalSupportWrench = structuredClone(entry);
   copy.residual.force.y += delta;
   return copy;
 }

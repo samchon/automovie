@@ -1,5 +1,6 @@
 import type {
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanEffort,
   IAutoMovieMotionManner,
@@ -76,7 +77,7 @@ export namespace AutoMovieMotionManner {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function resolve(
-    manner: IAutoMovieMotionManner.IManner | undefined,
+    manner: IAutoMovieMotionManner | undefined,
     random: IAutoMovieRandom,
   ): IAutoMovieMotionManner.IModifiers {
     if (manner === undefined) return NEUTRAL;
@@ -135,7 +136,7 @@ export namespace AutoMovieMotionManner {
       IAutoMovieMotionHumanActionContext,
       "skill" | "random" | "tempo"
     >,
-    manner: IAutoMovieMotionManner.IManner | undefined,
+    manner: IAutoMovieMotionManner | undefined,
   ): IAutoMovieMotionManner.IModifiers {
     const own: IAutoMovieMotionManner.IModifiers =
       manner === undefined
@@ -173,12 +174,12 @@ export namespace AutoMovieMotionManner {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function time(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     modifiers: Pick<IAutoMovieMotionManner.IModifiers, "tempo" | "hold">,
     spans: IAutoMovieMotionManner.ISpans = {},
-  ): IAutoMovieMotionClock.IClock {
+  ): IAutoMovieMotionClock {
     const named = new Set<string>(
-      clock.instants.map((i: IAutoMovieMotionClock.IInstant): string => i.name),
+      clock.instants.map((i: IAutoMovieMotionClockInstant): string => i.name),
     );
     const holds: readonly string[] =
       spans.holds ??
@@ -216,7 +217,7 @@ export namespace AutoMovieMotionManner {
    * J Nonverbal Behav 11:33; the magnitudes here are not from it).
    */
   export const PRESETS: Readonly<
-    Record<IAutoMovieMotionManner.Preset, IAutoMovieMotionManner.IManner>
+    Record<IAutoMovieMotionManner.Preset, IAutoMovieMotionManner>
   > = {
     punch: { effort: HumanEffort.ACTIONS.punch },
     dab: { effort: HumanEffort.ACTIONS.dab },

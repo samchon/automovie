@@ -2,6 +2,8 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryFeatureChartCuts,
   IAutoMovieRecoveryFeatureChartCutsSubdivide,
+  IAutoMovieRecoveryIndexedCrease,
+  IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
 /**
@@ -100,8 +102,7 @@ export function RecoveryFeatureChartCutsSubdivide(
       ),
   );
   for (const word of orderedCollisions) {
-    const feature: IAutoMovieRecoveryFeatureChartCutsSubdivide.Feature =
-        features.get(word)!,
+    const feature: IAutoMovieRecoveryIndexedCrease = features.get(word)!,
       a: number = feature.a,
       b: number = feature.b,
       point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
@@ -212,10 +213,7 @@ export function RecoveryFeatureChartCutsSubdivide(
       }
     },
   );
-  const expanded: Map<
-    string,
-    IAutoMovieRecoveryFeatureChartCutsSubdivide.Feature
-  > = new Map();
+  const expanded: Map<string, IAutoMovieRecoveryIndexedCrease> = new Map();
   for (const feature of features.values()) {
     const middle: number | undefined = midpoints.get(
       edge(feature.a, feature.b),
@@ -226,8 +224,9 @@ export function RecoveryFeatureChartCutsSubdivide(
       expanded.set(edge(middle, feature.b), { ...feature, a: middle });
     }
   }
-  const subdivided: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology =
-      midpoints.size ? analyze(vertices, triangles) : source,
+  const subdivided: IAutoMovieRecoveryObservedMeshTopology = midpoints.size
+      ? analyze(vertices, triangles)
+      : source,
     measuredAreas: number[] = new Array(input.triangles.length).fill(0);
   triangles.forEach(
     (_: readonly [number, number, number], face: number): void => {

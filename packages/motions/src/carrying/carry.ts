@@ -1,6 +1,8 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
-  AutoMovieMotionHumanChannel,
+  AutoMovieMotionHumanChannelClaim,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -8,7 +10,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarry,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -122,13 +123,13 @@ export namespace carry {
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
     how: IAutoMovieMotionHumanCarry.How,
-    side: IAutoMovieMotionHumanHand.Side,
-    loaded: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
+    loaded: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanCarry.IPlaceResult {
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const out: number = side === "left" ? 1 : -1;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };
@@ -182,7 +183,7 @@ export namespace carry {
     const body: IAutoMovieMotionHumanBody = context.body;
     const p: IAutoMovieMotionHumanCarry.IParams = context.params;
     const how: IAutoMovieMotionHumanCarry.How = p.how;
-    const loaded: IAutoMovieMotionHumanHand.Side = p.side ?? "right";
+    const loaded: AutoMovieHumanSide = p.side ?? "right";
     const load: number = p.load ?? 0.1;
     HumanBound.within("load", load, 0, 0.25, "of the body's mass");
     const base: IAutoMovieMotionHumanActionPlan = walk.plan({
@@ -194,7 +195,7 @@ export namespace carry {
       },
     });
     const duration: number = base.duration;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
       base.events.map((e) => ({ name: e.name, seconds: e.share * duration })),
     );
@@ -280,7 +281,7 @@ export namespace carry {
           weight: ramp,
           goal: (
             posture: IAutoMovieMotionHumanPosture,
-          ): IAutoMovieMotionHumanPosture.IGoal => {
+          ): IAutoMovieHumanLimbGoal => {
             const at = place(body, posture, how, side, loaded)!;
             return AutoMovieMotionHumanArm.goal(
               body,
@@ -297,7 +298,7 @@ export namespace carry {
     }
     // The head and an arm no load holds are the walk's to yield, as a
     // walk's own are: a one-hand or hip load leaves the other arm free.
-    const free: readonly IAutoMovieMotionHumanHand.Side[] =
+    const free: readonly AutoMovieHumanSide[] =
       how === "oneHand" || how === "hip"
         ? [loaded === "left" ? "right" : "left"]
         : [];
@@ -310,9 +311,7 @@ export namespace carry {
       yields: [
         "head",
         ...free.flatMap(
-          (
-            side: IAutoMovieMotionHumanHand.Side,
-          ): AutoMovieMotionHumanChannel.Claim[] => [
+          (side: AutoMovieHumanSide): AutoMovieMotionHumanChannelClaim[] => [
             `${side}Arm`,
             `${side}Hand`,
           ],

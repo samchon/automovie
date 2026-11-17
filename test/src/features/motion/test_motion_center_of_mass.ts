@@ -7,6 +7,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
@@ -70,7 +71,7 @@ export function test_motion_center_of_mass(): void {
     at: IAutoMovieVector3,
     mass: number,
     com: IAutoMovieVector3,
-  ): IAutoMoviePhysicalProfile.ISegment => ({
+  ): IAutoMoviePhysicalSegment => ({
     bone: b,
     neutral: { position: at, rotation: { x: 0, y: 0, z: 0, w: 1 } },
     mass,
@@ -80,7 +81,7 @@ export function test_motion_center_of_mass(): void {
     shapes: [],
   });
   const profile = (
-    segments: IAutoMoviePhysicalProfile.ISegment[],
+    segments: IAutoMoviePhysicalSegment[],
   ): IAutoMoviePhysicalProfile => ({
     id: "pair",
     mass: segments.reduce((s, x) => s + x.mass, 0),

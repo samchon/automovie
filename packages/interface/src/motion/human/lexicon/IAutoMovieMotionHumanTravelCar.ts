@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanSeated } from "../everyday/IAutoMovieMotionHumanSeated";
-import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
+import type { IAutoMovieMotionObstacleAperture } from "../perform/IAutoMovieMotionObstacleAperture";
 
 /**
  * Getting into a car through its door: the person stands in the doorway
@@ -31,7 +31,7 @@ import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionH
  * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds of the sitting down; `sit`'s own when absent.
  * @evidence contracts/development/design.md#principled-representation seconds: Seconds of the sitting down; `sit`'s own when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelCar.ts (HumanTravelCar.getIn, context); lexicon/HumanTravelCar.ts (HumanTravelCar.getIn).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionHumanObstacle.IAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionObstacleAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTravelCar {
   /**
@@ -42,14 +42,14 @@ export namespace IAutoMovieMotionHumanTravelCar {
    * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds of the sitting down; `sit`'s own when absent.
    * @evidence contracts/development/design.md#principled-representation seconds: Seconds of the sitting down; `sit`'s own when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanTravelCar.ts (HumanTravelCar.getIn, context); lexicon/HumanTravelCar.ts (HumanTravelCar.getIn).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionHumanObstacle.IAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionObstacleAperture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The seat sat on, as `HumanObject.seat` reads it from the car. */
     seat: IAutoMovieMotionHumanSeated.ISeat;
 
     /** The door's opening, as `HumanObstacle.apertures` reads it from the car. */
-    through: IAutoMovieMotionHumanObstacle.IAperture;
+    through: IAutoMovieMotionObstacleAperture;
 
     /** Seconds of the sitting down; `sit`'s own when absent. */
     seconds?: number;

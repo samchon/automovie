@@ -11,12 +11,12 @@ import {
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -41,7 +41,7 @@ export namespace AutoMovieMotionHumanBendSearch {
   /** The hanging arm's shoulder angles by body and side, clinical degrees. */
   const NEUTRAL: WeakMap<
     IAutoMovieMotionHumanBody,
-    Partial<Record<IAutoMovieMotionHumanHand.Side, IAngles>>
+    Partial<Record<AutoMovieHumanSide, IAngles>>
   > = new WeakMap();
 
   /**
@@ -192,11 +192,11 @@ export namespace AutoMovieMotionHumanBendSearch {
    */
   export function strainOf(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion | undefined,
     hang: (
       body: IAutoMovieMotionHumanBody,
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ):
     | ((
@@ -259,7 +259,7 @@ export namespace AutoMovieMotionHumanBendSearch {
   function best(
     chain: AutoMovieMotionHumanBendChain.IChain,
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
     neutral: IAngles | null,
@@ -386,10 +386,10 @@ export namespace AutoMovieMotionHumanBendSearch {
    */
   function neutralOf(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     hang: (
       body: IAutoMovieMotionHumanBody,
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ): IAngles | null {
     const known: IAngles | undefined = NEUTRAL.get(body)?.[side];
@@ -442,7 +442,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     ) => (candidate: ICandidate) => IScore,
     hang: (
       body: IAutoMovieMotionHumanBody,
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ): ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =

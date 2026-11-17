@@ -2,8 +2,8 @@ import type {
   IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieMotionTrajectoryInterval,
   IAutoMovieProjectile,
-  IAutoMovieProjectileDragFlight,
   IAutoMovieProjectileDragInterval,
+  IAutoMovieProjectileFlight,
   IAutoMovieProjectileState,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,32 +28,42 @@ import { AutoMovieAir } from "./AutoMovieAir";
  * probe starts at the launch with the speed the flight can reach at most:
  * a body faster than its terminal speed `sqrt(|g| / k)` only slows, one
  * slower only approaches it, so the speed never exceeds the larger of the
- * two, where the drag's acceleration is largest. The halving stops at the
+ * two, where the drag's acceleration is largest. With zero drag and nonzero
+ * gravity the global speed bound is Infinity; the finite launch speed suffices
+ * for the step probe because acceleration is constant. The halving stops at the
  * 52 bits of a double's mantissa, past which a step cannot shrink.
  *
  * The flight is integrated in chunks of `CHUNK` steps, each started from the
  * previous chunk's end, so a read far along the flight integrates only up to
  * its chunk, and every chunk depends on the launch alone: reads in any order
- * give the same values. Times before the launch read the launch state.
+ * give the same values. Finite times before launch read the launch state;
+ * nonfinite requests throw before any chunks are allocated. Projectile data
+ * must remain unchanged while its identity-cached reader is used.
  *
  * @param projectile A projectile with drag.
  * @returns The flight's reader.
- * @throws {RangeError} When the drag's mass is not positive, or its coefficient, area or density is negative or not finite.
+ * @throws {RangeError} When launch vectors, speed/gravity norms, drag coefficients or their derived positive-drag bound are invalid or unrepresentable; reader methods also reject nonfinite times.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States equations, sourced step rule, speed bound, chunks and held start; the returned interval reader documents launch-relative time and independent adjacent states.
  * @evidence contracts/development/implementation.md#principled-implementation The quadratic drag law integrated by classical RK4 at a step from step doubling's error estimate, at the state where the drag's acceleration is largest.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, choose the step and integrate chunks lazily. The interval reader maps the selected chunk's actual stored positions and position derivatives to adjacent vector states.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step comes from a stated tolerance, not a frame grid. Actual interval endpoints are neither nominal-clock reconstructions nor independently interpolated velocity-channel values; zero drag retains the exact quadratic closed form.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step comes from a stated tolerance, not a frame grid. Actual interval endpoints are stored knots; zero drag retains quadratic constant-acceleration motion and reports an unbounded global speed when gravity is nonzero rather than substituting launch speed.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand-side evaluations per integrated step. Ordinary reads evaluate one Hermite curve; interval reads make constant-size copies after existing lazy chunk integration with no extra f or interpolation evaluation.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrator is the engine's one; at, interval and projectileAt share one memoized launch trajectory and its actual stored knots.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is weakly keyed by projectile, so knots go with it. Interval endpoint states own fresh vectors and retain no trajectory or knot-array references.
  */
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
-): IAutoMovieProjectileDragFlight.IFlight {
-  const known: IAutoMovieProjectileDragFlight.IFlight | undefined =
-    MEMO.get(projectile);
+): IAutoMovieProjectileFlight {
+  const known: IAutoMovieProjectileFlight | undefined = MEMO.get(projectile);
   if (known !== undefined) return known;
+  for (const [name, vector] of [
+    ["origin", projectile.origin],
+    ["velocity", projectile.velocity],
+    ["gravity", projectile.gravity],
+  ] as const)
+    if (![vector.x, vector.y, vector.z].every(Number.isFinite))
+      throw new RangeError(`projectile ${name} must have finite components`);
   const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
   const density: number = drag.density ?? AutoMovieAir.DENSITY;
   for (const [name, value] of [
@@ -69,7 +79,15 @@ export function projectileDragFlight(
     throw new RangeError(
       `projectile drag mass must be finite and positive, but was ${drag.mass}`,
     );
-  const k: number = (density * drag.coefficient * drag.area) / (2 * drag.mass);
+  const zeroDrag: boolean =
+    density === 0 || drag.coefficient === 0 || drag.area === 0;
+  const k: number = zeroDrag
+    ? 0
+    : (density * drag.coefficient * drag.area) / drag.mass / 2;
+  if (!Number.isFinite(k) || (!zeroDrag && k === 0))
+    throw new RangeError(
+      "projectile drag factor must retain its positive finite magnitude",
+    );
   const g: IAutoMovieVector3 = projectile.gravity;
   const f = (
     _: number,
@@ -99,14 +117,22 @@ export function projectileDragFlight(
   // The probe: the launch point moving along the launch direction at the
   // largest speed the flight can reach.
   const v0: number = Vector3.length(projectile.velocity);
+  const gravity: number = Vector3.length(g);
+  if (!Number.isFinite(v0) || !Number.isFinite(gravity))
+    throw new RangeError("projectile speed and gravity norms must be finite");
   const terminal: number =
-    k > 0 && Vector3.length(g) > 0 ? Math.sqrt(Vector3.length(g) / k) : 0;
+    gravity > 0 ? (k > 0 ? Math.sqrt(gravity / k) : Infinity) : 0;
+  if (k > 0 && !Number.isFinite(terminal))
+    throw new RangeError(
+      "projectile terminal speed must be representable and finite",
+    );
   const fastest: number = Math.max(v0, terminal);
+  const probeSpeed: number = k === 0 ? v0 : fastest;
   const along: IAutoMovieVector3 =
     v0 > 0
-      ? Vector3.scale(projectile.velocity, fastest / v0)
-      : Vector3.length(g) > 0
-        ? Vector3.scale(g, fastest / Vector3.length(g))
+      ? Vector3.scale(projectile.velocity, probeSpeed / v0)
+      : gravity > 0
+        ? Vector3.scale(g, probeSpeed / gravity)
         : { x: 0, y: 0, z: 0 };
   const probe: number[] = [...x0.slice(0, 3), along.x, along.y, along.z];
   let h: number = integrateMotionTrajectory.STEP;
@@ -157,11 +183,11 @@ export function projectileDragFlight(
     }
     return chunks[index]!;
   };
-  const flight: IAutoMovieProjectileDragFlight.IFlight = {
+  const flight: IAutoMovieProjectileFlight = {
     step: h,
     fastest,
     interval: (seconds: number): IAutoMovieProjectileDragInterval => {
-      const t: number = Math.max(0, seconds);
+      const t: number = flightTime(seconds);
       const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory = chunk(
         Math.floor(t / span),
       );
@@ -180,7 +206,7 @@ export function projectileDragFlight(
       };
     },
     at: (seconds: number): IAutoMovieProjectileState => {
-      const t: number = Math.max(0, seconds);
+      const t: number = flightTime(seconds);
       const x: number[] = chunk(Math.floor(t / span)).at(t).x;
       return {
         position: { x: x[0]!, y: x[1]!, z: x[2]! },
@@ -214,7 +240,14 @@ export namespace projectileDragFlight {
 }
 
 /** The flights integrated so far, by projectile record. */
-const MEMO: WeakMap<
-  IAutoMovieProjectile,
-  IAutoMovieProjectileDragFlight.IFlight
-> = new WeakMap();
+const MEMO: WeakMap<IAutoMovieProjectile, IAutoMovieProjectileFlight> =
+  new WeakMap();
+
+/** Reject an unbounded chunk request before allocation; finite prelaunch reads hold the launch. */
+const flightTime = (seconds: number): number => {
+  if (!Number.isFinite(seconds))
+    throw new RangeError(
+      `projectile flight time must be finite, but was ${seconds}`,
+    );
+  return Math.max(0, seconds);
+};

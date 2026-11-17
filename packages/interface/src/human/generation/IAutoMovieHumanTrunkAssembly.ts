@@ -1,6 +1,15 @@
 import type { IAutoMovieArcLengthJet } from "../../geometry/IAutoMovieArcLengthJet";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkAssembly; runtime evaluation remains in Human. */
+/**
+ * Section-sector phase jets and landmark-guide arc-length jets for trunk ring assembly.
+ *
+ * The interface package owns these declarations; AutoMovieHumanTrunkAssembly in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Section-sector phase jets and landmark-guide arc-length jets for trunk ring assembly. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only Sector, IGuide declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation Sector, IGuide separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanTrunkAssembly exchanges the named Sector, IGuide contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanTrunkAssembly {
   /** A sector's jet at a phase: point, first and second derivatives per radian.
    *

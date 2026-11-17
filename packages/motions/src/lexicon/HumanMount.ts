@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -158,7 +158,7 @@ export namespace HumanMount {
     entry: IAutoMovieMotionHumanEntryState,
     side: "left" | "right",
   ): IFoot {
-    const limb: IAutoMovieMotionHumanPosture.IGoal | undefined =
+    const limb: IAutoMovieHumanLimbGoal | undefined =
       entry.posture.limbs[`${side}Leg`];
     const ankle: IAutoMovieVector3 = entry.feet[side].ankle;
     return {
@@ -196,7 +196,7 @@ export namespace HumanMount {
     side: "left" | "right",
     foot: IFoot,
     planted: boolean,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     return {
       point: foot.ankle,
       bend: foot.bend,

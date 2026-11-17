@@ -2,7 +2,14 @@ import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidIntersection } from "./IAutoMovieSolidIntersection";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-/** Data and callback contracts shared by the ConstructionWidths operations. */
+/**
+ * Data and callback contracts shared by the ConstructionWidths operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation ITraced retains the actual curve, part surface and host atlas; diff selects the inward kept-wall orientation used by width laws.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ConstructionWidths reads these shared trace owners for its fold and curvature width calculations.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The context does not prove closure, uniform parameters or regular jets; those belong to the trace and surface owners.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies part/host ownership and the difference-operation orientation.
+ */
 export namespace IAutoMovieConstructionWidths {
   /**
    * The retained trace and surfaces from which fold/curvature laws read their knots.

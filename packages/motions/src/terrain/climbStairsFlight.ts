@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClimbStairsFlight,
   IAutoMovieMotionHumanFrame,
@@ -72,8 +73,7 @@ export namespace climbStairsFlight {
     HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
     const feet = (["left", "right"] as const).map((side) => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        posture.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         toe: HumanFoot.point(body, side, "toe", {
@@ -87,7 +87,7 @@ export namespace climbStairsFlight {
       y: 0,
       z: (feet[0]!.ankle.z + feet[1]!.ankle.z) / 2,
     };
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin, yaw };
     const toe: number = Math.max(
       ...feet.map((f) => HumanFrame.local(frame, f.toe).z),
     );

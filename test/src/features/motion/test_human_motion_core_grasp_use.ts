@@ -5,6 +5,7 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -12,10 +13,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -155,14 +156,14 @@ export function test_human_motion_core_grasp_use(): void {
             0,
             context.entry.posture,
           );
-        const asked: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
+        const asked: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
           context,
           tool,
           frame,
           back,
           at,
         );
-        const goal: IAutoMovieMotionHumanPosture.IGoal = {
+        const goal: IAutoMovieHumanLimbGoal = {
           ...asked,
           bend: AutoMovieMotionHumanBend.solve({
             body,
@@ -192,19 +193,16 @@ export function test_human_motion_core_grasp_use(): void {
         // pick-up leaves it (`AutoMovieMotionHumanArm.carried` over a span)
         // in the aimed movement time (`AutoMovieMotionHumanTiming.aimed`),
         // as a law that presents a held tool reaches.
-        const clock: IAutoMovieMotionClock.IClock =
-          AutoMovieMotionClock.sequence([
-            {
-              name: "reaching",
-              seconds: AutoMovieMotionHumanTiming.aimed(
-                Vector3.length(
-                  Vector3.subtract(goal.point, hand.worldPosition),
-                ),
-                0.03,
-              ),
-            },
-            { name: "ready", seconds: 0.3 },
-          ]);
+        const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
+          {
+            name: "reaching",
+            seconds: AutoMovieMotionHumanTiming.aimed(
+              Vector3.length(Vector3.subtract(goal.point, hand.worldPosition)),
+              0.03,
+            ),
+          },
+          { name: "ready", seconds: 0.3 },
+        ]);
         const ready: number = clock.at("ready");
         const composed: IAutoMovieMotionHumanActionPlan =
           composeAutoMovieMotionHumanAction({
@@ -232,7 +230,7 @@ export function test_human_motion_core_grasp_use(): void {
                   relax: clock.duration,
                   end: clock.duration,
                 },
-                goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
+                goal: (): IAutoMovieHumanLimbGoal => goal,
               }),
             ],
           });
@@ -271,10 +269,7 @@ export function test_human_motion_core_grasp_use(): void {
           .registered("pickUp", { prop: "sword", handle: "grip", ...use })
           .registered("present").node,
       });
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "sword",
-        film.duration,
-      );
+      const frame: IAutoMovieRigidTransform = film.prop("sword", film.duration);
       const points: IAutoMovieMotionHumanProp["points"] = HumanObject.prop(
         "sword",
         sword,

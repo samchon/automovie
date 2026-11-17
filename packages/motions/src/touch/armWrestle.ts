@@ -4,13 +4,13 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmWrestle,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -107,7 +107,7 @@ export namespace armWrestle {
     const body = context.body;
     const struggle: number = p.seconds ?? 3;
     HumanBound.least("seconds", struggle, 0, "s");
-    const side: IAutoMovieMotionHumanHand.Side = "right";
+    const side: AutoMovieHumanSide = "right";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const partner = context.performer(p.partner).body;
 

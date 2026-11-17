@@ -112,11 +112,9 @@ export function test_human_motion_gymnastics_airborne(): void {
         body,
         0,
       );
-      const segment: IAutoMovieMotionHumanSegment.ISegment = film
+      const segment: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const at = (event: string): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === event)?.share ??

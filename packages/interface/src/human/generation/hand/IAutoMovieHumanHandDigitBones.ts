@@ -1,6 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanHandDigitBones; runtime evaluation remains in Human. */
+/**
+ * Ordered digit bone directions and millimetre lengths consumed by the digit course builder.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHandDigitBones in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Ordered digit bone directions and millimetre lengths consumed by the digit course builder. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only OnBonesLegs declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation OnBonesLegs separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHandDigitBones exchanges the named OnBonesLegs contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHandDigitBones {
   /** The legs argument of AutoMovieHumanHandDigitBones.onBones. A digit's line, sections, tip and first section on its legs. A finger's
   sections follow the phalanx span law from its own root section (the

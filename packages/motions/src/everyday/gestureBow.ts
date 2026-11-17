@@ -46,7 +46,7 @@ export namespace gestureBow {
     back: number,
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: posture.root,
       yaw: posture.yaw,
     };

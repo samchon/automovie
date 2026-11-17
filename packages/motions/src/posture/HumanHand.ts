@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
@@ -97,7 +98,7 @@ export namespace HumanHand {
   export const SIDES = [
     "left",
     "right",
-  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Side>[];
+  ] as const satisfies readonly NonNullable<AutoMovieHumanSide>[];
 
   /** The surfaces of {@link Surface}, as data. */
   export const SURFACES = [
@@ -154,7 +155,7 @@ export namespace HumanHand {
    * @returns The bone.
    */
   export function bone(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
   ): AutoMovieHumanoidBone {
     if (!digital(surface)) return `${side}Hand`;
@@ -178,7 +179,7 @@ export namespace HumanHand {
    * @returns Angles for every finger and thumb segment of that hand.
    */
   export function shape(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     return HumanHandShape.of(side, form);
@@ -197,7 +198,7 @@ export namespace HumanHand {
    */
   export function offset(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
     curl: number = 0,
@@ -293,7 +294,7 @@ export namespace HumanHand {
    * @returns The rotation.
    */
   export function rotation(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     orientation: IAutoMovieMotionHumanHand.IOrientation,
   ): IAutoMovieQuaternion {
     return align(
@@ -326,7 +327,7 @@ export namespace HumanHand {
    * @throws {Error} When a between joins opposite axes or its share lies outside [0, 1], when explicit components are all zero, or when an explicit source is empty.
    */
   export function direction(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
     direction: IAutoMovieMotionHumanHand.Direction,
   ): IAutoMovieVector3 {
@@ -342,7 +343,7 @@ export namespace HumanHand {
    * @returns The rotation.
    */
   export function facing(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
     facing: IAutoMovieMotionHumanHand.IFacing,
   ): IAutoMovieQuaternion {
@@ -366,7 +367,7 @@ export namespace HumanHand {
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
     at: IAutoMovieVector3,
     turn: IAutoMovieQuaternion,
@@ -400,7 +401,7 @@ export namespace HumanHand {
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
     target: IAutoMovieMotionHumanHand.IFrame,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
@@ -432,7 +433,7 @@ export namespace HumanHand {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IFrame {

@@ -56,10 +56,30 @@ export namespace IAutoMovieMotionHumanPrehension {
     /** Seconds the transport lasts. */
     duration: number;
 
-    /** The wrist at a second of the transport (clamped to its span), metres. */
+    /**
+     * The wrist at a second of the transport (clamped to its span), metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.ITransport.wrist: The wrist at a second of the transport (clamped to its span), metres.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPrehension.ITransport.wrist is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPrehension.ITransport.wrist is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPrehension.ITransport.wrist is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPrehension.ITransport.wrist is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPrehension.ITransport.wrist is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPrehension.ITransport.wrist is used through packages/motions/src/handling/HumanPrehension.ts.
+     */
     wrist(seconds: number): IAutoMovieVector3;
 
-    /** The hand's world rotation at a second of the transport. */
+    /**
+     * The hand's world rotation at a second of the transport.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPrehension.ITransport.turn: The hand's world rotation at a second of the transport.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPrehension.ITransport.turn is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPrehension.ITransport.turn is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPrehension.ITransport.turn is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPrehension.ITransport.turn is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPrehension.ITransport.turn is used through packages/motions/src/handling/HumanPrehension.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPrehension.ITransport.turn is used through packages/motions/src/handling/HumanPrehension.ts.
+     */
     turn(seconds: number): IAutoMovieQuaternion;
   }
 

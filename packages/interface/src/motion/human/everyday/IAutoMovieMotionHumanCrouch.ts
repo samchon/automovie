@@ -49,7 +49,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation depth: How deep; `partial` when absent. heels: The heels; `flat` for a partial and `up` for a full squat when absent. hold: Seconds held at the lowest pose; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation depth: How deep; `partial` when absent. heels: The heels; `flat` for a partial and `up` for a full squat when absent. hold: Seconds held at the lowest pose; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.crouch, params); everyday/crouch.ts (crouch.plan, context); executable/cases/crouchCases.ts (crouchCases); everyday/crouch.ts (crouch.KNEE); everyday/crouch.ts (crouch.DESCENT); everyday/crouch.ts (crouch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCrouch {
   /**
@@ -75,7 +75,7 @@ export namespace IAutoMovieMotionHumanCrouch {
     hold?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

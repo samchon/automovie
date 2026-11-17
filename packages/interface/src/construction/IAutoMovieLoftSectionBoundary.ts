@@ -1,7 +1,14 @@
 import type { IAutoMovieLoftSectionBoundaryControls } from "./IAutoMovieLoftSectionBoundaryControls";
 import type { IAutoMovieLoftViewRead } from "./IAutoMovieLoftViewRead";
 
-/** Data and callback contracts shared by the LoftSectionBoundary operations. */
+/**
+ * Data and callback contracts shared by the LoftSectionBoundary operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation A native bridge holds both physical-mm endpoints with exact scalar2 and their log/logit controls; the native discriminator separates it from other field families.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface LoftSectionBoundary shares endpoint source jets with LoftViewRead and the dedicated transformed-control record.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive native scalar admission and matching endpoint controls are runtime checks; the record cannot promise arbitrary G1 chain compatibility.
+ * @evidence contracts/development/common.md#meaningful-documentation States exact endpoint ownership and transformed physical derivative units.
+ */
 export namespace IAutoMovieLoftSectionBoundary {
   /**
    * Actual native-family scalar2 at one regular boundary.

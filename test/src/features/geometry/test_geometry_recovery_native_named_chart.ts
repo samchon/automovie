@@ -4,8 +4,8 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryEventChartInput,
   IAutoMovieRecoveryEventCurveArc,
   IAutoMovieRecoveryEventCurvePiece,
@@ -40,9 +40,14 @@ export function test_geometry_recovery_native_named_chart(): void {
   };
   const tuple: (
     points: AutoMovieBernsteinPolynomial64,
-  ) => IAutoMovieCurve64.Span = (
+  ) => AutoMovieCubicBezierControls3 = (
     points: AutoMovieBernsteinPolynomial64,
-  ): IAutoMovieCurve64.Span => [points[0]!, points[1]!, points[2]!, points[3]!];
+  ): AutoMovieCubicBezierControls3 => [
+    points[0]!,
+    points[1]!,
+    points[2]!,
+    points[3]!,
+  ];
   for (const scale of [1, 1 / 256])
     for (const origin of [0, 1000])
       for (const winding of [1, -1] as const) {
@@ -157,7 +162,7 @@ export function test_geometry_recovery_native_named_chart(): void {
         (
           point: Readonly<AutoMovieVector3Tuple>,
           i: number,
-        ): IAutoMovieCurve64.Span =>
+        ): AutoMovieCubicBezierControls3 =>
           E.controls(
             E.line(point, points[(i + 1) % 4]!, `${name}-edge${i}`).pieces[0]!,
           ),

@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanResponse,
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
+  IAutoMovieReactionTimeDistribution,
 } from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
@@ -62,7 +63,7 @@ export namespace HumanResponse {
    * @returns Seconds after the cue.
    */
   export function latency(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     latency: IAutoMovieMotionHumanResponse.Latency,
     warned: boolean,
@@ -75,7 +76,7 @@ export namespace HumanResponse {
         0,
         latency.mean + latency.spread * HumanSkill.normal(random, 0),
       );
-    const law: { mu: number; sigma: number; tau: number } = look.reactionLaw(
+    const law: IAutoMovieReactionTimeDistribution = look.reactionLaw(
       skill,
       "signal",
     );

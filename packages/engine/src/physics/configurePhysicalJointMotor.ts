@@ -1,7 +1,7 @@
 import type {
   IAutoMovieConfigurePhysicalJointMotor,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointMotorCommand,
-  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,7 +24,7 @@ import { physicalJointMotorCommand } from "./physicalJointMotorCommand";
 export function configurePhysicalJointMotor(input: {
   world: World;
   native: ImpulseJoint;
-  joint: IAutoMoviePhysicalProfile.IJoint;
+  joint: IAutoMoviePhysicalJoint;
   current: IAutoMovieQuaternion;
   target: IAutoMovieQuaternion;
   velocity: IAutoMovieVector3;

@@ -80,8 +80,7 @@ export function test_human_motion_signature_salute(): void {
       laws: [salute],
       composition: HumanChain.extend({ salute }).subject("a").salute().node,
     });
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ?? 0) *

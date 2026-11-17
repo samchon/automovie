@@ -3,7 +3,14 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionProfileSource,
   IAutoMovieMeshExtract,
-  IAutoMovieNaturalSpline,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMeshSectionFrame,
+  IAutoMovieMillimeterMesh,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMoviePlanarHermiteKnot,
+  IAutoMovieScalarHermiteKnot,
+  IAutoMovieStationHermiteLoop,
 } from "@automovie/interface";
 
 import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
@@ -61,13 +68,13 @@ export namespace AutoMovieMeshExtract {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-station maps are released after the station; only the returned sections remain.
    */
   export function outline(
-    mesh: IAutoMovieMeshExtract.IMesh,
-    frame: IAutoMovieMeshExtract.IFrame,
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieMeshSectionFrame,
     stations: readonly number[],
     axis: 0 | 1 | 2,
     tolerance: number = 0.5,
     bridge: number = 25,
-  ): IAutoMovieMeshExtract.ISection[] {
+  ): IAutoMovieMeshSectionCut[] {
     const n: AutoMovieVector3Tuple = frame.axes[axis];
     const a: AutoMovieVector3Tuple = frame.axes[((axis + 1) % 3) as 0 | 1 | 2];
     const b: AutoMovieVector3Tuple = frame.axes[((axis + 2) % 3) as 0 | 1 | 2];
@@ -77,7 +84,7 @@ export namespace AutoMovieMeshExtract {
       height[v] = dot(sub(at(mesh, v), frame.origin), n);
     const r2: number = Math.SQRT1_2;
     const directions: [
-      keyof NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>,
+      keyof NonNullable<IAutoMovieMeshSectionCut["extremes"]>,
       AutoMovieVector3Tuple,
     ][] = [
       ["+a", a],
@@ -89,8 +96,8 @@ export namespace AutoMovieMeshExtract {
       ["-a+b", scale(sub(b, a), r2)],
       ["-a-b", scale(add(a, b), -r2)],
     ];
-    const sections: IAutoMovieMeshExtract.ISection[] = stations.map(
-      (station: number): IAutoMovieMeshExtract.ISection => {
+    const sections: IAutoMovieMeshSectionCut[] = stations.map(
+      (station: number): IAutoMovieMeshSectionCut => {
         // Crossing points by the edge they lie on, and each triangle's segment between two edges.
         const point: Map<string, AutoMovieVector3Tuple> = new Map();
         const segments: [string, string][] = [];
@@ -155,7 +162,7 @@ export namespace AutoMovieMeshExtract {
           scale(n, station),
         );
         const extremes: Partial<
-          NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>
+          NonNullable<IAutoMovieMeshSectionCut["extremes"]>
         > = {};
         for (const [name, d] of directions) {
           let best: IAutoMovieMeshExtract.IExtreme | null = null;
@@ -173,10 +180,10 @@ export namespace AutoMovieMeshExtract {
           },
         );
         const broken: number = loops.filter(
-          (l: IAutoMovieMeshExtract.ILoop): boolean => !l.closed,
+          (l: IAutoMovieMeshSectionChain): boolean => !l.closed,
         ).length;
         const envelope: {
-          outer: IAutoMovieMeshExtract.ILoop[];
+          outer: IAutoMovieMeshSectionChain[];
           gaps: string[];
           unclosed: number;
         } = enclose(loops, bridge);
@@ -197,7 +204,7 @@ export namespace AutoMovieMeshExtract {
           loops,
           outer: envelope.outer,
           extremes: extremes as NonNullable<
-            IAutoMovieMeshExtract.ISection["extremes"]
+            IAutoMovieMeshSectionCut["extremes"]
           >,
           flags,
         };
@@ -229,7 +236,7 @@ export namespace AutoMovieMeshExtract {
   function chain(
     segments: readonly [string, string][],
     place: (key: string) => [number, number],
-  ): { loops: IAutoMovieMeshExtract.ILoop[]; dangling: number } {
+  ): { loops: IAutoMovieMeshSectionChain[]; dangling: number } {
     const incident: Map<string, number[]> = new Map();
     for (let s: number = 0; s < segments.length; ++s)
       for (const key of segments[s]!) {
@@ -240,7 +247,7 @@ export namespace AutoMovieMeshExtract {
     let dangling: number = 0;
     for (const list of incident.values()) if (list.length !== 2) dangling += 1;
     const used: Uint8Array = new Uint8Array(segments.length);
-    const loops: IAutoMovieMeshExtract.ILoop[] = [];
+    const loops: IAutoMovieMeshSectionChain[] = [];
     const walk: (start: string) => void = (start: string): void => {
       const keys: string[] = [start];
       let node: string = start;
@@ -301,22 +308,22 @@ export namespace AutoMovieMeshExtract {
    * point, even-odd) are dropped; the rest return, largest area first.
    */
   function enclose(
-    pieces: readonly IAutoMovieMeshExtract.ILoop[],
+    pieces: readonly IAutoMovieMeshSectionChain[],
     bridge: number,
   ): {
-    outer: IAutoMovieMeshExtract.ILoop[];
+    outer: IAutoMovieMeshSectionChain[];
     gaps: string[];
     unclosed: number;
   } {
     const closed: [number, number][][] = pieces
-      .filter((l: IAutoMovieMeshExtract.ILoop): boolean => l.closed)
-      .map((l: IAutoMovieMeshExtract.ILoop): [number, number][] => l.points);
+      .filter((l: IAutoMovieMeshSectionChain): boolean => l.closed)
+      .map((l: IAutoMovieMeshSectionChain): [number, number][] => l.points);
     const open: [number, number][][] = pieces
       .filter(
-        (l: IAutoMovieMeshExtract.ILoop): boolean =>
+        (l: IAutoMovieMeshSectionChain): boolean =>
           !l.closed && l.points.length >= 1,
       )
-      .map((l: IAutoMovieMeshExtract.ILoop): [number, number][] =>
+      .map((l: IAutoMovieMeshSectionChain): [number, number][] =>
         l.points.slice(),
       );
     const gaps: string[] = [];
@@ -396,7 +403,7 @@ export namespace AutoMovieMeshExtract {
     loops.sort(
       (x: { area: number }, y: { area: number }): number => y.area - x.area,
     );
-    const outer: IAutoMovieMeshExtract.ILoop[] = [];
+    const outer: IAutoMovieMeshSectionChain[] = [];
     for (let k: number = 0; k < loops.length; ++k) {
       const probe: [number, number] = loops[k]!.points[0]!;
       let inside: boolean = false;
@@ -564,7 +571,7 @@ export namespace AutoMovieMeshExtract {
     });
     return {
       knots: alive.map(
-        (i: number): IAutoMovieMeshExtract.IKnot => ({
+        (i: number): IAutoMovieScalarHermiteKnot => ({
           index: kept[i]!,
           s: s[i]!,
           value: v[i]!,
@@ -721,7 +728,7 @@ export namespace AutoMovieMeshExtract {
     });
     return {
       knots: alive.map(
-        (i: number): IAutoMovieMeshExtract.ILoopKnot => ({
+        (i: number): IAutoMoviePlanarHermiteKnot => ({
           index: kept[i]!,
           t: t[i]!,
           point: [values[0][i]!, values[1][i]!],
@@ -763,7 +770,7 @@ export namespace AutoMovieMeshExtract {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned curve retains the normalised loops and S cardinal splines for its owner's lifetime.
    */
   export function profileCurve(
-    stations: readonly IAutoMovieMeshExtract.IStationLoop[],
+    stations: readonly IAutoMovieStationHermiteLoop[],
   ): IAutoMovieConstructionProfileSource.ICurve {
     if (stations.length < 2)
       throw new Error("A profile curve needs loops at two stations at least");
@@ -773,18 +780,18 @@ export namespace AutoMovieMeshExtract {
           "Profile loops must be in strictly increasing station order",
         );
     const xs: number[] = stations.map(
-      (s: IAutoMovieMeshExtract.IStationLoop): number => s.station,
+      (s: IAutoMovieStationHermiteLoop): number => s.station,
     );
     // Cardinal natural splines: weight i is 1 at station i and 0 at the others.
-    const cardinal: IAutoMovieNaturalSpline.ISpline[] = xs.map(
-      (_: number, i: number): IAutoMovieNaturalSpline.ISpline =>
+    const cardinal: IAutoMovieNaturalCubicSpline[] = xs.map(
+      (_: number, i: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           xs,
           xs.map((__: number, j: number): number => (i === j ? 1 : 0)),
         ),
     );
     const loops: IClockLoop[] = stations.map(
-      (s: IAutoMovieMeshExtract.IStationLoop): IClockLoop => clockLoop(s.loop),
+      (s: IAutoMovieStationHermiteLoop): IClockLoop => clockLoop(s.loop),
     );
     const sum: (
       station: number,
@@ -848,7 +855,7 @@ export namespace AutoMovieMeshExtract {
 
   /** Turns a reduced loop counter-clockwise, starts it at its +a extreme knot and rescales it to the unit clock. */
   function clockLoop(loop: {
-    knots: readonly IAutoMovieMeshExtract.ILoopKnot[];
+    knots: readonly IAutoMoviePlanarHermiteKnot[];
     length: number;
   }): IClockLoop {
     const k: number = loop.knots.length;
@@ -859,7 +866,7 @@ export namespace AutoMovieMeshExtract {
       tangent: [number, number];
     }[] = loop.knots.map(
       (
-        x: IAutoMovieMeshExtract.ILoopKnot,
+        x: IAutoMoviePlanarHermiteKnot,
       ): { t: number; point: [number, number]; tangent: [number, number] } => ({
         t: x.t,
         point: x.point,
@@ -1416,7 +1423,7 @@ export namespace AutoMovieMeshExtract {
   }
 
   function at(
-    mesh: IAutoMovieMeshExtract.IMesh,
+    mesh: IAutoMovieMillimeterMesh,
     v: number,
   ): AutoMovieVector3Tuple {
     return [

@@ -3,6 +3,8 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmScye,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanLimbRootStrip,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
@@ -48,16 +50,14 @@ export namespace AutoMovieHumanArmScye {
     const upper: IAutoMovieLoftChain | undefined = calibration.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === "upper",
     );
-    const event: IAutoMovieHumanBodyCalibration.IEvent | undefined =
+    const event: IAutoMovieHumanBranchEvent | undefined =
       calibration.events.find(
-        (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
+        (e: IAutoMovieHumanBranchEvent): boolean =>
           e.parent === "upper" && e.direction === "down",
       );
-    const split: IAutoMovieHumanBodyCalibration.ISplit | undefined =
-      event?.splits.find(
-        (s: IAutoMovieHumanBodyCalibration.ISplit): boolean =>
-          s.child === `arm.${side}`,
-      );
+    const split: IAutoMovieHumanBranchSplit | undefined = event?.splits.find(
+      (s: IAutoMovieHumanBranchSplit): boolean => s.child === `arm.${side}`,
+    );
     if (upper === undefined || split === undefined)
       throw new Error(`The shoulders hold no arc for arm.${side}`);
 

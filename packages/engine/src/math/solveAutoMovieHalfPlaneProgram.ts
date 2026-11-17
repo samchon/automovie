@@ -45,6 +45,10 @@ export function solveAutoMovieHalfPlaneProgram(
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: the radius ${radius} is not positive and finite`,
     );
+  if (!Number.isFinite(preferred.x) || !Number.isFinite(preferred.y))
+    throw new Error(
+      "solveAutoMovieHalfPlaneProgram: the preferred point must be finite",
+    );
   for (const [i, line] of lines.entries()) {
     const values: number[] = [
       line.point.x,

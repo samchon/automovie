@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -204,8 +205,7 @@ export namespace standFeet {
           ...posture.joints,
         };
         for (const p of plans) {
-          const goal: IAutoMovieMotionHumanPosture.IGoal =
-            limbs[`${p.side}Leg`]!;
+          const goal: IAutoMovieHumanLimbGoal = limbs[`${p.side}Leg`]!;
           limbs[`${p.side}Leg`] = {
             ...goal,
             rotation:

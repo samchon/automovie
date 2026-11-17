@@ -1,7 +1,8 @@
 import { AutoMovieIllinois, AutoMovieViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmBreadth,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
   IAutoMovieViewOutline,
 } from "@automovie/interface";
 
@@ -17,13 +18,13 @@ import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 export namespace AutoMovieHumanArmBreadth {
   /** Read the selected source's outward support using the common scalar owner. */
   export function maximum(
-    input: IAutoMovieHumanSiteViewPart.IInput,
+    input: IAutoMovieHumanSectionSource,
     side: "left" | "right",
     domain: IAutoMovieHumanArmBreadth.Domain,
   ): IAutoMovieHumanArmBreadth.IMaximumResult {
     const quarter: 1 | 3 = side === "left" ? 3 : 1;
     const sign: 1 | -1 = side === "left" ? -1 : 1;
-    const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] = input.pole;
+    const pole: IAutoMovieHumanSectionSource["pole"] = input.pole;
     const ends: IAutoMovieViewOutline.IEnds =
       pole === undefined
         ? {}
@@ -71,7 +72,7 @@ export namespace AutoMovieHumanArmBreadth {
 
   /** Solve the fixed source family's public width, then verify the actual residual. */
   export function fit(
-    input: IAutoMovieHumanSiteViewPart.IInput,
+    input: IAutoMovieHumanSectionSource,
     side: "left" | "right",
     domain: IAutoMovieHumanArmBreadth.Domain,
     breadth: number,
@@ -80,12 +81,10 @@ export namespace AutoMovieHumanArmBreadth {
     const target: number = breadth / 2 - lateral;
     if (![breadth, lateral, target].every(Number.isFinite) || !(target > 0))
       return "Bideltoid leaves no positive outward support at the independently placed GH";
-    const family = (scale: number): IAutoMovieHumanSiteViewPart.IInput => ({
+    const family = (scale: number): IAutoMovieHumanSectionSource => ({
       ...input,
       sites: input.sites.map(
-        (
-          site: IAutoMovieHumanSiteViewPart.ISite,
-        ): IAutoMovieHumanSiteViewPart.ISite =>
+        (site: IAutoMovieHumanSectionSite): IAutoMovieHumanSectionSite =>
           site.site === "deltoid" || site.site === "biceps"
             ? {
                 ...site,

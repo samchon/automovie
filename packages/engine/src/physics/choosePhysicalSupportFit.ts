@@ -1,6 +1,7 @@
 import type {
   IAutoMovieChoosePhysicalSupportFit,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -29,7 +30,7 @@ import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
  */
 export function choosePhysicalSupportFit<
   Fit extends {
-    targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
+    targets: Readonly<Record<string, IAutoMovieRigidTransform>>;
     residuals: Readonly<Record<string, number>>;
   },
 >(input: IAutoMovieChoosePhysicalSupportFit.IInput<Fit>): Fit {
@@ -42,7 +43,7 @@ export function choosePhysicalSupportFit<
         error: Math.max(0, ...Object.values(fit.residuals)),
         distance: input.reference
           ? input.joints.reduce(
-              (sum: number, joint: IAutoMoviePhysicalProfile.IJoint): number =>
+              (sum: number, joint: IAutoMoviePhysicalJoint): number =>
                 sum + angle(fit.targets, input.reference!, joint) ** 2,
               0,
             )
@@ -70,15 +71,14 @@ export function choosePhysicalSupportFit<
 
 /** Geodesic angle between one joint's relative rotations in two pose records. */
 function angle(
-  first: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
-  second: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
-  joint: IAutoMoviePhysicalProfile.IJoint,
+  first: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  second: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  joint: IAutoMoviePhysicalJoint,
 ): number {
-  const difference: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(
-      physicalJointRelativeRotation(first, joint),
-      Quaternion.inverse(physicalJointRelativeRotation(second, joint)),
-    );
+  const difference: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    physicalJointRelativeRotation(first, joint),
+    Quaternion.inverse(physicalJointRelativeRotation(second, joint)),
+  );
   return (
     2 *
     Math.atan2(

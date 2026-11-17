@@ -108,8 +108,7 @@ export function test_human_motion_base_high_seat_rules(): void {
         ),
     );
     if (drinking !== undefined) {
-      const drink: IAutoMovieMotionHumanSegment.ISegment =
-        drinking.segments("a")[1]!;
+      const drink: IAutoMovieMotionHumanSegment = drinking.segments("a")[1]!;
       if (
         !drink.plan.contacts.some(
           (c: IAutoMovieMotionHumanContactWindow): boolean =>

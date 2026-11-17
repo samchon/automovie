@@ -1,7 +1,7 @@
 import { AutoMovieMeshCourse as C } from "@automovie/engine";
 import type {
   IAutoMovieMeshCourse,
-  IAutoMovieMeshExtract,
+  IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 
 type V3 = [number, number, number];
@@ -12,7 +12,7 @@ function torus(
   r: number,
   m: number,
   k: number,
-): IAutoMovieMeshExtract.IMesh {
+): IAutoMovieMillimeterMesh {
   const positions: number[] = [];
   for (let i: number = 0; i < m; ++i)
     for (let j: number = 0; j < k; ++j) {
@@ -41,7 +41,7 @@ function torus(
  * rings every 10 mm from y = 0 to 100 mm; optionally ring `spike`'s vertex at
  * side 0 pushed 10 mm outward along +X.
  */
-function cylinder(cx: number, spike?: number): IAutoMovieMeshExtract.IMesh {
+function cylinder(cx: number, spike?: number): IAutoMovieMillimeterMesh {
   const n: number = 64;
   const positions: number[] = [];
   for (let r: number = 0; r <= 10; ++r)
@@ -65,9 +65,9 @@ function cylinder(cx: number, spike?: number): IAutoMovieMeshExtract.IMesh {
 
 /** Two meshes as one. */
 function merge(
-  a: IAutoMovieMeshExtract.IMesh,
-  b: IAutoMovieMeshExtract.IMesh,
-): IAutoMovieMeshExtract.IMesh {
+  a: IAutoMovieMillimeterMesh,
+  b: IAutoMovieMillimeterMesh,
+): IAutoMovieMillimeterMesh {
   const base: number = a.positions.length / 3;
   return {
     positions: [...Array.from(a.positions), ...Array.from(b.positions)],

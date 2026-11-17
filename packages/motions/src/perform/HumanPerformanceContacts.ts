@@ -7,6 +7,8 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -39,7 +41,7 @@ export namespace HumanPerformanceContacts {
    */
   export function hold(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     riding: boolean,
   ): void {
     const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
@@ -107,9 +109,9 @@ export namespace HumanPerformanceContacts {
       string,
       {
         person: IAutoMovieMotionHumanSegment.IPerson;
-        segment: IAutoMovieMotionHumanSegment.ISegment;
+        segment: IAutoMovieMotionHumanSegment;
         id: string;
-        limb: IAutoMovieMotionHumanActionPlan.IWeapon["limb"];
+        limb: IAutoMovieMotionWeaponPath["limb"];
         from: number;
         to: number;
       }
@@ -165,10 +167,8 @@ export namespace HumanPerformanceContacts {
         },
       ]),
     );
-    const met: Map<
-      string,
-      IAutoMovieMotionHumanActionPlan.IContactEvent & { key: string }
-    > = new Map();
+    const met: Map<string, IAutoMovieMotionWeaponContact & { key: string }> =
+      new Map();
     let applied: string = "";
     const apply = (stops: IAutoMovieResolveContactEvents.IStops): void => {
       const signature: string = [...stops]
@@ -178,7 +178,7 @@ export namespace HumanPerformanceContacts {
       if (signature === applied) return;
       applied = signature;
       for (const person of self.people.values()) person.stops.clear();
-      const changed: Set<IAutoMovieMotionHumanSegment.ISegment> = new Set();
+      const changed: Set<IAutoMovieMotionHumanSegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
         owner.person.stops.set(
@@ -335,8 +335,8 @@ export namespace HumanPerformanceContacts {
       });
     apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
     const plans: Map<
-      IAutoMovieMotionHumanSegment.ISegment,
-      IAutoMovieMotionHumanActionPlan.IContactEvent[]
+      IAutoMovieMotionHumanSegment,
+      IAutoMovieMotionWeaponContact[]
     > = new Map();
     for (const owner of owners.values()) plans.set(owner.segment, []);
     for (const e of events) {
@@ -350,8 +350,7 @@ export namespace HumanPerformanceContacts {
         subject: owner.person.performer.subject,
         segment: owner.segment,
         weapon: owner.segment.plan.weapons!.find(
-          (w: IAutoMovieMotionHumanActionPlan.IWeapon): boolean =>
-            w.id === owner.id,
+          (w: IAutoMovieMotionWeaponPath): boolean => w.id === owner.id,
         )!,
         against: e.against,
         seconds: e.seconds,

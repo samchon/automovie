@@ -1,9 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -60,7 +61,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function axis(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     axis: IAutoMovieMotionHumanTouchEffector.Axis,
   ): IAutoMovieVector3 {
     const sign: number = axis.startsWith("-") ? -1 : 1;
@@ -95,7 +96,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function direction(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     direction: IAutoMovieMotionHumanTouchEffector.Direction,
   ): IAutoMovieVector3 {
     if (typeof direction === "string") return axis(side, direction);
@@ -140,7 +141,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    */
   export function local(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): IAutoMovieMotionHumanTouchEffector.ILocalResult {
     const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
@@ -193,7 +194,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): IAutoMovieVector3 {
     const hand = bones.get(`${side}Hand`)!;
@@ -227,7 +228,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    */
   export function pad(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): number {
     admit(effector);
@@ -343,13 +344,13 @@ export namespace AutoMovieMotionHumanTouchEffector {
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     at: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     tangent: IAutoMovieVector3,
     bend: IAutoMovieVector3,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const rest = local(body, side, effector);
     const rotation: IAutoMovieQuaternion = HumanHand.align(
       { normal: rest.normal, forward: rest.forward },

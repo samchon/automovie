@@ -2,9 +2,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanToolWork,
   IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -78,8 +79,7 @@ export namespace HumanToolWork {
         fix: 'aim the stir at a vessel\'s inside, { kind: "prop", subject, point: "inside" }, as createVessel declares it',
       });
     const subject: string = work.on.subject;
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const declared = (id: string): IAutoMovieAffordance => {
@@ -110,7 +110,7 @@ export namespace HumanToolWork {
         reason: `${subject}'s inside declares no width to stir in`,
         fix: "give the vessel's inside its width, as createVessel does",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const world = (a: IAutoMovieAffordance): IAutoMovieVector3 =>
       Vector3.add(
         frame.position,

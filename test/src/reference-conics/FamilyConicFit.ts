@@ -3,7 +3,7 @@ import {
   AutoMovieNaturalSpline as S,
 } from "@automovie/engine";
 import type {
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewChain,
 } from "@automovie/interface";
 import { writeFileSync } from "node:fs";
@@ -258,15 +258,15 @@ export namespace FamilyConicFit {
 
   /** Station basis of a knot vector: each knot's cardinal natural cubic, read at a station. */
   export function basisOf(knots: readonly number[]): (s: number) => number[] {
-    const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map(
-      (_: number, m: number): IAutoMovieNaturalSpline.ISpline =>
+    const cardinals: IAutoMovieNaturalCubicSpline[] = knots.map(
+      (_: number, m: number): IAutoMovieNaturalCubicSpline =>
         S.create(
           [...knots],
           knots.map((__: number, k: number): number => (k === m ? 1 : 0)),
         ),
     );
     return (s: number): number[] =>
-      cardinals.map((spline: IAutoMovieNaturalSpline.ISpline): number =>
+      cardinals.map((spline: IAutoMovieNaturalCubicSpline): number =>
         S.evaluate(spline, s),
       );
   }
@@ -424,15 +424,15 @@ export namespace FamilyConicFit {
         : [...given];
     const M: number = knots.length;
     const samples: ISample[] = train.map(vertices);
-    const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map(
-      (_: number, m: number): IAutoMovieNaturalSpline.ISpline =>
+    const cardinals: IAutoMovieNaturalCubicSpline[] = knots.map(
+      (_: number, m: number): IAutoMovieNaturalCubicSpline =>
         S.create(
           knots,
           knots.map((__: number, k: number): number => (k === m ? 1 : 0)),
         ),
     );
     const basis = (s: number): number[] =>
-      cardinals.map((spline: IAutoMovieNaturalSpline.ISpline): number =>
+      cardinals.map((spline: IAutoMovieNaturalCubicSpline): number =>
         S.evaluate(spline, s),
       );
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
@@ -1582,7 +1582,7 @@ export namespace FamilyConicFit {
     to: readonly number[],
   ): number[][] {
     return values.map((field: readonly number[]): number[] => {
-      const spline: IAutoMovieNaturalSpline.ISpline = S.create(from, field);
+      const spline: IAutoMovieNaturalCubicSpline = S.create(from, field);
       return to.map((s: number): number => S.evaluate(spline, s));
     });
   }
@@ -1716,15 +1716,15 @@ export namespace FamilyConicFit {
     const blocked: Set<number> = new Set();
     for (let round: number = 0; round < 200; ++round) {
       const M: number = knots.length;
-      const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map(
-        (_: number, m: number): IAutoMovieNaturalSpline.ISpline =>
+      const cardinals: IAutoMovieNaturalCubicSpline[] = knots.map(
+        (_: number, m: number): IAutoMovieNaturalCubicSpline =>
           S.create(
             knots,
             knots.map((__: number, k: number): number => (k === m ? 1 : 0)),
           ),
       );
       const basis = (s: number): number[] =>
-        cardinals.map((spline: IAutoMovieNaturalSpline.ISpline): number =>
+        cardinals.map((spline: IAutoMovieNaturalCubicSpline): number =>
           S.evaluate(spline, s),
         );
       const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
@@ -2203,15 +2203,15 @@ export namespace FamilyConicFit {
       }
     }
     const M: number = knots.length;
-    const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map(
-      (_: number, m: number): IAutoMovieNaturalSpline.ISpline =>
+    const cardinals: IAutoMovieNaturalCubicSpline[] = knots.map(
+      (_: number, m: number): IAutoMovieNaturalCubicSpline =>
         S.create(
           [...knots],
           knots.map((__: number, k: number): number => (k === m ? 1 : 0)),
         ),
     );
     const basis = (s: number): number[] =>
-      cardinals.map((c: IAutoMovieNaturalSpline.ISpline): number =>
+      cardinals.map((c: IAutoMovieNaturalCubicSpline): number =>
         S.evaluate(c, s),
       );
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
@@ -2418,15 +2418,15 @@ export namespace FamilyConicFit {
     }
     const project = (knots: number[]): number[][] | null => {
       const M: number = knots.length;
-      const cardinals: IAutoMovieNaturalSpline.ISpline[] = knots.map(
-        (_: number, m: number): IAutoMovieNaturalSpline.ISpline =>
+      const cardinals: IAutoMovieNaturalCubicSpline[] = knots.map(
+        (_: number, m: number): IAutoMovieNaturalCubicSpline =>
           S.create(
             knots,
             knots.map((__: number, k: number): number => (k === m ? 1 : 0)),
           ),
       );
       const B: number[][] = kept.map((i: number): number[] =>
-        cardinals.map((c: IAutoMovieNaturalSpline.ISpline): number =>
+        cardinals.map((c: IAutoMovieNaturalCubicSpline): number =>
           S.evaluate(c, rows[i]!.s),
         ),
       );

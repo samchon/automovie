@@ -11,7 +11,7 @@ import {
 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
-  IAutoMovieMeshExtract,
+  IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -448,7 +448,7 @@ namespace FamilyConicArmscye {
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );
-    const generated: IAutoMovieMeshExtract.IMesh = {
+    const generated: IAutoMovieMillimeterMesh = {
       positions: Array.from(
         real.mesh.positions,
         (x: number): number => x * 1000,
@@ -464,7 +464,7 @@ namespace FamilyConicArmscye {
     for (const [label, mesh] of [
       ["reference", source.body],
       ["generated", generated],
-    ] as [string, IAutoMovieMeshExtract.IMesh][]) {
+    ] as [string, IAutoMovieMillimeterMesh][]) {
       // The level's closed loops on the +Z side, in (x, z), mm.
       const level = (y: number): [number, number][][] =>
         AutoMovieMeshExtract.outline(

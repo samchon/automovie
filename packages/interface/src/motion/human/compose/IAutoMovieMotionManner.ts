@@ -1,48 +1,32 @@
 import type { IAutoMovieMotionHumanEffort } from "../everyday/IAutoMovieMotionHumanEffort";
 
 /**
- * How an action is performed, as distinct from which action it is: how fast,
- * how large, how forceful, how skilled and how varied.
+ * The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation. AutoMovieMotionManner resolves these controls into motion-specific modifiers.
  *
- * A manner is resolved once into modifiers. The tempo and the hold factor
- * change durations through the clock ({@link time}); the extent, the
- * curvature and the bend change sizes through the phrases. A manner never
- * changes a goal on a solid place: a phrase that states a contact keeps its
- * place, and only a place in the air, an excursion about the base or a
- * free-space amplitude is scaled. The absent manner is neutral and leaves
- * every action as it is.
- *
- * @evidence contracts/development/common.md#meaningful-documentation effort: Laban Effort, each factor in [-1, 1]; neutral when absent. intensity: How much of the action's full size is performed, in (0, 1]; 1 when absent. pace: The rate as a multiple of the action's natural rate; positive, 1 when absent.
- * @evidence contracts/development/design.md#principled-representation effort: Laban Effort, each factor in [-1, 1]; neutral when absent. intensity: How much of the action's full size is performed, in (0, 1]; 1 when absent. pace: The rate as a multiple of the action's natural rate; positive, 1 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.resolve, return); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.of, return); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.time, modifiers); compose/AutoMovieMotionHumanVariation.ts (AutoMovieMotionHumanVariation.of, manner); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.resolve, manner); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.of, manner).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanEffort.IEffort, IAutoMovieMotionHumanEffort.Action identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/common.md#meaningful-documentation The authored manner shared by human motion primitives: effort, intensity, pace, proficiency and variation. AutoMovieMotionManner resolves these controls into motion-specific modifiers.
+ * @evidence contracts/development/design.md#principled-representation Five independent qualities of a performance: Laban Effort for its quality, intensity for its size, pace for its rate, proficiency for its consistency and variation for how much it differs between performances.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Primitive authors share these manner controls; AutoMovieMotionManner resolves them into operation-specific modifiers and timing spans without storing an additional posture.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional controls retain runtime defaults, and effort reuses its closed canonical contract. AutoMovieMotionManner owns interpretation and modifier calculation.
  */
+export interface IAutoMovieMotionManner {
+  /** Laban Effort, each factor in [-1, 1]; neutral when absent. */
+  effort?: IAutoMovieMotionHumanEffort.IEffort;
+
+  /** How much of the action's full size is performed, in (0, 1]; 1 when absent. */
+  intensity?: number;
+
+  /** The rate as a multiple of the action's natural rate; positive, 1 when absent. */
+  pace?: number;
+
+  /** Skill in [0, 1], which narrows the variation; the performer's own when absent. */
+  proficiency?: number;
+
+  /** How much one performance differs from the next, in [0, 1]; 0 when absent. */
+  variation?: number;
+}
+
+/** Operation-local contracts supporting IAutoMovieMotionManner. */
 export namespace IAutoMovieMotionManner {
-  /**
-   * A manner; every member is optional and neutral when absent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its range and what its absence means.
-   * @evidence contracts/development/design.md#principled-representation Five independent qualities of a performance: Laban Effort for its quality, intensity for its size, pace for its rate, proficiency for its consistency and variation for how much it differs between performances.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five optional members; the Effort is `IAutoMovieMotionHumanEffort.IEffort`, not restated.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is optional because each has a neutral value an author leaves unstated; the ranges are checked in `resolve`, not assumed.
-   */
-  export interface IManner {
-    /** Laban Effort, each factor in [-1, 1]; neutral when absent. */
-    effort?: IAutoMovieMotionHumanEffort.IEffort;
-
-    /** How much of the action's full size is performed, in (0, 1]; 1 when absent. */
-    intensity?: number;
-
-    /** The rate as a multiple of the action's natural rate; positive, 1 when absent. */
-    pace?: number;
-
-    /** Skill in [0, 1], which narrows the variation; the performer's own when absent. */
-    proficiency?: number;
-
-    /** How much one performance differs from the next, in [0, 1]; 0 when absent. */
-    variation?: number;
-  }
-
   /**
    * What a clock and a phrase read.
    *

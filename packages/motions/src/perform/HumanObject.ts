@@ -4,7 +4,8 @@ import type {
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -45,7 +46,7 @@ export namespace HumanObject {
    */
   export function frame(
     placement: IAutoMovieMotionHumanObject.Placement,
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     return "position" in placement
       ? { position: placement.position, rotation: placement.rotation }
       : {
@@ -96,8 +97,7 @@ export namespace HumanObject {
         (affordance: IAutoMovieAffordance): string => affordance.id,
       ),
     );
-    const shapes: IAutoMoviePhysicalProfile.IShape[] | undefined =
-      model.shapes?.();
+    const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
     return {
       subject,
       frame: frame(placement),
@@ -131,7 +131,7 @@ export namespace HumanObject {
             ): IAutoMovieMotionHumanProp.IPosed => {
               const posed: IAutoMovieMotionHumanObject.IModel =
                 model.articulate!(state);
-              const moved: IAutoMoviePhysicalProfile.IShape[] | undefined =
+              const moved: IAutoMoviePhysicalShape[] | undefined =
                 posed.shapes?.();
               return {
                 affordances: posed.affordances ?? [],
@@ -142,7 +142,7 @@ export namespace HumanObject {
       ...(motion === undefined
         ? {}
         : {
-            motion: (seconds: number): IAutoMovieMotionHumanProp.IFrame =>
+            motion: (seconds: number): IAutoMovieRigidTransform =>
               frame(motion(seconds)),
           }),
       ...(contact === undefined
@@ -223,7 +223,7 @@ export namespace HumanObject {
               : `the object has ${seats.length} seats, and none is named`,
         fix: "name one of the object's seats, or sit on an object that has one",
       });
-    const world: IAutoMovieMotionHumanProp.IFrame = frame(placement);
+    const world: IAutoMovieRigidTransform = frame(placement);
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
@@ -257,7 +257,7 @@ export namespace HumanObject {
   function footrests(
     affordances: readonly IAutoMovieAffordance[],
     seat: IAutoMovieAffordance,
-    world: IAutoMovieMotionHumanProp.IFrame,
+    world: IAutoMovieRigidTransform,
   ): Partial<Record<"left" | "right", IAutoMovieVector3>> {
     const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
       seat.frame.rotation,

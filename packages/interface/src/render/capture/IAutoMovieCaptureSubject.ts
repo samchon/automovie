@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3.js";
+import type { IAutoMovieInspectionDrawable } from "../inspection/IAutoMovieInspectionDrawable.js";
+import type { IAutoMovieCaptureInstant } from "./IAutoMovieCaptureInstant.js";
 
 /**
  * What a host learns about a subject from the page before a capture is planned: its clock, its raster, and what can be drawn of it.
@@ -44,7 +45,7 @@ export interface IAutoMovieCaptureSubject {
   /**
    * Every drawn object with its identity path and its world-space box in metres, which a sweep groups into units and neighbours.
    */
-  drawables: IAutoMovieCaptureSubject.IDrawable[];
+  drawables: IAutoMovieInspectionDrawable[];
 
   /**
    * Every mark kind the subject's owners supply under the request, such as `curve/section`; a `marks` pattern must match one.
@@ -54,50 +55,5 @@ export interface IAutoMovieCaptureSubject {
   /**
    * Instants the subject names, such as a motion case's beats; a cell drawn at a second written the same to the millisecond carries the instant's label in its caption and its record row. Absent names none.
    */
-  instants?: IAutoMovieCaptureSubject.IInstant[];
-}
-
-/**
- * Host-described event instants and world-space drawable bounds used by capture planning.
- *
- * @evidence contracts/development/design.md#principled-representation Host-described event instants and world-space drawable bounds used by capture planning.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These members belong to IAutoMovieCaptureSubject and are consumed with its enclosing record, rather than a second top-level vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Member discriminants and documented null/empty cases preserve the enclosing record's supported states.
- * @evidence contracts/development/common.md#meaningful-documentation Member comments state the relevant coordinate frames, units and outcome semantics.
- */
-export namespace IAutoMovieCaptureSubject {
-  /**
-   * One named instant of a subject.
-   *
-   * @evidence contracts/development/design.md#principled-representation A second of the subject's clock and the words that name what happens then.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the planner's captions.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The label is free text the subject's owner writes; no beat vocabulary is named here.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and its unit.
-   */
-  export interface IInstant {
-    /** The instant, seconds of the subject's clock. */
-    seconds: number;
-
-    /** What happens then, such as `heel strike`. */
-    label: string;
-  }
-
-  /**
-   * One drawn object, by identity path and world-space box.
-   *
-   * @evidence contracts/development/design.md#principled-representation An identity path and an axis-aligned box in world metres, the inputs the sweep compares.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members; the box corners use the interface's vector.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `min` not exceeding `max` on any axis is the producer's invariant.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and its frame and unit.
-   */
-  export interface IDrawable {
-    /** Identity path of the object, names joined by `/`. */
-    path: string;
-
-    /** Corner of the world-space box with the smallest coordinates, in metres. */
-    min: IAutoMovieVector3;
-
-    /** Corner of the world-space box with the largest coordinates, in metres. */
-    max: IAutoMovieVector3;
-  }
+  instants?: IAutoMovieCaptureInstant[];
 }

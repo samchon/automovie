@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -18,7 +18,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * @evidence contracts/development/common.md#meaningful-documentation from: Seconds since the action's start from which the leg is written. to: Seconds since the action's start until which the leg is written.
  * @evidence contracts/development/design.md#principled-representation from: Seconds since the action's start from which the leg is written. to: Seconds since the action's start until which the leg is written.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanLeg.ts (AutoMovieMotionHumanLeg.place, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanBody, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLeg {
   /**
@@ -51,7 +51,7 @@ export namespace IAutoMovieMotionHumanLeg {
     body: IAutoMovieMotionHumanBody;
 
     /** The leg. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** Seconds since the action's start from which the leg is written. */
     from: number;

@@ -4,10 +4,10 @@ import type {
   IAutoMovieRecoveryAtlasObservationCreases,
   IAutoMovieRecoveryAtlasObservationOperation,
   IAutoMovieRecoveryAtlasObservationSource,
-  IAutoMovieRecoveryAtlasObservationState,
   IAutoMovieRecoveryChartAssembly,
   IAutoMovieRecoveryChartBoundary,
   IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryPendingChartObservation,
 } from "@automovie/interface";
 
 import { RecoveryAtlasObservationChart } from "../internal/RecoveryAtlasObservationChart";
@@ -18,7 +18,7 @@ import { RecoveryAtlasObservationPublish } from "../internal/RecoveryAtlasObserv
 import { RecoveryAtlasObservationSource } from "../internal/RecoveryAtlasObservationSource";
 import { RecoveryChartBoundary } from "../internal/RecoveryChartBoundary";
 
-type Pending = IAutoMovieRecoveryAtlasObservationState["Pending"];
+type Pending = IAutoMovieRecoveryPendingChartObservation;
 
 /**
  * Observe orientable genus-zero source components through private disk charts.

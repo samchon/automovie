@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicsCache,
@@ -58,7 +59,7 @@ export async function computePhysicalKinematicFrames(
     : undefined;
   for (let step: number = 0; step <= count; step++) {
     signal?.throwIfAborted();
-    const frame: IAutoMoviePhysicsCache.IFrame = createPhysicalKinematicFrame(
+    const frame: IAutoMoviePhysicalFrame = createPhysicalKinematicFrame(
       input,
       step,
     );

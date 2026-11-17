@@ -1,4 +1,7 @@
-import type { AutoMovieVector3Tuple } from "../../index";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryIndexedCrease,
+} from "../../index";
 
 /**
  * Materialize declared feature cuts as private manifold observation charts. Ordinals and unique occurrence keys own topology; repeated physical keys must name exactly equal millimetre coordinates. Source-face pairs admit features, independently of a supplied angle's classification, which belongs to the caller. Incident-face fans are split across every feature. A cut whose banks otherwise share both endpoint ordinals first receives one conforming midpoint observation. Ideal midpoint subdivision preserves PL geometry in real arithmetic; diagnostics separately report upward coordinate-rounding bounds and measured area changes. observationDisplacementUpperMm is the largest midpoint displacement bound only; later quarter/chord subdivision and fitting errors require separate accounting. Positive areas, coherent winding, links and actual cut-bank incidence are checked. Outputs can be disks, annuli, slits or closed surfaces; no UV map is certified. Both banks follow physicalPath; their coherent boundary directions are opposite. Chains stop at physical boundaries as well as feature junctions; isolated interior degree-two cycles repeat their first path vertex. Source topology, physical words, midpoint witnesses and all outputs stay private to observation. Public fitted curves, compactness, boundary authority and normals belong elsewhere.
@@ -36,22 +39,7 @@ export namespace IAutoMovieRecoveryFeatureChartCuts {
     triangleSourceFaces: readonly number[];
 
     /** Original source crease edges admitted by the declared angular policy, retaining both incident face owners. */
-    featureEdges: readonly {
-      /** Original first endpoint index of this source edge, in the paired source vertex array. */
-      a: number;
-
-      /** Original second endpoint index of this source edge, in the paired source vertex array. */
-      b: number;
-
-      /** Original source-edge identity; coincident edges with different incidence remain distinct. */
-      sourceEdge: string;
-
-      /** Original source-face ordinals belonging to this observed chart or feature. */
-      sourceFaces: readonly [number, number];
-
-      /** Measured angle between the incident source faces, in degrees. */
-      angleDegrees: number;
-    }[];
+    featureEdges: readonly IAutoMovieRecoveryIndexedCrease[];
   }) => {
     /** Prepared or fitted source charts in deterministic observation order, including each independently retained feature piece. */
     charts: {

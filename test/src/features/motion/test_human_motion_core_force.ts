@@ -2,6 +2,8 @@ import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieInteractionEvent,
   IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanImpulse,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanForce } from "@automovie/motions";
@@ -60,7 +62,7 @@ export function test_human_motion_core_force(): void {
   };
 
   // 1. A blast's own impulse.
-  const blast: IAutoMovieMotionHumanForce.IImpulse | null = HumanForce.ofHit(
+  const blast: IAutoMovieMotionHumanImpulse | null = HumanForce.ofHit(
     record({ source: "impactOutput", impulse: { x: 40, y: 10, z: -5 } }),
     still,
   );
@@ -75,7 +77,7 @@ export function test_human_motion_core_force(): void {
 
   // 2. A stick and a pass.
   const v: IAutoMovieVector3 = { x: 0, y: 0, z: 8 };
-  const stick: IAutoMovieMotionHumanForce.IImpulse | null = HumanForce.ofHit(
+  const stick: IAutoMovieMotionHumanImpulse | null = HumanForce.ofHit(
     record({
       mass: 3,
       velocity: v,
@@ -86,7 +88,7 @@ export function test_human_motion_core_force(): void {
   );
   if (stick === null || !near(stick.impulse, { x: 0, y: 0, z: 24 }))
     findings.push(`stick: ${JSON.stringify(stick?.impulse)} for 3 kg at 8 m/s`);
-  const pass: IAutoMovieMotionHumanForce.IImpulse | null = HumanForce.ofHit(
+  const pass: IAutoMovieMotionHumanImpulse | null = HumanForce.ofHit(
     record({
       mass: 0.01,
       velocity: { x: 0, y: 0, z: 400 },
@@ -104,7 +106,7 @@ export function test_human_motion_core_force(): void {
   const normal: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
   for (const receiver of [-1.5, 0, 1.5]) {
     const closing: number = 8 - receiver;
-    const read: IAutoMovieMotionHumanForce.IImpulse | null = HumanForce.ofHit(
+    const read: IAutoMovieMotionHumanImpulse | null = HumanForce.ofHit(
       record({ mass: 3, velocity: v, normal }),
       { mass: 76, velocity: { x: 0, y: 0, z: receiver } },
     );
@@ -114,7 +116,7 @@ export function test_human_motion_core_force(): void {
         `receiver at ${receiver} m/s: ${JSON.stringify(read?.impulse)}, expected ${expected.toFixed(4)} along +z`,
       );
   }
-  const leaving: IAutoMovieMotionHumanForce.IImpulse | null = HumanForce.ofHit(
+  const leaving: IAutoMovieMotionHumanImpulse | null = HumanForce.ofHit(
     record({ mass: 3, velocity: { x: 0, y: 0, z: -2 }, normal }),
     still,
   );
@@ -135,7 +137,7 @@ export function test_human_motion_core_force(): void {
     findings.push("a record with no mass yields an impulse");
 
   // 5. Forces within a span.
-  const constant: IAutoMovieMotionHumanForce.ISustained = {
+  const constant: IAutoMovieMotionHumanSustainedForce = {
     kind: "sustained",
     subject: "b",
     at: "palmLeft",
@@ -143,19 +145,19 @@ export function test_human_motion_core_force(): void {
     to: 3,
     force: { x: 0, y: -50, z: 0 },
   };
-  const varying: IAutoMovieMotionHumanForce.ISustained = {
+  const varying: IAutoMovieMotionHumanSustainedForce = {
     ...constant,
     from: 0,
     to: 1,
     force: (s: number): IAutoMovieVector3 => ({ x: 10 * s, y: 0, z: 0 }),
   };
-  const forces: IAutoMovieMotionHumanForce.IForce[] = [
+  const forces: IAutoMovieMotionHumanForce[] = [
     { kind: "impulse", subject: "b", at: "chestLeft", seconds: 1, impulse: v },
     { kind: "impulse", subject: "a", at: "chestLeft", seconds: 1, impulse: v },
     constant,
     varying,
   ];
-  const inside: IAutoMovieMotionHumanForce.IForce[] = HumanForce.within(
+  const inside: IAutoMovieMotionHumanForce[] = HumanForce.within(
     forces,
     "b",
     1,

@@ -10,10 +10,10 @@ import type { IAutoMovieViewAxis } from "./IAutoMovieViewAxis";
  * caller keeps declarations, functions and dependencies immutable while any
  * prepared reader remains alive; changed revisions require a new preparation.
  *
- * @evidence contracts/development/design.md#principled-representation References complete original functions and their actual domains with the same common plane owner, permitting nonpolar and nonconvex pieces without reconstruction.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A closed pure declaration and existing axis interface accompany a key-to-original map; callable geometry stays outside the authoring AST.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Point0 is independent of actual total2; null means unavailable and never supplies zero derivatives. Common-plane agreement is an original-owner premise, not inferred from matching sampled points.
- * @evidence contracts/development/common.md#meaningful-documentation States units, immutable dependency lifetime, domains, callback exceptions and qualified derivative meaning.
+ * @evidence contracts/development/design.md#principled-representation References complete original functions and their actual domains with the same common plane owner, permitting nonpolar and nonconvex pieces without reconstruction. Local millimetre values use physical-station millimetres and each original curve's own clock, before piece normalization.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A closed pure declaration and existing axis interface accompany a key-to-original map; callable geometry stays outside the authoring AST. ProfileSurface, ProfilePhase and the prepared region reader consume these owners directly.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Point0 is independent of actual total2; null means unavailable and never supplies zero derivatives. Common-plane agreement is an original-owner premise, not inferred from matching sampled points. Nullable derivative orders and optional trim extraction expose actual capability rather than synthetic completion.
+ * @evidence contracts/development/common.md#meaningful-documentation States units, immutable dependency lifetime, domains, callback exceptions and qualified derivative meaning. Names units, consumers and independent capability availability.
  */
 export interface IAutoMovieConstructionProfileSource {
   /** Complete pure source declaration; no final chain or mesh supplies it. */
@@ -38,10 +38,6 @@ export interface IAutoMovieConstructionProfileSource {
 /**
  * Original local curve and region capabilities used by profile preparation.
  *
- * @evidence contracts/development/design.md#principled-representation Local millimetre values use physical-station millimetres and each original curve's own clock, before piece normalization.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ProfileSurface, ProfilePhase and the prepared region reader consume these owners directly.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nullable derivative orders and optional trim extraction expose actual capability rather than synthetic completion.
- * @evidence contracts/development/common.md#meaningful-documentation Names units, consumers and independent capability availability.
  */
 export namespace IAutoMovieConstructionProfileSource {
   /**

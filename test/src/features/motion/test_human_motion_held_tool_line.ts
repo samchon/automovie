@@ -6,11 +6,11 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanStand,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -148,11 +148,10 @@ export function test_human_motion_held_tool_line(): void {
       );
       continue;
     }
-    const segment: IAutoMovieMotionHumanSegment.ISegment | undefined = film
+    const segment: IAutoMovieMotionHumanSegment | undefined = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "readHeld",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "readHeld",
       );
     const tool: IAutoMovieMotionHumanStrikingHeld.ITool | null = seen.tool;
     const at: number = seen.at;
@@ -168,7 +167,7 @@ export function test_human_motion_held_tool_line(): void {
       "right",
       "grip",
     ).point;
-    const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("tool", at);
+    const frame: IAutoMovieRigidTransform = film.prop("tool", at);
     const working: IAutoMovieTransform = one.working;
     const point: IAutoMovieVector3 = Vector3.add(
       frame.position,

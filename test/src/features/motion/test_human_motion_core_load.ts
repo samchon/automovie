@@ -1,7 +1,7 @@
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanCarriedLean, HumanForce, HumanLoad } from "@automovie/motions";
@@ -142,7 +142,7 @@ export function test_human_motion_core_load(): void {
 
   // 3. Moving support.
   const braking = (): IAutoMovieVector3 => ({ x: 0, y: 0, z: -3 });
-  const inertial: IAutoMovieMotionHumanForce.ISustained = HumanLoad.inertial(
+  const inertial: IAutoMovieMotionHumanSustainedForce = HumanLoad.inertial(
     "a",
     76,
     braking,

@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
@@ -165,7 +166,7 @@ export namespace crawlChain {
   export function of(
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
-    frame: IAutoMovieMotionHumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     forward: IAutoMovieVector3,
   ): IChain {
     const yaw: number = frame.yaw;
@@ -192,8 +193,7 @@ export namespace crawlChain {
       crawlFrame.wrists(body, standing, forward);
     const wv: number = (wrists.left.y + wrists.right.y) / 2;
     const ball = (side: "left" | "right"): IAutoMovieVector3 => {
-      const from: IAutoMovieMotionHumanPosture.IGoal =
-        standing.limbs[`${side}Leg`]!;
+      const from: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return HumanFrame.local(
         frame,
         HumanFoot.point(body, side, "mtp", {

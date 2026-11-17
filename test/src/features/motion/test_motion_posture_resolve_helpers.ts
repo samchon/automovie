@@ -1,6 +1,8 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -176,8 +178,7 @@ export function test_motion_posture_resolve_helpers(): void {
     lowered.joints.hips,
   );
   for (const side of ["left", "right"] as const) {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-      sunk.limbs[`${side}Leg`];
+    const goal: IAutoMovieHumanLimbGoal | undefined = sunk.limbs[`${side}Leg`];
     if (goal === undefined) continue;
     const left: number = resolveHumanPosture.short(
       body,
@@ -256,7 +257,7 @@ export function test_motion_posture_resolve_helpers(): void {
   );
 
   // 6. Order.
-  const at: IAutoMovieMotionHumanPosture.IGoal = {
+  const at: IAutoMovieHumanLimbGoal = {
     point: { x: 0, y: 0, z: 0 },
     bend: { x: 0, y: 0, z: 1 },
   };
@@ -265,7 +266,7 @@ export function test_motion_posture_resolve_helpers(): void {
     resolveHumanPosture.order({ rightArm: at, leftLeg: at }),
     ["leftLeg", "rightLeg", "leftArm", "rightArm"],
   );
-  const order: IAutoMovieMotionHumanPosture.Limb[] = resolveHumanPosture.order({
+  const order: AutoMovieHumanLimb[] = resolveHumanPosture.order({
     leftArm: { ...at, on: "rightLowerArm" },
     rightArm: at,
     leftLeg: { ...at, on: "leftHand" },
@@ -294,7 +295,7 @@ export function test_motion_posture_resolve_helpers(): void {
     { x: 0, y: 1, z: 0 },
     30,
   );
-  const carried: IAutoMovieMotionHumanPosture.IGoal = resolveHumanPosture.world(
+  const carried: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
     body,
     pose,
     "rightArm",

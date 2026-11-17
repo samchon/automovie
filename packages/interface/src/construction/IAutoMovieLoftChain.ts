@@ -1,11 +1,11 @@
 import type { IAutoMovieLoftCapSource } from "./IAutoMovieLoftCapSource";
 import type { IAutoMovieLoftCoefficientSource } from "./IAutoMovieLoftCoefficientSource";
-import type { IAutoMovieLoftFrame } from "./IAutoMovieLoftFrame";
 import type { IAutoMovieLoftFrameSource } from "./IAutoMovieLoftFrameSource";
 import type { IAutoMovieLoftParameter } from "./IAutoMovieLoftParameter";
 import type { IAutoMovieLoftPhaseReading } from "./IAutoMovieLoftPhaseReading";
 import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 import type { IAutoMovieLoftSectionConnect } from "./IAutoMovieLoftSectionConnect";
+import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource";
 
 /**
@@ -13,10 +13,10 @@ import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource"
  *
  * View lofts, fitted sections and continuation operators publish this record for AutoMovieLoftChain and AutoMovieLoftJet. A published chain and its nested arrays/source records must remain unchanged while readers retain it: point and jet caches key preparations by chain identity and physical station. Copies with equal numeric data retain source bindings; changing values requires the owning operator to re-express or remove those bindings. The interface does not freeze or validate storage; construction operators own admission, and readers reject stale explicit owners when reached.
  *
- * @evidence contracts/development/design.md#principled-representation Principal values, station jets and optional explicit axis/parameter source records determine every reading; no hidden bind registry changes geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record of layers and the chain's basis, order, rule, samples and poles.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional jets are absent rather than zero-filled, so a reader knows which rule applies.
- * @evidence contracts/development/common.md#meaningful-documentation States field units, absence, actual-axis ownership, numeric-copy equivalence, immutable cache premises and callable-source serialization limits.
+ * @evidence contracts/development/design.md#principled-representation Principal values, station jets and optional explicit axis/parameter source records determine every reading; no hidden bind registry changes geometry. Layers keep physical station, local section values and world frame data distinct; the phase sampler differentiates only its radian correspondence coordinate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record of layers and the chain's basis, order, rule, samples and poles. Chain construction publishes layer/view records and AutoMovieLoftChain.phaseSampler exposes the callback implemented by LoftPoint.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional jets are absent rather than zero-filled, so a reader knows which rule applies. Optional source/derivative fields retain explicit absence rather than implying a numerical zero or an admitted regular surface.
+ * @evidence contracts/development/common.md#meaningful-documentation States field units, absence, actual-axis ownership, numeric-copy equivalence, immutable cache premises and callable-source serialization limits. Members state derivative units, frame/source ownership, raw view meaning and callback lifetime.
  */
 export interface IAutoMovieLoftChain {
   /** Stable chain name used for part ids and diagnostics. */
@@ -126,10 +126,6 @@ export interface IAutoMovieLoftChain {
 /**
  * Principal layer records, retained view data and phase-only sampling of a chain.
  *
- * @evidence contracts/development/design.md#principled-representation Layers keep physical station, local section values and world frame data distinct; the phase sampler differentiates only its radian correspondence coordinate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Chain construction publishes layer/view records and AutoMovieLoftChain.phaseSampler exposes the callback implemented by LoftPoint.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional source/derivative fields retain explicit absence rather than implying a numerical zero or an admitted regular surface.
- * @evidence contracts/development/common.md#meaningful-documentation Members state derivative units, frame/source ownership, raw view meaning and callback lifetime.
  */
 export namespace IAutoMovieLoftChain {
   /**
@@ -149,7 +145,7 @@ export namespace IAutoMovieLoftChain {
     y: number;
 
     /** Section plane of the layer; absent means horizontal at height `y`. */
-    frame?: IAutoMovieLoftFrame.IFrame;
+    frame?: IAutoMovieLoftSectionFrame;
 
     /** Actual immutable axis and independent value/station-jet snapshot. Equal-value copies preserve it; a changed datum must explicitly remove or re-express it. Callable source records cannot be restored by JSON; rebuild them from the authored tree. Null station jets preserve finite source values but do not qualify that boundary for a regular solid 2-jet. */
     frameSource?: IAutoMovieLoftFrameSource.ISource;
@@ -207,10 +203,10 @@ export namespace IAutoMovieLoftChain {
      * renormalised, so it moves C2 with the coefficients; absent, the
      * rotation Hermite of `AutoMovieLoftFrame.interpolate`.
      */
-    frameSlopes?: IAutoMovieLoftFrame.IFrame;
+    frameSlopes?: IAutoMovieLoftSectionFrame;
 
     /** Second physical-station derivatives of the plane: origin in 1/mm and axes in 1/mm². Together with both endpoints' frameSlopes, these select the quintic component rule when no common actual-axis source owns the interval. */
-    frameCurvatures?: IAutoMovieLoftFrame.IFrame;
+    frameCurvatures?: IAutoMovieLoftSectionFrame;
 
     /**
      * The view box and shoulders the view-to-section operator

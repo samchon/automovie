@@ -5,9 +5,9 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSignature,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -127,10 +127,7 @@ export function test_human_motion_core_overlay_hold(): void {
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;
-      const glass: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "glass",
-        seconds,
-      );
+      const glass: IAutoMovieRigidTransform = film.prop("glass", seconds);
       return Quaternion.rotateVector(Quaternion.inverse(hand.worldRotation), {
         x: glass.position.x - hand.worldPosition.x,
         y: glass.position.y - hand.worldPosition.y,

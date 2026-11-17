@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
@@ -21,7 +22,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/common.md#meaningful-documentation share: The share of the arm's length (upper arm and forearm) the wrist is kept within. wrist: The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres. arm: The working arm's goal on a posture at the stroke's start, so the balance weighs the arm where it reaches; the arm as the posture holds it when absent.
  * @evidence contracts/development/design.md#principled-representation share: The share of the arm's length (upper arm and forearm) the wrist is kept within. wrist: The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres. arm: The working arm's goal on a posture at the stroke's start, so the balance weighs the arm where it reaches; the arm as the posture holds it when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanLeanInto.ts (AutoMovieMotionHumanLeanInto.solve, return); compose/AutoMovieMotionHumanLeanInto.ts (AutoMovieMotionHumanLeanInto.solve, props); affordance/operate.ts (operate.plan); compose/AutoMovieMotionHumanTouchStance.ts (AutoMovieMotionHumanTouchStance.solve); tasks/wipe.ts (wipe.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanHand.Side, IAutoMovieVector3, IAutoMovieMotionHumanPosture.IGoal, IAutoMovieMotionClock.IClock identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLeanInto {
   /**
@@ -40,7 +41,7 @@ export namespace IAutoMovieMotionHumanLeanInto {
     standing: IAutoMovieMotionHumanPosture;
 
     /** The working hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The share of the arm's length (upper arm and forearm) the wrist is kept within. */
     share: number;
@@ -74,9 +75,7 @@ export namespace IAutoMovieMotionHumanLeanInto {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
-    arm?: (
-      posture: IAutoMovieMotionHumanPosture,
-    ) => IAutoMovieMotionHumanPosture.IGoal;
+    arm?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieHumanLimbGoal;
 
     /**
      * The refusal's message for a wrist left `beyond` metres out of reach at a lean of `limit` degrees.
@@ -141,8 +140,6 @@ export namespace IAutoMovieMotionHumanLeanInto {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
-    primitive: (
-      clock: IAutoMovieMotionClock.IClock,
-    ) => IAutoMovieMotionHumanPrimitive;
+    primitive: (clock: IAutoMovieMotionClock) => IAutoMovieMotionHumanPrimitive;
   }
 }

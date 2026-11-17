@@ -1,13 +1,14 @@
 import { AutoMovieGravity, projectileAt } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
   IAutoMovieProjectileState,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -80,7 +81,7 @@ export namespace HumanPropFlight {
     const launches: {
       seconds: number;
       source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
-      launch: IAutoMovieMotionHumanActionPlan.ILaunch;
+      launch: IAutoMovieMotionPropLaunch;
     }[] = [];
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
@@ -146,7 +147,7 @@ export namespace HumanPropFlight {
     subject: string,
     seconds: number,
     since: number,
-  ): IAutoMovieMotionHumanProp.IFrame | undefined {
+  ): IAutoMovieRigidTransform | undefined {
     let latest: IAutoMovieMotionHumanPropFlight.IFlight | undefined;
     for (const f of flights(self, subject))
       if (f.launch <= seconds && f.launch >= since) latest = f;
@@ -174,7 +175,7 @@ export namespace HumanPropFlight {
       }
       contact = leg.contact!;
     }
-    const carrier: IAutoMovieMotionHumanProp.IFrame | undefined = struckFrame(
+    const carrier: IAutoMovieRigidTransform | undefined = struckFrame(
       self,
       contact.struck,
       seconds,
@@ -190,7 +191,7 @@ export namespace HumanPropFlight {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
     source: IAutoMovieMotionHumanPropFlight.IFlight["source"],
-    launch: IAutoMovieMotionHumanActionPlan.ILaunch,
+    launch: IAutoMovieMotionPropLaunch,
   ): IAutoMovieMotionHumanPropFlight.IFlight {
     // The prop leaves from where it is shown at the launch, when a grip
     // shows it there; a prop set on its way leaves from the launch's point.
@@ -198,7 +199,7 @@ export namespace HumanPropFlight {
       (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
         g.from < seconds && g.to >= seconds - 1e-6,
     );
-    const shown: IAutoMovieMotionHumanProp.IFrame = HumanPerformanceRead.prop(
+    const shown: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
       self,
       prop.subject,
       seconds,
@@ -288,11 +289,11 @@ export namespace HumanPropFlight {
       meeting.hit.time,
     );
     const at: number = zero + meeting.hit.time;
-    const world: IAutoMovieMotionHumanProp.IFrame = {
+    const world: IAutoMovieRigidTransform = {
       position: HumanPropOutcome.rest(prop, meeting.struck, state),
       rotation: state.rotation!,
     };
-    const carrier: IAutoMovieMotionHumanProp.IFrame | undefined = struckFrame(
+    const carrier: IAutoMovieRigidTransform | undefined = struckFrame(
       self,
       meeting.struck,
       at,
@@ -313,7 +314,7 @@ export namespace HumanPropFlight {
     self: IAutoMovieMotionHumanPerformanceState,
     struck: IAutoMovieMotionHumanPropFlight.Struck,
     seconds: number,
-  ): IAutoMovieMotionHumanProp.IFrame | undefined {
+  ): IAutoMovieRigidTransform | undefined {
     switch (struck.kind) {
       case "person":
         return HumanPropFrame.bone(

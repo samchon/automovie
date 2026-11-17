@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanContactWindow,
@@ -228,10 +229,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function share(
-    clock: IAutoMovieMotionClock.IClock,
-    seconds: number,
-  ): number {
+  export function share(clock: IAutoMovieMotionClock, seconds: number): number {
     return clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   }
 
@@ -263,7 +261,7 @@ export namespace AutoMovieMotionHumanTouch {
   ): (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-  ) => IAutoMovieMotionHumanPosture.IGoal {
+  ) => IAutoMovieHumanLimbGoal {
     HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
     const form: IAutoMovieMotionHumanTouchForm.IForm =
@@ -272,7 +270,7 @@ export namespace AutoMovieMotionHumanTouch {
     const standoff: number =
       (props.standoff ?? 0) +
       AutoMovieMotionHumanTouchEffector.pad(body, side, props.effector);
-    const held: IAutoMovieMotionHumanFrame.IFrame = {
+    const held: IAutoMovieMotionHumanFrame = {
       origin: props.entry.root,
       yaw: props.entry.yaw,
     };
@@ -282,7 +280,7 @@ export namespace AutoMovieMotionHumanTouch {
     return (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture.IGoal => {
+    ): IAutoMovieHumanLimbGoal => {
       const place = props.region(posture, seconds);
       const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
       const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
@@ -314,11 +312,11 @@ export namespace AutoMovieMotionHumanTouch {
         Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
         Vector3.scale(along, travel),
       );
-      const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      const frame: IAutoMovieMotionHumanFrame = {
         origin: posture.root,
         yaw: posture.yaw,
       };
-      const laid: IAutoMovieMotionHumanPosture.IGoal =
+      const laid: IAutoMovieHumanLimbGoal =
         AutoMovieMotionHumanTouchEffector.goal(
           body,
           side,

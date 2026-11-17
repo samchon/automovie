@@ -1,9 +1,12 @@
 import { Vector3, resolveImpact } from "@automovie/engine";
 import type {
+  AutoMovieHumanForceSite,
   IAutoMovieImpact,
   IAutoMovieImpactBodyState,
   IAutoMovieInteractionEvent,
   IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanImpulse,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -45,15 +48,13 @@ export namespace HumanForce {
   export function ofHit(
     hit: IAutoMovieInteractionEvent,
     receiver: IAutoMovieMotionHumanForce.IReceiver,
-  ): IAutoMovieMotionHumanForce.IImpulse | null {
+  ): IAutoMovieMotionHumanImpulse | null {
     if (hit.target === null) return null;
-    const at: IAutoMovieMotionHumanForce.At = hit.region ?? {
+    const at: AutoMovieHumanForceSite = hit.region ?? {
       bone: hit.bone ?? "hips",
       point: { x: 0, y: 0, z: 0 },
     };
-    const of = (
-      impulse: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanForce.IImpulse => ({
+    const of = (impulse: IAutoMovieVector3): IAutoMovieMotionHumanImpulse => ({
       kind: "impulse",
       subject: hit.target!,
       at,
@@ -93,13 +94,13 @@ export namespace HumanForce {
    * @returns The forces, in the order given.
    */
   export function within(
-    forces: readonly IAutoMovieMotionHumanForce.IForce[],
+    forces: readonly IAutoMovieMotionHumanForce[],
     subject: string,
     from: number,
     to: number,
-  ): IAutoMovieMotionHumanForce.IForce[] {
+  ): IAutoMovieMotionHumanForce[] {
     return forces.filter(
-      (f: IAutoMovieMotionHumanForce.IForce): boolean =>
+      (f: IAutoMovieMotionHumanForce): boolean =>
         f.subject === subject &&
         (f.kind === "impulse"
           ? f.seconds >= from && f.seconds <= to
@@ -115,7 +116,7 @@ export namespace HumanForce {
    * @returns World newtons; zero outside its span.
    */
   export function at(
-    force: IAutoMovieMotionHumanForce.ISustained,
+    force: IAutoMovieMotionHumanSustainedForce,
     seconds: number,
   ): IAutoMovieVector3 {
     if (seconds < force.from || seconds > force.to) return { x: 0, y: 0, z: 0 };

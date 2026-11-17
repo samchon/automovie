@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -62,7 +62,7 @@ export function test_human_motion_ride_carried(): void {
   const WAIT: number = 3;
 
   // The car stands for the first seconds, while the driver sits down.
-  const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
+  const placed = (seconds: number): IAutoMovieRigidTransform => {
     const sample = drive.at(Math.max(0, seconds - WAIT));
     return {
       position: sample.placement.translation,

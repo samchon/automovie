@@ -6,6 +6,7 @@ import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactSupportRows,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -30,7 +31,7 @@ import { nclose } from "../internal/predicates";
 export async function test_physical_contact_support_patch(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere(0.1);
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
-  const targets: Record<string, P.ITransform> = {
+  const targets: Record<string, IAutoMovieRigidTransform> = {
     root: structuredClone(profile.segments[0]!.neutral),
   };
   const support: IAutoMoviePhysicalContactSupportRows.ISupport = {
@@ -58,7 +59,8 @@ export async function test_physical_contact_support_patch(): Promise<void> {
     initial.length === 5 &&
       initial.every((value: number): boolean => nclose(value, 0, 0)),
   );
-  const lowered: Record<string, P.ITransform> = structuredClone(targets);
+  const lowered: Record<string, IAutoMovieRigidTransform> =
+    structuredClone(targets);
   lowered.root!.position.y -= 0.1;
   const measured: number[] = rows[1]!.measure(lowered);
   assert.equal(
@@ -72,7 +74,8 @@ export async function test_physical_contact_support_patch(): Promise<void> {
         index,
       nclose(measured[index]!, -0.1, 1e-12),
     );
-  const raised: Record<string, P.ITransform> = structuredClone(targets);
+  const raised: Record<string, IAutoMovieRigidTransform> =
+    structuredClone(targets);
   raised.root!.position.y += 0.1;
   const floating: number[] = rows[1]!.measure(raised);
   TestValidator.predicate(

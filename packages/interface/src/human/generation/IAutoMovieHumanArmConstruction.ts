@@ -1,8 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieHumanHandConstruction } from "./hand/IAutoMovieHumanHandConstruction";
+import type { IAutoMovieHumanDigitCentreLine } from "./hand/IAutoMovieHumanDigitCentreLine";
 import type { IAutoMovieHumanHandMeasures } from "./hand/IAutoMovieHumanHandMeasures";
 
-/** Type contracts exchanged by AutoMovieHumanArmConstruction; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanArmConstruction; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanArmConstruction exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IInputs, IBones. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanArmConstruction; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IInputs, IBones contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanArmConstruction {
   /** What an arm reads.
    *
@@ -80,6 +87,6 @@ export namespace IAutoMovieHumanArmConstruction {
     };
 
     /** Each digit's centre line from its web to its tip, thumb first. */
-    digits: IAutoMovieHumanHandConstruction.ILine[];
+    digits: IAutoMovieHumanDigitCentreLine[];
   }
 }

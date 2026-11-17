@@ -1,7 +1,8 @@
 import type {
   IAutoMovieComposition,
-  IAutoMovieResolveSchedule,
   IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
 
@@ -46,7 +47,7 @@ import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
  */
 export function resolveAutoMovieSchedule(
   composition: IAutoMovieComposition,
-  laws: IAutoMovieResolveSchedule.ILaws,
+  laws: IAutoMovieScheduleLaws,
 ): IAutoMovieSchedule {
   const walk: IAutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
   const place = (node: IAutoMovieComposition, start: number): number => {
@@ -81,8 +82,8 @@ export function resolveAutoMovieSchedule(
     return AutoMovieSchedulePlace.at(walk, node, start, place);
   };
   const end: number = place(composition, 0);
-  const sorted: IAutoMovieSchedule.IEntry[] = [...walk.entries].sort(
-    (a: IAutoMovieSchedule.IEntry, b: IAutoMovieSchedule.IEntry): number =>
+  const sorted: IAutoMovieScheduleEntry[] = [...walk.entries].sort(
+    (a: IAutoMovieScheduleEntry, b: IAutoMovieScheduleEntry): number =>
       a.start - b.start || a.index - b.index,
   );
   let duration: number = end;
@@ -90,7 +91,7 @@ export function resolveAutoMovieSchedule(
     if (entry.end > duration) duration = entry.end;
   return Object.freeze({
     entries: Object.freeze(
-      sorted.map((e: IAutoMovieSchedule.IEntry) =>
+      sorted.map((e: IAutoMovieScheduleEntry) =>
         Object.freeze(
           walk.interrupted.has(e.index)
             ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }

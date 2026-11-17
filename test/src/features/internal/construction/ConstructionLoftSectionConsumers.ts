@@ -9,8 +9,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
   IAutoMovieLoftSectionSource,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieLoftViewRead,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
@@ -74,7 +74,7 @@ function original(failures: string[], input: IAutoMovieViewPart): void {
         [2, 0, 0],
         phi,
       );
-      const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, phi);
+      const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, s, phi);
       const c: number = Math.cos(phi);
       const t: number = Math.sin(phi);
       const radial: (row: readonly number[]) => number = (
@@ -126,12 +126,16 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
       const hs: number = hostEnd === "bottom" ? 0 : 1;
       const ps: number = partEnd === "bottom" ? 0 : 1;
       for (const phi of [-0.37, 0, 0.43, 2.7, 7.1]) {
-        const a: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const a: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           host,
           hs,
           sign * phi,
         );
-        const b: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, ps, phi);
+        const b: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+          result,
+          ps,
+          phi,
+        );
         for (const key of ["p", "s", "t", "ss", "st", "tt"] as const) {
           const factor: number = key === "s" || key === "t" ? sign : 1;
           close(
@@ -142,7 +146,7 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
             failures,
           );
         }
-        const near: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const near: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           result,
           ps + (partEnd === "bottom" ? 1 : -1) * 2 ** -24,
           phi,
@@ -190,7 +194,7 @@ function mixed(failures: string[]): void {
   const second: number = 60 * u - 180 * u ** 2 + 120 * u ** 3;
   const expected: number = 1 + q * (1e16 - 1);
   const point: [number, number, number] = AutoMovieLoftChain.point(chain, u, 0);
-  const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, u, 0);
+  const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, u, 0);
   close(
     [point[0], jet.p[0], jet.s[0], jet.ss[0]],
     [expected, expected, first * (1e16 - 1), second * (1e16 - 1)],
@@ -199,7 +203,7 @@ function mixed(failures: string[]): void {
     failures,
   );
   for (const s of [0, 1]) {
-    const result: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, 0);
+    const result: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, s, 0);
     close(
       [result.p[0], result.s[0], result.ss[0]],
       [s === 0 ? 1 : 1e16, 0, 0],

@@ -4,9 +4,11 @@ import {
   AutoMovieHumanF1Joints as J,
 } from "@automovie/human";
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanF1Frames,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -28,11 +30,11 @@ namespace FamilyConicFrames {
     const degrees = (r: number): string => ((r * 180) / Math.PI).toFixed(1);
     const segments: IAutoMovieHumanF1Frames.ISegment[] =
       AutoMovieHumanF1Frames.segments();
-    const joints: Map<string, IAutoMovieHumanSegmentFrame.IJoint> = new Map(
+    const joints: Map<string, IAutoMovieHumanSegmentJoint> = new Map(
       AutoMovieHumanF1Frames.joints().map(
         (
-          j: IAutoMovieHumanSegmentFrame.IJoint,
-        ): [string, IAutoMovieHumanSegmentFrame.IJoint] => [j.name, j],
+          j: IAutoMovieHumanSegmentJoint,
+        ): [string, IAutoMovieHumanSegmentJoint] => [j.name, j],
       ),
     );
     const lines: string[] = [
@@ -44,9 +46,7 @@ namespace FamilyConicFrames {
     // The angles first, so the pose reads as anatomy at a glance.
     lines.push("ISB joint-coordinate angles at the reference pose, degrees:");
     for (const angles of AutoMovieHumanF1Frames.ANGLES) {
-      const r: IAutoMovieHumanSegmentFrame.M3 = joints.get(
-        angles.segment,
-      )!.rotation;
+      const r: AutoMovieMatrix3Tuple = joints.get(angles.segment)!.rotation;
       const read: [number, number, number] =
         angles.sequence === "YXY" ? F.eulerYXY(r) : F.cardanZXY(r);
       lines.push(
@@ -73,11 +73,11 @@ namespace FamilyConicFrames {
     );
 
     // The two readings that look unanatomical, beside the lines they are not.
-    const frames: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = new Map(
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = new Map(
       segments.map(
         (
           s: IAutoMovieHumanF1Frames.ISegment,
-        ): [string, IAutoMovieHumanSegmentFrame.IFrame] => [s.name, s.frame],
+        ): [string, IAutoMovieHumanSegmentFrame] => [s.name, s.frame],
       ),
     );
     const apart = (
@@ -102,7 +102,7 @@ namespace FamilyConicFrames {
     );
 
     for (const s of segments) {
-      const joint: IAutoMovieHumanSegmentFrame.IJoint = joints.get(s.name)!;
+      const joint: IAutoMovieHumanSegmentJoint = joints.get(s.name)!;
       lines.push(
         s.name + " (parent " + (s.parent ?? "none") + ")",
         "  rule: " + s.rule,

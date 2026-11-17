@@ -1,7 +1,8 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanArmAngles } from "./IAutoMovieMotionHumanArmAngles";
 import type { IAutoMovieMotionHumanArmPlanned } from "./IAutoMovieMotionHumanArmPlanned";
@@ -17,7 +18,7 @@ import type { IAutoMovieMotionHumanArmPlanned } from "./IAutoMovieMotionHumanArm
  * inverse kinematics: the goal carries the surface as its contact, so where
  * the arm cannot turn the hand as asked the resolver re-aims the wrist until
  * the surface stays on its point and the rotation gives way
- * (`IAutoMovieMotionHumanPosture.IGoal.contact`).
+ * (`IAutoMovieHumanLimbGoal.contact`).
  *
  * Between its origin and its target the surface moves on a straight path,
  * or one that bows to the arm's own side when the movement states a
@@ -30,7 +31,7 @@ import type { IAutoMovieMotionHumanArmPlanned } from "./IAutoMovieMotionHumanArm
  * @evidence contracts/development/common.md#meaningful-documentation from: Seconds since the action's start from which the arm is written. to: Seconds since the action's start until which the arm is written. span: The action's instants the arm's whole action is planned over as one trajectory (`AutoMovieMotionHumanArmPlanned.planned`): the reach, the hold on the goal's site and the return, in the clock's instants or as the weight states them (`AutoMovieMotionHumanArmPlanned.stated`); when absent, the deprecated joint-space carry (`carry`), kept until every law states its span.
  * @evidence contracts/development/design.md#principled-representation from: Seconds since the action's start from which the arm is written. to: Seconds since the action's start until which the arm is written. span: The action's instants the arm's whole action is planned over as one trajectory (`AutoMovieMotionHumanArmPlanned.planned`): the reach, the hold on the goal's site and the return, in the clock's instants or as the weight states them (`AutoMovieMotionHumanArmPlanned.stated`); when absent, the deprecated joint-space carry (`carry`), kept until every law states its span.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carried, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanArmAngles.IAngles, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPosture.IGoal, IAutoMovieMotionHumanArmPlanned.ISpan identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles, IAutoMovieMotionHumanPosture, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanArmPlanned.ISpan identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanArmCarry {
   /**
@@ -46,7 +47,7 @@ export namespace IAutoMovieMotionHumanArmCarry {
     body: IAutoMovieMotionHumanBody;
 
     /** The arm. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** Seconds since the action's start from which the arm is written. */
     from: number;
@@ -75,7 +76,7 @@ export namespace IAutoMovieMotionHumanArmCarry {
     goal(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture.IGoal;
+    ): IAutoMovieHumanLimbGoal;
 
     /**
      * How far the arm is from its held angles to its goal.
@@ -116,7 +117,7 @@ export namespace IAutoMovieMotionHumanArmCarry {
     perceived?(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture.IGoal;
+    ): IAutoMovieHumanLimbGoal;
 
     /** Whether the planned arm follows its goal on the hold, a person who moves: the plan with a correction toward `goal` read at each second, moved within the audit's travel bound (`AutoMovieMotionHumanArmFollow.follower`); the plan alone when absent. */
     tracked?: boolean;

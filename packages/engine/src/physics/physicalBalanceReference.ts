@@ -1,7 +1,8 @@
 import type {
   IAutoMoviePhysicalBalanceReference,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalTargetInterval,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
@@ -43,15 +44,15 @@ export function physicalBalanceReference(
       Object.entries(Interval.sample(previous, input.start, input.rate)).map(
         ([bone, goal]: [string, IAutoMovieSamplePhysicalTarget.IResult]): [
           string,
-          IAutoMoviePhysicalProfile.ITransform,
+          IAutoMovieRigidTransform,
         ] => [bone, goal.pose],
       ),
     ),
     before: Object.fromEntries(
       input.body.profile.segments.map(
         (
-          segment: IAutoMoviePhysicalProfile.ISegment,
-        ): [string, IAutoMoviePhysicalProfile.ITransform] => [
+          segment: IAutoMoviePhysicalSegment,
+        ): [string, IAutoMovieRigidTransform] => [
           segment.bone,
           samplePhysicalTarget(
             input.body.targets[input.step - 1]!.segments[segment.bone]!,

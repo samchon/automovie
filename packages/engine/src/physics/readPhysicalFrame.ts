@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -20,8 +20,8 @@ import { physicalNativeVector } from "./physicalNativeVector";
 export function readPhysicalFrame(
   bound: Bound,
   seconds: number,
-): IAutoMoviePhysicsCache.IFrame {
-  const bodies: IAutoMoviePhysicsCache.IFrame["bodies"] = Object.create(null);
+): IAutoMoviePhysicalFrame {
+  const bodies: IAutoMoviePhysicalFrame["bodies"] = Object.create(null);
   for (const [key, body] of bound.bodies) {
     const slash: number = key.indexOf("/");
     const id: string = key.slice(0, slash);

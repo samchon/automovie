@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
+  AutoMovieVector2Tuple,
+  IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -135,45 +135,41 @@ export async function SurfaceQualitySeams(): Promise<void> {
       const phases: number[] = [
         ...new Set([
           ...a.pieces.map(
-            (p: IAutoMovieCompactCurveApproximation.IPiece): number =>
+            (p: IAutoMovieRegisteredPlanarCurvePiece): number =>
               p.domain[0] / a.period,
           ),
           ...b.pieces.map(
-            (p: IAutoMovieCompactCurveApproximation.IPiece): number =>
+            (p: IAutoMovieRegisteredPlanarCurvePiece): number =>
               p.domain[0] / b.period,
           ),
         ]),
       ];
       for (const q of phases)
         for (const candidate of [false, true]) {
-          const aa: readonly IAutoMovieCompactCurveApproximation.IPiece[] =
-              candidate ? a.pieces : a.source.pieces,
-            bb: readonly IAutoMovieCompactCurveApproximation.IPiece[] =
-              candidate ? b.pieces : b.source.pieces;
-          const al: IAutoMovieConicApproximation.Point = jet(
+          const aa: readonly IAutoMovieRegisteredPlanarCurvePiece[] = candidate
+              ? a.pieces
+              : a.source.pieces,
+            bb: readonly IAutoMovieRegisteredPlanarCurvePiece[] = candidate
+              ? b.pieces
+              : b.source.pieces;
+          const al: Readonly<AutoMovieVector2Tuple> = jet(
               aa,
               a.period,
               q,
               -1,
               1,
             ),
-            ar: IAutoMovieConicApproximation.Point = jet(aa, a.period, q, 1, 1),
-            bl: IAutoMovieConicApproximation.Point = jet(
-              bb,
-              b.period,
-              q,
-              -1,
-              1,
-            ),
-            br: IAutoMovieConicApproximation.Point = jet(bb, b.period, q, 1, 1);
-          const ap: IAutoMovieConicApproximation.Point = jet(
+            ar: Readonly<AutoMovieVector2Tuple> = jet(aa, a.period, q, 1, 1),
+            bl: Readonly<AutoMovieVector2Tuple> = jet(bb, b.period, q, -1, 1),
+            br: Readonly<AutoMovieVector2Tuple> = jet(bb, b.period, q, 1, 1);
+          const ap: Readonly<AutoMovieVector2Tuple> = jet(
               aa,
               a.period,
               q,
               1,
               0,
             ),
-            bp: IAutoMovieConicApproximation.Point = jet(bb, b.period, q, 1, 0);
+            bp: Readonly<AutoMovieVector2Tuple> = jet(bb, b.period, q, 1, 0);
           const ds: N.Point = [(bp[0] - ap[0]) / h, 1, (bp[1] - ap[1]) / h];
           const angleA: number = D.angle([al[0], 0, al[1]], [ar[0], 0, ar[1]]),
             angleB: number = D.angle([bl[0], 0, bl[1]], [br[0], 0, br[1]]);
@@ -248,40 +244,41 @@ export async function SurfaceQualitySeams(): Promise<void> {
 
 /** Evaluate a literal one-sided polynomial jet; shared endpoint speeds are never replaced by artificial tangents. */
 function jet(
-  pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[],
+  pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[],
   period: number,
   q: number,
   side: -1 | 1,
   order: 0 | 1,
-): IAutoMovieConicApproximation.Point {
+): Readonly<AutoMovieVector2Tuple> {
   let t: number = q * period;
   const epsilon: number = 32 * Number.EPSILON * period;
   if (Math.abs(t) <= epsilon) t = side < 0 ? period : 0;
   let index: number = pieces.findIndex(
-    (p: IAutoMovieCompactCurveApproximation.IPiece): boolean =>
+    (p: IAutoMovieRegisteredPlanarCurvePiece): boolean =>
       side < 0
         ? t > p.domain[0] + epsilon && t <= p.domain[1] + epsilon
         : t >= p.domain[0] - epsilon && t < p.domain[1] - epsilon,
   );
   if (index < 0) index = side < 0 ? pieces.length - 1 : 0;
-  const p: IAutoMovieCompactCurveApproximation.IPiece = pieces[index]!;
+  const p: IAutoMovieRegisteredPlanarCurvePiece = pieces[index]!;
   if (p.kind !== "polynomial")
     throw new Error("Exact source-clock polynomial control only");
   const h: number = p.domain[1] - p.domain[0],
     u: number = Math.max(0, Math.min(1, (t - p.domain[0]) / h));
-  let controls: IAutoMovieConicApproximation.Point[] = p.controls.map(
-    (
-      v: IAutoMovieConicApproximation.Point,
-    ): IAutoMovieConicApproximation.Point => [v[0], v[1]],
+  let controls: Readonly<AutoMovieVector2Tuple>[] = p.controls.map(
+    (v: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> => [
+      v[0],
+      v[1],
+    ],
   );
   if (order === 1)
     controls = controls
       .slice(1)
       .map(
         (
-          v: IAutoMovieConicApproximation.Point,
+          v: Readonly<AutoMovieVector2Tuple>,
           i: number,
-        ): IAutoMovieConicApproximation.Point => [
+        ): Readonly<AutoMovieVector2Tuple> => [
           ((v[0] - controls[i]![0]) * p.degree * period) / h,
           ((v[1] - controls[i]![1]) * p.degree * period) / h,
         ],

@@ -8,7 +8,7 @@ import type {
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadNeck,
   IAutoMovieHumanHeadPrior,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
@@ -238,11 +238,10 @@ export namespace AutoMovieHumanHeadLandmarks {
       (point: P2, i: number, all: P2[]): boolean =>
         i === 0 || point[0] !== all[i - 1]![0],
     );
-    const profile: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(
-        knots.map((p2: P2): number => p2[0]),
-        knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
-      );
+    const profile: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      knots.map((p2: P2): number => p2[0]),
+      knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
+    );
     const along: (y: number) => number = (y: number): number =>
       ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
 

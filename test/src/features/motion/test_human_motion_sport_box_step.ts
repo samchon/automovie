@@ -91,11 +91,10 @@ export function test_human_motion_sport_box_step(): void {
       body,
       0,
     );
-    const step: IAutoMovieMotionHumanSegment.ISegment = film
+    const step: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "boxStep",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "boxStep",
       )!;
     const ankle = (
       beat: number,

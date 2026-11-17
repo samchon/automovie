@@ -1,7 +1,10 @@
 import { AutoMovieViewLoft } from "@automovie/engine";
 import type {
+  IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteControls,
   IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieLoftContract,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
@@ -60,22 +63,22 @@ export namespace AutoMovieHumanSiteViewPart {
 
   /** Prepare the identical production source without constructing a raw loft. */
   export function define(
-    input: IAutoMovieHumanSiteViewPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+    input: IAutoMovieHumanSectionSource,
+  ): IAutoMovieHumanSourceDefinition {
     return AutoMovieHumanSiteDefinition.of(input);
   }
 
   /** Publish the exact shared generating controls; no sibling part or source solve is needed. */
   export function fromControls(
     prepared: IAutoMovieHumanSiteControls.IOutput,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     return AutoMovieHumanSiteDefinition.publish(prepared);
   }
 
   /** Loft this exact prepared part once; copy diagnostics so the shared definition remains unchanged. */
   export function loft(
-    definition: IAutoMovieHumanSiteViewPart.IDefinition,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+    definition: IAutoMovieHumanSourceDefinition,
+  ): IAutoMovieHumanSourceRealization {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...definition.diagnostics,
     ];
@@ -95,8 +98,8 @@ export namespace AutoMovieHumanSiteViewPart {
    * @returns The part, its loft and the diagnostics.
    */
   export function create(
-    input: IAutoMovieHumanSiteViewPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+    input: IAutoMovieHumanSectionSource,
+  ): IAutoMovieHumanSourceRealization {
     return loft(define(input));
   }
 
@@ -114,7 +117,7 @@ export namespace AutoMovieHumanSiteViewPart {
    */
   export function outline(
     input: Pick<
-      IAutoMovieHumanSiteViewPart.IInput,
+      IAutoMovieHumanSectionSource,
       "sites" | "pole" | "poleJets" | "ranges" | "parameter"
     >,
     quarter: 0 | 1 | 2 | 3,

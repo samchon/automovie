@@ -1,6 +1,6 @@
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
+import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
 import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder.js";
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
 
 /**
  * Current rows and an already opened reference round for pixel comparison. compareAutoMovieCaptureRounds requires earlier/reference on the folder, pairs according to match, and writes comparison sheets through claimed names. Different or absent backend identities produce side-by-side records instead of numerical pixel differences.
@@ -18,7 +18,7 @@ export interface IAutoMovieCaptureComparisonProps {
   round: string;
 
   /** This capture's rows, in plan order. */
-  rows: readonly IAutoMovieCaptureRecord.Row[];
+  rows: readonly IAutoMovieCaptureCellRecord[];
 
   /** How cells are paired. */
   match: "cell" | "time";

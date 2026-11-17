@@ -10,11 +10,11 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointRotationFrame,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
-  IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -79,7 +79,7 @@ export function test_human_motion_core_arm_readings(): void {
     ],
   ];
   const bone: AutoMovieHumanoidBone = "rightUpperArm";
-  const joint: IAutoMovieSwingTwistRange.IJoint = {
+  const joint: IAutoMovieJointRotationFrame = {
     axes: skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]!,
     frame: HUMANOID_REST_FRAME[bone],
   };

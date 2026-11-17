@@ -1,6 +1,6 @@
 import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -238,19 +238,20 @@ export function test_human_motion_force_exchange_laws(): void {
   );
 
   // 6. The pull over its grips.
-  const pulled: IAutoMovieMotionHumanForce.ISustained[] =
-    HumanForceExchange.pull({
+  const pulled: IAutoMovieMotionHumanSustainedForce[] = HumanForceExchange.pull(
+    {
       subject: "b",
       sites: ["chestLeft", "elbowRight"],
       direction: { x: 0, y: 0, z: 1 },
       force: 600,
       from: 0,
       to: 1,
-    });
+    },
+  );
   all.check(
     `a pull of 600 N over two grips gives ${pulled.length} forces of ${pulled.map((f) => JSON.stringify(HumanForce.at(f, 0.5))).join(", ")}`,
     pulled.length === 2 &&
-      pulled.every((f: IAutoMovieMotionHumanForce.ISustained): boolean => {
+      pulled.every((f: IAutoMovieMotionHumanSustainedForce): boolean => {
         const v: IAutoMovieVector3 = HumanForce.at(f, 0.5);
         return close(v.z, 300, 1e-12) && v.x === 0 && v.y === 0;
       }),

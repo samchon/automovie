@@ -6,9 +6,11 @@ import type {
   IAutoMovieHumanBodyPreparation,
   IAutoMovieHumanBodySources,
   IAutoMovieHumanHeadLane,
+  IAutoMovieHumanNamedSource,
   IAutoMovieHumanParameters,
-  IAutoMovieHumanSiteViewPart,
   IAutoMovieHumanSkeletonLaw,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieHumanTrunkInputs,
   IAutoMovieHumanTrunkSolution,
@@ -147,7 +149,7 @@ export namespace AutoMovieHumanBodyPreparation {
   export function original(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
-  ): IAutoMovieHumanSiteViewPart.IDefinition | null {
+  ): IAutoMovieHumanSourceDefinition | null {
     if (
       name === "trunk" ||
       name.startsWith("breast.") ||
@@ -156,7 +158,7 @@ export namespace AutoMovieHumanBodyPreparation {
       return (
         trunkSource(context)
           .sources.filter(
-            (source: IAutoMovieHumanSiteViewPart.ISource): boolean =>
+            (source: IAutoMovieHumanNamedSource): boolean =>
               source.name === name,
           )
           .at(-1)?.result ?? null
@@ -197,16 +199,16 @@ export namespace AutoMovieHumanBodyPreparation {
   export function loft(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
-  ): IAutoMovieHumanSiteViewPart.IResult | null {
-    const retained: IAutoMovieHumanSiteViewPart.IResult | undefined =
+  ): IAutoMovieHumanSourceRealization | null {
+    const retained: IAutoMovieHumanSourceRealization | undefined =
       context.rawSources?.get(name);
     if (retained !== undefined) return retained;
-    const definition: IAutoMovieHumanSiteViewPart.IDefinition | null = original(
+    const definition: IAutoMovieHumanSourceDefinition | null = original(
       context,
       name,
     );
     if (definition === null) return null;
-    const result: IAutoMovieHumanSiteViewPart.IResult =
+    const result: IAutoMovieHumanSourceRealization =
       AutoMovieHumanSiteViewPart.loft(definition);
     context.rawSources ??= new Map();
     context.rawSources.set(name, result);

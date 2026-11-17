@@ -1,5 +1,6 @@
 import type {
   IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -136,7 +137,7 @@ function admitFollows(
   fp: string,
   collector: IAutoMovieViolationCollector,
 ): void {
-  const follows: IAutoMovieAffordance.Follows = follower.follows!;
+  const follows: IAutoMovieAffordanceCoupling = follower.follows!;
   if (!ARTICULATIONS.has(follower.kind)) {
     collector.push(
       "type",

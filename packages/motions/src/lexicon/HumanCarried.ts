@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarryHumanPosture,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
@@ -75,7 +76,7 @@ export namespace HumanCarried {
             reason: "a person is carried by someone else",
             fix: "name the carrier",
           });
-        const carrier: IAutoMovieMotionHumanActionContext.IPerformer =
+        const carrier: IAutoMovieMotionHumanPerformerReader =
           context.performer(by);
         const held: IAutoMovieMotionHumanPosture = context.entry.posture;
         const frame = (

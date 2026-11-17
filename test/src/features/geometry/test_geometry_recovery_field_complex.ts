@@ -1,7 +1,7 @@
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryEventChartInput,
   IAutoMovieRecoveryEventCurvePiece,
 } from "@automovie/interface";
@@ -172,10 +172,10 @@ export function test_geometry_recovery_field_complex(): void {
           (
             piece: IAutoMovieRecoveryEventCurvePiece,
           ): IAutoMovieRecoveryEventCurvePiece => {
-            const parent: IAutoMovieCurve64.Span = E.fullparentControls(
+            const parent: AutoMovieCubicBezierControls3 = E.fullparentControls(
               piece.source,
             );
-            const net: IAutoMovieCurve64.Span = [
+            const net: AutoMovieCubicBezierControls3 = [
               parent[0],
               [parent[1][0] + 1, parent[1][1], parent[1][2]],
               parent[2],

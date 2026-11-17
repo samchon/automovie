@@ -30,7 +30,17 @@ export namespace IAutoMovieMotionHumanWalkLegClearance {
     /** The excess, metres. */
     excess: number;
 
-    /** The binding piece read for the two legs moved, metres; equal to the excess for the legs read. */
+    /**
+     * The binding piece read for the two legs moved, metres; equal to the excess for the legs read.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkLegClearance.IReading.at: The binding piece read for the two legs moved, metres; equal to the excess for the legs read.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
+     */
     at: (
       one: IAutoMovieMotionHumanWalkLegClearance.ILeg,
       other: IAutoMovieMotionHumanWalkLegClearance.ILeg,

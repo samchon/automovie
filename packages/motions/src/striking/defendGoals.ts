@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDefend,
@@ -119,8 +120,7 @@ export namespace defendGoals {
       side: "left" | "right",
       at: IAutoMovieVector3,
       elbow: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanPosture.IGoal =>
-      StrikingStance.glove(body, side, at, elbow);
+    ): IAutoMovieHumanLimbGoal => StrikingStance.glove(body, side, at, elbow);
     const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const toward: IAutoMovieVector3 = Vector3.normalize({

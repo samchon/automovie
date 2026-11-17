@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanHand,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -36,7 +37,7 @@ export namespace HumanHandDirection {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
     direction: IAutoMovieMotionHumanHand.Direction,
   ): IAutoMovieVector3 {

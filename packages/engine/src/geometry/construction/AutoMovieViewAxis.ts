@@ -2,8 +2,8 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieAxisDirection,
   IAutoMovieConstructionOutlineParameter,
-  IAutoMovieLoftFrame,
-  IAutoMovieNaturalSpline,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewJointedCourse,
@@ -83,9 +83,9 @@ export namespace AutoMovieViewAxis {
     v: AutoMovieVector3Tuple,
   ): IAutoMovieViewAxis.IAxis {
     const w: AutoMovieVector3Tuple = cross(v, u);
-    const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): IAutoMovieLoftFrame.IFrame => ({
+    ): IAutoMovieLoftSectionFrame => ({
       origin: add(origin, scale(w, station)),
       u: [...u],
       v: [...v],
@@ -146,18 +146,18 @@ export namespace AutoMovieViewAxis {
   ): IAutoMovieViewAxis.IAxis {
     const spline: (
       knots: readonly IAutoMovieViewAxis.IAxisKnot1[],
-    ) => IAutoMovieNaturalSpline.ISpline = (
+    ) => IAutoMovieNaturalCubicSpline = (
       knots: readonly IAutoMovieViewAxis.IAxisKnot1[],
-    ): IAutoMovieNaturalSpline.ISpline =>
+    ): IAutoMovieNaturalCubicSpline =>
       AutoMovieNaturalSpline.create(
         knots.map((k: IAutoMovieViewAxis.IAxisKnot1): number => k.station),
         knots.map((k: IAutoMovieViewAxis.IAxisKnot1): number => k.value),
       );
-    const sx: IAutoMovieNaturalSpline.ISpline = spline(x);
-    const sz: IAutoMovieNaturalSpline.ISpline = spline(z);
-    const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
+    const sx: IAutoMovieNaturalCubicSpline = spline(x);
+    const sz: IAutoMovieNaturalCubicSpline = spline(z);
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): IAutoMovieLoftFrame.IFrame => ({
+    ): IAutoMovieLoftSectionFrame => ({
       origin: [
         AutoMovieNaturalSpline.evaluate(sx, station),
         station,
@@ -318,8 +318,8 @@ export namespace AutoMovieViewAxis {
     const stations: number[] = knots.map(
       (k: IAutoMovieViewAxis.IAxisKnot): number => k.station,
     );
-    const splines: IAutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
-      (c: number): IAutoMovieNaturalSpline.ISpline =>
+    const splines: IAutoMovieNaturalCubicSpline[] = [0, 1, 2].map(
+      (c: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           stations,
           knots.map((k: IAutoMovieViewAxis.IAxisKnot): number => k.point[c]!),
@@ -328,7 +328,7 @@ export namespace AutoMovieViewAxis {
     const point: (s: number) => AutoMovieVector3Tuple = (
       s: number,
     ): AutoMovieVector3Tuple =>
-      splines.map((p: IAutoMovieNaturalSpline.ISpline): number =>
+      splines.map((p: IAutoMovieNaturalCubicSpline): number =>
         AutoMovieNaturalSpline.evaluate(p, s),
       ) as AutoMovieVector3Tuple;
     const tangent: (s: number) => AutoMovieVector3Tuple = (
@@ -336,7 +336,7 @@ export namespace AutoMovieViewAxis {
     ): AutoMovieVector3Tuple =>
       unit(
         splines.map(
-          (p: IAutoMovieNaturalSpline.ISpline): number =>
+          (p: IAutoMovieNaturalCubicSpline): number =>
             AutoMovieNaturalSpline.derivative(p, s)[0],
         ) as AutoMovieVector3Tuple,
       );
@@ -380,9 +380,9 @@ export namespace AutoMovieViewAxis {
       return AutoMovieAxisDirection.reflect(rL, v2, c2);
     };
 
-    const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): IAutoMovieLoftFrame.IFrame => {
+    ): IAutoMovieLoftSectionFrame => {
       // March from the first knot in equal steps no longer than `step`,
       // so a station's frame depends on the station alone.
       const span: number = station - s0;
@@ -412,7 +412,7 @@ export namespace AutoMovieViewAxis {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh triple and retains nothing.
    */
   export function normal(
-    frame: IAutoMovieLoftFrame.IFrame,
+    frame: IAutoMovieLoftSectionFrame,
   ): AutoMovieVector3Tuple {
     return cross(frame.v, frame.u);
   }

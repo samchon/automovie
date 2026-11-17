@@ -1,5 +1,6 @@
 import type {
   IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalSegmentState,
   IAutoMoviePhysicsCache,
 } from "@automovie/interface";
 
@@ -30,10 +31,10 @@ export async function encodePhysicalPlayback(
   const segments: [string, string][] = Object.entries(
     cache.frames[0]!.bodies,
   ).flatMap(
-    ([body, bones]: [
+    ([body, bones]: [string, Record<string, IAutoMoviePhysicalSegmentState>]): [
       string,
-      Record<string, IAutoMoviePhysicsCache.ISegment>,
-    ]): [string, string][] =>
+      string,
+    ][] =>
       Object.keys(bones).map((bone: string): [string, string] => [body, bone]),
   );
   if (!segments.length)
@@ -68,7 +69,7 @@ export async function encodePhysicalPlayback(
   let cursor: number = offset;
   for (const frame of cache.frames)
     for (const [body, bone] of segments) {
-      const state: IAutoMoviePhysicsCache.ISegment | undefined =
+      const state: IAutoMoviePhysicalSegmentState | undefined =
         frame.bodies[body]?.[bone];
       if (!state) throw new Error(`Incomplete physical frame: ${body}/${bone}`);
       const values: number[] = [

@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanForceResponse,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -101,17 +102,17 @@ export namespace HumanForceResponse {
     );
 
     // The pull open at the start.
-    const open: IAutoMovieMotionHumanForce.ISustained[] = (
+    const open: IAutoMovieMotionHumanSustainedForce[] = (
       context.forces?.(0, 0) ?? []
     ).filter(
       (
-        f: IAutoMovieMotionHumanForce.IForce,
-      ): f is IAutoMovieMotionHumanForce.ISustained => f.kind === "sustained",
+        f: IAutoMovieMotionHumanForce,
+      ): f is IAutoMovieMotionHumanSustainedForce => f.kind === "sustained",
     );
     const sum: IAutoMovieVector3 = open.reduce(
       (
         s: IAutoMovieVector3,
-        f: IAutoMovieMotionHumanForce.ISustained,
+        f: IAutoMovieMotionHumanSustainedForce,
       ): IAutoMovieVector3 => Vector3.add(s, HumanForce.at(f, context.start)),
       { x: 0, y: 0, z: 0 },
     );
@@ -132,7 +133,7 @@ export namespace HumanForceResponse {
     };
     const span: number =
       Math.min(
-        ...open.map((f: IAutoMovieMotionHumanForce.ISustained): number => f.to),
+        ...open.map((f: IAutoMovieMotionHumanSustainedForce): number => f.to),
       ) - context.start;
 
     // The centre, the planted base and the pivot at the ankles.
@@ -236,7 +237,7 @@ export namespace HumanForceResponse {
 
     // The grips' mean height, where the pull acts.
     const sites: number[] = open.map(
-      (f: IAutoMovieMotionHumanForce.ISustained): number =>
+      (f: IAutoMovieMotionHumanSustainedForce): number =>
         HumanForceThrow.site(body, bones, f.at).y,
     );
     const grip: number =

@@ -2,7 +2,14 @@ import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
 import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 
-/** Data and callback contracts shared by the MeasureRenderInventory operations. */
+/**
+ * Data and callback contracts shared by the MeasureRenderInventory operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation A drawable subject, matching semantic mask and optional renderer fallback define one conservative uncropped frame inventory.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieRenderInventory joins existing subject, mask and target settings so cost owners and mask identities agree.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Independent LOD maxima are upper bounds; unresolved geometry, texture representation or residency stays unknown rather than an exact cost.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents metric scope, unknown values, simulated drawables and pass attribution.
+ */
 export namespace IAutoMovieMeasureRenderInventory {
   /**
    * Measure what one frame of a subject commits the renderer to.
@@ -45,6 +52,11 @@ export namespace IAutoMovieMeasureRenderInventory {
    * one-frame peak and its own identity is worth keeping, but its cost is the sum
    * of every drawable that preceded it rather than the owner's own complexity, so
    * the report keeps its attribution without ranking it as an editable owner.
+   *
+   * @evidence contracts/development/design.md#principled-representation A drawable subject, matching semantic mask and optional renderer fallback define one conservative uncropped frame inventory.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieRenderInventory joins existing subject, mask and target settings so cost owners and mask identities agree.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Independent LOD maxima are upper bounds; unresolved geometry, texture representation or residency stays unknown rather than an exact cost.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents metric scope, unknown values, simulated drawables and pass attribution.
    */
   export type IProps = {
     /** The drawable world. */

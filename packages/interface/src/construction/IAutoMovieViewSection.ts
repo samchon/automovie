@@ -3,7 +3,14 @@ import type { IAutoMoviePolarSector } from "./IAutoMoviePolarSector";
 import type { IAutoMovieQuarters } from "./IAutoMovieQuarters";
 import type { IAutoMovieViewConic } from "./IAutoMovieViewConic";
 
-/** Data and callback contracts shared by the ViewSection operations. */
+/**
+ * Data and callback contracts shared by the ViewSection operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Section records distinguish actual conic/support sources from inspection observations and measured mm girth; solved results retain reach or residual diagnostics.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewSection uses the shared quarters, conic and polar-guide contracts for section preparation and girth solving.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A nonnull candidate can still carry unresolved diagnostics; source observations do not define a new interpolant or certify target attainment.
+ * @evidence contracts/development/common.md#meaningful-documentation Explains support units, guide order, observation fields and solve failure semantics.
+ */
 export namespace IAutoMovieViewSection {
   /**
    * The finite positive support half extents about the source axis.

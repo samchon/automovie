@@ -301,7 +301,7 @@ export namespace supportContact {
       ? body.measure.shoulderHalfWidth
       : body.measure.hipHalfWidth;
     const reach: number = body.measure.forearm + body.measure.hand;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: edge, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin: edge, yaw };
     return HumanFrame.point(frame, {
       x: sign * half,
       y: 0,

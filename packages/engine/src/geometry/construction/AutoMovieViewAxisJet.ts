@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxisJet,
 } from "@automovie/interface";
 
@@ -28,7 +28,7 @@ export namespace AutoMovieViewAxisJet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result borrows the supplied value frame and owns all derivative triples; it retains no other source data.
    */
   export function fixed(
-    value: IAutoMovieLoftFrame.IFrame,
+    value: IAutoMovieLoftSectionFrame,
     first: AutoMovieVector3Tuple,
     second: AutoMovieVector3Tuple,
   ): IAutoMovieViewAxisJet.IJet {
@@ -61,12 +61,12 @@ export namespace AutoMovieViewAxisJet {
       station,
     );
     if (inverse === null) return null;
-    const first: IAutoMovieLoftFrame.IFrame = {
+    const first: IAutoMovieLoftSectionFrame = {
       origin: [0, 0, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],
     };
-    const second: IAutoMovieLoftFrame.IFrame = {
+    const second: IAutoMovieLoftSectionFrame = {
       origin: [0, 0, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],

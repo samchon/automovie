@@ -5,10 +5,10 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanHand,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -97,7 +97,7 @@ export namespace AutoMovieMotionHumanArmRide {
   export function riding(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     bone: AutoMovieHumanoidBone,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,

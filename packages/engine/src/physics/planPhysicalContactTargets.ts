@@ -2,11 +2,15 @@ import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactBinding,
   IAutoMoviePhysicalContactBindingRows,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalPointBound,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePlanPhysicalContactTargets,
   IAutoMoviePoses,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
 } from "@automovie/interface";
 
@@ -66,28 +70,28 @@ export function planPhysicalContactTargets(
     ),
   );
   const root: string = profile.segments.find(
-    (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+    (segment: IAutoMoviePhysicalSegment): boolean =>
       !profile.joints.some(
-        (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+        (joint: IAutoMoviePhysicalJoint): boolean =>
           joint.child === segment.bone,
       ),
   )!.bone;
-  const coherent: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+  const coherent: Record<string, IAutoMovieRigidTransform> =
     projectPhysicalTargets(profile, input.targets).targets;
-  const initial: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+  const initial: Record<string, IAutoMovieRigidTransform> =
     rebasePhysicalTargets(coherent, root, input.actual[input.body]![root]!);
   const bindings: IAutoMoviePhysicalContactBinding[] = input.bindings.filter(
     (binding: IAutoMoviePhysicalContactBinding): boolean => binding.weight > 0,
   );
-  const shapes: { bone: string; shape: IAutoMoviePhysicalProfile.IShape }[] =
+  const shapes: { bone: string; shape: IAutoMoviePhysicalShape }[] =
     profile.segments.flatMap(
       (
-        segment: IAutoMoviePhysicalProfile.ISegment,
-      ): { bone: string; shape: IAutoMoviePhysicalProfile.IShape }[] =>
+        segment: IAutoMoviePhysicalSegment,
+      ): { bone: string; shape: IAutoMoviePhysicalShape }[] =>
         segment.shapes.map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): { bone: string; shape: IAutoMoviePhysicalProfile.IShape } => ({
+            shape: IAutoMoviePhysicalShape,
+          ): { bone: string; shape: IAutoMoviePhysicalShape } => ({
             bone: segment.bone,
             shape,
           }),
@@ -123,7 +127,7 @@ export function planPhysicalContactTargets(
         (poses: IAutoMoviePoses): number[] => pointRelationship(bound, poses),
         bound.reference.body === input.body
           ? undefined
-          : (): IAutoMoviePhysicalProfile.ITransform =>
+          : (): IAutoMovieRigidTransform =>
               input.actual[bound.reference.body]![bound.reference.bone]!,
       ),
   );
@@ -203,8 +207,8 @@ export function planPhysicalContactTargets(
         ],
         linearize: (poses: IAutoMoviePoses): PoseRead<number[]> => {
           const model: (
-            first: IAutoMoviePhysicalProfile.ITransform,
-            second: IAutoMoviePhysicalProfile.ITransform,
+            first: IAutoMovieRigidTransform,
+            second: IAutoMovieRigidTransform,
           ) => number = linearizePhysicalSeparation(
             input.geometry,
             collider(pair.a, poses),
@@ -221,7 +225,7 @@ export function planPhysicalContactTargets(
   ];
   const bones: string[] = input.selfAvoidance
     ? profile.joints.map(
-        (joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child,
+        (joint: IAutoMoviePhysicalJoint): string => joint.child,
       )
     : [
         ...new Set([
@@ -320,14 +324,12 @@ export function planPhysicalContactTargets(
   function remember<Value>(
     bones: readonly string[],
     compute: PoseRead<Value>,
-    external?: () => IAutoMoviePhysicalProfile.ITransform,
+    external?: () => IAutoMovieRigidTransform,
   ): PoseRead<Value> {
     const names: string[] = [...new Set(bones)];
     return memoizePhysicalTransformValue(
-      (poses: IAutoMoviePoses): IAutoMoviePhysicalProfile.ITransform[] => [
-        ...names.map(
-          (bone: string): IAutoMoviePhysicalProfile.ITransform => poses[bone]!,
-        ),
+      (poses: IAutoMoviePoses): IAutoMovieRigidTransform[] => [
+        ...names.map((bone: string): IAutoMovieRigidTransform => poses[bone]!),
         ...(external ? [external()] : []),
       ],
       compute,

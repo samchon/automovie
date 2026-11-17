@@ -12,7 +12,7 @@ import type {
   IAutoMovieConstructionSource,
   IAutoMovieConstructionView,
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -78,9 +78,13 @@ export function test_construction_source_ingress(): void {
       sources.clear();
       const phi: number = variable ? Math.PI / 4 : 0;
       for (const s of [2.5, 5, 7.25, 12.5, 22.5, 32.5, 37.25]) {
-        const expected: IAutoMovieLoftJet.IJet =
+        const expected: IAutoMovieLoftSurfaceJet =
           ConstructionSourceIngress.expected(amplitude, s, variable);
-        const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, phi);
+        const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+          chain,
+          s,
+          phi,
+        );
         for (const order of ["p", "s", "t", "ss", "st", "tt"] as const)
           close(
             failures,

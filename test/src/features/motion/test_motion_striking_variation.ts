@@ -46,7 +46,7 @@ export function test_motion_striking_variation(): void {
   const spread = (
     level: (typeof levels)[number],
   ): { along: number; lateral: number } => {
-    const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+    const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
       { level },
       "e3",
     );
@@ -77,7 +77,7 @@ export function test_motion_striking_variation(): void {
     return { along: sd(along), lateral: sd(lateral) };
   };
   for (const level of ["novice", "elite"] as const) {
-    const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+    const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
       { level },
       "e3",
     );
@@ -99,7 +99,7 @@ export function test_motion_striking_variation(): void {
     all.every((v: number, i: number): boolean => i === 0 || v < all[i - 1]!),
   );
 
-  const exact: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const exact: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { level: "elite" },
     "e3",
   );

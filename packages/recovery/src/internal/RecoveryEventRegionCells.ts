@@ -1,7 +1,9 @@
 import type {
+  AutoMovieRecoverySourceTopologyIssueCode,
   IAutoMovieRecoveryEventRegion,
   IAutoMovieRecoveryEventRegionCells,
   IAutoMovieRecoveryEventRegionSource,
+  IAutoMovieRecoverySourceCellNode,
 } from "@automovie/interface";
 
 type Triangle =
@@ -56,18 +58,16 @@ export function RecoveryEventRegionCells(
     ports: [],
     issues: [],
   };
-  const nodeMap: Map<string, IAutoMovieRecoveryEventRegionCells.Node> =
-      new Map(),
-    cellNodes: Map<number, IAutoMovieRecoveryEventRegionCells.Node[]> =
-      new Map(),
+  const nodeMap: Map<string, IAutoMovieRecoverySourceCellNode> = new Map(),
+    cellNodes: Map<number, IAutoMovieRecoverySourceCellNode[]> = new Map(),
     faceCells: Map<number, number> = new Map();
   const issue: (
-    code: IAutoMovieRecoveryEventRegionCells.IssueCode,
+    code: AutoMovieRecoverySourceTopologyIssueCode,
     cells: number[],
     occurrences?: string[],
     ports?: string[],
   ) => number = (
-    code: IAutoMovieRecoveryEventRegionCells.IssueCode,
+    code: AutoMovieRecoverySourceTopologyIssueCode,
     cells: number[],
     occurrences: string[] = [],
     ports: string[] = [],
@@ -84,28 +84,28 @@ export function RecoveryEventRegionCells(
     });
     return id;
   };
-  const vertex: (id: number) => IAutoMovieRecoveryEventRegionCells.Node = (
+  const vertex: (id: number) => IAutoMovieRecoverySourceCellNode = (
     id: number,
-  ): IAutoMovieRecoveryEventRegionCells.Node => ({
+  ): IAutoMovieRecoverySourceCellNode => ({
     id: `v:${id}`,
     incidenceId: `v:${address(id)}`,
     vertices: [id],
     scalar: source.heights[id],
   });
   const clip: (
-    polygon: IAutoMovieRecoveryEventRegionCells.Node[],
+    polygon: IAutoMovieRecoverySourceCellNode[],
     level: number,
     above: boolean,
-  ) => IAutoMovieRecoveryEventRegionCells.Node[] = (
-    polygon: IAutoMovieRecoveryEventRegionCells.Node[],
+  ) => IAutoMovieRecoverySourceCellNode[] = (
+    polygon: IAutoMovieRecoverySourceCellNode[],
     level: number,
     above: boolean,
-  ): IAutoMovieRecoveryEventRegionCells.Node[] => {
-    const output: IAutoMovieRecoveryEventRegionCells.Node[] = [];
+  ): IAutoMovieRecoverySourceCellNode[] => {
+    const output: IAutoMovieRecoverySourceCellNode[] = [];
     for (let i: number = 0; i < polygon.length; i++) {
-      const a: IAutoMovieRecoveryEventRegionCells.Node =
+      const a: IAutoMovieRecoverySourceCellNode =
           polygon[(i + polygon.length - 1) % polygon.length],
-        b: IAutoMovieRecoveryEventRegionCells.Node = polygon[i];
+        b: IAutoMovieRecoverySourceCellNode = polygon[i];
       const insideA: boolean = above ? a.scalar >= level : a.scalar <= level,
         insideB: boolean = above ? b.scalar >= level : b.scalar <= level;
       // On-plane endpoints are retained by their own corner occurrence, not emitted twice.
@@ -142,7 +142,7 @@ export function RecoveryEventRegionCells(
       heights: number[] = triangle.map(
         (v: number): number => source.heights[v],
       );
-    const polygon: IAutoMovieRecoveryEventRegionCells.Node[] = clip(
+    const polygon: IAutoMovieRecoverySourceCellNode[] = clip(
       clip(triangle.map(vertex), lower, true),
       upper,
       false,
@@ -187,9 +187,7 @@ export function RecoveryEventRegionCells(
         plane === undefined
           ? { kind: "open-slab", beforeMm: lower, afterMm: upper }
           : { kind: "plane", coordinateMm: plane },
-      nodes: polygon.map(
-        (p: IAutoMovieRecoveryEventRegionCells.Node): string => p.id,
-      ),
+      nodes: polygon.map((p: IAutoMovieRecoverySourceCellNode): string => p.id),
       component: null,
       orientationFlip: null,
     };
@@ -206,12 +204,12 @@ export function RecoveryEventRegionCells(
   result.nodes = [...nodeMap.values()];
   result.aliases = result.nodes
     .filter(
-      (node: IAutoMovieRecoveryEventRegionCells.Node): boolean =>
+      (node: IAutoMovieRecoverySourceCellNode): boolean =>
         node.id !== node.incidenceId,
     )
     .map(
       (
-        node: IAutoMovieRecoveryEventRegionCells.Node,
+        node: IAutoMovieRecoverySourceCellNode,
       ): ReturnType<
         ReturnType<IAutoMovieRecoveryEventRegion.Operation>
       >["aliases"][number] => ({

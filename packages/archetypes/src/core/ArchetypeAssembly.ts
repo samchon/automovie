@@ -1,5 +1,6 @@
 import type {
   IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
   IAutoMovieMaterial,
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -280,7 +281,7 @@ export class ArchetypeAssembly<
    */
   public couple(
     follower: ArchetypeAssembly.Ids<M>,
-    follows: IAutoMovieAffordance.Follows & { id: ArchetypeAssembly.Ids<M> },
+    follows: IAutoMovieAffordanceCoupling & { id: ArchetypeAssembly.Ids<M> },
   ): ArchetypeAssembly<M> {
     const found: IAutoMovieAffordance | undefined =
       this.#props.affordances.find(

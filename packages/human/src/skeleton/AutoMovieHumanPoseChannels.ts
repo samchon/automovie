@@ -1,6 +1,6 @@
 import type {
+  AutoMovieHumanPoseChannelTemplate,
   IAutoMovieHumanPoseChannels,
-  IAutoMovieHumanRigControls,
 } from "@automovie/interface";
 
 /** Existing head, neck, shoulder and thumb rows preserve literal joint identities. */
@@ -95,7 +95,7 @@ const INITIAL = [
     80,
   ],
 ] as const satisfies readonly (readonly [
-  IAutoMovieHumanRigControls.ChannelTemplate,
+  AutoMovieHumanPoseChannelTemplate,
   string,
   "flexion" | "abduction" | "twist" | "forward" | "lateral",
   1 | -1,
@@ -168,7 +168,7 @@ const AXIAL = [
     90,
   ],
 ] as const satisfies readonly (readonly [
-  IAutoMovieHumanRigControls.ChannelTemplate,
+  AutoMovieHumanPoseChannelTemplate,
   string,
   "flexion" | "abduction" | "twist" | "forward" | "lateral",
   1 | -1,

@@ -1,7 +1,8 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeBounds,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { physicalShapeBounds } from "./physicalShapeBounds";
@@ -18,8 +19,8 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function inPhysicalFloorBounds(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   floor: IAutoMoviePhysicalSimulationInput.IInput["floorBounds"],
 ): boolean {
   const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(

@@ -5,7 +5,8 @@ import {
 } from "@automovie/archetypes";
 import { physicalHullMass, physicalShapeNearest } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -43,7 +44,7 @@ export function test_archetype_armour_form(): void {
   const findings: string[] = [];
   const EPSILON: number = 1e-9;
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const pose: IAutoMoviePhysicalProfile.ITransform = {
+  const pose: IAutoMovieRigidTransform = {
     position: origin,
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
@@ -55,14 +56,12 @@ export function test_archetype_armour_form(): void {
         kind,
         model: model as createArmour.Model,
       });
-      const shapes: IAutoMoviePhysicalProfile.IShape[] = piece.shapes();
+      const shapes: IAutoMoviePhysicalShape[] = piece.shapes();
       const height: number = heightCm / 100;
       const width: number = widthCm / 100;
       const depth: number = depthCm / 100;
       const ids: Set<string> = new Set(
-        shapes.map(
-          (shape: IAutoMoviePhysicalProfile.IShape): string => shape.id,
-        ),
+        shapes.map((shape: IAutoMoviePhysicalShape): string => shape.id),
       );
       if (
         piece.parts.length <= 1 ||
@@ -165,7 +164,7 @@ export function test_archetype_armour_form(): void {
       function clear(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
         return Math.min(
           ...shapes.map(
-            (shape: IAutoMoviePhysicalProfile.IShape): number =>
+            (shape: IAutoMoviePhysicalShape): number =>
               physicalShapeNearest(pose, shape, a, b).distance,
           ),
         );

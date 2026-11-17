@@ -1,9 +1,9 @@
 import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
-  IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanLoftMesh,
   IAutoMovieHumanSurfaceBoundary,
   IAutoMovieHumanSurfaceContext,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
   ): void {
     const tip: number | null = capHeight(target, end);
     const y: number = tip ?? endHeight(target, end);
-    const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
+    const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
       (target.pole?.end === end ? target.pole.point : undefined) ??
@@ -196,7 +196,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     end: "top" | "bottom",
   ): number | null {
     if (capHeight(target, end) !== null) return null;
-    const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
+    const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
     const layers: readonly IAutoMovieLoftChain.ILayer[] = target.layers;

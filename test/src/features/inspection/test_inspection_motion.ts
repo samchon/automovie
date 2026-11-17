@@ -5,8 +5,8 @@ import {
 import type {
   IAutoMovieInspectionTrail,
   IAutoMovieMark,
+  IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicsCache,
 } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
@@ -150,7 +150,7 @@ export async function test_inspection_motion(): Promise<void> {
             },
           },
         },
-      } as unknown as IAutoMoviePhysicsCache.IFrame,
+      } as unknown as IAutoMoviePhysicalFrame,
     });
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,

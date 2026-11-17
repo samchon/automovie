@@ -12,7 +12,7 @@
  * the joints blended from the tuck to the landing on minimum-jerk shares; the
  * flight is declared without turns, so the flight pass gives the whole
  * body's rotation from the angular momentum of none
- * (`IAutoMovieMotionHumanActionPlan.IFlight`, `HumanPerformanceFlight`). The landing is
+ * (`IAutoMovieMotionHumanFlight`, `HumanPerformanceFlight`). The landing is
  * the stand law's quiet stance (`stand.posture`, its joints `getUp.quiet`)
  * with the heels a foot's length past the far edge (provisional), held for
  * `seconds`.

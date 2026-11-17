@@ -56,11 +56,11 @@ export function test_motion_striking_defence_outcome(): void {
     "fail",
   );
 
-  const elite: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const elite: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { level: "elite" },
     "e4",
   );
-  const novice: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { level: "novice" },
     "e4",
   );

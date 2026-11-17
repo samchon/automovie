@@ -146,8 +146,7 @@ export function motionWalkFacing(
       body,
       0,
     );
-    const segment: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     durations[one.label] = segment.end - segment.entryTime;
 
     // 1. It arrives.
@@ -210,7 +209,7 @@ export function motionWalkFacing(
   // 5. Backward against forward.
   if (which === "back")
     try {
-      const forward: IAutoMovieMotionHumanSegment.ISegment = perform({
+      const forward: IAutoMovieMotionHumanSegment = perform({
         to: at(0, 2),
       }).segments("a")[0]!;
       const ratio: number =

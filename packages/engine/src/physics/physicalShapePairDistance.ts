@@ -1,7 +1,8 @@
 import type {
   IAutoMoviePhysicalHullFaces,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -41,10 +42,10 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The edge lists live in a weak map keyed by the point list, so they go when the shape goes.
  */
 export function physicalShapePairDistance(
-  poseA: IAutoMoviePhysicalProfile.ITransform,
-  shapeA: IAutoMoviePhysicalProfile.IShape,
-  poseB: IAutoMoviePhysicalProfile.ITransform,
-  shapeB: IAutoMoviePhysicalProfile.IShape,
+  poseA: IAutoMovieRigidTransform,
+  shapeA: IAutoMoviePhysicalShape,
+  poseB: IAutoMovieRigidTransform,
+  shapeB: IAutoMoviePhysicalShape,
 ): number {
   let least: number = Infinity;
   for (const [pose, shape, otherPose, other] of [
@@ -82,7 +83,7 @@ interface IWires {
 }
 
 /** The wire frame of one shape. */
-const wires = (shape: IAutoMoviePhysicalProfile.IShape): IWires => {
+const wires = (shape: IAutoMoviePhysicalShape): IWires => {
   if (shape.kind === "sphere")
     return {
       segments: [

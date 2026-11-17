@@ -101,8 +101,7 @@ export function test_human_motion_hand_reach_up(): void {
       );
       continue;
     }
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const ready: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "ready")?.share ??

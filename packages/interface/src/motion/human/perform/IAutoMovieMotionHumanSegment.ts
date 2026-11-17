@@ -3,115 +3,87 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanInterruptRow } from "../law/IAutoMovieMotionHumanInterruptRow";
 import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
+import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 
 /**
- * One placed action of one person, and how a person's displayed pose is
- * evaluated from their placed actions.
+ * One scheduled and planned human action with its law, context, film placement and optional transition from another segment. Performance evaluation and motion audits share this identity.
  *
- * The displayed pose at a second is, in order (the transition order of the
- * campaign): the active action's posture resolved to a pose; the decaying
- * inertialization offset from the action it interrupted, captured as both
- * actions' pose and velocity at the cut (`inertializePose`, Bollo 2018);
- * every planted or gripping limb re-solved onto its posture goal, so a contact
- * is never moved by the offset (Holden, Dead Blending); and the range-of-motion
- * clamp. A redirect transition adds no offset: its law continues the source's
- * state by construction. A prop an earlier action left held is carried by an
- * action that does not drive that hand: the hand rides the chest with the
- * offset it had when the holding action ended, the trunk-relative goal of
- * carrying an object, its fingers keep their grip, and it is re-solved like a
- * planted limb. Before a person's first action the standing posture
- * at their starting place is shown.
- *
- * The records and the small readers live here; the evaluation is split by
- * responsibility: the cut's legality (`HumanSegmentCut`), the entry state
- * (`HumanSegmentEntry`), the displayed pose (`HumanSegmentPose`), the
- * overlays (`HumanSegmentOverlay`) and a held prop's carry
- * (`HumanSegmentCarry`). `row`, `entry` and `displayed` are kept here by
- * name and pass straight to their owners.
- *
- * @evidence contracts/development/common.md#meaningful-documentation entry: The schedule entry's walk-order index. start: Film second of the law's time zero. blend: Offset decay time, seconds.
+ * @evidence contracts/development/common.md#meaningful-documentation One scheduled and planned human action with its law, context, film placement and optional transition from another segment. Performance evaluation and motion audits share this identity.
  * @evidence contracts/development/design.md#principled-representation entry: The schedule entry's walk-order index. start: Film second of the law's time zero. blend: Offset decay time, seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanPopulation.ts (HumanPopulation.cycle.segment, s); executable/cases/dressCases.ts (dressCases.act, s); executable/cases/StrikingEventVerdicts.ts (StrikingEventVerdicts.defence, segment); executable/cases/StrikingLimb.ts (StrikingLimb.end, segment); executable/cases/StrikingVerdicts.ts (StrikingVerdicts.at, segment); executable/cases/StrikingVerdicts.ts (StrikingVerdicts.at.share, e).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanInterruptRow, IAutoMoviePose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Performance placement creates planned segments consumed by pose evaluation, overlays, prop contacts and audits; caches and carried-grip work state remain nested evaluator helpers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Film placement and the plan's action-local clock stay separate, and a transition explicitly references its source segment. The performance scheduler owns admission and recursive evaluation guards.
  */
+export interface IAutoMovieMotionHumanSegment {
+  /** Order within the person's actions. */
+  index: number;
+
+  /** The schedule entry's walk-order index. */
+  entry: number;
+
+  /** The action's stable id: its anchor or its name. */
+  id: string;
+
+  /** The action. */
+  name: AutoMovieMotionHumanActionKey;
+
+  /** Its parameters. */
+  params: object;
+
+  /** Its law. */
+  law: IAutoMovieMotionHumanActionLaw<never>;
+
+  /** The context it was planned in. */
+  context: IAutoMovieMotionHumanActionContext<never>;
+
+  /** Its plan. */
+  plan: IAutoMovieMotionHumanActionPlan;
+
+  /** Film second of the law's time zero. */
+  start: number;
+
+  /** Film second it becomes active. */
+  entryTime: number;
+
+  /** Film second it stops: its cut or its end. */
+  end: number;
+
+  /** The transition that entered it, when it follows another action. */
+  transition?: {
+    /** Transition kind. */
+    kind: IAutoMovieMotionHumanInterruptRow["kind"];
+    /** Offset decay time, seconds. */
+    blend: number;
+    /** The action it follows. */
+    source: IAutoMovieMotionHumanSegment;
+    /** Film second of the cut. */
+    cut: number;
+    /** The offset, captured on first use. */
+    offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
+  };
+}
+
+/** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
 export namespace IAutoMovieMotionHumanSegment {
-  /**
-   * One placed action.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation entry: The schedule entry's walk-order index. start: Film second of the law's time zero. blend: Offset decay time, seconds.
-   * @evidence contracts/development/design.md#principled-representation entry: The schedule entry's walk-order index. start: Film second of the law's time zero. blend: Offset decay time, seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanPopulation.ts (HumanPopulation.cycle.segment, s); executable/cases/dressCases.ts (dressCases.act, s); executable/cases/StrikingEventVerdicts.ts (StrikingEventVerdicts.defence, segment); executable/cases/StrikingLimb.ts (StrikingLimb.end, segment); executable/cases/StrikingVerdicts.ts (StrikingVerdicts.at, segment); executable/cases/StrikingVerdicts.ts (StrikingVerdicts.at.share, e).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanInterruptRow, IAutoMoviePose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-   */
-  export interface ISegment {
-    /** Order within the person's actions. */
-    index: number;
-
-    /** The schedule entry's walk-order index. */
-    entry: number;
-
-    /** The action's stable id: its anchor or its name. */
-    id: string;
-
-    /** The action. */
-    name: AutoMovieMotionHumanActionKey;
-
-    /** Its parameters. */
-    params: object;
-
-    /** Its law. */
-    law: IAutoMovieMotionHumanActionLaw<never>;
-
-    /** The context it was planned in. */
-    context: IAutoMovieMotionHumanActionContext<never>;
-
-    /** Its plan. */
-    plan: IAutoMovieMotionHumanActionPlan;
-
-    /** Film second of the law's time zero. */
-    start: number;
-
-    /** Film second it becomes active. */
-    entryTime: number;
-
-    /** Film second it stops: its cut or its end. */
-    end: number;
-
-    /** The transition that entered it, when it follows another action. */
-    transition?: {
-      /** Transition kind. */
-      kind: IAutoMovieMotionHumanInterruptRow["kind"];
-      /** Offset decay time, seconds. */
-      blend: number;
-      /** The action it follows. */
-      source: IAutoMovieMotionHumanSegment.ISegment;
-      /** Film second of the cut. */
-      cut: number;
-      /** The offset, captured on first use. */
-      offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
-    };
-  }
-
   /**
    * One action placed over a carrier.
    *
    * @evidence contracts/development/common.md#meaningful-documentation channels: The channels, or single digits, it takes from the carrier.
    * @evidence contracts/development/design.md#principled-representation channels: The channels, or single digits, it takes from the carrier.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformance.ts (HumanPerformance.overlays, return); perform/HumanPerformanceRead.ts (HumanPerformanceRead.overlays, return); perform/HumanSegmentOverlay.ts (HumanSegmentOverlay.overlaid.build, used); perform/HumanSegmentOverlay.ts (HumanSegmentOverlay.overlaid.build.tag, o); perform/HumanSegmentOverlay.ts (HumanSegmentOverlay.overlaid.build, o); perform/HumanSegmentOverlay.ts (HumanSegmentOverlay.contactGoals, overlay).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanChannel.Claim identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanChannelClaim identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
-  export interface IOverlay extends IAutoMovieMotionHumanSegment.ISegment {
+  export interface IOverlay extends IAutoMovieMotionHumanSegment {
     /** The channels, or single digits, it takes from the carrier. */
-    channels: readonly AutoMovieMotionHumanChannel.Claim[];
+    channels: readonly AutoMovieMotionHumanChannelClaim[];
   }
 
   /**
@@ -120,17 +92,17 @@ export namespace IAutoMovieMotionHumanSegment {
    * @evidence contracts/development/common.md#meaningful-documentation stops: Resolved stops of this person's weapons, film seconds, keyed by `weapon(segment, id)`.
    * @evidence contracts/development/design.md#principled-representation stops: Resolved stops of this person's weapons, film seconds, keyed by `weapon(segment, id)`.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.hold, person); perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.contacts.nearest, owner); perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.contacts.events, person); perform/HumanPerformanceFlight.ts (HumanPerformanceFlight.flights, people); perform/HumanPerformanceFlight.ts (HumanPerformanceFlight.flight, person); perform/HumanPerformanceLayers.ts (HumanPerformanceLayers.window, person).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanSkill.ISkill, IAutoMovieMotionHumanSegment.ISegment, IAutoMovieMotionHumanSegment.IOverlay, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSegment.IOverlay, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPerson {
     /** The performer. */
     performer: IAutoMovieMotionHumanPerformer;
 
     /** The resolved skill. */
-    skill: IAutoMovieMotionHumanSkill.ISkill;
+    skill: IAutoMovieMotionHumanSkill;
 
     /** Placed actions, in film order. */
-    segments: IAutoMovieMotionHumanSegment.ISegment[];
+    segments: IAutoMovieMotionHumanSegment[];
 
     /** Actions placed over those, in placement order: each takes its claimed channels from the carrier while it runs. */
     overlays: IAutoMovieMotionHumanSegment.IOverlay[];
@@ -185,7 +157,7 @@ export namespace IAutoMovieMotionHumanSegment {
    * @evidence contracts/development/common.md#meaningful-documentation until: Film second a later action takes the hand over; infinite while none has. carry: The holding arm relative to the chest, captured when the carry starts.
    * @evidence contracts/development/design.md#principled-representation until: Film second a later action takes the hand over; infinite while none has. carry: The holding arm relative to the chest, captured when the carry starts.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.hold, h); perform/HumanSegmentCarry.ts (HumanSegmentCarry.carries, holds); perform/HumanSegmentCarry.ts (HumanSegmentCarry.carries, h); perform/HumanSegmentCarry.ts (HumanSegmentCarry.capture, held); perform/HumanSegmentEntry.ts (HumanSegmentEntry.entry, h); perform/HumanSegmentOverlay.ts (HumanSegmentOverlay.overlaid, carried).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanSegment.ISegment, IAutoMovieMotionHumanSegment.ICarry identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSegment.ICarry identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IHeld {
     /** The holding hand. */
@@ -200,7 +172,7 @@ export namespace IAutoMovieMotionHumanSegment {
     >;
 
     /** The action that took hold. */
-    source: IAutoMovieMotionHumanSegment.ISegment;
+    source: IAutoMovieMotionHumanSegment;
 
     /** Film second the hold starts. */
     from: number;
@@ -223,13 +195,13 @@ export namespace IAutoMovieMotionHumanSegment {
   /**
    * A holding arm as its action left it, which the carry keeps: the hand's
    * frame and the elbow in the chest's frame, and the arm's own solution
-   * (`IAutoMovieMotionHumanPosture.IGoal.reference`), so the carried arm stays in the
+   * (`IAutoMovieHumanLimbGoal.reference`), so the carried arm stays in the
    * configuration it took hold in.
    *
    * @evidence contracts/development/common.md#meaningful-documentation position: The hand joint in the chest's frame, metres. elbow: The elbow in the chest's frame, metres: the carry's bend hint.
    * @evidence contracts/development/design.md#principled-representation position: The hand joint in the chest's frame, metres. elbow: The elbow in the chest's frame, metres: the carry's bend hint.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanSegmentCarry.ts (HumanSegmentCarry.capture, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanPosture.IReference identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieHumanLimbReference identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ICarry {
     /** The hand joint in the chest's frame, metres. */
@@ -242,6 +214,6 @@ export namespace IAutoMovieMotionHumanSegment {
     elbow: IAutoMovieVector3;
 
     /** The arm's solution there. */
-    reference: IAutoMovieMotionHumanPosture.IReference;
+    reference: IAutoMovieHumanLimbReference;
   }
 }

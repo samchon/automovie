@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannel,
@@ -13,7 +14,6 @@ import type {
   IAutoMovieMotionHumanEffort,
   IAutoMovieMotionHumanGesture,
   IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanVariation,
@@ -157,15 +157,14 @@ export namespace gesture {
         fix: "give the gesture a shape whose digit is aimed, or leave out aim",
       });
 
-    const sides: IAutoMovieMotionHumanHand.Side[] =
-      ((): IAutoMovieMotionHumanHand.Side[] => {
-        const which = gestureStrokeTables.HANDS[p.kind];
-        return which === "both"
-          ? ["left", "right"]
-          : which === "one"
-            ? [p.side ?? "right"]
-            : [];
-      })();
+    const sides: AutoMovieHumanSide[] = ((): AutoMovieHumanSide[] => {
+      const which = gestureStrokeTables.HANDS[p.kind];
+      return which === "both"
+        ? ["left", "right"]
+        : which === "one"
+          ? [p.side ?? "right"]
+          : [];
+    })();
     const target = (seconds: number): IAutoMovieVector3 | undefined =>
       p.target === undefined
         ? undefined
@@ -173,7 +172,7 @@ export namespace gesture {
     const input = (
       base: IAutoMovieMotionHumanPosture,
       seconds: number,
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanGestureStroke.IInput => ({
       body,
       base,
@@ -221,21 +220,13 @@ export namespace gesture {
     const entryBones = poseBones(body, context.entry.pose);
     const restPose: IAutoMoviePose = resolveHumanPosture(body, at0);
     const begin: Partial<
-      Record<
-        IAutoMovieMotionHumanHand.Side,
-        IAutoMovieMotionHumanArmAngles.IAngles
-      >
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     > = {};
     const rest: Partial<
-      Record<
-        IAutoMovieMotionHumanHand.Side,
-        IAutoMovieMotionHumanArmAngles.IAngles
-      >
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     > = {};
     // The aimed digit's own direction in each moving hand's frame, read once.
-    const digits: Partial<
-      Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3>
-    > = {};
+    const digits: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
     for (const side of sides) {
       begin[side] = AutoMovieMotionHumanArm.angles(context.entry.pose, side);
       rest[side] = AutoMovieMotionHumanArm.angles(restPose, side);
@@ -386,10 +377,7 @@ export namespace gesture {
     // The arms planned over the whole gesture as one trajectory, when the
     // gesture is planned, so no posture read plans them.
     const arms:
-      | Map<
-          IAutoMovieMotionHumanHand.Side,
-          IAutoMovieMotionHumanArmTrajectory.Trajectory
-        >
+      | Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory>
       | undefined =
       sides.length === 0
         ? undefined

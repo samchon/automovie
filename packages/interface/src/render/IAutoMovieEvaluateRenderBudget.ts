@@ -3,7 +3,14 @@ import type { IAutoMovieRenderInventory } from "./IAutoMovieRenderInventory";
 import type { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
 import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 
-/** Data and callback contracts shared by the EvaluateRenderBudget operations. */
+/**
+ * Data and callback contracts shared by the EvaluateRenderBudget operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Inventory metrics, declared limits, semantic owner mask and a sealed target bind one budget verdict; null budget explicitly means no declared limits.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface evaluateAutoMovieRenderBudget consumes the shared inventory/target records and bounds only the named dominant-owner prefix.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported and not-run costs stay incomplete; missing limits stay unbudgeted and whole-frame passes remain costs without posing as editable owners.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents metric outcomes, limit admission, report ownership and contributor default.
+ */
 export namespace IAutoMovieEvaluateRenderBudget {
   /**
    * Check one inventory against one declared budget and produce the bounded
@@ -35,6 +42,11 @@ export namespace IAutoMovieEvaluateRenderBudget {
    * the recovery as passes. A ranking that let them compete would put the same
    * name first in every production that lights nothing, and that name is a guide
    * pass no production declares.
+   *
+   * @evidence contracts/development/design.md#principled-representation Inventory metrics, declared limits, semantic owner mask and a sealed target bind one budget verdict; null budget explicitly means no declared limits.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface evaluateAutoMovieRenderBudget consumes the shared inventory/target records and bounds only the named dominant-owner prefix.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported and not-run costs stay incomplete; missing limits stay unbudgeted and whole-frame passes remain costs without posing as editable owners.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents metric outcomes, limit admission, report ownership and contributor default.
    */
   export type IProps = {
     /** Measured cost of the artifact. */

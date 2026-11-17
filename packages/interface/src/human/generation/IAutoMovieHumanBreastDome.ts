@@ -1,7 +1,14 @@
 import type { IAutoMovieHumanBreastFootprint } from "./IAutoMovieHumanBreastFootprint";
 import type { IAutoMovieHumanTrunkFeatureFrame } from "./IAutoMovieHumanTrunkFeatureFrame";
 
-/** Type contracts exchanged by AutoMovieHumanBreastDome; runtime evaluation remains in Human. */
+/**
+ * Breast frame and footprint inputs and sampled body-point grids in millimetres. Runtime construction and admission remain with AutoMovieHumanBreastDome in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes breast frame and footprint inputs and sampled body-point grids in millimetres; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Breast frame and footprint inputs and sampled body-point grids in millimetres. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanBreastDome; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing BreastDome contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanBreastDome {
   /** What the dome reads.
    *
@@ -22,18 +29,13 @@ export namespace IAutoMovieHumanBreastDome {
     projection: number;
   }
 
-  /** Result of AutoMovieHumanBreastDome.surface. The dome's surface as a grid of body points, rows along the up axis and
-  columns along the lateral axis, for drawing the piece alone.
-  @param feature The dome.
-  @param rows Samples along up, at least 2.
-  @param columns Samples along lateral, at least 2.
-  @returns Body points, mm.
+  /**
+   * Sample grid of body-frame [x, y, z] points in millimetres. Rows advance along the breast frame's up axis and columns along its lateral axis; this is the isolated dome display surface.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The dome's surface as a grid of body points, rows along the up axis and columns along the lateral axis, for drawing the piece alone.
- * @evidence contracts/development/design.md#principled-representation The dome's surface as a grid of body points, rows along the up axis and columns along the lateral axis, for drawing the piece alone.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBreastDome.SurfaceResult is the canonical exchange used by AutoMovieHumanBreastDome.surface.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanBreastDome.surface for the dome's surface as a grid of body points, rows along the up axis and columns along the lateral axis, for drawing the piece alone.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Sample grid of body-frame [x, y, z] points in millimetres. Rows advance along the breast frame's up axis and columns along its lateral axis; this is the isolated dome display surface.
+   * @evidence contracts/development/design.md#principled-representation Sample grid of body-frame [x, y, z] points in millimetres. Rows advance along the breast frame's up axis and columns along its lateral axis; this is the isolated dome display surface.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBreastDome.SurfaceResult is the canonical exchange used by AutoMovieHumanBreastDome.surface.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanBreastDome input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type SurfaceResult = [number, number, number][][];
 }

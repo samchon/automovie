@@ -170,7 +170,17 @@ export namespace IAutoMovieMotionHumanWalkStanceCourse {
     /** The planted feet. */
     stances: readonly IAutoMovieMotionHumanWalkStanceCourse.IStance[];
 
-    /** The pelvis under a trunk's tilt. */
+    /**
+     * The pelvis under a trunk's tilt.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis: The pelvis under a trunk's tilt.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IKnot.pelvis is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     pelvis: (
       trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk,
     ) => IAutoMovieMotionHumanWalkStanceCourse.IPelvis;
@@ -310,46 +320,126 @@ export namespace IAutoMovieMotionHumanWalkStanceCourse {
     /** The variables at the start. */
     start: Float64Array;
 
-    /** The course's evaluation at its variables. */
+    /**
+     * The course's evaluation at its variables.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate: The course's evaluation at its variables.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.evaluate is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     evaluate: (
       x: Float64Array,
     ) => IAutoMovieMotionHumanWalkStanceCourse.IEvaluation;
 
-    /** The convex subproblem in the step about the variables, its soft rows weighted `mu`, without its region (`region`); with `objective` false, the rows alone (`IAutoMovieMotionHumanSequentialConvex.IOptions.restore`). */
+    /**
+     * The convex subproblem in the step about the variables, its soft rows weighted `mu`, without its region (`region`); with `objective` false, the rows alone (`IAutoMovieMotionHumanSequentialConvex.IOptions.restore`).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify: The convex subproblem in the step about the variables, its soft rows weighted `mu`, without its region (`region`); with `objective` false, the rows alone (`IAutoMovieMotionHumanSequentialConvex.IOptions.restore`).
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.convexify is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     convexify: (
       x: Float64Array,
       mu: number,
       objective?: boolean,
     ) => IAutoMovieMotionHumanQuadraticProgram.IProblem;
 
-    /** The step's hard rows about the variables within the trust region `radius`, in units of `TRUST` (one is `TRUST`). */
+    /**
+     * The step's hard rows about the variables within the trust region `radius`, in units of `TRUST` (one is `TRUST`).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.region: The step's hard rows about the variables within the trust region `radius`, in units of `TRUST` (one is `TRUST`).
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.region is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.region is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.region is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.region is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.region is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.region is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     region: (
       x: Float64Array,
       radius: number,
     ) => IAutoMovieMotionHumanQuadraticProgram.IRow[];
 
-    /** A step's largest coordinate in the region's units (`TRUST`). */
+    /**
+     * A step's largest coordinate in the region's units (`TRUST`).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.length: A step's largest coordinate in the region's units (`TRUST`).
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.length is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.length is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.length is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.length is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.length is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.length is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     length: (step: Float64Array) => number;
 
-    /** The variables after a step. */
+    /**
+     * The variables after a step.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped: The variables after a step.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.stepped is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     stepped: (x: Float64Array, step: Float64Array) => Float64Array;
 
     /** The excess under which every constraint is met (`MET`). */
     tolerance: number;
 
-    /** The course at its variables. */
+    /**
+     * The course at its variables.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.course: The course at its variables.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.course is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.course is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.course is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.course is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.course is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.course is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     course: (
       x: Float64Array,
       unmet: number,
     ) => IAutoMovieMotionHumanWalkStanceCourse.ICourse;
 
-    /** A knot's planted legs at the variables, its index the take's; none for a knot the problem holds. */
+    /**
+     * A knot's planted legs at the variables, its index the take's; none for a knot the problem holds.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted: A knot's planted legs at the variables, its index the take's; none for a knot the problem holds.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.planted is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     planted: (
       x: Float64Array,
       knot: number,
     ) => IAutoMovieMotionHumanWalkStanceCourse.IPlanted[];
 
-    /** A leg's own variables' indices at a knot (`LEG`), its index the take's. */
+    /**
+     * A leg's own variables' indices at a knot (`LEG`), its index the take's.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables: A leg's own variables' indices at a knot (`LEG`), its index the take's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables is used through packages/motions/src/actions/walkStanceCourse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkStanceCourse.IProblem.variables is used through packages/motions/src/actions/walkStanceCourse.ts.
+     */
     variables: (knot: number, side: "left" | "right") => number[];
 
     /** The first knot the problem moves, the take's index. */

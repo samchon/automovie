@@ -11,6 +11,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -141,7 +142,7 @@ export function test_human_motion_habit_eat(): void {
     });
   };
   const closest = (p: IAutoMovieMotionHumanPerformance): number => {
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a").at(-1)!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
     let best: number = Infinity;
     for (let t: number = s.start; t <= s.start + s.plan.duration; t += 1 / 60) {
       const bones = p.bones("a", t);
@@ -153,7 +154,7 @@ export function test_human_motion_habit_eat(): void {
           mouth.point,
         ),
       );
-      const f: IAutoMovieMotionHumanProp.IFrame = p.prop("fork", t);
+      const f: IAutoMovieRigidTransform = p.prop("fork", t);
       const tip: IAutoMovieVector3 = Vector3.add(
         f.position,
         Quaternion.rotateVector(f.rotation, forkFace),

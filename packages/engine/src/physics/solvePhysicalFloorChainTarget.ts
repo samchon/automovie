@@ -1,5 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
   IAutoMovieSolvePhysicalFloorChainTarget,
   IAutoMovieVector3,
@@ -65,23 +67,23 @@ export function solvePhysicalFloorChainTarget(
     tolerance: input.tolerance,
     measure,
     linearize: (
-      poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+      poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     ): ((
-      probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+      probe: Readonly<Record<string, IAutoMovieRigidTransform>>,
     ) => number[]) => {
       const residual: number[] = measure(poses);
       const inequality: boolean =
         input.endpointHeight !== undefined || !!input.floorPoints?.length;
       const active: boolean = inequality && residual.at(-1)! < 0;
       return (
-        probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+        probe: Readonly<Record<string, IAutoMovieRigidTransform>>,
       ): number[] => measure(probe, inequality ? active : undefined);
     },
   });
 
   /** The nonlinear height witness follows the same complete convex patch as contact. */
   function measure(
-    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     activeFloor?: boolean,
   ): number[] {
     const endpoint: IAutoMovieVector3 = physicalSupportPoint(
@@ -90,15 +92,15 @@ export function solvePhysicalFloorChainTarget(
     );
     const heights: number[] = input.contacts.flatMap(
       (bone: string): number[] => {
-        const segment: IAutoMoviePhysicalProfile.ISegment | undefined =
+        const segment: IAutoMoviePhysicalSegment | undefined =
           input.profile.segments.find(
-            (candidate: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            (candidate: IAutoMoviePhysicalSegment): boolean =>
               candidate.bone === bone,
           );
         if (!segment || !poses[bone])
           throw new Error(`Missing floor-chain patch ${bone}`);
         return segment.shapes.map(
-          (shape: IAutoMoviePhysicalProfile.IShape): number =>
+          (shape: IAutoMoviePhysicalShape): number =>
             physicalShapeBounds(poses[bone]!, shape).min.y,
         );
       },

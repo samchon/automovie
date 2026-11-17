@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingReach,
@@ -340,7 +341,7 @@ export namespace KickChain {
     base: IAutoMovieMotionHumanPosture,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+    const goal: IAutoMovieHumanLimbGoal | undefined =
       base.limbs[`${support}Leg`];
     if (goal === undefined || goal.rotation === undefined) return 0;
     const offset: IAutoMovieVector3 = HumanFoot.offset(body, support, "ball");

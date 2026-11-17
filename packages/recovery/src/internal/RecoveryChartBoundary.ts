@@ -1,6 +1,7 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMoviePolylineFit,
   IAutoMovieRecoveryChartBoundary,
 } from "@automovie/interface";
@@ -179,7 +180,7 @@ export function RecoveryChartBoundary(
     const knots: number[] = reversed
       ? [...value.knots].reverse().map((x: number): number => 1 - x)
       : [...value.knots];
-    const curve: IAutoMovieCurve64.Cubic = {
+    const curve: IAutoMovieCubicBezierCurve64 = {
       ...value.fit.curve,
       phaseUnit: "normalized",
       phaseIntervals: knots
@@ -189,7 +190,9 @@ export function RecoveryChartBoundary(
         ? [...value.fit.curve.spans]
             .reverse()
             .map(
-              (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+              (
+                span: AutoMovieCubicBezierControls3,
+              ): AutoMovieCubicBezierControls3 => [
                 span[3],
                 span[2],
                 span[1],
@@ -198,7 +201,7 @@ export function RecoveryChartBoundary(
             )
         : value.fit.curve.spans,
     };
-    const canonicalCurve: IAutoMovieCurve64.Cubic = {
+    const canonicalCurve: IAutoMovieCubicBezierCurve64 = {
       ...value.fit.curve,
       phaseUnit: "normalized",
       phaseIntervals: value.knots

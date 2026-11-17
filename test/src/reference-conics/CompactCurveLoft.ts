@@ -1,7 +1,7 @@
 import { tessellateAutoMovieContourStrip64 as strip } from "@automovie/engine";
 import type {
-  IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
+  AutoMovieVector2Tuple,
+  IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
 import { AutoMovieRecoveryCompactApproximation as C } from "@automovie/recovery";
 
@@ -69,7 +69,7 @@ export namespace CompactCurveLoft {
     const fitted: Map<string, F.Record> = new Map(
       fit?.records.map((r: F.Record): [string, F.Record] => [r.key, r]) ?? [],
     );
-    const rings: Map<string, IAutoMovieConicApproximation.Point[]> = new Map();
+    const rings: Map<string, Readonly<AutoMovieVector2Tuple>[]> = new Map();
     const lookup: Map<string, I.Loop> = new Map(
       packet.loops.map((l: I.Loop): [string, I.Loop] => [l.key, l]),
     );
@@ -90,12 +90,12 @@ export namespace CompactCurveLoft {
         });
         continue;
       }
-      const pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[] =
+      const pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[] =
         fit === undefined ? source!.pieces : record!.result!.pieces;
-      const points: IAutoMovieConicApproximation.Point[] = [];
+      const points: Readonly<AutoMovieVector2Tuple>[] = [];
       for (const piece of pieces) points.push(...sample(piece).slice(0, -1));
-      const ring: IAutoMovieConicApproximation.Point[] = points.filter(
-        (p: IAutoMovieConicApproximation.Point, i: number): boolean =>
+      const ring: Readonly<AutoMovieVector2Tuple>[] = points.filter(
+        (p: Readonly<AutoMovieVector2Tuple>, i: number): boolean =>
           i === 0 ||
           Math.hypot(p[0] - points[i - 1]![0], p[1] - points[i - 1]![1]) > 1e-9,
       );
@@ -114,7 +114,7 @@ export namespace CompactCurveLoft {
         closed: true,
         colour: fit === undefined ? "2f6a9b" : "bf4e2d",
         points: ring.map(
-          (p: IAutoMovieConicApproximation.Point): N.Point => [
+          (p: Readonly<AutoMovieVector2Tuple>): N.Point => [
             p[0] / 1000,
             loop.heightMm / 1000,
             p[1] / 1000,
@@ -127,7 +127,7 @@ export namespace CompactCurveLoft {
       const y: number = lookup.get(key)!.heightMm / 1000;
       ids.set(
         key,
-        ring.map((p: IAutoMovieConicApproximation.Point): number => {
+        ring.map((p: Readonly<AutoMovieVector2Tuple>): number => {
           const id: number = positions.length / 3;
           positions.push(p[0] / 1000, y, p[1] / 1000);
           return id;
@@ -148,25 +148,23 @@ export namespace CompactCurveLoft {
         ++result.audit.branchLinks;
         continue;
       }
-      const a: IAutoMovieConicApproximation.Point[] | undefined = rings.get(
+      const a: Readonly<AutoMovieVector2Tuple>[] | undefined = rings.get(
           loop.key,
         ),
-        b: IAutoMovieConicApproximation.Point[] | undefined = rings.get(
-          next.key,
-        );
+        b: Readonly<AutoMovieVector2Tuple>[] | undefined = rings.get(next.key);
       if (a === undefined || b === undefined) {
         ++result.audit.omittedStrips;
         continue;
       }
       const ap: [number, number, number][] = a.map(
-        (p: IAutoMovieConicApproximation.Point): [number, number, number] => [
+        (p: Readonly<AutoMovieVector2Tuple>): [number, number, number] => [
           p[0],
           loop.heightMm,
           p[1],
         ],
       );
       const bp: [number, number, number][] = b.map(
-        (p: IAutoMovieConicApproximation.Point): [number, number, number] => [
+        (p: Readonly<AutoMovieVector2Tuple>): [number, number, number] => [
           p[0],
           next.heightMm,
           p[1],
@@ -220,14 +218,14 @@ export namespace CompactCurveLoft {
 
   /** Quarter/midpoint chord checks sample the actual degree/rational evaluator under a finite 0.125 mm display policy. */
   function sample(
-    piece: IAutoMovieCompactCurveApproximation.IPiece,
-  ): IAutoMovieConicApproximation.Point[] {
-    const points: IAutoMovieConicApproximation.Point[] = [C.evaluate(piece, 0)];
+    piece: IAutoMovieRegisteredPlanarCurvePiece,
+  ): Readonly<AutoMovieVector2Tuple>[] {
+    const points: Readonly<AutoMovieVector2Tuple>[] = [C.evaluate(piece, 0)];
     const visit = (
       a: number,
       b: number,
-      p: IAutoMovieConicApproximation.Point,
-      q: IAutoMovieConicApproximation.Point,
+      p: Readonly<AutoMovieVector2Tuple>,
+      q: Readonly<AutoMovieVector2Tuple>,
       depth: number,
     ): void => {
       const dx: number = q[0] - p[0],
@@ -235,7 +233,7 @@ export namespace CompactCurveLoft {
         square: number = dx * dx + dy * dy;
       const error: number = Math.max(
         ...[0.25, 0.5, 0.75].map((f: number): number => {
-          const r: IAutoMovieConicApproximation.Point = C.evaluate(
+          const r: Readonly<AutoMovieVector2Tuple> = C.evaluate(
             piece,
             a + (b - a) * f,
           );
@@ -254,7 +252,7 @@ export namespace CompactCurveLoft {
       );
       if (error > 0.125 && depth < 9 && points.length < 1024) {
         const m: number = (a + b) / 2,
-          middle: IAutoMovieConicApproximation.Point = C.evaluate(piece, m);
+          middle: Readonly<AutoMovieVector2Tuple> = C.evaluate(piece, m);
         visit(a, m, p, middle, depth + 1);
         visit(m, b, middle, q, depth + 1);
       } else points.push(q);
@@ -264,17 +262,17 @@ export namespace CompactCurveLoft {
   }
 
   /** Simple finite polygons are required before minimum-area strip tessellation; this does not certify the between-row skin. */
-  function admit(ring: readonly IAutoMovieConicApproximation.Point[]): boolean {
+  function admit(ring: readonly Readonly<AutoMovieVector2Tuple>[]): boolean {
     if (ring.length < 3) return false;
     const cross = (
-      a: IAutoMovieConicApproximation.Point,
-      b: IAutoMovieConicApproximation.Point,
-      c: IAutoMovieConicApproximation.Point,
+      a: Readonly<AutoMovieVector2Tuple>,
+      b: Readonly<AutoMovieVector2Tuple>,
+      c: Readonly<AutoMovieVector2Tuple>,
     ): number => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
     let area: number = 0;
     for (let i: number = 0; i < ring.length; ++i) {
-      const a: IAutoMovieConicApproximation.Point = ring[i]!,
-        b: IAutoMovieConicApproximation.Point = ring[(i + 1) % ring.length]!;
+      const a: Readonly<AutoMovieVector2Tuple> = ring[i]!,
+        b: Readonly<AutoMovieVector2Tuple> = ring[(i + 1) % ring.length]!;
       if (
         !a.every(Number.isFinite) ||
         Math.hypot(a[0] - b[0], a[1] - b[1]) < 1e-8
@@ -283,8 +281,8 @@ export namespace CompactCurveLoft {
       area += a[0] * b[1] - a[1] * b[0];
       for (let j: number = i + 1; j < ring.length; ++j) {
         if (j === i + 1 || (i === 0 && j === ring.length - 1)) continue;
-        const c: IAutoMovieConicApproximation.Point = ring[j]!,
-          d: IAutoMovieConicApproximation.Point = ring[(j + 1) % ring.length]!;
+        const c: Readonly<AutoMovieVector2Tuple> = ring[j]!,
+          d: Readonly<AutoMovieVector2Tuple> = ring[(j + 1) % ring.length]!;
         if (
           cross(a, b, c) * cross(a, b, d) <= 0 &&
           cross(c, d, a) * cross(c, d, b) <= 0 &&

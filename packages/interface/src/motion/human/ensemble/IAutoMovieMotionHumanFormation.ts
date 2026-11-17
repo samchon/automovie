@@ -19,10 +19,10 @@ import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotion
  * formation's `lateral` axis is the frame's right (-X when it faces +Z), so
  * file 0 stands on its left, and its `depth` axis runs toward its rear. Every value is checked by `HumanFormation.of`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frames, the units, the axes, how a block is placed and what is composed from blocks.
- * @evidence contracts/development/design.md#principled-representation The interface's layout union reused unchanged, a block's placement in the formation's frame, and the frame as a closed union of its three ways of moving.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Blocks and a frame; `HumanFormation` reads them, the ensemble, the manoeuvre and the population take them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No `square` layout: four outward-faced blocks are one.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frames, the units, the axes, how a block is placed and what is composed from blocks. until: The film second the station ends; the frame's own end when absent. dress: The member's slow deviation from its slot (`HumanEnsemble.station`): its bound, metres, and the stream seed its lateral and depth deviations are drawn from; none when absent. count: How many members it holds, a positive whole number within the layout's capacity.
+ * @evidence contracts/development/design.md#principled-representation The interface's layout union reused unchanged, a block's placement in the formation's frame, and the frame as a closed union of its three ways of moving. until: The film second the station ends; the frame's own end when absent. dress: The member's slow deviation from its slot (`HumanEnsemble.station`): its bound, metres, and the stream seed its lateral and depth deviations are drawn from; none when absent. count: How many members it holds, a positive whole number within the layout's capacity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Blocks and a frame; `HumanFormation` reads them, the ensemble, the manoeuvre and the population take them. Runtime boundary references: ensemble/HumanEnsemble.ts (HumanEnsemble.station, formation); ensemble/HumanEnsembleMembers.ts (rearRank, formation); ensemble/HumanEnsembleMembers.ts (flank, formation); ensemble/HumanFormation.ts (HumanFormation.of, formation); ensemble/HumanFormation.ts (HumanFormation.of, return); ensemble/HumanFormation.ts (HumanFormation.count, formation).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No `square` layout: four outward-faced blocks are one. Shares the canonical IAutoMovieFormationLayout, IAutoMovieVector3, IAutoMovieMotionHumanActionContext.IRoot identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanFormation {
   /** The blocks, in member order: block 0's members first. */
@@ -45,10 +45,6 @@ export interface IAutoMovieMotionHumanFormation {
  * the slot's way (`path`) and lets its step give, a free walk follows the
  * slot by speed matching (`walkStation`).
  *
- * @evidence contracts/development/common.md#meaningful-documentation until: The film second the station ends; the frame's own end when absent. dress: The member's slow deviation from its slot (`HumanEnsemble.station`): its bound, metres, and the stream seed its lateral and depth deviations are drawn from; none when absent. count: How many members it holds, a positive whole number within the layout's capacity.
- * @evidence contracts/development/design.md#principled-representation until: The film second the station ends; the frame's own end when absent. dress: The member's slow deviation from its slot (`HumanEnsemble.station`): its bound, metres, and the stream seed its lateral and depth deviations are drawn from; none when absent. count: How many members it holds, a positive whole number within the layout's capacity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanEnsemble.ts (HumanEnsemble.station, formation); ensemble/HumanEnsembleMembers.ts (rearRank, formation); ensemble/HumanEnsembleMembers.ts (flank, formation); ensemble/HumanFormation.ts (HumanFormation.of, formation); ensemble/HumanFormation.ts (HumanFormation.of, return); ensemble/HumanFormation.ts (HumanFormation.count, formation).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieFormationLayout, IAutoMovieVector3, IAutoMovieMotionHumanActionContext.IRoot identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanFormation {
   /**
@@ -315,9 +311,9 @@ export namespace IAutoMovieMotionHumanFormation {
   }
 
   /**
-   * Reads a performer's placed root at a film second, for a guide frame: `IAutoMovieMotionHumanActionContext.IPerformer.root` of the guide.
+   * Reads a performer's placed root at a film second, for a guide frame: `IAutoMovieMotionHumanPerformerReader.root` of the guide.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads a performer's placed root at a film second, for a guide frame: `IAutoMovieMotionHumanActionContext.IPerformer.root` of the guide.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads a performer's placed root at a film second, for a guide frame: `IAutoMovieMotionHumanPerformerReader.root` of the guide.
    * @evidence contracts/development/design.md#principled-representation A subject id and film second select one canonical root pose without exposing a performance instance or its mutable state.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanEnsemble.ts (HumanEnsemble.of, read); ensemble/HumanEnsembleMembers.ts (HumanEnsembleMembers.resolve, read); ensemble/HumanFormation.ts (HumanFormation.frame, read); ensemble/HumanFormation.ts (HumanFormation.slot, read); ensemble/HumanFormation.ts (HumanFormation.path, read); ensemble/HumanFormation.ts (HumanFormation.assign, read).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanActionContext.IRoot identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.

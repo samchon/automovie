@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalAuthoredTargets,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
@@ -27,7 +27,7 @@ export function samplePhysicalAuthoredTargets(
   seconds: number,
   rate: number,
 ): Record<string, IAutoMovieSamplePhysicalTarget.IResult> {
-  const from: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+  const from: Record<string, IAutoMovieRigidTransform> =
     body.targets[step - 1]!.segments;
   let prepared: IAutoMovieSamplePhysicalAuthoredTargets.IPlan | undefined =
     bound.authoredTargets.get(body.id);

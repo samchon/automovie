@@ -1,8 +1,8 @@
 import {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  type IAutoMovieJointRotationFrame,
   type IAutoMovieScanJointRom,
-  type IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
@@ -34,11 +34,11 @@ import { scanJointRom } from "../rom/scanJointRom";
 export const jointRomOvershoot: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: IAutoMovieSwingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ) => number = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: IAutoMovieSwingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ): number => {
   if (constraint === null) return 0;
   let total: number = 0;

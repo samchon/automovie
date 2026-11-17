@@ -1,6 +1,7 @@
 import type {
   IAutoMovieCaptureCell,
-  IAutoMovieCaptureComparison,
+  IAutoMovieCaptureCellComparison,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureRecord,
@@ -167,7 +168,7 @@ export async function test_capture_video_pairing(): Promise<void> {
   TestValidator.equals(
     "frames around the cut join the samples",
     full.rows.map(
-      (row: IAutoMovieCaptureRecord.Row): number | null => row.time.frame,
+      (row: IAutoMovieCaptureCellRecord): number | null => row.time.frame,
     ),
     [0, 5, 9, 10, 11, 15],
   );
@@ -181,7 +182,7 @@ export async function test_capture_video_pairing(): Promise<void> {
   TestValidator.equals(
     "pairs with the source by second",
     full.comparison!.entries.map(
-      (entry: IAutoMovieCaptureComparison.Entry): string =>
+      (entry: IAutoMovieCaptureCellComparison): string =>
         entry.state === "paired"
           ? `${entry.current} ${entry.mode}`
           : `${entry.current} unmatched`,
@@ -202,7 +203,7 @@ export async function test_capture_video_pairing(): Promise<void> {
   TestValidator.equals(
     "missing frames are failed cells and unmatched seconds",
     short.comparison!.entries.map(
-      (entry: IAutoMovieCaptureComparison.Entry): string =>
+      (entry: IAutoMovieCaptureCellComparison): string =>
         entry.state === "paired" ? entry.mode : entry.cause,
     ),
     [
@@ -219,7 +220,7 @@ export async function test_capture_video_pairing(): Promise<void> {
   TestValidator.predicate(
     "one backend pairs as unchanged differences",
     again.comparison!.entries.every(
-      (entry: IAutoMovieCaptureComparison.Entry): boolean =>
+      (entry: IAutoMovieCaptureCellComparison): boolean =>
         entry.state === "paired" &&
         entry.mode === "difference" &&
         entry.changed === 0,

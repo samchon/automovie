@@ -1,6 +1,13 @@
 import type { IAutoMovieEnvironmentContext } from "./IAutoMovieEnvironmentContext";
 
-/** Data and callback contracts shared by the ValidateEnvironmentContext operations. */
+/**
+ * Data and callback contracts shared by the ValidateEnvironmentContext operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Validate the read-only world a building is analysed against. Member documentation states the supplied records, units and absence meanings used by validateAutoMovieEnvironmentContext.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The canonical context remains borrowed and instant order is checked rather than repaired; the documented usable-norm and nested-container premises bound the validation claim.
+ * @evidence contracts/development/design.md#principled-representation context owns the external study frame, instants and occluders; reserved supplies exact building-owned identities that must not collide with context identities.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateEnvironmentContext, used by validateAutoMovieEnvironmentContext. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieValidateEnvironmentContext {
   /**
    * Validate the read-only world a building is analysed against.
@@ -24,7 +31,12 @@ export namespace IAutoMovieValidateEnvironmentContext {
    * times strictly increasing, illuminances finite and at or above zero, and an
    * outdoor relative humidity null or within `[0, 1]`. Occluder planes follow
    * `validateSolidPlanes`. The horizon rule is skipped while the sun or the
-   * ground up has an unusable measured length. A finite vector whose Euclidean norm overflows is accepted by the collector's component checks but skips the horizon check; this is a remaining numerical admission gap.
+   * ground up has an unusable measured length. A nonfinite measured norm is a range violation; horizon arithmetic is skipped for that invalid direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Validate the read-only world a building is analysed against. Member documentation states the supplied records, units and absence meanings used by validateAutoMovieEnvironmentContext.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The canonical context remains borrowed and instant order is checked rather than repaired; the documented usable-norm and nested-container premises bound the validation claim.
+   * @evidence contracts/development/design.md#principled-representation context owns the external study frame, instants and occluders; reserved supplies exact building-owned identities that must not collide with context identities.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateEnvironmentContext.IProps, used by validateAutoMovieEnvironmentContext. Its context, reserved members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Context to check. */

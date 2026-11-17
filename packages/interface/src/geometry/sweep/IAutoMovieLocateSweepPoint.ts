@@ -1,7 +1,14 @@
 import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
 import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
-/** Polar section-plane location of a model-space point near a direction-correspondence sweep. */
+/**
+ * Polar section-plane location of a model-space point near a direction-correspondence sweep.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Model-metre points yield normalized u, polar turns v and signed in-plane metre radial residual. Sampled roots can miss tangencies; endpoint fallback is not proof of being beyond an end, and the residual is not closest-surface distance.
+ * @evidence contracts/development/design.md#principled-representation Model-metre points yield normalized u, polar turns v and signed in-plane metre radial residual.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface locateAutoMovieSweepPoint performs section-plane inversion against a compiled direction-correspondence sweep.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Sampled roots can miss tangencies; endpoint fallback is not proof of being beyond an end, and the residual is not closest-surface distance.
+ */
 export namespace IAutoMovieLocateSweepPoint {
   /**
    * A model-space point and a compiled direction-correspondence sweep for section-plane inversion.

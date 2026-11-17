@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSwivelBound,
   IAutoMovieResolvedBone,
@@ -56,7 +56,7 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
   export function bounded(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,

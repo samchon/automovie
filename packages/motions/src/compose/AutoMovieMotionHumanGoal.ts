@@ -1,5 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanGoal,
   IAutoMovieMotionHumanPosture,
@@ -41,10 +43,10 @@ export namespace AutoMovieMotionHumanGoal {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function mix(
-    from: IAutoMovieMotionHumanPosture.IGoal,
-    to: IAutoMovieMotionHumanPosture.IGoal,
+    from: IAutoMovieHumanLimbGoal,
+    to: IAutoMovieHumanLimbGoal,
     weight: number,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const s: number = Math.min(1, Math.max(0, weight));
     if (s <= 0) return from;
     if (s >= 1) return to;
@@ -94,8 +96,8 @@ export namespace AutoMovieMotionHumanGoal {
     props: IAutoMovieMotionHumanGoal.IToward,
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-  ): IAutoMovieMotionHumanPosture.IGoal {
-    const origin: IAutoMovieMotionHumanPosture.IGoal | undefined =
+  ): IAutoMovieHumanLimbGoal {
+    const origin: IAutoMovieHumanLimbGoal | undefined =
       props.origin === undefined
         ? posture.limbs[props.limb]
         : props.origin(posture, seconds);
@@ -165,8 +167,8 @@ export namespace AutoMovieMotionHumanGoal {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function pulse(
-    clock: IAutoMovieMotionClock.IClock,
-    limb: IAutoMovieMotionHumanPosture.Limb,
+    clock: IAutoMovieMotionClock,
+    limb: AutoMovieHumanLimb,
     rise: readonly [string, string],
     fall: readonly [string, string],
     goal: IAutoMovieMotionHumanGoal.Frame,

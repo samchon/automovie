@@ -7,11 +7,12 @@ import {
   resolvePose,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -74,7 +75,7 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function chain(limb: IAutoMovieMotionHumanPosture.Limb): IChain {
+  export function chain(limb: AutoMovieHumanLimb): IChain {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     return limb.endsWith("Arm")
       ? {
@@ -124,9 +125,9 @@ export namespace HumanLimbFit {
   export function world(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
     const on: AutoMovieHumanoidBone | undefined = goal.on;
     if (on === undefined) return goal;
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
@@ -212,8 +213,8 @@ export namespace HumanLimbFit {
   export function fit(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    attached: IAutoMovieMotionHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    attached: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
@@ -232,12 +233,7 @@ export namespace HumanLimbFit {
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
-    const goal: IAutoMovieMotionHumanPosture.IGoal = world(
-      body,
-      pose,
-      limb,
-      attached,
-    );
+    const goal: IAutoMovieHumanLimbGoal = world(body, pose, limb, attached);
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
     // whatever the hint or the hand's turn prefer.
@@ -377,8 +373,8 @@ export namespace HumanLimbFit {
   export function remembered(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
@@ -401,8 +397,8 @@ export namespace HumanLimbFit {
    * @returns Its mirror image.
    */
   export function reflected(
-    goal: IAutoMovieMotionHumanPosture.IGoal,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
     return HumanLimbMirror.goal(goal);
   }
   /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
@@ -428,8 +424,8 @@ export namespace HumanLimbFit {
   function once(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     obstruction?: IObstruction,
     near?: IAutoMovieSwivelNear,
   ): IAutoMovieSeededChainFit {

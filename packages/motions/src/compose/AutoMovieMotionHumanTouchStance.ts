@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanLeanInto,
   IAutoMovieMotionHumanPosture,
@@ -156,7 +157,7 @@ export namespace AutoMovieMotionHumanTouchStance {
       risen,
       reached,
       primitives: (
-        clock: IAutoMovieMotionClock.IClock,
+        clock: IAutoMovieMotionClock,
       ): IAutoMovieMotionHumanPrimitive[] => {
         if (girdle === 0 && raise === 0)
           return leaning ? [lean.primitive(clock)] : [];
@@ -200,9 +201,7 @@ export namespace AutoMovieMotionHumanTouchStance {
 
               // The planted legs reach their raised feet from the root the
               // rise and the lean leave.
-              const goal = (
-                side: "left" | "right",
-              ): IAutoMovieMotionHumanPosture.IGoal =>
+              const goal = (side: "left" | "right"): IAutoMovieHumanLimbGoal =>
                 AutoMovieMotionHumanLeg.goal(
                   body,
                   leaned,

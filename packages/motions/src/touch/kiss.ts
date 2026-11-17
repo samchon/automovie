@@ -377,7 +377,7 @@ export namespace kiss {
       Vector3.subtract(HumanTrunk.region(body, entry, "mouth").point, at),
     );
     const approach: number = AutoMovieMotionHumanTiming.transport(travel);
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: approach,
         attack: 0,
@@ -386,7 +386,7 @@ export namespace kiss {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,

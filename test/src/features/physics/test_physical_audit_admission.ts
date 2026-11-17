@@ -5,7 +5,7 @@ import {
 import type {
   IAutoMovieAuditPhysicalOutcomes,
   IAutoMovieMotionAudit,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalFrame,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -53,7 +53,7 @@ export async function test_physical_audit_admission(): Promise<void> {
       rate: 120,
       floor: 0,
       allowed: (): boolean => false,
-      sample: (seconds: number): IAutoMoviePhysicsCache.IFrame => ({
+      sample: (seconds: number): IAutoMoviePhysicalFrame => ({
         seconds,
         bodies: {
           solid: {
@@ -120,31 +120,31 @@ export async function test_physical_audit_admission(): Promise<void> {
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
       const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicsCache.IFrame => {
-        const frame: IAutoMoviePhysicsCache.IFrame = sample(seconds);
+      input.sample = (seconds: number): IAutoMoviePhysicalFrame => {
+        const frame: IAutoMoviePhysicalFrame = sample(seconds);
         frame.bodies.solid!.root!.position.y = NaN;
         return frame;
       };
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
       const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicsCache.IFrame => {
-        const frame: IAutoMoviePhysicsCache.IFrame = sample(seconds);
+      input.sample = (seconds: number): IAutoMoviePhysicalFrame => {
+        const frame: IAutoMoviePhysicalFrame = sample(seconds);
         frame.bodies.solid!.root!.rotation.w = Infinity;
         return frame;
       };
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
       const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicsCache.IFrame => {
-        const frame: IAutoMoviePhysicsCache.IFrame = sample(seconds);
+      input.sample = (seconds: number): IAutoMoviePhysicalFrame => {
+        const frame: IAutoMoviePhysicalFrame = sample(seconds);
         frame.bodies.solid!.root!.velocity.x = NaN;
         return frame;
       };
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
       const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicsCache.IFrame => ({
+      input.sample = (seconds: number): IAutoMoviePhysicalFrame => ({
         ...sample(seconds),
         seconds: seconds + 0.01,
       });

@@ -1,6 +1,6 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanHand,
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
@@ -26,7 +26,7 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function manipulateShape(
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
   digit: string,
 ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
   const own: string = `${side}${digit[0]!.toUpperCase()}${digit.slice(1)}`;

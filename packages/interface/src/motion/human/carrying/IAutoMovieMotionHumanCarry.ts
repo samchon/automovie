@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Walking to a floor point while carrying a load or pushing a wheeled one:
@@ -41,7 +41,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.place, return); carrying/carry.ts (carry.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.carry, params); carrying/carry.ts (carry.LEAN); carrying/carry.ts (carry.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanSide, IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCarry {
   /**
@@ -62,7 +62,7 @@ export namespace IAutoMovieMotionHumanCarry {
     how: IAutoMovieMotionHumanCarry.How;
 
     /** The loaded side for `oneHand` and `hip`; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.
      * Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.

@@ -108,8 +108,7 @@ export function test_human_motion_arm_wrestle_force(): void {
       continue;
     }
     const instant = (who: "a" | "b", event: string): number => {
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
-        film.segments(who)[1]!;
+      const placed: IAutoMovieMotionHumanSegment = film.segments(who)[1]!;
       return (
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??

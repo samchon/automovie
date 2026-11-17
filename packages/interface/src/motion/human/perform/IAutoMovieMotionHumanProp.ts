@@ -1,11 +1,11 @@
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
 import type { IAutoMovieBody } from "../../../model/IAutoMovieBody";
-import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
+import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysicalShape";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieSoftBodyDomain } from "../../../soft/IAutoMovieSoftBodyDomain";
-import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
+import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotionHumanScheduledInstant";
 
 /**
  * A prop actions can aim at and hands can hold: a subject id, its world
@@ -17,17 +17,17 @@ import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLay
  * and it stays where the last grip released it, or flies from a launch and rests where it struck (see `HumanPerformance.prop`). A point's normal points out of the prop's
  * surface.
  *
- * @evidence contracts/development/common.md#meaningful-documentation points: Named points in the prop's frame, metres, with outward unit normals. worn: The person and bone the prop is worn on from the film's start, with its frame in the bone's posed frame: a hat on the head, a holster on the hips. While worn it rides that bone and `frame` is not read; a grip takes it off, and an action's `wears` puts it on again. Not worn when absent. fixed: Whether the prop is a fixture: a thing set in the scene that bears on the floor or a wall and is never lifted, such as a ladder, a rail or a wall bar. A hand that grips a fixture bears on it, as a climber's hand on a rung, and never carries it, so it stays at its rest frame whatever grips it. Not a fixture when absent.
- * @evidence contracts/development/design.md#principled-representation points: Named points in the prop's frame, metres, with outward unit normals. worn: The person and bone the prop is worn on from the film's start, with its frame in the bone's posed frame: a hat on the head, a holster on the hips. While worn it rides that bone and `frame` is not read; a grip takes it off, and an action's `wears` puts it on again. Not worn when absent. fixed: Whether the prop is a fixture: a thing set in the scene that bears on the floor or a wall and is never lifted, such as a ladder, a rail or a wall bar. A hand that grips a fixture bears on it, as a climber's hand on a rung, and never carries it, so it stays at its rest frame whatever grips it. Not a fixture when absent.
+ * @evidence contracts/development/common.md#meaningful-documentation points: Named points in the prop's frame, metres, with outward unit normals. worn: The person and bone the prop is worn on from the film's start, with its frame in the bone's posed frame: a hat on the head, a holster on the hips. While worn it rides that bone and `frame` is not read; a grip takes it off, and an action's `wears` puts it on again. Not worn when absent. fixed: Whether the prop is a fixture: a thing set in the scene that bears on the floor or a wall and is never lifted, such as a ladder, a rail or a wall bar. A hand that grips a fixture bears on it, as a climber's hand on a rung, and never carries it, so it stays at its rest frame whatever grips it. Not a fixture when absent. position: Origin, world metres. offset: The prop's frame in the bone's posed frame, metres. shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
+ * @evidence contracts/development/design.md#principled-representation points: Named points in the prop's frame, metres, with outward unit normals. worn: The person and bone the prop is worn on from the film's start, with its frame in the bone's posed frame: a hat on the head, a holster on the hips. While worn it rides that bone and `frame` is not read; a grip takes it off, and an action's `wears` puts it on again. Not worn when absent. fixed: Whether the prop is a fixture: a thing set in the scene that bears on the floor or a wall and is never lifted, such as a ladder, a rail or a wall bar. A hand that grips a fixture bears on it, as a climber's hand on a rung, and never carries it, so it stays at its rest frame whatever grips it. Not a fixture when absent. position: Origin, world metres. offset: The prop's frame in the bone's posed frame, metres. shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: dressing/HumanWorn.ts (HumanWorn.frame, prop); executable/cases/ballStrikeCases.ts (ball, return); executable/cases/climbCases.ts (ladderProp, return); executable/cases/dressCases.ts (wearable, return); executable/cases/everydayCaseKit.ts (everydayCaseKit.one, props); executable/cases/everydayCaseKit.ts (everydayCaseKit.perform, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieAffordance, IAutoMovieSoftBodyDomain, IAutoMoviePhysicalProfile.IShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieAffordance, IAutoMovieSoftBodyDomain, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMoviePhysicalShape, AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanProp {
   /** Subject id, unique in the performance. */
   subject: string;
 
   /** The prop's world frame before any grip. */
-  frame: IAutoMovieMotionHumanProp.IFrame;
+  frame: IAutoMovieRigidTransform;
 
   /** Named points in the prop's frame, metres, with outward unit normals. */
   points: Readonly<
@@ -50,8 +50,16 @@ export interface IAutoMovieMotionHumanProp {
    *
    * @param seconds Film seconds.
    * @returns The frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.motion: The prop's world frame at a film second, for a prop that moves by itself: a vehicle on its course, a horse at its gait, a lift. While set, the prop is where this says and no grip carries it; what bears on it (a rider's seat, a hand on its wheel) is carried with it.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    */
-  motion?(seconds: number): IAutoMovieMotionHumanProp.IFrame;
+  motion?(seconds: number): IAutoMovieRigidTransform;
 
   /**
    * A named point in the world at a film second, for a prop whose parts
@@ -64,6 +72,14 @@ export interface IAutoMovieMotionHumanProp {
    * @param id The point's name, one of `points`.
    * @param seconds Film seconds.
    * @returns The point and its outward unit normal, world metres; undefined for a point that only moves with the prop's frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.point: A named point in the world at a film second, for a prop whose parts move within it: a pedal on its crank, a stirrup on a trotting horse, a handle on a door that swings. `points` holds a point where it is in the prop at rest, and the prop's frame alone carries it rigidly; a point this knows is read here instead, so a foot or a hand aimed at it follows the part and not the place the part had at rest.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    */
   point?(
     id: string,
@@ -110,7 +126,7 @@ export interface IAutoMovieMotionHumanProp {
   soft?: IAutoMovieSoftBodyDomain;
 
   /** Colliders in the prop's frame, for finger closure until contact and penetration audits. */
-  shapes?: readonly IAutoMoviePhysicalProfile.IShape[];
+  shapes?: readonly IAutoMoviePhysicalShape[];
 
   /**
    * The prop posed at stated travels of its articulations, for a prop whose
@@ -123,6 +139,14 @@ export interface IAutoMovieMotionHumanProp {
    * @param state Travel by articulation id, in each articulation's own unit; an articulation left out stays at rest.
    * @returns The posed contacts and colliders.
    * @throws {Error} When a travel lies outside its articulation's range.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. Absent for a rigid prop.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    */
   articulate?(
     state: Readonly<Record<string, number>>,
@@ -147,35 +171,15 @@ export interface IAutoMovieMotionHumanProp {
 /**
  * Contracts used by HumanWorn.frame, ball, ladderProp, wearable.
  *
- * @evidence contracts/development/common.md#meaningful-documentation position: Origin, world metres. offset: The prop's frame in the bone's posed frame, metres. shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
- * @evidence contracts/development/design.md#principled-representation position: Origin, world metres. offset: The prop's frame in the bone's posed frame, metres. shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: dressing/HumanWorn.ts (HumanWorn.frame, prop); executable/cases/ballStrikeCases.ts (ball, return); executable/cases/climbCases.ts (ladderProp, return); executable/cases/dressCases.ts (wearable, return); executable/cases/everydayCaseKit.ts (everydayCaseKit.one, props); executable/cases/everydayCaseKit.ts (everydayCaseKit.perform, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMoviePhysicalProfile.IShape, IAutoMovieMotionHumanLayer.Instant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanProp {
-  /**
-   * A rigid world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation position: Origin, world metres.
-   * @evidence contracts/development/design.md#principled-representation position: Origin, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/stand.ts (stand.plan.carried, return); carrier/HumanSupportCarry.ts (HumanSupportCarry.of, frame); carrier/HumanSupportCarry.ts (HumanSupportCarry.on.frame, return); carrier/HumanSupportCarry.ts (HumanSupportCarry.plan.frame, return); carrier/HumanSupportCarry.ts (HumanSupportCarry.launch, frame); carrier/HumanSupportFrame.ts (HumanSupportFrame.at.frame, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
-   */
-  export interface IFrame {
-    /** Origin, world metres. */
-    position: IAutoMovieVector3;
-
-    /** Rotation from the prop's own axes to the world. */
-    rotation: IAutoMovieQuaternion;
-  }
-
   /**
    * Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction; none for a fixture, which no grip carries. Where a prop is worn.
    *
    * @evidence contracts/development/common.md#meaningful-documentation offset: The prop's frame in the bone's posed frame, metres.
    * @evidence contracts/development/design.md#principled-representation offset: The prop's frame in the bone's posed frame, metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformanceRead.ts (HumanPerformanceRead.grips); throwing/HumanGlove.ts (HumanGlove.pocket).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanProp.IFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IWorn {
     /** The wearer's subject id. */
@@ -185,7 +189,7 @@ export namespace IAutoMovieMotionHumanProp {
     bone: AutoMovieHumanoidBone;
 
     /** The prop's frame in the bone's posed frame, metres. */
-    offset: IAutoMovieMotionHumanProp.IFrame;
+    offset: IAutoMovieRigidTransform;
   }
 
   /**
@@ -194,14 +198,14 @@ export namespace IAutoMovieMotionHumanProp {
    * @evidence contracts/development/common.md#meaningful-documentation shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
    * @evidence contracts/development/design.md#principled-representation shapes: Its colliders, with the moved parts' colliders moved; absent when the prop declares none.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanObject.ts (HumanObject.prop, return); perform/HumanPerformanceObject.ts (HumanPerformanceObject.pose, return); affordance/operateDrive.ts (operateDrive.part); perform/HumanPerformanceObject.ts (HumanPerformanceObject.point); perform/HumanPerformanceObject.ts (HumanPerformanceObject.pose); perform/HumanPerformanceObject.ts (HumanPerformanceObject.POSED).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalProfile.IShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPosed {
     /** Its contacts, with the moved parts' contacts moved. */
     affordances: readonly IAutoMovieAffordance[];
 
     /** Its colliders, with the moved parts' colliders moved; absent when the prop declares none. */
-    shapes?: readonly IAutoMoviePhysicalProfile.IShape[];
+    shapes?: readonly IAutoMoviePhysicalShape[];
   }
 
   /**
@@ -210,20 +214,28 @@ export namespace IAutoMovieMotionHumanProp {
    * @evidence contracts/development/common.md#meaningful-documentation duration: Seconds the track lasts; its last travel holds after. Endless when absent.
    * @evidence contracts/development/design.md#principled-representation duration: Seconds the track lasts; its last travel holds after. Endless when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanObject.ts (HumanObject.prop, tracks).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLayer.Instant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ITrack {
     /** The articulation affordance it moves. */
     articulation: string;
 
     /** Film second it starts, or a named instant of an anchored action or a cue track it starts at, as a layer's window names one. */
-    start: IAutoMovieMotionHumanLayer.Instant;
+    start: AutoMovieMotionHumanScheduledInstant;
 
     /**
      * The travel at a second of the track, in the articulation's own unit. Pure.
      *
      * @param seconds Seconds since the track's start.
      * @returns The travel.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.ITrack.travel: The travel at a second of the track, in the articulation's own unit. Pure.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
      */
     travel(seconds: number): number;
 

@@ -4,14 +4,15 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieBone,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHeld,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -104,10 +105,8 @@ export namespace AutoMovieMotionHumanHeld {
       )
     )
       throw handless();
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(prop);
-    const world: IAutoMovieMotionHumanProp.IFrame = read.frame(
-      context.entry.seconds,
-    );
+    const read: IAutoMovieMotionHumanPropReader = context.prop(prop);
+    const world: IAutoMovieRigidTransform = read.frame(context.entry.seconds);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
@@ -161,7 +160,7 @@ export namespace AutoMovieMotionHumanHeld {
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     prop: string,
-    lying: IAutoMovieMotionHumanProp.IFrame,
+    lying: IAutoMovieRigidTransform,
     affordances: readonly IAutoMovieAffordance[],
     wrist: IAutoMovieMotionHumanHeld.IGraspedWrist,
   ): IAutoMovieMotionHumanHeld.IHeld {
@@ -285,7 +284,7 @@ export namespace AutoMovieMotionHumanHeld {
   export function hold(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
     held: IAutoMovieMotionHumanHeld.IHeld,
-  ): IAutoMovieMotionHumanActionPlan.IHold {
+  ): IAutoMovieMotionPropHold {
     return {
       side: held.side,
       prop: held.prop,

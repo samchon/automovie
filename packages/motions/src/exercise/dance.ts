@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -12,7 +13,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -132,14 +133,13 @@ export namespace dance {
         : context
             .cue(p.lock.of)
             .filter(
-              (c: IAutoMovieResolveSchedule.ICue): boolean =>
+              (c: IAutoMovieScheduleCue): boolean =>
                 c.name === (p.lock!.event ?? "beat") &&
                 c.seconds >= context.start - 1e-9,
             )
             .slice(0, beats)
             .map(
-              (c: IAutoMovieResolveSchedule.ICue): number =>
-                c.seconds - context.start,
+              (c: IAutoMovieScheduleCue): number => c.seconds - context.start,
             );
     if (locked !== null && locked.length < Math.min(2, beats))
       throw new HumanRefusal({
@@ -158,14 +158,14 @@ export namespace dance {
           : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
     const lead: number = locked === null ? period : locked[0]!;
     const beatAt = (k: number): number => lead + (k - 1) * period;
-    const instants: IAutoMovieMotionClock.IInstant[] = [];
+    const instants: IAutoMovieMotionClockInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      duration,
-      [...instants, { name: "relax", seconds: beatAt(beats) }],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+      ...instants,
+      { name: "relax", seconds: beatAt(beats) },
+    ]);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const leftward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },

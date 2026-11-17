@@ -11,9 +11,9 @@ import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
-  IAutoMovieLoftFrame,
   IAutoMovieLoftRelief,
-  IAutoMovieNaturalSpline,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewLoft,
@@ -82,8 +82,10 @@ export namespace AutoMovieHumanConicLoft {
     if (typeof made === "string") throw new Error("course: " + made);
     if (family.roll === undefined) return made;
     const base: IAutoMovieViewAxis.IAxis = made;
-    const spline: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(family.roll.knots, family.roll.values);
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      family.roll.knots,
+      family.roll.values,
+    );
     // With c = cos(a) and s = sin(a): u' = c u + s v and v' = c v - s u, so with the angle's derivatives a' and a'' along the station,
     // u'_1 = c u_1 + s v_1 + a' v', v'_1 = c v_1 - s u_1 - a' u', and
     // u'_2 = c u_2 + s v_2 + 2 a' (c v_1 - s u_1) + a'' v' - a'^2 u', v'_2 = c v_2 - s u_2 - 2 a' (c u_1 + s v_1) - a'' u' - a'^2 v'.
@@ -101,8 +103,8 @@ export namespace AutoMovieHumanConicLoft {
       ) as AutoMovieVector3Tuple,
     ];
     return {
-      at: (station: number): IAutoMovieLoftFrame.IFrame => {
-        const frame: IAutoMovieLoftFrame.IFrame = base.at(station);
+      at: (station: number): IAutoMovieLoftSectionFrame => {
+        const frame: IAutoMovieLoftSectionFrame = base.at(station);
         const angle: number = AutoMovieNaturalSpline.evaluate(spline, station);
         const [u, v]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = turn(
           frame.u,
@@ -163,12 +165,12 @@ export namespace AutoMovieHumanConicLoft {
   export function reader(
     family: Pick<IAutoMovieHumanConicLoft.IFamily, "knots" | "values">,
   ): IAutoMovieHumanConicLoft.ReaderResult {
-    const splines: IAutoMovieNaturalSpline.ISpline[] = family.values.map(
-      (field: number[]): IAutoMovieNaturalSpline.ISpline =>
+    const splines: IAutoMovieNaturalCubicSpline[] = family.values.map(
+      (field: number[]): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(family.knots, field),
     );
     return (s: number): number[] =>
-      splines.map((spline: IAutoMovieNaturalSpline.ISpline): number =>
+      splines.map((spline: IAutoMovieNaturalCubicSpline): number =>
         AutoMovieNaturalSpline.evaluate(spline, s),
       );
   }

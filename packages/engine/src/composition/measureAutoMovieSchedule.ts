@@ -1,6 +1,7 @@
 import type {
   IAutoMovieMeasureSchedule,
   IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 /**
@@ -27,8 +28,8 @@ export function measureAutoMovieSchedule(
   classify: IAutoMovieMeasureSchedule.IClassify,
 ): IAutoMovieMeasureSchedule.IMeasure {
   const minutes: number = schedule.duration / 60;
-  const actions: IAutoMovieSchedule.IEntry[] = schedule.entries.filter(
-    (e: IAutoMovieSchedule.IEntry): boolean => classify.action(e),
+  const actions: IAutoMovieScheduleEntry[] = schedule.entries.filter(
+    (e: IAutoMovieScheduleEntry): boolean => classify.action(e),
   );
   const gap: number = classify.combinationGap ?? 0.5;
   const last: Map<string, number> = new Map();
@@ -42,10 +43,10 @@ export function measureAutoMovieSchedule(
   // Per subject: displacement shares, and idle time over its presence.
   const subjects: Record<string, IAutoMovieMeasureSchedule.ISubject> = {};
   for (const subject of new Set(
-    schedule.entries.map((e: IAutoMovieSchedule.IEntry): string => e.subject),
+    schedule.entries.map((e: IAutoMovieScheduleEntry): string => e.subject),
   )) {
-    const own: IAutoMovieSchedule.IEntry[] = schedule.entries.filter(
-      (e: IAutoMovieSchedule.IEntry): boolean => e.subject === subject,
+    const own: IAutoMovieScheduleEntry[] = schedule.entries.filter(
+      (e: IAutoMovieScheduleEntry): boolean => e.subject === subject,
     );
     let lateral: number = 0;
     let linear: number = 0;
@@ -60,8 +61,8 @@ export function measureAutoMovieSchedule(
     ) ?? { start: 0, end: schedule.duration };
     const busy: number = union(
       own
-        .filter((e: IAutoMovieSchedule.IEntry): boolean => !classify.idle?.(e))
-        .map((e: IAutoMovieSchedule.IEntry): [number, number] => [
+        .filter((e: IAutoMovieScheduleEntry): boolean => !classify.idle?.(e))
+        .map((e: IAutoMovieScheduleEntry): [number, number] => [
           Math.max(e.start, presence.start),
           Math.min(e.end, presence.end),
         ]),
@@ -74,16 +75,13 @@ export function measureAutoMovieSchedule(
   const moving: number = union(
     schedule.entries
       .filter(
-        (e: IAutoMovieSchedule.IEntry): boolean =>
+        (e: IAutoMovieScheduleEntry): boolean =>
           classify.cameraMoves?.(e) === true,
       )
-      .map((e: IAutoMovieSchedule.IEntry): [number, number] => [
-        e.start,
-        e.end,
-      ]),
+      .map((e: IAutoMovieScheduleEntry): [number, number] => [e.start, e.end]),
   );
   const cuts: number = schedule.entries.filter(
-    (e: IAutoMovieSchedule.IEntry): boolean => classify.cut?.(e) === true,
+    (e: IAutoMovieScheduleEntry): boolean => classify.cut?.(e) === true,
   ).length;
   return {
     actionsPerMinute: minutes > 0 ? actions.length / minutes : 0,

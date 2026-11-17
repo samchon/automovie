@@ -18,11 +18,6 @@ export type IAutoMovieSoftCollider =
   | IAutoMovieSoftCollider.IBodyCapsule;
 /**
  * Static world exclusions and actor-following capsule references.
- *
- * @evidence contracts/development/design.md#principled-representation Static planes, balls and boxes use world metres while body capsules retain actor-local bone references until evaluation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Soft-body and wearable evaluation share these alternatives, resolving moving capsules at step boundaries.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Discrete projections provide neither continuous collision detection nor guaranteed satisfaction of all overlapping colliders.
- * @evidence contracts/development/common.md#meaningful-documentation Static world exclusions and actor-following capsule references. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMovieSoftCollider {
   /**

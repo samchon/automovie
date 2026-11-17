@@ -84,7 +84,7 @@ export function test_human_motion_water(): void {
       ),
     );
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const fresh: IAutoMovieMotionHumanWater.IWater = { surface: 0 };
+  const fresh: IAutoMovieMotionHumanWater = { surface: 0 };
 
   for (const name of ["f-small", "m-large", "f-tall", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

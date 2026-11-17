@@ -5,10 +5,12 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanWeaponHeld,
   IAutoMovieMotionHumanWeaponPresent,
+  IAutoMovieMotionPropDrive,
+  IAutoMovieMotionPropLaunch,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -248,11 +250,13 @@ export namespace HumanWeaponPresent {
             // A pose impossible for this grip is an infeasibility certificate,
             // not an absence of requirements on the grip. The candidate's
             // entry frame supplies a finite key; least forbids accepting it.
-            const lying: IAutoMovieMotionHumanProp.IFrame = ahead
+            const lying: IAutoMovieRigidTransform = ahead
               .prop(p.gun)
               .frame(ahead.start);
-            const frame: IAutoMovieMotionHumanProp.IFrame =
-              HumanPropFrame.parent(lying, s.tool.held!.frame);
+            const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
+              lying,
+              s.tool.held!.frame,
+            );
             return [
               {
                 posture: grip.posture,
@@ -326,7 +330,7 @@ export namespace HumanWeaponPresent {
           RISE[0],
           RISE[1],
         );
-        const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+        const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
           AutoMovieMotionClock.phrase({
             prepare: 0,
             wait: SHOT.press,
@@ -369,7 +373,7 @@ export namespace HumanWeaponPresent {
                 (a: IAutoMovieAffordance): boolean => a.kind === "trigger",
               );
         const full: number | undefined = trigger?.travel;
-        const drives: IAutoMovieMotionHumanActionPlan.IDrive[] =
+        const drives: IAutoMovieMotionPropDrive[] =
           trigger === undefined || full === undefined
             ? []
             : [
@@ -394,7 +398,7 @@ export namespace HumanWeaponPresent {
         // with the support's velocity added (#3488, #3491).
         const fired: IAutoMovieMotionHumanWeaponPresent.IWield["shot"] =
           context.params.shot;
-        const launches: IAutoMovieMotionHumanActionPlan.ILaunch[] = [];
+        const launches: IAutoMovieMotionPropLaunch[] = [];
         if (fired !== undefined) {
           const random: ReturnType<typeof context.random> =
             context.random("dispersion");

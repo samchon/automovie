@@ -1,5 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMovieRigidTransform,
   IAutoMovieWarmPhysicalSupportTargets,
 } from "@automovie/interface";
 
@@ -22,16 +23,17 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  */
 export function warmPhysicalSupportTargets(
   input: IAutoMovieWarmPhysicalSupportTargets.IInput,
-): Record<string, IAutoMoviePhysicalProfile.ITransform> {
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+): Record<string, IAutoMovieRigidTransform> {
+  const targets: Record<string, IAutoMovieRigidTransform> = {
     ...input.targets,
   };
   const owned: Set<string> = new Set();
   for (const segment of input.order) {
-    const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
-      input.joints.get(segment.bone);
+    const joint: IAutoMoviePhysicalJoint | undefined = input.joints.get(
+      segment.bone,
+    );
     if (!joint || !input.selected.has(segment.bone)) continue;
-    const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    const relative: IAutoMovieRigidTransform["rotation"] =
       projectPhysicalJointRotation(
         joint,
         Quaternion.multiply(

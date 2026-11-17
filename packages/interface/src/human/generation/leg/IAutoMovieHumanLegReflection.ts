@@ -1,15 +1,20 @@
-/** Type contracts exchanged by AutoMovieHumanLegReflection; runtime evaluation remains in Human. */
-export namespace IAutoMovieHumanLegReflection {
-  /** Result of AutoMovieHumanLegReflection.sided. Control values of canonical in-plane samples on a side.
-  @param local Section points `[x, z, lift]` in the canonical plane, one per phase.
-  @param sign 1 for the left side, -1 for the right.
-   *
+/**
+ * Reflected section and lift coefficient arrays retaining their source phase clock. Runtime construction and admission remain with AutoMovieHumanLegReflection in Human.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Control values of canonical in-plane samples on a side.
- * @evidence contracts/development/design.md#principled-representation `coefficients`: Reflected section coefficients in the same physical chart units. `lift`: Reflected lift coefficients, retaining their original phase parameter and derivative units.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegReflection.ISidedResult is the canonical exchange used by AutoMovieHumanLegReflection.sided.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `coefficients`, `lift`; callers supply the complete record.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes reflected section and lift coefficient arrays retaining their source phase clock; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Reflected section and lift coefficient arrays retaining their source phase clock. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegReflection; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegReflection contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
+export namespace IAutoMovieHumanLegReflection {
+  /**
+   * Side-reflected section coefficients and lift coefficients of the canonical in-plane samples. Both arrays keep the original phase parameter and millimetre chart units.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Side-reflected section coefficients and lift coefficients of the canonical in-plane samples. Both arrays keep the original phase parameter and millimetre chart units.
+   * @evidence contracts/development/design.md#principled-representation Side-reflected section coefficients and lift coefficients of the canonical in-plane samples. Both arrays keep the original phase parameter and millimetre chart units.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegReflection.ISidedResult is the canonical exchange used by AutoMovieHumanLegReflection.sided.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanLegReflection input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type ISidedResult = {
     /** Reflected section coefficients in the same physical chart units. */
     coefficients: number[];

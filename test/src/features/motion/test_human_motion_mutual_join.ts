@@ -101,7 +101,7 @@ export function test_human_motion_mutual_join(): void {
   const chain = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
   const instant = (
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     event: string,
   ): number =>
     segment.start +

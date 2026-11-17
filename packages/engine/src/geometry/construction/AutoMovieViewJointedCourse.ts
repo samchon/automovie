@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewJointedCourse,
@@ -163,7 +163,7 @@ export namespace AutoMovieViewJointedCourse {
       };
     };
     return {
-      at: (station: number): IAutoMovieLoftFrame.IFrame => read(station).value,
+      at: (station: number): IAutoMovieLoftSectionFrame => read(station).value,
       jet: (
         station: number,
         parameter?: IAutoMovieConstructionOutlineParameter,
@@ -220,7 +220,7 @@ export namespace AutoMovieViewJointedCourse {
   /** One value-only course walk; derivative vectors are allocated only by the analytic jet query. */
   interface ISample {
     /** Actual quadrature-origin frame value. */
-    value: IAutoMovieLoftFrame.IFrame;
+    value: IAutoMovieLoftSectionFrame;
 
     /** Analytic unit tangent at that station. */
     tangent: AutoMovieVector3Tuple;

@@ -1,6 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanHandWeb; runtime evaluation remains in Human. */
+/**
+ * Parent-ring phase arcs and point/direction readers used to construct digit-root web margins.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHandWeb in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Parent-ring phase arcs and point/direction readers used to construct digit-root web margins. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only RootOfArcs, RootOfRead, CrestOfRing, CrestOfOutward, ArcPointsRing, ArcPointsArcs declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation RootOfArcs, RootOfRead, CrestOfRing, CrestOfOutward, ArcPointsRing, ArcPointsArcs separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHandWeb exchanges the named RootOfArcs, RootOfRead, CrestOfRing, CrestOfOutward, ArcPointsRing, ArcPointsArcs contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHandWeb {
   /** The arcs argument of AutoMovieHumanHandWeb.rootOf. A digit's first ring at its web: its arcs of the parent's ring, closed by bridges.
    *

@@ -1,6 +1,13 @@
 import type { IAutoMovieHumanLegStations } from "./IAutoMovieHumanLegStations";
 
-/** Type contracts exchanged by AutoMovieHumanLegReliefWindow; runtime evaluation remains in Human. */
+/**
+ * Anatomical relief-window locations with local-radius dimensions and optional crotch anchoring. Runtime construction and admission remain with AutoMovieHumanLegReliefWindow in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes anatomical relief-window locations with local-radius dimensions and optional crotch anchoring; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Anatomical relief-window locations with local-radius dimensions and optional crotch anchoring. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegReliefWindow; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegReliefWindow contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLegReliefWindow {
   /** A window's declaration.
    *

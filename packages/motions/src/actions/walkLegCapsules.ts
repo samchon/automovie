@@ -3,9 +3,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkLegClearance,
-  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -257,7 +257,7 @@ export namespace walkLegCapsules {
   > = new WeakMap();
 
   /** The identity frame a shape's distance is read in. */
-  export const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
+  export const IDENTITY: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };

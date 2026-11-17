@@ -1,7 +1,8 @@
 import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   IAutoMovieContourLoft64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -181,12 +182,15 @@ export function assertContourLoftBoundaryCompletion(
     ),
   );
 
-  const original: IAutoMovieCurve64.Cubic = sections[0].loops[0].curve;
+  const original: IAutoMovieCubicBezierCurve64 = sections[0].loops[0].curve;
 
-  const disconnected: IAutoMovieCurve64.Cubic = {
+  const disconnected: IAutoMovieCubicBezierCurve64 = {
     ...original,
     spans: original.spans.map(
-      (span: IAutoMovieCurve64.Span, i: number): IAutoMovieCurve64.Span =>
+      (
+        span: AutoMovieCubicBezierControls3,
+        i: number,
+      ): AutoMovieCubicBezierControls3 =>
         i === 0
           ? [
               [span[0][0] + 1, span[0][1], span[0][2]],

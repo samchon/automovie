@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanFootFrame,
   IAutoMovieHumanFootGuide,
   IAutoMovieHumanFootWebLine,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
@@ -83,7 +83,7 @@ export namespace AutoMovieHumanFootGuide {
     // Each knot read as its station and its place in that station's plane.
     const read: IKnot[] = list.map((p: AutoMovieVector3Tuple): IKnot => {
       const station: number = AutoMovieHumanFootFan.station(line, p);
-      const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(
+      const f: IAutoMovieLoftSectionFrame = AutoMovieHumanFootFan.plane(
         line,
         station,
       );
@@ -155,7 +155,7 @@ export namespace AutoMovieHumanFootGuide {
             6,
       ) as [number, number];
     }
-    const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(
+    const f: IAutoMovieLoftSectionFrame = AutoMovieHumanFootFan.plane(
       line,
       station,
     );

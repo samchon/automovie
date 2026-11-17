@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionClock } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
+  IAutoMovieMotionClockPhase,
+} from "@automovie/interface";
 import { AutoMovieMotionClock } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -40,7 +44,7 @@ import { motionComplaints } from "../internal/motionComplaints";
 export function test_motion_compose_clock_spans(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-12;
-  const phrase: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const phrase: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.2,
     wait: 0.1,
     attack: 0.3,
@@ -50,7 +54,7 @@ export function test_motion_compose_clock_spans(): void {
   });
 
   // 1. The fixed instants.
-  const sequence: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
+  const sequence: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
     { name: "lift", seconds: 0.3 },
     { name: "drop", seconds: 0.45 },
   ]);
@@ -80,7 +84,7 @@ export function test_motion_compose_clock_spans(): void {
   );
 
   // 3. Repetition.
-  const span: IAutoMovieMotionClock.IPhase[] = [
+  const span: IAutoMovieMotionClockPhase[] = [
     { name: "down", seconds: 0.1 },
     { name: "up", seconds: 0.2 },
   ];
@@ -88,7 +92,7 @@ export function test_motion_compose_clock_spans(): void {
     { name: "down1", seconds: 0.1 },
     { name: "up1", seconds: 0.2 },
   ]);
-  const twice: IAutoMovieMotionClock.IPhase[] = AutoMovieMotionClock.repeat(
+  const twice: IAutoMovieMotionClockPhase[] = AutoMovieMotionClock.repeat(
     span,
     2,
   );
@@ -98,8 +102,7 @@ export function test_motion_compose_clock_spans(): void {
     { name: "down2", seconds: 0.1 },
     { name: "up2", seconds: 0.2 },
   ]);
-  const laid: IAutoMovieMotionClock.IClock =
-    AutoMovieMotionClock.sequence(twice);
+  const laid: IAutoMovieMotionClock = AutoMovieMotionClock.sequence(twice);
   complaints.check(
     "two repetitions lay out as a 0.6 s sequence",
     close(laid.duration, 0.6) &&
@@ -114,7 +117,7 @@ export function test_motion_compose_clock_spans(): void {
   );
 
   // 4. Stretch.
-  const stretched: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.stretch(
+  const stretched: IAutoMovieMotionClock = AutoMovieMotionClock.stretch(
     phrase,
     (opening: string): number =>
       opening === "start" ? 2 : opening === "stroke" ? 3 : 1,
@@ -137,10 +140,8 @@ export function test_motion_compose_clock_spans(): void {
   );
   complaints.equals(
     "a stretch keeps every name",
-    stretched.instants.map(
-      (i: IAutoMovieMotionClock.IInstant): string => i.name,
-    ),
-    phrase.instants.map((i: IAutoMovieMotionClock.IInstant): string => i.name),
+    stretched.instants.map((i: IAutoMovieMotionClockInstant): string => i.name),
+    phrase.instants.map((i: IAutoMovieMotionClockInstant): string => i.name),
   );
   complaints.refuses("a factor of 0", () =>
     AutoMovieMotionClock.stretch(phrase, (): number => 0),

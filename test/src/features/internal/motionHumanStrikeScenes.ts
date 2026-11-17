@@ -104,13 +104,9 @@ export namespace motionHumanStrikeScenes {
         `${label}: threw ${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}, a plan expected`,
       ];
     }
-    const punch: IAutoMovieMotionHumanSegment.ISegment | undefined =
-      film.performance
-        .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === "punch",
-        );
+    const punch: IAutoMovieMotionHumanSegment | undefined = film.performance
+      .segments("a")
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "punch");
     const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
       punch === undefined ? undefined : StrikingRecord.of(punch.plan);
     if (punch === undefined || record === undefined)

@@ -3,7 +3,14 @@ import type { IAutoMovieLoftSectionPhase } from "../../../construction/IAutoMovi
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
-/** Type contracts exchanged by AutoMovieHumanFootSource; runtime evaluation remains in Human. */
+/**
+ * Original native field ownership, bounded regional reads and explicit complete-parent demand. Runtime construction and admission remain with AutoMovieHumanFootSource in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes original native field ownership, bounded regional reads and explicit complete-parent demand; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Original native field ownership, bounded regional reads and explicit complete-parent demand. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanFootSource; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing FootSource contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanFootSource {
   /** Call-owned scalar/fullness preparation; the original axis remains authoritative.
    *
@@ -20,7 +27,17 @@ export namespace IAutoMovieHumanFootSource {
     /** Actual native coefficients when prepared directly; absent for a region whose full parent is unrequested. */
     field?: IAutoMovieLoftViewSource.ISource;
 
-    /** Explicitly complete a regional owner's actual original, retaining its real failure; absent on direct controls. */
+    /**
+     * Explicitly complete a regional owner's actual original, retaining its real failure; absent on direct controls.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Explicitly complete a regional owner's actual original, retaining its real failure; absent on direct controls.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This complete signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootSource and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes complete at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootSource.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual complete provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootSource determines the work per complete call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootSource's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the complete provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     complete?(): IComplete;
 
     /** Non-generating name when this owner also has a bounded regional capability. */
@@ -70,9 +87,17 @@ export namespace IAutoMovieHumanFootSource {
 
     domain: readonly [number, number];
 
-    /** Actual value and separately available physical2 within this interval. */ at(
-      station: number,
-    ): IStation;
+    /**
+     * Actual value and separately available physical2 within this interval.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Actual value and separately available physical2 within this interval.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This at signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootSource and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes at at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootSource.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual at provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootSource determines the work per at call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootSource's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the at provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */ at(station: number): IStation;
   }
 
   /** One regular station's value capability and separately qualified physical derivatives.
@@ -84,7 +109,17 @@ export namespace IAutoMovieHumanFootSource {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `phase`, `jet`, `unavailable`; callers supply the complete record.
    */
   export interface IStation {
-    /** Original local phase function, in mm and radians. */
+    /**
+     * Original local phase function, in mm and radians.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Original local phase function, in mm and radians.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This phase signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootSource and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes phase at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootSource.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual phase provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootSource determines the work per phase call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootSource's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the phase provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     phase: (phi: number) => IAutoMovieLoftSectionPhase;
 
     /** Original physical-station total2, or explicit absence. */
@@ -103,17 +138,27 @@ export namespace IAutoMovieHumanFootSource {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanFootSource.fromRegion, AutoMovieHumanFootSource.owner for bounded region with a real, explicit full-original completion capability.
    */
   export interface IRegional extends ISource {
-    /** Complete and admit the actual coupled original, preserving its original failure. */
+    /**
+     * Complete and admit the actual coupled original, preserving its original failure.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Complete and admit the actual coupled original, preserving its original failure.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This complete signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootSource and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes complete at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootSource.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual complete provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootSource determines the work per complete call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootSource's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the complete provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     complete(): IComplete;
   }
 
-  /** The resolve argument of AutoMovieHumanFootSource.fromRegion. Borrow a retained interval while keeping explicit full-parent demand truthful.
+  /**
+   * Explicitly resolve the actual complete coupled parent part for a retained region. Failure propagates; an earlier uncoupled part cannot stand in for the requested parent.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Borrow a retained interval while keeping explicit full-parent demand truthful.
-   * @evidence contracts/development/design.md#principled-representation Borrow a retained interval while keeping explicit full-parent demand truthful. The callable takes  and returns IAutoMovieViewPart.
+   * @evidence contracts/development/common.md#meaningful-documentation Explicitly resolve the actual complete coupled parent part for a retained region. Failure propagates; an earlier uncoupled part cannot stand in for the requested parent.
+   * @evidence contracts/development/design.md#principled-representation Explicitly resolve the actual complete coupled parent part for a retained region. Failure propagates; an earlier uncoupled part cannot stand in for the requested parent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanFootSource.FromRegionResolve is the canonical exchange used by AutoMovieHumanFootSource.fromRegion.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanFootSource.fromRegion for borrow a retained interval while keeping explicit full-parent demand truthful.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanFootSource input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
    */
   export type FromRegionResolve = () => IAutoMovieViewPart;
 }

@@ -1,8 +1,10 @@
 import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain";
 import type { IAutoMovieHumanLoftMesh } from "../lofting/IAutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanBodyApertures } from "./IAutoMovieHumanBodyApertures";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanBranchEvent } from "./IAutoMovieHumanBranchEvent";
+import type { IAutoMovieHumanSurfaceAppendage } from "./IAutoMovieHumanSurfaceAppendage";
 import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
+import type { IAutoMovieHumanSurfacePole } from "./IAutoMovieHumanSurfacePole";
 
 /** Mutable buffers and shared boundary ownership for one body generation.
  *
@@ -18,9 +20,9 @@ export interface IAutoMovieHumanSurfaceContext {
   /** Calibration chains indexed by their source graph identity. */
   chains: Map<string, IAutoMovieLoftChain>;
   /** Parent/child contact events. */
-  events: IAutoMovieHumanBodyCalibration.IEvent[];
+  events: IAutoMovieHumanBranchEvent[];
   /** Calibrated poles indexed by chain name and end. */
-  poles: Map<string, IAutoMovieHumanBodyCalibration.IPole>;
+  poles: Map<string, IAutoMovieHumanSurfacePole>;
   /** Resolved shared boundaries indexed by chain name and end. */
   boundaries: Map<string, IAutoMovieHumanSurfaceBoundary>;
   /** Station bisection chord tolerance, millimetres. */
@@ -45,7 +47,7 @@ export interface IAutoMovieHumanSurfaceContext {
     string,
     {
       /** Appendage boundary being joined to this host surface. */
-      appendage?: IAutoMovieHumanBodyCalibration.IAppendage;
+      appendage?: IAutoMovieHumanSurfaceAppendage;
       /** Prepared aperture and its host-surface boundary ownership. */
       opening?: IAutoMovieHumanBodyApertures.IPrepared;
       /** Ordered aperture boundary in the host's station/phase chart: millimetres and radians. */

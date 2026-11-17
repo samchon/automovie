@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptureRecord } from "@automovie/interface";
+import type { IAutoMovieCaptureVideoSource } from "@automovie/interface";
 
 /**
  * Read the report of `planAutoMovieVideoSceneCuts` into the file's scene cuts: the second each new scene starts and its `scdet` score, in the report's order.
@@ -17,7 +17,7 @@ import type { IAutoMovieCaptureRecord } from "@automovie/interface";
  */
 export function readAutoMovieVideoSceneCuts(
   report: string,
-): IAutoMovieCaptureRecord.IVideo["cuts"] {
+): IAutoMovieCaptureVideoSource["cuts"] {
   const cuts: { seconds: number; score: number }[] = [];
   let frame: { header: string; values: Map<string, string> } | null = null;
   const close: () => void = (): void => {

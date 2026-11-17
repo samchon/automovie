@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -8,7 +9,6 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandToFace,
   IAutoMovieMotionHumanHandToFaceArm,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -133,7 +133,7 @@ export namespace handToFace {
    */
   export function mirrored(
     region: AutoMovieHumanoidRegion,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): AutoMovieHumanoidRegion {
     if (side === "right") return region;
     return region.endsWith("Right")
@@ -180,37 +180,31 @@ export namespace handToFace {
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const bones = poseBones(body, context.entry.pose);
-    const first: IAutoMovieMotionHumanHand.Side = p.side ?? "right";
+    const first: AutoMovieHumanSide = p.side ?? "right";
 
     // The acting hand's effector: the row's implied tool, or the point of
     // the prop that hand holds.
     let held: IAutoMovieMotionHumanTouchEffector.IEffector | undefined;
     const effector = (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanTouchEffector.IEffector =>
       p.prop === undefined || side !== first
         ? AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind)
         : (held ??= grasped(p.prop));
-    const hands: [
-      IAutoMovieMotionHumanHand.Side,
-      AutoMovieHumanoidRegion | null,
-    ][] = [
+    const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion | null][] = [
       [first, row.region === null ? null : mirrored(row.region, first)],
       // A second hand on the held prop takes the place of the row's other.
       ...(row.other === undefined || p.other !== undefined
         ? []
         : [
             [first === "right" ? "left" : "right", row.other] as [
-              IAutoMovieMotionHumanHand.Side,
+              AutoMovieHumanSide,
               AutoMovieHumanoidRegion,
             ],
           ]),
     ];
     const region =
-      (
-        side: IAutoMovieMotionHumanHand.Side,
-        name: AutoMovieHumanoidRegion | null,
-      ) =>
+      (side: AutoMovieHumanSide, name: AutoMovieHumanoidRegion | null) =>
       (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
         if (name === null) return handToFaceSheet.of(context, posture, side);
         const place: Pick<
@@ -305,7 +299,7 @@ export namespace handToFace {
         AutoMovieMotionHumanTouchForm.FORMS[row.kind].period,
       ),
     );
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: transport,
         attack: count * repetition,
@@ -314,7 +308,7 @@ export namespace handToFace {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,

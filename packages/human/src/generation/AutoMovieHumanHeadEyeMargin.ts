@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanEyeSeat,
   IAutoMovieHumanHeadEyeOpening,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadPrior,
@@ -16,7 +16,7 @@ export namespace AutoMovieHumanHeadEyeMargin {
   export function margin(
     plan: IAutoMovieHumanHeadLayout,
     face: IAutoMovieHumanHeadPrior.IFace,
-    eye: IAutoMovieHumanBodyCalibration.IEye,
+    eye: IAutoMovieHumanEyeSeat,
     o: IAutoMovieHumanHeadEyeOpening,
     sign: 1 | -1,
   ): IAutoMovieHumanLoftAperture {

@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,12 +19,12 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function preparePhysicalTargetSampler(
-  before: IAutoMoviePhysicalProfile.ITransform,
-  after: IAutoMoviePhysicalProfile.ITransform,
+  before: IAutoMovieRigidTransform,
+  after: IAutoMovieRigidTransform,
   rate: number,
 ): (fraction: number) => IAutoMovieSamplePhysicalTarget.IResult {
-  let first: IAutoMoviePhysicalProfile.ITransform | undefined;
-  let last: IAutoMoviePhysicalProfile.ITransform | undefined;
+  let first: IAutoMovieRigidTransform | undefined;
+  let last: IAutoMovieRigidTransform | undefined;
   let displacement: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let angularVelocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -40,8 +40,10 @@ export function preparePhysicalTargetSampler(
       };
       displacement = Vector3.subtract(last.position, first.position);
       velocity = Vector3.scale(displacement, rate);
-      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-        Quaternion.multiply(last.rotation, Quaternion.inverse(first.rotation));
+      const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+        last.rotation,
+        Quaternion.inverse(first.rotation),
+      );
       const sign: number = delta.w < 0 ? -1 : 1;
       const norm: number = Math.hypot(delta.x, delta.y, delta.z);
       const scale: number =
@@ -70,8 +72,8 @@ export function preparePhysicalTargetSampler(
 
 /** Compare numeric values so in-place receiver or target edits invalidate coefficients too. */
 function same(
-  actual: IAutoMoviePhysicalProfile.ITransform,
-  previous: IAutoMoviePhysicalProfile.ITransform | undefined,
+  actual: IAutoMovieRigidTransform,
+  previous: IAutoMovieRigidTransform | undefined,
 ): boolean {
   return (
     previous !== undefined &&

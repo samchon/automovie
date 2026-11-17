@@ -12,7 +12,7 @@ import type {
   IAutoMovieHumanHeadLayout,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewAxis,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -132,11 +132,10 @@ export namespace AutoMovieHumanHeadEarPlate {
     widthSites.sort(
       (a: [number, number], b: [number, number]): number => a[0] - b[0],
     );
-    const width: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(
-        widthSites.map((p: [number, number]): number => theta(p[0])),
-        widthSites.map((p: [number, number]): number => p[1]),
-      );
+    const width: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      widthSites.map((p: [number, number]): number => theta(p[0])),
+      widthSites.map((p: [number, number]): number => p[1]),
+    );
     const half: (y: number) => number = (y: number): number =>
       y === low || y === high
         ? 0

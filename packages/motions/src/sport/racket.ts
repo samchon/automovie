@@ -99,7 +99,7 @@ export namespace racket {
       AutoMovieMotionManner.of(context, p.manner);
     const side: "left" | "right" = p.side ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: 0.6,
         attack: p.kind === "golfAddress" ? 1.2 : 0.3,

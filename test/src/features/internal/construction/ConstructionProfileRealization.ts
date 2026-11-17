@@ -11,6 +11,7 @@ import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionProfile,
   IAutoMovieConstructionProfileBody,
+  IAutoMovieConstructionProfilePiece,
   IAutoMovieConstructionProfileSource,
   IAutoMoviePreparedConstructionProfile,
   IAutoMovieSolidBody,
@@ -42,7 +43,7 @@ export namespace ConstructionProfileRealization {
   /** Pure common metadata names actual test-owned source/material/binding dependencies. */
   function definition(
     name: string,
-    pieces: IAutoMovieConstructionProfile.IPiece[],
+    pieces: IAutoMovieConstructionProfilePiece[],
   ): IAutoMovieConstructionProfile {
     return {
       name,
@@ -82,11 +83,11 @@ export namespace ConstructionProfileRealization {
   export function prism(): IAutoMovieConstructionProfileSource {
     const curves: Map<string, IAutoMovieConstructionProfileSource.ICurve> =
       new Map();
-    const pieces: IAutoMovieConstructionProfile.IPiece[] = corners.map(
+    const pieces: IAutoMovieConstructionProfilePiece[] = corners.map(
       (
         from: readonly [number, number],
         i: number,
-      ): IAutoMovieConstructionProfile.IPiece => {
+      ): IAutoMovieConstructionProfilePiece => {
         const to: readonly [number, number] =
           corners[(i + 1) % corners.length]!;
         const delta: [number, number] = [to[0] - from[0], to[1] - from[1]];
@@ -168,12 +169,12 @@ export namespace ConstructionProfileRealization {
         };
       },
     };
-    const pieces: IAutoMovieConstructionProfile.IPiece[] = Array.from(
+    const pieces: IAutoMovieConstructionProfilePiece[] = Array.from(
       { length: count },
       (
         _value: unknown,
         ordinal: number,
-      ): IAutoMovieConstructionProfile.IPiece => {
+      ): IAutoMovieConstructionProfilePiece => {
         const i: number = direction === 1 ? ordinal : count - 1 - ordinal;
         return {
           id: "piece." + ordinal,

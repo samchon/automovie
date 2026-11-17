@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
@@ -55,10 +56,7 @@ export function archetypePlaced(
     ];
   }
   rows.forEach((row: archetypePlaced.IRow, index: number): void => {
-    const placed: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-      row.name,
-      1,
-    );
+    const placed: IAutoMovieRigidTransform = performance.prop(row.name, 1);
     const at: IAutoMovieVector3 = { x: 3 * index, y: row.on ?? 0, z: 0 };
 
     // 1. Where it was put.

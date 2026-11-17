@@ -2,6 +2,7 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanNeckSurface,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -149,11 +150,10 @@ export namespace AutoMovieHumanNeckSurface {
     // The canonical body pole already supplies the skeleton's head tip. This
     // display does not resolve generated chain.pole overrides. Its existing
     // three display heights end at this point, not at a new circle.
-    const crown: IAutoMovieHumanBodyCalibration.IPole | undefined =
-      body.poles.find(
-        (pole: IAutoMovieHumanBodyCalibration.IPole): boolean =>
-          pole.chain === "head.upper" && pole.end === "top",
-      );
+    const crown: IAutoMovieHumanSurfacePole | undefined = body.poles.find(
+      (pole: IAutoMovieHumanSurfacePole): boolean =>
+        pole.chain === "head.upper" && pole.end === "top",
+    );
     const neckTopHeight: number =
       sections[sections.length - 1]!.centre[1] / scale;
     if (

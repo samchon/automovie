@@ -3,7 +3,7 @@ import { AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieHumanF1,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -344,7 +344,7 @@ export function test_human_f1_construction(): void {
     );
     let worst: [number, number] = [0, 0];
     for (let i: number = 1; i < stations.length; ++i) {
-      const [a, b]: IAutoMovieLoftFrame.IFrame[] = [
+      const [a, b]: IAutoMovieLoftSectionFrame[] = [
         part.axis.at(stations[i - 1]!),
         part.axis.at(stations[i]!),
       ];

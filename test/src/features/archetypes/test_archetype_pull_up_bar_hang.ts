@@ -88,11 +88,10 @@ export function test_archetype_pull_up_bar_hang(): void {
         );
         continue;
       }
-      const act: IAutoMovieMotionHumanSegment.ISegment = film
+      const act: IAutoMovieMotionHumanSegment = film
         .segments("a")
         .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === row.name,
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === row.name,
         )!;
       const middle: number = (act.start + act.end) / 2;
       const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =

@@ -193,7 +193,7 @@ export function test_human_motion_registered_law(): void {
 
   // 1. Performed under its own name, the fingertip at the brow.
   const first: IAutoMovieMotionHumanPerformance = perform(scene());
-  const placed: IAutoMovieMotionHumanSegment.ISegment | undefined =
+  const placed: IAutoMovieMotionHumanSegment | undefined =
     first.segments("a")[1];
   expect(
     `the second action is named ${placed?.name}, salute expected`,

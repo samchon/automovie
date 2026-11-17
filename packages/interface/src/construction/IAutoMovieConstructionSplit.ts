@@ -9,10 +9,10 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
  *
  * Engine admission: `hostFace` a view part of the host's subtree; each `partFace` a view part of its child's subtree; the two `band` names unique in the tree; `a < b < a + 2 pi`, both finite; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive and finite; a crease's bounds finite, `start <= end < start + 2 pi`, and its transition positive.
  *
- * @evidence contracts/development/design.md#principled-representation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord.
- * @evidence contracts/development/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules.
+ * @evidence contracts/development/design.md#principled-representation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field. The members distinguish metre rail and seam geometry from radian loop windows and dimensionless reach shares.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs. Split realization reads the shared seam and per-child correspondence records without separate schemas for each child count.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord. Authored forks and child rails remain explicit; absent profile or crease has the documented geometric meaning.
+ * @evidence contracts/development/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules. Child bands, seam curves and declared crease windows at a split end. Member documentation specifies their units, references and absence behavior.
  */
 export interface IAutoMovieConstructionSplit {
   /** Discriminator. */
@@ -66,10 +66,6 @@ export interface IAutoMovieConstructionSplit {
 /**
  * Child bands, seam curves and declared crease windows at a split end.
  *
- * @evidence contracts/development/design.md#principled-representation The members distinguish metre rail and seam geometry from radian loop windows and dimensionless reach shares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Split realization reads the shared seam and per-child correspondence records without separate schemas for each child count.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored forks and child rails remain explicit; absent profile or crease has the documented geometric meaning.
- * @evidence contracts/development/common.md#meaningful-documentation Child bands, seam curves and declared crease windows at a split end. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMovieConstructionSplit {
   /**

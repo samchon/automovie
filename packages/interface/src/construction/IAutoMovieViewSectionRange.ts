@@ -1,7 +1,14 @@
 import type { IAutoMovieSource } from "./IAutoMovieSource";
 import type { IAutoMovieViewSection } from "./IAutoMovieViewSection";
 
-/** Data and callback contracts shared by the ViewSectionRange operations. */
+/**
+ * Data and callback contracts shared by the ViewSectionRange operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Trials preserve the actual measured source and fault; a family holds a local shoulder/girth bracket or explicitly accepted candidate and its same-shoulder reader.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewSectionRange owns call-local candidate preparation for the ViewSection target solve.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A null bracket alone is not acceptance, and a retained candidate is not a guarantee of every future shoulder's admission.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents local bracket, accepted-candidate meaning and propagated preparation failures.
+ */
 export namespace IAutoMovieViewSectionRange {
   /**
    * One synchronous candidate's unchanged measured source and fault observation.

@@ -6,7 +6,7 @@ import {
 import { physicalShapePairDistance } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -21,9 +21,7 @@ function apart(
   b: Archetype,
   bt: IAutoMovieTransform,
 ): number {
-  const pose = (
-    t: IAutoMovieTransform,
-  ): IAutoMoviePhysicalProfile.ITransform => ({
+  const pose = (t: IAutoMovieTransform): IAutoMovieRigidTransform => ({
     position: t.translation,
     rotation: t.rotation,
   });

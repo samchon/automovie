@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureSampling,
   IAutoMovieInspectionRequest,
 } from "@automovie/interface";
 
@@ -37,7 +38,7 @@ export function formatAutoMovieCapturePlanRequest(
   if (request.sampling.kind === "at")
     values.push(["at", request.sampling.seconds.map(String).join(",")]);
   else {
-    const fallback: IAutoMovieCapturePlanRequest.Sampling = absent.sampling;
+    const fallback: IAutoMovieCaptureSampling = absent.sampling;
     if (fallback.kind !== "even" || request.sampling.from !== fallback.from)
       values.push(["from", String(request.sampling.from)]);
     if (request.sampling.to !== null)

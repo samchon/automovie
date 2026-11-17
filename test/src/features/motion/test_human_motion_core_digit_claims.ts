@@ -1,5 +1,5 @@
 import type {
-  AutoMovieMotionHumanChannel,
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -16,7 +16,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** A one-second overlay that bends the named joints of a hand and claims what it is given. */
 const bend = (
   name: string,
-  claims: readonly AutoMovieMotionHumanChannel.Claim[],
+  claims: readonly AutoMovieMotionHumanChannelClaim[],
   joints: IAutoMovieMotionHumanPosture["joints"],
 ): IAutoMovieMotionHumanActionLaw<object> => ({
   name,

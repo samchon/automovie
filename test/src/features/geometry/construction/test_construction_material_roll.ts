@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieConstructionJointedAxis,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
@@ -58,7 +58,7 @@ export function test_construction_material_roll(): void {
         const q: number =
           t <= 0 ? 0 : t >= 1 ? 1 : t * t * t * (10 - 15 * t + 6 * t * t);
         const theta: number = angle * q;
-        const frame: IAutoMovieLoftFrame.IFrame = axis.at(station);
+        const frame: IAutoMovieLoftSectionFrame = axis.at(station);
         vector(
           failures,
           `straight origin ${scale}/${angle}/${t}`,
@@ -91,10 +91,10 @@ export function test_construction_material_roll(): void {
 
       // A one-sided value test at both endpoints distinguishes a linear angle ramp from a zero-jet C2 transition.
       for (const t of [0.001, 0.0005]) {
-        const begin: IAutoMovieLoftFrame.IFrame = axis.at(
+        const begin: IAutoMovieLoftSectionFrame = axis.at(
           (20 + 30 * t) * scale,
         );
-        const end: IAutoMovieLoftFrame.IFrame = axis.at((50 - 30 * t) * scale);
+        const end: IAutoMovieLoftSectionFrame = axis.at((50 - 30 * t) * scale);
         const limit: number =
           11 * Math.abs(angle) * t ** 3 + 64 * Number.EPSILON;
         if (
@@ -136,7 +136,7 @@ export function test_construction_material_roll(): void {
     );
     if (typeof rolled === "string") failures.push(`nonplanar roll: ${rolled}`);
     else {
-      const end: IAutoMovieLoftFrame.IFrame = base.at(to);
+      const end: IAutoMovieLoftSectionFrame = base.at(to);
       const n: [number, number, number] = cross(end.v, end.u);
       const projected: number[] = target.map(
         (value: number, i: number): number => value - dot(target, n) * n[i]!,
@@ -151,8 +151,8 @@ export function test_construction_material_roll(): void {
       );
       const angle: number = Math.atan2(dot(target, end.v), dot(target, end.u));
       for (const station of [-5, 0, 10, 17, 25, 35, 40, 45, 60]) {
-        const before: IAutoMovieLoftFrame.IFrame = base.at(station);
-        const after: IAutoMovieLoftFrame.IFrame = rolled.at(station);
+        const before: IAutoMovieLoftSectionFrame = base.at(station);
+        const after: IAutoMovieLoftSectionFrame = rolled.at(station);
         vector(
           failures,
           `course origin ${station}`,
@@ -313,7 +313,7 @@ export function test_construction_material_roll(): void {
       `admitted two-component minimum-subnormal direction: ${tiny}`,
     );
   else {
-    const frame: IAutoMovieLoftFrame.IFrame = tiny.at(2);
+    const frame: IAutoMovieLoftSectionFrame = tiny.at(2);
     vector(
       failures,
       "minimum-subnormal normalized u",

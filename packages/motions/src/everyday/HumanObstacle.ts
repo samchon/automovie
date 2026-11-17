@@ -2,8 +2,9 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRefusal,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -57,8 +58,7 @@ export namespace HumanObstacle {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IObstacle {
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const find = (id: string): IAutoMovieAffordance | undefined =>
@@ -82,7 +82,7 @@ export namespace HumanObstacle {
       edge.id === "edge" ? find("top")?.depth : find("bar")?.aperture;
     if (depth === undefined)
       throw refuse(`${subject} declares no depth behind its ${edge.id}`);
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const near: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, edge.frame.translation),

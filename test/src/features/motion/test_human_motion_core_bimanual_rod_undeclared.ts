@@ -1,6 +1,7 @@
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -47,7 +48,7 @@ export function test_human_motion_core_bimanual_rod_undeclared(): void {
     return 0.15 * s * s * s * (10 - 15 * s + 6 * s * s);
   };
   const place = (
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 => ({
     x: side === "left" ? 0.03 : -0.03,
@@ -58,7 +59,7 @@ export function test_human_motion_core_bimanual_rod_undeclared(): void {
   const arms: IAutoMovieMotionHumanPrimitive[] = (
     ["right", "left"] as const
   ).map(
-    (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanPrimitive =>
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.carried({
         body,
         side,
@@ -71,7 +72,7 @@ export function test_human_motion_core_bimanual_rod_undeclared(): void {
         goal: (
           _: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IAutoMovieMotionHumanPosture.IGoal =>
+        ): IAutoMovieHumanLimbGoal =>
           AutoMovieMotionHumanArm.goal(
             body,
             side,

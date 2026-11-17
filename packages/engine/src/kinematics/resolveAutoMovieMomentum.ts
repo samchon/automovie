@@ -1,8 +1,9 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
   IAutoMovieCombinePhysicalMassProperties,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolveMomentum,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -57,7 +58,7 @@ export function resolveAutoMovieMomentum(
   before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   seconds: number,
-): IAutoMovieResolveMomentum.IMomentum {
+): IAutoMovieBodyMomentum {
   if (!(seconds > 0))
     throw new Error(`The momentum needs a positive interval, got ${seconds}`);
   const a: IAutoMovieCombinePhysicalMassProperties.IPart[] =
@@ -174,7 +175,7 @@ export namespace resolveAutoMovieMomentum {
    */
   export function principal(
     tensor: readonly (readonly number[])[],
-  ): IAutoMovieResolveMomentum.IPrincipal {
+  ): IAutoMoviePrincipalTensorFrame {
     return physicalPrincipalAxes(
       tensor.map((row: readonly number[]): number[] => [...row]),
     );

@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanTrunkViews; runtime evaluation remains in Human. */
+/**
+ * Person-specific trunk profile and section-box laws with named upper stations and retained mass setbacks. Runtime construction and admission remain with AutoMovieHumanTrunkViews in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes person-specific trunk profile and section-box laws with named upper stations and retained mass setbacks; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Person-specific trunk profile and section-box laws with named upper stations and retained mass setbacks. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanTrunkViews; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing TrunkViewLaws contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanTrunkViewLaws {
   /** The laws the views read beyond the published measures, each a pure function of the person in calibration millimetres.
    *
@@ -12,7 +19,17 @@ export namespace IAutoMovieHumanTrunkViewLaws {
     /** Shared chest/bust-apex height from the generating placement, calibration mm; the interim caller still transfers its old course solve. */
     chest: number;
 
-    /** The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock. */
+    /**
+     * The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This back signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkViews and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes back at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkViews.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual back provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkViews determines the work per back call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkViews's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the back provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     back(y: number): number;
 
     /** Retained stations of the same back law. Bare-wall offsets transfer between neighbouring named sites without a new fit. */
@@ -23,10 +40,30 @@ export namespace IAutoMovieHumanTrunkViewLaws {
       y: number;
     }[];
 
-    /** The navel section's box at a girth (top hip). */
+    /**
+     * The navel section's box at a girth (top hip).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The navel section's box at a girth (top hip).
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This lumbar signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkViews and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes lumbar at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkViews.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual lumbar provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkViews determines the work per lumbar call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkViews's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the lumbar provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     lumbar(girth: number): IBox;
 
-    /** The thorax's box without the breasts at a girth (the underbust). */
+    /**
+     * The thorax's box without the breasts at a girth (the underbust).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The thorax's box without the breasts at a girth (the underbust).
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This chestWall signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkViews and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes chestWall at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkViews.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual chestWall provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkViews determines the work per chestWall call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkViews's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the chestWall provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     chestWall(girth: number): IBox;
 
     /** The perineum's forward place, mm. */
@@ -65,20 +102,14 @@ export namespace IAutoMovieHumanTrunkViewLaws {
     depth: number;
   }
 
-  /** The amplitudes argument of AutoMovieHumanTrunkViews.of. The views.
-  @param measures The person's resolved measures, world mm.
-  @param crotch The crotch's height, calibration mm.
-  @param scale Calibration millimetres per world millimetre.
-  @param laws The laws beyond the measures, in calibration mm.
-  @param amplitudes Retained breast/gluteal wall setbacks, calibration mm; actual local mass projections are separately owned by source wall and AP apex.
-  @returns The perineum and the sites by rising height.
+  /**
+   * Retained breast and gluteal wall setbacks in calibration millimetres. Actual local mass projections remain separately determined by their source wall and anatomical AP apex.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The views.
- * @evidence contracts/development/design.md#principled-representation `breast`: Breast relief amplitude over the chest wall, millimetres. `gluteal`: Gluteal relief amplitude over its trunk base, millimetres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkViewLaws.IOfAmplitudes is the canonical exchange used by AutoMovieHumanTrunkViews.of.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `breast`, `gluteal`; callers supply the complete record.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Retained breast and gluteal wall setbacks in calibration millimetres. Actual local mass projections remain separately determined by their source wall and anatomical AP apex.
+   * @evidence contracts/development/design.md#principled-representation Retained breast and gluteal wall setbacks in calibration millimetres. Actual local mass projections remain separately determined by their source wall and anatomical AP apex.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkViewLaws.IOfAmplitudes is the canonical exchange used by AutoMovieHumanTrunkViews.of.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanTrunkViews input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type IOfAmplitudes = {
     /** Breast relief amplitude over the chest wall, millimetres. */
     breast: number;

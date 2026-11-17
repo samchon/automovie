@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import { HumanChain, HumanCue, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -60,7 +60,7 @@ export function test_human_motion_core_schedule_entry_align(): void {
       posture: (): IAutoMovieMotionHumanPosture => context.entry.posture,
     }),
   };
-  const cues: { music: IAutoMovieResolveSchedule.ICue[] } = {
+  const cues: { music: IAutoMovieScheduleCue[] } = {
     music: HumanCue.beats({ bpm: 96, count: 8 }),
   };
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
@@ -82,8 +82,7 @@ export function test_human_motion_core_schedule_entry_align(): void {
       .registered("marker")
       .sync({ of: "music", event: "beat", index: 2, align: "mark" }).node,
   });
-  const second: IAutoMovieMotionHumanSegment.ISegment =
-    performance.segments("a")[2]!;
+  const second: IAutoMovieMotionHumanSegment = performance.segments("a")[2]!;
   const entered: number =
     (second.entryTime - second.start) / second.plan.duration;
   const mark: number =

@@ -7,7 +7,7 @@ import {
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadLipContact,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewPart,
@@ -49,7 +49,7 @@ export namespace AutoMovieHumanHeadLipContact {
         "Lip material parent has no admitted original direct field",
       );
     const source: IAutoMovieLoftViewSource.ISource = admitted.source;
-    const frame: IAutoMovieLoftFrame.IFrame = parent.axis.at(height);
+    const frame: IAutoMovieLoftSectionFrame = parent.axis.at(height);
 
     /** Read X=F(Y,Z) from the original forward branch, preserving its available total2. */
     const field: (y: number, z: number) => IField = (
@@ -60,7 +60,7 @@ export namespace AutoMovieHumanHeadLipContact {
         AutoMovieLoftViewRead.values(source, y);
       if (typeof inputs === "string")
         throw new Error(`Lip parent field: ${inputs}`);
-      const plane: IAutoMovieLoftFrame.IFrame = parent.axis.at(y);
+      const plane: IAutoMovieLoftSectionFrame = parent.axis.at(y);
       if (
         Math.hypot(
           plane.u[0] - 1,
@@ -208,7 +208,7 @@ export namespace AutoMovieHumanHeadLipContact {
           (sign * delta[1]) / h,
           0,
         ];
-        const value: IAutoMovieLoftFrame.IFrame = {
+        const value: IAutoMovieLoftSectionFrame = {
           origin: [
             (rest.point[0] + border.point[0]) / 2,
             (height + border.point[1]) / 2,
@@ -232,7 +232,7 @@ export namespace AutoMovieHumanHeadLipContact {
     rest: IField,
     border: IField,
     delta: AutoMovieVector3Tuple,
-    value: IAutoMovieLoftFrame.IFrame,
+    value: IAutoMovieLoftSectionFrame,
     h: number,
     sign: number,
     hjet: readonly [number, number] | null,
@@ -274,12 +274,12 @@ export namespace AutoMovieHumanHeadLipContact {
           (delta[i]! * hjet[1]) / h ** 2 +
           (2 * delta[i]! * hjet[0] ** 2) / h ** 3);
     }
-    const first: IAutoMovieLoftFrame.IFrame = {
+    const first: IAutoMovieLoftSectionFrame = {
       origin: [(dx + rest.derivatives[1]) / 2, dy / 2, 1],
       u: firstU,
       v: [firstU[1], -firstU[0], 0],
     };
-    const second: IAutoMovieLoftFrame.IFrame = {
+    const second: IAutoMovieLoftSectionFrame = {
       origin: [(ddx + rest.derivatives[4]) / 2, ddy / 2, 0],
       u: secondU,
       v: [secondU[1], -secondU[0], 0],

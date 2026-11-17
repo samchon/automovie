@@ -1,6 +1,13 @@
-import type { IAutoMovieLoftFrame } from "./IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 
-/** Data and callback contracts shared by the ViewAxisJet operations. */
+/**
+ * Data and callback contracts shared by the ViewAxisJet operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IJet separates frame value from first/second component derivatives in the selected coordinate, station mm by default.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewAxisJet shares LoftFrame's component layout with analytic axis producers and loft source bindings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Derivative axes are not normalized directions; finite value and available derivative orders require source admission.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives origin/axis units and derivative-coordinate interpretation.
+ */
 export namespace IAutoMovieViewAxisJet {
   /**
    * One origin/u/v value and its first two derivatives in the query's selected coordinate, millimetre station by default.
@@ -12,12 +19,12 @@ export namespace IAutoMovieViewAxisJet {
    */
   export interface IJet {
     /** Actual source frame, with origin in world mm and dimensionless axes. */
-    value: IAutoMovieLoftFrame.IFrame;
+    value: IAutoMovieLoftSectionFrame;
 
     /** First derivative of each component in the selected coordinate, per mm by default. */
-    first: IAutoMovieLoftFrame.IFrame;
+    first: IAutoMovieLoftSectionFrame;
 
     /** Second derivative of each component in the selected coordinate, per squared mm by default. */
-    second: IAutoMovieLoftFrame.IFrame;
+    second: IAutoMovieLoftSectionFrame;
   }
 }

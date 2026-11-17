@@ -8,7 +8,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootSource,
   IAutoMovieHumanLegProximal,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -47,8 +47,7 @@ export namespace AutoMovieHumanLegProximal {
     parent: IAutoMovieHumanLegProximal.IParent,
     outward: 1 | -1,
   ): IAutoMovieHumanLegProximal.IResult {
-    const definition: IAutoMovieHumanSiteViewPart.IDefinition =
-      parent.definition;
+    const definition: IAutoMovieHumanSourceDefinition = parent.definition;
     if (definition.part === null || definition.view === null)
       throw new Error("Proximal leg needs its actual parent definition");
     const axis: typeof definition.view.axis = definition.view.axis;

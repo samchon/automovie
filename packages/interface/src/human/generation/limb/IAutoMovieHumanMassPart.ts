@@ -3,9 +3,16 @@ import type { IAutoMovieSolidSurface } from "../../../construction/IAutoMovieSol
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanMassSource } from "./IAutoMovieHumanMassSource";
-import type { IAutoMovieHumanSiteViewPart } from "./IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSourceDefinition } from "./IAutoMovieHumanSourceDefinition";
 
-/** Type contracts exchanged by AutoMovieHumanMassPart; runtime evaluation remains in Human. */
+/**
+ * Mass footprint/profile inputs, original parent placement and retained pre-loft connections. Runtime construction and admission remain with AutoMovieHumanMassPart in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes mass footprint/profile inputs, original parent placement and retained pre-loft connections; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Mass footprint/profile inputs, original parent placement and retained pre-loft connections. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanMassPart; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing MassPart contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanMassPart {
   /** What a mass is built from.
    *
@@ -94,7 +101,7 @@ export namespace IAutoMovieHumanMassPart {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanMassPart.define. Also types AutoMovieHumanMassPart.fail.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts `massConnection`: Actual placement owner; absent only for retained standalone legacy callers.
    */
-  export interface IDefinition extends IAutoMovieHumanSiteViewPart.IDefinition {
+  export interface IDefinition extends IAutoMovieHumanSourceDefinition {
     /** Actual placement owner; absent only for retained standalone legacy callers. */
     massConnection?: IAutoMovieHumanMassSource.IConnection;
   }

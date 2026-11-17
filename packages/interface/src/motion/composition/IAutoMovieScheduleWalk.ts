@@ -1,7 +1,15 @@
-import type { IAutoMovieResolveSchedule } from "./IAutoMovieResolveSchedule";
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
+import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
+import type { IAutoMovieScheduleEntry } from "./IAutoMovieScheduleEntry";
+import type { IAutoMovieScheduleLaws } from "./IAutoMovieScheduleLaws";
 
-/** Data and callback contracts shared by the ScheduleWalk operations. */
+/**
+ * Data and callback contracts shared by the ScheduleWalk operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation One schedule walk owns mutable entries and anchor, interrupted-entry, anchored-entry and cue-track maps. Entry indices are walk order and anchor/cue instants are film seconds; the placement and cut routines share this context only during resolution.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts This namespace groups the IAutoMovieScheduleWalk contracts used by packages/engine/src/composition/AutoMovieScheduleWalk.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
+ * @evidence contracts/development/design.md#principled-representation One schedule walk owns mutable entries and anchor, interrupted-entry, anchored-entry and cue-track maps. Entry indices are walk order and anchor/cue instants are film seconds; the placement and cut routines share this context only during resolution. The namespace groups these type contracts without implementing the operation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieScheduleWalk contract belongs to interface; packages/engine/src/composition/AutoMovieScheduleWalk.ts and packages/engine/src/composition/AutoMovieScheduleCut.ts use its nested records and callbacks. Runtime computation remains with those consumers.
+ */
 export namespace IAutoMovieScheduleWalk {
   /**
    * What one walk keeps.
@@ -13,10 +21,10 @@ export namespace IAutoMovieScheduleWalk {
    */
   export interface IWalk {
     /** The production's pure laws. */
-    laws: IAutoMovieResolveSchedule.ILaws;
+    laws: IAutoMovieScheduleLaws;
 
     /** Entries placed so far, in walk order. */
-    entries: IAutoMovieSchedule.IEntry[];
+    entries: IAutoMovieScheduleEntry[];
 
     /** Each anchor's contact instant, or its start when it has none, film seconds. */
     anchors: Map<string, number>;
@@ -25,9 +33,9 @@ export namespace IAutoMovieScheduleWalk {
     interrupted: Map<number, number>;
 
     /** The entry each anchor names. */
-    anchored: Map<string, IAutoMovieSchedule.IEntry>;
+    anchored: Map<string, IAutoMovieScheduleEntry>;
 
     /** The cue tracks of the laws. */
-    tracks: Map<string, readonly IAutoMovieResolveSchedule.ICue[]>;
+    tracks: Map<string, readonly IAutoMovieScheduleCue[]>;
   }
 }

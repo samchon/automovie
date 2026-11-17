@@ -1,7 +1,8 @@
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouchEffector,
@@ -39,10 +40,7 @@ export namespace touchReach {
     body: IAutoMovieMotionHumanBody,
     entry: IAutoMoviePose,
     reached: IAutoMovieMotionHumanPosture,
-    hands: readonly (readonly [
-      IAutoMovieMotionHumanHand.Side,
-      IAutoMovieMotionTarget,
-    ])[],
+    hands: readonly (readonly [AutoMovieHumanSide, IAutoMovieMotionTarget])[],
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     region: (
       target: IAutoMovieMotionTarget,
@@ -54,17 +52,16 @@ export namespace touchReach {
   ): number {
     let longest: number = 0;
     for (const [side, target] of hands) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        AutoMovieMotionHumanTouchLaid.rest(
-          body,
-          reached,
-          side,
-          effector,
-          region(target)(reached, 0),
-          laid(side, target).tangent,
-          AutoMovieMotionHumanBend.hang(body, reached, side),
-          "arm",
-        );
+      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+        body,
+        reached,
+        side,
+        effector,
+        region(target)(reached, 0),
+        laid(side, target).tangent,
+        AutoMovieMotionHumanBend.hang(body, reached, side),
+        "arm",
+      );
       const arrival: IAutoMovieMotionHumanArmAngles.IAngles =
         AutoMovieMotionHumanArm.angles(
           resolveHumanPosture(body, {

@@ -1,7 +1,7 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
   IAutoMovieBicubicAtlasGeometry,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryChartPatchBudgetFailure,
   IAutoMovieRecoveryEndpointControlOwner,
   IAutoMovieRecoveryEventChartInput,
@@ -50,7 +50,7 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     ): number => i,
   );
   const rank: number[] = recipe.controls.map((): number => 0);
-  const parents: Map<string, IAutoMovieCurve64.Span> = new Map();
+  const parents: Map<string, AutoMovieCubicBezierControls3> = new Map();
   for (const arc of [
     input.chart.bottom,
     input.chart.top,
@@ -58,7 +58,7 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     input.chart.right,
   ])
     for (const p of arc.pieces) {
-      const prior: IAutoMovieCurve64.Span | undefined = parents.get(
+      const prior: AutoMovieCubicBezierControls3 | undefined = parents.get(
         p.source.authority,
       );
       if (
@@ -119,7 +119,8 @@ export function compileAutoMovieRecoveryNativeNamedChart(
   ) => IAutoMovieRecoveryNativeCurveOwner = (
     source: IAutoMovieRecoveryEventCurveSource,
   ): IAutoMovieRecoveryNativeCurveOwner => {
-    const nativeNet: IAutoMovieCurve64.Span = E.fullparentControls(source);
+    const nativeNet: AutoMovieCubicBezierControls3 =
+      E.fullparentControls(source);
     if (
       !source.authority.trim() ||
       nativeNet.length !== 4 ||
@@ -208,7 +209,7 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       if (!external) continue;
       const occurrence: IAutoMovieRecoveryEventCurveSource =
         row.boundaryCoefficientSources[originalSide]!;
-      const net: IAutoMovieCurve64.Span | undefined = parents.get(
+      const net: AutoMovieCubicBezierControls3 | undefined = parents.get(
         occurrence.authority,
       );
       if (!net)

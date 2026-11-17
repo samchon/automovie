@@ -1,10 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanStrikingAdvance,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanSword,
@@ -108,7 +108,7 @@ export namespace HumanSword {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IWield>,
   ): IAutoMovieMotionHumanSword.ISetup => {
     const p: IAutoMovieMotionHumanSword.IWield = context.params;
-    const side: IAutoMovieMotionHumanHand.Side = p.hand ?? "right";
+    const side: AutoMovieHumanSide = p.hand ?? "right";
     const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
       context,
       side,

@@ -1,5 +1,7 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCaptureCell,
+  IAutoMovieCaptureInstant,
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanProps,
   IAutoMovieCapturePlanRequest,
@@ -91,7 +93,7 @@ export function planAutoMovieCapture(
   // Named instants by their second to the millisecond, the resolution a cell is named at.
   const labels: Map<string, string> = new Map(
     (subject.instants ?? []).map(
-      (instant: IAutoMovieCaptureSubject.IInstant): [string, string] => [
+      (instant: IAutoMovieCaptureInstant): [string, string] => [
         instant.seconds.toFixed(3),
         instant.label,
       ],
@@ -193,7 +195,7 @@ function sweep(
 /** The plan's inspection with a cell's pass and selection. */
 function inspect(
   inspection: IAutoMovieInspectionRequest,
-  pass: IAutoMovieInspectionRequest.Shade,
+  pass: AutoMovieInspectionShade,
   selection: IAutoMovieCaptureSelection,
 ): IAutoMovieInspectionRequest {
   return { ...inspection, shade: pass, parts: [...selection.parts] };
@@ -211,7 +213,7 @@ function caption(
   time: IAutoMovieCaptureTime,
   label: string | null,
   view: string,
-  pass: IAutoMovieInspectionRequest.Shade,
+  pass: AutoMovieInspectionShade,
   selection: IAutoMovieCaptureSelection,
 ): string {
   return [

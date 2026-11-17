@@ -1,11 +1,12 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionSampleSide,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMoviePoseJointCodec,
   IAutoMoviePoseRig,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
-  IAutoMovieSamplePoseVelocity,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -68,10 +69,10 @@ export function samplePoseVelocity(
   sample: (seconds: number) => IAutoMoviePose,
   seconds: number,
   step: number = 1e-3,
-  side: IAutoMovieSamplePoseVelocity.Side = "both",
+  side: AutoMovieMotionSampleSide = "both",
   rig?: IAutoMoviePoseRig,
   continued?: (seconds: number) => IAutoMoviePose,
-): IAutoMovieSamplePoseVelocity.IState {
+): IAutoMoviePoseState {
   if (!(step > 0)) throw new Error("A velocity step is positive");
   const pose: IAutoMoviePose = sample(seconds);
 

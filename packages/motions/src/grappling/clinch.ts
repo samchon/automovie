@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -8,7 +9,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClinch,
-  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionManner,
   IAutoMovieVector3,
@@ -80,15 +81,14 @@ export namespace clinch {
    */
   export function regions(
     grip: IAutoMovieMotionHumanClinch.Grip,
-    collar: IAutoMovieMotionHumanHand.Side,
+    collar: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanClinch.IRegionsResult {
     if (grip === "plum")
       return {
         left: { region: "nape", across: -SPREAD },
         right: { region: "nape", across: SPREAD },
       };
-    const sleeve: IAutoMovieMotionHumanHand.Side =
-      collar === "right" ? "left" : "right";
+    const sleeve: AutoMovieHumanSide = collar === "right" ? "left" : "right";
     return {
       [collar]: {
         region: collar === "right" ? "neckLeft" : "neckRight",
@@ -99,7 +99,7 @@ export namespace clinch {
         across: 0,
       },
     } as Record<
-      IAutoMovieMotionHumanHand.Side,
+      AutoMovieHumanSide,
       { region: AutoMovieHumanoidRegion; across: number }
     >;
   }
@@ -116,7 +116,7 @@ export namespace clinch {
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
-    bones: ReturnType<IAutoMovieMotionHumanActionContext.IPerformer["bones"]>,
+    bones: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>,
     region: AutoMovieHumanoidRegion,
     across: number,
   ): IAutoMovieMotionHumanClinch.IPlaceResult {
@@ -156,15 +156,16 @@ export namespace clinch {
     const grip: IAutoMovieMotionHumanClinch.Grip =
       context.params.grip ?? "plum";
     const table = regions(grip, context.params.hand ?? "right");
-    const partner: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(context.params.partner);
+    const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+      context.params.partner,
+    );
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: AutoMovieMotionHumanTiming.PAUSES.brief,
@@ -182,7 +183,7 @@ export namespace clinch {
       context.params.hand ?? "right",
     );
     const bones = poseBones(body, context.entry.pose);
-    const arm = (side: IAutoMovieMotionHumanHand.Side) =>
+    const arm = (side: AutoMovieHumanSide) =>
       AutoMovieMotionHumanArm.visit({
         body,
         clock,

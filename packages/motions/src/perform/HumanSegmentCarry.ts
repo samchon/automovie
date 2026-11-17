@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPosture,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -38,13 +38,13 @@ export namespace HumanSegmentCarry {
     person: IAutoMovieMotionHumanSegment.IPerson,
     pose: IAutoMoviePose,
     holds: readonly IAutoMovieMotionHumanSegment.IHeld[],
-  ): ["leftArm" | "rightArm", IAutoMovieMotionHumanPosture.IGoal][] {
+  ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal][] {
     if (holds.length === 0) return [];
     const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
     return holds.map(
       (
         h: IAutoMovieMotionHumanSegment.IHeld,
-      ): ["leftArm" | "rightArm", IAutoMovieMotionHumanPosture.IGoal] => {
+      ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal] => {
         h.carry ??= capture(person, h);
         return [
           h.side === "left" ? "leftArm" : "rightArm",

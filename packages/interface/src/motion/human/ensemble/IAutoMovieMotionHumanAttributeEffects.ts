@@ -5,10 +5,10 @@ import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
  * each group attribute moves, each effect read between its value at the
  * attribute's 0 and at its 1 (`HumanAttribute.effect`).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and how an effect is read.
- * @evidence contracts/development/design.md#principled-representation An effect is its two end values; the table is typed by attribute so a reader names its row.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rows the ensemble, the cadence, the command latency, the formation's dress and the crowd's steering read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row is an outcome.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and how an effect is read. low: The value at 0. high: The value at 1.
+ * @evidence contracts/development/design.md#principled-representation An effect is its two end values; the table is typed by attribute so a reader names its row. low: The value at 0. high: The value at 1.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The rows the ensemble, the cadence, the command latency, the formation's dress and the crowd's steering read. Runtime boundary references: ensemble/HUMAN_ATTRIBUTE_EFFECTS.ts (HUMAN_ATTRIBUTE_EFFECTS).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row is an outcome. The admitted fields and units are declared here directly; runtime handling remains in HUMAN_ATTRIBUTE_EFFECTS.
  */
 export interface IAutoMovieMotionHumanAttributeEffects {
   /** What discipline moves. */
@@ -51,10 +51,6 @@ export interface IAutoMovieMotionHumanAttributeEffects {
 /**
  * Contracts used by HUMAN_ATTRIBUTE_EFFECTS.
  *
- * @evidence contracts/development/common.md#meaningful-documentation low: The value at 0. high: The value at 1.
- * @evidence contracts/development/design.md#principled-representation low: The value at 0. high: The value at 1.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HUMAN_ATTRIBUTE_EFFECTS.ts (HUMAN_ATTRIBUTE_EFFECTS).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HUMAN_ATTRIBUTE_EFFECTS.
  */
 export namespace IAutoMovieMotionHumanAttributeEffects {
   /**

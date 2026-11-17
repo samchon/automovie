@@ -258,7 +258,7 @@ function gestures(
   const middles: number[] = [];
   const repeats: IRepeat[] = performance
     .segments("a")
-    .map((g: IAutoMovieMotionHumanSegment.ISegment): IRepeat => {
+    .map((g: IAutoMovieMotionHumanSegment): IRepeat => {
       const at = (name: string): number =>
         g.start +
         g.plan.events.find((e) => e.name === name)!.share * g.plan.duration;
@@ -319,7 +319,7 @@ function reached(
       y: shoulder.y - body.measure.upperArm - body.measure.forearm,
     }),
   );
-  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: 0 },
     "variation",
   );

@@ -1,8 +1,8 @@
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
 import type {
   AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryEventCurvePiece,
 } from "@automovie/interface";
 
@@ -24,8 +24,8 @@ import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
 export function readRecoveryEventCurveControls(
   piece: IAutoMovieRecoveryEventCurvePiece,
   nativeEndpoints: boolean = false,
-): IAutoMovieCurve64.Span {
-  const parent: IAutoMovieCurve64.Span = readRecoveryEventCurveParent(
+): AutoMovieCubicBezierControls3 {
+  const parent: AutoMovieCubicBezierControls3 = readRecoveryEventCurveParent(
     piece.source,
   );
   const start: number = piece.source.start,
@@ -44,7 +44,7 @@ export function readRecoveryEventCurveControls(
       "An occurrence requires a positive chart width and nonempty oriented normalized native interval",
     );
   const reverse: boolean = start > end;
-  let controls: IAutoMovieCurve64.Span;
+  let controls: AutoMovieCubicBezierControls3;
   if (Math.min(start, end) === 0 && Math.max(start, end) === 1)
     controls = parent;
   else {

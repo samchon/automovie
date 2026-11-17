@@ -1,9 +1,9 @@
 import { Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanHand,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -53,7 +53,7 @@ export namespace gestureTouch {
    */
   export function point(
     input: IAutoMovieMotionHumanGestureStroke.IInput,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
     const { body } = input;
     if (input.target === undefined)
@@ -125,7 +125,7 @@ export namespace gestureTouch {
   export function touch(
     kind: "touchFace" | "pushGlasses" | "scratchHead",
     input: IAutoMovieMotionHumanGestureStroke.IInput,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     u: number,
     cycles: number,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
@@ -176,7 +176,7 @@ export namespace gestureTouch {
    */
   function padding(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): number {
     const segment =
       body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??

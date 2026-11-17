@@ -6,9 +6,6 @@ import type { IAutoMovieHumanBindingPlane } from "./IAutoMovieHumanBindingPlane"
  * One bone's piece of the binding tree: its capsule, the cuts that hand it
  * skin from its parent, and the comparisons that tell it from its neighbours.
  *
- * @evidence contracts/common.md#meaningful-documentation States each field's unit, frame and meaning.
- *
- *
  * @evidence contracts/development/common.md#meaningful-documentation One bone's piece of the binding tree: its capsule, the cuts that hand it skin from its parent, and the comparisons that tell it from its neighbours.
  * @evidence contracts/development/design.md#principled-representation `bone`: The Human joint the limb starts at. `slot`: The rig bone's slot. `parent`: The limb its skin comes from, or null for the root.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanLimbCapsule.family. Read by AutoMovieHumanCrotchBinding.place, AutoMovieHumanLimbCapsule.height, AutoMovieHumanLimbCapsule.nearest. Also types AutoMovieHumanCrotchBinding.knee.

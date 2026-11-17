@@ -59,7 +59,7 @@ export namespace stepOverPath {
       y: (feet.left.y + feet.right.y) / 2 - m.ankleHeight,
       z: (feet.left.z + feet.right.z) / 2,
     };
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin, yaw };
     const near: number = HumanFrame.local(frame, obstacle.at).z;
     const leg: number = m.thigh + m.shank;
 

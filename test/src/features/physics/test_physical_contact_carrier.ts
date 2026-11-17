@@ -4,6 +4,8 @@ import {
   accumulatePhysicalMotorTorques,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
@@ -40,27 +42,29 @@ export async function test_physical_contact_carrier(): Promise<void> {
   const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
   try {
     const segments: Map<string, RigidBody> = new Map(
-      profile.segments.map((segment: P.ISegment): [string, RigidBody] => [
-        segment.bone,
-        world.createRigidBody(
-          RAPIER.RigidBodyDesc.dynamic()
-            .setTranslation(
-              segment.neutral.position.x,
-              segment.neutral.position.y,
-              segment.neutral.position.z,
-            )
-            .setRotation(segment.neutral.rotation)
-            .setAdditionalMassProperties(
-              segment.mass,
-              segment.centerOfMass,
-              segment.inertia,
-              segment.inertiaRotation,
-            ),
-        ),
-      ]),
+      profile.segments.map(
+        (segment: IAutoMoviePhysicalSegment): [string, RigidBody] => [
+          segment.bone,
+          world.createRigidBody(
+            RAPIER.RigidBodyDesc.dynamic()
+              .setTranslation(
+                segment.neutral.position.x,
+                segment.neutral.position.y,
+                segment.neutral.position.z,
+              )
+              .setRotation(segment.neutral.rotation)
+              .setAdditionalMassProperties(
+                segment.mass,
+                segment.centerOfMass,
+                segment.inertia,
+                segment.inertiaRotation,
+              ),
+          ),
+        ],
+      ),
     );
     for (const transformed of [false, true]) {
-      const rotation: P.ITransform["rotation"] = transformed
+      const rotation: IAutoMovieRigidTransform["rotation"] = transformed
         ? Quaternion.fromAxisAngle(
             { x: Math.sqrt(1 / 3), y: Math.sqrt(1 / 3), z: Math.sqrt(1 / 3) },
             40,
@@ -82,7 +86,7 @@ export async function test_physical_contact_carrier(): Promise<void> {
         segments.get(segment.bone)!.setRotation(rotation, true);
       }
       for (const joint of profile.joints.slice(0, 2)) {
-        const frame: P.ITransform["rotation"] = transformed
+        const frame: IAutoMovieRigidTransform["rotation"] = transformed
           ? Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90)
           : { x: 0, y: 0, z: 0, w: 1 };
         joint.parentFrame.rotation = frame;

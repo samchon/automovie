@@ -2,7 +2,14 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanFootFrame } from "./IAutoMovieHumanFootFrame";
 import type { IAutoMovieHumanFootToeLines } from "./IAutoMovieHumanFootToeLines";
 
-/** Type contracts exchanged by AutoMovieHumanFootBones; runtime evaluation remains in Human. */
+/**
+ * Sided foot joint centres and toe lines, retaining the canonical foot frame. Runtime construction and admission remain with AutoMovieHumanFootBones in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes sided foot joint centres and toe lines, retaining the canonical foot frame; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Sided foot joint centres and toe lines, retaining the canonical foot frame. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanFootBones; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing FootBones contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanFootBones {
   /** One side's centres, reflected for the side.
    *

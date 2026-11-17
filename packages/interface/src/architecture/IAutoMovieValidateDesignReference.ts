@@ -1,6 +1,13 @@
 import type { IAutoMovieDesignReference } from "./IAutoMovieDesignReference";
 
-/** Data and callback contracts shared by the ValidateDesignReference operations. */
+/**
+ * Data and callback contracts shared by the ValidateDesignReference operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Validate one observed design reference as evidence. Member documentation states the supplied records, units and absence meanings used by validateDesignReference.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Observed references do not become authored designs through validation, and declared digests are not proof that external bytes were read.
+ * @evidence contracts/development/design.md#principled-representation reference joins source frames, observed primitives, candidates and analysis status; frame-relative bounds, ids and sha256 syntax are checked by validateDesignReference.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateDesignReference, used by validateDesignReference. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieValidateDesignReference {
   /**
    * Validate one observed design reference as evidence.
@@ -21,6 +28,11 @@ export namespace IAutoMovieValidateDesignReference {
    * may cite any candidate of any document.
    *
    * Observed points are in frame units and must lie within the frame's `bounds` (0 to width, 0 to height); each primitive family has its own point-count bounds, and only `text` and `level-marker` carry literal text. Frames are judged by {@link validateDesignSourceFrame}. Every id is unique and non-blank, the digest is a lowercase `sha256:` hex digest, and the media is a supported type. Findings are returned with `$input` paths and nothing throws; the asset bytes behind `digest` are not read here.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Validate one observed design reference as evidence. Member documentation states the supplied records, units and absence meanings used by validateDesignReference.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Observed references do not become authored designs through validation, and declared digests are not proof that external bytes were read.
+   * @evidence contracts/development/design.md#principled-representation reference joins source frames, observed primitives, candidates and analysis status; frame-relative bounds, ids and sha256 syntax are checked by validateDesignReference.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateDesignReference.IProps, used by validateDesignReference. Its reference members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Observed design reference to validate. */

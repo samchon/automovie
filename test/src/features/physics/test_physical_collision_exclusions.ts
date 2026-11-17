@@ -3,9 +3,11 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
-  IAutoMoviePhysicsCache,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -30,19 +32,22 @@ const DURATION: number = 0.1;
  */
 export async function test_physical_collision_exclusions(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();
-  const root: P.ISegment = profile.segments[0]!;
-  const carrier: P.ISegment = structuredClone(root);
+  const root: IAutoMoviePhysicalSegment = profile.segments[0]!;
+  const carrier: IAutoMoviePhysicalSegment = structuredClone(root);
   carrier.bone = "carrier";
   carrier.neutral.position = { x: 0, y: 1.2, z: 0 };
-  const tip: P.ISegment = structuredClone(root);
+  const tip: IAutoMoviePhysicalSegment = structuredClone(root);
   tip.bone = "tip";
   tip.neutral.position = { x: 0.05, y: 1.05, z: 0 };
   profile.segments.push(carrier, tip);
   profile.mass = 3;
   profile.centerOfMass = { x: 0.05 / 3, y: 3.25 / 3, z: 0 };
   profile.joints = [carrier, tip].map(
-    (segment: P.ISegment, index: number): P.IJoint => {
-      const parent: P.ISegment = index === 0 ? root : carrier;
+    (
+      segment: IAutoMoviePhysicalSegment,
+      index: number,
+    ): IAutoMoviePhysicalJoint => {
+      const parent: IAutoMoviePhysicalSegment = index === 0 ? root : carrier;
       return {
         id: segment.bone,
         parent: parent.bone,
@@ -126,7 +131,7 @@ export async function test_physical_collision_exclusions(): Promise<void> {
   );
   const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
   const firstDifference: number = resumed.cache.frames.findIndex(
-    (frame: IAutoMoviePhysicsCache.IFrame, index: number): boolean =>
+    (frame: IAutoMoviePhysicalFrame, index: number): boolean =>
       JSON.stringify(frame) !== JSON.stringify(fresh.cache.frames[index]),
   );
   TestValidator.predicate(

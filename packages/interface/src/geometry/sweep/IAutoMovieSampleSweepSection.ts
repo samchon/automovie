@@ -1,6 +1,13 @@
 import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 
-/** Section and angular resolution for extracting a positive radial profile. */
+/**
+ * Section and angular resolution for extracting a positive radial profile.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A metre section and safe angular sample count yield radii at evenly spaced polar directions. The finite star-shapedness walk rejects observed violations but does not certify all unsampled intervals.
+ * @evidence contracts/development/design.md#principled-representation A metre section and safe angular sample count yield radii at evenly spaced polar directions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface sampleAutoMovieSweepSection uses the canonical section discriminants and existing curve parameterizer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The finite star-shapedness walk rejects observed violations but does not certify all unsampled intervals.
+ */
 export namespace IAutoMovieSampleSweepSection {
   /**
    * Sample a section's radius from its origin at evenly spaced polar angles.

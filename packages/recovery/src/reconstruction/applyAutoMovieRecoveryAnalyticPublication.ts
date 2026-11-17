@@ -1,6 +1,7 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryAnalyticPublication,
   IAutoMovieRecoveryInputHashes,
   IAutoMovieRecoveryTensorFamiliesInput,
@@ -38,7 +39,7 @@ export function applyAutoMovieRecoveryAnalyticPublication(
     throw new Error(
       "An unused analytic publication must bind both exact original inputs",
     );
-  const originals: Map<string, IAutoMovieCurve64.Cubic> = new Map(),
+  const originals: Map<string, IAutoMovieCubicBezierCurve64> = new Map(),
     ambiguous: Set<string> = new Set();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
@@ -50,9 +51,9 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       if (originals.has(arc.curve.name)) ambiguous.add(arc.curve.name);
       originals.set(arc.curve.name, arc.curve);
     }
-  const curves: Map<string, IAutoMovieCurve64.Cubic> = new Map();
+  const curves: Map<string, IAutoMovieCubicBezierCurve64> = new Map();
   for (const row of publication.curveOverrides) {
-    const curve: IAutoMovieCurve64.Cubic = row.curve;
+    const curve: IAutoMovieCubicBezierCurve64 = row.curve;
     if (
       !originals.has(curve.name) ||
       ambiguous.has(curve.name) ||
@@ -71,7 +72,7 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       !Number.isFinite(row.dataUpperEstimateMm) ||
       row.dataUpperEstimateMm < 0 ||
       curve.spans.some(
-        (net: IAutoMovieCurve64.Span): boolean =>
+        (net: AutoMovieCubicBezierControls3): boolean =>
           net.length !== 4 ||
           net.some(
             (point: Readonly<AutoMovieVector3Tuple>): boolean =>

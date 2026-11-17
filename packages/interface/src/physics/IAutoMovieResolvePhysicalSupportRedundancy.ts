@@ -1,7 +1,16 @@
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
-import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
+import type { IAutoMoviePhysicalJoint } from "./IAutoMoviePhysicalJoint";
+import type { IAutoMoviePhysicalSegment } from "./IAutoMoviePhysicalSegment";
 
-/** Data and callback contracts shared by the ResolvePhysicalSupportRedundancy operations. */
+/**
+ * Return a warm support seed's redundant coordinates to the authored posture.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the warm seed, authored posture anchor and exact task/descendant ownership.
+ * @evidence contracts/development/design.md#principled-representation World rigid transforms and a metre tolerance bound task-space change; selected/joints/descendants identify admitted physical coordinates.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface resolvePhysicalSupportRedundancy consumes run-owned indexes reused by warmPhysicalSupportTargets and the support fit.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the task's redundant directions return toward authored posture; borrowed seed/goals remain unchanged and ROM projection still applies.
+ */
 export namespace IAutoMovieResolvePhysicalSupportRedundancy {
   /**
    * Return a warm support seed's redundant coordinates to the authored posture.
@@ -28,12 +37,17 @@ export namespace IAutoMovieResolvePhysicalSupportRedundancy {
    * truncation and rounding noise is of relative order ε^(2/3), far below the
    * tolerance budget, so numerically null directions always return. ROM
    * projection follows the update.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the warm seed, authored posture anchor and exact task/descendant ownership.
+   * @evidence contracts/development/design.md#principled-representation World rigid transforms and a metre tolerance bound task-space change; selected/joints/descendants identify admitted physical coordinates.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface resolvePhysicalSupportRedundancy consumes run-owned indexes reused by warmPhysicalSupportTargets and the support fit.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the task's redundant directions return toward authored posture; borrowed seed/goals remain unchanged and ROM projection still applies.
    */
   export type IInput = {
-    /** Parent-first, run-owned tree order. */ order: readonly IAutoMoviePhysicalProfile.ISegment[];
+    /** Parent-first, run-owned tree order. */ order: readonly IAutoMoviePhysicalSegment[];
     /** Declared parent joints, indexed by child bone. */ joints: ReadonlyMap<
       string,
-      IAutoMoviePhysicalProfile.IJoint
+      IAutoMoviePhysicalJoint
     >;
     /** Exact descendant lists, indexed by subtree root bone. */ descendants: ReadonlyMap<
       string,
@@ -43,11 +57,11 @@ export namespace IAutoMovieResolvePhysicalSupportRedundancy {
     /** Support endpoints and their optional planted witnesses. */ pattern: IAutoMovieFootfallPattern;
     /** Endpoints whose declared floor witnesses join the task. */ planted: ReadonlySet<string>;
     /** Current authored placements, the null-space anchor. */ authored: Readonly<
-      Record<string, IAutoMoviePhysicalProfile.ITransform>
+      Record<string, IAutoMovieRigidTransform>
     >;
     /** The fit's own metre residual early-out; returned directions may move the task by at most this much. */ tolerance: number;
     /** Warm seed placements; borrowed, never mutated. */ seed: Readonly<
-      Record<string, IAutoMoviePhysicalProfile.ITransform>
+      Record<string, IAutoMovieRigidTransform>
     >;
   };
 }

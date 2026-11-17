@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanHitTrack,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieResolveContactEvents,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -62,7 +62,7 @@ export namespace HumanHitTrack {
   export function instants(
     self: IAutoMovieMotionHumanPerformanceState,
     of: string,
-  ): readonly IAutoMovieResolveSchedule.ICue[] | undefined {
+  ): readonly IAutoMovieScheduleCue[] | undefined {
     if (!of.startsWith(PREFIX)) return undefined;
     const [on, by] = of.slice(PREFIX.length).split(":") as [
       string,
@@ -78,16 +78,14 @@ export namespace HumanHitTrack {
           (by === undefined || h.actor === by || h.object === by),
       )
       .map(
-        (h: IAutoMovieInteractionEvent): IAutoMovieResolveSchedule.ICue => ({
+        (h: IAutoMovieInteractionEvent): IAutoMovieScheduleCue => ({
           name: EVENT,
           seconds: h.time,
         }),
       )
       .sort(
-        (
-          a: IAutoMovieResolveSchedule.ICue,
-          b: IAutoMovieResolveSchedule.ICue,
-        ) => a.seconds - b.seconds,
+        (a: IAutoMovieScheduleCue, b: IAutoMovieScheduleCue) =>
+          a.seconds - b.seconds,
       );
   }
 

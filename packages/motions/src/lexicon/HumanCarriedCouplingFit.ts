@@ -9,10 +9,10 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedCouplingFit,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieResolvedBone,
@@ -183,7 +183,7 @@ export namespace HumanCarriedCouplingFit {
         // A palm's farthest possible reach assumes it continues the forearm.
         // The bearing instead faces the carried surface: judge that very
         // wrist target, since the surface normal fixes the palm's offset.
-        const goal: IAutoMovieMotionHumanPosture.IGoal =
+        const goal: IAutoMovieHumanLimbGoal =
           AutoMovieMotionHumanArmTarget.goal(
             bearer,
             side,

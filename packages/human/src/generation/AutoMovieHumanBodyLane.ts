@@ -5,7 +5,9 @@ import type {
   IAutoMovieHumanBodyLane,
   IAutoMovieHumanBodyTree,
   IAutoMovieHumanHandAttachment,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanNamedSource,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieLoftContract,
   IAutoMovieViewPart,
@@ -121,17 +123,17 @@ export namespace AutoMovieHumanBodyLane {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...(input.diagnostics ?? []),
     ];
-    const sources: IAutoMovieHumanSiteViewPart.ISource[] = [];
+    const sources: IAutoMovieHumanNamedSource[] = [];
     const limits: IAutoMovieHumanBodyTree.ILimits = {
       ...LIMITS,
       gap: input.gap,
     };
     const view: (
       name: string,
-      result: IAutoMovieHumanSiteViewPart.IResult,
+      result: IAutoMovieHumanSourceRealization,
     ) => IAutoMovieConstructionView | null = (
       name: string,
-      result: IAutoMovieHumanSiteViewPart.IResult,
+      result: IAutoMovieHumanSourceRealization,
     ): IAutoMovieConstructionView | null => {
       sources.push({ name, result });
       diagnostics.push(...result.diagnostics);
@@ -139,10 +141,10 @@ export namespace AutoMovieHumanBodyLane {
     };
     const original: (
       name: string,
-      definition: IAutoMovieHumanSiteViewPart.IDefinition,
+      definition: IAutoMovieHumanSourceDefinition,
     ) => IAutoMovieConstructionView | null = (
       name: string,
-      definition: IAutoMovieHumanSiteViewPart.IDefinition,
+      definition: IAutoMovieHumanSourceDefinition,
     ): IAutoMovieConstructionView | null =>
       view(
         name,

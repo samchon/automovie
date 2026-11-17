@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanHand,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanManipulateFacing,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -32,7 +32,7 @@ import { HumanHand } from "../posture/HumanHand";
 export function manipulateFacing(
   hold: IAutoMovieMotionHumanPosture,
   presses: readonly IAutoMovieMotionHumanManipulateFacing.ISite[],
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
 ): IAutoMovieQuaternion {
   const mine: IAutoMovieMotionHumanManipulateFacing.ISite[] = presses.filter(
     (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean =>

@@ -2,6 +2,7 @@ import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanLoad,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -78,7 +79,7 @@ export namespace HumanLoad {
     acceleration: (seconds: number) => IAutoMovieVector3,
     from: number,
     to: number,
-  ): IAutoMovieMotionHumanForce.ISustained {
+  ): IAutoMovieMotionHumanSustainedForce {
     return {
       kind: "sustained",
       subject,
@@ -136,7 +137,7 @@ export namespace HumanLoad {
    * @returns World newtons.
    */
   export function sustained(
-    forces: readonly IAutoMovieMotionHumanForce.IForce[],
+    forces: readonly IAutoMovieMotionHumanForce[],
     subject: string,
     seconds: number,
   ): IAutoMovieVector3 {

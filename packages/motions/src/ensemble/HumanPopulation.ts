@@ -124,13 +124,12 @@ export namespace HumanPopulation {
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    const segment: IAutoMovieMotionHumanSegment.ISegment | undefined =
-      performance
-        .segments(template)
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.entryTime <= from && from < s.end,
-        );
+    const segment: IAutoMovieMotionHumanSegment | undefined = performance
+      .segments(template)
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean =>
+          s.entryTime <= from && from < s.end,
+      );
     const strikes: { seconds: number; side: string }[] = (
       segment?.plan.events ?? []
     )

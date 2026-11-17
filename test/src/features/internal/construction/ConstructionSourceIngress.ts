@@ -1,7 +1,7 @@
 import type {
   IAutoMovieConstructionOutlineParameter,
-  IAutoMovieLoftFrame,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewAxis,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -34,7 +34,7 @@ export namespace ConstructionSourceIngress {
       ? a
       : outline(3, amplitude / 4, 1);
     const axis: IAutoMovieViewAxis.IAxis = {
-      at: (s: number): IAutoMovieLoftFrame.IFrame =>
+      at: (s: number): IAutoMovieLoftSectionFrame =>
         frame([amplitude * Math.sin((Math.PI * s) / 5), s, 0], true),
       jet: (
         s: number,
@@ -70,8 +70,8 @@ export namespace ConstructionSourceIngress {
       samples: 16,
     };
     const childAxis: IAutoMovieViewAxis.IAxis = {
-      at: (s: number): IAutoMovieLoftFrame.IFrame => {
-        const f: IAutoMovieLoftFrame.IFrame = parent.axis.at(s);
+      at: (s: number): IAutoMovieLoftSectionFrame => {
+        const f: IAutoMovieLoftSectionFrame = parent.axis.at(s);
         return { ...f, origin: [f.origin[0] + 0.25 * (s / 40) ** 5, s, 0] };
       },
       jet: (
@@ -99,7 +99,7 @@ export namespace ConstructionSourceIngress {
     amplitude: number,
     s: number,
     variableFullness: boolean,
-  ): IAutoMovieLoftJet.IJet {
+  ): IAutoMovieLoftSurfaceJet {
     const q: number = s / 40;
     const k: number = Math.PI / 5;
     const f: number = amplitude * Math.sin(k * s) + 0.25 * q ** 5;
@@ -165,7 +165,7 @@ function outline(
 }
 
 /** Exact fixed-basis frame value or a derivative with constant axes differentiated. */
-function frame(origin: Vec3, value: boolean): IAutoMovieLoftFrame.IFrame {
+function frame(origin: Vec3, value: boolean): IAutoMovieLoftSectionFrame {
   return {
     origin,
     u: value ? [1, 0, 0] : [0, 0, 0],

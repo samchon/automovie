@@ -2,7 +2,14 @@ import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViola
 import type { IAutoMovieDesignLineage } from "./IAutoMovieDesignLineage";
 import type { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
-/** Derived-artifact validation context for identity, freshness, provenance and comparison consistency. */
+/**
+ * Derived-artifact validation context for identity, freshness, provenance and comparison consistency.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Derived-artifact validation context for identity, freshness, provenance and comparison consistency. Lineage identities and sha256-prefixed digest strings are checked against the supplied subject, phase and variant indexes; validation appends diagnostics without rewriting stamps.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Digest syntax and recorded citations do not verify external bytes; typed record structure is assumed and collector exceptions propagate.
+ * @evidence contracts/development/design.md#principled-representation Lineage identities and sha256-prefixed digest strings are checked against the supplied subject, phase and variant indexes; validation appends diagnostics without rewriting stamps.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface validateDesignLineage builds these indexes once and shares its collector with validateDesignLineageDerived for artifact and decision checks.
+ */
 export namespace IAutoMovieValidateDesignLineageDerived {
   /**
    * Derived-artifact validation context for identity, freshness, provenance and comparison consistency.

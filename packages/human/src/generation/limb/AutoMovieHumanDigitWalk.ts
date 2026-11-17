@@ -1,7 +1,10 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanDigitWalk,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanWalkPart,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -40,14 +43,14 @@ export namespace AutoMovieHumanDigitWalk {
    */
   export function create(
     input: IAutoMovieHumanDigitWalk.IInput,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
   /** Prepare the identical original digit, without constructing its raw loft. */
   export function define(
     input: IAutoMovieHumanDigitWalk.IInput,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     const bones: number = input.centres.length - 1;
     const quarters: Map<string, [number, number, number, number]> = new Map();
     const quarterJets: Map<
@@ -156,14 +159,12 @@ export namespace AutoMovieHumanDigitWalk {
           },
         ],
       };
-    const definition: IAutoMovieHumanSiteViewPart.IInput = prepared.input;
+    const definition: IAutoMovieHumanSectionSource = prepared.input;
     if (quarters.size > 0) {
       const departures: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline> =
         [0, 1, 2, 3].map((q: number): IAutoMovieViewPart.IOutline => {
           const knots: IAutoMovieViewPart.IKnot[] = definition.sites.map(
-            (
-              s: IAutoMovieHumanSiteViewPart.ISite,
-            ): IAutoMovieViewPart.IKnot => {
+            (s: IAutoMovieHumanSectionSite): IAutoMovieViewPart.IKnot => {
               if (!("shoulder" in s.fullness))
                 throw new Error(
                   "A hand contact requires sourced quarter fullness",
@@ -197,8 +198,7 @@ export namespace AutoMovieHumanDigitWalk {
               };
             },
           );
-          const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] =
-            definition.pole;
+          const pole: IAutoMovieHumanSectionSource["pole"] = definition.pole;
           if (pole !== undefined && pole.end !== "top")
             knots.unshift({
               site: "bottom pole",

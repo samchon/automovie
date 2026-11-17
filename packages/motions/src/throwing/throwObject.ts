@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -152,7 +153,7 @@ export namespace throwObject {
     const m = body.measure;
     const style: IAutoMovieMotionHumanThrowObjectForm.Style =
       context.params.style ?? "overarm";
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const outward: number = side === "left" ? 1 : -1;
     const arm: number = m.upperArm + m.forearm;
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -161,7 +162,7 @@ export namespace throwObject {
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = probe.yaw;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: probe.root,
       yaw,
     };
@@ -253,7 +254,7 @@ export namespace throwObject {
     const accelerate: number =
       throwObjectForm.CARRY +
       (2 * Vector3.length(Vector3.subtract(before, chamber))) / speed;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "windup", seconds: throwObjectForm.WINDUP[style] },
         { name: "cocked", seconds: accelerate },

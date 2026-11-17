@@ -1,8 +1,8 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -208,7 +208,7 @@ export function test_human_motion_compose_touch_effector(): void {
           { x: 1, y: 0, z: 0 },
         ],
       ] as const) {
-        const goal: IAutoMovieMotionHumanPosture.IGoal = E.goal(
+        const goal: IAutoMovieHumanLimbGoal = E.goal(
           body,
           side,
           cup,

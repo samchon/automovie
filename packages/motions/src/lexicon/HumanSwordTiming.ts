@@ -28,7 +28,7 @@ export namespace HumanSwordTiming {
     speed: number,
     follow: number,
     carried: number = 0,
-  ): IAutoMovieMotionClock.IClock => {
+  ): IAutoMovieMotionClock => {
     const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
     let peak: number = 1.875 * length;
     for (let i: number = 1; carried > 0 && i <= 50; i++)

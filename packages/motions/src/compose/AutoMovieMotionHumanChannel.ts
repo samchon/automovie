@@ -1,6 +1,11 @@
 import type {
+  AutoMovieHumanDigit,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannelClaim,
   AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelContract,
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
@@ -96,13 +101,13 @@ export namespace AutoMovieMotionHumanChannel {
    */
   export function digit(
     bone: AutoMovieHumanoidBone,
-  ): IAutoMovieMotionHumanPosture.Digit | undefined {
+  ): AutoMovieHumanDigit | undefined {
     const found: RegExpMatchArray | null = bone.match(
       /^(left|right)(Thumb|Index|Middle|Ring|Little)/,
     );
     return found === null
       ? undefined
-      : (`${found[1]}${found[2]}` as IAutoMovieMotionHumanPosture.Digit);
+      : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
   }
 
   /**
@@ -122,8 +127,8 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function claims(
-    claims: readonly AutoMovieMotionHumanChannelContract.Claim[],
-    claim: AutoMovieMotionHumanChannelContract.Claim,
+    claims: readonly AutoMovieMotionHumanChannelClaim[],
+    claim: AutoMovieMotionHumanChannelClaim,
   ): boolean {
     if (claims.includes(claim)) return true;
     const side: RegExpMatchArray | null = claim.match(
@@ -131,9 +136,7 @@ export namespace AutoMovieMotionHumanChannel {
     );
     return (
       side !== null &&
-      claims.includes(
-        `${side[1]}Hand` as AutoMovieMotionHumanChannelContract.Claim,
-      )
+      claims.includes(`${side[1]}Hand` as AutoMovieMotionHumanChannelClaim)
     );
   }
 
@@ -153,12 +156,12 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function covers(
-    claims: readonly AutoMovieMotionHumanChannelContract.Claim[],
+    claims: readonly AutoMovieMotionHumanChannelClaim[],
     bone: AutoMovieHumanoidBone,
   ): boolean {
     if (claims.includes(of(bone))) return true;
     if (claims.includes("trunkTurn") && TURN.includes(bone)) return true;
-    const own: IAutoMovieMotionHumanPosture.Digit | undefined = digit(bone);
+    const own: AutoMovieHumanDigit | undefined = digit(bone);
     return own !== undefined && claims.includes(own);
   }
 
@@ -185,7 +188,7 @@ export namespace AutoMovieMotionHumanChannel {
   export function merge(
     base: IAutoMovieMotionHumanPosture,
     written: IAutoMovieMotionHumanPosture,
-    channels: readonly AutoMovieMotionHumanChannelContract.Claim[],
+    channels: readonly AutoMovieMotionHumanChannelClaim[],
   ): IAutoMovieMotionHumanPosture {
     const owns = (channel: AutoMovieMotionHumanChannelContract): boolean =>
       channels.includes(channel);
@@ -205,7 +208,7 @@ export namespace AutoMovieMotionHumanChannel {
     // none, so a merge without digit goals is the merge it always was.
     const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
     for (const d of HumanPosture.DIGITS) {
-      const goal: IAutoMovieMotionHumanPosture.IDigitGoal | undefined = (
+      const goal: IAutoMovieHumanDigitGoal | undefined = (
         AutoMovieMotionHumanChannel.claims(channels, d) ? written : base
       ).digits?.[d];
       if (goal !== undefined) digits[d] = goal;
@@ -217,7 +220,7 @@ export namespace AutoMovieMotionHumanChannel {
       "leftLeg",
       "rightLeg",
     ] as const) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = (
+      const goal: IAutoMovieHumanLimbGoal | undefined = (
         owns(limb) ? written : base
       ).limbs[limb];
       if (goal !== undefined) limbs[limb] = goal;
@@ -225,7 +228,7 @@ export namespace AutoMovieMotionHumanChannel {
 
     // A whole-body rotation turns the root, so it goes with the root's
     // channel (#3423); a posture that has none keeps none.
-    const rotation: IAutoMovieMotionHumanPosture.IRotation | undefined = (
+    const rotation: IAutoMovieHumanPostureRotation | undefined = (
       owns("root") ? written : base
     ).rotation;
     return {

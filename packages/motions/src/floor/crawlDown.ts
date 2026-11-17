@@ -1,6 +1,7 @@
 import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -182,7 +183,7 @@ export namespace crawlDown {
     // Each standing foot rolled onto its toes (`crawlFeet.rolled`), what
     // the roll leaves short of the tucked foot taken up on the way.
     const roll = (side: "left" | "right", share: number) => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = S.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = S.limbs[`${side}Leg`]!;
       return crawlFeet.rolled(
         body,
         side,

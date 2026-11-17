@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -57,9 +59,9 @@ export function mixHumanPosture(
   }
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
-    const a: IAutoMovieMotionHumanPosture.IGoal | undefined = from.limbs[limb];
-    const b: IAutoMovieMotionHumanPosture.IGoal | undefined = to.limbs[limb];
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+    const a: IAutoMovieHumanLimbGoal | undefined = from.limbs[limb];
+    const b: IAutoMovieHumanLimbGoal | undefined = to.limbs[limb];
+    const goal: IAutoMovieHumanLimbGoal | undefined =
       a === undefined || b === undefined
         ? (a ?? b)
         : {
@@ -72,9 +74,9 @@ export function mixHumanPosture(
   // A whole-body turn blends as a rotation: the shorter-arc slerp of the two
   // turns and a line between their points, a missing one the identity turn
   // about the other's point.
-  const a: IAutoMovieMotionHumanPosture.IRotation | undefined = from.rotation;
-  const b: IAutoMovieMotionHumanPosture.IRotation | undefined = to.rotation;
-  const rotation: IAutoMovieMotionHumanPosture.IRotation | undefined =
+  const a: IAutoMovieHumanPostureRotation | undefined = from.rotation;
+  const b: IAutoMovieHumanPostureRotation | undefined = to.rotation;
+  const rotation: IAutoMovieHumanPostureRotation | undefined =
     a === undefined && b === undefined
       ? undefined
       : {

@@ -5,6 +5,7 @@ import type {
   IAutoMovieHumanBodySurface,
   IAutoMovieHumanConstructionPath,
   IAutoMovieHumanSurfaceContext,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -66,11 +67,8 @@ export namespace AutoMovieHumanBodySurface {
       poles: new Map(
         calibration.poles.map(
           (
-            p: IAutoMovieHumanBodyCalibration.IPole,
-          ): [string, IAutoMovieHumanBodyCalibration.IPole] => [
-            p.chain + ":" + p.end,
-            p,
-          ],
+            p: IAutoMovieHumanSurfacePole,
+          ): [string, IAutoMovieHumanSurfacePole] => [p.chain + ":" + p.end, p],
         ),
       ),
       boundaries: new Map(),

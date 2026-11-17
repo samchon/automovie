@@ -54,7 +54,7 @@ export namespace AutoMovieMotionHumanHead {
   /** An oscillation of one head angle over a window. */
   const oscillate = (
     axis: 0 | 1 | 2,
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -88,7 +88,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function nod(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -114,7 +114,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shake(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -140,7 +140,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function tilt(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     degrees: number,

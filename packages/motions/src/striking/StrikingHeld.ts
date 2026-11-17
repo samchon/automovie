@@ -1,13 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanEffectorPointLimit,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -65,7 +67,7 @@ export namespace StrikingHeld {
       IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "prop" | "subject"
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     prop?: string,
     points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
       tip: "point",
@@ -95,7 +97,7 @@ export namespace StrikingHeld {
    */
   export function bare(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
@@ -271,7 +273,7 @@ export namespace StrikingHeld {
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
     bend: IAutoMovieVector3,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const grip: IAutoMovieVector3 = HumanHand.offset(
       context.body,
       tool.side,
@@ -294,7 +296,7 @@ export namespace StrikingHeld {
         ? {}
         : {
             limits: [back > 0 ? back : tool.length, 0].map(
-              (behind: number): IAutoMovieMotionHumanPosture.IPointLimit => ({
+              (behind: number): IAutoMovieHumanEffectorPointLimit => ({
                 contact: Vector3.add(grip, placed(tool, behind)),
                 bound: StrikingRoll.MISS,
               }),
@@ -346,7 +348,7 @@ export namespace StrikingHeld {
   export function holds(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
-  ): IAutoMovieMotionHumanActionPlan.IHold[] {
+  ): IAutoMovieMotionPropHold[] {
     return tool.held === undefined
       ? []
       : [AutoMovieMotionHumanHeld.hold(context, tool.held)];

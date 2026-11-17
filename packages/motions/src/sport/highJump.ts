@@ -12,8 +12,9 @@ import type {
   IAutoMovieMotionHumanGymnasticsTakeoff,
   IAutoMovieMotionHumanHighJump,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieResolveCenterOfMass,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -169,8 +170,7 @@ export namespace highJump {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): number {
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
@@ -188,7 +188,7 @@ export namespace highJump {
         reason: `${subject} declares no crossbar named bar`,
         fix: "give the high jump's crossbar the id bar, as createHighJump does",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, found.frame.translation),

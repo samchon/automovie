@@ -96,7 +96,7 @@ export function test_human_motion_crowd_parting(): void {
         yaw: index % 2 === 0 ? 0 : 180,
       }),
     });
-    const carriage: IAutoMovieMotionHumanObstacle.IObstacle = {
+    const carriage: IAutoMovieMotionHumanObstacle = {
       subject: "carriage",
       footprint: [
         { x: -0.8, y: 0, z: -1.2 },
@@ -219,5 +219,5 @@ interface IScene {
   ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble;
 
   /** The carriage. */
-  carriage: IAutoMovieMotionHumanObstacle.IObstacle;
+  carriage: IAutoMovieMotionHumanObstacle;
 }

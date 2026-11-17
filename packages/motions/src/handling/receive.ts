@@ -1,5 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -7,10 +9,11 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanReceive,
   IAutoMovieMotionHumanSeatedReach,
   IAutoMovieMotionMeeting,
@@ -80,18 +83,18 @@ export namespace receive {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanReceive.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const giver: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(context.params.from);
-    const prop: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+    const giver: IAutoMovieMotionHumanPerformerReader = context.performer(
+      context.params.from,
+    );
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(
       context.params.prop,
     );
-    const giverSide: IAutoMovieMotionHumanHand.Side =
-      context.params.giverHand ?? "right";
+    const giverSide: AutoMovieHumanSide = context.params.giverHand ?? "right";
     // The place both partners read from one meeting record.
-    const met: IAutoMovieMotionMeeting.IMeeting = context.meeting(
+    const met: IAutoMovieMotionMeeting = context.meeting(
       HumanHandoverMeeting.kind({
         giver: giverSide,
         receiver: side,
@@ -269,8 +272,7 @@ export namespace receive {
       open,
       closed,
     };
-    const limb: IAutoMovieMotionHumanPosture.Limb =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     // The body at a second with the carried hand turned by a yaw, degrees,
     // about the world's up: a hand that took the prop keeps the rotation it
     // showed at the grip, not the one it was asked there, since the prop sits

@@ -121,11 +121,10 @@ export function test_human_motion_sport_hip_thrust(): void {
       body,
       0,
     );
-    const row: IAutoMovieMotionHumanSegment.ISegment = film
+    const row: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "hipThrust",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "hipThrust",
       )!;
     const when = (event: string): number =>
       row.start +

@@ -2,24 +2,25 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import type { IAutoMovieHumanHeadTapeSource } from "./IAutoMovieHumanHeadTapeSource";
 
-/** Type contracts exchanged by AutoMovieHumanHeadTape; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanHeadTape; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanHeadTape exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IResult, ICourse, Member, P2, CloseFactory, MaximumRegion, MaximumSeed. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanHeadTape; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IResult, ICourse, Member, P2, CloseFactory, MaximumRegion, MaximumSeed contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanHeadTape {
   /**
    * Selected source family member and the public-input closure witness.
    *
-   * @evidence contracts/common.md#principled-implementation Preserves the actual source that produced the measured course and its independent tape target.
-   * @evidence contracts/common.md#clear-and-simple-design Original part, its plan and selected family control remain one result.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The result claims no loft, merge, skin or independent clinical validation.
-   * @evidence contracts/common.md#meaningful-documentation All lengths use calibration mm; the power is a representational source-family control.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no solve.
-   * @evidence contracts/performance.md#reuse-equivalent-work Production borrows this exact original part.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the selected plan, original source closures and witness.
+   * Production borrows this exact original part.
+   * The caller owns the selected plan, original source closures and witness.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Selected source family member and the public-input closure witness.
-   * @evidence contracts/development/design.md#principled-representation `plan`: Actual closed plan, preserving the independent public dimensions. `part`: Identical original source used by the selected numerical witness. `power`: Retained diagonal-transfer control chosen by the scalar solve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadTape.close, AutoMovieHumanHeadTape.solve. Also types AutoMovieHumanHeadCanonical.tape, AutoMovieHumanHeadTape.continued.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `plan`, `part`, `power`, `course`, `targetMm`; callers supply the complete record.
+   * @evidence contracts/development/design.md#principled-representation Preserves the actual source that produced the measured course and its independent tape target. `plan`: Actual closed plan, preserving the independent public dimensions. `part`: Identical original source used by the selected numerical witness. `power`: Retained diagonal-transfer control chosen by the scalar solve.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Original part, its plan and selected family control remain one result. Returned by AutoMovieHumanHeadTape.close, AutoMovieHumanHeadTape.solve. Also types AutoMovieHumanHeadCanonical.tape, AutoMovieHumanHeadTape.continued.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The result claims no loft, merge, skin or independent clinical validation. Required fields are `plan`, `part`, `power`, `course`, `targetMm`; callers supply the complete record.
+   * @evidence contracts/development/common.md#meaningful-documentation All lengths use calibration mm; the power is a representational source-family control. Selected source family member and the public-input closure witness.
    */
   export interface IResult {
     /** Actual closed plan, preserving the independent public dimensions. */
@@ -37,19 +38,12 @@ export namespace IAutoMovieHumanHeadTape {
   /**
    * Actual course witness and bounded numerical search diagnostics.
    *
-   * @evidence contracts/common.md#principled-implementation The length belongs to the specified original plane/source intersection, not a section template.
-   * @evidence contracts/common.md#clear-and-simple-design Plane, metric and numerical search diagnostics have separate fields.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolution and K/2K difference are observations, not error or global-maximum certificates.
-   * @evidence contracts/common.md#meaningful-documentation Length/difference are mm; normalized coordinates describe the admitted plane search only.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no search.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The factory owns original-source reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains fixed-size witness data and bounded failure descriptions.
+   * Retains fixed-size witness data and bounded failure descriptions.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Actual course witness and bounded numerical search diagnostics.
-   * @evidence contracts/development/design.md#principled-representation `plane`: Actual original-source plane. `lengthMm`: Numerically integrated actual world course, mm. `differenceMm`: Shared quadrature K/2K difference, mm, not a bound.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadTape.maximum, AutoMovieHumanHeadTape.refine. Read by AutoMovieHumanHeadTape.refine. Also types AutoMovieHumanHeadTape.certified, AutoMovieHumanHeadTape.best.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `plane`, `lengthMm`, `differenceMm`, `coordinates`, `resolution`, `evaluations`, `unavailable`; callers supply the complete record.
+   * @evidence contracts/development/design.md#principled-representation The length belongs to the specified original plane/source intersection, not a section template. `plane`: Actual original-source plane. `lengthMm`: Numerically integrated actual world course, mm. `differenceMm`: Shared quadrature K/2K difference, mm, not a bound.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Plane, metric and numerical search diagnostics have separate fields. Returned by AutoMovieHumanHeadTape.maximum, AutoMovieHumanHeadTape.refine. Read by AutoMovieHumanHeadTape.refine. Also types AutoMovieHumanHeadTape.certified, AutoMovieHumanHeadTape.best.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Resolution and K/2K difference are observations, not error or global-maximum certificates. Required fields are `plane`, `lengthMm`, `differenceMm`, `coordinates`, `resolution`, `evaluations`, `unavailable`; callers supply the complete record.
+   * @evidence contracts/development/common.md#meaningful-documentation Length/difference are mm; normalized coordinates describe the admitted plane search only. Actual course witness and bounded numerical search diagnostics.
    */
   export interface ICourse {
     /** Actual original-source plane. */

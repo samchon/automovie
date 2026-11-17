@@ -3,8 +3,8 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -57,7 +57,7 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
     seed: string,
   ): {
     point: (seconds: number) => IAutoMovieVector3;
-    act: IAutoMovieMotionHumanSegment.ISegment;
+    act: IAutoMovieMotionHumanSegment;
     at: number;
   } => {
     const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
@@ -96,20 +96,14 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
           target: { kind: "prop", subject: "pell", point: "target" },
         }).node,
     });
-    const act: IAutoMovieMotionHumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "lunge",
-      )!;
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "lunge")!;
     return {
       act,
       at: act.start + (act.plan.contact ?? Number.NaN),
       point: (seconds: number): IAutoMovieVector3 => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-          "sword",
-          seconds,
-        );
+        const frame: IAutoMovieRigidTransform = film.prop("sword", seconds);
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, tip),

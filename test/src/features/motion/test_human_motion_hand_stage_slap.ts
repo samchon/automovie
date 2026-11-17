@@ -76,7 +76,7 @@ export function test_human_motion_hand_stage_slap(): void {
             })
             .with(HumanChain.subject("b").stand({ seconds: 3 })).node,
         });
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       if (
         placed.plan.contacts.some(

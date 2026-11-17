@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMotionHumanStrikingHeld";
 import type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
@@ -19,10 +19,10 @@ import type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanI
  * windows in the message, the way fighting-game cancel tables and Unity's
  * interruption sources fire only declared transitions.
  *
- * @evidence contracts/development/common.md#meaningful-documentation family: The action this one is a row of: the same law under another name with some of its parameters fixed, as a salute is a touch. Wherever an action is told apart by what it is (a cancel table's key, a follow-up that continues its own kind, an answer to a kind of attack), a row counts as its family. Absent for an action that is its own. yields: The channels this action lets an overlay take while it carries the body: a walk yields its arms, its hands and its head, so a wave or a phone can be performed during it. A digit yields that digit alone, so an overlay may take a thumb while the other four keep holding. None when absent. demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks.
- * @evidence contracts/development/design.md#principled-representation family: The action this one is a row of: the same law under another name with some of its parameters fixed, as a salute is a touch. Wherever an action is told apart by what it is (a cancel table's key, a follow-up that continues its own kind, an answer to a kind of attack), a row counts as its family. Absent for an action that is its own. yields: The channels this action lets an overlay take while it carries the body: a walk yields its arms, its hands and its head, so a wave or a phone can be performed during it. A digit yields that digit alone, so an overlay may take a thumb while the other four keep holding. None when absent. demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks.
+ * @evidence contracts/development/common.md#meaningful-documentation family: The action this one is a row of: the same law under another name with some of its parameters fixed, as a salute is a touch. Wherever an action is told apart by what it is (a cancel table's key, a follow-up that continues its own kind, an answer to a kind of attack), a row counts as its family. Absent for an action that is its own. yields: The channels this action lets an overlay take while it carries the body: a walk yields its arms, its hands and its head, so a wave or a phone can be performed during it. A digit yields that digit alone, so an overlay may take a thumb while the other four keep holding. None when absent. demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks. back: The point of the tool the pose keeps, metres behind the working point. bound: The most the fitted tool may stray from the pose, metres: the action's own declared quality of it, the bound its plan refuses by. least: A stray the action proved before any search, metres: a lower bound on what any fit of the pose leaves, so the pose is judged no better (an infeasibility certificate). None when absent.
+ * @evidence contracts/development/design.md#principled-representation family: The action this one is a row of: the same law under another name with some of its parameters fixed, as a salute is a touch. Wherever an action is told apart by what it is (a cancel table's key, a follow-up that continues its own kind, an answer to a kind of attack), a row counts as its family. Absent for an action that is its own. yields: The channels this action lets an overlay take while it carries the body: a walk yields its arms, its hands and its head, so a wave or a phone can be performed during it. A digit yields that digit alone, so an overlay may take a thumb while the other four keep holding. None when absent. demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks. back: The point of the tool the pose keeps, metres behind the working point. bound: The most the fitted tool may stray from the pose, metres: the action's own declared quality of it, the bound its plan refuses by. least: A stray the action proved before any search, metres: a lower bound on what any fit of the pose leaves, so the pose is judged no better (an infeasibility certificate). None when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: law/HumanActionRow.ts (HumanActionRow.of, law); law/HumanActionRow.ts (HumanActionRow.of, return); lexicon/HumanGait.ts (styled, return); lexicon/HumanSword.ts (HumanSword.follows, return); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.from, return); lexicon/HUMAN_LEXICON.ts (rows, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanInterruptRow, AutoMovieMotionHumanChannel.Claim, IAutoMovieMotionHumanActionContext identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanInterruptRow, AutoMovieMotionHumanChannelClaim, IAutoMovieMotionHumanActionContext identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanStrikingHeld.IPoints, IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld.IHandFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanActionLaw<P = object> {
   /** The action's name: a vocabulary name, or the name a production registers the law under. */
@@ -44,6 +44,14 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param given The parameters the composition gave.
    * @returns The parameters planned from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.resolve: The parameters the plan reads, from those the composition gave: a row adds its fixed ones. The performance records and passes on the result, so whatever reads a placed action's parameters reads the whole set.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   resolve?(given: object): object;
 
@@ -80,7 +88,7 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * be performed during it. A digit yields that digit alone, so an overlay
    * may take a thumb while the other four keep holding. None when absent.
    */
-  yields?: readonly AutoMovieMotionHumanChannel.Claim[];
+  yields?: readonly AutoMovieMotionHumanChannelClaim[];
 
   /**
    * Whether the action can be performed over a carrier (`HumanChain.over`):
@@ -94,6 +102,14 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param context Body, parameters, skill, entry state and targets.
    * @returns The plan, whose postures are pure functions of seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.plan: Plan one instance of the action.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   plan(
     context: IAutoMovieMotionHumanActionContext<P>,
@@ -113,6 +129,14 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    *
    * @param ahead What is known of this action before it is planned, and the grip weighed.
    * @returns The poses the action demands of the grip.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   demands?(
     ahead: IAutoMovieMotionHumanActionLaw.IAhead<P>,
@@ -122,10 +146,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
 /**
  * Contracts used by HumanActionRow.of, styled, HumanSword.follows.
  *
- * @evidence contracts/development/common.md#meaningful-documentation back: The point of the tool the pose keeps, metres behind the working point. bound: The most the fitted tool may stray from the pose, metres: the action's own declared quality of it, the bound its plan refuses by. least: A stray the action proved before any search, metres: a lower bound on what any fit of the pose leaves, so the pose is judged no better (an infeasibility certificate). None when absent.
- * @evidence contracts/development/design.md#principled-representation back: The point of the tool the pose keeps, metres behind the working point. bound: The most the fitted tool may stray from the pose, metres: the action's own declared quality of it, the bound its plan refuses by. least: A stray the action proved before any search, metres: a lower bound on what any fit of the pose leaves, so the pose is judged no better (an infeasibility certificate). None when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: law/HumanActionRow.ts (HumanActionRow.of, law); law/HumanActionRow.ts (HumanActionRow.of, return); lexicon/HumanGait.ts (styled, return); lexicon/HumanSword.ts (HumanSword.follows, return); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.from, return); lexicon/HUMAN_LEXICON.ts (rows, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanStrikingHeld.IPoints, IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld.IHandFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanActionLaw {
   /**
@@ -141,7 +161,7 @@ export namespace IAutoMovieMotionHumanActionLaw {
     prop: string;
 
     /** The hand that holds it. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /**
      * The prop as a tool in that grip, read as `StrikingHeld.of` reads a held
@@ -149,6 +169,14 @@ export namespace IAutoMovieMotionHumanActionLaw {
      *
      * @param points The working point's and the edge's affordance ids.
      * @returns The tool.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.IGrip.tool: The prop as a tool in that grip, read as `StrikingHeld.of` reads a held one: its working point and edge by affordance id.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
      */
     tool(
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,

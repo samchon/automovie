@@ -1,4 +1,5 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCaptureSubject,
   IAutoMovieDrawCall,
   IAutoMovieInspectionRequest,
@@ -55,7 +56,7 @@ export async function test_draw_delivery_frame(): Promise<void> {
     timeout: 1000,
   });
   const pictures: {
-    pass: IAutoMovieInspectionRequest.Shade;
+    pass: AutoMovieInspectionShade;
     picture: IAutoMovieRasterImage;
   }[] = await session.frame(1.25, ["beauty", "depth"]);
 
@@ -73,7 +74,7 @@ export async function test_draw_delivery_frame(): Promise<void> {
     "one call per pass",
     draws,
     (["beauty", "depth"] as const).map(
-      (pass: IAutoMovieInspectionRequest.Shade): IAutoMovieDrawCall => ({
+      (pass: AutoMovieInspectionShade): IAutoMovieDrawCall => ({
         seconds: 1.25,
         view: "film",
         request: { ...plain, shade: pass },

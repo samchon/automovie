@@ -5,9 +5,11 @@ import {
   AutoMovieHumanF1Landmarks as L,
 } from "@automovie/human";
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanF1Frames,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 /**
@@ -165,14 +167,11 @@ export function test_human_f1_frames(): void {
       near(name + " origin", byName.get(name)!.frame.origin, point, 0);
 
   // 4: the chain returns the reference, and identity rotations give the neutral body.
-  const joints: IAutoMovieHumanSegmentFrame.IJoint[] =
-    AutoMovieHumanF1Frames.joints();
-  const reference: Map<string, IAutoMovieHumanSegmentFrame.IFrame> =
+  const joints: IAutoMovieHumanSegmentJoint[] = AutoMovieHumanF1Frames.joints();
+  const reference: Map<string, IAutoMovieHumanSegmentFrame> =
     AutoMovieHumanF1Frames.world((): undefined => undefined);
   for (const s of segments) {
-    const got: IAutoMovieHumanSegmentFrame.IFrame | undefined = reference.get(
-      s.name,
-    );
+    const got: IAutoMovieHumanSegmentFrame | undefined = reference.get(s.name);
     if (got === undefined) {
       failures.push(`${s.name}: not returned by the chain`);
       continue;
@@ -185,15 +184,14 @@ export function test_human_f1_frames(): void {
         s.frame.axes[k]!,
       );
   }
-  const neutral: Map<string, IAutoMovieHumanSegmentFrame.IFrame> =
+  const neutral: Map<string, IAutoMovieHumanSegmentFrame> =
     AutoMovieHumanF1Frames.world(
-      (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+      (name: string): AutoMovieMatrix3Tuple | undefined =>
         name === "pelvis" ? undefined : F.IDENTITY,
     );
-  const pelvis: IAutoMovieHumanSegmentFrame.IFrame =
-    byName.get("pelvis")!.frame;
+  const pelvis: IAutoMovieHumanSegmentFrame = byName.get("pelvis")!.frame;
   for (const joint of joints) {
-    const got: IAutoMovieHumanSegmentFrame.IFrame = neutral.get(joint.name)!;
+    const got: IAutoMovieHumanSegmentFrame = neutral.get(joint.name)!;
     for (let k: number = 0; k < 3; ++k)
       near(
         joint.name + " neutral axis " + "XYZ"[k],
@@ -210,17 +208,17 @@ export function test_human_f1_frames(): void {
   }
 
   // 5: the twin.
-  const D: IAutoMovieHumanSegmentFrame.M3 = [
+  const D: AutoMovieMatrix3Tuple = [
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, -1],
   ];
   for (const joint of joints) {
     if (joint.parent === null) continue;
-    const child: IAutoMovieHumanSegmentFrame.IFrame = F.mirror(
+    const child: IAutoMovieHumanSegmentFrame = F.mirror(
       byName.get(joint.name)!.frame,
     );
-    const parent: IAutoMovieHumanSegmentFrame.IFrame = F.mirror(
+    const parent: IAutoMovieHumanSegmentFrame = F.mirror(
       byName.get(joint.parent)!.frame,
     );
     near(
@@ -236,34 +234,27 @@ export function test_human_f1_frames(): void {
   }
 
   // 6: the rules return the stored chain.
-  const ruled: IAutoMovieHumanSegmentFrame.IJoint[] = F.chain(segments);
+  const ruled: IAutoMovieHumanSegmentJoint[] = F.chain(segments);
   near("chain length", [ruled.length], [joints.length], 0);
-  ruled.forEach(
-    (joint: IAutoMovieHumanSegmentFrame.IJoint, i: number): void => {
-      const stored: IAutoMovieHumanSegmentFrame.IJoint | undefined = joints[i];
-      if (
-        stored === undefined ||
-        stored.name !== joint.name ||
-        stored.parent !== joint.parent
-      ) {
-        failures.push(
-          `${joint.name}: the stored chain holds ${stored?.name ?? "nothing"} under ${stored?.parent ?? "none"} there`,
-        );
-        return;
-      }
-      near(
-        joint.name + " stored offset",
-        stored.offset,
-        joint.offset,
-        tolerance,
+  ruled.forEach((joint: IAutoMovieHumanSegmentJoint, i: number): void => {
+    const stored: IAutoMovieHumanSegmentJoint | undefined = joints[i];
+    if (
+      stored === undefined ||
+      stored.name !== joint.name ||
+      stored.parent !== joint.parent
+    ) {
+      failures.push(
+        `${joint.name}: the stored chain holds ${stored?.name ?? "nothing"} under ${stored?.parent ?? "none"} there`,
       );
-      near(
-        joint.name + " stored rotation",
-        stored.rotation.flat(),
-        joint.rotation.flat(),
-      );
-    },
-  );
+      return;
+    }
+    near(joint.name + " stored offset", stored.offset, joint.offset, tolerance);
+    near(
+      joint.name + " stored rotation",
+      stored.rotation.flat(),
+      joint.rotation.flat(),
+    );
+  });
 
   if (failures.length > 0)
     throw new Error(

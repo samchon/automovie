@@ -1,7 +1,7 @@
 import { AutoMoviePhysicalTracking as Tracking } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalTracking,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,7 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Exercise actual public inputs and compare physical quantities.).
  */
 export function test_physical_layers_tracking(): void {
-  const axes: P.IAxis[] = [
+  const axes: IAutoMoviePhysicalJointAxis[] = [
     {
       axis: "x",
       minimum: -1,

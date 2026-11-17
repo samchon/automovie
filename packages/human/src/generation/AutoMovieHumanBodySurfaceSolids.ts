@@ -8,6 +8,7 @@ import type {
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanSurfaceBoundary,
   IAutoMovieHumanSurfaceContext,
+  IAutoMovieHumanSurfaceMerge,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
   IAutoMovieSolidBody,
@@ -81,8 +82,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     calibration: IAutoMovieHumanBodyCalibration,
   ): IAutoMovieLoftContract.IDiagnostic[] {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-    const merges: IAutoMovieHumanBodyCalibration.IMerge[] =
-      calibration.merges ?? [];
+    const merges: IAutoMovieHumanSurfaceMerge[] = calibration.merges ?? [];
     if (merges.length === 0 && (calibration.bodies ?? []).length === 0)
       return diagnostics;
     const report: (contract: string, detail: string) => void = (

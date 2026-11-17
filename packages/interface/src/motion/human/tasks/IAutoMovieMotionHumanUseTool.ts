@@ -1,8 +1,8 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanToolWork } from "./IAutoMovieMotionHumanToolWork";
 
 /**
@@ -46,7 +46,7 @@ import type { IAutoMovieMotionHumanToolWork } from "./IAutoMovieMotionHumanToolW
  * @evidence contracts/development/common.md#meaningful-documentation hand: The working hand; the hand that holds `prop` when absent, `right` if both or neither do. cycles: How many cycles; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. offset: The working point from the grip socket, in the hand's frame, metres.
  * @evidence contracts/development/design.md#principled-representation hand: The working hand; the hand that holds `prop` when absent, `right` if both or neither do. cycles: How many cycles; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. offset: The working point from the grip socket, in the hand's frame, metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.useTool, params); tasks/useTool.ts (useTool.plan, context); tasks/useTool.ts (useTool.plan, return); executable/cases/toolCases.ts (toolCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanToolWork.Kind, IAutoMovieMotionTarget, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionManner.IManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanToolWork.Kind, IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanUseTool {
   /**
@@ -70,7 +70,7 @@ export namespace IAutoMovieMotionHumanUseTool {
     on: IAutoMovieMotionTarget;
 
     /** The working hand; the hand that holds `prop` when absent, `right` if both or neither do. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** How many cycles; 4 when absent.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -78,7 +78,7 @@ export namespace IAutoMovieMotionHumanUseTool {
     cycles?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

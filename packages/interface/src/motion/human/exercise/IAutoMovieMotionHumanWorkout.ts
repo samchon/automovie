@@ -101,6 +101,6 @@ export namespace IAutoMovieMotionHumanWorkout {
     load?: IAutoMovieMotionHumanWorkoutLoad.IParams;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 }

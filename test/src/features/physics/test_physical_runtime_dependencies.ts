@@ -13,8 +13,11 @@ import {
   warmPhysicalSupportTargets,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalTargetInterval,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
@@ -42,11 +45,11 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Prepared coefficients match the original arithmetic, detect in-place edits, and return independent mutable vectors.).
  */
 export async function test_physical_runtime_dependencies(): Promise<void> {
-  const before: P.ITransform = {
+  const before: IAutoMovieRigidTransform = {
     position: { x: 0.3, y: -0.2, z: 1 },
     rotation: Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 31),
   };
-  const after: P.ITransform = {
+  const after: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 2, y: -1, z: 1 }, 74),
   };
@@ -158,32 +161,38 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
         vclose(second.root!.velocity, { x: 24, y: 0, z: 0 }),
     );
 
-    const global: P.ITransform["rotation"] = Quaternion.fromAxisAngle(
-      { x: 1, y: 2, z: -1 },
-      37,
-    );
-    const root: P.ITransform["position"] = { x: 0.2, y: 2, z: -0.7 };
-    const poses: Record<string, P.ITransform> = Object.fromEntries(
-      profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-        segment.bone,
-        {
-          position: Vector3.add(
-            root,
-            Quaternion.rotateVector(
-              global,
-              Vector3.subtract(
-                segment.neutral.position,
-                profile.segments[0]!.neutral.position,
+    const global: IAutoMovieRigidTransform["rotation"] =
+      Quaternion.fromAxisAngle({ x: 1, y: 2, z: -1 }, 37);
+    const root: IAutoMovieRigidTransform["position"] = {
+      x: 0.2,
+      y: 2,
+      z: -0.7,
+    };
+    const poses: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+      profile.segments.map(
+        (
+          segment: IAutoMoviePhysicalSegment,
+        ): [string, IAutoMovieRigidTransform] => [
+          segment.bone,
+          {
+            position: Vector3.add(
+              root,
+              Quaternion.rotateVector(
+                global,
+                Vector3.subtract(
+                  segment.neutral.position,
+                  profile.segments[0]!.neutral.position,
+                ),
               ),
             ),
-          ),
-          rotation: { ...global },
-        },
-      ]),
+            rotation: { ...global },
+          },
+        ],
+      ),
     );
     const prior: typeof poses = structuredClone(poses);
     const current: typeof poses = structuredClone(poses);
-    const joint: P.IJoint = profile.joints[0]!;
+    const joint: IAutoMoviePhysicalJoint = profile.joints[0]!;
     setPhysicalTargetJointRotation(
       prior,
       joint,

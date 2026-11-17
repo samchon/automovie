@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanCarryHumanPosture,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -50,8 +51,7 @@ export function carryHumanPosture(
   };
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const limb of ["leftLeg", "rightLeg", "leftArm", "rightArm"] as const) {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-      posture.limbs[limb];
+    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
     limbs[limb] =
       goal.on !== undefined

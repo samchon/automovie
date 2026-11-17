@@ -1,6 +1,13 @@
 import type { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 
-/** Data and callback contracts shared by the BuildRegionFace operations. */
+/**
+ * Data and callback contracts shared by the BuildRegionFace operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Local XY metre rings define one +Z-facing planar region with optional voids. Optional holes mean an unperforated region when absent; this contract promises neither thickness nor automatic ring repair.
+ * @evidence contracts/development/design.md#principled-representation Local XY metre rings define one +Z-facing planar region with optional voids.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface buildAutoMovieRegionFace consumes IProps and delegates ring admission to triangulateAutoMovieRegion.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional holes mean an unperforated region when absent; this contract promises neither thickness nor automatic ring repair.
+ */
 export namespace IAutoMovieBuildRegionFace {
   /**
    * Build one open planar region, holes cut out, facing local +Z.
@@ -17,6 +24,11 @@ export namespace IAutoMovieBuildRegionFace {
    * every normal is +Z. The canonical winding makes every triangle face +Z. A
    * malformed ring throws the triangulator's own diagnostic instead of being
    * repaired here. The returned buffers are new.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Local XY metre rings define one +Z-facing planar region with optional voids. Optional holes mean an unperforated region when absent; this contract promises neither thickness nor automatic ring repair.
+   * @evidence contracts/development/design.md#principled-representation Local XY metre rings define one +Z-facing planar region with optional voids.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface buildAutoMovieRegionFace consumes IProps and delegates ring admission to triangulateAutoMovieRegion.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional holes mean an unperforated region when absent; this contract promises neither thickness nor automatic ring repair.
    */
   export type IProps = {
     /** Boundary of the visible region in local XY metres. */

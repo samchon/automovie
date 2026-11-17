@@ -1,9 +1,16 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
-import type { IAutoMovieLoftFrame } from "./IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieViewAxisJet } from "./IAutoMovieViewAxisJet";
 
-/** Data and callback contracts shared by the ViewAxis operations. */
+/**
+ * Data and callback contracts shared by the ViewAxis operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation The axis capability evaluates world-mm section frames at station mm, with optional analytic jets; knots and straight-run records keep the same physical coordinate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewAxis and its course/parallel-axis producers share these contracts with loft frame and source readers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent jet remains value-only; finite knots and orthonormal frame premises belong to the corresponding engine producer.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents source station, frame ownership, optional derivatives and straight-run placement.
+ */
 export namespace IAutoMovieViewAxis {
   /**
    * A source section plane with optional analytic station derivatives.
@@ -28,7 +35,7 @@ export namespace IAutoMovieViewAxis {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls share the axis's immutable preparation.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned vectors belong to the caller; the axis retains its prepared source.
      */
-    at(station: number): IAutoMovieLoftFrame.IFrame;
+    at(station: number): IAutoMovieLoftSectionFrame;
 
     /**
      * Analytic value and two derivatives in station or the explicitly selected coordinate, whose endpoints use kernel mm; null at a singular/nonfinite query, absent on numerical frame-value owners.

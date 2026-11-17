@@ -2,6 +2,7 @@ import * as archetypes from "@automovie/archetypes";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanProp,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -243,8 +244,8 @@ function input(
       b: number,
       tolerance: number,
     ): boolean => Math.abs(a - b) <= tolerance;
-    const p: IAutoMovieMotionHumanProp.IFrame = prop.frame;
-    const q: IAutoMovieMotionHumanProp.IFrame = want.frame;
+    const p: IAutoMovieRigidTransform = prop.frame;
+    const q: IAutoMovieRigidTransform = want.frame;
     if (
       !near(p.position.x, q.position.x, 1e-6) ||
       !near(p.position.y, q.position.y, 1e-6) ||

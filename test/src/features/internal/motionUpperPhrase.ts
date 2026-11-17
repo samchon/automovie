@@ -1,10 +1,10 @@
 import { Quaternion, Transform } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
@@ -86,7 +86,7 @@ export namespace motionUpperPhrase {
     law: string,
     params: object,
     pick: boolean,
-    hand: IAutoMovieMotionHumanHand.Side = "right",
+    hand: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanPerformance {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const affordances: IAutoMovieAffordance[] = [

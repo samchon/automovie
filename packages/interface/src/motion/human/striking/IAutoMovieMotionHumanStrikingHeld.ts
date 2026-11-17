@@ -1,8 +1,8 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanHeld } from "../compose/IAutoMovieMotionHumanHeld";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionWieldedTool } from "../law/IAutoMovieMotionWieldedTool";
 
 /**
  * A thing held in the hand as the effector of an action: a blade whose point
@@ -26,7 +26,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation from: The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies the line. Surface normals keep their contact meaning. edge: The affordance whose `+Y` is the edge's direction; absent, any direction square to the axis. prop: The prop's subject id; absent when the bare hand is the effector.
  * @evidence contracts/development/design.md#principled-representation from: The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies the line. Surface normals keep their contact meaning. edge: The affordance whose `+Y` is the edge's direction; absent, any direction square to the axis. prop: The prop's subject id; absent when the bare hand is the effector.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.tool, return); affordance/operateInsert.ts (operateInsert.target, tool); handling/HumanGraspDemand.ts (HumanGraspDemand.grip, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, read); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present.s, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieVector3, IAutoMovieMotionHumanHeld.IHeld, IAutoMovieMotionHumanActionPlan.ITool, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieMotionHumanHeld.IHeld, IAutoMovieMotionWieldedTool, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanStrikingHeld {
   /**
@@ -54,14 +54,14 @@ export namespace IAutoMovieMotionHumanStrikingHeld {
    * @evidence contracts/development/common.md#meaningful-documentation prop: The prop's subject id; absent when the bare hand is the effector. tip: The working point from the grip socket, in the hand bone's frame, metres. length: The working length behind the point along the axis, metres: the distance from an explicit `from`, otherwise the grip's projection behind the tip; 0 for the bare hand.
    * @evidence contracts/development/design.md#principled-representation prop: The prop's subject id; absent when the bare hand is the effector. tip: The working point from the grip socket, in the hand bone's frame, metres. length: The working length behind the point along the axis, metres: the distance from an explicit `from`, otherwise the grip's projection behind the tip; 0 for the bare hand.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateInsert.ts (operateInsert.tool, return); affordance/operateInsert.ts (operateInsert.target, tool); handling/HumanGraspDemand.ts (HumanGraspDemand.grip, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, return); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, read); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present.s, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieVector3, IAutoMovieMotionHumanHeld.IHeld, IAutoMovieMotionHumanActionPlan.ITool identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieMotionHumanHeld.IHeld, IAutoMovieMotionWieldedTool identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ITool {
     /** The prop's subject id; absent when the bare hand is the effector. */
     prop?: string;
 
     /** The holding hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The working point from the grip socket, in the hand bone's frame, metres. */
     tip: IAutoMovieVector3;
@@ -92,7 +92,7 @@ export namespace IAutoMovieMotionHumanStrikingHeld {
     held?: IAutoMovieMotionHumanHeld.IHeld;
 
     /** What the plan publishes of the held tool; absent for the bare hand. */
-    wields?: IAutoMovieMotionHumanActionPlan.ITool;
+    wields?: IAutoMovieMotionWieldedTool;
   }
 
   /**

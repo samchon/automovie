@@ -3,9 +3,9 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -38,9 +38,7 @@ export function test_archetype_kerb_used(): void {
   const step: ReturnType<typeof createKerb> = createKerb({ kind: "step" });
   const kerb: ReturnType<typeof createKerb> = createKerb({ kind: "kerb" });
   const tap: ReturnType<typeof createTap> = createTap();
-  const places: Readonly<
-    Record<"step" | "kerb", IAutoMovieMotionHumanProp.IFrame>
-  > = {
+  const places: Readonly<Record<"step" | "kerb", IAutoMovieRigidTransform>> = {
     step: {
       position: { x: 0, y: 0, z: -1.2 - step.dimensions.depth! },
       rotation: Quaternion.identity(),
@@ -66,8 +64,7 @@ export function test_archetype_kerb_used(): void {
       index: number,
       event: string,
     ): number => {
-      const found: IAutoMovieMotionHumanSegment.ISegment =
-        film.segments("a")[index]!;
+      const found: IAutoMovieMotionHumanSegment = film.segments("a")[index]!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -108,7 +105,7 @@ export function test_archetype_kerb_used(): void {
         ["step", 1, step],
         ["kerb", 3, kerb],
       ] as const) {
-        const frame: IAutoMovieMotionHumanProp.IFrame = places[prop];
+        const frame: IAutoMovieRigidTransform = places[prop];
         const top: IAutoMovieVector3 = Vector3.add(
           frame.position,
           Quaternion.rotateVector(
@@ -157,7 +154,7 @@ export function test_archetype_kerb_used(): void {
           }).node,
       });
       const ready: number = when(film, 1, "ready");
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("tap", ready);
+      const frame: IAutoMovieRigidTransform = film.prop("tap", ready);
       const lever: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(

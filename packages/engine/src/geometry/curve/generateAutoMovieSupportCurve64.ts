@@ -1,6 +1,6 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieGenerateSupportCurve64,
 } from "@automovie/interface";
 
@@ -114,8 +114,11 @@ export function generateAutoMovieSupportCurve64(
     points.push([h * c - derivative * s, 0, h * s + derivative * c]);
     tangents.push([-radius * s, 0, radius * c]);
   }
-  const spans: IAutoMovieCurve64.Span[] = points.map(
-    (a: Readonly<AutoMovieVector3Tuple>, i: number): IAutoMovieCurve64.Span => {
+  const spans: AutoMovieCubicBezierControls3[] = points.map(
+    (
+      a: Readonly<AutoMovieVector3Tuple>,
+      i: number,
+    ): AutoMovieCubicBezierControls3 => {
       const next: number = (i + 1) % props.spans;
       const b: Readonly<AutoMovieVector3Tuple> = points[next]!;
       const da: Readonly<AutoMovieVector3Tuple> = tangents[i]!;
@@ -133,7 +136,7 @@ export function generateAutoMovieSupportCurve64(
     },
   );
   if (
-    spans.some((span: IAutoMovieCurve64.Span): boolean =>
+    spans.some((span: AutoMovieCubicBezierControls3): boolean =>
       span.some(
         (p: Readonly<AutoMovieVector3Tuple>): boolean =>
           !p.every(Number.isFinite),

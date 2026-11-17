@@ -9,10 +9,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckCurves,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanTrunkConnection,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewOutline,
@@ -131,13 +131,13 @@ export namespace AutoMovieHumanTrunkConnection {
    * Native quarter fullness and actual axis origin remain independent owners.
    */
   export function apply(
-    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+    definition: IAutoMovieHumanSourceDefinition,
     connection: IAutoMovieHumanTrunkConnection.IDefinition,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     if (definition.part === null || definition.view === null) return definition;
     try {
       const original: IAutoMovieViewPart = definition.part;
-      const view: NonNullable<IAutoMovieHumanSiteViewPart.IDefinition["view"]> =
+      const view: NonNullable<IAutoMovieHumanSourceDefinition["view"]> =
         definition.view;
       const at: number = connection.boundary.y;
       if (
@@ -179,9 +179,9 @@ export namespace AutoMovieHumanTrunkConnection {
           q < 2 ? jet : [-jet[0], -jet[1], -jet[2]],
         );
       };
-      const frame: IAutoMovieLoftFrame.IFrame = connection.boundary.frame;
-      const first: IAutoMovieLoftFrame.IFrame = connection.boundary.frameSlopes;
-      const second: IAutoMovieLoftFrame.IFrame =
+      const frame: IAutoMovieLoftSectionFrame = connection.boundary.frame;
+      const first: IAutoMovieLoftSectionFrame = connection.boundary.frameSlopes;
+      const second: IAutoMovieLoftSectionFrame =
         connection.boundary.frameCurvatures;
 
       // Keep the actual asymmetric origin; back+anterior radius would recenter it.

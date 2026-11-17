@@ -1,8 +1,8 @@
 import { AutoMovieHumanJointCentres } from "@automovie/human";
 import type {
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanJointCentres,
-  IAutoMovieHumanSkeletonLaw,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -34,7 +34,7 @@ export function test_human_joint_girth(): void {
     position: [number, number, number],
     toward: [number, number, number],
     tip: [number, number, number] | null = null,
-  ): IAutoMovieHumanSkeletonLaw.IBone => ({
+  ): IAutoMovieHumanCalibrationBone => ({
     bone: name,
     parent,
     position,

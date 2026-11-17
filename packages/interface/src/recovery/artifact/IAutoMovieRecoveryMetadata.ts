@@ -1,10 +1,14 @@
 /**
- * Caller-owned plain recovery metadata with explicitly unknown additional values.
+ * Additional caller-owned fields on recovery artifacts, coverage and frontier
+ * context. Values remain unknown until a reader narrows the specific field;
+ * readRecoveryMetadata follows own data properties without invoking getters.
+ * This open metadata bag permits producer-specific provenance and diagnostics,
+ * not unchecked access to coefficient geometry or a serialization guarantee.
  *
- * @evidence contracts/development/common.md#meaningful-documentation
- * @evidence contracts/development/design.md#principled-representation Caller-owned plain recovery metadata with explicitly unknown additional values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieRecoveryArtifact, IAutoMovieRecoveryArtifactCoverage, IAutoMovieRecoveryMeshFrontier share IAutoMovieRecoveryMetadata's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
+ * @evidence contracts/development/common.md#meaningful-documentation States the extension-field purpose, caller ownership, unknown-value narrowing and own-property reader boundary.
+ * @evidence contracts/development/design.md#principled-representation A string-keyed unknown-value record represents heterogeneous provenance fields without claiming their shape or numerical authority.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Artifact, coverage and mesh-frontier contracts share this extension bag; known coverage fields remain explicitly typed by their owning contract.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown preserves the need to narrow each extension field; it supplies neither a cast to geometry nor a blanket promise that values can be serialized.
  */
 
 export interface IAutoMovieRecoveryMetadata {

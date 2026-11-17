@@ -1,6 +1,13 @@
-import type { IAutoMovieHumanRigControls } from "./IAutoMovieHumanRigControls";
+import type { AutoMovieHumanPoseChannelTemplate } from "./AutoMovieHumanPoseChannelTemplate";
 
-/** Type contracts exchanged by AutoMovieHumanPoseChannels; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanPoseChannels; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanPoseChannels exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups Channel, GeneratedJoint. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanPoseChannels; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the Channel, GeneratedJoint contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanPoseChannels {
   /** The canonical table has finite paths/joints, clinical signs and sourced ranges.
    *
@@ -11,7 +18,7 @@ export namespace IAutoMovieHumanPoseChannels {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanPoseChannels, rows for the canonical table has finite paths/joints, clinical signs and sourced ranges.
    */
   export type Channel = readonly [
-    path: IAutoMovieHumanRigControls.ChannelTemplate,
+    path: AutoMovieHumanPoseChannelTemplate,
     bone:
       | (
           | "<side>Eye"

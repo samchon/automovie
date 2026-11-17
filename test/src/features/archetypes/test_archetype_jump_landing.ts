@@ -61,11 +61,9 @@ export function test_archetype_jump_landing(): void {
       film: IAutoMovieMotionHumanPerformance,
       row: string,
     ): ((name: string) => number) => {
-      const segment: IAutoMovieMotionHumanSegment.ISegment = film
+      const segment: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       return (instant: string): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === instant)?.share ??

@@ -51,7 +51,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation kind: On what it crawls: `knees` (hands and knees), `bear` (hands and feet, the knees off the floor) or `inchworm` (the hands walked out to a plank, the feet in to the hands); `knees` when absent. cycles: How many crawl cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation kind: On what it crawls: `knees` (hands and knees), `bear` (hands and feet, the knees off the floor) or `inchworm` (the hands walked out to a plank, the feet in to the hands); `knees` when absent. cycles: How many crawl cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.crawl, params); floor/crawl.ts (crawl.plan, context); floor/crawlInchworm.ts (crawlInchworm.plan, context); floor/crawl.ts (crawl.plan.centred, limb); floor/crawl.ts (crawl.plan.landed, limb); floor/crawl.ts (crawl.plan.print, limb).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCrawl {
   /**
@@ -74,7 +74,7 @@ export namespace IAutoMovieMotionHumanCrawl {
     cycles?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

@@ -4,13 +4,14 @@ import {
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandover,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -96,7 +97,7 @@ export namespace HumanHandover {
     const receiver = input.receiver.bones;
     const hand = (
       bones: IAutoMovieMotionHumanHandover.IPerson["bones"],
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanHand.IWrist => {
       const b = bones.get(`${side}Hand`)!;
       return { point: b.worldPosition, rotation: b.worldRotation };
@@ -122,7 +123,7 @@ export namespace HumanHandover {
       resolveAutoMovieMutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
         .point;
     const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart.point);
-    const offered: IAutoMovieMotionHumanProp.IFrame = {
+    const offered: IAutoMovieRigidTransform = {
       position: Vector3.add(input.frame.position, shift),
       rotation: input.frame.rotation,
     };
@@ -239,7 +240,7 @@ export namespace HumanHandover {
   export function carried(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     pitch: number = 0,
   ): IAutoMovieVector3 {
     const raised: number = (pitch * Math.PI) / 180;
@@ -300,7 +301,7 @@ export namespace HumanHandover {
    */
   export function upright(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     at: (seconds: number, yaw: number) => IAutoMovieMotionHumanPosture,
     from: number,
     to: number,
@@ -362,7 +363,7 @@ export namespace HumanHandover {
    */
   export function tipped(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
   ): number {
     const asked: IAutoMovieQuaternion | undefined =

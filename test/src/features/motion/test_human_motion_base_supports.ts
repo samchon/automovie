@@ -134,8 +134,7 @@ export function test_human_motion_base_supports(): void {
     }
 
     // 3. The base holds through the drink.
-    const drink: IAutoMovieMotionHumanSegment.ISegment =
-      drinking.segments("a")[1]!;
+    const drink: IAutoMovieMotionHumanSegment = drinking.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       drinking,
       "a",

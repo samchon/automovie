@@ -1,7 +1,7 @@
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanWalkCadence,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
@@ -129,14 +129,12 @@ export namespace walkCadence {
     context: IAutoMovieMotionHumanActionContext,
     cadence: IAutoMovieMotionHumanWalkCadence.ICadence,
   ): number[] {
-    const track: readonly IAutoMovieResolveSchedule.ICue[] = context.cue(
-      cadence.cue,
-    );
-    const named: readonly IAutoMovieResolveSchedule.ICue[] = track.filter(
-      (c: IAutoMovieResolveSchedule.ICue): boolean => c.name === "beat",
+    const track: readonly IAutoMovieScheduleCue[] = context.cue(cadence.cue);
+    const named: readonly IAutoMovieScheduleCue[] = track.filter(
+      (c: IAutoMovieScheduleCue): boolean => c.name === "beat",
     );
     return (named.length === 0 ? track : named).map(
-      (c: IAutoMovieResolveSchedule.ICue): number => c.seconds,
+      (c: IAutoMovieScheduleCue): number => c.seconds,
     );
   }
 

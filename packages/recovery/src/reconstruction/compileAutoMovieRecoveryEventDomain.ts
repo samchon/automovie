@@ -1,8 +1,8 @@
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
   IAutoMovieBicubicAtlasGeometry,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryChartEndpoint,
   IAutoMovieRecoveryChartPatchBudgetFailure,
   IAutoMovieRecoveryChartSourcePiece,
@@ -148,16 +148,17 @@ export function compileAutoMovieRecoveryEventDomain(
   };
   const derivedControls: Map<
     IAutoMovieRecoveryEventCurvePiece,
-    IAutoMovieCurve64.Span
+    AutoMovieCubicBezierControls3
   > = new Map();
   const coefficients: (
     p: IAutoMovieRecoveryEventCurvePiece,
-  ) => IAutoMovieCurve64.Span = (
+  ) => AutoMovieCubicBezierControls3 = (
     p: IAutoMovieRecoveryEventCurvePiece,
-  ): IAutoMovieCurve64.Span => {
-    const previous: IAutoMovieCurve64.Span | undefined = derivedControls.get(p);
+  ): AutoMovieCubicBezierControls3 => {
+    const previous: AutoMovieCubicBezierControls3 | undefined =
+      derivedControls.get(p);
     if (previous) return previous;
-    const net: IAutoMovieCurve64.Span = E.controls(
+    const net: AutoMovieCubicBezierControls3 = E.controls(
       p,
       policy.nativeParentBindings,
     );

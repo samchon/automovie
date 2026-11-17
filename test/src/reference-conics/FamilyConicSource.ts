@@ -1,7 +1,10 @@
 import { AutoMovieMeshExtract as M } from "@automovie/engine";
 import type {
-  IAutoMovieLoftFrame,
-  IAutoMovieMeshExtract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMeshSectionFrame,
+  IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -22,13 +25,13 @@ export namespace FamilyConicSource {
   /** The loaded reference. */
   export interface ISource {
     /** Native body skin, exact positional aliases merged so cuts chain into loops. */
-    body: IAutoMovieMeshExtract.IMesh;
+    body: IAutoMovieMillimeterMesh;
 
     /** Native head skin, likewise. */
-    head: IAutoMovieMeshExtract.IMesh;
+    head: IAutoMovieMillimeterMesh;
 
     /** Body and head skins as one mesh, positions shared where the two meet, so a cut through the neck seam still closes. */
-    all: IAutoMovieMeshExtract.IMesh;
+    all: IAutoMovieMillimeterMesh;
 
     /** Native bind joint centres by name, mm. */
     joints: Map<string, V>;
@@ -71,7 +74,7 @@ export namespace FamilyConicSource {
         geometry: { mesh: { positions: number[]; indices: number[] } };
       }[];
     } = await read("test/.shots/f1/reference-model.json");
-    const mesh = (keys: string[]): IAutoMovieMeshExtract.IMesh => {
+    const mesh = (keys: string[]): IAutoMovieMillimeterMesh => {
       const positions: number[] = [];
       const indices: number[] = [];
       const alias: Map<string, number> = new Map();
@@ -114,8 +117,8 @@ export namespace FamilyConicSource {
    * @param bridge Longest gap between open chains' ends the outer boundary closes where no closed loop winds round the origin, mm.
    */
   export function cut(
-    mesh: IAutoMovieMeshExtract.IMesh,
-    frame: IAutoMovieLoftFrame.IFrame,
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieLoftSectionFrame,
     bridge: number = 3,
   ): ICut {
     const n: V = [
@@ -123,11 +126,11 @@ export namespace FamilyConicSource {
       frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
       frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
     ];
-    const place: IAutoMovieMeshExtract.IFrame = {
+    const place: IAutoMovieMeshSectionFrame = {
       origin: [...frame.origin] as V,
       axes: [n, [...frame.u] as V, [...frame.v] as V],
     };
-    const section: IAutoMovieMeshExtract.ISection = M.outline(
+    const section: IAutoMovieMeshSectionCut = M.outline(
       mesh,
       place,
       [0],
@@ -135,13 +138,13 @@ export namespace FamilyConicSource {
       0.5,
       0,
     )[0]!;
-    const closed = (loops: readonly IAutoMovieMeshExtract.ILoop[]): C.P[][] =>
+    const closed = (loops: readonly IAutoMovieMeshSectionChain[]): C.P[][] =>
       loops
         .filter(
-          (loop: IAutoMovieMeshExtract.ILoop): boolean =>
+          (loop: IAutoMovieMeshSectionChain): boolean =>
             loop.closed && winds(loop.points),
         )
-        .map((loop: IAutoMovieMeshExtract.ILoop): C.P[] =>
+        .map((loop: IAutoMovieMeshSectionChain): C.P[] =>
           area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points],
         );
     let round: C.P[][] = closed(section.loops);
@@ -161,15 +164,15 @@ export namespace FamilyConicSource {
 
   /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */
   export function loops(
-    mesh: IAutoMovieMeshExtract.IMesh,
-    frame: IAutoMovieLoftFrame.IFrame,
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieLoftSectionFrame,
   ): C.P[][] {
     const n: V = [
       frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
       frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
       frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
     ];
-    const section: IAutoMovieMeshExtract.ISection = M.outline(
+    const section: IAutoMovieMeshSectionCut = M.outline(
       mesh,
       {
         origin: [...frame.origin] as V,
@@ -181,8 +184,8 @@ export namespace FamilyConicSource {
       0,
     )[0]!;
     return section.loops
-      .filter((loop: IAutoMovieMeshExtract.ILoop): boolean => loop.closed)
-      .map((loop: IAutoMovieMeshExtract.ILoop): C.P[] =>
+      .filter((loop: IAutoMovieMeshSectionChain): boolean => loop.closed)
+      .map((loop: IAutoMovieMeshSectionChain): C.P[] =>
         area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points],
       );
   }

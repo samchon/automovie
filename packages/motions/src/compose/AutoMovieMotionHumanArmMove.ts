@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -111,7 +111,7 @@ export namespace AutoMovieMotionHumanArmMove {
    */
   const bowed = (
     posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     share: number,
@@ -163,8 +163,8 @@ export namespace AutoMovieMotionHumanArmMove {
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
     from: IAutoMovieMotionHumanArmTarget.IOrigin,
     target: IAutoMovieMotionHumanArmTarget.Frame,
@@ -202,8 +202,8 @@ export namespace AutoMovieMotionHumanArmMove {
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
     target: IAutoMovieMotionHumanArmTarget.Frame,
   ): IAutoMovieMotionHumanPrimitive {
@@ -240,8 +240,8 @@ export namespace AutoMovieMotionHumanArmMove {
    */
   export function retract(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
     target: IAutoMovieMotionHumanArmTarget.Frame,
     to: IAutoMovieMotionHumanArmTarget.IOrigin,

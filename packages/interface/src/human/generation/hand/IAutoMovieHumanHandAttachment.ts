@@ -4,7 +4,14 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanDigitWalk } from "../limb/IAutoMovieHumanDigitWalk";
 import type { IAutoMovieHumanHandParent } from "./IAutoMovieHumanHandParent";
 
-/** Type contracts exchanged by AutoMovieHumanHandAttachment; runtime evaluation remains in Human. */
+/**
+ * Original parent section contacts, local material transfer and independently qualified source jets. Runtime construction and admission remain with AutoMovieHumanHandAttachment in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes original parent section contacts, local material transfer and independently qualified source jets; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Original parent section contacts, local material transfer and independently qualified source jets. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanHandAttachment; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing HandAttachment contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanHandAttachment {
   /** One canonical geometric attachment and its explicit material-chart map.
    *

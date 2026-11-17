@@ -1,7 +1,9 @@
 import type {
+  IAutoMovieRecoveryDirectedEdgeIncidence,
   IAutoMovieRecoveryFeatureChartCuts,
   IAutoMovieRecoveryFeatureChartCutsSeams,
-  IAutoMovieRecoveryFeatureChartCutsSubdivide,
+  IAutoMovieRecoveryIndexedCrease,
+  IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
 /**
@@ -36,12 +38,12 @@ export function RecoveryFeatureChartCutsSeams(
     diagnostics,
     observationDisplacementUpperMm,
   }: {
-    subdivided: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology;
-    expanded: Map<string, IAutoMovieRecoveryFeatureChartCutsSeams.Feature>;
+    subdivided: IAutoMovieRecoveryObservedMeshTopology;
+    expanded: Map<string, IAutoMovieRecoveryIndexedCrease>;
     physical: string[];
     occurrences: string[];
     remap: Map<number, number>[];
-    actual: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology;
+    actual: IAutoMovieRecoveryObservedMeshTopology;
     localOf: Map<number, number>;
     chartOf: Map<number, number>;
     charts: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"];
@@ -99,8 +101,7 @@ export function RecoveryFeatureChartCutsSeams(
       if (visited.has(key)) fail("a maximal feature chain revisits an edge");
       visited.add(key);
       edges.push(key);
-      const feature: IAutoMovieRecoveryFeatureChartCutsSeams.Feature =
-          expanded.get(key)!,
+      const feature: IAutoMovieRecoveryIndexedCrease = expanded.get(key)!,
         next: number = feature.a === current ? feature.b : feature.a;
       path.push(next);
       if (next === first) {
@@ -140,9 +141,8 @@ export function RecoveryFeatureChartCutsSeams(
   );
   for (const id of orderedVertices)
     featureAt.get(id)!.sort((a: string, b: string): number => {
-      const x: IAutoMovieRecoveryFeatureChartCutsSeams.Feature =
-          expanded.get(a)!,
-        y: IAutoMovieRecoveryFeatureChartCutsSeams.Feature = expanded.get(b)!;
+      const x: IAutoMovieRecoveryIndexedCrease = expanded.get(a)!,
+        y: IAutoMovieRecoveryIndexedCrease = expanded.get(b)!;
       return lex(
         vertexWord(x.a === id ? x.b : x.a),
         vertexWord(y.a === id ? y.b : y.a),
@@ -162,28 +162,28 @@ export function RecoveryFeatureChartCutsSeams(
     for (let k: number = 0; k < arc.edges.length; k++) {
       const a: number = arc.vertices[k]!,
         b: number = arc.vertices[k + 1]!,
-        rows: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row[] =
-          subdivided.edges.get(arc.edges[k]!)!;
-      const forward:
-          | IAutoMovieRecoveryFeatureChartCutsSubdivide.Row
-          | undefined = rows.find(
-          (row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row): boolean =>
-            row.a === a && row.b === b,
-        ),
-        backward: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row | undefined =
+        rows: IAutoMovieRecoveryDirectedEdgeIncidence[] = subdivided.edges.get(
+          arc.edges[k]!,
+        )!;
+      const forward: IAutoMovieRecoveryDirectedEdgeIncidence | undefined =
           rows.find(
-            (row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row): boolean =>
+            (row: IAutoMovieRecoveryDirectedEdgeIncidence): boolean =>
+              row.a === a && row.b === b,
+          ),
+        backward: IAutoMovieRecoveryDirectedEdgeIncidence | undefined =
+          rows.find(
+            (row: IAutoMovieRecoveryDirectedEdgeIncidence): boolean =>
               row.a === b && row.b === a,
           );
       if (!forward || !backward)
         fail("a feature arc lacks opposite coherent source incidents");
       for (let bank: number = 0; bank < 2; bank++) {
-        const row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row =
+        const row: IAutoMovieRecoveryDirectedEdgeIncidence =
             bank === 0 ? forward! : backward!,
           from: number = remap[a]!.get(row.face)!,
           to: number = remap[b]!.get(row.face)!;
         const actualRows:
-          | IAutoMovieRecoveryFeatureChartCutsSubdivide.Row[]
+          | IAutoMovieRecoveryDirectedEdgeIncidence[]
           | undefined = actual.edges.get(edge(from, to));
         if (
           actualRows?.length !== 1 ||

@@ -1,8 +1,8 @@
 import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
   IAutoMovieLoftFrameSource,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieStationHermite,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
@@ -40,7 +40,7 @@ export namespace AutoMovieLoftFrameSource {
     const layers: IAutoMovieLoftChain.ILayer[] = [];
     for (const layer of chain.layers) {
       const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet(layer.y);
-      const frame: IAutoMovieLoftFrame.IFrame = jet?.value ?? axis.at(layer.y);
+      const frame: IAutoMovieLoftSectionFrame = jet?.value ?? axis.at(layer.y);
       if (
         !finite(frame) ||
         (jet !== null && ![jet.value, jet.first, jet.second].every(finite))
@@ -152,13 +152,13 @@ export namespace AutoMovieLoftFrameSource {
     s: number,
     lo: number,
     hi: number,
-  ): IAutoMovieLoftFrame.IFrame {
+  ): IAutoMovieLoftSectionFrame {
     const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
     const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
     const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
     const axis: IAutoMovieViewAxis.IAxis | null = owner(a, b);
     if (axis !== null) {
-      const value: IAutoMovieLoftFrame.IFrame = axis.at(s);
+      const value: IAutoMovieLoftSectionFrame = axis.at(s);
       if (!finite(value))
         throw new Error(
           `Retained axis has no finite frame value at station ${s} mm`,
@@ -192,9 +192,9 @@ export namespace AutoMovieLoftFrameSource {
       layers[hi + 1]?.frame === undefined
     )
       return AutoMovieLoftFrame.horizontal(s);
-    const frameOf: (k: number) => IAutoMovieLoftFrame.IFrame = (
+    const frameOf: (k: number) => IAutoMovieLoftSectionFrame = (
       k: number,
-    ): IAutoMovieLoftFrame.IFrame =>
+    ): IAutoMovieLoftSectionFrame =>
       layers[k]!.frame ?? AutoMovieLoftFrame.horizontal(layers[k]!.y);
     const H: number = b.y - a.y;
 
@@ -271,14 +271,14 @@ export namespace AutoMovieLoftFrameSource {
 type Vec3 = [number, number, number];
 
 /** Independent numeric copy permits value-preserving layer copies without reference-identity semantics. */
-function copy(frame: IAutoMovieLoftFrame.IFrame): IAutoMovieLoftFrame.IFrame {
+function copy(frame: IAutoMovieLoftSectionFrame): IAutoMovieLoftSectionFrame {
   return { origin: [...frame.origin], u: [...frame.u], v: [...frame.v] };
 }
 
 /** Exact component equality of copied layer data, with absence distinct from a supplied source jet. */
 function same(
-  frame: IAutoMovieLoftFrame.IFrame | undefined,
-  snapshot: IAutoMovieLoftFrame.IFrame,
+  frame: IAutoMovieLoftSectionFrame | undefined,
+  snapshot: IAutoMovieLoftSectionFrame,
 ): boolean {
   return (
     frame !== undefined &&
@@ -295,7 +295,7 @@ function same(
 }
 
 /** Finite actual frame components are required before publishing an analytic jet. */
-function finite(frame: IAutoMovieLoftFrame.IFrame): boolean {
+function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return (
     frame.origin.every(Number.isFinite) &&
     frame.u.every(Number.isFinite) &&

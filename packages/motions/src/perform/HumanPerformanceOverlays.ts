@@ -1,13 +1,13 @@
 import type {
   AutoMovieMotionHumanActionKey,
-  AutoMovieMotionHumanChannel,
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
@@ -76,9 +76,9 @@ export namespace HumanPerformanceOverlays {
   export function place(
     self: IAutoMovieMotionHumanPerformanceState,
     person: IAutoMovieMotionHumanSegment.IPerson,
-    carrier: IAutoMovieMotionHumanSegment.ISegment,
+    carrier: IAutoMovieMotionHumanSegment,
     intent: IAutoMovieIntent,
-    entries: readonly IAutoMovieSchedule.IEntry[],
+    entries: readonly IAutoMovieScheduleEntry[],
     planned: IPlanned,
   ): {
     duration: number;
@@ -88,15 +88,15 @@ export namespace HumanPerformanceOverlays {
     const { name, params, law, context, plan, start }: IPlanned = planned;
     // The overlay takes what its plan claims, which the carrier must yield
     // and no other overlay of the same span may hold.
-    const channels: readonly AutoMovieMotionHumanChannel.Claim[] =
+    const channels: readonly AutoMovieMotionHumanChannelClaim[] =
       plan.channels ?? [];
     // An instance's own yields, where its parameters decide them, before its law's.
-    const yielded: readonly AutoMovieMotionHumanChannel.Claim[] =
+    const yielded: readonly AutoMovieMotionHumanChannelClaim[] =
       carrier.plan.yields ?? carrier.law.yields ?? [];
     // A claimed digit is yielded with its hand; a claimed hand needs the
     // hand itself yielded, not one of its digits.
-    const kept: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
-      (c: AutoMovieMotionHumanChannel.Claim): boolean =>
+    const kept: AutoMovieMotionHumanChannelClaim[] = channels.filter(
+      (c: AutoMovieMotionHumanChannelClaim): boolean =>
         !HumanChannels.claims(yielded, c),
     );
     if (kept.length !== 0)
@@ -113,10 +113,10 @@ export namespace HumanPerformanceOverlays {
       if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9)) continue;
       // Two claims clash when either covers the other: a hand and one of
       // its digits, or the same digit twice; two digits of one hand do not.
-      const shared: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
-        (c: AutoMovieMotionHumanChannel.Claim): boolean =>
+      const shared: AutoMovieMotionHumanChannelClaim[] = channels.filter(
+        (c: AutoMovieMotionHumanChannelClaim): boolean =>
           HumanChannels.claims(other.channels, c) ||
-          other.channels.some((o: AutoMovieMotionHumanChannel.Claim): boolean =>
+          other.channels.some((o: AutoMovieMotionHumanChannelClaim): boolean =>
             HumanChannels.claims([c], o),
           ),
       );

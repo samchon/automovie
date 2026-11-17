@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -329,7 +330,7 @@ export namespace seated {
     for (const side of ["left", "right"] as const) {
       const limb: "leftArm" | "rightArm" =
         side === "left" ? "leftArm" : "rightArm";
-      const goal: IAutoMovieMotionHumanPosture.IGoal = onThighs[limb]!;
+      const goal: IAutoMovieHumanLimbGoal = onThighs[limb]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       limbs[limb] = {
         point: Vector3.lerp(hand.worldPosition, goal.point, share),
@@ -413,7 +414,7 @@ export namespace seated {
       const rest: IAutoMovieVector3 | undefined = rests[side];
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const goal: IAutoMovieMotionHumanPosture.IGoal = armrest(
+      const goal: IAutoMovieHumanLimbGoal = armrest(
         body,
         posture,
         side,
@@ -448,7 +449,7 @@ export namespace seated {
     side: "left" | "right",
     rest: IAutoMovieVector3,
     yaw: number,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     return {
       point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
       rotation: HumanHand.rotation(side, {

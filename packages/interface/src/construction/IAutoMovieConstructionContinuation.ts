@@ -9,10 +9,10 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
  *
  * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; `name` unique in the tree.
  *
- * @evidence contracts/development/design.md#principled-representation One owner publishes the shared section and its station jets and the neighbour copies them, so the two chains are C2 across the ring by the station rule both use.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two faces and their ends are the whole record; the shared ring needs no curve, rail or blend.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal-order boundaries use the explicit whole-field replacement; different-order native boundaries require original full scalar2/frame2/lift2 equivalence and a sufficient regularity certificate, preserving all rows and intervals without fitting or coarsening.
- * @evidence contracts/development/common.md#meaningful-documentation States the meeting, what is copied and in which direction, the shared ring, the failure effects and the admission.
+ * @evidence contracts/development/design.md#principled-representation One owner publishes the shared section and its station jets and the neighbour copies them, so the two chains are C2 across the ring by the station rule both use. The band retains physical rail depth and bounded row/column counts while each face owns its own section representation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two faces and their ends select a shared ring; the optional band instead supplies a physical rail depth, sampling counts and rail correspondence while preserving each face's own section representation. Continuation realization reads this single optional band record; ordinary shared-ring continuation needs none.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal-order boundaries use the explicit whole-field replacement; different-order native boundaries require original full scalar2/frame2/lift2 equivalence and a sufficient regularity certificate, preserving all rows and intervals without fitting or coarsening. No new section fit or searched rail is implied by these authored parameters.
+ * @evidence contracts/development/common.md#meaningful-documentation States the meeting, copied derivatives and their direction, shared-ring failure effects and admission, and the optional band's units, references and absence behavior.
  */
 export interface IAutoMovieConstructionContinuation {
   /** Discriminator. */
@@ -52,10 +52,6 @@ export interface IAutoMovieConstructionContinuation {
 /**
  * Band parameters for a continuation whose ends do not share one ring.
  *
- * @evidence contracts/development/design.md#principled-representation The band retains physical rail depth and bounded row/column counts while each face owns its own section representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Continuation realization reads this single optional band record; ordinary shared-ring continuation needs none.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No new section fit or searched rail is implied by these authored parameters.
- * @evidence contracts/development/common.md#meaningful-documentation Band parameters for a continuation whose ends do not share one ring. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMovieConstructionContinuation {
   /**

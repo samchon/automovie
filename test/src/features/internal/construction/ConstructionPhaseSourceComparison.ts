@@ -11,8 +11,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
   IAutoMovieLoftPhaseSource,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewConic,
   IAutoMovieViewCurves,
   IAutoMovieViewLoft,
@@ -115,7 +115,7 @@ export namespace ConstructionPhaseSourceComparison {
           s,
           phi,
         );
-        const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           final.chain,
           s,
           phi,

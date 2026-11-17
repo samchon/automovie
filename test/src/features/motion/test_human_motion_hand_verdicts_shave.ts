@@ -1,5 +1,6 @@
 import { createCareItem } from "@automovie/archetypes";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
@@ -148,10 +149,10 @@ function dump(posture: IAutoMovieMotionHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [
+          ([limb, goal]: [string, IAutoMovieHumanLimbGoal | undefined]): [
             string,
-            IAutoMovieMotionHumanPosture.IGoal | undefined,
-          ]): [string, object | undefined] => [
+            object | undefined,
+          ] => [
             limb,
             goal === undefined ? goal : { ...goal, clear: undefined },
           ],

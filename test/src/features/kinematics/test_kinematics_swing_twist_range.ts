@@ -12,6 +12,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
@@ -101,7 +102,7 @@ export function test_kinematics_swing_twist_range(): void {
   const rng: () => number = makeRng(0x5717c4);
 
   for (const [bone, constraint] of joints) {
-    const joint: IAutoMovieSwingTwistRange.IJoint = {
+    const joint: IAutoMovieJointRotationFrame = {
       axes: HUMANOID_JOINT_AXES[bone]!,
       frame: HUMANOID_REST_FRAME[bone],
     };
@@ -264,7 +265,7 @@ export function test_kinematics_swing_twist_range(): void {
   // forearm wound a further 60 degrees past each out.
   const shoulder: IAutoMovieJointConstraint =
     DEFAULT_HUMANOID_ROM.leftUpperArm!;
-  const arm: IAutoMovieSwingTwistRange.IJoint = {
+  const arm: IAutoMovieJointRotationFrame = {
     axes: HUMANOID_JOINT_AXES.leftUpperArm!,
     frame: HUMANOID_REST_FRAME.leftUpperArm,
   };

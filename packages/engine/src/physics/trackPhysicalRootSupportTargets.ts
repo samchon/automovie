@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
@@ -29,7 +29,7 @@ export function trackPhysicalRootSupportTargets(input: {
   >;
   /** Root's actual native pose and authority. */ root: {
     bone: string;
-    pose: IAutoMoviePhysicalProfile.ITransform;
+    pose: IAutoMovieRigidTransform;
     dynamic: boolean;
   };
   /** Coordinates already owned by balance posture. */ excluded: ReadonlySet<string>;
@@ -87,7 +87,7 @@ export function trackPhysicalRootSupportTargets(input: {
     const balance: ReturnType<typeof bound.planned.get> = bound.planned.get(
       body.id,
     );
-    const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    const targets: Record<string, IAutoMovieRigidTransform> =
       balance?.step === input.step && balance.revision === input.revision
         ? balance.targets
         : input.target.segments;

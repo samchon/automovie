@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, clampJointToSkeleton } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
@@ -9,7 +10,7 @@ import type {
   IAutoMovieMotionHumanGrip,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -118,7 +119,7 @@ export namespace HumanClasp {
    */
   export function open(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanPosture["joints"] {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...HumanHand.shape(side, "flat"),
@@ -182,7 +183,7 @@ export namespace HumanClasp {
    * @returns Both grips and their clearance.
    */
   export function choose(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     meet: IAutoMovieVector3,
     amplitude: number,
     mine: IHand,
@@ -336,7 +337,7 @@ export namespace HumanClasp {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     other: IAutoMovieMotionHumanBody,
     others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): number {
     const forearm: AutoMovieHumanoidBone = `${side}LowerArm`;
     const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -384,7 +385,7 @@ export namespace HumanClasp {
    * @returns This person's closed digit angles, clinical degrees.
    */
   export function close(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     choice: IChoice,
     mine: IHand,
     theirs: IHand,
@@ -449,7 +450,7 @@ export namespace HumanClasp {
   export function colliders(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieCurlChainUntilContact.ICollider[] {
     const digits: Set<AutoMovieHumanoidBone> = new Set(
       HumanGrip.CLOSING.power.flatMap(
@@ -470,7 +471,7 @@ export namespace HumanClasp {
         ): IAutoMovieCurlChainUntilContact.ICollider[] =>
           p.shapes.map(
             (
-              shape: IAutoMoviePhysicalProfile.IShape,
+              shape: IAutoMoviePhysicalShape,
             ): IAutoMovieCurlChainUntilContact.ICollider => ({
               shape,
               frame: { position: p.pose.position, rotation: p.pose.rotation },

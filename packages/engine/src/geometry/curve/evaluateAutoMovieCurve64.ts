@@ -1,6 +1,8 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieBernsteinCurvePiece64,
+  IAutoMovieCurvePrimitive64,
   IAutoMovieEvaluateBernstein64,
   IAutoMovieEvaluateCurve64,
 } from "@automovie/interface";
@@ -24,7 +26,7 @@ import { evaluateAutoMovieBernstein64 } from "./evaluateAutoMovieBernstein64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local partition/descriptors and output vectors are per-call; the evaluator retains no primitive or external resources.
  */
 export function evaluateAutoMovieCurve64(
-  curve: IAutoMovieCurve64.Primitive,
+  curve: IAutoMovieCurvePrimitive64,
   parameter: number,
 ): IAutoMovieEvaluateCurve64.IResult {
   assertAutoMovieCurve64(curve);
@@ -82,10 +84,12 @@ export function evaluateAutoMovieCurve64(
   } else {
     if (curve.type !== "cubicBezier" && curve.type !== "bernstein")
       throw new Error("Unknown actual primitive");
-    const pieces: readonly IAutoMovieCurve64.Piece[] =
+    const pieces: readonly IAutoMovieBernsteinCurvePiece64[] =
       curve.type === "cubicBezier"
         ? curve.spans.map(
-            (s: IAutoMovieCurve64.Span): IAutoMovieCurve64.Piece => {
+            (
+              s: AutoMovieCubicBezierControls3,
+            ): IAutoMovieBernsteinCurvePiece64 => {
               if (s.length !== 4) throw new Error("Cubic degree mismatch");
               return { primitive: "polynomialBezier", degree: 3, controls: s };
             },

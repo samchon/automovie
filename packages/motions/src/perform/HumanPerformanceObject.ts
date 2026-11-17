@@ -1,10 +1,10 @@
 import { AffordanceArticulation, Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionPropDrive,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -52,7 +52,7 @@ export namespace HumanPerformanceObject {
     travel(seconds: number): number;
 
     /** The action that drives it, or undefined for the prop's own track. */
-    source?: IAutoMovieMotionHumanSegment.ISegment & { subject: string };
+    source?: IAutoMovieMotionHumanSegment & { subject: string };
   }
 
   /**
@@ -93,7 +93,7 @@ export namespace HumanPerformanceObject {
             segment.start + drive.to * duration,
           );
           if (!(to >= from)) continue;
-          const own: IAutoMovieMotionHumanActionPlan.IDrive = drive;
+          const own: IAutoMovieMotionPropDrive = drive;
           out.push({
             articulation: own.articulation,
             leader:

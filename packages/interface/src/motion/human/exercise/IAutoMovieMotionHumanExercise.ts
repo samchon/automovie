@@ -41,7 +41,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation reps: Whole-number repetitions, at least one; 3 when absent. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. depth: A squat's depth; `parallel` when absent. tempo: Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent.
  * @evidence contracts/development/design.md#principled-representation reps: Whole-number repetitions, at least one; 3 when absent. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. depth: A squat's depth; `parallel` when absent. tempo: Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.exercise, params); exercise/exercise.ts (exercise.plan, context); exercise/exercise.ts (exercise.drop, depth); exercise/exercise.ts (exercise.plan); executable/cases/exerciseCases.ts (exerciseCases); exercise/exercise.ts (exercise.THIGH).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanExercise {
   /**
@@ -73,7 +73,7 @@ export namespace IAutoMovieMotionHumanExercise {
     side?: "left" | "right";
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

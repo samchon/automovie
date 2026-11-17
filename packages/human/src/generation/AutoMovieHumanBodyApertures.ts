@@ -2,7 +2,7 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyApertures,
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanEyeSeat,
   IAutoMovieHumanEyelid,
   IAutoMovieHumanLoftAperture,
   IAutoMovieLoftChain,
@@ -27,7 +27,7 @@ export namespace AutoMovieHumanBodyApertures {
    */
   export function prepare(
     apertures: readonly IAutoMovieHumanLoftAperture[],
-    eyes: readonly IAutoMovieHumanBodyCalibration.IEye[],
+    eyes: readonly IAutoMovieHumanEyeSeat[],
   ): IAutoMovieHumanBodyApertures.IPrepared[] {
     return apertures.map(
       (
@@ -45,7 +45,7 @@ export namespace AutoMovieHumanBodyApertures {
               0,
             ) / margin.length,
         );
-        let globe: IAutoMovieHumanBodyCalibration.IEye | null = null;
+        let globe: IAutoMovieHumanEyeSeat | null = null;
         let best: number = Infinity;
         for (const eye of eyes) {
           const d: number = Math.hypot(

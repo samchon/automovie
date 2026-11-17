@@ -1,9 +1,10 @@
 import type {
+  IAutoMovieInspectionColorAssignment,
+  IAutoMovieInspectionFocus,
   IAutoMovieInspectionKind,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
   IAutoMovieInspectionRequest,
-  IAutoMovieInspectionView,
   IAutoMovieMark,
   IAutoMovieMeshDefect,
 } from "@automovie/interface";
@@ -159,7 +160,7 @@ export function applyAutoMovieInspection(
       ),
   );
   const uncoloured: string[] = request.color
-    .map((entry: IAutoMovieInspectionRequest.IColor): string => entry.pattern)
+    .map((entry: IAutoMovieInspectionColorAssignment): string => entry.pattern)
     .filter(
       (pattern: string): boolean =>
         ![...known, ...available].some((name: string): boolean =>
@@ -460,7 +461,7 @@ export function applyAutoMovieInspection(
         overlay.resize(width, height);
       },
       bounds: (
-        focus?: IAutoMovieInspectionView.IFocus | null,
+        focus?: IAutoMovieInspectionFocus | null,
       ): IAutoMovieViewerSubjectBounds | null =>
         focus === undefined || focus === null
           ? measureAutoMovieInspectionBounds(scene)

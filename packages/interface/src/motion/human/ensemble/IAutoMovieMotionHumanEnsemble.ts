@@ -18,10 +18,10 @@ import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanForm
  * override its rows. A member's place is its formation slot at second 0, or
  * the place given.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the member naming, the draws and their keys, the override order and where a place comes from.
- * @evidence contracts/development/design.md#principled-representation A group as its count, a body pool, distributions and roles: the levels of Musse and Thalmann's hierarchical crowd (2001), the group as the controllable unit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanEnsemble.of` reads; the members are derived, never stored by the author.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A place is a formation or a list or a rule, never both a formation and places.
+ * @evidence contracts/development/common.md#meaningful-documentation States the member naming, the draws and their keys, the override order and where a place comes from. index: Its index, from 0. subject: Its subject id, `${ensemble}.${index}`. role: Its role, or null.
+ * @evidence contracts/development/design.md#principled-representation A group as its count, a body pool, distributions and roles: the levels of Musse and Thalmann's hierarchical crowd (2001), the group as the controllable unit. index: Its index, from 0. subject: Its subject id, `${ensemble}.${index}`. role: Its role, or null.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanEnsemble.of` reads; the members are derived, never stored by the author. Runtime boundary references: ensemble/HumanEnsemble.ts (HumanEnsemble.of, input); ensemble/HumanEnsembleMembers.ts (HumanEnsembleMembers.resolve, input).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A place is a formation or a list or a rule, never both a formation and places. Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanAttribute.Name, IAutoMovieProficiency identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanEnsemble {
   /** The group's id; its members are `${id}.${index}`. */
@@ -70,6 +70,14 @@ export interface IAutoMovieMotionHumanEnsemble {
    * population layer (`HumanPopulation`) and leaves it out of the
    * performance. Declared by the author, never by a camera; `full` when
    * absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.detail: How much of each member is performed, by member: `full` performs it, `instanced` displays a template member's pose moved to its place (`HumanEnsemble.instance`), `population` hands it to the instanced population layer (`HumanPopulation`) and leaves it out of the performance. Declared by the author, never by a camera; `full` when absent.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
    */
   detail?: (
     member: IAutoMovieMotionHumanEnsemble.IMemberRef,
@@ -89,10 +97,6 @@ export interface IAutoMovieMotionHumanEnsemble {
  * leaves the others' bodies, attributes and roles bit-identical; discipline
  * replaces the drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
  *
- * @evidence contracts/development/common.md#meaningful-documentation index: Its index, from 0. subject: Its subject id, `${ensemble}.${index}`. role: Its role, or null.
- * @evidence contracts/development/design.md#principled-representation index: Its index, from 0. subject: Its subject id, `${ensemble}.${index}`. role: Its role, or null.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanEnsemble.ts (HumanEnsemble.of, input); ensemble/HumanEnsembleMembers.ts (HumanEnsembleMembers.resolve, input).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanAttribute.Name, IAutoMovieProficiency identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanEnsemble {
   /**
@@ -141,6 +145,14 @@ export namespace IAutoMovieMotionHumanEnsemble {
      *
      * @param name The prop's name within the member.
      * @returns The prop's subject id.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.IMember.prop: A prop of its own, `${subject}.${name}`: its musket, its horse.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
      */
     prop(name: string): string;
   }

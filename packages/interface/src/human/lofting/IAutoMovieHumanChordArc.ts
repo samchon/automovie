@@ -1,6 +1,13 @@
 import type { IAutoMovieArcLengthJet } from "../../geometry/IAutoMovieArcLengthJet";
 
-/** Type contracts exchanged by AutoMovieHumanChordArc; runtime evaluation remains in Human. */
+/**
+ * Published arclength endpoint jets and arc samples differentiated in their own xi parameter. Runtime construction and admission remain with AutoMovieHumanChordArc in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes published arclength endpoint jets and arc samples differentiated in their own xi parameter; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Published arclength endpoint jets and arc samples differentiated in their own xi parameter. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanChordArc; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing ChordArc contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanChordArc {
   /** A guide's published jet in the section chart, by arclength: `AutoMovieHumanSeam.publish`.
    *

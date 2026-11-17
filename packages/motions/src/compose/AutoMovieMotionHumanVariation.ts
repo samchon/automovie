@@ -144,7 +144,7 @@ export namespace AutoMovieMotionHumanVariation {
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "series">,
     manner:
-      | Pick<IAutoMovieMotionManner.IManner, "variation" | "proficiency">
+      | Pick<IAutoMovieMotionManner, "variation" | "proficiency">
       | undefined,
   ): IAutoMovieMotionHumanVariation.ISource | undefined {
     const variation: number = manner?.variation ?? 0;

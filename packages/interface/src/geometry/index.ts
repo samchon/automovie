@@ -1,3 +1,4 @@
+export type { AutoMovieMatrix3Tuple } from "./AutoMovieMatrix3Tuple";
 export type { AutoMovieQuaternionTuple } from "./AutoMovieQuaternionTuple";
 export type { AutoMovieScalarJet2 } from "./AutoMovieScalarJet2";
 export type { AutoMovieVector2Tuple } from "./AutoMovieVector2Tuple";
@@ -15,6 +16,7 @@ export type { IAutoMovieConicApproximation } from "./IAutoMovieConicApproximatio
 export type { IAutoMovieCreateEllipticLoftAtlas } from "./IAutoMovieCreateEllipticLoftAtlas";
 export type { IAutoMovieCreateMeshDepthSampler } from "./IAutoMovieCreateMeshDepthSampler";
 export type { IAutoMovieCreateSupportSectionQuery } from "./IAutoMovieCreateSupportSectionQuery";
+export type { IAutoMovieCubicCriticalParameters } from "./IAutoMovieCubicCriticalParameters";
 export type { IAutoMovieDisplaceSurface } from "./IAutoMovieDisplaceSurface";
 export type { IAutoMovieEmitSupportLoft64 } from "./IAutoMovieEmitSupportLoft64";
 export type { IAutoMovieEuler } from "./IAutoMovieEuler";
@@ -60,6 +62,8 @@ export type { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
 export type { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 export type { IAutoMovieMinimizeMeshClearance } from "./IAutoMovieMinimizeMeshClearance";
 export type { IAutoMovieModelCrossing } from "./IAutoMovieModelCrossing";
+export type { IAutoMoviePiecewisePlanarCurveSource } from "./IAutoMoviePiecewisePlanarCurveSource";
+export type { IAutoMoviePlanarCurveSource } from "./IAutoMoviePlanarCurveSource";
 export type { IAutoMoviePlanarRegionFailure } from "./IAutoMoviePlanarRegionFailure";
 export type { IAutoMoviePlaneFrame } from "./IAutoMoviePlaneFrame";
 export type { IAutoMoviePlaneFrameConstruction } from "./IAutoMoviePlaneFrameConstruction";
@@ -78,8 +82,11 @@ export type { IAutoMovieRefineSubdivisionPoints } from "./IAutoMovieRefineSubdiv
 export type { IAutoMovieRefineSubdivisionUvs } from "./IAutoMovieRefineSubdivisionUvs";
 export type { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 export type { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
+export type { IAutoMovieRegisteredConicArc } from "./IAutoMovieRegisteredConicArc";
+export type { IAutoMovieRegisteredPlanarCurvePiece } from "./IAutoMovieRegisteredPlanarCurvePiece";
 export type { IAutoMovieResolveContactEvents } from "./IAutoMovieResolveContactEvents";
 export type { IAutoMovieRevolveProfile } from "./IAutoMovieRevolveProfile";
+export type { IAutoMovieRigidTransform } from "./IAutoMovieRigidTransform";
 export type { IAutoMovieSelectTriangleRegion } from "./IAutoMovieSelectTriangleRegion";
 export type { IAutoMovieShotEffect } from "./IAutoMovieShotEffect";
 export type { IAutoMovieSignedMeshQueryHit } from "./IAutoMovieSignedMeshQueryHit";

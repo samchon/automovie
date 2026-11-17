@@ -2,8 +2,8 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieSwingTwistBasis,
-  IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -50,7 +50,7 @@ export namespace swingTwistRegion {
    */
   export function table(
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): Float64Array {
     let byAxes:
       | WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
@@ -95,7 +95,7 @@ const HALVINGS: number = 20;
 /** The region's radius on each ray: reached, widened and raised. */
 function build(
   constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieSwingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
   // The limb points no farther from rest than its stated reach, which keeps
   // the rest direction's antipode outside (`ISwingTwist.reach`).
@@ -112,7 +112,7 @@ function build(
  */
 function reach(
   constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieSwingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
   const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
     joint.axes,
@@ -156,7 +156,7 @@ function reach(
 function widen(
   table: Float64Array,
   constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieSwingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
   const twist: IAutoMovieAngleRange | null = constraint.twist;
   if (joint.axes.twistPlacement === "distal" || twist === null) return table;
@@ -217,7 +217,7 @@ function raise(table: Float64Array): Float64Array {
  */
 function reached(
   constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieSwingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
   basis: IAutoMovieSwingTwistBasis.IBasis,
   direction: IAutoMovieVector3,
 ): boolean {

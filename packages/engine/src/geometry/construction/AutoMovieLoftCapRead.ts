@@ -2,8 +2,8 @@ import type {
   IAutoMovieLoftCapRead,
   IAutoMovieLoftCapSource,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
   IAutoMovieLoftPhaseReading,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionPhase,
   IAutoMovieLoftViewRead,
 } from "@automovie/interface";
@@ -46,7 +46,7 @@ export namespace AutoMovieLoftCapRead {
       AutoMovieLoftViewRead.values(chain.nativeSource!.data, station);
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
-    const frame: IAutoMovieLoftFrame.IFrame = owner.axis.at(station);
+    const frame: IAutoMovieLoftSectionFrame = owner.axis.at(station);
     if (!finite(frame))
       throw new AutoMovieLoftAdmissionError(
         "The original cap axis has no finite frame value.",
@@ -147,7 +147,7 @@ export namespace AutoMovieLoftCapRead {
     return {
       native: AutoMovieLoftSectionNative.jet(inputs),
       f: [frame.value, frame.first, frame.second].map(
-        (value: IAutoMovieLoftFrame.IFrame): number[] => [
+        (value: IAutoMovieLoftSectionFrame): number[] => [
           ...value.origin,
           ...value.u,
           ...value.v,
@@ -158,7 +158,7 @@ export namespace AutoMovieLoftCapRead {
 }
 
 /** Finite returned frame data is distinct from a callback throwing its own error. */
-function finite(frame: IAutoMovieLoftFrame.IFrame): boolean {
+function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return [frame.origin, frame.u, frame.v].every(
     (row: number[]): boolean => row.length === 3 && row.every(Number.isFinite),
   );

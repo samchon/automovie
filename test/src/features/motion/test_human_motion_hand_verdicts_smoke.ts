@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -147,7 +148,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
         at.point,
         Vector3.scale(normal, standoff + body.measure.hand * (1 - weight)),
       );
-      const goal: IAutoMovieMotionHumanPosture.IGoal = {
+      const goal: IAutoMovieHumanLimbGoal = {
         ...AutoMovieMotionHumanTouchEffector.goal(
           body,
           "right",
@@ -230,10 +231,10 @@ function dump(posture: IAutoMovieMotionHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [
+          ([limb, goal]: [string, IAutoMovieHumanLimbGoal | undefined]): [
             string,
-            IAutoMovieMotionHumanPosture.IGoal | undefined,
-          ]): [string, object | undefined] => [
+            object | undefined,
+          ] => [
             limb,
             goal === undefined ? goal : { ...goal, clear: undefined },
           ],

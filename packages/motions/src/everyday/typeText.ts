@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -8,10 +9,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTypeText,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -93,8 +94,7 @@ export namespace typeText {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IAutoMovieMotionHumanTypeText.IBoard {
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const declared = (id: string): IAutoMovieAffordance => {
@@ -126,7 +126,7 @@ export namespace typeText {
         reason: `${subject}'s key field is ${(keys.width ?? 0).toFixed(3)} m wide, narrower than the ${WIDTH.toFixed(3)} m its letter rows span`,
         fix: "type on a keyboard whose key field spans the letter rows",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const away: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 0,
@@ -217,7 +217,7 @@ export namespace typeText {
       });
     const keys = [...text].map(typeText.key);
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: keyboard.at,
       yaw: keyboard.yaw,
     };
@@ -278,17 +278,14 @@ export namespace typeText {
       );
     }
     const duration: number = clock;
-    const home: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = {
+    const home: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: typeText.key("f").at,
       right: typeText.key("j").at,
     };
 
     // Where each fingertip is at a second: on its current key, travelling
     // between keys in the hover plane, or pressing.
-    const tipAt = (
-      side: IAutoMovieMotionHumanHand.Side,
-      t: number,
-    ): IAutoMovieVector3 => {
+    const tipAt = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
       let from: IAutoMovieVector3 = home[side];
       let fromTime: number = 0;
       for (let i: number = 0; i < keys.length; i++) {

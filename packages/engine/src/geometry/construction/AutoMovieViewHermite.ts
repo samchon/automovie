@@ -1,6 +1,6 @@
 import type {
   IAutoMovieConstructionOutlineRange,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewHermite,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -29,11 +29,11 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful sources own O(n) arrays; failed local preparation is released and no global cache retains input records.
    */
   export function create(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     knots: readonly IAutoMovieViewPart.IKnot[],
     range: IAutoMovieConstructionOutlineRange | undefined,
   ): IAutoMovieViewHermite.ICurve | string {
-    const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
+    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
     const n: number = xs.length;
     const span: number = xs[n - 1]! - xs[0]!;
     const first: number[] = [];

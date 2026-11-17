@@ -1,5 +1,6 @@
 import type {
-  IAutoMovieCaptureComparison,
+  IAutoMovieCaptureCellComparison,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
 } from "@automovie/interface";
@@ -117,11 +118,11 @@ export async function captureAutoMovie(props: {
   }
 
   // What was written, and what was not drawn.
-  const failed: Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }>[] =
+  const failed: Extract<IAutoMovieCaptureCellRecord, { state: "failed" }>[] =
     record.rows.filter(
       (
-        row: IAutoMovieCaptureRecord.Row,
-      ): row is Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }> =>
+        row: IAutoMovieCaptureCellRecord,
+      ): row is Extract<IAutoMovieCaptureCellRecord, { state: "failed" }> =>
         row.state === "failed",
     );
   const lines: string[] = [
@@ -130,13 +131,13 @@ export async function captureAutoMovie(props: {
     ...record.sheets.map((sheet: string): string => path.join(folder, sheet)),
     ...failed.map(
       (
-        row: Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }>,
+        row: Extract<IAutoMovieCaptureCellRecord, { state: "failed" }>,
       ): string => `not drawn ${row.name}: ${row.cause}`,
     ),
     ...(record.comparison === null
       ? []
       : record.comparison.entries.flatMap(
-          (entry: IAutoMovieCaptureComparison.Entry): string[] =>
+          (entry: IAutoMovieCaptureCellComparison): string[] =>
             entry.state === "unmatched"
               ? [`unmatched ${entry.current ?? entry.earlier}: ${entry.cause}`]
               : entry.mode === "difference" && entry.changed !== 0

@@ -2,6 +2,7 @@ import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
@@ -205,16 +206,15 @@ export function test_human_motion_compose_touch_laid(): void {
 
     // The rest goal stands the effector a pad off the region along its
     // normal; an upright vessel faces a level direction.
-    const goal: IAutoMovieMotionHumanPosture.IGoal =
-      AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        quiet,
-        side,
-        effector,
-        place,
-        "up",
-        hint,
-      );
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+      body,
+      quiet,
+      side,
+      effector,
+      place,
+      "up",
+      hint,
+    );
     const atRest = AutoMovieMotionHumanTouchEffector.point(
       body,
       new Map([
@@ -260,7 +260,7 @@ export function test_human_motion_compose_touch_laid(): void {
     );
 
     // 3. Touch.
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: 0.6,
       wait: 0.4,
       attack: 0.3,

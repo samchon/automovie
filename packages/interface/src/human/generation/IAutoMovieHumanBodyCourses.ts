@@ -1,6 +1,13 @@
 import type { AutoMovieHumanSexPair } from "../AutoMovieHumanSexPair";
 
-/** Type contracts exchanged by AutoMovieHumanBodyCourses; runtime evaluation remains in Human. */
+/**
+ * Sex-specific lower-thigh regression coefficients with stature, BMI and age units. Runtime construction and admission remain with AutoMovieHumanBodyCourses in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes sex-specific lower-thigh regression coefficients with stature, BMI and age units; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Sex-specific lower-thigh regression coefficients with stature, BMI and age units. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanBodyCourses; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing BodyCourses contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanBodyCourses {
   /** Lower thigh circumference at suprapatella on stature, body mass index and
   age, women and men: ANSUR II model B (`docs/sources/ansur-ii.md`, "Model

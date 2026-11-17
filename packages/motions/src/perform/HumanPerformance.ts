@@ -1,7 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
-  IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceAim,
   IAutoMovieMotionHumanPerformanceState,
@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieSchedule,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -141,10 +142,7 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns Its frame.
    */
-  public prop(
-    subject: string,
-    seconds: number,
-  ): IAutoMovieMotionHumanProp.IFrame {
+  public prop(subject: string, seconds: number): IAutoMovieRigidTransform {
     return HumanPerformanceRead.prop(this.resolved, subject, seconds);
   }
 
@@ -245,7 +243,7 @@ export class HumanPerformance {
    * @returns The film second.
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
-  public instant(at: IAutoMovieMotionHumanLayer.Instant): number {
+  public instant(at: AutoMovieMotionHumanScheduledInstant): number {
     return HumanPerformanceLayers.instant(this.resolved, at);
   }
 
@@ -255,9 +253,7 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The segments.
    */
-  public segments(
-    subject: string,
-  ): readonly IAutoMovieMotionHumanSegment.ISegment[] {
+  public segments(subject: string): readonly IAutoMovieMotionHumanSegment[] {
     return HumanPerformanceRead.segments(this.resolved, subject);
   }
 

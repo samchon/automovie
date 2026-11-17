@@ -1,6 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShapeBounds,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -21,8 +22,8 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function assertPhysicalNativeMotion(
-  segment: IAutoMoviePhysicalProfile.ISegment,
-  pose: IAutoMoviePhysicalProfile.ITransform,
+  segment: IAutoMoviePhysicalSegment,
+  pose: IAutoMovieRigidTransform,
   velocity?: IAutoMovieVector3,
   angularVelocity?: IAutoMovieVector3,
 ): void {

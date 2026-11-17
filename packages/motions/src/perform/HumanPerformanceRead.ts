@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -61,7 +62,7 @@ export namespace HumanPerformanceRead {
   ): IAutoMovieMotionHumanPosture {
     const person: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, subject);
-    let active: IAutoMovieMotionHumanSegment.ISegment | undefined;
+    let active: IAutoMovieMotionHumanSegment | undefined;
     for (const s of person.segments)
       if (s.entryTime <= seconds + 1e-12) active = s;
     return active === undefined
@@ -142,7 +143,7 @@ export namespace HumanPerformanceRead {
       subject: string;
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     return HumanPerformanceHold.prop(self, subject, seconds, own);
   }
 
@@ -155,7 +156,7 @@ export namespace HumanPerformanceRead {
   export function segments(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly IAutoMovieMotionHumanSegment.ISegment[] {
+  ): readonly IAutoMovieMotionHumanSegment[] {
     return HumanPerformanceRead.person(self, subject).segments;
   }
 
@@ -283,7 +284,7 @@ export namespace HumanPerformanceRead {
     subject: string,
     side: "left" | "right",
     seconds: number,
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     return HumanPropHold.frame(
       HumanPerformanceRead.person(self, subject).performer.body,
       HumanPerformanceRead.bones(self, subject, seconds),
@@ -309,7 +310,7 @@ export namespace HumanPerformanceRead {
   ): IAutoMovieMotionHumanActionContext.IRoot {
     const person: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, subject);
-    const last: IAutoMovieMotionHumanSegment.ISegment | undefined =
+    const last: IAutoMovieMotionHumanSegment | undefined =
       person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
@@ -366,9 +367,8 @@ export namespace HumanPerformanceRead {
         [
           ...(self.people.get(intent.subject)?.segments ?? []),
           ...(self.people.get(intent.subject)?.overlays ?? []),
-        ].filter(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === id,
-        ).length + 1,
+        ].filter((s: IAutoMovieMotionHumanSegment): boolean => s.id === id)
+          .length + 1,
     };
   }
 

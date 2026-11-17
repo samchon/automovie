@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
@@ -43,7 +44,7 @@ import { HumanHand } from "../posture/HumanHand";
  */
 export function manipulateReach(
   body: IAutoMovieMotionHumanBody,
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
   digit: string,
   site: IAutoMovieVector3,
   normal: IAutoMovieVector3,

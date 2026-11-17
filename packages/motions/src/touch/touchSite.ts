@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTouchSite,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -123,8 +124,7 @@ export namespace touchSite {
     share: number,
   ): (seconds: number) => IAutoMovieVector3 {
     HumanBound.within("site.along", share, -0.5, 0.5);
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
     ).find((affordance: IAutoMovieAffordance): boolean => affordance.id === id);

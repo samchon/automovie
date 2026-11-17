@@ -1,7 +1,9 @@
 import type {
   IAutoMovieMeasureContact,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 /**
@@ -32,14 +34,14 @@ export function measureAutoMovieContact(
     side: IAutoMovieMeasureContact.ISide,
   ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
     side.profile.segments
-      .filter((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+      .filter((segment: IAutoMoviePhysicalSegment): boolean =>
         side.bones.includes(segment.bone),
       )
       .flatMap(
         (
-          segment: IAutoMoviePhysicalProfile.ISegment,
+          segment: IAutoMoviePhysicalSegment,
         ): IAutoMoviePreparePhysicalGeometry.ICollider[] => {
-          const pose: IAutoMoviePhysicalProfile.ITransform | undefined =
+          const pose: IAutoMovieRigidTransform | undefined =
             side.segments[segment.bone];
           if (!pose)
             throw new Error(
@@ -47,7 +49,7 @@ export function measureAutoMovieContact(
             );
           return segment.shapes.map(
             (
-              shape: IAutoMoviePhysicalProfile.IShape,
+              shape: IAutoMoviePhysicalShape,
             ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
               body: side.subject,
               bone: segment.bone,

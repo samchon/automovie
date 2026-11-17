@@ -1,21 +1,30 @@
 import type { IAutoMovieConstructionNode } from "../../../construction/IAutoMovieConstructionNode";
 import type { IAutoMovieHumanHermiteCurve } from "../../lofting/IAutoMovieHumanHermiteCurve";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanEyeSeat } from "../IAutoMovieHumanEyeSeat";
+import type { IAutoMovieHumanHeadAttachmentLandmarks } from "../IAutoMovieHumanHeadAttachmentLandmarks";
 import type { IAutoMovieHumanHeadComposer } from "./IAutoMovieHumanHeadComposer";
 
-/** Type contracts exchanged by AutoMovieHumanHeadLane; runtime evaluation remains in Human. */
+/**
+ * Prepared head originals and their completed subtree, sharing skeleton, eye and attachment metadata.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHeadLane in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Prepared head originals and their completed subtree, sharing skeleton, eye and attachment metadata. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IOutput, ISkeleton, IPrepared declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IOutput, ISkeleton, IPrepared separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadLane exchanges the named IOutput, ISkeleton, IPrepared contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHeadLane {
   /**
    * The complete head subtree, its source context and shared records.
    *
-   * @evidence contracts/common.md#principled-implementation The tree and records share one canonical mass/neck preparation; actual sources remain available to the body's realization context.
-   * @evidence contracts/common.md#clear-and-simple-design Separates source stage, tree operators, raw composition and appearance/skeleton records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A complete result is not published after a failed regional original; neither source presence nor raw loft establishes final skin success.
-   * @evidence contracts/common.md#meaningful-documentation Fields state calibration-mm records, metre operator rules and the independent study boundary.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidence contracts/performance.md#reuse-equivalent-work The prepared source and records are retained unchanged by both body and head consumers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the tree, map, original-source dependencies, raw lofts and records until releasing the definition.
-   *
+   * The tree and records share one canonical mass/neck preparation; actual sources remain available to the body's realization context.
+   * Separates source stage, tree operators, raw composition and appearance/skeleton records.
+   * A complete result is not published after a failed regional original; neither source presence nor raw loft establishes final skin success.
+   * Fields state calibration-mm records, metre operator rules and the independent study boundary.
+   * Data performs no work.
+   * The prepared source and records are retained unchanged by both body and head consumers.
+   * The caller owns the tree, map, original-source dependencies, raw lofts and records until releasing the definition.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The complete head subtree, its source context and shared records.
    * @evidence contracts/development/design.md#principled-representation `root`: The head's subtree, metres. `source`: The same composed source object used to make root; studies remain explicitly outside that tree. `face`: The head's face the body meets.
@@ -55,10 +64,10 @@ export namespace IAutoMovieHumanHeadLane {
     skeleton: ISkeleton;
 
     /** Globe frames from the same profile/recess definition as the tree's orbit cutters, calibration mm. */
-    eyes: IAutoMovieHumanBodyCalibration.IEye[];
+    eyes: IAutoMovieHumanEyeSeat[];
 
     /** Attachment sites on this lane's generating profile and planned eye margins. */
-    landmarks: IAutoMovieHumanBodyCalibration.IHeadLandmarks;
+    landmarks: IAutoMovieHumanHeadAttachmentLandmarks;
 
     /** Crown height in calibration mm. */
     stature: number;
@@ -69,14 +78,13 @@ export namespace IAutoMovieHumanHeadLane {
    * joint lies between the ears at their tragion height; it is not read from
    * a second set of head or ear chains.
    *
-   * @evidence contracts/common.md#principled-implementation Neck base is on the actual mass axis at the original lower overlap height, crown is the head mass's top axis and the head joint is on that same axis at the tragion height.
-   * @evidence contracts/common.md#clear-and-simple-design A fixed-size record gives the skeleton actual lane references without publishing old head chains.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The same generating axes serve every head and both sides.
-   * @evidence contracts/common.md#meaningful-documentation States calibration units, joint convention and which generating curves own the points.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A data type has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Readers share one lane's record.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The lane output owns four fixed-size fields.
-   *
+   * Neck base is on the actual mass axis at the original lower overlap height, crown is the head mass's top axis and the head joint is on that same axis at the tragion height.
+   * A fixed-size record gives the skeleton actual lane references without publishing old head chains.
+   * The same generating axes serve every head and both sides.
+   * States calibration units, joint convention and which generating curves own the points.
+   * A data type has no algorithm.
+   * Readers share one lane's record.
+   * The lane output owns four fixed-size fields.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Joint references from the lane's generating neck and head axis.
    * @evidence contracts/development/design.md#principled-representation `neckBase`: Actual generating mass axis at the lower overlap height, mm; not a named base-tape point. `occiput`: Head mass's axis at the midpoint of the ears' tragia, mm. `crown`: Head mass's crown pole, mm.
@@ -100,14 +108,13 @@ export namespace IAutoMovieHumanHeadLane {
   /**
    * Canonical original material and records, before regional composition.
    *
-   * @evidence contracts/common.md#principled-implementation Body and head consumers borrow the same actual mass/neck and records derived from its closed layout.
-   * @evidence contracts/common.md#clear-and-simple-design The complete lane adds only its regional tree, source collection and lip colour curve.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This source stage is not a fallback or a successful partial head tree.
-   * @evidence contracts/common.md#meaningful-documentation Requires the same immutable invocation inputs; all records retain calibration-mm meanings.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidence contracts/performance.md#reuse-equivalent-work Full creation reuses the identical canonical source and records without rebuilding them.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the base, records and transitive source dependencies.
-   *
+   * Body and head consumers borrow the same actual mass/neck and records derived from its closed layout.
+   * The complete lane adds only its regional tree, source collection and lip colour curve.
+   * This source stage is not a fallback or a successful partial head tree.
+   * Requires the same immutable invocation inputs; all records retain calibration-mm meanings.
+   * Data performs no work.
+   * Full creation reuses the identical canonical source and records without rebuilding them.
+   * The caller owns the base, records and transitive source dependencies.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Canonical original material and records, before regional composition.
    * @evidence contracts/development/design.md#principled-representation `source`: Actual canonical mass and neck, without any regional face source. `places`: The same selected laws used for the mass and the regional builders.
@@ -127,13 +134,21 @@ export namespace IAutoMovieHumanHeadLane {
     /**
      * Call-owned lazy original definitions, independent of complete realization.
      *
-     * @evidence contracts/common.md#principled-implementation The actual regional builders borrow the identical canonical mass and selected placement context.
-     * @evidence contracts/common.md#clear-and-simple-design One definition supplies selected-original observation and complete creation.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed original attempts stay explicit and no substitute part or successful partial tree is manufactured.
-     * @evidence contracts/common.md#meaningful-documentation Includes valid originals, actual parent/source references, attempt failures and separate existing studies; creates no regional loft.
-     * @evidence contracts/performance.md#efficient-algorithms Empty requests and unknown-name admission construct no source. Exact top-level requests author only selected factories; their result lists/maps take O(selected sources) to publish. A first complete or known nested/ear request retains the existing whole-catalogue costs; the completed definition itself is subsequently reused.
-     * @evidence contracts/performance.md#reuse-equivalent-work Selected and complete requests reuse identical authored top-level objects and the paired lip contact. Selected definition containers are rebuilt; complete creation borrows the retained complete definition and source map.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Only this immutable invocation retains its original definitions and callbacks; no global registry is added.
+     * The actual regional builders borrow the identical canonical mass and selected placement context.
+     * One definition supplies selected-original observation and complete creation.
+     * Failed original attempts stay explicit and no substitute part or successful partial tree is manufactured.
+     * Empty requests and unknown-name admission construct no source. Exact top-level requests author only selected factories; their result lists/maps take O(selected sources) to publish. A first complete or known nested/ear request retains the existing whole-catalogue costs; the completed definition itself is subsequently reused.
+     * Selected and complete requests reuse identical authored top-level objects and the paired lip contact. Selected definition containers are rebuilt; complete creation borrows the retained complete definition and source map.
+     * Only this immutable invocation retains its original definitions and callbacks; no global registry is added.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Includes valid originals, actual parent/source references, attempt failures and separate existing studies; creates no regional loft.
+     * @evidence contracts/development/common.md#meaningful-documentation Call-owned lazy original definitions, independent of complete realization. The actual regional builders borrow the identical canonical mass and selected placement context. One definition supplies selected-original observation and complete creation. Failed original attempts stay explicit and no substitute part or successful partial tree is manufactured. Empty requests and unknown-name admission construct no source. Exact top-level requests author only selected factories; their result lists/maps take O(selected sources) to publish. A first complete or known nested/ear request retains the existing whole-catalogue costs; the completed definition itself is subsequently reused. Selected and complete requests reuse identical authored top-level objects and the paired lip contact. Selected definition containers are rebuilt; complete creation borrows the retained complete definition and source map. Only this immutable invocation retains its original definitions and callbacks; no global registry is added.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadLane and the callback provider must satisfy the documented originals contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadLane and its callback provider own the cost of each originals invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadLane and the callback provider determine when the inputs to originals describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadLane and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadLane.IPrepared.originals callable contract, without an implementation body. AutoMovieHumanHeadLane and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadLane.IPrepared.originals declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadLane and the callback provider.
      */
     originals(
       names?: readonly string[],

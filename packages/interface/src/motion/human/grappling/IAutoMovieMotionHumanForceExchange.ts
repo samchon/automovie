@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanForce } from "../perform/IAutoMovieMotionHumanForce";
+import type { AutoMovieHumanForceSite } from "../perform/AutoMovieHumanForceSite";
 
 /**
  * The mechanics of a force exchanged through grips (#3439): a pull that
@@ -40,7 +40,7 @@ import type { IAutoMovieMotionHumanForce } from "../perform/IAutoMovieMotionHuma
  * @evidence contracts/development/common.md#meaningful-documentation release: Seconds from the break to the release. edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
  * @evidence contracts/development/design.md#principled-representation release: Seconds from the break to the release. edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.breaking, props); grappling/HumanForceExchange.ts (HumanForceExchange.broken, props); grappling/HumanForceExchange.ts (HumanForceExchange.drawn, props); grappling/HumanForceExchange.ts (HumanForceExchange.drawn, return); grappling/HumanForceExchange.ts (HumanForceExchange.resisted, props); grappling/HumanForceExchange.ts (HumanForceExchange.swing, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanForce.At, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanForceSite, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanForceExchange {
   /**
@@ -55,10 +55,30 @@ export namespace IAutoMovieMotionHumanForceExchange {
     /** Seconds from the break to the release. */
     release: number;
 
-    /** The centre's angle from the vertical through the fulcrum at a second since the break, radians. */
+    /**
+     * The centre's angle from the vertical through the fulcrum at a second since the break, radians.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceExchange.ISwing.angle: The centre's angle from the vertical through the fulcrum at a second since the break, radians.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     */
     angle(seconds: number): number;
 
-    /** The angular rate at a second since the break, radians per second. */
+    /**
+     * The angular rate at a second since the break, radians per second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceExchange.ISwing.rate: The angular rate at a second since the break, radians per second.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
+     */
     rate(seconds: number): number;
   }
 
@@ -204,14 +224,14 @@ export namespace IAutoMovieMotionHumanForceExchange {
    * @evidence contracts/development/common.md#meaningful-documentation from: Film seconds, start. to: Film seconds, end.
    * @evidence contracts/development/design.md#principled-representation from: Film seconds, start. to: Film seconds, end.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.pull, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanForce.At, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanForceSite, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IPullProps = {
     /** The pulled person. */
     subject: string;
 
     /** The grip sites on that person. */
-    sites: readonly IAutoMovieMotionHumanForce.At[];
+    sites: readonly AutoMovieHumanForceSite[];
 
     /** The horizontal pull direction, unit, world. */
     direction: IAutoMovieVector3;

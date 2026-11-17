@@ -1,7 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingBlade,
   IAutoMovieMotionHumanStrikingHeld,
@@ -48,9 +49,8 @@ export namespace StrikingSupport {
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     support: IAutoMovieMotionHumanStrikingBlade.ISupport,
-  ): IAutoMovieMotionHumanPosture.IGoal {
-    const other: IAutoMovieMotionHumanHand.Side =
-      tool.side === "left" ? "right" : "left";
+  ): IAutoMovieHumanLimbGoal {
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(
       frame.rotation,
       tool.axis,
@@ -112,8 +112,7 @@ export namespace StrikingSupport {
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     support: IAutoMovieMotionHumanStrikingBlade.ISupport | null,
   ): IAutoMovieMotionHumanPosture {
-    const other: IAutoMovieMotionHumanHand.Side =
-      tool.side === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     return support === null
       ? posture
       : {

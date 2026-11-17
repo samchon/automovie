@@ -113,7 +113,7 @@ export function test_human_motion_scene_civil_crowds(): void {
   });
   const onsets: number[] = bystanders.members.map(
     (m: IAutoMovieMotionHumanEnsemble.IMember): number => {
-      const s: IAutoMovieMotionHumanSegment.ISegment = performance.segments(
+      const s: IAutoMovieMotionHumanSegment = performance.segments(
         m.subject,
       )[0]!;
       return s.entryTime - shot;

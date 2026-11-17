@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieRecoveryChartFit,
-  IAutoMovieRecoveryChartFitPrepare,
-} from "../../index";
+import type { IAutoMovieRecoveryChartFitPrepare } from "../../index";
+import type { IAutoMovieRecoveryChartFit as IAutoMovieRecoveryChartFit_2 } from "./IAutoMovieRecoveryChartFit";
 
 /**
  * Assemble the same sparse weighted system and its bounded rank diagnostics.
@@ -23,7 +21,7 @@ export namespace IAutoMovieRecoveryChartFitSystem {
    */
 
   export type Operation = (
-    input: IAutoMovieRecoveryChartFitSystem.Input,
+    input: IAutoMovieRecoveryChartFit_2.Input,
     prepared: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation>,
   ) => {
     /** Hessian diagonal in independent-control slot order, used for congruence scaling. */
@@ -65,14 +63,4 @@ export namespace IAutoMovieRecoveryChartFitSystem {
     /** Smallest accepted over largest Cholesky pivot, or null when unavailable; not a condition number. */
     gramPivotRatio: number | null;
   };
-
-  /**
-   * Input observations and explicit numerical policy for RecoveryChartFitSystem. The supplying workflow owns admission before execution.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Assemble the same sparse weighted system and its bounded rank diagnostics.
-   * @evidence contracts/development/design.md#principled-representation Assemble the same sparse weighted system and its bounded rank diagnostics.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartFit, RecoveryChartFitReport, RecoveryChartFitSolve share IAutoMovieRecoveryChartFitSystem's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
-   */
-  export type Input = IAutoMovieRecoveryChartFit.Input;
 }

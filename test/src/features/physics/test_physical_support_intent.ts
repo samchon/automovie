@@ -3,7 +3,7 @@ import {
   physicalSupportPoint,
 } from "@automovie/engine";
 import type {
-  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -35,7 +35,7 @@ export function test_physical_support_intent(): void {
     IAutoMoviePhysicalSimulationInput.IBody["balance"]
   >["pattern"] = body.balance!.pattern;
   const limb: (typeof pattern.limbs)[number] = pattern.limbs[0]!;
-  const state: IAutoMovieAdvancePhysicalBalance.IState = {
+  const state: IAutoMoviePhysicalRecoveryState = {
     last: "supported",
     steps: [],
     offsets: { [limb.bone]: { x: 0.02, y: 0, z: 0 } },

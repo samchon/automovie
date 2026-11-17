@@ -1,6 +1,8 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
@@ -113,11 +115,8 @@ export namespace HumanSegmentOverlay {
                 .order(under.limbs)
                 .flatMap(
                   (
-                    limb: IAutoMovieMotionHumanPosture.Limb,
-                  ): [
-                    IAutoMovieMotionHumanPosture.Limb,
-                    IAutoMovieSwivelNear,
-                  ][] => {
+                    limb: AutoMovieHumanLimb,
+                  ): [AutoMovieHumanLimb, IAutoMovieSwivelNear][] => {
                     const continued: IAutoMovieSwivelNear | undefined =
                       HumanSegmentPose.nearby(near, `leaf:${tag}:${limb}`);
                     return continued === undefined ? [] : [[limb, continued]];
@@ -266,11 +265,9 @@ export namespace HumanSegmentOverlay {
     let placed: ReturnType<typeof poseBones> | undefined;
     for (const window of overlay.plan.contacts) {
       if (share < window.from || share > window.to) continue;
-      const limb: IAutoMovieMotionHumanPosture.Limb | undefined = limbOf(
-        window.part,
-      );
+      const limb: AutoMovieHumanLimb | undefined = limbOf(window.part);
       if (limb === undefined || !overlay.channels.includes(limb)) continue;
-      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = turned[limb];
+      const goal: IAutoMovieHumanLimbGoal | undefined = turned[limb];
       if (goal !== undefined) {
         contacts[limb] = { ...goal, planted: true };
         continue;
@@ -292,7 +289,7 @@ export namespace HumanSegmentOverlay {
   /** The limb carrying a contact part, if the part belongs to a limb. */
   function limbOf(
     part: IAutoMovieMotionHumanContactWindow["part"],
-  ): IAutoMovieMotionHumanPosture.Limb | undefined {
+  ): AutoMovieHumanLimb | undefined {
     if (part === "seat" || part === "back") return undefined;
     const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
     return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;

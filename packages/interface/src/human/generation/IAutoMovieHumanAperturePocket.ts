@@ -1,22 +1,19 @@
-/** Type contracts exchanged by AutoMovieHumanAperturePocket; runtime evaluation remains in Human. */
-export namespace IAutoMovieHumanAperturePocket {
-  /** The emit argument of AutoMovieHumanAperturePocket.loop. Close an opening's trim loop on its base with the same cubic meridians,
-  each starting along the base surface's own tangent into the opening
-  (the reverse of its unit tangent across the loop, away from it), so the
-  rim continues the skin smoothly instead of a cut triangle's plane.
-  @param mesh Mesh buffers to grow.
-  @param aperture The opening.
-  @param ring Loop vertices in order.
-  @param rim The loop's points on its base chain, in the same order, mm.
-  @param slopes Unit tangent of the base across the loop, away from the
-    opening, at each loop vertex.
-  @param emit Triangle sink.
-   *
+/**
+ * The named triangle sink used while closing an aperture trim loop. Runtime construction and admission remain with AutoMovieHumanAperturePocket in Human.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Close an opening's trim loop on its base with the same cubic meridians, each starting along the base surface's own tangent into the opening (the reverse of its unit tangent across the loop, away from it), so the rim continues the skin smoothly instead of a cut triangle's plane.
- * @evidence contracts/development/design.md#principled-representation Close an opening's trim loop on its base with the same cubic meridians, each starting along the base surface's own tangent into the opening (the reverse of its unit tangent across the loop, away from it), so the rim continues the skin smoothly instead of a cut triangle's plane. The callable takes name, corners and returns void.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanAperturePocket.LoopEmit is the canonical exchange used by AutoMovieHumanAperturePocket.loop.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanAperturePocket.loop for close an opening's trim loop on its base with the same cubic meridians, each starting along the base surface's own tangent into the opening (the reverse of its unit tangent across the loop, away from it), so the rim continues the skin smoothly instead of a cut triangle's plane.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the named triangle sink used while closing an aperture trim loop; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation The named triangle sink used while closing an aperture trim loop. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanAperturePocket; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing AperturePocket contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
+export namespace IAutoMovieHumanAperturePocket {
+  /**
+   * Emit consecutive triangle corner indices under their owning chain name; each group of three corners is one triangle in the mesh buffers being extended by the aperture-pocket caller. The sink owns the index/group side effects; it does not receive point coordinates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Emit consecutive triangle corner indices under their owning chain name; each group of three corners is one triangle in the mesh buffers being extended by the aperture-pocket caller. The sink owns the index/group side effects; it does not receive point coordinates.
+   * @evidence contracts/development/design.md#principled-representation Emit consecutive triangle corner indices under their owning chain name; each group of three corners is one triangle in the mesh buffers being extended by the aperture-pocket caller. The sink owns the index/group side effects; it does not receive point coordinates.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanAperturePocket.LoopEmit is the canonical exchange used by AutoMovieHumanAperturePocket.loop.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanAperturePocket input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type LoopEmit = (name: string, ...corners: number[]) => void;
 }

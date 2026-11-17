@@ -1,9 +1,9 @@
 import { AutoMovieChain } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSelfAction,
   IAutoMovieMotionHumanTouch,
@@ -141,21 +141,20 @@ export function selfCases(
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
-      const hands: [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion][] =
+      const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion][] = [
         [
-          [
-            "right",
-            (params.target as { region: AutoMovieHumanoidRegion }).region,
-          ],
-          ...(params.other === undefined
-            ? []
-            : [
-                [
-                  "left",
-                  (params.other as { region: AutoMovieHumanoidRegion }).region,
-                ] as [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion],
-              ]),
-        ];
+          "right",
+          (params.target as { region: AutoMovieHumanoidRegion }).region,
+        ],
+        ...(params.other === undefined
+          ? []
+          : [
+              [
+                "left",
+                (params.other as { region: AutoMovieHumanoidRegion }).region,
+              ] as [AutoMovieHumanSide, AutoMovieHumanoidRegion],
+            ]),
+      ];
       for (const [side, region] of hands) {
         const pad: number = AutoMovieMotionHumanTouchEffector.pad(
           body,

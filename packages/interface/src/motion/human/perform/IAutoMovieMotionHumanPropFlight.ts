@@ -1,8 +1,8 @@
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
+import type { IAutoMovieMotionPropLaunch } from "../law/IAutoMovieMotionPropLaunch";
 import type { IAutoMovieMotionHumanPropOutcome } from "./IAutoMovieMotionHumanPropOutcome";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
 
@@ -37,7 +37,7 @@ import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegmen
  * @evidence contracts/development/common.md#meaningful-documentation projectile: The flight, its time zero at `launch`. contact: Its first contact, absent while unended. point: The contact point on the struck surface, world metres.
  * @evidence contracts/development/design.md#principled-representation projectile: The flight, its time zero at `launch`. contact: Its first contact, absent while unended. point: The contact point on the struck surface, world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformance.ts (HumanPerformance.flights, return); perform/HumanPropFlight.ts (HumanPropFlight.flights, return); perform/HumanPropFlight.ts (HumanPropFlight.fly, source); perform/HumanPropFlight.ts (HumanPropFlight.fly, return); perform/HumanPropFlight.ts (HumanPropFlight.fly.settle, return); perform/HumanPropFlight.ts (HumanPropFlight.contactOf, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSegment.ISegment, IAutoMovieMotionHumanActionPlan.ILaunch, IAutoMovieProjectile, IAutoMovieMotionHumanPropOutcome.ILeg, IAutoMovieVector3, IAutoMovieMotionHumanProp.IFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSegment, IAutoMovieMotionPropLaunch, IAutoMovieProjectile, IAutoMovieMotionHumanPropOutcome.ILeg, IAutoMovieVector3, IAutoMovieRigidTransform identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPropFlight {
   /**
@@ -56,13 +56,13 @@ export namespace IAutoMovieMotionHumanPropFlight {
     launch: number;
 
     /** The launching action, with its performer. */
-    source: IAutoMovieMotionHumanSegment.ISegment & {
+    source: IAutoMovieMotionHumanSegment & {
       /** Scene subject id of the performer whose action launched this flight. */
       subject: string;
     };
 
     /** The launch as the action published it. */
-    published: IAutoMovieMotionHumanActionPlan.ILaunch;
+    published: IAutoMovieMotionPropLaunch;
 
     /** The flight, its time zero at `launch`. */
     projectile: IAutoMovieProjectile;
@@ -99,7 +99,7 @@ export namespace IAutoMovieMotionHumanPropFlight {
     velocity: IAutoMovieVector3;
 
     /** The prop's frame at contact, in the frame of what it struck (the bone, the prop, or the world); embedded by its depth where it sticks. */
-    offset: IAutoMovieMotionHumanProp.IFrame;
+    offset: IAutoMovieRigidTransform;
 
     /** What the contact does (`HumanPropOutcome.decide`); `stick` where it stays. */
     outcome: "stick" | "bounce" | "roll" | "pass";

@@ -5,7 +5,10 @@ import {
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanMassPart,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieSolidSurface,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -90,7 +93,7 @@ export namespace AutoMovieHumanMassPart {
    */
   export function create(
     input: IAutoMovieHumanMassPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -250,7 +253,7 @@ export namespace AutoMovieHumanMassPart {
         -footprint[3] * shares[3],
       ];
     };
-    const sites: IAutoMovieHumanSiteViewPart.ISite[] = [
+    const sites: IAutoMovieHumanSectionSite[] = [
       {
         site: "embedded",
         station: 0,
@@ -267,7 +270,7 @@ export namespace AutoMovieHumanMassPart {
         (
           p: IAutoMovieHumanMassPart.IInput["profile"][number],
           k: number,
-        ): IAutoMovieHumanSiteViewPart.ISite => ({
+        ): IAutoMovieHumanSectionSite => ({
           site: `profile ${k}`,
           station: embed + p.at * input.amplitude,
           edges: edges(p.shares),
@@ -276,10 +279,9 @@ export namespace AutoMovieHumanMassPart {
       ),
     ];
     const top: number = embed + input.amplitude;
-    const poleJets: NonNullable<
-      IAutoMovieHumanSiteViewPart.IInput["poleJets"]
-    > = radialJets(sites, top);
-    const definition: IAutoMovieHumanSiteViewPart.IDefinition =
+    const poleJets: NonNullable<IAutoMovieHumanSectionSource["poleJets"]> =
+      radialJets(sites, top);
+    const definition: IAutoMovieHumanSourceDefinition =
       AutoMovieHumanSiteViewPart.define({
         name: input.name,
         axis: {
@@ -307,7 +309,7 @@ export namespace AutoMovieHumanMassPart {
         gap: input.gap,
       });
     try {
-      const result: IAutoMovieHumanSiteViewPart.IDefinition =
+      const result: IAutoMovieHumanSourceDefinition =
         input.connection === undefined
           ? definition
           : AutoMovieHumanMassSource.rebase(definition, input.connection);
@@ -329,20 +331,20 @@ export namespace AutoMovieHumanMassPart {
    * not replacements for unavailable parent derivatives or a pole-G2 claim.
    */
   function radialJets(
-    sites: IAutoMovieHumanSiteViewPart.ISite[],
+    sites: IAutoMovieHumanSectionSite[],
     top: number,
-  ): NonNullable<IAutoMovieHumanSiteViewPart.IInput["poleJets"]> {
+  ): NonNullable<IAutoMovieHumanSectionSource["poleJets"]> {
     const parameters: number[] = [
       ...sites.map(
-        (site: IAutoMovieHumanSiteViewPart.ISite): number =>
+        (site: IAutoMovieHumanSectionSite): number =>
           -Math.sqrt(top - site.station),
       ),
       0,
     ];
     const span: number = -parameters[0]!;
-    const jets: NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]>[] =
+    const jets: NonNullable<IAutoMovieHumanSectionSite["jets"]>[] =
       parameters.map(
-        (): NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> => [
+        (): NonNullable<IAutoMovieHumanSectionSite["jets"]> => [
           { first: 0, second: 0 },
           { first: 0, second: 0 },
           { first: 0, second: 0 },
@@ -352,8 +354,7 @@ export namespace AutoMovieHumanMassPart {
     for (const quarter of [0, 1, 2, 3] as const) {
       const values: number[] = [
         ...sites.map(
-          (site: IAutoMovieHumanSiteViewPart.ISite): number =>
-            site.edges[quarter],
+          (site: IAutoMovieHumanSectionSite): number => site.edges[quarter],
         ),
         0,
       ];
@@ -374,11 +375,9 @@ export namespace AutoMovieHumanMassPart {
         jets[index]![quarter] = { first: first * span, second: 0 };
       }
     }
-    sites.forEach(
-      (site: IAutoMovieHumanSiteViewPart.ISite, index: number): void => {
-        site.jets = jets[index]!;
-      },
-    );
+    sites.forEach((site: IAutoMovieHumanSectionSite, index: number): void => {
+      site.jets = jets[index]!;
+    });
     return { top: jets.at(-1)! };
   }
 }

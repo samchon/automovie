@@ -3,6 +3,8 @@ import type {
   IAutoMovieMeshPlaneCut,
   IAutoMoviePlaneFrameConstruction,
   IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOrderedContour,
+  IAutoMovieRecoveryOrderedCuts,
   IAutoMovieRecoveryOrderedLineage,
   IAutoMovieRecoverySavedSectionCutsBindingOperation,
   IAutoMovieRecoveryScalarIndex,
@@ -33,12 +35,12 @@ import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
  */
 export function observeRecoveryOrderedCuts(
   input: IAutoMovieRecoveryOrderedLineage.Input,
-): IAutoMovieRecoveryOrderedLineage.Cuts {
+): IAutoMovieRecoveryOrderedCuts {
   const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, input.verticesMm);
   const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
     planeFrame([0, 0, 0], input.axis, input.reference);
-  const physicalFrame: IAutoMovieRecoveryOrderedLineage.Cuts["frame"] = {
+  const physicalFrame: IAutoMovieRecoveryOrderedCuts["frame"] = {
     originMm: [...frame.origin],
     n: [...frame.n],
     u: [...frame.u],
@@ -88,7 +90,7 @@ export function observeRecoveryOrderedCuts(
     true,
     true,
   );
-  const sections: IAutoMovieRecoveryOrderedLineage.Cuts["sections"] = [];
+  const sections: IAutoMovieRecoveryOrderedCuts["sections"] = [];
   const seen: Set<number> = new Set();
   for (const saved of input.savedSections) {
     if (
@@ -137,11 +139,11 @@ export function observeRecoveryOrderedCuts(
         checkpoint: (): void => {},
       });
     if (bound.status !== "bound") throw new Error(bound.diagnostic);
-    const contours: IAutoMovieRecoveryOrderedLineage.Contour[] = raw.map(
+    const contours: IAutoMovieRecoveryOrderedContour[] = raw.map(
       (
         c: (typeof raw)[number],
         contourIndex: number,
-      ): IAutoMovieRecoveryOrderedLineage.Contour => {
+      ): IAutoMovieRecoveryOrderedContour => {
         const cumulative: number[] = [0];
         for (let i: number = 1; i < c.pts.length; i++)
           cumulative.push(
@@ -154,13 +156,13 @@ export function observeRecoveryOrderedCuts(
           throw new Error(
             "The official cutter omitted an ordered source segment",
           );
-        const segments: IAutoMovieRecoveryOrderedLineage.Contour["segments"] = (
+        const segments: IAutoMovieRecoveryOrderedContour["segments"] = (
           c.orderedSegments ?? []
         ).map(
           (
             s: NonNullable<typeof c.orderedSegments>[number],
             i: number,
-          ): IAutoMovieRecoveryOrderedLineage.Contour["segments"][number] => {
+          ): IAutoMovieRecoveryOrderedContour["segments"][number] => {
             const to: number = (i + 1) % c.pts.length;
             const startMm: number = cumulative[i]!;
             const endMm: number =
@@ -194,7 +196,7 @@ export function observeRecoveryOrderedCuts(
           points: c.pts.map(
             (
               p: (typeof c.pts)[number],
-            ): IAutoMovieRecoveryOrderedLineage.Contour["points"][number] => ({
+            ): IAutoMovieRecoveryOrderedContour["points"][number] => ({
               p: [...p.p],
               a: p.a,
               b: p.b,
@@ -206,7 +208,7 @@ export function observeRecoveryOrderedCuts(
                       (
                         e: NonNullable<typeof p.sourceEdges>[number],
                       ): NonNullable<
-                        IAutoMovieRecoveryOrderedLineage.Contour["points"][number]["sourceEdges"]
+                        IAutoMovieRecoveryOrderedContour["points"][number]["sourceEdges"]
                       >[number] => ({ ...e, pointMm: [...e.pointMm] }),
                     ),
                   }),

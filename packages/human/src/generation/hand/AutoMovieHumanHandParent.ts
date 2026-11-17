@@ -2,7 +2,7 @@ import { AutoMovieLoftViewSource, AutoMovieViewAxis } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmWalk,
   IAutoMovieHumanHandParent,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieLoftViewSource,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -11,7 +11,7 @@ import type {
 export namespace AutoMovieHumanHandParent {
   /** Prepare the final normalized parent once; failed originals never become substitutes. */
   export function prepare(
-    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+    definition: IAutoMovieHumanSourceDefinition,
   ): IAutoMovieHumanHandParent.IOutput {
     const part: IAutoMovieViewPart | null = definition.part;
     if (part === null)

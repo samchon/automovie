@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanWorkoutSupport,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -47,12 +48,10 @@ export namespace WorkoutSupport {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): IAutoMovieVector3 {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
-      on.prop,
-    );
+    const read: IAutoMovieMotionHumanPropReader = context.prop(on.prop);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
-    const frame: ReturnType<IAutoMovieMotionHumanActionContext.IProp["frame"]> =
+    const frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]> =
       read.frame(context.start);
     const place = (id: string): IAutoMovieVector3 => {
       const found: IAutoMovieAffordance | undefined = affordances.find(

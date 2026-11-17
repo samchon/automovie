@@ -1,6 +1,6 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTargetGrid,
@@ -161,7 +161,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     place: IAutoMovieMotionHumanTargetGrid.Place,
   ): IAutoMovieMotionHumanTarget.IDefault {
     if (typeof place === "string")
@@ -230,7 +230,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
   export function nearest(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
   ): Required<
     Pick<
@@ -272,7 +272,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
 /** The share record of a whole place name or of three grid names, the lateral mirrored by the side. */
 function named(
   body: Pick<IAutoMovieMotionHumanBody, "measure">,
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
   base:
     | IAutoMovieMotionHumanTarget.Name
     | IAutoMovieMotionHumanTargetGrid.IGrid,
@@ -296,7 +296,7 @@ function named(
  */
 function nudged(
   body: Pick<IAutoMovieMotionHumanBody, "measure">,
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
   record: IAutoMovieMotionHumanTarget.IDefault,
   nudge: IAutoMovieMotionHumanTargetGrid.INudge,
   base:

@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSignature,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -357,10 +358,7 @@ function readHaul(
     seconds: number,
     side: "left" | "right",
   ): IAutoMovieVector3 => {
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-      "crate",
-      seconds,
-    );
+    const frame: IAutoMovieRigidTransform = performance.prop("crate", seconds);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(
@@ -377,10 +375,7 @@ function readHaul(
   const first: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
   const start: number = gripped + 0.05;
   for (let seconds: number = start; seconds <= placed.end; seconds += 0.25) {
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-      "crate",
-      seconds,
-    );
+    const frame: IAutoMovieRigidTransform = performance.prop("crate", seconds);
     lowest = Math.min(lowest, frame.position.y - prop.frame.position.y);
     const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
       performance.bones("a", seconds);

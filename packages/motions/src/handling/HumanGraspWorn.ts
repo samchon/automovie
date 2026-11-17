@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
@@ -7,9 +8,10 @@ import type {
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -54,18 +56,18 @@ export namespace HumanGraspWorn {
       IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "start"
     >;
-    held: IAutoMovieMotionHumanActionContext.IProp;
+    held: IAutoMovieMotionHumanPropReader;
     tip: IAutoMovieAffordance;
     at: AutoMovieHumanoidRegion;
     site: IAutoMovieVector3;
 
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
     wrist: IAutoMovieMotionHumanHand.IWrist;
     round?: boolean;
     clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
   }): IAutoMovieMotionHumanGrasp.IKey {
     const { context, held, tip, at, site } = props;
-    const world: IAutoMovieMotionHumanProp.IFrame = held.frame(context.start);
+    const world: IAutoMovieRigidTransform = held.frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
     );
@@ -88,7 +90,7 @@ export namespace HumanGraspWorn {
       ),
     );
     const keyed = (degrees: number): IAutoMovieMotionHumanHand.IWrist => {
-      const worn: IAutoMovieMotionHumanProp.IFrame = HumanWorn.frame(
+      const worn: IAutoMovieRigidTransform = HumanWorn.frame(
         context.body,
         context.entry.posture,
         held.prop,

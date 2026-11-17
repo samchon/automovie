@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanRange,
   IAutoMovieMotionHumanResolve,
   IAutoMovieMotionHumanTarget,
@@ -54,7 +54,7 @@ export namespace AutoMovieMotionHumanResolve {
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     place: IAutoMovieMotionHumanTargetGrid.Place,
   ): IAutoMovieMotionHumanResolve.IPlace {
     const m = body.measure;

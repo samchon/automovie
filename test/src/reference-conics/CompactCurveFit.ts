@@ -1,6 +1,8 @@
 import type {
+  AutoMovieVector2Tuple,
   IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
+  IAutoMoviePiecewisePlanarCurveSource,
+  IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
 import {
   AutoMovieRecoveryCompactApproximation as C,
@@ -285,18 +287,18 @@ export namespace CompactCurveFit {
 
   /** Held-out offsets use original phase for polynomials and explicit two-way sampled geometry for rational speed. */
   function validate(
-    source: IAutoMovieCompactCurveApproximation.ICurve,
-    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[],
+    source: IAutoMoviePiecewisePlanarCurveSource,
+    pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[],
   ): number {
     let maximum: number = 0;
     const distance = (
-      p: IAutoMovieConicApproximation.Point,
-      polyline: readonly IAutoMovieConicApproximation.Point[],
+      p: Readonly<AutoMovieVector2Tuple>,
+      polyline: readonly Readonly<AutoMovieVector2Tuple>[],
     ): number => {
       let best: number = Infinity;
       for (let i: number = 1; i < polyline.length; ++i) {
-        const a: IAutoMovieConicApproximation.Point = polyline[i - 1]!,
-          b: IAutoMovieConicApproximation.Point = polyline[i]!;
+        const a: Readonly<AutoMovieVector2Tuple> = polyline[i - 1]!,
+          b: Readonly<AutoMovieVector2Tuple> = polyline[i]!;
         const dx: number = b[0] - a[0],
           dy: number = b[1] - a[1],
           length: number = dx * dx + dy * dy;
@@ -327,21 +329,21 @@ export namespace CompactCurveFit {
             .map((t: number): number => (t - a) / (b - a)),
         ];
         for (const u of nodes) {
-          const p: IAutoMovieConicApproximation.Point = source.evaluate(
+          const p: Readonly<AutoMovieVector2Tuple> = source.evaluate(
               a + (b - a) * u,
             ),
-            q: IAutoMovieConicApproximation.Point = C.evaluate(piece, u);
+            q: Readonly<AutoMovieVector2Tuple> = C.evaluate(piece, u);
           maximum = Math.max(maximum, Math.hypot(p[0] - q[0], p[1] - q[1]));
         }
       } else {
-        const original: IAutoMovieConicApproximation.Point[] = Array.from(
+        const original: Readonly<AutoMovieVector2Tuple>[] = Array.from(
           { length: 65 },
-          (_: unknown, i: number): IAutoMovieConicApproximation.Point =>
+          (_: unknown, i: number): Readonly<AutoMovieVector2Tuple> =>
             source.evaluate(a + ((b - a) * i) / 64),
         );
-        const fitted: IAutoMovieConicApproximation.Point[] = Array.from(
+        const fitted: Readonly<AutoMovieVector2Tuple>[] = Array.from(
           { length: 65 },
-          (_: unknown, i: number): IAutoMovieConicApproximation.Point =>
+          (_: unknown, i: number): Readonly<AutoMovieVector2Tuple> =>
             C.evaluate(piece, i / 64),
         );
         for (const p of original)

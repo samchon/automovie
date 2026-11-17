@@ -1,7 +1,7 @@
 import type {
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieSeamStation,
 } from "@automovie/interface";
 
@@ -311,7 +311,7 @@ export namespace AutoMovieSeamStation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A fixed record conversion owns no coordinated preparation or cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fresh array owns its numbers without retaining the input tuples.
    */
-  export function flat(f: IAutoMovieLoftFrame.IFrame): number[] {
+  export function flat(f: IAutoMovieLoftSectionFrame): number[] {
     return [...f.origin, ...f.u, ...f.v];
   }
 
@@ -326,7 +326,7 @@ export namespace AutoMovieSeamStation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This representation conversion coordinates no repeated solve or cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns its three tuples and retains no input array.
    */
-  export function unflat(x: readonly number[]): IAutoMovieLoftFrame.IFrame {
+  export function unflat(x: readonly number[]): IAutoMovieLoftSectionFrame {
     return {
       origin: [x[0]!, x[1]!, x[2]!],
       u: [x[3]!, x[4]!, x[5]!],
@@ -336,6 +336,6 @@ export namespace AutoMovieSeamStation {
 }
 
 /** Horizontal plane at a station, the default of an unframed layer. */
-function horizontal(y: number): IAutoMovieLoftFrame.IFrame {
+function horizontal(y: number): IAutoMovieLoftSectionFrame {
   return { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] };
 }

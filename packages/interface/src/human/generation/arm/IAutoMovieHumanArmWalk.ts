@@ -1,11 +1,18 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieHumanSectionSite } from "../limb/IAutoMovieHumanSectionSite";
 import type { IAutoMovieHumanSiteControls } from "../limb/IAutoMovieHumanSiteControls";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
 import type { IAutoMovieHumanArmBones } from "./IAutoMovieHumanArmBones";
 import type { IAutoMovieHumanArmFrame } from "./IAutoMovieHumanArmFrame";
 import type { IAutoMovieHumanArmHandControls } from "./IAutoMovieHumanArmHandControls";
 
-/** Type contracts exchanged by AutoMovieHumanArmWalk; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanArmWalk; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanArmWalk exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IMeasuring, ISiteLaw, IPrepared, IHandChart, IShared, DefineArgs. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanArmWalk; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IMeasuring, ISiteLaw, IPrepared, IHandChart, IShared, DefineArgs contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanArmWalk {
   /** Symmetric arms-down width and the independently placed GH, calibration mm.
    *
@@ -46,7 +53,7 @@ export namespace IAutoMovieHumanArmWalk {
     edges: [number, number, number, number];
 
     /** A tape solved on the box, or a sourced shoulder. */
-    fullness: IAutoMovieHumanSiteViewPart.ISite["fullness"];
+    fullness: IAutoMovieHumanSectionSite["fullness"];
   }
 
   /** Common original controls and the declared hand region; no completed arm is retained.

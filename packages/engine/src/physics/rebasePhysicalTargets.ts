@@ -1,4 +1,4 @@
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type { IAutoMovieRigidTransform } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -15,18 +15,20 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function rebasePhysicalTargets(
-  targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  targets: Readonly<Record<string, IAutoMovieRigidTransform>>,
   root: string,
-  pose: IAutoMoviePhysicalProfile.ITransform,
-): Record<string, IAutoMoviePhysicalProfile.ITransform> {
-  const original: IAutoMoviePhysicalProfile.ITransform = targets[root]!;
-  const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(pose.rotation, Quaternion.inverse(original.rotation));
+  pose: IAutoMovieRigidTransform,
+): Record<string, IAutoMovieRigidTransform> {
+  const original: IAutoMovieRigidTransform = targets[root]!;
+  const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    pose.rotation,
+    Quaternion.inverse(original.rotation),
+  );
   return Object.fromEntries(
     Object.entries(targets).map(
-      ([bone, target]: [string, IAutoMoviePhysicalProfile.ITransform]): [
+      ([bone, target]: [string, IAutoMovieRigidTransform]): [
         string,
-        IAutoMoviePhysicalProfile.ITransform,
+        IAutoMovieRigidTransform,
       ] => [
         bone,
         {

@@ -9,8 +9,8 @@ import {
 import type {
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
   IAutoMovieViewSection,
@@ -112,11 +112,11 @@ export function test_construction_operator_view_section_chain(): void {
     // jets, so a real break can only be made across two chains).
     const own: (
       c: IAutoMovieLoftChain,
-    ) => (s: number, t: number) => IAutoMovieLoftJet.IJet =
+    ) => (s: number, t: number) => IAutoMovieLoftSurfaceJet =
       (
         c: IAutoMovieLoftChain,
-      ): ((s: number, t: number) => IAutoMovieLoftJet.IJet) =>
-      (s: number, t: number): IAutoMovieLoftJet.IJet =>
+      ): ((s: number, t: number) => IAutoMovieLoftSurfaceJet) =>
+      (s: number, t: number): IAutoMovieLoftSurfaceJet =>
         AutoMovieLoftJet.at(c, s, t);
     for (let i: number = 1; i + 1 < chain.layers.length; i++)
       failures.push(...station(own(chain), chain.layers[i]!.y));
@@ -187,7 +187,7 @@ export function test_construction_operator_view_section_chain(): void {
 
     // Separate layer records keep the equivalence reader immutable when bent
     // receives its defect; all six vectors must first equal the original.
-    const originalJet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+    const originalJet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
       chain,
       107.5,
       0.37,
@@ -200,7 +200,7 @@ export function test_construction_operator_view_section_chain(): void {
         }),
       ),
     };
-    const copiedJet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+    const copiedJet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
       equivalent,
       107.5,
       0.37,
@@ -216,10 +216,10 @@ export function test_construction_operator_view_section_chain(): void {
     layer.curvatures = layer.curvatures!.map((c: number, k: number): number =>
       k === 0 ? c + 0.01 : c,
     );
-    const broken: (s: number, t: number) => IAutoMovieLoftJet.IJet = (
+    const broken: (s: number, t: number) => IAutoMovieLoftSurfaceJet = (
       s: number,
       t: number,
-    ): IAutoMovieLoftJet.IJet =>
+    ): IAutoMovieLoftSurfaceJet =>
       s < layer.y
         ? AutoMovieLoftJet.at(chain, s, t)
         : AutoMovieLoftJet.at(bent, s, t);
@@ -425,7 +425,7 @@ function knot(
   extents: Quarters,
 ): string[] {
   const out: string[] = [];
-  const f: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+  const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
   const point: (t: number) => V3 = AutoMovieLoftChain.sampler(chain, s);
   for (let g: number = 0; g < 4; g++) {
     const [x, z]: [number, number] = AutoMovieLoftFrame.local(
@@ -459,7 +459,7 @@ function knot(
  * mm squared).
  */
 function station(
-  jet: (s: number, t: number) => IAutoMovieLoftJet.IJet,
+  jet: (s: number, t: number) => IAutoMovieLoftSurfaceJet,
   y: number,
 ): string[] {
   const out: string[] = [];
@@ -467,7 +467,7 @@ function station(
   for (let i: number = 0; i < 8; i++) {
     const t: number = (2 * Math.PI * i) / 8 + 0.1;
     const read: (s: number) => V3[] = (s: number): V3[] => {
-      const j: IAutoMovieLoftJet.IJet = jet(s, t);
+      const j: IAutoMovieLoftSurfaceJet = jet(s, t);
       return [j.p, j.s, j.ss] as V3[];
     };
     const [b1, b2, a1, a2]: V3[][] = [

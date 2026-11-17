@@ -13,7 +13,7 @@ import type {
   IAutoMovieConstructionView,
   IAutoMovieHumanGlutealParent,
   IAutoMovieHumanMassSource,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewOutline,
@@ -164,9 +164,9 @@ export namespace AutoMovieHumanMassSource {
    * The added prefix and numerical root support do not certify a final join.
    */
   export function rebase(
-    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+    definition: IAutoMovieHumanSourceDefinition,
     connection: IAutoMovieHumanMassSource.IConnection,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     if (definition.part === null || definition.view === null) return definition;
     const original: IAutoMovieViewPart = definition.part;
     const record: IAutoMovieConstructionView = definition.view;

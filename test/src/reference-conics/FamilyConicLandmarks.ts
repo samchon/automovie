@@ -1,7 +1,7 @@
 import { AutoMovieHumanF1Joints as J } from "@automovie/human";
 import type {
-  IAutoMovieLoftFrame,
-  IAutoMovieMeshExtract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -418,12 +418,12 @@ namespace FamilyConicLandmarks {
   function median(source: R.ISource): IReading[] {
     // The median section's outer loop round a point inside the neck (the body and head skins meet at the neck, so the cut bridges their
     // rims), and the head's outer loop round a point inside the head: the chart is (x, y) about each point.
-    const outer = (mesh: IAutoMovieMeshExtract.IMesh, inside: V): C.P[] => {
+    const outer = (mesh: IAutoMovieMillimeterMesh, inside: V): C.P[] => {
       const loop: C.P[] | null = R.cut(mesh, {
         origin: inside,
         u: [1, 0, 0],
         v: [0, 1, 0],
-      } as IAutoMovieLoftFrame.IFrame).loop;
+      } as IAutoMovieLoftSectionFrame).loop;
       if (loop === null)
         throw new Error("No median loop round " + inside.join(","));
       return loop.map((p: C.P): C.P => [p[0] + inside[0], p[1] + inside[1]]);
@@ -657,7 +657,7 @@ namespace FamilyConicLandmarks {
 
   /** The skin's section through `origin` square to `normal`, as world points of the loop round the origin. */
   function section(
-    mesh: IAutoMovieMeshExtract.IMesh,
+    mesh: IAutoMovieMillimeterMesh,
     origin: V,
     normal: V,
     u: V,
@@ -724,7 +724,7 @@ namespace FamilyConicLandmarks {
 
   /** The skin's triangles whose vertices all lie within `radius` of `centre`, so no other part hides the landmark. */
   function crop(
-    mesh: IAutoMovieMeshExtract.IMesh,
+    mesh: IAutoMovieMillimeterMesh,
     centre: V,
     radius: number,
   ): N.Mesh {

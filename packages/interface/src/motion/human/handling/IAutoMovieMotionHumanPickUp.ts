@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
 
 /**
@@ -68,7 +68,7 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  * @evidence contracts/development/common.md#meaningful-documentation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
  * @evidence contracts/development/design.md#principled-representation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.pickUp, params); handling/pickUp.ts (pickUp.plan, context); handling/pickUpSearch.ts (pickUpSearch.of, context); handling/pickUpStance.ts (pickUpStance.of, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanGraspUse.IUse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPickUp {
   /**
@@ -79,7 +79,7 @@ export namespace IAutoMovieMotionHumanPickUp {
    * @evidence contracts/development/common.md#meaningful-documentation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
    * @evidence contracts/development/design.md#principled-representation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.pickUp, params); handling/pickUp.ts (pickUp.plan, context); handling/pickUpSearch.ts (pickUpSearch.of, context); handling/pickUpStance.ts (pickUpStance.of, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanGraspUse.IUse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The prop's subject id. */
@@ -89,7 +89,7 @@ export namespace IAutoMovieMotionHumanPickUp {
     handle: string;
 
     /** The grasping hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. */
     lift?: number;

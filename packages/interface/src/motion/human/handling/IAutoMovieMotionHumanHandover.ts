@@ -1,10 +1,12 @@
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
+import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
 
 /**
@@ -50,7 +52,7 @@ import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
  * @evidence contracts/development/common.md#meaningful-documentation mass: The prop's mass, kilograms; 0.09 when absent. outcome: The outcome; `transfer` when absent. meet: Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent.
  * @evidence contracts/development/design.md#principled-representation mass: The prop's mass, kilograms; 0.09 when absent. outcome: The outcome; `transfer` when absent. meet: Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHandover.ts (HumanHandover.plan, return); handling/HumanHandover.ts (HumanHandover.plan, input); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.goal, input); handling/HumanHandover.ts (HumanHandover.plan.hand, bones); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.goal.sternum, person); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.kind.person, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHandover {
   /**
@@ -69,14 +71,14 @@ export namespace IAutoMovieMotionHumanHandover {
    * @evidence contracts/development/common.md#meaningful-documentation body: The body. side: The acting hand. bones: The person's displayed world bones at the start.
    * @evidence contracts/development/design.md#principled-representation body: The body. side: The acting hand. bones: The person's displayed world bones at the start.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHandover.ts (HumanHandover.plan.hand, bones); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.goal.sternum, person); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.kind.person, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieResolvedBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPerson {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
     /** The acting hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The person's displayed world bones at the start. */
     bones: ReadonlyMap<
@@ -91,7 +93,7 @@ export namespace IAutoMovieMotionHumanHandover {
    * @evidence contracts/development/common.md#meaningful-documentation mass: The prop's mass, kilograms; 0.09 when absent. outcome: The outcome; `transfer` when absent. meet: Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent.
    * @evidence contracts/development/design.md#principled-representation mass: The prop's mass, kilograms; 0.09 when absent. outcome: The outcome; `transfer` when absent. meet: Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHandover.ts (HumanHandover.plan, input); handling/HumanHandoverMeeting.ts (HumanHandoverMeeting.goal, input).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHandover.IPerson, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanProp.IFrame, IAutoMovieMotionHumanHandover.Outcome, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHandover.IPerson, IAutoMovieMotionHumanProp, IAutoMovieRigidTransform, IAutoMovieMotionHumanHandover.Outcome, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IInput {
     /** The giver, holding the prop in its acting hand. */
@@ -104,7 +106,7 @@ export namespace IAutoMovieMotionHumanHandover {
     prop: IAutoMovieMotionHumanProp;
 
     /** The prop's displayed frame at the start. */
-    frame: IAutoMovieMotionHumanProp.IFrame;
+    frame: IAutoMovieRigidTransform;
 
     /** The receiver's grip affordance id. */
     handle: string;
@@ -125,7 +127,7 @@ export namespace IAutoMovieMotionHumanHandover {
    * @evidence contracts/development/common.md#meaningful-documentation transfer: Both hands' shared hold.
    * @evidence contracts/development/design.md#principled-representation transfer: Both hands' shared hold.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHandover.ts (HumanHandover.plan, return); handling/handOver.ts (handOver.plan); handling/receive.ts (receive.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHandover.Outcome, IAutoMovieMotionHumanHand.IWrist, IAutoMovieMotionHumanProp.IFrame, IAutoMovieMotionHumanGrasp.ITarget, IAutoMovieMotionHumanPosture.IReference identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHandover.Outcome, IAutoMovieMotionHumanHand.IWrist, IAutoMovieRigidTransform, IAutoMovieMotionHumanGrasp.ITarget, IAutoMovieHumanLimbReference identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlan {
     /** The outcome. */
@@ -138,7 +140,7 @@ export namespace IAutoMovieMotionHumanHandover {
     giverAt: IAutoMovieMotionHumanHand.IWrist;
 
     /** The prop's frame at the offer. */
-    offered: IAutoMovieMotionHumanProp.IFrame;
+    offered: IAutoMovieRigidTransform;
 
     /** Where the receiver's hand starts. */
     receiverFrom: IAutoMovieMotionHumanHand.IWrist;
@@ -153,7 +155,7 @@ export namespace IAutoMovieMotionHumanHandover {
     receiverShown: IAutoMovieMotionHumanHand.IWrist;
 
     /** The receiver's arm solution at the grasp, which its hold and take-away keep. */
-    receiverReference: IAutoMovieMotionHumanPosture.IReference;
+    receiverReference: IAutoMovieHumanLimbReference;
 
     /** The giver's transport time. */
     offer: number;

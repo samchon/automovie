@@ -124,7 +124,7 @@ export function test_human_motion_command_latency(): void {
     const out: Map<string, number> = new Map();
     for (const e of ensembles)
       for (const m of e.members) {
-        const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+        const segments: readonly IAutoMovieMotionHumanSegment[] =
           performance.segments(m.subject);
         out.set(m.subject, segments[segments.length - 1]!.entryTime - word);
       }

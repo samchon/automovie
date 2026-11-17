@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the SolveQuadraticKernel operations. */
+/**
+ * Data and callback contracts shared by the SolveQuadraticKernel operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Interval CSC arrays and diagonal convex objective coefficients describe one admitted quadratic problem; the result preserves original variable/row order and explicit solver statuses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The public quadratic adapter and the engine-owned kernel share input/result records while admission and numerical computation stay with their implementation owners.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional initial vector is compatibility data ignored by the cold solve; only status 1 admits a converged vector, and unavailable diagnostics may be NaN.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents sparse-array alignment, bound infinities, objective scaling, status meanings and unavailable results.
+ */
 export namespace IAutoMovieSolveQuadraticKernel {
   /**
    * Solve one admitted interval CSC problem entirely in engine-owned TypeScript.
@@ -13,6 +20,11 @@ export namespace IAutoMovieSolveQuadraticKernel {
    * Zero variables return negative API status with unavailable diagnostics as NaN.
    * Unsuccessful vectors must not be accepted as geometry. Historical native
    * transport and bytes remain in repository history, outside shipped product paths.
+   *
+   * @evidence contracts/development/design.md#principled-representation Interval CSC arrays and diagonal convex objective coefficients describe one admitted quadratic problem; the result preserves original variable/row order and explicit solver statuses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The public quadratic adapter and the engine-owned kernel share input/result records while admission and numerical computation stay with their implementation owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional initial vector is compatibility data ignored by the cold solve; only status 1 admits a converged vector, and unavailable diagnostics may be NaN.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents sparse-array alignment, bound infinities, objective scaling, status meanings and unavailable results.
    */
   export type IInput = {
     /** Diagonal P coefficients of the convex objective 1/2*xᵀ*P*x + qᵀ*x; the public adapter admits finite nonnegative coefficients. */
@@ -46,6 +58,11 @@ export namespace IAutoMovieSolveQuadraticKernel {
    * Zero variables return negative API status with unavailable diagnostics as NaN.
    * Unsuccessful vectors must not be accepted as geometry. Historical native
    * transport and bytes remain in repository history, outside shipped product paths.
+   *
+   * @evidence contracts/development/design.md#principled-representation Interval CSC arrays and diagonal convex objective coefficients describe one admitted quadratic problem; the result preserves original variable/row order and explicit solver statuses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The public quadratic adapter and the engine-owned kernel share input/result records while admission and numerical computation stay with their implementation owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional initial vector is compatibility data ignored by the cold solve; only status 1 admits a converged vector, and unavailable diagnostics may be NaN.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents sparse-array alignment, bound infinities, objective scaling, status meanings and unavailable results.
    */
   export type IResult = {
     /** 1 full convergence; 2/3 primal/dual infeasibility; 4 almost solved; 5/6 reduced-accuracy infeasibility; 7 iteration limit; 9 numerical refusal; 10 insufficient progress; -1 empty-variable API refusal. */

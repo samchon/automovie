@@ -1,6 +1,9 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
@@ -44,12 +47,12 @@ export function admitPhysicalTargets(
           (bone: string): boolean =>
             typeof bone !== "string" ||
             !body.profile.segments.some(
-              (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              (segment: IAutoMoviePhysicalSegment): boolean =>
                 segment.bone === bone,
             ),
         ) ||
         body.profile.joints.some(
-          (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+          (joint: IAutoMoviePhysicalJoint): boolean =>
             target.dynamicSegments!.includes(joint.parent) &&
             !target.dynamicSegments!.includes(joint.child),
         ))
@@ -63,7 +66,7 @@ export function admitPhysicalTargets(
     );
     const joints: Set<string> = new Set(
       body.profile.joints.map(
-        (joint: IAutoMoviePhysicalProfile.IJoint): string => joint.id,
+        (joint: IAutoMoviePhysicalJoint): string => joint.id,
       ),
     );
     const strengths: (
@@ -129,7 +132,7 @@ export function admitPhysicalTargets(
         `${body.id}: invalid reserved support endpoint at ${step}`,
       );
     for (const segment of body.profile.segments) {
-      const pose: IAutoMoviePhysicalProfile.ITransform | undefined =
+      const pose: IAutoMovieRigidTransform | undefined =
         target.segments[segment.bone];
       if (
         !pose?.position ||
@@ -155,7 +158,7 @@ export function admitPhysicalTargets(
         );
       if (
         segment.shapes.some(
-          (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+          (shape: IAutoMoviePhysicalShape): boolean =>
             !inPhysicalFloorBounds(pose, shape, input.floorBounds),
         )
       )

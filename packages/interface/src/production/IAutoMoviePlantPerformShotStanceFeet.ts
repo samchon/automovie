@@ -8,6 +8,11 @@ import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * Mutable motion table and borrowed rig context for world-aware stance planting.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Mutable motion table and borrowed rig context for world-aware stance planting. Plant positions cross between world and model metres using staged unit-scale yaw-only transforms; times stay on each shot-local motion clock. The stage result is an admitted-input premise.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing rigs/nodes or clips with no recognized feet remain untouched. This mutation is not transactional: a later callback/solver exception can leave earlier actors' motion entries replaced.
+ * @evidence contracts/development/design.md#principled-representation Plant positions cross between world and model metres using staged unit-scale yaw-only transforms; times stay on each shot-local motion clock. The stage result is an admitted-input premise.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface performShot calls plantPerformShotStanceFeet before coupling and motion validation; only motions entries with resulting plants are replaced, and returned world plants feed the next beat.
  */
 export namespace IAutoMoviePlantPerformShotStanceFeet {
   /**
@@ -35,6 +40,14 @@ export namespace IAutoMoviePlantPerformShotStanceFeet {
     previous: IAutoMovieBeatEndState | null | undefined;
     /**
      * Synchronous rig lookup for eligible actors. Null skips the actor; answers are borrowed during solving and exceptions propagate without rolling back earlier replacements.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Synchronous rig lookup for eligible actors. Null skips the actor; answers are borrowed during solving and exceptions propagate without rolling back earlier replacements. Member documentation states the supplied records, units and absence meanings used by plantPerformShotStanceFeet.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts skeleton declares a callable signature with no body. The implementation supplied to or returned by plantPerformShotStanceFeet must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms skeleton declares a callable signature with no body. The implementation supplied to or returned by plantPerformShotStanceFeet owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work skeleton declares a callable signature with no body. The implementation supplied to or returned by plantPerformShotStanceFeet owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources skeleton declares a callable signature with no body. The implementation supplied to or returned by plantPerformShotStanceFeet owns callback captures and their release; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation skeleton declares a callable signature with no body. The implementation supplied to or returned by plantPerformShotStanceFeet provides the callback body and its numerical method; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure skeleton declares a callable signature with no body. The implementation supplied to or returned by plantPerformShotStanceFeet owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     skeleton: (node: string) => IAutoMovieSkeleton | null;
     /**

@@ -1,6 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanHand,
@@ -76,7 +79,7 @@ export namespace HumanGraspReach {
   export function reachable(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     bend: IAutoMovieVector3,
     goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
     tilts: readonly number[] = [0],
@@ -95,8 +98,7 @@ export namespace HumanGraspReach {
     },
     admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
   ): IAutoMovieMotionHumanGrasp.IReach {
-    const limb: IAutoMovieMotionHumanPosture.Limb =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     // One key pose fitted, its elbow left to the body (`elbow`): the pose and
     // the error the arm leaves there, the rotation in degrees plus the
     // position in millimetres. The rotation is the fit's own optimal value
@@ -107,7 +109,7 @@ export namespace HumanGraspReach {
     // costs nothing.
     const fit = (
       key: IAutoMovieMotionHumanGrasp.IKey,
-      reference: IAutoMovieMotionHumanPosture.IReference | undefined,
+      reference: IAutoMovieHumanLimbReference | undefined,
     ): {
       pose: IAutoMoviePose;
       shown: IAutoMovieMotionHumanHand.IWrist;
@@ -117,7 +119,7 @@ export namespace HumanGraspReach {
     } => {
       // A key another action asks is fitted as that action fits its pose:
       // its own goal, on its own arm solution, not the grasp's.
-      const anchored: IAutoMovieMotionHumanPosture.IReference | undefined =
+      const anchored: IAutoMovieHumanLimbReference | undefined =
         key.reference === false ? undefined : reference;
       const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
         resolveHumanPosture.seeded(body, {
@@ -249,7 +251,7 @@ export namespace HumanGraspReach {
     );
     for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
       if (held && floor >= least) break;
-      const reference: IAutoMovieMotionHumanPosture.IReference =
+      const reference: IAutoMovieHumanLimbReference =
         resolveHumanPosture.reference(grasp.pose, limb);
       let miss: number = grasp.miss;
       let departure: number = grasp.departure;

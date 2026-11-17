@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -52,7 +53,7 @@ export namespace HumanWorn {
     prop: IAutoMovieMotionHumanProp,
     region: AutoMovieHumanoidRegion,
     turn: number = 0,
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
     const wear: IAutoMovieAffordance | undefined = affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === "wear",

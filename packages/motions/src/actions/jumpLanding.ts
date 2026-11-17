@@ -71,7 +71,7 @@ export namespace jumpLanding {
   ): ILanding {
     const m = body.measure;
     const l: number = m.hipHeight;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...to, y: 0 },
       yaw: heading,
     };

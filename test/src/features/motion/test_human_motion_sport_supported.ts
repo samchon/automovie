@@ -195,11 +195,9 @@ export function test_human_motion_sport_supported(): void {
       0,
     );
     const when = (row: string, event: string): number => {
-      const found: IAutoMovieMotionHumanSegment.ISegment = film
+      const found: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??

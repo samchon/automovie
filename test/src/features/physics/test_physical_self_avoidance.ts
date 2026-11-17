@@ -7,7 +7,10 @@ import {
   setPhysicalTargetJointRotation,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -30,14 +33,19 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 export async function test_physical_self_avoidance(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
-  const joint: P.IJoint = profile.joints.find(
-    (candidate: P.IJoint): boolean => candidate.child === "upper-0",
+  const joint: IAutoMoviePhysicalJoint = profile.joints.find(
+    (candidate: IAutoMoviePhysicalJoint): boolean =>
+      candidate.child === "upper-0",
   )!;
   setPhysicalTargetJointRotation(
     targets,
@@ -84,7 +92,8 @@ export async function test_physical_self_avoidance(): Promise<void> {
     isPhysicalProfilePairExcluded(excluded, "lower-0", "body"),
   );
 
-  const shifted: Record<string, P.ITransform> = structuredClone(targets);
+  const shifted: Record<string, IAutoMovieRigidTransform> =
+    structuredClone(targets);
   shifted.body!.position.x += 0.2;
   const connected: ReturnType<typeof planPhysicalContactTargets> =
     planPhysicalContactTargets({
@@ -98,13 +107,15 @@ export async function test_physical_self_avoidance(): Promise<void> {
       floor: -10,
     });
   for (const connection of profile.joints) {
-    const parent: P.ITransform = connected.targets[connection.parent]!;
-    const child: P.ITransform = connected.targets[connection.child]!;
-    const first: P.ITransform["position"] = Vector3.add(
+    const parent: IAutoMovieRigidTransform =
+      connected.targets[connection.parent]!;
+    const child: IAutoMovieRigidTransform =
+      connected.targets[connection.child]!;
+    const first: IAutoMovieRigidTransform["position"] = Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, connection.parentFrame.position),
     );
-    const second: P.ITransform["position"] = Vector3.add(
+    const second: IAutoMovieRigidTransform["position"] = Vector3.add(
       child.position,
       Quaternion.rotateVector(child.rotation, connection.childFrame.position),
     );
@@ -115,7 +126,9 @@ export async function test_physical_self_avoidance(): Promise<void> {
   }
 
   /** Observe the worst actual enabled penetration through native geometry. */
-  function penetration(poses: Record<string, P.ITransform>): number {
+  function penetration(
+    poses: Record<string, IAutoMovieRigidTransform>,
+  ): number {
     let result: number = 0;
     for (const [index, first] of profile.segments.entries())
       for (const second of profile.segments.slice(index + 1)) {

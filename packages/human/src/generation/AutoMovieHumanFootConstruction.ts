@@ -1,5 +1,7 @@
 import type {
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanFootBody,
   IAutoMovieHumanFootBones,
   IAutoMovieHumanFootConstruction,
@@ -8,6 +10,8 @@ import type {
   IAutoMovieHumanFootToeSpan,
   IAutoMovieHumanFootWebLine,
   IAutoMovieHumanFootWebRing,
+  IAutoMovieHumanNailWindow,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
 } from "@automovie/interface";
@@ -69,21 +73,15 @@ export namespace AutoMovieHumanFootConstruction {
       ],
       events: [
         ...calibration.events,
-        ...feet.flatMap(
-          (f: IFoot): IAutoMovieHumanBodyCalibration.IEvent[] => f.events,
-        ),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanBranchEvent[] => f.events),
       ],
       poles: [
         ...calibration.poles,
-        ...feet.flatMap(
-          (f: IFoot): IAutoMovieHumanBodyCalibration.IPole[] => f.poles,
-        ),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanSurfacePole[] => f.poles),
       ],
       nails: [
         ...(calibration.nails ?? []),
-        ...feet.flatMap(
-          (f: IFoot): IAutoMovieHumanBodyCalibration.INail[] => f.nails,
-        ),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanNailWindow[] => f.nails),
       ],
     };
   }
@@ -140,9 +138,9 @@ export namespace AutoMovieHumanFootConstruction {
   /** One side's chains, events and poles. */
   interface IFoot {
     chains: IAutoMovieLoftChain[];
-    events: IAutoMovieHumanBodyCalibration.IEvent[];
-    poles: IAutoMovieHumanBodyCalibration.IPole[];
-    nails: IAutoMovieHumanBodyCalibration.INail[];
+    events: IAutoMovieHumanBranchEvent[];
+    poles: IAutoMovieHumanSurfacePole[];
+    nails: IAutoMovieHumanNailWindow[];
   }
 
   /**
@@ -191,11 +189,11 @@ export namespace AutoMovieHumanFootConstruction {
         }),
     );
     const name = (n: string): string => n.replace("{side}", side);
-    const splits: IAutoMovieHumanBodyCalibration.ISplit[] = prior.toes.map(
+    const splits: IAutoMovieHumanBranchSplit[] = prior.toes.map(
       (
         t: IAutoMovieHumanFootPrior.IToe,
         i: number,
-      ): IAutoMovieHumanBodyCalibration.ISplit => ({
+      ): IAutoMovieHumanBranchSplit => ({
         child: name(t.name),
         arcs: AutoMovieHumanFootReflection.arcs(web.arcs[i]!, sign),
       }),
@@ -225,9 +223,7 @@ export namespace AutoMovieHumanFootConstruction {
         },
       ],
       poles: toes.map(
-        (
-          t: IAutoMovieHumanFootToeSpan.IToe,
-        ): IAutoMovieHumanBodyCalibration.IPole => ({
+        (t: IAutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanSurfacePole => ({
           chain: name(t.name),
           end: "bottom",
           critical: true,
@@ -235,9 +231,7 @@ export namespace AutoMovieHumanFootConstruction {
         }),
       ),
       nails: toes.map(
-        (
-          t: IAutoMovieHumanFootToeSpan.IToe,
-        ): IAutoMovieHumanBodyCalibration.INail =>
+        (t: IAutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanNailWindow =>
           AutoMovieHumanFootToeChain.nail(t, name(t.name), sign),
       ),
     };

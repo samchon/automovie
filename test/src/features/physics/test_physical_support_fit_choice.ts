@@ -3,14 +3,19 @@ import {
   choosePhysicalSupportFit,
   setPhysicalTargetJointRotation,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /** One candidate fit: placements and per-endpoint metre residuals. */
 type Candidate = {
-  targets: Record<string, P.ITransform>;
+  targets: Record<string, IAutoMovieRigidTransform>;
   residuals: Record<string, number>;
 };
 
@@ -29,10 +34,10 @@ type Candidate = {
  */
 export function test_physical_support_fit_choice(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const knee: P.IJoint = profile.joints.find(
-    (joint: P.IJoint): boolean => joint.child === "lower-0",
+  const knee: IAutoMoviePhysicalJoint = profile.joints.find(
+    (joint: IAutoMoviePhysicalJoint): boolean => joint.child === "lower-0",
   )!;
-  const reference: Record<string, P.ITransform> = bent(0);
+  const reference: Record<string, IAutoMovieRigidTransform> = bent(0);
 
   // 1. Admissibility before continuity.
   const fresh: Candidate = {
@@ -87,12 +92,16 @@ export function test_physical_support_fit_choice(): void {
   }
 
   /** Neutral posture with the first knee bent about x. */
-  function bent(angle: number): Record<string, P.ITransform> {
-    const poses: Record<string, P.ITransform> = Object.fromEntries(
-      profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-        segment.bone,
-        structuredClone(segment.neutral),
-      ]),
+  function bent(angle: number): Record<string, IAutoMovieRigidTransform> {
+    const poses: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+      profile.segments.map(
+        (
+          segment: IAutoMoviePhysicalSegment,
+        ): [string, IAutoMovieRigidTransform] => [
+          segment.bone,
+          structuredClone(segment.neutral),
+        ],
+      ),
     );
     setPhysicalTargetJointRotation(
       poses,

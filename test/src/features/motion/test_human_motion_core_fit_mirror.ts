@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -65,10 +66,10 @@ export function test_human_motion_core_fit_mirror(): void {
       readonly [number, number, number],
     ][])
       joints[swap(bone)] = swap(bone) === bone ? [v[0], -v[1], -v[2]] : v;
-    const limbs: Record<string, IAutoMovieMotionHumanPosture.IGoal> = {};
+    const limbs: Record<string, IAutoMovieHumanLimbGoal> = {};
     for (const [limb, g] of Object.entries(p.limbs ?? {}) as [
       string,
-      IAutoMovieMotionHumanPosture.IGoal,
+      IAutoMovieHumanLimbGoal,
     ][])
       limbs[swap(limb)] = {
         ...g,
@@ -160,7 +161,7 @@ export function test_human_motion_core_fit_mirror(): void {
       y: number,
       z: number,
       out: number,
-    ): IAutoMovieMotionHumanPosture.IGoal => ({
+    ): IAutoMovieHumanLimbGoal => ({
       point: { x, y, z },
       bend: { x: out, y: chest - 0.25, z: 0 },
     });

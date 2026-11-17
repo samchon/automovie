@@ -3,9 +3,10 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanObstacle,
-  IAutoMovieMotionHumanProp,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionObstacleAperture,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -69,8 +70,8 @@ export namespace HumanObstacle {
     to: IAutoMovieVector3,
     thickness: number,
     height: number,
-    apertures: readonly IAutoMovieMotionHumanObstacle.IAperture[] = [],
-  ): IAutoMovieMotionHumanObstacle.IObstacle {
+    apertures: readonly IAutoMovieMotionObstacleAperture[] = [],
+  ): IAutoMovieMotionHumanObstacle {
     const length: number = Math.hypot(to.x - from.x, to.z - from.z);
     if (!(length > 0) || !(thickness > 0) || !(height > 0))
       throw new Error(
@@ -113,10 +114,9 @@ export namespace HumanObstacle {
   export function apertures(
     model: IAutoMovieMotionHumanObject.IModel,
     placement: IAutoMovieMotionHumanObject.Placement,
-  ): IAutoMovieMotionHumanObstacle.IAperture[] {
-    const placed: IAutoMovieMotionHumanProp.IFrame =
-      HumanObject.frame(placement);
-    const out: IAutoMovieMotionHumanObstacle.IAperture[] = [];
+  ): IAutoMovieMotionObstacleAperture[] {
+    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
+    const out: IAutoMovieMotionObstacleAperture[] = [];
     for (const affordance of model.affordances ?? []) {
       if (
         affordance.kind !== "aperture" ||
@@ -184,14 +184,13 @@ export namespace HumanObstacle {
     subject: string,
     model: IAutoMovieMotionHumanObject.IModel,
     placement: IAutoMovieMotionHumanObject.Placement,
-  ): IAutoMovieMotionHumanObstacle.IObstacle {
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = model.shapes?.() ?? [];
+  ): IAutoMovieMotionHumanObstacle {
+    const shapes: IAutoMoviePhysicalShape[] = model.shapes?.() ?? [];
     if (shapes.length === 0)
       throw new Error(
         `The object ${subject} has no colliders, so nothing says where its solid stands: give it shapes, or state it as a wall`,
       );
-    const placed: IAutoMovieMotionHumanProp.IFrame =
-      HumanObject.frame(placement);
+    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
     const corners: IAutoMovieVector3[] = [];
     let bottom: number = Infinity;
     let top: number = -Infinity;
@@ -233,7 +232,7 @@ export namespace HumanObstacle {
       throw new Error(
         `The object ${subject}'s colliders cover no area of the floor plan, so they stand in no path's way`,
       );
-    const openings: IAutoMovieMotionHumanObstacle.IAperture[] = apertures(
+    const openings: IAutoMovieMotionObstacleAperture[] = apertures(
       model,
       placement,
     );
@@ -317,7 +316,7 @@ export namespace HumanObstacle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function blocking(
-    obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[],
+    obstacles: readonly IAutoMovieMotionHumanObstacle[],
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     need: IAutoMovieMotionHumanObstacle.INeed,
@@ -356,7 +355,7 @@ export namespace HumanObstacle {
 
   /** Why a path that enters an obstacle is blocked by it, or null when it goes through an opening that clears the body. */
   const judged = (
-    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
     from: IAutoMovieVector3,
     dx: number,
     dz: number,

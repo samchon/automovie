@@ -101,10 +101,8 @@ export function test_human_motion_base_crossed_legs(): void {
       );
       continue;
     }
-    const sitting: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
-    const rising: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const sitting: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
+    const rising: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",

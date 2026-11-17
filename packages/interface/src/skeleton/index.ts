@@ -13,3 +13,4 @@ export type { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 export type { IAutoMovieJointConstraint } from "./IAutoMovieJointConstraint";
 export type { IAutoMovieRigLocalTransform } from "./IAutoMovieRigLocalTransform";
 export type { IAutoMovieSkeleton } from "./IAutoMovieSkeleton";
+export type { IAutoMovieSwingTwistLimit } from "./IAutoMovieSwingTwistLimit";

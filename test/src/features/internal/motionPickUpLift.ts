@@ -76,7 +76,7 @@ export function motionPickUpLift(name: motionHumanBody.Name): void {
   // 1. What is asked is done.
   try {
     const film: IAutoMovieMotionHumanPerformance = perform(0.1);
-    const pick: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[0]!;
+    const pick: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
     const lifted: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "lifted")?.share ??

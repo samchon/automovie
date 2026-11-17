@@ -13,8 +13,8 @@ import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidSurface,
   IAutoMovieVector3,
   IAutoMovieViewAxis,
@@ -72,7 +72,7 @@ function sources(): string[] {
       AutoMovieConstructionViews.part(view);
     if (typeof part === "string") throw new Error(part);
     part.axis = {
-      at: (station: number): IAutoMovieLoftFrame.IFrame =>
+      at: (station: number): IAutoMovieLoftSectionFrame =>
         sourceJet(station, offset).value,
       jet: (
         station: number,
@@ -94,13 +94,13 @@ function sources(): string[] {
   const host: IAutoMovieLoftChain = build("source.host", 0);
   for (const station of [7.3, 27.5, 63.4, 91.2]) {
     const source: FrameJet = sourceJet(station, 0);
-    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+    const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
       host,
       station,
       0,
     );
     const expected: V3[] = [source.value, source.first, source.second].map(
-      (frame: IAutoMovieLoftFrame.IFrame): V3 =>
+      (frame: IAutoMovieLoftSectionFrame): V3 =>
         frame.origin.map(
           (value: number, k: number): number => value + 3 * frame.u[k]!,
         ) as V3,
@@ -194,12 +194,12 @@ function sources(): string[] {
       const hs: number = hostEnd === "bottom" ? 0 : 100;
       const ps: number = partEnd === "bottom" ? 0 : 100;
       for (const phase of [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
-        const owner: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const owner: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           host,
           hs,
           direction * phase,
         );
-        const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           continued,
           ps,
           phase,
@@ -253,8 +253,8 @@ type FrameJet = NonNullable<
 
 /** An independent numeric copy retains the axis owner but shares no frame triples. */
 function copyFrame(
-  frame: IAutoMovieLoftFrame.IFrame,
-): IAutoMovieLoftFrame.IFrame {
+  frame: IAutoMovieLoftSectionFrame,
+): IAutoMovieLoftSectionFrame {
   return { origin: [...frame.origin], u: [...frame.u], v: [...frame.v] };
 }
 

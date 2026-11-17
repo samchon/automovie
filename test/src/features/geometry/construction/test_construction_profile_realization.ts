@@ -6,7 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
-  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfilePiece,
   IAutoMovieConstructionProfileSource,
   IAutoMovieConstructionRealization,
   IAutoMoviePreparedConstructionProfile,
@@ -264,7 +264,7 @@ function cone(count: number, direction: 1 | -1, failures: string[]): void {
   const profile: IAutoMoviePreparedConstructionProfile.IPrepared =
     result.profiles![0]!;
   const original: IAutoMovieSolidSurface = profile.originals.get("piece.0")!;
-  const piece: IAutoMovieConstructionProfile.IPiece =
+  const piece: IAutoMovieConstructionProfilePiece =
     profile.definition.loops[0]!.pieces[0]!;
   const angle: number =
     ((2 * Math.PI) / 3) *

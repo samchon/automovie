@@ -100,7 +100,7 @@ export function test_human_motion_travel_box_jump(): void {
       body,
       0,
     );
-    const [, up, down]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+    const [, up, down]: readonly IAutoMovieMotionHumanSegment[] =
       performance.segments("a");
     const hips = (t: number): number =>
       (HumanSignature.joint(reader, t, "leftUpperLeg").y +

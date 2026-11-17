@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -129,7 +130,7 @@ export function test_human_motion_partner_relay(): void {
   }
 
   // 2. The baton's end in the outgoing palm.
-  const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("baton", at);
+  const frame: IAutoMovieRigidTransform = performance.prop("baton", at);
   const end: IAutoMovieVector3 = Vector3.add(
     frame.position,
     Quaternion.rotateVector(frame.rotation, baton.points.end!.point),

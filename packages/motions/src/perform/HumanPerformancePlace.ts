@@ -1,6 +1,7 @@
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieIntent,
+  IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -9,13 +10,17 @@ import type {
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionTarget,
-  IAutoMovieResolveSchedule,
-  IAutoMovieSchedule,
+  IAutoMovieRigidTransform,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -52,7 +57,7 @@ export namespace HumanPerformancePlace {
     self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
     start: number,
-    entries: readonly IAutoMovieSchedule.IEntry[],
+    entries: readonly IAutoMovieScheduleEntry[],
     where: IAutoMovieMotionHumanRefusal.IWhere,
     trial: boolean = false,
   ) {
@@ -112,11 +117,11 @@ export namespace HumanPerformancePlace {
         reason: `${name} moves the whole body, so it cannot be performed over another action`,
         fix: `perform ${name} as an action of its own, or put one of the listed actions over the carrier`,
       });
-    const previous: IAutoMovieMotionHumanSegment.ISegment | undefined = over
+    const previous: IAutoMovieMotionHumanSegment | undefined = over
       ? [...person.segments]
           .reverse()
           .find(
-            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            (s: IAutoMovieMotionHumanSegment): boolean =>
               s.entryTime <= start + 1e-9,
           )
       : person.segments.at(-1);
@@ -128,10 +133,10 @@ export namespace HumanPerformancePlace {
         reason: `${name} is performed over an action, and ${intent.subject} performs none at ${start.toFixed(2)} s`,
         fix: "append the action that carries the body first, then put self one over it",
       });
-    const before: IAutoMovieSchedule.IEntry | undefined = [...entries]
+    const before: IAutoMovieScheduleEntry | undefined = [...entries]
       .reverse()
       .find(
-        (e: IAutoMovieSchedule.IEntry): boolean =>
+        (e: IAutoMovieScheduleEntry): boolean =>
           e.subject === intent.subject && !self.riding.has(e.index),
       );
     if (!over && previous !== undefined && before !== undefined)
@@ -171,7 +176,7 @@ export namespace HumanPerformancePlace {
     const blend: number | undefined = over ? undefined : (row?.blend ?? 0.25);
     const entry = HumanSegment.entry(person, previous, start, blend);
     const instance: number = [...person.segments, ...person.overlays].filter(
-      (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+      (s: IAutoMovieMotionHumanSegment): boolean =>
         s.id === (intent.anchor ?? name),
     ).length;
     const body = person.performer.body;
@@ -237,7 +242,7 @@ export namespace HumanPerformancePlace {
       forces: (
         from: number,
         to: number,
-      ): readonly IAutoMovieMotionHumanForce.IForce[] =>
+      ): readonly IAutoMovieMotionHumanForce[] =>
         HumanForce.within(
           self.forces,
           intent.subject,
@@ -263,8 +268,8 @@ export namespace HumanPerformancePlace {
         ),
         index: instance,
       }),
-      cue: (track: string): readonly IAutoMovieResolveSchedule.ICue[] => {
-        const cues: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
+      cue: (track: string): readonly IAutoMovieScheduleCue[] => {
+        const cues: readonly IAutoMovieScheduleCue[] | undefined =
           self.cues[track];
         if (cues === undefined)
           throw new HumanRefusal({
@@ -280,11 +285,8 @@ export namespace HumanPerformancePlace {
           });
         return cues;
       },
-      obstacles: (): readonly IAutoMovieMotionHumanObstacle.IObstacle[] =>
-        self.obstacles,
-      performer: (
-        subject: string,
-      ): IAutoMovieMotionHumanActionContext.IPerformer => {
+      obstacles: (): readonly IAutoMovieMotionHumanObstacle[] => self.obstacles,
+      performer: (subject: string): IAutoMovieMotionHumanPerformerReader => {
         if (!self.people.has(subject))
           throw HumanPerformanceRead.missing(
             "performer",
@@ -320,7 +322,7 @@ export namespace HumanPerformancePlace {
           },
         };
       },
-      prop: (subject: string): IAutoMovieMotionHumanActionContext.IProp => {
+      prop: (subject: string): IAutoMovieMotionHumanPropReader => {
         const prop: IAutoMovieMotionHumanProp | undefined =
           self.props.get(subject);
         if (prop === undefined)
@@ -332,7 +334,7 @@ export namespace HumanPerformancePlace {
           );
         return {
           prop,
-          frame: (seconds: number): IAutoMovieMotionHumanProp.IFrame =>
+          frame: (seconds: number): IAutoMovieRigidTransform =>
             HumanPerformanceRead.prop(self, subject, seconds),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
@@ -345,7 +347,7 @@ export namespace HumanPerformancePlace {
         entry,
         start,
       ),
-      action: (anchor: string): IAutoMovieMotionHumanActionContext.IPlaced => {
+      action: (anchor: string): IAutoMovieMotionHumanPlacedAction => {
         const placed = self.anchors.get(anchor);
         if (placed === undefined)
           throw new HumanRefusal({
@@ -394,7 +396,7 @@ export namespace HumanPerformancePlace {
     // share it enters at, its contact and events on that part. A trial
     // reads the same timing the placed action gives.
     const active: number = (1 - share) * plan.duration;
-    const timing: IAutoMovieResolveSchedule.ITiming = {
+    const timing: IAutoMovieIntentTiming = {
       duration: active,
       ...(plan.contact === undefined || plan.contact < share * plan.duration
         ? {}
@@ -444,7 +446,7 @@ export namespace HumanPerformancePlace {
           start,
         },
       );
-    const segment: IAutoMovieMotionHumanSegment.ISegment = {
+    const segment: IAutoMovieMotionHumanSegment = {
       index: person.segments.length,
       entry: entries.length,
       id: intent.anchor ?? name,

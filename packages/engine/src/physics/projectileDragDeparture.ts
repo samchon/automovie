@@ -1,7 +1,7 @@
 import type {
   IAutoMovieProjectile,
-  IAutoMovieProjectileDragFlight,
   IAutoMovieProjectileDragInterval,
+  IAutoMovieProjectileFlight,
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -29,8 +29,7 @@ export function projectileDragDeparture(
   projectile: IAutoMovieProjectile,
   contact: IAutoMovieResolveContactEvents.IInitialContact,
 ): IAutoMovieResolveContactEvents.Departure | undefined {
-  const flight: IAutoMovieProjectileDragFlight.IFlight =
-    projectileDragFlight(projectile);
+  const flight: IAutoMovieProjectileFlight = projectileDragFlight(projectile);
   let current: number = contact.from;
   while (current < contact.to) {
     const interval: IAutoMovieProjectileDragInterval = flight.interval(current);

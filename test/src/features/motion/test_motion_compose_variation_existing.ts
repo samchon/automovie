@@ -33,7 +33,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 scenarios.
  */
 export function test_motion_compose_variation_existing(): void {
-  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: 0 },
     "film",
   );
@@ -46,7 +46,7 @@ export function test_motion_compose_variation_existing(): void {
       index: 3,
     }),
   };
-  const manner: IAutoMovieMotionManner.IManner = {
+  const manner: IAutoMovieMotionManner = {
     variation: 1,
     proficiency: 0,
   };

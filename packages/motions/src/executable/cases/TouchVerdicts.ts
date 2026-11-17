@@ -4,13 +4,13 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanTouchEffector,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -87,7 +87,7 @@ export namespace TouchVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     region: IRegion,
     standoff: number,
@@ -130,7 +130,7 @@ export namespace TouchVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     region: IRegion,
     standoff: number,
@@ -206,7 +206,7 @@ export namespace TouchVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     other: { subject: string; body: IAutoMovieMotionHumanBody },
     from: number,
     to: number,
@@ -366,7 +366,7 @@ export namespace TouchVerdicts {
 }
 
 /** Surface points of a collider shape in its own frame: a hull's vertices, a box's corners, and the six axis ends of a sphere or of each end and the middle of a capsule. */
-const skin = (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieVector3[] => {
+const skin = (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] => {
   if (shape.kind === "hull") return shape.points;
   if (shape.kind === "box") {
     const h: IAutoMovieVector3 = shape.halfExtents;

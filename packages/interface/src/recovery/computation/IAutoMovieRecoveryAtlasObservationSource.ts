@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryAtlasObservationState } from "./IAutoMovieRecoveryAtlasObservationState";
+import type { IAutoMovieRecoveryAtlasObservationInput } from "../observation/IAutoMovieRecoveryAtlasObservationInput";
 import type { IAutoMovieRecoveryEventRegion } from "./IAutoMovieRecoveryEventRegion";
 import type { IAutoMovieRecoveryScalarIndex } from "./IAutoMovieRecoveryScalarIndex";
 import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "./IAutoMovieRecoveryScalarIntervalsSelectionOperation";
@@ -22,9 +22,7 @@ export namespace IAutoMovieRecoveryAtlasObservationSource {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
-  export type Operation = (
-    input: IAutoMovieRecoveryAtlasObservationState["Input"],
-  ) => {
+  export type Operation = (input: IAutoMovieRecoveryAtlasObservationInput) => {
     /** Complete source-plane ordering used for deterministic scalar-interval selection. */
     order: readonly number[];
 

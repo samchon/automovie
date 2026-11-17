@@ -1,6 +1,6 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCapturePlanRequest,
-  IAutoMovieInspectionRequest,
 } from "@automovie/interface";
 
 /**
@@ -90,7 +90,7 @@ export namespace IAutoMovieInspectorAction {
     type: "shade";
 
     /** The shade drawn. */
-    shade: IAutoMovieInspectionRequest.Shade;
+    shade: AutoMovieInspectionShade;
   }
 
   /**

@@ -3,8 +3,9 @@ import {
   tessellateAutoMovieLocalHermite64 as tessellate,
 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteField64,
   IAutoMovieLocalHermiteStream64,
 } from "@automovie/interface";
@@ -35,15 +36,15 @@ export function test_geometry_saved_curve_reconstruction(): void {
     s: number,
     divided: boolean,
     reverse: boolean,
-  ) => IAutoMovieCurve64.Cubic = (
+  ) => IAutoMovieCubicBezierCurve64 = (
     s: number,
     divided: boolean,
     reverse: boolean,
-  ): IAutoMovieCurve64.Cubic => {
+  ): IAutoMovieCubicBezierCurve64 => {
     const cuts: number[] = divided ? [0, 0.25, 1] : [0, 1];
-    const spans: IAutoMovieCurve64.Span[] = cuts
+    const spans: AutoMovieCubicBezierControls3[] = cuts
       .slice(0, -1)
-      .map((start: number, j: number): IAutoMovieCurve64.Span => {
+      .map((start: number, j: number): AutoMovieCubicBezierControls3 => {
         const end: number = cuts[j + 1]!;
         const point: (i: number) => Readonly<AutoMovieVector3Tuple> = (
           i: number,
@@ -86,8 +87,8 @@ export function test_geometry_saved_curve_reconstruction(): void {
     );
   let maximum: number = 0;
   for (const reverse of [false, true]) {
-    const courses: IAutoMovieCurve64.Cubic[] = stations.map(
-      (s: number, i: number): IAutoMovieCurve64.Cubic =>
+    const courses: IAutoMovieCubicBezierCurve64[] = stations.map(
+      (s: number, i: number): IAutoMovieCubicBezierCurve64 =>
         course(s, i % 2 === 1, reverse),
     );
     const original: string = JSON.stringify([stations, courses]);
@@ -185,8 +186,8 @@ export function test_geometry_saved_curve_reconstruction(): void {
       identities: string[] = [],
       indices: number[] = [],
       intervals: number[] = [];
-    const courses: IAutoMovieCurve64.Cubic[] = stations.map(
-      (s: number, i: number): IAutoMovieCurve64.Cubic =>
+    const courses: IAutoMovieCubicBezierCurve64[] = stations.map(
+      (s: number, i: number): IAutoMovieCubicBezierCurve64 =>
         course(s, i % 2 === 1, false),
     );
     const generator: ReturnType<typeof tessellate> = tessellate({

@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -189,7 +190,7 @@ export function test_human_motion_core_held_frame(): void {
         hand.worldRotation,
         lip.point,
       );
-      const shown: IAutoMovieMotionHumanProp.IFrame = film.prop("glass", t);
+      const shown: IAutoMovieRigidTransform = film.prop("glass", t);
       const there: IAutoMovieVector3 = Quaternion.rotateVector(
         shown.rotation,
         local,

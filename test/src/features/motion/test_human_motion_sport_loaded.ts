@@ -8,10 +8,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -130,11 +130,10 @@ export function test_human_motion_sport_loaded(): void {
       );
       continue;
     }
-    const lift: IAutoMovieMotionHumanSegment.ISegment = film
+    const lift: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "deadlift",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "deadlift",
       )!;
     const bottom: number =
       lift.start +
@@ -151,7 +150,7 @@ export function test_human_motion_sport_loaded(): void {
       id: "gripLeft" | "gripRight",
       seconds: number,
     ): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("bar", seconds);
+      const frame: IAutoMovieRigidTransform = film.prop("bar", seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(
@@ -335,11 +334,9 @@ export function test_human_motion_sport_loaded(): void {
         );
         continue;
       }
-      const act: IAutoMovieMotionHumanSegment.ISegment = film
+      const act: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const at = (event: string): number =>
         act.start +
         (act.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -352,10 +349,7 @@ export function test_human_motion_sport_loaded(): void {
         0,
       );
       for (const event of [low, high]) {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-          "bell",
-          at(event),
-        );
+        const frame: IAutoMovieRigidTransform = film.prop("bell", at(event));
         const away: number = Vector3.length(
           Vector3.subtract(
             HumanSignature.joint(reader, at(event), "rightHand"),

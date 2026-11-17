@@ -1,5 +1,6 @@
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -13,7 +14,7 @@ export namespace PhysicalSupportFixtures {
     profile: P,
     duration: number,
   ): IAutoMoviePhysicalSimulationInput.IBody {
-    const endpoints: P.ISegment[] = profile.segments.filter(
+    const endpoints: IAutoMoviePhysicalSegment[] = profile.segments.filter(
       (segment: (typeof profile.segments)[number]): boolean =>
         profile.id === "human"
           ? segment.bone.endsWith("Midfoot")

@@ -76,7 +76,7 @@ export function test_human_motion_travel_bear_crawl(): void {
         body,
         0,
       );
-      const [crawl]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const [crawl]: readonly IAutoMovieMotionHumanSegment[] =
         performance.segments("a");
       const at = (share: number): number =>
         crawl!.start + share * crawl!.plan.duration;

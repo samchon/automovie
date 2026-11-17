@@ -1,6 +1,15 @@
 import type { IAutoMovieArcLengthJet } from "../../geometry/IAutoMovieArcLengthJet";
 
-/** Type contracts exchanged by AutoMovieHumanSeamKnot; runtime evaluation remains in Human. */
+/**
+ * Section-phase jets and guide constraints used to derive seam knot controls.
+ *
+ * The interface package owns these declarations; AutoMovieHumanSeamKnot in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Section-phase jets and guide constraints used to derive seam knot controls. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only Jet, IGuide, ISector, ControlsResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation Jet, IGuide, ISector, ControlsResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanSeamKnot exchanges the named Jet, IGuide, ISector, ControlsResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanSeamKnot {
   /** A section point with its first and second phase derivatives, `[p, p', p'']`.
    *
@@ -48,7 +57,17 @@ export namespace IAutoMovieHumanSeamKnot {
     /** Name in errors. */
     name: string;
 
-    /** The sector's jet at a phase of its own knots, per radian. */
+    /**
+     * The sector's jet at a phase of its own knots, per radian.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The sector's jet at a phase of its own knots, per radian.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanSeamKnot and the callback provider must satisfy the documented jet contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanSeamKnot and its callback provider own the cost of each jet invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanSeamKnot and the callback provider determine when the inputs to jet describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanSeamKnot and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanSeamKnot.ISector.jet callable contract, without an implementation body. AutoMovieHumanSeamKnot and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanSeamKnot.ISector.jet declares only the invocation boundary; decomposition belongs to AutoMovieHumanSeamKnot and the callback provider.
+     */
     jet: (t: number) => Jet;
   }
 

@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanHandDigitLaw; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanHandDigitLaw; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanHandDigitLaw exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups DigitAxesResult, IDigitStart. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanHandDigitLaw; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the DigitAxesResult, IDigitStart contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanHandDigitLaw {
   /** Result of AutoMovieHumanHandDigitLaw.digitAxes. Axes across a digit's line: toward the thumb's side and through the hand.
    *

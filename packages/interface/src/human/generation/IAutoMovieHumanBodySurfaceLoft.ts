@@ -1,28 +1,29 @@
-/** Type contracts exchanged by AutoMovieHumanBodySurfaceLoft; runtime evaluation remains in Human. */
-export namespace IAutoMovieHumanBodySurfaceLoft {
-  /** The loopPolygon argument of AutoMovieHumanBodySurfaceLoft.holeEdge. The hole a base left round a loop: the closed edge of its left-out
-  cells nearest the loop, as vertices and their chart points; for a loop
-  winding round the cap pole, the edge ring whose mean station is the
-  loop's nearest.
-   *
+/**
+ * Hole-edge chart polygons and their corresponding emitted vertex-index lists. Runtime construction and admission remain with AutoMovieHumanBodySurfaceLoft in Human.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The hole a base left round a loop: the closed edge of its left-out cells nearest the loop, as vertices and their chart points; for a loop winding round the cap pole, the edge ring whose mean station is the loop's nearest.
- * @evidence contracts/development/design.md#principled-representation The hole a base left round a loop: the closed edge of its left-out cells nearest the loop, as vertices and their chart points; for a loop winding round the cap pole, the edge ring whose mean station is the loop's nearest.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodySurfaceLoft.HoleEdgeLoopPolygon is the canonical exchange used by AutoMovieHumanBodySurfaceLoft.holeEdge.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanBodySurfaceLoft.holeEdge for the hole a base left round a loop: the closed edge of its left-out cells nearest the loop, as vertices and their chart points; for a loop winding round the cap pole, the edge ring whose mean station is the loop's nearest.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes hole-edge chart polygons and their corresponding emitted vertex-index lists; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Hole-edge chart polygons and their corresponding emitted vertex-index lists. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanBodySurfaceLoft; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing BodySurfaceLoft contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
+export namespace IAutoMovieHumanBodySurfaceLoft {
+  /**
+   * Closed trim polygon in the base chain's [station, phase] chart, using millimetres and radians. The hole-edge reader uses it to select the retained mesh boundary.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Closed trim polygon in the base chain's [station, phase] chart, using millimetres and radians. The hole-edge reader uses it to select the retained mesh boundary.
+   * @evidence contracts/development/design.md#principled-representation Closed trim polygon in the base chain's [station, phase] chart, using millimetres and radians. The hole-edge reader uses it to select the retained mesh boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodySurfaceLoft.HoleEdgeLoopPolygon is the canonical exchange used by AutoMovieHumanBodySurfaceLoft.holeEdge.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanBodySurfaceLoft input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type HoleEdgeLoopPolygon = [number, number][];
 
-  /** Result of AutoMovieHumanBodySurfaceLoft.holeEdge. The hole a base left round a loop: the closed edge of its left-out
-  cells nearest the loop, as vertices and their chart points; for a loop
-  winding round the cap pole, the edge ring whose mean station is the
-  loop's nearest.
+  /**
+   * Corresponding mesh vertex indices and [station, phase] chart points for the selected hole edge, in the same cyclic order. Stations use millimetres and phases use radians.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The hole a base left round a loop: the closed edge of its left-out cells nearest the loop, as vertices and their chart points; for a loop winding round the cap pole, the edge ring whose mean station is the loop's nearest.
- * @evidence contracts/development/design.md#principled-representation The hole a base left round a loop: the closed edge of its left-out cells nearest the loop, as vertices and their chart points; for a loop winding round the cap pole, the edge ring whose mean station is the loop's nearest. Ordered tuple slots are 0, 1; fixed arity preserves their correspondence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodySurfaceLoft.HoleEdgeResult is the canonical exchange used by AutoMovieHumanBodySurfaceLoft.holeEdge.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanBodySurfaceLoft.holeEdge for the hole a base left round a loop: the closed edge of its left-out cells nearest the loop, as vertices and their chart points; for a loop winding round the cap pole, the edge ring whose mean station is the loop's nearest.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Corresponding mesh vertex indices and [station, phase] chart points for the selected hole edge, in the same cyclic order. Stations use millimetres and phases use radians.
+   * @evidence contracts/development/design.md#principled-representation Corresponding mesh vertex indices and [station, phase] chart points for the selected hole edge, in the same cyclic order. Stations use millimetres and phases use radians.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodySurfaceLoft.HoleEdgeResult is the canonical exchange used by AutoMovieHumanBodySurfaceLoft.holeEdge.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanBodySurfaceLoft input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type HoleEdgeResult = [number[], [number, number][]];
 }

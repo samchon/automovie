@@ -12,6 +12,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
   IAutoMovieModel,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -21,7 +22,7 @@ type Id = "drive" | "follower" | "tip";
 
 /** Builds three independently bound parts with two coupled travel coordinates. */
 function fixture(
-  rule: IAutoMovieAffordance.Follows,
+  rule: IAutoMovieAffordanceCoupling,
   carried: boolean = false,
   driveLimit: number = 1,
   followerLimit: number = 90,
@@ -98,7 +99,7 @@ function refused(operation: () => unknown): boolean {
  */
 export function test_archetype_contract_reversible(): void {
   const findings: string[] = [];
-  const rules: readonly IAutoMovieAffordance.Follows[] = [
+  const rules: readonly IAutoMovieAffordanceCoupling[] = [
     { id: "drive", ratio: 90, reversible: true },
     { id: "drive", ratio: -90, reversible: true },
     {
@@ -205,7 +206,7 @@ export function test_archetype_contract_reversible(): void {
       ],
       reversible: true,
     },
-  ] satisfies IAutoMovieAffordance.Follows[]) {
+  ] satisfies IAutoMovieAffordanceCoupling[]) {
     const invalid: Archetype<Id, never> = fixture(rule);
     if (validateModel({ model: invalid }).success)
       findings.push("a non-invertible reversible rule is admitted");
@@ -260,7 +261,7 @@ export function test_archetype_contract_reversible(): void {
   // Forward binary64 endpoints must reverse to their legal bounds, while
   // the next representable value outside the image remains invalid.
   for (const ratio of [0.3, -0.3]) {
-    const rule: IAutoMovieAffordance.Follows = {
+    const rule: IAutoMovieAffordanceCoupling = {
       id: "drive",
       ratio,
       reversible: true,

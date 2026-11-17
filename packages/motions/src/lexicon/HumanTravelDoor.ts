@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanTravelDoor,
+  IAutoMovieMotionObstacleAperture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -41,22 +42,21 @@ export namespace HumanTravelDoor {
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelDoor.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const obstacle: IAutoMovieMotionHumanObstacle.IObstacle | undefined =
-          context
-            .obstacles()
-            .find(
-              (o: IAutoMovieMotionHumanObstacle.IObstacle): boolean =>
-                o.subject === context.params.through,
-            );
-        const openings: readonly IAutoMovieMotionHumanObstacle.IAperture[] =
+        const obstacle: IAutoMovieMotionHumanObstacle | undefined = context
+          .obstacles()
+          .find(
+            (o: IAutoMovieMotionHumanObstacle): boolean =>
+              o.subject === context.params.through,
+          );
+        const openings: readonly IAutoMovieMotionObstacleAperture[] =
           obstacle?.apertures ?? [];
-        const opening: IAutoMovieMotionHumanObstacle.IAperture | undefined =
+        const opening: IAutoMovieMotionObstacleAperture | undefined =
           context.params.aperture === undefined
             ? openings.length === 1
               ? openings[0]
               : undefined
             : openings.find(
-                (a: IAutoMovieMotionHumanObstacle.IAperture): boolean =>
+                (a: IAutoMovieMotionObstacleAperture): boolean =>
                   a.id === context.params.aperture,
               );
         if (opening === undefined)
@@ -74,12 +74,10 @@ export namespace HumanTravelDoor {
                   ? context
                       .obstacles()
                       .map(
-                        (o: IAutoMovieMotionHumanObstacle.IObstacle): string =>
-                          o.subject,
+                        (o: IAutoMovieMotionHumanObstacle): string => o.subject,
                       )
                   : openings.map(
-                      (a: IAutoMovieMotionHumanObstacle.IAperture): string =>
-                        a.id,
+                      (a: IAutoMovieMotionObstacleAperture): string => a.id,
                     ),
             },
             reason:

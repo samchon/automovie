@@ -1,7 +1,16 @@
 import type { IAutoMovieHumanLoftMesh } from "../lofting/IAutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 
-/** Type contracts exchanged by AutoMovieHumanBodySurface; runtime evaluation remains in Human. */
+/**
+ * Generated registered-frame skin buffers, material coordinates and opening rims in millimetres.
+ *
+ * The interface package owns these declarations; AutoMovieHumanBodySurface in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Generated registered-frame skin buffers, material coordinates and opening rims in millimetres. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IOutput, GenerateDetails declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IOutput, GenerateDetails separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanBodySurface exchanges the named IOutput, GenerateDetails contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanBodySurface {
   /** Generated skin in millimetres, registered frame.
    *

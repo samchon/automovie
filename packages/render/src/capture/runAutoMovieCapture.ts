@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureComparison,
   IAutoMovieCaptureDrawing,
   IAutoMovieCaptureFolder,
@@ -67,18 +68,18 @@ export async function runAutoMovieCapture(
   const labelScale: number = scaleAutoMovieCaptureLabels(subject, layout);
 
   // Draw, stamp, write and lay each cell in plan order.
-  const rows: IAutoMovieCaptureRecord.Row[] = [];
+  const rows: IAutoMovieCaptureCellRecord[] = [];
   const sheets: string[] = [];
   let sheet: AutoMovieRasterSheet | null = null;
   for (const cell of plan.cells) {
-    const place: Pick<IAutoMovieCaptureRecord.Row, "sheet" | "row" | "column"> =
+    const place: Pick<IAutoMovieCaptureCellRecord, "sheet" | "row" | "column"> =
       {
         sheet: sheetNames[Math.floor(cell.index / layout.perSheet)]!,
         row: Math.floor((cell.index % layout.perSheet) / layout.columns),
         column: (cell.index % layout.perSheet) % layout.columns,
       };
     const fixed: Pick<
-      IAutoMovieCaptureRecord.Row,
+      IAutoMovieCaptureCellRecord,
       "index" | "name" | "selection" | "time" | "view" | "pass" | "label"
     > = {
       index: cell.index,

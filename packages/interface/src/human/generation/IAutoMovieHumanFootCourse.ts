@@ -1,19 +1,27 @@
 import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain";
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanFootCourse; runtime evaluation remains in Human. */
+/**
+ * Original chain addresses and evaluated candidates of a bounded anatomical phase search.
+ *
+ * The interface package owns these declarations; AutoMovieHumanFootCourse in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Original chain addresses and evaluated candidates of a bounded anatomical phase search. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IAddress, IMinimum, MinimumScore declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IAddress, IMinimum, MinimumScore separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanFootCourse exchanges the named IAddress, IMinimum, MinimumScore contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanFootCourse {
   /**
    * Exact source chain and material address before a display ring exists.
    *
-   * @evidence contracts/common.md#principled-implementation Names the actual chain and its calibration-mm station directly.
-   * @evidence contracts/common.md#clear-and-simple-design The pair identifies one source course without a fabricated ring.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no world-height or old station-index substitute.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes the source chain reference and material station units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An address type owns no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Query functions determine sampler reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The display query borrows the chain; the address owns no external handle.
-   *
+   * Names the actual chain and its calibration-mm station directly.
+   * The pair identifies one source course without a fabricated ring.
+   * Contains no world-height or old station-index substitute.
+   * Distinguishes the source chain reference and material station units.
+   * An address type owns no algorithm.
+   * Query functions determine sampler reuse.
+   * The display query borrows the chain; the address owns no external handle.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Exact source chain and material address before a display ring exists.
    * @evidence contracts/development/design.md#principled-representation `chain`: Source chain. `station`: Calibration-mm station.
@@ -31,14 +39,13 @@ export namespace IAutoMovieHumanFootCourse {
   /**
    * The best evaluated point of a bounded phase search, not a continuous global-minimum guarantee.
    *
-   * @evidence contracts/common.md#principled-implementation Retains the lowest actually evaluated score with that source point and phase.
-   * @evidence contracts/common.md#clear-and-simple-design Three values expose exactly what the bounded search observed.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not present an unevaluated interpolation or local refinement as a certified global minimum.
-   * @evidence contracts/common.md#meaningful-documentation States phase, point units and objective-score meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result declaration has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The minimum query owns search work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the fixed-size result and sampled point.
-   *
+   * Retains the lowest actually evaluated score with that source point and phase.
+   * Three values expose exactly what the bounded search observed.
+   * Does not present an unevaluated interpolation or local refinement as a certified global minimum.
+   * States phase, point units and objective-score meaning.
+   * This result declaration has no algorithm.
+   * The minimum query owns search work.
+   * The caller owns the fixed-size result and sampled point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The best evaluated point of a bounded phase search, not a continuous global-minimum guarantee.
    * @evidence contracts/development/design.md#principled-representation `phase`: Material phase, radians. `point`: Actual source point, calibration mm. `score`: Value of the anatomical site objective.

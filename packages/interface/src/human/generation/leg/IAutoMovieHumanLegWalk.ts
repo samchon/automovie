@@ -1,25 +1,26 @@
 import type { IAutoMovieHumanFootSource } from "../foot/IAutoMovieHumanFootSource";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 import type { IAutoMovieHumanLegProximal } from "./IAutoMovieHumanLegProximal";
 
-/** Type contracts exchanged by AutoMovieHumanLegWalk; runtime evaluation remains in Human. */
+/**
+ * Public and intermediate leg-site laws and the actual pre-loft ankle/proximal connections. Runtime construction and admission remain with AutoMovieHumanLegWalk in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes public and intermediate leg-site laws and the actual pre-loft ankle/proximal connections; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Public and intermediate leg-site laws and the actual pre-loft ankle/proximal connections. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegWalk; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegWalk contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLegWalk {
   /**
    * Public tape laws and optional retained shape rows of the same source.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps the five public sites distinct from normalized profile rows that author their intervening shape.
-   * @evidence contracts/common.md#clear-and-simple-design A callable lookup and optional names preserve existing callers without a parallel curve owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Intermediate names do not become new measurements or sampled mesh readback.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes published site identities from retained placement/shape proxies.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This callable data contract executes no interpolation.
-   * @evidence contracts/performance.md#reuse-equivalent-work One law supplies public and intermediate sites to the same construction.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the lookup and its finite list for one source definition.
-   *
+   * One law supplies public and intermediate sites to the same construction.
+   * The caller owns the lookup and its finite list for one source definition.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Public tape laws and optional retained shape rows of the same source.
-   * @evidence contracts/development/design.md#principled-representation `intermediate`: Retained intermediate shape names; the public SITES remain separately identifiable.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanLegLaws.of. Read by AutoMovieHumanLegWalk.define, AutoMovieHumanLegWalk.create, AutoMovieHumanLegWalk.source. Also types AutoMovieHumanLegLaws.resolve, AutoMovieHumanLegSources.legLaw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `intermediate`: Retained intermediate shape names; the public SITES remain separately identifiable.
+   * @evidence contracts/development/design.md#principled-representation Keeps the five public sites distinct from normalized profile rows that author their intervening shape.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A callable lookup and optional names preserve existing callers without a parallel curve owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Intermediate names do not become new measurements or sampled mesh readback.
    */
   export interface ILaw {
     /** A named calibration-mm site from the same resolved inputs. */
@@ -55,7 +56,7 @@ export namespace IAutoMovieHumanLegWalk {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanLegWalk.define, AutoMovieHumanLegWalk.reparent. Read by AutoMovieHumanFootInterim.prepare, AutoMovieHumanFootInterim.of, AutoMovieHumanFootInterim.toes. Also types AutoMovieHumanLegSourceFamily.initial, AutoMovieHumanLegSourceFamily.coupled.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanBodyLaneInterim.side, AutoMovieHumanBodyLaneInterim.of, AutoMovieHumanFootInterim.prepare, AutoMovieHumanFootInterim.of for the exact pre-loft leg and the source station of its shared ankle anchor.
    */
-  export type IDefinition = IAutoMovieHumanSiteViewPart.IDefinition & {
+  export type IDefinition = IAutoMovieHumanSourceDefinition & {
     /** Physical station of bone 2/share 1 in this identical source, mm. */
     ankleStation: number;
     /** Same actual parent contact used to author the unmeasured proximal source. */

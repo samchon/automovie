@@ -1,7 +1,7 @@
 import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -74,7 +74,7 @@ export namespace handshakeOffer {
    */
   export function forearm(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): number {
     const socket: IAutoMovieVector3 = HumanHand.offset(
       body,
@@ -224,7 +224,7 @@ export namespace handshakeOffer {
   export function point(
     a: ISide,
     b: ISide,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting {
     const tried: IMeeting | handshakeReach.IMiss = attempt(a, b, side, pump);
@@ -245,7 +245,7 @@ export namespace handshakeOffer {
   export function attempt(
     a: ISide,
     b: ISide,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting | handshakeReach.IMiss {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);

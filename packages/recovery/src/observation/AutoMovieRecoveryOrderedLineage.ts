@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoveryOrderedLineage } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryOrderedCuts,
+  IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySavedCurveBinding,
+} from "@automovie/interface";
 
 import { bindRecoveryOrderedFits } from "../internal/bindRecoveryOrderedFits";
 import { observeRecoveryOrderedCuts } from "../internal/observeRecoveryOrderedCuts";
@@ -31,7 +35,7 @@ export namespace AutoMovieRecoveryOrderedLineage {
    */
   export function observeCuts(
     input: IAutoMovieRecoveryOrderedLineage.Input,
-  ): IAutoMovieRecoveryOrderedLineage.Cuts {
+  ): IAutoMovieRecoveryOrderedCuts {
     return observeRecoveryOrderedCuts(input);
   }
 
@@ -56,9 +60,9 @@ export namespace AutoMovieRecoveryOrderedLineage {
    */
   export function bindSavedFits(
     input: IAutoMovieRecoveryOrderedLineage.Input,
-    cuts: IAutoMovieRecoveryOrderedLineage.Cuts,
+    cuts: IAutoMovieRecoveryOrderedCuts,
     targets: readonly IAutoMovieRecoveryOrderedLineage.Target[],
-  ): IAutoMovieRecoveryOrderedLineage.Binding[] {
+  ): IAutoMovieRecoverySavedCurveBinding[] {
     return bindRecoveryOrderedFits(input, cuts, targets);
   }
 }

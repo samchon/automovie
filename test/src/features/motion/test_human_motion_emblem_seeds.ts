@@ -55,8 +55,7 @@ export function test_human_motion_emblem_seeds(): void {
         variation === 0 ? {} : { manner: { variation } },
       ).node,
     });
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     const at = (event: string): number =>
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) * placed.plan.duration;

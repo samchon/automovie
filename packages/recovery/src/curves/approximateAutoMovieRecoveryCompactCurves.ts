@@ -3,8 +3,11 @@ import {
   decomposeAutoMovieSingularMatrix,
 } from "@automovie/engine";
 import type {
+  AutoMovieVector2Tuple,
   IAutoMovieCompactCurveApproximation,
   IAutoMovieConicApproximation,
+  IAutoMoviePiecewisePlanarCurveSource,
+  IAutoMovieRegisteredPlanarCurvePiece,
   IAutoMovieSingularDecomposition,
 } from "@automovie/interface";
 
@@ -41,7 +44,7 @@ import { approximateAutoMovieRecoveryConicsAhn } from "./approximateAutoMovieRec
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most maximumQueries cached observations and maximumPieces leaves survive within the synchronous call. Only compact coefficients and scalar evidence escape; no callback or process is retained.
  */
 export function approximateAutoMovieRecoveryCompactCurves(
-  curve: IAutoMovieCompactCurveApproximation.ICurve,
+  curve: IAutoMoviePiecewisePlanarCurveSource,
   options: IAutoMovieCompactCurveApproximation.IOptions,
 ): IAutoMovieCompactCurveApproximation.IResult {
   const diagnostics: string[] = Q.validate(curve, {
@@ -66,7 +69,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
     diagnostics.push(
       "Source observation knots must lie strictly inside the finite domain.",
     );
-  const pieces: IAutoMovieCompactCurveApproximation.IPiece[] = [];
+  const pieces: IAutoMovieRegisteredPlanarCurvePiece[] = [];
   let queries: number = 0;
   let omitted: number = 0;
 
@@ -74,8 +77,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
   function result(
     refused: boolean = false,
   ): IAutoMovieCompactCurveApproximation.IResult {
-    const retained: readonly IAutoMovieCompactCurveApproximation.IPiece[] =
-      refused ? [] : pieces;
+    const retained: readonly IAutoMovieRegisteredPlanarCurvePiece[] = refused
+      ? []
+      : pieces;
     return {
       status:
         refused || retained.length === 0
@@ -85,7 +89,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
             : "partial",
       pieces: retained,
       maximumSampleErrorMm: retained.reduce(
-        (n: number, p: IAutoMovieCompactCurveApproximation.IPiece): number =>
+        (n: number, p: IAutoMovieRegisteredPlanarCurvePiece): number =>
           Math.max(n, p.maximumSampleErrorMm),
         0,
       ),
@@ -103,8 +107,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
     diagnostics.push(
       "Mixed candidates include bitangent conics and polynomial degrees 3/4/5; a whole analytic-oval fitter is not implemented.",
     );
-  const observations: Map<number, IAutoMovieConicApproximation.Point> =
-    new Map();
+  const observations: Map<number, Readonly<AutoMovieVector2Tuple>> = new Map();
   const queryLimit: Error = new Error(
     "Source query budget exhausted; unprocessed domains remain omitted.",
   );
@@ -114,13 +117,13 @@ export function approximateAutoMovieRecoveryCompactCurves(
     t: number,
     order?: 1 | 2 | 3 | 4 | 5,
     side?: "left" | "right",
-  ): IAutoMovieConicApproximation.Point {
-    const cached: IAutoMovieConicApproximation.Point | undefined =
+  ): Readonly<AutoMovieVector2Tuple> {
+    const cached: Readonly<AutoMovieVector2Tuple> | undefined =
       order === undefined ? observations.get(t) : undefined;
     if (cached !== undefined) return cached;
     if (queries >= options.maximumQueries) throw queryLimit;
     ++queries;
-    const borrowed: IAutoMovieConicApproximation.Point =
+    const borrowed: Readonly<AutoMovieVector2Tuple> =
       order === undefined
         ? curve.evaluate(t)
         : curve.derivative(t, order, side);
@@ -128,7 +131,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
       throw new Error(
         "Source returned nonfinite compact-fit coordinates or jets.",
       );
-    const p: IAutoMovieConicApproximation.Point = [borrowed[0], borrowed[1]];
+    const p: Readonly<AutoMovieVector2Tuple> = [borrowed[0], borrowed[1]];
     if (order === undefined) observations.set(t, p);
     return p;
   }
@@ -188,19 +191,16 @@ export function approximateAutoMovieRecoveryCompactCurves(
     b: number,
     degree: 3 | 4 | 5,
     at: readonly number[],
-  ): IAutoMovieCompactCurveApproximation.IPiece | undefined {
-    const p: IAutoMovieConicApproximation.Point = observe(a);
-    const q: IAutoMovieConicApproximation.Point = observe(b);
-    const left: IAutoMovieConicApproximation.Point = observe(a, 1, "right");
-    const right: IAutoMovieConicApproximation.Point = observe(b, 1, "left");
+  ): IAutoMovieRegisteredPlanarCurvePiece | undefined {
+    const p: Readonly<AutoMovieVector2Tuple> = observe(a);
+    const q: Readonly<AutoMovieVector2Tuple> = observe(b);
+    const left: Readonly<AutoMovieVector2Tuple> = observe(a, 1, "right");
+    const right: Readonly<AutoMovieVector2Tuple> = observe(b, 1, "left");
     const ln: number = Math.hypot(...left);
     const rn: number = Math.hypot(...right);
     if (ln === 0 || rn === 0) return undefined;
-    const u: IAutoMovieConicApproximation.Point = [left[0] / ln, left[1] / ln];
-    const v: IAutoMovieConicApproximation.Point = [
-      right[0] / rn,
-      right[1] / rn,
-    ];
+    const u: Readonly<AutoMovieVector2Tuple> = [left[0] / ln, left[1] / ln];
+    const v: Readonly<AutoMovieVector2Tuple> = [right[0] / rn, right[1] / rn];
     const width: number = 2 + 2 * (degree - 3);
     const rows: number[][] = [];
     const values: number[] = [];
@@ -215,7 +215,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
       const scale: number = Math.sqrt(
         (at[i + 1]! - at[i - 1]!) / (2 * (b - a)),
       );
-      const point: IAutoMovieConicApproximation.Point = observe(t);
+      const point: Readonly<AutoMovieVector2Tuple> = observe(t);
       for (let axis: number = 0; axis < 2; ++axis) {
         const row: number[] = new Array<number>(width).fill(0);
         row[0] = basis[1]! * u[axis]! * scale;
@@ -259,7 +259,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
       solution[1]! <= 0
     )
       return undefined;
-    const controls: IAutoMovieConicApproximation.Point[] = [
+    const controls: Readonly<AutoMovieVector2Tuple>[] = [
       p,
       [p[0] + solution[0]! * u[0], p[1] + solution[0]! * u[1]],
     ];
@@ -280,13 +280,13 @@ export function approximateAutoMovieRecoveryCompactCurves(
 
   /** Linear source registration supplies paired witnesses in both directions. */
   function verifyPolynomial(
-    piece: IAutoMovieCompactCurveApproximation.IPiece,
+    piece: IAutoMovieRegisteredPlanarCurvePiece,
     at: readonly number[],
   ): number {
     let maximum: number = 0;
     for (const t of at) {
-      const p: IAutoMovieConicApproximation.Point = observe(t);
-      const q: IAutoMovieConicApproximation.Point = C.evaluate(
+      const p: Readonly<AutoMovieVector2Tuple> = observe(t);
+      const q: Readonly<AutoMovieVector2Tuple> = C.evaluate(
         piece,
         (t - piece.domain[0]) / (piece.domain[1] - piece.domain[0]),
       );
@@ -297,15 +297,15 @@ export function approximateAutoMovieRecoveryCompactCurves(
 
   /** Independently check the conic's apex-ray chart, including reverse samples. */
   function verifyConic(
-    piece: IAutoMovieCompactCurveApproximation.IPiece & { kind: "conic" },
+    piece: IAutoMovieRegisteredPlanarCurvePiece & { kind: "conic" },
     at: readonly number[],
   ): number {
-    const p: IAutoMovieConicApproximation.Point = piece.controls[0];
-    const x: IAutoMovieConicApproximation.Point = [
+    const p: Readonly<AutoMovieVector2Tuple> = piece.controls[0];
+    const x: Readonly<AutoMovieVector2Tuple> = [
       piece.controls[1][0] - p[0],
       piece.controls[1][1] - p[1],
     ];
-    const y: IAutoMovieConicApproximation.Point = [
+    const y: Readonly<AutoMovieVector2Tuple> = [
       piece.controls[2][0] - p[0],
       piece.controls[2][1] - p[1],
     ];
@@ -315,11 +315,8 @@ export function approximateAutoMovieRecoveryCompactCurves(
     function radial(t: number): number {
       if (t === piece.domain[0]) return 0;
       if (t === piece.domain[1]) return 1;
-      const q: IAutoMovieConicApproximation.Point = observe(t);
-      const delta: IAutoMovieConicApproximation.Point = [
-        q[0] - p[0],
-        q[1] - p[1],
-      ];
+      const q: Readonly<AutoMovieVector2Tuple> = observe(t);
+      const delta: Readonly<AutoMovieVector2Tuple> = [q[0] - p[0], q[1] - p[1]];
       if (area === 0)
         return (delta[0] * y[0] + delta[1] * y[1]) / (y[0] ** 2 + y[1] ** 2);
       const b1: number = Q.cross(delta, y) / area;
@@ -392,7 +389,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
       const validation: number[] = [
         ...new Set([...sample.fitting, ...sample.validation]),
       ].sort((x: number, y: number): number => x - y);
-      let accepted: IAutoMovieCompactCurveApproximation.IPiece | undefined;
+      let accepted: IAutoMovieRegisteredPlanarCurvePiece | undefined;
       if (options.degree === "mixed") {
         const conic: IAutoMovieConicApproximation.IResult =
           approximateAutoMovieRecoveryConicsAhn(
@@ -400,13 +397,13 @@ export function approximateAutoMovieRecoveryCompactCurves(
               domain: [a, b],
               breaks: [],
               closed: false,
-              evaluate: (t: number): IAutoMovieConicApproximation.Point =>
+              evaluate: (t: number): Readonly<AutoMovieVector2Tuple> =>
                 observe(t),
               derivative: (
                 t: number,
                 order: 1 | 2 | 3 | 4 | 5,
                 side?: "left" | "right",
-              ): IAutoMovieConicApproximation.Point => observe(t, order, side),
+              ): Readonly<AutoMovieVector2Tuple> => observe(t, order, side),
             },
             {
               toleranceMm: options.toleranceMm,
@@ -415,7 +412,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
             },
           );
         if (conic.status === "complete" && conic.arcs.length === 1) {
-          const candidate: IAutoMovieCompactCurveApproximation.IPiece & {
+          const candidate: IAutoMovieRegisteredPlanarCurvePiece & {
             kind: "conic";
           } = { ...conic.arcs[0]!, kind: "conic" };
           candidate.maximumSampleErrorMm = Math.max(
@@ -430,9 +427,8 @@ export function approximateAutoMovieRecoveryCompactCurves(
         options.degree === "mixed" ? [3, 4, 5] : [options.degree];
       for (const degree of degrees) {
         if (accepted !== undefined) break;
-        const candidate:
-          | IAutoMovieCompactCurveApproximation.IPiece
-          | undefined = polynomial(a, b, degree, sample.fitting);
+        const candidate: IAutoMovieRegisteredPlanarCurvePiece | undefined =
+          polynomial(a, b, degree, sample.fitting);
         if (candidate === undefined) continue;
         candidate.maximumSampleErrorMm = verifyPolynomial(
           candidate,

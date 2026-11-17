@@ -1,7 +1,14 @@
 import type { IAutoMovieDrawing } from "./IAutoMovieDrawing";
 import type { IAutoMovieDrawingView } from "./IAutoMovieDrawingView";
 
-/** Data and callback contracts shared by the DrawingToSvg operations. */
+/**
+ * Data and callback contracts shared by the DrawingToSvg operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation A derived drawing and its originating view join model-metre geometry to page-millimetre pen and scale settings.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface autoMovieDrawingToSvg reads the existing drawing and view; no canvas, renderer or filesystem handle enters serialization.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Mismatched view identity and invalid positive pen scalars throw; missing drawing evidence stays in SVG markers rather than disappearing.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents scale conversion, y inversion, XML escaping, deterministic bytes and refusal.
+ */
 export namespace IAutoMovieDrawingToSvg {
   /**
    * Serialize one derived drawing as a self-describing SVG sheet.
@@ -25,6 +32,11 @@ export namespace IAutoMovieDrawingToSvg {
    * Throws an `Error` when the view is not the one the drawing was derived from,
    * or its pen has a weight, dash or text height that is not a finite positive
    * number.
+   *
+   * @evidence contracts/development/design.md#principled-representation A derived drawing and its originating view join model-metre geometry to page-millimetre pen and scale settings.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface autoMovieDrawingToSvg reads the existing drawing and view; no canvas, renderer or filesystem handle enters serialization.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Mismatched view identity and invalid positive pen scalars throw; missing drawing evidence stays in SVG markers rather than disappearing.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents scale conversion, y inversion, XML escaping, deterministic bytes and refusal.
    */
   export type IProps = {
     /** Drawing to serialize. */

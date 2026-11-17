@@ -1,9 +1,16 @@
 import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
-import type { IAutoMovieNaturalSpline } from "./IAutoMovieNaturalSpline";
+import type { IAutoMovieNaturalCubicSpline } from "./IAutoMovieNaturalCubicSpline";
 import type { IAutoMovieViewHermite } from "./IAutoMovieViewHermite";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
-/** Data and callback contracts shared by the ViewOutline operations. */
+/**
+ * Data and callback contracts shared by the ViewOutline operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Outline preparation retains original knots and parameter choice; readings distinguish finite scalar values from nullable physical-station jets and their explicit status.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewOutline owns source admission/readings used by view curves, scalar sources and optional ViewHermite preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Singular or nonfinite station derivatives do not discard a finite source value or fabricate zero derivatives; failures remain named.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines closing ends, root/angle coordinates, derivative status and extension location.
+ */
 export namespace IAutoMovieViewOutline {
   /**
    * Closing stations in millimetres; absent ends remain open.
@@ -43,7 +50,7 @@ export namespace IAutoMovieViewOutline {
     parameter: IAutoMovieConstructionOutlineParameter | undefined;
 
     /** Natural spline in the admitted parameter. */
-    spline: IAutoMovieNaturalSpline.ISpline;
+    spline: IAutoMovieNaturalCubicSpline;
 
     /** Optional explicitly requested shared-jet/range quintic preparation; absent keeps the original natural cubic unchanged. */
     hermite?: IAutoMovieViewHermite.ICurve;

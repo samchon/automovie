@@ -1,4 +1,11 @@
-/** Scalar data for an open or periodic shape-preserving cubic interpolant. */
+/**
+ * Scalar data for an open or periodic shape-preserving cubic interpolant.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Increasing scalar knots and ordinates keep caller-chosen units; optional period shares the knot unit. Absent period selects constant open extension; one knot is valid, while numeric types leave ordering and finiteness to runtime admission.
+ * @evidence contracts/development/design.md#principled-representation Increasing scalar knots and ordinates keep caller-chosen units; optional period shares the knot unit.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interpolateAutoMovieMonotone copies and admits IProps before compiling its reusable scalar evaluator.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent period selects constant open extension; one knot is valid, while numeric types leave ordering and finiteness to runtime admission.
+ */
 export namespace IAutoMovieInterpolateMonotone {
   /**
    * Build a shape-preserving piecewise cubic interpolant through knots, the

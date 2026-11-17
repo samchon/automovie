@@ -1,9 +1,10 @@
 import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAngleRange,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -65,7 +66,7 @@ export namespace pickUpAdjust {
    */
   export function turned(
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     grip: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
   ): pickUpPosture.IStance {
@@ -175,7 +176,7 @@ export namespace pickUpAdjust {
    */
   export function stepped(
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     wrist: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
     lifted?: IAutoMovieVector3,
@@ -247,8 +248,7 @@ export namespace pickUpAdjust {
         share: number,
       ): IAutoMovieMotionHumanPosture => {
         if (length <= 0 || share <= 0) return posture;
-        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-          posture.limbs[leg];
+        const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
         if (goal === undefined) return posture;
 
         // The foot's own progress, by the reach's time at this share of the
@@ -275,7 +275,7 @@ export namespace pickUpAdjust {
         const drop: number = Math.max(
           0,
           ...(["left", "right"] as const).map((s: "left" | "right"): number => {
-            const ankle: IAutoMovieMotionHumanPosture.IGoal | undefined =
+            const ankle: IAutoMovieHumanLimbGoal | undefined =
               posture.limbs[s === "left" ? "leftLeg" : "rightLeg"];
             return ankle === undefined || s === foot
               ? 0
@@ -450,7 +450,7 @@ export namespace pickUpAdjust {
   /** The holding arm's shoulder joint on a posture, world metres. */
   const shoulder = (
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!

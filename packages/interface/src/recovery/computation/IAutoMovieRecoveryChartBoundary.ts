@@ -1,8 +1,5 @@
-import type {
-  AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
-  IAutoMoviePolylineFit,
-} from "../../index";
+import type { IAutoMovieCubicBezierCurve64 } from "../../geometry/curve/IAutoMovieCubicBezierCurve64";
+import type { AutoMovieVector3Tuple, IAutoMoviePolylineFit } from "../../index";
 
 /**
  * Own one fitted curve and accepted pointwise phase chart per private boundary path. Private incidence words identify equality, including reversed order; equal positions on different words never weld. Public boundary IDs are new sequential identities. Each returned orientation uses the same canonical coefficients and registration. Partial path overlaps remain distinct and require a separate segmentation authority.
@@ -57,7 +54,7 @@ export namespace IAutoMovieRecoveryChartBoundary {
       knots: number[];
 
       /** Canonical oriented cubic authority with normalized phase, shared by both incident chart directions. */
-      canonicalCurve: IAutoMovieCurve64.Cubic;
+      canonicalCurve: IAutoMovieCubicBezierCurve64;
 
       /** Increasing normalized span-boundary parameters in the canonical curve orientation. */
       canonicalKnots: number[];

@@ -1,5 +1,8 @@
 import { compileAutoMovieNormalizedPhases64 } from "@automovie/engine";
-import type { IAutoMovieCurve64 } from "@automovie/interface";
+import type {
+  AutoMovieCubicBezierControls3,
+  IAutoMovieCubicBezierCurve64,
+} from "@automovie/interface";
 
 /**
  * Normalize the saved open-course phase and optionally reverse its declared direction.
@@ -15,9 +18,9 @@ import type { IAutoMovieCurve64 } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the immutable input; normalized arrays transfer to the run invocation and no handle or global state survives.
  */
 export function normalizeRecoveryCourse(
-  curve: IAutoMovieCurve64.Cubic,
+  curve: IAutoMovieCubicBezierCurve64,
   reverse: boolean,
-): IAutoMovieCurve64.Cubic {
+): IAutoMovieCubicBezierCurve64 {
   if (
     curve.closed ||
     curve.unit !== "mm" ||
@@ -44,11 +47,13 @@ export function normalizeRecoveryCourse(
       return value;
     },
   );
-  const spans: IAutoMovieCurve64.Span[] = reverse
+  const spans: AutoMovieCubicBezierControls3[] = reverse
     ? [...curve.spans]
         .reverse()
         .map(
-          (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+          (
+            span: AutoMovieCubicBezierControls3,
+          ): AutoMovieCubicBezierControls3 => [
             span[3],
             span[2],
             span[1],

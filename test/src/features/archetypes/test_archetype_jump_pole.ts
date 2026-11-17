@@ -3,9 +3,9 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -84,11 +84,10 @@ export function test_archetype_jump_pole(): void {
       );
       continue;
     }
-    const segment: IAutoMovieMotionHumanSegment.ISegment = film
+    const segment: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "vaultOnPole",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "vaultOnPole",
       )!;
     const at = (event: string): number =>
       segment.start +
@@ -96,10 +95,7 @@ export function test_archetype_jump_pole(): void {
         Number.NaN) *
         segment.plan.duration;
     const end = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "pole",
-        seconds,
-      );
+      const frame: IAutoMovieRigidTransform = film.prop("pole", seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, tip),

@@ -94,7 +94,7 @@ export function test_human_motion_cadence(): void {
     });
     const strikes: Map<string, number[]> = new Map();
     for (const m of ensemble.members) {
-      const s: IAutoMovieMotionHumanSegment.ISegment = performance.segments(
+      const s: IAutoMovieMotionHumanSegment = performance.segments(
         m.subject,
       )[0]!;
       strikes.set(

@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanGlutealCut; runtime evaluation remains in Human. */
+/**
+ * Horizontal original-source cut points with physical station and polar-phase provenance.
+ *
+ * The interface package owns these declarations; AutoMovieHumanGlutealCut in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Horizontal original-source cut points with physical station and polar-phase provenance. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IPoint, CreateResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IPoint, CreateResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanGlutealCut exchanges the named IPoint, CreateResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanGlutealCut {
   /** One horizontal-cut point and the actual source chart that produced it.
    *

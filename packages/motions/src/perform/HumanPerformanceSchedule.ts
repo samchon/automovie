@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
+  IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceState,
@@ -13,8 +14,11 @@ import type {
   IAutoMovieMotionHumanResponse,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionMeeting,
-  IAutoMovieResolveSchedule,
   IAutoMovieSchedule,
+  IAutoMovieScheduleAlignment,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -51,8 +55,8 @@ export namespace HumanPerformanceSchedule {
       return resolveAutoMovieSchedule(input.composition, {
         timing: (
           intent: IAutoMovieIntent,
-          context: IAutoMovieResolveSchedule.IContext,
-        ): IAutoMovieResolveSchedule.ITiming => {
+          context: IAutoMovieScheduleContext,
+        ): IAutoMovieIntentTiming => {
           const where: IAutoMovieMotionHumanRefusal.IWhere =
             HumanPerformanceRead.where(self, intent);
           try {
@@ -73,18 +77,14 @@ export namespace HumanPerformanceSchedule {
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
         // A struck subject's hits are a track computed from what is placed.
-        instants: (
-          of: string,
-        ): readonly IAutoMovieResolveSchedule.ICue[] | undefined =>
+        instants: (of: string): readonly IAutoMovieScheduleCue[] | undefined =>
           HumanHitTrack.instants(self, of),
         cues: {
           ...self.cues,
           ...Object.fromEntries(
             [...self.layered].filter(
-              ([, cues]: [
-                string,
-                readonly IAutoMovieResolveSchedule.ICue[],
-              ]): boolean => cues.length !== 0,
+              ([, cues]: [string, readonly IAutoMovieScheduleCue[]]): boolean =>
+                cues.length !== 0,
             ),
           ),
         },
@@ -92,7 +92,7 @@ export namespace HumanPerformanceSchedule {
           intent: IAutoMovieIntent,
           instant: string,
           target: number,
-          context: IAutoMovieResolveSchedule.IAlignment,
+          context: IAutoMovieScheduleAlignment,
         ): number => {
           const where: IAutoMovieMotionHumanRefusal.IWhere =
             HumanPerformanceRead.where(self, intent);
@@ -134,13 +134,13 @@ export namespace HumanPerformanceSchedule {
     intent: IAutoMovieIntent,
     instant: string,
     target: number,
-    context: IAutoMovieResolveSchedule.IAlignment,
+    context: IAutoMovieScheduleAlignment,
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): number {
-    const entries: readonly IAutoMovieSchedule.IEntry[] = context.entries;
+    const entries: readonly IAutoMovieScheduleEntry[] = context.entries;
     const person: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, intent.subject);
-    const previous: IAutoMovieMotionHumanSegment.ISegment | undefined =
+    const previous: IAutoMovieMotionHumanSegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
     let start: number = target;
@@ -149,17 +149,16 @@ export namespace HumanPerformanceSchedule {
       // Planning a mutual action records its meeting; a trial must not.
       const meetings: [
         string,
-        { subject: string; meeting: IAutoMovieMotionMeeting.IMeeting },
+        { subject: string; meeting: IAutoMovieMotionMeeting },
       ][] = [...self.meetings];
-      const timing: IAutoMovieResolveSchedule.ITiming =
-        HumanPerformancePlace.place(
-          self,
-          intent,
-          Math.max(floor, start),
-          entries,
-          where,
-          true,
-        );
+      const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
+        self,
+        intent,
+        Math.max(floor, start),
+        entries,
+        where,
+        true,
+      );
       self.meetings.clear();
       for (const [key, value] of meetings) self.meetings.set(key, value);
       const share: number | undefined =
@@ -191,17 +190,16 @@ export namespace HumanPerformanceSchedule {
     if (start < floor - 1e-9) {
       // The instants of the same name the anchor or track still offers: the
       // first one late enough is what the author can sync to instead.
-      const anchor: IAutoMovieResolveSchedule.IAlignment["anchor"] =
-        context.anchor;
-      const same: readonly IAutoMovieResolveSchedule.ICue[] =
+      const anchor: IAutoMovieScheduleAlignment["anchor"] = context.anchor;
+      const same: readonly IAutoMovieScheduleCue[] =
         anchor.event === undefined
           ? []
           : anchor.instants.filter(
-              (cue: IAutoMovieResolveSchedule.ICue): boolean =>
+              (cue: IAutoMovieScheduleCue): boolean =>
                 cue.name === anchor.event,
             );
       const earliest: number = same.findIndex(
-        (cue: IAutoMovieResolveSchedule.ICue): boolean =>
+        (cue: IAutoMovieScheduleCue): boolean =>
           cue.seconds + anchor.offset >= floor + lead - 1e-9,
       );
       throw new HumanRefusal({
@@ -240,7 +238,7 @@ export namespace HumanPerformanceSchedule {
   export function latency(
     self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
-    context: IAutoMovieResolveSchedule.IAlignment,
+    context: IAutoMovieScheduleAlignment,
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): number {
     const raw: unknown = intent.parameters?.latency;
@@ -261,8 +259,7 @@ export namespace HumanPerformanceSchedule {
     const warned: boolean =
       event !== undefined &&
       context.anchor.instants.filter(
-        (cue: IAutoMovieResolveSchedule.ICue): boolean =>
-          cue.name === `${event}Caution`,
+        (cue: IAutoMovieScheduleCue): boolean => cue.name === `${event}Caution`,
       ).length > index;
     return HumanResponse.latency(
       person.skill,
@@ -292,8 +289,7 @@ export namespace HumanPerformanceSchedule {
 
     // A proximity cut reads the carrier's reach; an overlay's is not found.
     if (intent.parameters?.over === true) return undefined;
-    const segment: IAutoMovieMotionHumanSegment.ISegment =
-      person.segments.at(-1)!;
+    const segment: IAutoMovieMotionHumanSegment = person.segments.at(-1)!;
     const frame =
       person.performer.body.surfaces.regions[until.proximity.effector];
     const gap = (seconds: number): number => {

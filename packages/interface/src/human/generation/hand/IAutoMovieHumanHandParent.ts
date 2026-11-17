@@ -1,9 +1,18 @@
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 
-/** Type contracts exchanged by AutoMovieHumanHandParent; runtime evaluation remains in Human. */
+/**
+ * The shared original hand-region field and restricted chart frames used by digit attachments.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHandParent in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The shared original hand-region field and restricted chart frames used by digit attachments. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IOutput, Frame declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IOutput, Frame separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHandParent exchanges the named IOutput, Frame contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHandParent {
   /** One prepared original hand-region field shared by all five digits before whole-arm demand.
    *
@@ -15,7 +24,7 @@ export namespace IAutoMovieHumanHandParent {
    */
   export interface IOutput {
     /** Only the legacy explicit-part adapter retains a completed original; production controls leave this absent. */
-    definition?: IAutoMovieHumanSiteViewPart.IDefinition;
+    definition?: IAutoMovieHumanSourceDefinition;
 
     /** Shared identity/frame/pole metadata; no neighbouring scalar curves or completed part is acquired. */
     part: Pick<IAutoMovieViewPart, "name" | "axis" | "pole">;

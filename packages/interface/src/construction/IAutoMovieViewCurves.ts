@@ -1,8 +1,15 @@
 import type { IAutoMovieLoftContract } from "./IAutoMovieLoftContract";
-import type { IAutoMovieLoftFrame } from "./IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
 
-/** Data and callback contracts shared by the ViewCurves operations. */
+/**
+ * Data and callback contracts shared by the ViewCurves operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation The four named front/side source edges carry their actual scalar outlines and world-mm frame readings, with source failures retained separately.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewCurves feeds construction curve inspection while reusing ViewOutline, LoftFrame and LoftContract ownership.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A null outline is a failed source, not an inferred curve from emitted sections; preparation owns the edge admission.
+ * @evidence contracts/development/common.md#meaningful-documentation States edge order, chart direction and original source/frame relation.
+ */
 export namespace IAutoMovieViewCurves {
   /**
    * One source edge, retained even when its preparation fails.
@@ -56,7 +63,7 @@ export namespace IAutoMovieViewCurves {
     scalar: IAutoMovieViewOutline.IReading;
 
     /** Actual input axis frame at the station, world millimetres. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
 
     /** The source edge's world point, millimetres. */
     point: [number, number, number];

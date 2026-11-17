@@ -1,8 +1,12 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryAtlasObservationFeatures,
-  IAutoMovieRecoveryAtlasObservationState,
+  IAutoMovieRecoveryAtlasObservationInput,
+  IAutoMovieRecoveryChartInventory,
   IAutoMovieRecoveryFeatureChartPreparation,
+  IAutoMovieRecoveryPendingChartObservation,
+  IAutoMovieRecoverySourceComponent,
+  IAutoMovieRecoverySourceCrease,
 } from "@automovie/interface";
 
 import { RecoveryFeatureChartPreparation } from "./RecoveryFeatureChartPreparation";
@@ -40,21 +44,21 @@ export function RecoveryAtlasObservationFeatures(
     failedSelectedComponents,
     incrementUnsupported,
   }: {
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
     name: string;
     positions: Readonly<AutoMovieVector3Tuple>[];
     triangles: [number, number, number][];
     vertexIds: string[];
     slots: Map<string, number>;
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    component: IAutoMovieRecoverySourceComponent;
     interval: number;
     beforeMm: number;
     afterMm: number;
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
+    inventory: IAutoMovieRecoveryChartInventory[];
     outcomes: object[];
     triangleSourceFaces: number[];
-    featureEdges: IAutoMovieRecoveryAtlasObservationState["Feature"][];
+    featureEdges: IAutoMovieRecoverySourceCrease[];
     failedSelectedComponents: Set<string>;
     incrementUnsupported: () => void;
   } = context;

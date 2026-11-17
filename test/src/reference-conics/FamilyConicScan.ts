@@ -7,7 +7,7 @@ import {
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
-  IAutoMovieMeshExtract,
+  IAutoMovieMeshSectionChain,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 import path from "node:path";
@@ -629,7 +629,7 @@ namespace FamilyConicScan {
           0,
           0.5,
           0,
-        )[0]!.loops.map((loop: IAutoMovieMeshExtract.ILoop): C.P[] => [
+        )[0]!.loops.map((loop: IAutoMovieMeshSectionChain): C.P[] => [
           ...loop.points,
           ...(loop.closed ? [loop.points[0]!] : []),
         ]);

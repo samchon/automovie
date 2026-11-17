@@ -1,6 +1,13 @@
-import type { IAutoMovieHumanSkeletonLaw } from "../generation/IAutoMovieHumanSkeletonLaw";
+import type { IAutoMovieHumanCalibrationBone } from "../generation/IAutoMovieHumanCalibrationBone";
 
-/** Type contracts exchanged by AutoMovieHumanJointCentres; runtime evaluation remains in Human. */
+/**
+ * Bind-joint records augmented with the outgoing segment's millimetre girth radius. Runtime construction and admission remain with AutoMovieHumanJointCentres in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes bind-joint records augmented with the outgoing segment's millimetre girth radius; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Bind-joint records augmented with the outgoing segment's millimetre girth radius. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanJointCentres; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing JointCentres contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanJointCentres {
   /** One joint: a bone's origin, parent, segment direction and girth.
    *
@@ -10,7 +17,7 @@ export namespace IAutoMovieHumanJointCentres {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanJointCentres.derive. Read by AutoMovieHumanJointTurn.derive, AutoMovieHumanNeutral.frames, AutoMovieHumanNeutral.derive. Also types AutoMovieHumanBindingInputs.joints, AutoMovieHumanJointTurn.standing.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `radius`; callers supply the complete record.
    */
-  export interface IJoint extends IAutoMovieHumanSkeletonLaw.IBone {
+  export interface IJoint extends IAutoMovieHumanCalibrationBone {
     /** Skin girth radius of the segment leaving this joint, mm: perimeter / 2pi at its middle. */
     radius: number;
   }

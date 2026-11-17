@@ -12,7 +12,7 @@ import {
 import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewCurves,
@@ -233,7 +233,7 @@ function subset(
       const actual: ReturnType<typeof AutoMovieLoftViewWorldJet> =
         AutoMovieLoftViewWorldJet(source.source, part.axis, station, phase);
       if (typeof actual === "string") throw new Error(actual);
-      const expected: IAutoMovieLoftJet.IJet = world(q, station);
+      const expected: IAutoMovieLoftSurfaceJet = world(q, station);
       jets(
         {
           p: actual.p,
@@ -349,7 +349,7 @@ function shoulder(station: number): Scalar {
 }
 
 /** Guide position, station2 and phase2 from the original supports and endpoint curvature. */
-function world(q: number, station: number): IAutoMovieLoftJet.IJet {
+function world(q: number, station: number): IAutoMovieLoftSurfaceJet {
   const r: Scalar = scalar(q, station);
   const adjacent: number[] = [
     scalar((q + 3) % 4, station)[0],
@@ -459,8 +459,8 @@ function refusal(
 
 /** Observe complete world total2 against the independent guide equations. */
 function jets(
-  actual: IAutoMovieLoftJet.IJet,
-  expected: IAutoMovieLoftJet.IJet,
+  actual: IAutoMovieLoftSurfaceJet,
+  expected: IAutoMovieLoftSurfaceJet,
   failures: string[],
   label: string,
 ): void {

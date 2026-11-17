@@ -37,7 +37,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
 export function test_motion_compose_action(): void {
-  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(1, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
     { name: "strokeStart", seconds: 0.2 },
     { name: "contact", seconds: 0.5 },
     { name: "strokeEnd", seconds: 0.8 },

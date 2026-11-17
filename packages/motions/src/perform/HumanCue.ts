@@ -1,6 +1,6 @@
 import type {
   IAutoMovieMotionHumanCue,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
 /**
@@ -40,8 +40,8 @@ export namespace HumanCue {
    */
   export function orders(
     orders: readonly IAutoMovieMotionHumanCue.IOrder[],
-  ): IAutoMovieResolveSchedule.ICue[] {
-    const track: { cue: IAutoMovieResolveSchedule.ICue; order: number }[] = [];
+  ): IAutoMovieScheduleCue[] {
+    const track: { cue: IAutoMovieScheduleCue; order: number }[] = [];
     const sorted: IAutoMovieMotionHumanCue.IOrder[] = [...orders].sort(
       (
         a: IAutoMovieMotionHumanCue.IOrder,
@@ -105,7 +105,7 @@ export namespace HumanCue {
   export function instants(
     source: IAutoMovieMotionHumanCue.IInstants,
     names?: readonly string[],
-  ): IAutoMovieResolveSchedule.ICue[] {
+  ): IAutoMovieScheduleCue[] {
     return source.instants
       .filter(
         (i: { label: string }): boolean =>
@@ -138,7 +138,7 @@ export namespace HumanCue {
    */
   export function beats(
     beats: IAutoMovieMotionHumanCue.IBeats,
-  ): IAutoMovieResolveSchedule.ICue[] {
+  ): IAutoMovieScheduleCue[] {
     const meter: number = beats.meter ?? 4;
     if (!(beats.bpm > 0))
       throw new Error("A beat track needs a positive tempo");
@@ -148,7 +148,7 @@ export namespace HumanCue {
     ] as const)
       if (!(Number.isInteger(value) && value > 0))
         throw new Error(`A beat track's ${name} is a positive whole number`);
-    const track: IAutoMovieResolveSchedule.ICue[] = [];
+    const track: IAutoMovieScheduleCue[] = [];
     for (let i: number = 0; i < beats.count; ++i) {
       const seconds: number = (beats.from ?? 0) + (i * 60) / beats.bpm;
       if (i % meter === 0) track.push({ name: "downbeat", seconds });
@@ -177,8 +177,8 @@ export namespace HumanCue {
    */
   export function dialogue(
     lines: readonly IAutoMovieMotionHumanCue.ILine[],
-  ): IAutoMovieResolveSchedule.ICue[] {
-    const track: IAutoMovieResolveSchedule.ICue[] = [];
+  ): IAutoMovieScheduleCue[] {
+    const track: IAutoMovieScheduleCue[] = [];
     lines.forEach(
       (line: IAutoMovieMotionHumanCue.ILine, index: number): void => {
         if (!(line.to >= line.from))

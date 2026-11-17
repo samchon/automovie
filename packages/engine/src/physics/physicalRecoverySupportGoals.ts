@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieAdvancePhysicalBalance,
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,7 +24,7 @@ export function physicalRecoverySupportGoals(
   body: IAutoMoviePhysicalSimulationInput.IBody,
   target: IAutoMoviePhysicalSimulationInput.ITarget,
   pattern: IAutoMovieFootfallPattern,
-  state: IAutoMovieAdvancePhysicalBalance.IState | undefined,
+  state: IAutoMoviePhysicalRecoveryState | undefined,
   seconds: number,
 ): Record<string, IAutoMovieVector3> {
   return Object.fromEntries(

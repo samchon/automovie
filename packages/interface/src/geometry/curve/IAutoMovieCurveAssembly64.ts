@@ -1,7 +1,15 @@
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { IAutoMovieCurveBoundary64 } from "./IAutoMovieCurveBoundary64";
+import type { IAutoMovieCurveBoundaryPublication64 } from "./IAutoMovieCurveBoundaryPublication64";
 import type { IAutoMovieCurveParentContext } from "./IAutoMovieCurveParentContext";
 
-/** Data and callback contracts shared by the CurveAssembly64 operations. */
+/**
+ * Data and callback contracts shared by the CurveAssembly64 operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Named region factories publish physical boundary fields through one resolved context and retain their concrete result type. The constrained generic preserves actual producer results; readonly views do not freeze containers, and dependency/publication validity is checked during assembly.
+ * @evidence contracts/development/design.md#principled-representation Named region factories publish physical boundary fields through one resolved context and retain their concrete result type.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface generateAutoMovieCurveAssembly64 schedules Factory callbacks and returns Output maps keyed by region and boundary IDs.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The constrained generic preserves actual producer results; readonly views do not freeze containers, and dependency/publication validity is checked during assembly.
+ */
 export namespace IAutoMovieCurveAssembly64 {
   /**
    * A factory result exposing every boundary that region owns; concrete consumers may extend it with their generated primitives.
@@ -20,7 +28,7 @@ export namespace IAutoMovieCurveAssembly64 {
       bone: string;
 
       /** Complete transverse position and longitudinal first-variation field. */
-      value: IAutoMovieCurve64.Boundary;
+      value: IAutoMovieCurveBoundary64;
     }[];
   }
 
@@ -51,7 +59,7 @@ export namespace IAutoMovieCurveAssembly64 {
      */
     construct(
       context: IAutoMovieCurveParentContext,
-      upstream: ReadonlyMap<string, IAutoMovieCurve64.Boundary>,
+      upstream: ReadonlyMap<string, IAutoMovieCurveBoundary64>,
     ): T;
   }
 
@@ -77,6 +85,6 @@ export namespace IAutoMovieCurveAssembly64 {
     /**
      * Authentic published tokens keyed by boundary ID; bind accepts these same instances.
      */
-    operators: ReadonlyMap<string, IAutoMovieCurve64.Operator>;
+    operators: ReadonlyMap<string, IAutoMovieCurveBoundaryPublication64>;
   }
 }

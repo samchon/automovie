@@ -2,10 +2,13 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -52,7 +55,7 @@ export namespace defendGeometry {
     region: AutoMovieHumanoidRegion;
 
     /** The strike. */
-    attack: IAutoMovieMotionHumanActionContext.IPlaced;
+    attack: IAutoMovieMotionHumanPlacedAction;
 
     /** The movement's start. */
     begin: number;
@@ -124,8 +127,9 @@ export namespace defendGeometry {
     // where the strike is aimed.
     const aimed = timing.attack.plan.aimed;
     const regionAt = StrikingBody.region(body, own, timing.region, aimed);
-    const attacker: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(timing.attack.subject);
+    const attacker: IAutoMovieMotionHumanPerformerReader = context.performer(
+      timing.attack.subject,
+    );
     const now = attacker.bones(timing.read);
     const before = attacker.bones(timing.read - 1 / 24);
     const limbs: AutoMovieHumanoidBone[] =
@@ -271,10 +275,8 @@ export namespace defendGeometry {
           "leftLeg",
           "rightLeg",
         ] as const) {
-          const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-            target[limb];
-          const from: IAutoMovieMotionHumanPosture.IGoal | undefined =
-            limbs[limb];
+          const goal: IAutoMovieHumanLimbGoal | undefined = target[limb];
+          const from: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
           if (goal === undefined || from === undefined) continue;
           limbs[limb] = {
             point: Vector3.lerp(from.point, goal.point, k),

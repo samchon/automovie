@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionRequest } from "../inspection/IAutoMovieInspectionRequest.js";
+import type { AutoMovieInspectionShade } from "../inspection/AutoMovieInspectionShade";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 
 /**
@@ -11,7 +11,7 @@ import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js"
  */
 export interface IAutoMovieDrawnPass {
   /** Inspection shade or guide pass requested for this picture. */
-  pass: IAutoMovieInspectionRequest.Shade;
+  pass: AutoMovieInspectionShade;
   /** Owned decoded raster of this pass at the sampled second. */
   picture: IAutoMovieRasterImage;
 }

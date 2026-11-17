@@ -33,7 +33,7 @@ import type { IAutoMovieMotionHumanFrame } from "../posture/IAutoMovieMotionHuma
  * @evidence contracts/development/common.md#meaningful-documentation ahead: The rungs' distance ahead in that frame, metres: 0, the frame's origin lying in their plane. spacing: The rung spacing, metres. radius: A rung's radius, metres.
  * @evidence contracts/development/design.md#principled-representation ahead: The rungs' distance ahead in that frame, metres: 0, the frame's origin lying in their plane. spacing: The rung spacing, metres. radius: A rung's radius, metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: climbing/HumanLadder.ts (HumanLadder.of, return); climbing/HumanLadder.ts (HumanLadder.rung, ladder); climbing/climbLadder.ts (climbLadder.plan); executable/cases/climbCases.ts (climbCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFrame.IFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLadder {
   /**
@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanLadder {
    */
   export interface ILadder {
     /** The ladder's floor frame: origin at its foot under the rungs' middle, the heading the climber faces it by. */
-    frame: IAutoMovieMotionHumanFrame.IFrame;
+    frame: IAutoMovieMotionHumanFrame;
 
     /** The rungs' distance ahead in that frame, metres: 0, the frame's origin lying in their plane. */
     ahead: number;

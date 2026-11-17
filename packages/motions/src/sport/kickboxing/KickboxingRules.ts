@@ -3,6 +3,7 @@ import type {
   IAutoMovieCheckLegality,
   IAutoMovieMotionTarget,
   IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 /**
@@ -100,7 +101,7 @@ export namespace KickboxingRules {
     {
       id: "single-clinch-knee",
       check: (
-        entry: IAutoMovieSchedule.IEntry,
+        entry: IAutoMovieScheduleEntry,
         schedule: IAutoMovieSchedule,
       ): string | null => {
         if (entry.intent.capability !== "knee") return null;
@@ -108,7 +109,7 @@ export namespace KickboxingRules {
         // GLORY A.11: the clinch allows one immediate knee, then the athlete
         // disengages; another strike touching the knee keeps the clinch.
         const touching: boolean = schedule.entries.some(
-          (other: IAutoMovieSchedule.IEntry): boolean =>
+          (other: IAutoMovieScheduleEntry): boolean =>
             other !== entry &&
             other.subject === entry.subject &&
             (other.intent.capability === "knee" ||
@@ -124,7 +125,7 @@ export namespace KickboxingRules {
     },
     {
       id: "legal-target",
-      check: (entry: IAutoMovieSchedule.IEntry): string | null => {
+      check: (entry: IAutoMovieScheduleEntry): string | null => {
         const reason: string | null = foul(
           entry.intent.capability,
           params(entry),
@@ -135,7 +136,7 @@ export namespace KickboxingRules {
     {
       id: "no-attack-on-a-downed-opponent",
       check: (
-        entry: IAutoMovieSchedule.IEntry,
+        entry: IAutoMovieScheduleEntry,
         schedule: IAutoMovieSchedule,
       ): string | null => {
         if (
@@ -146,23 +147,24 @@ export namespace KickboxingRules {
           return null;
         const at = (params(entry) as { at?: IAutoMovieMotionTarget }).at;
         if (at?.kind !== "person") return null;
-        const down: IAutoMovieSchedule.IEntry | undefined =
-          schedule.entries.find((other: IAutoMovieSchedule.IEntry): boolean => {
+        const down: IAutoMovieScheduleEntry | undefined = schedule.entries.find(
+          (other: IAutoMovieScheduleEntry): boolean => {
             if (
               other.subject !== at.subject ||
               other.intent.capability !== "knockdown" ||
               other.start > entry.start
             )
               return false;
-            const next: IAutoMovieSchedule.IEntry | undefined =
+            const next: IAutoMovieScheduleEntry | undefined =
               schedule.entries.find(
-                (later: IAutoMovieSchedule.IEntry): boolean =>
+                (later: IAutoMovieScheduleEntry): boolean =>
                   later.subject === at.subject &&
                   later.start > other.start &&
                   later.index !== other.index,
               );
             return next === undefined || entry.start < next.start;
-          });
+          },
+        );
         return down === undefined
           ? null
           : `entry ${entry.index} strikes ${at.subject}, who is down since ${down.start.toFixed(2)} s`;
@@ -171,7 +173,7 @@ export namespace KickboxingRules {
   ]);
 
   /** An entry's action parameters. */
-  function params(entry: IAutoMovieSchedule.IEntry): object {
+  function params(entry: IAutoMovieScheduleEntry): object {
     return (entry.intent.parameters?.params as object | undefined) ?? {};
   }
 }

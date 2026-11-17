@@ -1,6 +1,13 @@
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 
-/** Rest sweep and resolved bone-buffer indices for compiling reusable sampling slots. */
+/**
+ * Rest sweep and resolved bone-buffer indices for compiling reusable sampling slots.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Model-metre rest sweeps and aligned bone-buffer indices compile fixed frame and scale registrations for later poses. Omitted binding stays at rest; array lengths are checked, while valid bone indices and one/two station cardinality remain caller premises.
+ * @evidence contracts/development/design.md#principled-representation Model-metre rest sweeps and aligned bone-buffer indices compile fixed frame and scale registrations for later poses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSweep owns the live sampling slots consumed by the surface network; authored sweep contracts remain shared.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted binding stays at rest; array lengths are checked, while valid bone indices and one/two station cardinality remain caller premises.
+ */
 export namespace IAutoMovieRigSweep {
   /**
    * Compile one sweep of a surface rig: its rest surface, and, when it rides

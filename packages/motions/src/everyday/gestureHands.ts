@@ -1,6 +1,8 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTarget,
@@ -8,7 +10,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGesture,
   IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -55,7 +56,7 @@ export namespace gestureHands {
   export function hand(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     goal: IAutoMovieMotionHumanGestureStroke.IHand,
     p: Pick<IAutoMovieMotionHumanGesture.IParams, "turn" | "shape" | "aim">,
     digit: IAutoMovieVector3 | undefined,
@@ -135,30 +136,21 @@ export namespace gestureHands {
   export function planned(
     body: IAutoMovieMotionHumanBody,
     span: IAutoMovieMotionHumanArmPlanned.ISpan,
-    sides: readonly IAutoMovieMotionHumanHand.Side[],
+    sides: readonly AutoMovieHumanSide[],
     begin: Partial<
-      Record<
-        IAutoMovieMotionHumanHand.Side,
-        IAutoMovieMotionHumanArmAngles.IAngles
-      >
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >,
     rest: Partial<
-      Record<
-        IAutoMovieMotionHumanHand.Side,
-        IAutoMovieMotionHumanArmAngles.IAngles
-      >
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >,
     prior: (seconds: number) => IPrior,
-  ): Map<
-    IAutoMovieMotionHumanHand.Side,
-    IAutoMovieMotionHumanArmTrajectory.Trajectory
-  > {
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     return AutoMovieMotionHumanArmPlanned.planned(
       body,
       span,
       sides.map(
         (
-          side: IAutoMovieMotionHumanHand.Side,
+          side: AutoMovieHumanSide,
         ): IAutoMovieMotionHumanArmPlanned.IPlanned => ({
           side,
           rest: begin[side]!,
@@ -166,7 +158,7 @@ export namespace gestureHands {
           goal: (
             _: IAutoMovieMotionHumanPosture,
             at: number,
-          ): IAutoMovieMotionHumanPosture.IGoal => {
+          ): IAutoMovieHumanLimbGoal => {
             const before: IPrior = prior(at);
             return handGoals(body, before.posture, before.requests).limbs[
               `${side}Arm`
@@ -190,7 +182,7 @@ export namespace gestureHands {
   export function written(
     posture: IAutoMovieMotionHumanPosture,
     arms: ReadonlyMap<
-      IAutoMovieMotionHumanHand.Side,
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanArmTrajectory.Trajectory
     >,
     seconds: number,

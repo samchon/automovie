@@ -1,4 +1,6 @@
 import type {
+  IAutoMovieCaptureCellComparison,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureComparison,
   IAutoMovieCaptureComparisonProps,
   IAutoMovieCaptureLayout,
@@ -43,8 +45,8 @@ export async function compareAutoMovieCaptureRounds(
     );
 
   // Pair rows by the values that must agree.
-  const key: (row: IAutoMovieCaptureRecord.Row) => string = (
-    row: IAutoMovieCaptureRecord.Row,
+  const key: (row: IAutoMovieCaptureCellRecord) => string = (
+    row: IAutoMovieCaptureCellRecord,
   ): string =>
     match === "time"
       ? row.time.seconds.toFixed(6)
@@ -57,19 +59,19 @@ export async function compareAutoMovieCaptureRounds(
           row.view,
           row.pass,
         ]);
-  const before: Map<string, IAutoMovieCaptureRecord.Row> = new Map(
+  const before: Map<string, IAutoMovieCaptureCellRecord> = new Map(
     earlier.rows.map(
       (
-        row: IAutoMovieCaptureRecord.Row,
-      ): [string, IAutoMovieCaptureRecord.Row] => [key(row), row],
+        row: IAutoMovieCaptureCellRecord,
+      ): [string, IAutoMovieCaptureCellRecord] => [key(row), row],
     ),
   );
   const pairs: [
-    IAutoMovieCaptureRecord.Row | null,
-    IAutoMovieCaptureRecord.Row | null,
+    IAutoMovieCaptureCellRecord | null,
+    IAutoMovieCaptureCellRecord | null,
   ][] = [];
   for (const row of props.rows) {
-    const other: IAutoMovieCaptureRecord.Row | undefined = before.get(key(row));
+    const other: IAutoMovieCaptureCellRecord | undefined = before.get(key(row));
     before.delete(key(row));
     pairs.push([other ?? null, row]);
   }
@@ -85,8 +87,8 @@ export async function compareAutoMovieCaptureRounds(
     // Every caption a comparison row can carry: each side's name, and the longest third caption.
     captions: pairs.flatMap(
       ([old, now]: [
-        IAutoMovieCaptureRecord.Row | null,
-        IAutoMovieCaptureRecord.Row | null,
+        IAutoMovieCaptureCellRecord | null,
+        IAutoMovieCaptureCellRecord | null,
       ]): string[] => [
         `${props.round} ${old?.name ?? "missing"}`,
         `now ${now?.name ?? "missing"}`,
@@ -102,13 +104,13 @@ export async function compareAutoMovieCaptureRounds(
   );
   await folder.claim([
     ...props.rows.map(
-      (row: IAutoMovieCaptureRecord.Row): string => `diff-${row.name}.png`,
+      (row: IAutoMovieCaptureCellRecord): string => `diff-${row.name}.png`,
     ),
     ...sheetNames,
   ]);
 
   // Measure each pair and lay it on the sheets.
-  const entries: IAutoMovieCaptureComparison.Entry[] = [];
+  const entries: IAutoMovieCaptureCellComparison[] = [];
   const sheets: string[] = [];
   let sheet: AutoMovieRasterSheet | null = null;
   let filled: number = 0;
@@ -140,7 +142,7 @@ export async function compareAutoMovieCaptureRounds(
     if (filled % layout.perSheet === 0) await flush();
   };
   for (const [old, now] of pairs) {
-    const entry: IAutoMovieCaptureComparison.Entry = decide(
+    const entry: IAutoMovieCaptureCellComparison = decide(
       props.round,
       match,
       old,
@@ -155,7 +157,7 @@ export async function compareAutoMovieCaptureRounds(
         ? await decodeAutoMovieRasterPng(await folder.read(now.file))
         : null;
     let difference: IAutoMovieRasterImage | null = null;
-    let final: IAutoMovieCaptureComparison.Entry = entry;
+    let final: IAutoMovieCaptureCellComparison = entry;
     if (
       entry.state === "paired" &&
       entry.mode === "difference" &&
@@ -223,12 +225,12 @@ export async function compareAutoMovieCaptureRounds(
 function decide(
   round: string,
   match: "cell" | "time",
-  old: IAutoMovieCaptureRecord.Row | null,
-  now: IAutoMovieCaptureRecord.Row | null,
-): IAutoMovieCaptureComparison.Entry {
-  const unmatched: (cause: string) => IAutoMovieCaptureComparison.Entry = (
+  old: IAutoMovieCaptureCellRecord | null,
+  now: IAutoMovieCaptureCellRecord | null,
+): IAutoMovieCaptureCellComparison {
+  const unmatched: (cause: string) => IAutoMovieCaptureCellComparison = (
     cause: string,
-  ): IAutoMovieCaptureComparison.Entry => ({
+  ): IAutoMovieCaptureCellComparison => ({
     state: "unmatched",
     current: now?.name ?? null,
     earlier: old?.name ?? null,

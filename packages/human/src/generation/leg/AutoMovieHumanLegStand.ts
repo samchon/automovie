@@ -1,10 +1,11 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanLegConstruction,
-  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
@@ -31,9 +32,9 @@ export namespace AutoMovieHumanLegStand {
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanLegConstruction.IInputs,
-    skeleton?: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton?: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
-    const axis: IAutoMovieNaturalSpline.ISpline[] =
+    const axis: IAutoMovieNaturalCubicSpline[] =
       AutoMovieHumanLegLaw.axisCurves();
     const moves: Map<"left" | "right", [number, number]> = new Map(
       (["left", "right"] as const).map(
@@ -46,9 +47,9 @@ export namespace AutoMovieHumanLegStand {
           const at: [number, number] = AutoMovieHumanPolarSection.measure(
             ankle.map((p: Vec3): [number, number] => [p[0], p[2]]),
           ).centre;
-          const joint: IAutoMovieHumanSkeletonLaw.IBone | undefined =
+          const joint: IAutoMovieHumanCalibrationBone | undefined =
             skeleton?.find(
-              (b: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
+              (b: IAutoMovieHumanCalibrationBone): boolean =>
                 b.bone === `${side}Foot`,
             );
           if (skeleton !== undefined && joint === undefined)
@@ -115,9 +116,7 @@ export namespace AutoMovieHumanLegStand {
         },
       ),
       poles: calibration.poles.map(
-        (
-          p: IAutoMovieHumanBodyCalibration.IPole,
-        ): IAutoMovieHumanBodyCalibration.IPole => {
+        (p: IAutoMovieHumanSurfacePole): IAutoMovieHumanSurfacePole => {
           const side: "left" | "right" | null = owner(p.chain);
           return side === null
             ? p

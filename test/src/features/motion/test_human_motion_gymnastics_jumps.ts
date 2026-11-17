@@ -200,11 +200,9 @@ export function test_human_motion_gymnastics_jumps(): void {
         body,
         0,
       );
-      const segment: IAutoMovieMotionHumanSegment.ISegment = film
+      const segment: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const joint = (
         seconds: number,
         bone: AutoMovieHumanoidBone,

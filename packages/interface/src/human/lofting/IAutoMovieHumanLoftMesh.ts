@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanLoftMesh; runtime evaluation remains in Human. */
+/**
+ * Growing millimetre mesh buffers, named index ranges and compact split-mesh results. Runtime construction and admission remain with AutoMovieHumanLoftMesh in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes growing millimetre mesh buffers, named index ranges and compact split-mesh results; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Growing millimetre mesh buffers, named index ranges and compact split-mesh results. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLoftMesh; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LoftMesh contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLoftMesh {
   /** Growing vertex and index buffers in millimetres.
    *
@@ -57,13 +64,13 @@ export namespace IAutoMovieHumanLoftMesh {
     coordinates: number[];
   }
 
-  /** The caps argument of AutoMovieHumanLoftMesh.fans. Append the original station-grid pole fans to the supplied mesh buffers.
+  /**
+   * Optional pole-fan declarations for the source station grid. Each defined entry identifies its bottom/top end and its world-space apex in millimetres; an undefined entry adds no fan.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Append the original station-grid pole fans to the supplied mesh buffers.
-   * @evidence contracts/development/design.md#principled-representation Append the original station-grid pole fans to the supplied mesh buffers. The outer tuple/array is readonly; nested element types determine whether their contents can change.
+   * @evidence contracts/development/common.md#meaningful-documentation Optional pole-fan declarations for the source station grid. Each defined entry identifies its bottom/top end and its world-space apex in millimetres; an undefined entry adds no fan.
+   * @evidence contracts/development/design.md#principled-representation Optional pole-fan declarations for the source station grid. Each defined entry identifies its bottom/top end and its world-space apex in millimetres; an undefined entry adds no fan.
    * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLoftMesh.FansCaps is the canonical exchange used by AutoMovieHumanLoftMesh.fans.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLoftMesh.fans for append the original station-grid pole fans to the supplied mesh buffers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanLoftMesh input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
    */
   export type FansCaps = readonly (
     | {
@@ -75,15 +82,13 @@ export namespace IAutoMovieHumanLoftMesh {
     | undefined
   )[];
 
-  /** The points argument of AutoMovieHumanLoftMesh.vertices. Append points and return their vertex indices in order.
-  @param context Buffers to grow.
-  @param points World points `[x, y, z]` in mm.
+  /**
+   * Borrowed world-space [x, y, z] points in millimetres. The mesh writer appends them in this order and returns corresponding vertex indices without mutating the input tuples.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Append points and return their vertex indices in order.
- * @evidence contracts/development/design.md#principled-representation Append points and return their vertex indices in order. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLoftMesh.VerticesPoints is the canonical exchange used by AutoMovieHumanLoftMesh.vertices.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLoftMesh.vertices for append points and return their vertex indices in order.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Borrowed world-space [x, y, z] points in millimetres. The mesh writer appends them in this order and returns corresponding vertex indices without mutating the input tuples.
+   * @evidence contracts/development/design.md#principled-representation Borrowed world-space [x, y, z] points in millimetres. The mesh writer appends them in this order and returns corresponding vertex indices without mutating the input tuples.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLoftMesh.VerticesPoints is the canonical exchange used by AutoMovieHumanLoftMesh.vertices.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanLoftMesh input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type VerticesPoints = readonly (readonly [number, number, number])[];
 }

@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanTarget } from "../compose/IAutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
@@ -69,7 +70,7 @@ import type { IAutoMovieMotionHumanBend } from "./IAutoMovieMotionHumanBend";
  * @evidence contracts/development/common.md#meaningful-documentation vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named. point: World point, metres. out: Extra outward elbow share.
  * @evidence contracts/development/design.md#principled-representation vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named. point: World point, metres. out: Extra outward elbow share.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/gesture.ts (gesture.plan.input, return); everyday/gestureStroke.ts (gestureStroke.hand, input); everyday/gestureTouch.ts (gestureTouch.point, input); everyday/gestureTouch.ts (gestureTouch.touch, input); everyday/gestureHands.ts (gestureHands.hand, goal); everyday/gestureStroke.ts (gestureStroke.hand, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanHand.Side, IAutoMovieVector3, IAutoMovieMotionHumanTarget.IDefault, IAutoMovieMotionHumanHand.Surface identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieMotionHumanTarget.IDefault, IAutoMovieMotionHumanHand.Surface identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGestureStroke {
   /**
@@ -143,7 +144,7 @@ export namespace IAutoMovieMotionHumanGestureStroke {
     base: IAutoMovieMotionHumanPosture;
 
     /** The gesturing hand of a one-hand gesture. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The pointing target's world point, for `point`. */
     target?: IAutoMovieVector3;
@@ -160,6 +161,14 @@ export namespace IAutoMovieMotionHumanGestureStroke {
      *
      * @param record The named place's share record.
      * @returns The varied share record.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGestureStroke.IInput.vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
      */
     vary?(
       record: IAutoMovieMotionHumanTarget.IDefault,

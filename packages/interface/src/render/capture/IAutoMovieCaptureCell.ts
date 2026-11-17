@@ -1,3 +1,4 @@
+import type { AutoMovieInspectionShade } from "../inspection/AutoMovieInspectionShade";
 import type { IAutoMovieInspectionRequest } from "../inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
@@ -29,7 +30,7 @@ export interface IAutoMovieCaptureCell {
   view: string;
 
   /** The shade the still is drawn in. */
-  pass: IAutoMovieInspectionRequest.Shade;
+  pass: AutoMovieInspectionShade;
 
   /** The inspection request the still is drawn with, the plan's own with this cell's pass and selection. */
   request: IAutoMovieInspectionRequest;

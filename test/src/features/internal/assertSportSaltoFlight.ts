@@ -30,7 +30,7 @@ export function assertSportSaltoFlight(
   turns: number,
 ): string[] {
   const findings: string[] = [];
-  const segment: IAutoMovieMotionHumanSegment.ISegment = performance
+  const segment: IAutoMovieMotionHumanSegment = performance
     .segments(subject)
     .at(-1)!;
   const at = (name: string): number =>

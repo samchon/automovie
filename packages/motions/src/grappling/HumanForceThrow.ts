@@ -9,16 +9,17 @@ import {
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanForceSite,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanForceExchange,
   IAutoMovieMotionHumanForceResponse,
   IAutoMovieMotionHumanForceThrow,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -70,7 +71,7 @@ export namespace HumanForceThrow {
     const body: IAutoMovieMotionHumanBody = context.body;
     const by: string | undefined = context.params.by;
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
-    const thrower: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
+    const thrower: IAutoMovieMotionHumanPerformerReader | undefined =
       by === undefined ? undefined : context.performer(by);
     const placed: IAutoMovieMotionHumanPosture | undefined = thrower?.posture?.(
       context.start + broken,
@@ -291,7 +292,7 @@ export namespace HumanForceThrow {
   export function site(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    at: IAutoMovieMotionHumanForce.At,
+    at: AutoMovieHumanForceSite,
   ): IAutoMovieVector3 {
     if (typeof at !== "string") {
       const bone: IAutoMovieResolvedBone = bones.get(at.bone)!;

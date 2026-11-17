@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 
@@ -33,7 +33,7 @@ export interface IAutoMovieMotionHumanPrimitive {
   contacts?: readonly IAutoMovieMotionHumanContactWindow[];
 
   /** Striking surfaces it moves on free paths. */
-  weapons?: readonly IAutoMovieMotionHumanActionPlan.IWeapon[];
+  weapons?: readonly IAutoMovieMotionWeaponPath[];
 
   /**
    * The posture with this primitive's channels written.

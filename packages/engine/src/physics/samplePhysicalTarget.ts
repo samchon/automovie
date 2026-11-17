@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
@@ -18,13 +18,15 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalTarget(
-  before: IAutoMoviePhysicalProfile.ITransform,
-  after: IAutoMoviePhysicalProfile.ITransform,
+  before: IAutoMovieRigidTransform,
+  after: IAutoMovieRigidTransform,
   fraction: number,
   rate: number,
 ): IAutoMovieSamplePhysicalTarget.IResult {
-  const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(after.rotation, Quaternion.inverse(before.rotation));
+  const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    after.rotation,
+    Quaternion.inverse(before.rotation),
+  );
   const sign: number = delta.w < 0 ? -1 : 1;
   const norm: number = Math.hypot(delta.x, delta.y, delta.z);
   const scale: number =

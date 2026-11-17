@@ -1,6 +1,9 @@
 import type {
   IAutoMovieDerivePhysicalActuators,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -23,10 +26,10 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function derivePhysicalActuators(
-  segments: readonly IAutoMoviePhysicalProfile.ISegment[],
-  joints: readonly IAutoMoviePhysicalProfile.IJoint[],
+  segments: readonly IAutoMoviePhysicalSegment[],
+  joints: readonly IAutoMoviePhysicalJoint[],
   options: IAutoMovieDerivePhysicalActuators.IOptions,
-): IAutoMoviePhysicalProfile.IJoint[] {
+): IAutoMoviePhysicalJoint[] {
   if (
     ![options.frequency, options.torquePerKg].every(
       (value: number): boolean => Number.isFinite(value) && value > 0,
@@ -38,8 +41,8 @@ export function derivePhysicalActuators(
   )
     throw new Error("Invalid physical actuator assumptions");
   return joints.map(
-    (joint: (typeof joints)[number]): IAutoMoviePhysicalProfile.IJoint => {
-      const child: IAutoMoviePhysicalProfile.ISegment = segments.find(
+    (joint: (typeof joints)[number]): IAutoMoviePhysicalJoint => {
+      const child: IAutoMoviePhysicalSegment = segments.find(
         (segment: (typeof segments)[number]): boolean =>
           segment.bone === joint.child,
       )!;
@@ -50,23 +53,23 @@ export function derivePhysicalActuators(
           joint.childFrame.position,
         ),
       );
-      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const rotation: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(child.neutral.rotation, joint.childFrame.rotation);
       const descendants: Set<string> = new Set([joint.child]);
       for (let count: number = 0; count < segments.length; count++)
         for (const link of joints)
           if (descendants.has(link.parent)) descendants.add(link.child);
-      const load: IAutoMoviePhysicalProfile.ISegment[] = segments.filter(
+      const load: IAutoMoviePhysicalSegment[] = segments.filter(
         (segment: (typeof segments)[number]): boolean =>
           descendants.has(segment.bone),
       );
       const mass: number = load.reduce(
-        (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number =>
+        (sum: number, segment: IAutoMoviePhysicalSegment): number =>
           sum + segment.mass,
         0,
       );
       const reference: number = load.reduce(
-        (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number => {
+        (sum: number, segment: IAutoMoviePhysicalSegment): number => {
           const displacement: IAutoMovieVector3 = Vector3.subtract(
             Vector3.add(
               segment.neutral.position,
@@ -88,9 +91,7 @@ export function derivePhysicalActuators(
       return {
         ...joint,
         axes: joint.axes.map(
-          (
-            axis: (typeof joint.axes)[number],
-          ): IAutoMoviePhysicalProfile.IAxis => {
+          (axis: (typeof joint.axes)[number]): IAutoMoviePhysicalJointAxis => {
             const unit: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
             unit[axis.axis] = 1;
             const direction: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -98,10 +99,7 @@ export function derivePhysicalActuators(
               unit,
             );
             const inertia: number = load.reduce(
-              (
-                sum: number,
-                segment: IAutoMoviePhysicalProfile.ISegment,
-              ): number => {
+              (sum: number, segment: IAutoMoviePhysicalSegment): number => {
                 const principal: IAutoMovieVector3 = Quaternion.rotateVector(
                   Quaternion.inverse(
                     Quaternion.multiply(

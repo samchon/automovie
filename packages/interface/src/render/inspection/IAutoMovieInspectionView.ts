@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3.js";
+import type { IAutoMovieInspectionFocus } from "./IAutoMovieInspectionFocus.js";
 
 /**
  * A view of an inspection as its text says it, before anything is fitted: the subject's own delivery camera, a fixed camera, or a name with the switches a fitted view takes.
@@ -17,11 +18,6 @@ export type IAutoMovieInspectionView =
 
 /**
  * Parsed film, fixed and named view alternatives, with optional named-view focus selection.
- *
- * @evidence contracts/development/design.md#principled-representation Parsed film, fixed and named view alternatives, with optional named-view focus selection.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These members belong to IAutoMovieInspectionView and are consumed with its enclosing record, rather than a second top-level vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Member discriminants and documented null/empty cases preserve the enclosing record's supported states.
- * @evidence contracts/development/common.md#meaningful-documentation Member comments state the relevant coordinate frames, units and outcome semantics.
  */
 export namespace IAutoMovieInspectionView {
   /**
@@ -84,26 +80,6 @@ export namespace IAutoMovieInspectionView {
     follow: boolean;
 
     /** What the fitted camera frames instead of everything drawn, or null for everything drawn. */
-    focus: IFocus | null;
+    focus: IAutoMovieInspectionFocus | null;
   }
-
-  /**
-   * What a fitted view frames: the drawn objects and marks a path pattern selects, or every drawn flagged mark.
-   *
-   * @evidence contracts/development/design.md#principled-representation The two focus forms need different data, so they are a union keyed by `type`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The pattern form holds its pattern, the flagged form nothing.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The flagged form is its own member rather than a reserved pattern, so no path name is taken from the path grammar.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each form frames.
-   */
-  export type IFocus =
-    | {
-        /** Select path-pattern framing or the bounds of flagged marks. */
-        type: "pattern";
-        /** Inspection path pattern selecting the objects/marks to frame. */
-        pattern: string;
-      }
-    | {
-        /** Select path-pattern framing or the bounds of flagged marks. */
-        type: "flagged";
-      };
 }

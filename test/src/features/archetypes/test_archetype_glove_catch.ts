@@ -9,9 +9,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCatchObject,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -57,7 +57,7 @@ export function test_archetype_glove_catch(): void {
     { x: 0, y: -1, z: 0 },
     { x: 1, y: 0, z: 0 },
   );
-  const worn: IAutoMovieMotionHumanProp.IFrame = {
+  const worn: IAutoMovieRigidTransform = {
     position: Vector3.scale(
       Quaternion.rotateVector(turn, glove.affordance("hand").frame.translation),
       -1,
@@ -134,7 +134,7 @@ export function test_archetype_glove_catch(): void {
     const contact = (
       film: IAutoMovieMotionHumanPerformance,
     ): { at: number; centre: IAutoMovieVector3 } => {
-      const act: IAutoMovieMotionHumanSegment.ISegment = film.segments("b")[0]!;
+      const act: IAutoMovieMotionHumanSegment = film.segments("b")[0]!;
       const local: number = act.plan.contact ?? Number.NaN;
       return {
         at: act.start + local,
@@ -158,10 +158,7 @@ export function test_archetype_glove_catch(): void {
     try {
       gloved = perform("left", true);
       const meet: { at: number; centre: IAutoMovieVector3 } = contact(gloved);
-      const frame: IAutoMovieMotionHumanProp.IFrame = gloved.prop(
-        "glove",
-        meet.at,
-      );
+      const frame: IAutoMovieRigidTransform = gloved.prop("glove", meet.at);
       const pocket: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(

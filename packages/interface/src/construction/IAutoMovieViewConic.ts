@@ -1,7 +1,14 @@
 import type { IAutoMovieConicArc } from "./IAutoMovieConicArc";
 import type { IAutoMovieConicHermite } from "./IAutoMovieConicHermite";
 
-/** Data and callback contracts shared by the ViewConic operations. */
+/**
+ * Data and callback contracts shared by the ViewConic operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Quarter records retain mm extents, scalar shoulders and optional G2 end patches; rays preserve the original quarter and selected native clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewConic and differentiated/native section readers use these interface records and the existing ConicArc/ConicHermite contracts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed curve keeps its explicit failure and empty quarters; generic T does not certify finite positive source values.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines quarter orientation, support ownership, derivative meanings and admission failure.
+ */
 export namespace IAutoMovieViewConic {
   /**
    * Selected quarter location, preserving the source's actual numeric clock.

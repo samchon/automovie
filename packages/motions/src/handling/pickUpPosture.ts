@@ -1,5 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBendLower,
@@ -86,7 +88,7 @@ export namespace pickUpPosture {
    */
   export function lowered(
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     grip: IAutoMovieVector3,
     reach?: number,
   ): IStance {
@@ -148,7 +150,7 @@ export namespace pickUpPosture {
    */
   const leaned = (
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     grip: IAutoMovieVector3,
     reach?: number,
   ): IStance => {
@@ -217,7 +219,7 @@ export namespace pickUpPosture {
       };
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...leant.limbs };
       for (const hand of ["left", "right"] as const) {
-        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+        const goal: IAutoMovieHumanLimbGoal | undefined =
           rested.limbs[`${hand}Arm`];
         if (context.entry.holds[hand] !== undefined || goal === undefined)
           continue;
@@ -316,7 +318,7 @@ export namespace pickUpPosture {
    */
   export function reaches(
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture = context.entry.posture,
   ): (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean {
     const from: IAutoMovieVector3 = shoulder(context, side, posture);
@@ -346,7 +348,7 @@ export namespace pickUpPosture {
    */
   export function reachable(
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     wrist: IAutoMovieVector3,
     posture: IAutoMovieMotionHumanPosture = context.entry.posture,
   ): void {
@@ -369,7 +371,7 @@ export namespace pickUpPosture {
   /** The shoulder joint of an arm in a posture, world metres. */
   const shoulder = (
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!

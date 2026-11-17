@@ -1,6 +1,8 @@
 import type {
   IAutoMovieRecoveryAtlasObservationCreases,
-  IAutoMovieRecoveryAtlasObservationState,
+  IAutoMovieRecoveryAtlasObservationInput,
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoverySourceComponent,
 } from "@automovie/interface";
 
 /**
@@ -26,9 +28,9 @@ export function RecoveryAtlasObservationCreases(
     mark,
     reason,
   }: {
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
-    observed: IAutoMovieRecoveryAtlasObservationState["Observed"];
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
+    observed: IAutoMovieRecoveryEventRegion.Result;
+    component: IAutoMovieRecoverySourceComponent;
     sourceNormals: number[][];
     byRaw: Map<string, string>;
     mark: (value: string) => void;

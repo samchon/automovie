@@ -1,6 +1,13 @@
 import type { IAutoMovieMaterialSubstance } from "../material/IAutoMovieMaterialSubstance";
 
-/** Data and callback contracts shared by the ValidateMaterialSubstance operations. */
+/**
+ * Data and callback contracts shared by the ValidateMaterialSubstance operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Range-check one substance record. Member documentation states the supplied records, units and absence meanings used by validateAutoMovieMaterialSubstance.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts One canonical substance record permits unmeasured properties without fabricated defaults; surface ids are checked as strings but not resolved against materials here.
+ * @evidence contracts/development/design.md#principled-representation substance holds optional measured material quantities; null means unmeasured, and validateMaterialSubstance checks each present value against its physical range.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateMaterialSubstance, used by validateAutoMovieMaterialSubstance. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieValidateMaterialSubstance {
   /**
    * Range-check one substance record.
@@ -18,6 +25,11 @@ export namespace IAutoMovieValidateMaterialSubstance {
    * must be non-blank, and a present name or surface id too. Every finding is
    * returned with a `$input` path; nothing throws, and the surface id is not
    * resolved against any material.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Range-check one substance record. Member documentation states the supplied records, units and absence meanings used by validateAutoMovieMaterialSubstance.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One canonical substance record permits unmeasured properties without fabricated defaults; surface ids are checked as strings but not resolved against materials here.
+   * @evidence contracts/development/design.md#principled-representation substance holds optional measured material quantities; null means unmeasured, and validateMaterialSubstance checks each present value against its physical range.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateMaterialSubstance.IProps, used by validateAutoMovieMaterialSubstance. Its substance members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Substance record to range-check. */

@@ -6,6 +6,8 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanContactWindow,
@@ -218,8 +220,8 @@ export namespace punchGeometry {
     // the contact back to it, stopping on the struck body's first surface.
     // Read when the hand returns, at the contact or the stop: by then every
     // correction that moves the feet has arrived.
-    let ended: IAutoMovieMotionHumanPosture.IGoal | undefined;
-    const guardEnd = (): IAutoMovieMotionHumanPosture.IGoal =>
+    let ended: IAutoMovieHumanLimbGoal | undefined;
+    const guardEnd = (): IAutoMovieHumanLimbGoal =>
       (ended ??= StrikingStance.guard(body, footwork.base(duration), {
         lead,
       })[arm]!);
@@ -310,17 +312,14 @@ export namespace punchGeometry {
     // the contact. Each solution's anchor is the arm resolved on it at the
     // contact, its own step under it; the anchor carried at a second
     // follows the corrections arrived by then.
-    const launch: IAutoMovieMotionHumanPosture.IReference =
-      resolveHumanPosture.reference(context.entry.pose, arm);
-    const anchors: Map<
-      punchReach.IReach,
-      IAutoMovieMotionHumanPosture.IReference
-    > = new Map();
-    const anchor = (
-      reach: punchReach.IReach,
-    ): IAutoMovieMotionHumanPosture.IReference => {
-      let found: IAutoMovieMotionHumanPosture.IReference | undefined =
-        anchors.get(reach);
+    const launch: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+      context.entry.pose,
+      arm,
+    );
+    const anchors: Map<punchReach.IReach, IAutoMovieHumanLimbReference> =
+      new Map();
+    const anchor = (reach: punchReach.IReach): IAutoMovieHumanLimbReference => {
+      let found: IAutoMovieHumanLimbReference | undefined = anchors.get(reach);
       if (found === undefined) {
         const fixedStep: punchFootwork.IFootwork = walk(
           (): number => reach.advance,
@@ -339,16 +338,12 @@ export namespace punchGeometry {
       }
       return found;
     };
-    const anchored = (
-      clock: number,
-    ): IAutoMovieMotionHumanPosture.IReference => {
-      let at: IAutoMovieMotionHumanPosture.IReference = anchor(
-        contact.launched,
-      );
+    const anchored = (clock: number): IAutoMovieHumanLimbReference => {
+      let at: IAutoMovieHumanLimbReference = anchor(contact.launched);
       for (const c of corrections(clock)) {
         if (!c.moved) continue;
         const s: number = minimumJerk((t0 + clock - c.start) / c.duration).s;
-        const next: IAutoMovieMotionHumanPosture.IReference = anchor(c.reach);
+        const next: IAutoMovieHumanLimbReference = anchor(c.reach);
         at = {
           upper: blendHumanJoint(
             body,
@@ -377,7 +372,7 @@ export namespace punchGeometry {
         hint: (clock: number) => IAutoMovieVector3;
       },
     ): IAutoMovieMotionHumanPosture => {
-      const reference: IAutoMovieMotionHumanPosture.IReference | undefined =
+      const reference: IAutoMovieHumanLimbReference | undefined =
         bare === undefined ? anchored(clock) : undefined;
       const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
       const posture: IAutoMovieMotionHumanPosture = (

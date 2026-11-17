@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
@@ -51,8 +53,8 @@ export namespace AutoMovieMotionHumanArmTarget {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-    frame: IAutoMovieMotionHumanFrame.IFrame,
-    side: IAutoMovieMotionHumanHand.Side,
+    frame: IAutoMovieMotionHumanFrame,
+    side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,
   ): IAutoMovieMotionHumanArmTarget.IOrigin {
     return {
@@ -112,9 +114,9 @@ export namespace AutoMovieMotionHumanArmTarget {
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     target: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "curl">,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
       body,
       side,

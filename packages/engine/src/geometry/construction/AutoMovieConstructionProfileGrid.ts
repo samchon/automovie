@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieConstructionProfile,
   IAutoMovieConstructionProfileGrid,
+  IAutoMovieConstructionProfileLoop,
   IAutoMoviePreparedConstructionProfile,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
@@ -65,7 +65,7 @@ export namespace AutoMovieConstructionProfileGrid {
 /** Prepare one loop independently, so scratch dies before the next component. */
 function grid(
   prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
-  loop: IAutoMovieConstructionProfile.ILoop,
+  loop: IAutoMovieConstructionProfileLoop,
   tolerance: number,
 ): IAutoMovieConstructionProfileGrid.IGrid {
   const first: number = 1000 * loop.domain[0];

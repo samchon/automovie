@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanHand,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -49,13 +49,13 @@ export namespace handshakeReach {
   export function refusal(
     a: handshakeOffer.ISide,
     b: handshakeOffer.ISide,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     pump: number,
     miss: IMiss,
     attempt: (
       a: handshakeOffer.ISide,
       b: handshakeOffer.ISide,
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
       pump: number,
     ) => handshakeOffer.IMeeting | IMiss,
   ): IAutoMovieMotionHumanRefusal {

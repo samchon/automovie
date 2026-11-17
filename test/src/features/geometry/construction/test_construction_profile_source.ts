@@ -6,7 +6,7 @@ import {
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
 import type {
-  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfilePiece,
   IAutoMovieConstructionProfileSource,
   IAutoMoviePreparedConstructionProfile,
   IAutoMovieSolidSurface,
@@ -132,7 +132,7 @@ export function test_construction_profile_source(): void {
     measureAutoMovieCurveLength64(
       prepared.definition.loops[0]!.pieces.map(
         (
-          piece: IAutoMovieConstructionProfile.IPiece,
+          piece: IAutoMovieConstructionProfilePiece,
         ): Parameters<typeof measureAutoMovieCurveLength64>[0][number] => ({
           domain: [0, 1],
           derivative: (v: number): [number, number, number] =>
@@ -226,7 +226,7 @@ export function test_construction_profile_source(): void {
 function made(): IAutoMovieConstructionProfileSource {
   const curves: Map<string, IAutoMovieConstructionProfileSource.ICurve> =
     new Map();
-  const pieces: IAutoMovieConstructionProfile.IPiece[] = [];
+  const pieces: IAutoMovieConstructionProfilePiece[] = [];
   for (let index: number = 0; index < 6; index++) {
     const from: readonly [number, number] = CORNERS[index]!;
     const to: readonly [number, number] = CORNERS[(index + 1) % 6]!;

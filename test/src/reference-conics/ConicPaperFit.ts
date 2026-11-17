@@ -1,4 +1,9 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryConicApproximation as C,
   approximateAutoMovieRecoveryConicsAhn,
@@ -16,7 +21,7 @@ export namespace ConicPaperFit {
     /** Complete covers every source chart; partial/refused omit charts; unattempted reached the global wall budget. */
     status: "complete" | "partial" | "refused" | "unattempted";
     /** Accepted rational quadratics only, with no cubic or mesh fallback for missing intervals. */
-    arcs: IAutoMovieConicApproximation.IArc[];
+    arcs: IAutoMovieRegisteredConicArc[];
     /** Actual source evaluation and derivative callbacks, including a budget-triggering call. */
     queries: number;
     /** Distinct algorithm admission failures, numerical qualifications and experiment limits. */
@@ -121,7 +126,7 @@ export namespace ConicPaperFit {
         let failures: number = 0;
         for (let i: number = 0; i < loop.curve.spans.length; ++i) {
           try {
-            const chart: IAutoMovieConicApproximation.ICurve = I.chart(
+            const chart: IAutoMoviePlanarCurveSource = I.chart(
               loop.curve.spans[i]!,
               i,
               (): void => {
@@ -232,7 +237,7 @@ export namespace ConicPaperFit {
   /** A finite bidirectional point-to-polyline estimate on one independently selected complete curve per region. */
   function compare(
     loop: I.Loop,
-    arcs: readonly IAutoMovieConicApproximation.IArc[],
+    arcs: readonly IAutoMovieRegisteredConicArc[],
   ): number {
     let maximum: number = 0;
     for (const arc of arcs) {
@@ -240,8 +245,8 @@ export namespace ConicPaperFit {
         loop.curve.spans.length - 1,
         Math.floor(arc.domain[0]),
       );
-      const source: IAutoMovieConicApproximation.Point[] = [];
-      const fitted: IAutoMovieConicApproximation.Point[] = [];
+      const source: Readonly<AutoMovieVector2Tuple>[] = [];
+      const fitted: Readonly<AutoMovieVector2Tuple>[] = [];
       for (let i: number = 0; i <= 32; ++i) {
         source.push(
           I.value(
@@ -270,9 +275,9 @@ export namespace ConicPaperFit {
 
   /** Euclidean point-to-segment distance, in the original millimetre chart. */
   function distance(
-    p: IAutoMovieConicApproximation.Point,
-    a: IAutoMovieConicApproximation.Point,
-    b: IAutoMovieConicApproximation.Point,
+    p: Readonly<AutoMovieVector2Tuple>,
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
   ): number {
     const x: number = b[0] - a[0];
     const y: number = b[1] - a[1];

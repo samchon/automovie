@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -8,6 +9,7 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -63,11 +65,11 @@ export namespace HumanGraspDemand {
       "body" | "prop" | "start"
     >,
     prop: string,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     shown: IAutoMovieMotionHumanHand.IWrist,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanActionLaw.IGrip {
-    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(prop);
+    const held: IAutoMovieMotionHumanPropReader = context.prop(prop);
     const grasped: IAutoMovieMotionHumanHeld.IHeld =
       AutoMovieMotionHumanHeld.grasped(
         context.body,
@@ -115,7 +117,7 @@ export namespace HumanGraspDemand {
     body: IAutoMovieMotionHumanBody,
     demand: IAutoMovieMotionHumanActionLaw.IDemand,
   ): IAutoMovieMotionHumanGrasp.IKey {
-    const side: IAutoMovieMotionHumanHand.Side = demand.tool.side;
+    const side: AutoMovieHumanSide = demand.tool.side;
     const socket: IAutoMovieVector3 = HumanHand.offset(
       body,
       side,

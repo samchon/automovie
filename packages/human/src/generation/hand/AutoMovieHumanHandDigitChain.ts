@@ -5,7 +5,7 @@ import type {
   IAutoMovieHumanHandFinger,
   IAutoMovieHumanLimbFrame,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
@@ -84,7 +84,7 @@ export namespace AutoMovieHumanHandDigitChain {
     };
     const sample = (
       s: number,
-    ): { ring: Vec3[]; frame: IAutoMovieLoftFrame.IFrame } => ({
+    ): { ring: Vec3[]; frame: IAutoMovieLoftSectionFrame } => ({
       ring: f.ring(s),
       frame: AutoMovieHumanLimbFrame.frame(at(s), normalAt(s), axisAt(s)),
     });

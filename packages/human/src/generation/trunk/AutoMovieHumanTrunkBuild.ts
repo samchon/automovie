@@ -3,7 +3,9 @@ import type {
   IAutoMovieConstructionView,
   IAutoMovieHumanBodyTree,
   IAutoMovieHumanMassSource,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanNamedSource,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieHumanTrunkMassPlacement,
   IAutoMovieHumanTrunkSectionFamily,
@@ -106,22 +108,17 @@ export namespace AutoMovieHumanTrunkBuild {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...original.diagnostics,
     ];
-    const sources: IAutoMovieHumanSiteViewPart.ISource[] = [
-      ...original.sources,
-    ];
-    const last: Map<string, IAutoMovieHumanSiteViewPart.ISource> = new Map(
+    const sources: IAutoMovieHumanNamedSource[] = [...original.sources];
+    const last: Map<string, IAutoMovieHumanNamedSource> = new Map(
       sources.map(
         (
-          source: IAutoMovieHumanSiteViewPart.ISource,
-        ): [string, IAutoMovieHumanSiteViewPart.ISource] => [
-          source.name,
-          source,
-        ],
+          source: IAutoMovieHumanNamedSource,
+        ): [string, IAutoMovieHumanNamedSource] => [source.name, source],
       ),
     );
     const failed: Set<string> = new Set();
     for (const source of last.values()) {
-      const result: IAutoMovieHumanSiteViewPart.IResult =
+      const result: IAutoMovieHumanSourceRealization =
         source.result.loft === null
           ? AutoMovieHumanSiteViewPart.loft(source.result)
           : source.result;
@@ -159,7 +156,7 @@ export namespace AutoMovieHumanTrunkBuild {
       IAutoMovieHumanTrunkSectionFamily.IPlane
     > = AutoMovieHumanTrunkSectionFamily.define(input.views);
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-    const sources: IAutoMovieHumanSiteViewPart.ISource[] = [];
+    const sources: IAutoMovieHumanNamedSource[] = [];
     const out: (
       trunk: IAutoMovieConstructionView | null,
       masses: IAutoMovieHumanBodyTree.IFold[],
@@ -175,7 +172,7 @@ export namespace AutoMovieHumanTrunkBuild {
     });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
-    const first: IAutoMovieHumanSiteViewPart.IResult = {
+    const first: IAutoMovieHumanSourceRealization = {
       ...AutoMovieHumanTrunkViewPart.define(input.views, input.top, sections),
       loft: null,
     };
@@ -243,7 +240,7 @@ export namespace AutoMovieHumanTrunkBuild {
         },
       ),
     };
-    const base: IAutoMovieHumanSiteViewPart.IResult = {
+    const base: IAutoMovieHumanSourceRealization = {
       ...AutoMovieHumanTrunkViewPart.define(solved, input.top, sections),
       loft: null,
     };
@@ -303,7 +300,7 @@ export namespace AutoMovieHumanTrunkBuild {
     input: IAutoMovieHumanTrunkBuild.IInput,
     part: IAutoMovieViewPart,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
-    sources: IAutoMovieHumanSiteViewPart.ISource[],
+    sources: IAutoMovieHumanNamedSource[],
   ): IMass[] {
     const out: IMass[] = [];
     const pairs: [
@@ -339,7 +336,7 @@ export namespace AutoMovieHumanTrunkBuild {
             kind === "breast" ? 1 : -1,
           );
         if (typeof placement === "string") {
-          const failed: IAutoMovieHumanSiteViewPart.IResult = {
+          const failed: IAutoMovieHumanSourceRealization = {
             part: null,
             loft: null,
             view: null,
@@ -356,7 +353,7 @@ export namespace AutoMovieHumanTrunkBuild {
           diagnostics.push(...failed.diagnostics);
           continue;
         }
-        const leg: IAutoMovieHumanSiteViewPart.IDefinition | undefined =
+        const leg: IAutoMovieHumanSourceDefinition | undefined =
           input.legs?.[side];
         const connection: IAutoMovieHumanMassSource.IConnection | string =
           kind === "breast"
@@ -378,7 +375,7 @@ export namespace AutoMovieHumanTrunkBuild {
                 })
               : "Gluteal contact requires the identical successful same-leg original";
         if (typeof connection === "string") {
-          const failed: IAutoMovieHumanSiteViewPart.IResult = {
+          const failed: IAutoMovieHumanSourceRealization = {
             part: null,
             loft: null,
             view: null,
@@ -404,7 +401,7 @@ export namespace AutoMovieHumanTrunkBuild {
           throw new Error(
             "A mass connection lost its identical original trunk field",
           );
-        const built: IAutoMovieHumanSiteViewPart.IResult = {
+        const built: IAutoMovieHumanSourceRealization = {
           ...AutoMovieHumanMassPart.define({
             name,
             connection,

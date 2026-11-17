@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
@@ -103,7 +104,7 @@ export namespace AutoMovieMotionHumanBend {
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     preset:
       | IAutoMovieMotionHumanBend.Arm
       | IAutoMovieMotionHumanBend.IShares = "hang",
@@ -152,7 +153,7 @@ export namespace AutoMovieMotionHumanBend {
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     out: number = 0,
   ): IAutoMovieVector3 {
     return arm(body, posture, side, "hang", out);
@@ -180,7 +181,7 @@ export namespace AutoMovieMotionHumanBend {
   export function knee(
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     heading: number = posture.yaw,
     splay: number = 0,
   ): IAutoMovieVector3 {
@@ -445,7 +446,7 @@ export namespace AutoMovieMotionHumanBend {
   /** The `hang` preset's hint for an upright trunk at the origin, from which the search reads the hanging arm. */
   const hung = (
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3 =>
     arm(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side, "hang");
 }

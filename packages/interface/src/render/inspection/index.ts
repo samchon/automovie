@@ -1,4 +1,8 @@
+export type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade";
 export type { IAutoMovieInspectionCamera } from "./IAutoMovieInspectionCamera";
+export type { IAutoMovieInspectionColorAssignment } from "./IAutoMovieInspectionColorAssignment";
+export type { IAutoMovieInspectionDrawable } from "./IAutoMovieInspectionDrawable";
+export type { IAutoMovieInspectionFocus } from "./IAutoMovieInspectionFocus";
 export type { IAutoMovieInspectionKind } from "./IAutoMovieInspectionKind";
 export type { IAutoMovieInspectionKindStyle } from "./IAutoMovieInspectionKindStyle";
 export type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel";

@@ -164,7 +164,7 @@ function aimed(
   index: number,
   proficiency: number,
 ): IAutoMovieHumanoidSurfaces.ITangent {
-  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { level: "trained" },
     "variation",
   );
@@ -293,12 +293,9 @@ function defended(
         .with(waits(4)),
       { body: struck, gap: range(body) },
     );
-    const punch: IAutoMovieMotionHumanSegment.ISegment = standing
+    const punch: IAutoMovieMotionHumanSegment = standing
       .segments("a")
-      .find(
-        (g: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          g.name === "punch",
-      )!;
+      .find((g: IAutoMovieMotionHumanSegment): boolean => g.name === "punch")!;
     const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
       StrikingRecord.of(punch.plan);
     if (record === undefined || punch.plan.contact === undefined)
@@ -363,8 +360,7 @@ function defended(
       covered
         .segments("b")
         .find(
-          (g: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            g.name === "defend",
+          (g: IAutoMovieMotionHumanSegment): boolean => g.name === "defend",
         )!,
     ),
   ];

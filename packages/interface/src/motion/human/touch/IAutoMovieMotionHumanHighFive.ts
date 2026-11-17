@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -37,7 +37,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation kind: The variant; `high` when absent. side: The hand; `right` when absent. prop: The subject id of the prop the hand holds, whose point meets the partner's in place of the hand: two glasses clinked in a toast. No prop when absent.
  * @evidence contracts/development/design.md#principled-representation kind: The variant; `high` when absent. side: The hand; `right` when absent. prop: The subject id of the prop the hand holds, whose point meets the partner's in place of the hand: two glasses clinked in a toast. No prop when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.highFive, params); chain/HumanChainMutual.ts (HumanChainMutual.highFive, params); touch/highFive.ts (highFive.plan, context); touch/highFive.ts (highFive.meeting, kind); actions/HumanMutual.ts (HumanMutual.highFive); touch/highFive.ts (highFive.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionMeeting.IWindow, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionMeeting.IWindow, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHighFive {
   /**
@@ -58,7 +58,7 @@ export namespace IAutoMovieMotionHumanHighFive {
     kind?: IAutoMovieMotionHumanHighFive.Kind;
 
     /** The hand; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** The subject id of the prop the hand holds, whose point meets the partner's in place of the hand: two glasses clinked in a toast. No prop when absent. */
     prop?: string;

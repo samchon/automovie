@@ -1,8 +1,10 @@
 import type { IAutoMovieBicubicAtlasGeometry } from "../../model/IAutoMovieBicubicAtlasGeometry";
+import type { IAutoMovieRecoveryAtlasObservationInput } from "../observation/IAutoMovieRecoveryAtlasObservationInput";
 import type { IAutoMovieRecoveryAtlasObservationOperation } from "../observation/IAutoMovieRecoveryAtlasObservationOperation";
-import type { IAutoMovieRecoveryAtlasObservationState } from "./IAutoMovieRecoveryAtlasObservationState";
 import type { IAutoMovieRecoveryChartAssembly } from "./IAutoMovieRecoveryChartAssembly";
 import type { IAutoMovieRecoveryChartBoundary } from "./IAutoMovieRecoveryChartBoundary";
+import type { IAutoMovieRecoveryChartInventory } from "./IAutoMovieRecoveryChartInventory";
+import type { IAutoMovieRecoveryPendingChartObservation } from "./IAutoMovieRecoveryPendingChartObservation";
 import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "./IAutoMovieRecoveryScalarIntervalsSelectionOperation";
 
 /**
@@ -26,10 +28,10 @@ export namespace IAutoMovieRecoveryAtlasObservationPublish {
 
   export type Operation = (context: {
     /** Borrowed complete admitted observation request shared by this phase; the phase does not change its source selection. */
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
 
     /** Prepared chart jobs awaiting common boundary fitting; their outcome arrays are shared with the observation ledger. */
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
 
     /** One pass-owned boundary registry reused by all charts sharing the same declared incidence words. */
     boundaryOwner: ReturnType<IAutoMovieRecoveryChartBoundary.Operation>;
@@ -62,7 +64,7 @@ export namespace IAutoMovieRecoveryAtlasObservationPublish {
     sourceNormals: number[][];
 
     /** Unfitted chart population measurements retained independently of later fitting success. */
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    inventory: IAutoMovieRecoveryChartInventory[];
 
     /** Complete source-plane ordering used for deterministic scalar-interval selection. */
     order: readonly number[];

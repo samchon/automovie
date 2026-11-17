@@ -8,8 +8,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
   IAutoMovieLoftRelief,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -122,7 +122,7 @@ export function test_construction_relief_turn(): void {
     [47, 1.25],
   ] as [number, number][]) {
     const got = (
-      pick: (jet: IAutoMovieLoftJet.IJet) => readonly number[],
+      pick: (jet: IAutoMovieLoftSurfaceJet) => readonly number[],
     ): V3 =>
       added((chain: IAutoMovieLoftChain): readonly number[] =>
         pick(AutoMovieLoftJet.at(chain, s, t)),
@@ -158,17 +158,17 @@ export function test_construction_relief_turn(): void {
     for (const [name, value, want] of [
       [
         "t",
-        got((jet: IAutoMovieLoftJet.IJet): readonly number[] => jet.t),
+        got((jet: IAutoMovieLoftSurfaceJet): readonly number[] => jet.t),
         first,
       ],
       [
         "tt",
-        got((jet: IAutoMovieLoftJet.IJet): readonly number[] => jet.tt),
+        got((jet: IAutoMovieLoftSurfaceJet): readonly number[] => jet.tt),
         second,
       ],
       [
         "st",
-        got((jet: IAutoMovieLoftJet.IJet): readonly number[] => jet.st),
+        got((jet: IAutoMovieLoftSurfaceJet): readonly number[] => jet.st),
         mixed,
       ],
     ] as [string, V3, V3][]) {

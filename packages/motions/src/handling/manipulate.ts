@@ -1,18 +1,21 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanDigit,
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanManipulate,
   IAutoMovieMotionHumanManipulateFacing,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTypeText,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -99,10 +102,7 @@ export namespace manipulate {
     const body: IAutoMovieMotionHumanBody = context.body;
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
     const presses: IAutoMovieMotionHumanManipulate.IPress[] = sequence(context);
-    const rotation: Record<
-      IAutoMovieMotionHumanHand.Side,
-      IAutoMovieQuaternion
-    > = {
+    const rotation: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: manipulateFacing(hold, presses, "left"),
       right: manipulateFacing(hold, presses, "right"),
     };
@@ -124,12 +124,12 @@ export namespace manipulate {
       );
     const duration: number =
       presses[presses.length - 1]!.time + REACH * interval(context);
-    const sides: IAutoMovieMotionHumanHand.Side[] = (
-      ["left", "right"] as const
-    ).filter((side: IAutoMovieMotionHumanHand.Side): boolean =>
-      presses.some(
-        (p: IAutoMovieMotionHumanManipulate.IPress): boolean => p.side === side,
-      ),
+    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean =>
+        presses.some(
+          (p: IAutoMovieMotionHumanManipulate.IPress): boolean =>
+            p.side === side,
+        ),
     );
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = (
@@ -215,7 +215,7 @@ export namespace manipulate {
           const lift: number =
             typeText.HOVER - (typeText.HOVER + press.depth) * down;
           digits[
-            `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as IAutoMovieMotionHumanPosture.Digit
+            `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as AutoMovieHumanDigit
           ] = {
             point: Vector3.add(press.site, Vector3.scale(press.normal, lift)),
             normal: press.normal,
@@ -237,12 +237,9 @@ export namespace manipulate {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
   ): IAutoMovieMotionHumanManipulate.IPress[] {
     const params: IAutoMovieMotionHumanManipulate.IParams = context.params;
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
-      params.prop,
-    );
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
-    const side: IAutoMovieMotionHumanHand.Side =
-      params.side === "left" ? "left" : "right";
+    const read: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
+    const side: AutoMovieHumanSide = params.side === "left" ? "left" : "right";
 
     // A text on a keyboard: each key's site from typing's layout and its
     // digit from the touch-typing chart.
@@ -315,10 +312,9 @@ export namespace manipulate {
     );
 
     // The fingering, hand by hand.
-    const sides: IAutoMovieMotionHumanHand.Side[] = given.map(
-      (
-        c: IAutoMovieMotionHumanManipulate.IContactAt,
-      ): IAutoMovieMotionHumanHand.Side => c.side ?? side,
+    const sides: AutoMovieHumanSide[] = given.map(
+      (c: IAutoMovieMotionHumanManipulate.IContactAt): AutoMovieHumanSide =>
+        c.side ?? side,
     );
     // Each hand keeps one rotation for the act, the one the plan gives it,
     // so the fingering reads every digit's tip where that rotation puts it.
@@ -361,10 +357,7 @@ const REACH: number = 0.4;
 const CHART: Readonly<
   Record<
     string,
-    readonly [
-      IAutoMovieMotionHumanHand.Side,
-      IAutoMovieMotionHumanManipulate.Finger,
-    ]
+    readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]
   >
 > = {
   ...Object.fromEntries(
@@ -382,14 +375,11 @@ const CHART: Readonly<
     ).flatMap(
       ([keys, side, finger]: readonly [
         string,
-        IAutoMovieMotionHumanHand.Side,
+        AutoMovieHumanSide,
         IAutoMovieMotionHumanManipulate.Finger,
       ]): [
         string,
-        readonly [
-          IAutoMovieMotionHumanHand.Side,
-          IAutoMovieMotionHumanManipulate.Finger,
-        ],
+        readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger],
       ][] =>
         [...keys].map(
           (
@@ -397,7 +387,7 @@ const CHART: Readonly<
           ): [
             string,
             readonly [
-              IAutoMovieMotionHumanHand.Side,
+              AutoMovieHumanSide,
               IAutoMovieMotionHumanManipulate.Finger,
             ],
           ] => [k, [side, finger]],
@@ -461,7 +451,7 @@ const typed: (
     (letter: string): IAutoMovieMotionHumanManipulate.IContactAt => {
       const key: {
         at: IAutoMovieVector3;
-        side: IAutoMovieMotionHumanHand.Side;
+        side: AutoMovieHumanSide;
       } = typeText.key(letter);
 
       // A named digit types every key with the hand on the key's side, as two-
@@ -469,10 +459,7 @@ const typed: (
       const digit: IAutoMovieMotionHumanManipulate.Finger | undefined =
         context.params.digit;
       const entry:
-        | readonly [
-            IAutoMovieMotionHumanHand.Side,
-            IAutoMovieMotionHumanManipulate.Finger,
-          ]
+        | readonly [AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.Finger]
         | undefined =
         digit !== undefined ? [key.side, digit] : CHART[letter.toLowerCase()];
       return {

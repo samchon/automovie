@@ -9,7 +9,7 @@ import type {
   IAutoMovieHumanArmTube,
   IAutoMovieHumanSeamKnot,
   IAutoMovieLoftRelief,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
@@ -114,8 +114,10 @@ export namespace AutoMovieHumanArmTube {
       (_: unknown, i: number): number => from + ((to - from) * i) / count,
     );
     const ks: number[] = xs.map((s: number): number => target(s) / unitHull(s));
-    const spline: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(xs, ks);
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      xs,
+      ks,
+    );
     const scale = (s: number): number =>
       AutoMovieNaturalSpline.evaluate(spline, Math.min(to, Math.max(from, s)));
 

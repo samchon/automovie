@@ -3,7 +3,16 @@ import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoft
 import type { IAutoMovieHumanLoftApertureConstruction } from "../lofting/IAutoMovieHumanLoftApertureConstruction";
 import type { IAutoMovieHumanEyelid } from "./IAutoMovieHumanEyelid";
 
-/** Type contracts exchanged by AutoMovieHumanBodyApertures; runtime evaluation remains in Human. */
+/**
+ * Prepared skin openings, their projected trim outlines, optional eye lids and millimetre detail boxes.
+ *
+ * The interface package owns these declarations; AutoMovieHumanBodyApertures in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Prepared skin openings, their projected trim outlines, optional eye lids and millimetre detail boxes. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IPrepared, DetailBoxes declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IPrepared, DetailBoxes separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanBodyApertures exchanges the named IPrepared, DetailBoxes contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanBodyApertures {
   /** An aperture with its margin and projected cut outline evaluated once.
    *

@@ -1,5 +1,8 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
 } from "@automovie/interface";
 
@@ -32,7 +35,7 @@ export function solvePhysicalArticulationTargets(
     input.bones.some(
       (bone: string): boolean =>
         !input.profile.segments.some(
-          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          (segment: IAutoMoviePhysicalSegment): boolean =>
             segment.bone === bone,
         ),
     )
@@ -42,9 +45,9 @@ export function solvePhysicalArticulationTargets(
   let rows: number | undefined;
   /** Residual dimensions and finiteness remain invariant during every probe. */
   const measure: (
-    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ) => number[] = (
-    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): number[] => {
     const result: number[] = input.measure(poses);
     if (
@@ -57,32 +60,30 @@ export function solvePhysicalArticulationTargets(
     rows = result.length;
     return result;
   };
-  const joints: IAutoMoviePhysicalProfile.IJoint[] =
-    input.profile.joints.filter(
-      (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
-        selected.has(joint.child),
-    );
+  const joints: IAutoMoviePhysicalJoint[] = input.profile.joints.filter(
+    (joint: IAutoMoviePhysicalJoint): boolean => selected.has(joint.child),
+  );
   const coordinates: {
-    joint: IAutoMoviePhysicalProfile.IJoint;
-    axis: IAutoMoviePhysicalProfile.IAxis;
+    joint: IAutoMoviePhysicalJoint;
+    axis: IAutoMoviePhysicalJointAxis;
   }[] = joints.flatMap(
     (
-      joint: IAutoMoviePhysicalProfile.IJoint,
+      joint: IAutoMoviePhysicalJoint,
     ): {
-      joint: IAutoMoviePhysicalProfile.IJoint;
-      axis: IAutoMoviePhysicalProfile.IAxis;
+      joint: IAutoMoviePhysicalJoint;
+      axis: IAutoMoviePhysicalJointAxis;
     }[] =>
       joint.axes
         .filter(
-          (axis: IAutoMoviePhysicalProfile.IAxis): boolean =>
+          (axis: IAutoMoviePhysicalJointAxis): boolean =>
             axis.maximum > axis.minimum,
         )
         .map(
           (
-            axis: IAutoMoviePhysicalProfile.IAxis,
+            axis: IAutoMoviePhysicalJointAxis,
           ): {
-            joint: IAutoMoviePhysicalProfile.IJoint;
-            axis: IAutoMoviePhysicalProfile.IAxis;
+            joint: IAutoMoviePhysicalJoint;
+            axis: IAutoMoviePhysicalJointAxis;
           } => ({
             joint,
             axis,
@@ -99,21 +100,19 @@ export function solvePhysicalArticulationTargets(
   }
   const subtrees: Map<string, string[]> = new Map();
   const descendants: Map<string, string[]> = new Map(
-    joints.map(
-      (joint: IAutoMoviePhysicalProfile.IJoint): [string, string[]] => [
-        joint.id,
-        subtree(joint.child),
-      ],
-    ),
+    joints.map((joint: IAutoMoviePhysicalJoint): [string, string[]] => [
+      joint.id,
+      subtree(joint.child),
+    ]),
   );
   const movedByJoint: Map<
-    IAutoMoviePhysicalProfile.IJoint,
+    IAutoMoviePhysicalJoint,
     ReadonlySet<string>
   > = new Map(
     joints.map(
       (
-        joint: IAutoMoviePhysicalProfile.IJoint,
-      ): [IAutoMoviePhysicalProfile.IJoint, ReadonlySet<string>] => [
+        joint: IAutoMoviePhysicalJoint,
+      ): [IAutoMoviePhysicalJoint, ReadonlySet<string>] => [
         joint,
         new Set(descendants.get(joint.id)!),
       ],
@@ -124,10 +123,10 @@ export function solvePhysicalArticulationTargets(
       joint,
       axis,
     }: {
-      joint: IAutoMoviePhysicalProfile.IJoint;
-      axis: IAutoMoviePhysicalProfile.IAxis;
+      joint: IAutoMoviePhysicalJoint;
+      axis: IAutoMoviePhysicalJointAxis;
     }): number => {
-      const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const relative: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(
           Quaternion.inverse(
             Quaternion.multiply(
@@ -149,8 +148,7 @@ export function solvePhysicalArticulationTargets(
       return Math.max(axis.minimum, Math.min(axis.maximum, angle));
     },
   );
-  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
-    build(values);
+  let targets: Record<string, IAutoMovieRigidTransform> = build(values);
   let errors: number[] = measure(targets);
   for (
     let iteration: number = 0;
@@ -160,7 +158,7 @@ export function solvePhysicalArticulationTargets(
     iteration++
   ) {
     const model: (
-      poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+      poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
       moved?: ReadonlySet<string>,
     ) => number[] = input.linearize?.(targets) ?? measure;
     const baseline: number[] = model(targets);
@@ -172,8 +170,8 @@ export function solvePhysicalArticulationTargets(
           joint,
           axis,
         }: {
-          joint: IAutoMoviePhysicalProfile.IJoint;
-          axis: IAutoMoviePhysicalProfile.IAxis;
+          joint: IAutoMoviePhysicalJoint;
+          axis: IAutoMoviePhysicalJointAxis;
         },
         index: number,
       ): number[] => {
@@ -207,8 +205,8 @@ export function solvePhysicalArticulationTargets(
           {
             axis,
           }: {
-            joint: IAutoMoviePhysicalProfile.IJoint;
-            axis: IAutoMoviePhysicalProfile.IAxis;
+            joint: IAutoMoviePhysicalJoint;
+            axis: IAutoMoviePhysicalJointAxis;
           },
           index: number,
         ): { value: number; minimum: number; maximum: number } => ({
@@ -236,7 +234,7 @@ export function solvePhysicalArticulationTargets(
             ),
           ),
       );
-      const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> = build(
+      const poses: Record<string, IAutoMovieRigidTransform> = build(
         candidate,
         targets,
         values,
@@ -275,21 +273,21 @@ export function solvePhysicalArticulationTargets(
   /** Admit the seed once, then own only branches changed from the accepted pose. The shared setter replaces vectors on mutable pose shells, so unchanged accepted branches remain borrowed and untouched. */
   function build(
     parameters: readonly number[],
-    base?: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    base?: Readonly<Record<string, IAutoMovieRigidTransform>>,
     previous?: readonly number[],
-  ): Record<string, IAutoMoviePhysicalProfile.ITransform> {
-    const changed: Set<IAutoMoviePhysicalProfile.IJoint> = new Set(
+  ): Record<string, IAutoMovieRigidTransform> {
+    const changed: Set<IAutoMoviePhysicalJoint> = new Set(
       coordinates.flatMap(
         (
           coordinate: (typeof coordinates)[number],
           index: number,
-        ): IAutoMoviePhysicalProfile.IJoint[] =>
+        ): IAutoMoviePhysicalJoint[] =>
           previous === undefined || parameters[index] !== previous[index]
             ? [coordinate.joint]
             : [],
       ),
     );
-    const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> = base
+    const poses: Record<string, IAutoMovieRigidTransform> = base
       ? { ...base }
       : structuredClone(input.targets);
     if (base) {
@@ -303,7 +301,7 @@ export function solvePhysicalArticulationTargets(
     }
     for (const joint of joints) {
       if (base && !changed.has(joint)) continue;
-      const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = {
+      const relative: IAutoMovieRigidTransform["rotation"] = {
         x: 0,
         y: 0,
         z: 0,

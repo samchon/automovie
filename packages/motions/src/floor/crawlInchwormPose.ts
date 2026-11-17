@@ -61,7 +61,7 @@ export namespace crawlInchwormPose {
   export function of(
     body: IAutoMovieMotionHumanBody,
     chain: crawlChain.IChain,
-    frame: IAutoMovieMotionHumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     feet: Record<"left" | "right", number>,
     wrists: Record<"left" | "right", number>,
   ): IAutoMovieMotionHumanLieDown.IPose {

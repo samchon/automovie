@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
@@ -21,9 +21,9 @@ export namespace AutoMovieHumanHandSide {
 
   /** A side's frame from the left frame's. */
   export function sidedFrame(
-    f: IAutoMovieLoftFrame.IFrame,
+    f: IAutoMovieLoftSectionFrame,
     sign: 1 | -1,
-  ): IAutoMovieLoftFrame.IFrame {
+  ): IAutoMovieLoftSectionFrame {
     return sign === 1 ? f : AutoMovieHumanLimbFrame.mirror(f);
   }
 

@@ -4,10 +4,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -71,15 +71,14 @@ export function test_human_motion_ride_rising(): void {
     },
     "trot",
   );
-  const known: Map<number, IAutoMovieMotionHumanProp.IFrame> = new Map();
-  const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
-    const kept: IAutoMovieMotionHumanProp.IFrame | undefined =
-      known.get(seconds);
+  const known: Map<number, IAutoMovieRigidTransform> = new Map();
+  const placed = (seconds: number): IAutoMovieRigidTransform => {
+    const kept: IAutoMovieRigidTransform | undefined = known.get(seconds);
     if (kept !== undefined) return kept;
     const placement: IAutoMovieTransform = trotting.at(
       Math.max(0, seconds - WAIT),
     ).placement;
-    const frame: IAutoMovieMotionHumanProp.IFrame = {
+    const frame: IAutoMovieRigidTransform = {
       position: placement.translation,
       rotation: placement.rotation,
     };
@@ -170,8 +169,7 @@ export function test_human_motion_ride_rising(): void {
     );
   }
   if (performance !== null) {
-    const ride: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const ride: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",

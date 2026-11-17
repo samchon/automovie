@@ -5,6 +5,7 @@ import type {
   IAutoMovieHumanoidSurfaceReader,
   IAutoMovieHumanoidSurfaces,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -66,7 +67,7 @@ export function AutoMovieHumanoidDigitSurfaces(
       // The phalanx's own colliders, or the hand's when the profile gives
       // the phalanx none.
       const phalanx: AutoMovieHumanoidBone = profile.segments.some(
-        (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === distal,
+        (x: IAutoMoviePhysicalSegment): boolean => x.bone === distal,
       )
         ? distal
         : (`${side}Hand` as AutoMovieHumanoidBone);

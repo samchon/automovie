@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanGaze,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPursuit,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -100,8 +101,9 @@ export namespace HumanPursuit {
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPursuit.IIntercept>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const leader: IAutoMovieMotionHumanActionContext.IPerformer =
-          context.performer(context.params.target);
+        const leader: IAutoMovieMotionHumanPerformerReader = context.performer(
+          context.params.target,
+        );
         const gap: number =
           HumanProxemics.gap(
             "handing",

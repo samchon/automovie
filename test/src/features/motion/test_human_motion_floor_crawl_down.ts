@@ -59,7 +59,7 @@ export function test_human_motion_floor_crawl_down(): void {
           ],
           composition: HumanChain.subject("a").crawl({ kind, cycles: 1 }).node,
         });
-      const [crawl]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const [crawl]: readonly IAutoMovieMotionHumanSegment[] =
         performance.segments("a");
       const down: number =
         crawl!.start +

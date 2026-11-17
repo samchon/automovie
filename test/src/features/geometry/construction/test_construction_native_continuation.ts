@@ -9,7 +9,7 @@ import type {
   IAutoMovieConstructionDiagnostic,
   IAutoMovieConstructionRealization,
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidSurface,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -129,8 +129,16 @@ function equivalent(
   )
     failures.push("Native boundary admission mutated an input.");
   for (const phi of [-0.37, 0, 0.23, Math.PI / 2, 2.1, 4.7, 7.3]) {
-    const expected: IAutoMovieLoftJet.IJet = Made.oracle(hs, sign * phi, scale);
-    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, ps, phi);
+    const expected: IAutoMovieLoftSurfaceJet = Made.oracle(
+      hs,
+      sign * phi,
+      scale,
+    );
+    const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+      result,
+      ps,
+      phi,
+    );
     jets(actual, expected, sign, failures, "whole boundary");
     for (const station of [
       0.125 * scale,
@@ -392,7 +400,7 @@ function surfaceJet(
   surface: IAutoMovieSolidSurface,
   station: number,
   phi: number,
-  expected: IAutoMovieLoftJet.IJet,
+  expected: IAutoMovieLoftSurfaceJet,
   failures: string[],
 ): void {
   const actual: IAutoMovieSolidSurface.IJet = surface.jet(station, phi);
@@ -414,8 +422,8 @@ function surfaceJet(
 
 /** Both chart coordinates receive sign; the mixed second derivative therefore keeps its sign. */
 function jets(
-  actual: IAutoMovieLoftJet.IJet,
-  expected: IAutoMovieLoftJet.IJet,
+  actual: IAutoMovieLoftSurfaceJet,
+  expected: IAutoMovieLoftSurfaceJet,
   sign: 1 | -1,
   failures: string[],
   label: string,

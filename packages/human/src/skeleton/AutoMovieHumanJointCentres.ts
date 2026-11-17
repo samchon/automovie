@@ -1,8 +1,9 @@
 import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
+  IAutoMovieHumanEyeSeat,
   IAutoMovieHumanJointCentres,
-  IAutoMovieHumanSkeletonLaw,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -24,7 +25,7 @@ export namespace AutoMovieHumanJointCentres {
   export function derive(
     calibration: IAutoMovieHumanBodyCalibration,
   ): IAutoMovieHumanJointCentres.IJoint[] {
-    const skeleton: IAutoMovieHumanSkeletonLaw.IBone[] | undefined =
+    const skeleton: IAutoMovieHumanCalibrationBone[] | undefined =
       calibration.skeleton;
     if (skeleton === undefined)
       throw new Error("The calibration carries no skeleton");
@@ -54,17 +55,17 @@ export namespace AutoMovieHumanJointCentres {
         throw new Error(`Stickman skeleton needs the ${name} chain`);
       return host;
     };
-    const byBone = new Map<string, IAutoMovieHumanSkeletonLaw.IBone>(
+    const byBone = new Map<string, IAutoMovieHumanCalibrationBone>(
       skeleton.map(
         (
-          b: IAutoMovieHumanSkeletonLaw.IBone,
-        ): [string, IAutoMovieHumanSkeletonLaw.IBone] => [b.bone, b],
+          b: IAutoMovieHumanCalibrationBone,
+        ): [string, IAutoMovieHumanCalibrationBone] => [b.bone, b],
       ),
     );
     // A bone's segment middle: its joint and its leaf tip, or the joint and
     // the point it points to.
     const middleOf = (bone: string): [number, number, number] => {
-      const b: IAutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
+      const b: IAutoMovieHumanCalibrationBone = byBone.get(bone)!;
       const end: [number, number, number] = b.tip ?? b.toward;
       return [
         (b.position[0] + end[0]) / 2,
@@ -86,7 +87,7 @@ export namespace AutoMovieHumanJointCentres {
       (c: IAutoMovieLoftChain): boolean => c.name === "head.mass",
     );
     const segment = (bone: string): number => {
-      const b: IAutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
+      const b: IAutoMovieHumanCalibrationBone = byBone.get(bone)!;
       const end: [number, number, number] = b.tip ?? b.toward;
       return (
         Math.hypot(
@@ -146,8 +147,7 @@ export namespace AutoMovieHumanJointCentres {
       if (bone === "jaw") return headRadius * 0.12;
       if (bone.endsWith("Eye"))
         return calibration.eyes.find(
-          (e: IAutoMovieHumanBodyCalibration.IEye): boolean =>
-            `${e.side}Eye` === bone,
+          (e: IAutoMovieHumanEyeSeat): boolean => `${e.side}Eye` === bone,
         )!.radius;
       const side: "left" | "right" = bone.startsWith("left") ? "left" : "right";
       const part: string = bone.slice(side.length);
@@ -179,7 +179,7 @@ export namespace AutoMovieHumanJointCentres {
     };
     return skeleton.map(
       (
-        b: IAutoMovieHumanSkeletonLaw.IBone,
+        b: IAutoMovieHumanCalibrationBone,
       ): IAutoMovieHumanJointCentres.IJoint => ({
         ...b,
         radius: radius(b.bone),

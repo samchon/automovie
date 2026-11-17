@@ -13,6 +13,8 @@ import type {
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSignature,
   IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -346,9 +348,9 @@ export function test_human_motion_coupled_meeting(): void {
   // 6. The coupling does not depend on which role is computed first.
   const roles = (
     order: readonly ("bearer" | "borne")[],
-  ): IAutoMovieMotionMeeting.IRole[] =>
+  ): IAutoMovieMotionMeetingRole[] =>
     order.map(
-      (name: "bearer" | "borne"): IAutoMovieMotionMeeting.IRole => ({
+      (name: "bearer" | "borne"): IAutoMovieMotionMeetingRole => ({
         name,
         subject: name === "bearer" ? "a" : "b",
         body: motionHumanBody(name === "bearer" ? "m-average" : "f-small"),
@@ -359,16 +361,16 @@ export function test_human_motion_coupled_meeting(): void {
         bones: new Map(),
       }),
     );
-  const kind: IAutoMovieMotionMeeting.IKind = HumanCarriedCoupling.kind(
+  const kind: IAutoMovieMotionMeetingKind = HumanCarriedCoupling.kind(
     "piggyback",
     HumanCarried.CARRIES,
   );
-  const forward: IAutoMovieMotionMeeting.IMeeting = AutoMovieMotionMeeting.of(
+  const forward: IAutoMovieMotionMeeting = AutoMovieMotionMeeting.of(
     kind,
     roles(["bearer", "borne"]),
     { start: 0 },
   );
-  const backward: IAutoMovieMotionMeeting.IMeeting = AutoMovieMotionMeeting.of(
+  const backward: IAutoMovieMotionMeeting = AutoMovieMotionMeeting.of(
     kind,
     roles(["borne", "bearer"]),
     { start: 0 },

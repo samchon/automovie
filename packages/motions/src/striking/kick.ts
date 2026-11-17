@@ -7,8 +7,10 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanKick,
   IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionWeaponContact,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -172,16 +174,16 @@ export namespace kick {
 
     // The contact the performance committed, and the stopped leg's ride on
     // the body it met ({@link StrikingRide}), built on first use.
-    let met: IAutoMovieMotionHumanActionPlan.IContactEvent | null = null;
+    let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       if (met === null) return posture;
-      const event: IAutoMovieMotionHumanActionPlan.IContactEvent = met;
+      const event: IAutoMovieMotionWeaponContact = met;
       ride ??= StrikingRide.create({
-        other: (): IAutoMovieMotionHumanActionContext.IPerformer =>
+        other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
@@ -254,9 +256,7 @@ export namespace kick {
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (
-              found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
-            ): void => {
+            stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;

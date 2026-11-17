@@ -109,8 +109,7 @@ export function test_human_motion_touch_hand_choice(): void {
         })
         .with(HumanChain.subject("b").stand({ seconds: 6 })).node,
     });
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find(

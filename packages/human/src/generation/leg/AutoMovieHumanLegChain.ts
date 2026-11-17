@@ -6,6 +6,7 @@ import {
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanLegAxis,
   IAutoMovieHumanLegConstruction,
   IAutoMovieHumanLegCrotchRoot,
@@ -14,7 +15,6 @@ import type {
   IAutoMovieHumanLegSectionLaw,
   IAutoMovieHumanLegStations,
   IAutoMovieHumanLimbRootStrip,
-  IAutoMovieHumanSkeletonLaw,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
 } from "@automovie/interface";
@@ -48,13 +48,13 @@ const { lerp, norm, sub } = AutoMovieHumanLegVector;
 export namespace AutoMovieHumanLegChain {
   /** The hip, knee and ankle of a side, read in the canonical frame. */
   export function joints(
-    skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
     side: "left" | "right",
     sign: 1 | -1,
   ): IAutoMovieHumanLegAxis.IJoints {
     const at: (name: string) => Vec3 = (name: string): Vec3 => {
-      const bone: IAutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
-        (b: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
+      const bone: IAutoMovieHumanCalibrationBone | undefined = skeleton.find(
+        (b: IAutoMovieHumanCalibrationBone): boolean =>
           b.bone === `${side}${name}`,
       );
       if (bone === undefined)
@@ -77,7 +77,7 @@ export namespace AutoMovieHumanLegChain {
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
     inputs: IAutoMovieHumanLegConstruction.IInputs,
-    skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
     diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
   ): IAutoMovieLoftChain {
     const sign: 1 | -1 = side === "left" ? 1 : -1;

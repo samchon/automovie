@@ -134,7 +134,7 @@ export namespace martialArt {
     const step: number = p.kind === "taiChiPush" ? PUSH : 0.6;
     const middle: number =
       p.kind === "chokuZuki" ? count * 2 * PUNCH + PUNCH : hold;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: step,
         attack: p.kind === "taiChiPush" ? PUSH : middle,

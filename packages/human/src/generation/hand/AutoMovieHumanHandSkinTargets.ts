@@ -1,12 +1,14 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
   IAutoMovieHumanHandDigit,
   IAutoMovieHumanHandFinger,
   IAutoMovieHumanHandForm,
   IAutoMovieHumanHandMeasures,
   IAutoMovieHumanHandSkinTargets,
   IAutoMovieHumanKnuckleSection,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -113,14 +115,14 @@ export namespace AutoMovieHumanHandSkinTargets {
         ...calibration,
         chains,
         events: events().filter(
-          (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
+          (e: IAutoMovieHumanBranchEvent): boolean =>
             e.parent === "hand.left.1",
         ),
         poles: hand.digits.slice(1).map(
           (
             _: IAutoMovieHumanHandDigit,
             i: number,
-          ): IAutoMovieHumanBodyCalibration.IPole => ({
+          ): IAutoMovieHumanSurfacePole => ({
             chain: AutoMovieHumanArmPrior.PRIOR.hand.digits[
               i + 1
             ]!.name.replace("{side}", "left"),

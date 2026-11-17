@@ -3,8 +3,8 @@ import type {
   IAutoMovieLoftCapRead,
   IAutoMovieLoftChain,
   IAutoMovieLoftCoefficientSource,
-  IAutoMovieLoftJet,
   IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieStationHermite,
   IAutoMovieViewAxisJet,
 } from "@automovie/interface";
@@ -93,7 +93,7 @@ export namespace AutoMovieLoftJet {
     chain: IAutoMovieLoftChain,
     s: number,
     t: number,
-  ): IAutoMovieLoftJet.IJet {
+  ): IAutoMovieLoftSurfaceJet {
     // The station's part (its section coefficients and plane with their two
     // station derivatives) is the same for every phase, so the last stations
     // read per chain are kept; a chain is never changed once built.
@@ -108,7 +108,7 @@ export namespace AutoMovieLoftJet {
       station.native === null
         ? section(station.controls!, n, t)
         : station.native(t);
-    const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftWorldJet(local, f);
+    const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftWorldJet(local, f);
 
     // The lift a shape law writes moves points along w = v x u by the station
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
@@ -395,7 +395,7 @@ export namespace AutoMovieLoftJet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained state or handles; its returned vector belongs to the caller.
    */
   export function normal(
-    jet: IAutoMovieLoftJet.IJet,
+    jet: IAutoMovieLoftSurfaceJet,
   ): AutoMovieVector3Tuple | null {
     const n: AutoMovieVector3Tuple = cross(jet.t, jet.s);
     const l: number = Math.hypot(n[0], n[1], n[2]);
@@ -431,7 +431,7 @@ function section(
  * with `w' = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
  */
 function lift(
-  jet: IAutoMovieLoftJet.IJet,
+  jet: IAutoMovieLoftSurfaceJet,
   prepared: { c: number[][]; directions: AutoMovieVector3Tuple[] },
   n: number,
   t: number,

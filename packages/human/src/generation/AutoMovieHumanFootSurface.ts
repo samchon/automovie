@@ -3,9 +3,9 @@ import type {
   AutoMovieHumanSide,
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanFootCourse,
   IAutoMovieHumanFootSurface,
-  IAutoMovieHumanSkeletonLaw,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -72,12 +72,12 @@ function side(
 ): IAutoMovieHumanFootSurface.ISide {
   const joint: (
     name: "Foot" | "Midfoot" | "HalluxProximal" | "Toe5Proximal",
-  ) => IAutoMovieHumanSkeletonLaw.IBone = (
+  ) => IAutoMovieHumanCalibrationBone = (
     name: "Foot" | "Midfoot" | "HalluxProximal" | "Toe5Proximal",
-  ): IAutoMovieHumanSkeletonLaw.IBone => {
-    const found: IAutoMovieHumanSkeletonLaw.IBone | undefined =
+  ): IAutoMovieHumanCalibrationBone => {
+    const found: IAutoMovieHumanCalibrationBone | undefined =
       body.skeleton!.find(
-        (bone: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
+        (bone: IAutoMovieHumanCalibrationBone): boolean =>
           bone.bone === `${own}${name}`,
       );
     if (found === undefined)

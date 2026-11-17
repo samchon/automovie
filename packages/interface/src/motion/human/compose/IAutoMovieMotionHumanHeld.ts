@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
-import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanTouchEffector } from "./IAutoMovieMotionHumanTouchEffector";
 
 /**
@@ -23,7 +23,7 @@ import type { IAutoMovieMotionHumanTouchEffector } from "./IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation frame: The prop's frame in the hand's grip frame: its origin from the grip socket in the hand bone's axes, metres, and its rotation from the hand bone's. point: The prop's point that meets the region; the caller names it when absent.
  * @evidence contracts/development/design.md#principled-representation frame: The prop's frame in the hand's grip frame: its origin from the grip socket in the hand bone's axes, metres, and its rotation from the hand bone's. point: The prop's point that meets the region; the caller names it when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.of, return); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.grasped, return); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.point, held); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.grip, held); compose/AutoMovieMotionHumanHeld.ts (AutoMovieMotionHumanHeld.hold, held); striking/StrikingHeld.ts (StrikingHeld.read, held).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanProp.IFrame, IAutoMovieAffordance, IAutoMovieMotionHumanTouchEffector.IEffector, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieRigidTransform, IAutoMovieAffordance, IAutoMovieMotionHumanTouchEffector.IEffector, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHeld {
   /**
@@ -32,7 +32,7 @@ export namespace IAutoMovieMotionHumanHeld {
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, the frame of `frame` and that `affordances` are in the prop's own frame.
    * @evidence contracts/development/design.md#principled-representation The prop's subject id, the holding side, the prop's rigid offset in the hand's grip frame (metres and a rotation) and its declared contacts, the facts every held-thing action starts from.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read through `of` and the point and direction readers by the handling and striking laws, the workout load and the pole vault; the affordances are the interface package's own type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named; the side is the closed `"left" | "right"` union and `frame` reuses `IAutoMovieMotionHumanProp.IFrame`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named; the side is the closed `"left" | "right"` union and `frame` reuses `IAutoMovieRigidTransform`.
    */
   export interface IHeld {
     /** The prop's subject id. */
@@ -42,7 +42,7 @@ export namespace IAutoMovieMotionHumanHeld {
     side: "left" | "right";
 
     /** The prop's frame in the hand's grip frame: its origin from the grip socket in the hand bone's axes, metres, and its rotation from the hand bone's. */
-    frame: IAutoMovieMotionHumanProp.IFrame;
+    frame: IAutoMovieRigidTransform;
 
     /** The prop's contacts, in its own frame. */
     affordances: readonly IAutoMovieAffordance[];

@@ -1,4 +1,4 @@
-import type { IAutoMovieNaturalSpline } from "../../construction/IAutoMovieNaturalSpline";
+import type { IAutoMovieNaturalCubicSpline } from "../../construction/IAutoMovieNaturalCubicSpline";
 import type { IAutoMovieHumanHeadPrior } from "./IAutoMovieHumanHeadPrior";
 
 /** The prior's curves prepared.
@@ -14,8 +14,8 @@ export interface IAutoMovieHumanHeadCompiled {
   prior: IAutoMovieHumanHeadPrior.IPrior;
 
   /** Nose's profile along the dorsum. */
-  profile: IAutoMovieNaturalSpline.ISpline;
+  profile: IAutoMovieNaturalCubicSpline;
 
   /** Nose's dorsum along the station. */
-  dorsum: IAutoMovieNaturalSpline.ISpline;
+  dorsum: IAutoMovieNaturalCubicSpline;
 }

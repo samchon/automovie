@@ -13,7 +13,9 @@ import type {
   IAutoMovieMotionHumanCarriedCouplingFit,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -168,7 +170,7 @@ export namespace HumanCarriedCoupling {
     >,
     extra: number = 0,
     paired: boolean = false,
-  ): IAutoMovieMotionMeeting.IKind {
+  ): IAutoMovieMotionMeetingKind {
     const other: IAutoMovieMotionHumanCarried.Carry | undefined = paired
       ? PAIRED[carry]
       : undefined;
@@ -176,22 +178,22 @@ export namespace HumanCarriedCoupling {
       name: `carried:${carry}${other === undefined ? "" : `+${other}`}`,
       roles: other === undefined ? [BEARER, BORNE] : [BEARER, BORNE, SECOND],
       contacts: {},
-      timing: (): IAutoMovieMotionMeeting.ITiming => ({
+      timing: (): IAutoMovieMotionMeetingTiming => ({
         ready: 0,
         stroke: 0,
         relax: 0,
       }),
       couple: (
-        roles: readonly IAutoMovieMotionMeeting.IRole[],
+        roles: readonly IAutoMovieMotionMeetingRole[],
       ): IAutoMovieMotionCoupling => {
-        const bearer: IAutoMovieMotionMeeting.IRole = roles.find(
-          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === BEARER,
+        const bearer: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === BEARER,
         )!;
-        const borne: IAutoMovieMotionMeeting.IRole = roles.find(
-          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === BORNE,
+        const borne: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === BORNE,
         )!;
-        const second: IAutoMovieMotionMeeting.IRole | undefined = roles.find(
-          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === SECOND,
+        const second: IAutoMovieMotionMeetingRole | undefined = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === SECOND,
         );
         return couple(
           bearer.body,

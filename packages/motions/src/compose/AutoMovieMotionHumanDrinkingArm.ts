@@ -5,13 +5,14 @@ import {
   rotationBetween,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDrinkingArm,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanTouch,
@@ -85,7 +86,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition">
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
   ): IAutoMovieMotionHumanDrinkingArm.IMeasuredResult {
     const shoulder: IAutoMovieVector3 = bones.get(
@@ -150,8 +151,8 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   export function read(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    side: AutoMovieHumanSide,
+    goal: IAutoMovieHumanLimbGoal,
     referred: boolean,
     axis?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanDrinkingArm.IArm {
@@ -383,7 +384,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function refused(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     sought: string,
     closest: IAutoMovieMotionHumanDrinkingArm.INearest,
   ): IAutoMovieMotionHumanRefusal {
@@ -400,7 +401,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 /** How far a reached hand carries the vessel's asked axis, degrees: the asked rotation's axis is the up turned back by it, read again through the reached rotation. */
 function angle(
   reached: IAutoMovieQuaternion,
-  goal: IAutoMovieMotionHumanPosture.IGoal,
+  goal: IAutoMovieHumanLimbGoal,
 ): number {
   const asked: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(Quaternion.normalize(goal.rotation!)),

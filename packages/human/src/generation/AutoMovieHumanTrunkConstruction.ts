@@ -1,5 +1,6 @@
 import type {
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
   IAutoMovieHumanTrunkConstruction,
   IAutoMovieHumanTrunkInputs,
   IAutoMovieHumanTrunkSolution,
@@ -85,9 +86,7 @@ export namespace AutoMovieHumanTrunkConstruction {
           ...solution.diagnostics,
         ],
         events: calibration.events.map(
-          (
-            e: IAutoMovieHumanBodyCalibration.IEvent,
-          ): IAutoMovieHumanBodyCalibration.IEvent =>
+          (e: IAutoMovieHumanBranchEvent): IAutoMovieHumanBranchEvent =>
             e.parent === "trunk" && e.direction === "down"
               ? {
                   ...e,

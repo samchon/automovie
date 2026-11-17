@@ -2,7 +2,7 @@ import type { Archetype } from "@automovie/archetypes";
 import type {
   IAutoMovieMesh,
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -112,11 +112,10 @@ export namespace convexCellObservation {
     const part: IAutoMovieModelPart | undefined = archetype.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
     );
-    const hull: IAutoMoviePhysicalProfile.IShape | undefined = archetype
+    const hull: IAutoMoviePhysicalShape | undefined = archetype
       .shapes()
       .find(
-        (candidate: IAutoMoviePhysicalProfile.IShape): boolean =>
-          candidate.id === id,
+        (candidate: IAutoMoviePhysicalShape): boolean => candidate.id === id,
       );
     if (
       part?.geometry.type !== "mesh" ||

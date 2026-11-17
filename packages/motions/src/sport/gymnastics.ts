@@ -106,7 +106,7 @@ export namespace gymnastics {
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
         attack: 0,
@@ -118,7 +118,7 @@ export namespace gymnastics {
     // The exit mirrors the entry: the legs swing down over the hands first,
     // the feet landing at `release` half way through, and the trunk unfolds
     // over the standing feet after it.
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -131,7 +131,7 @@ export namespace gymnastics {
       ],
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
       yaw: entry.yaw,
     };

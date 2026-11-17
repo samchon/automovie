@@ -1,9 +1,9 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieBlendColumn } from "./IAutoMovieBlendColumn";
 import type { IAutoMovieLoftContract } from "./IAutoMovieLoftContract";
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidIntersection } from "./IAutoMovieSolidIntersection";
 import type { IAutoMovieSolidRail } from "./IAutoMovieSolidRail";
-import type { IAutoMovieSolidRibbon } from "./IAutoMovieSolidRibbon";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
@@ -117,7 +117,7 @@ export namespace IAutoMovieSolidJoin {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No mesh-derived normal or tube-centre guess is stored. This type alone does not validate finiteness or prove unfolding.
    * @evidence contracts/development/common.md#meaningful-documentation Members state host/part order, blend shares and the unnormalized analytic outward meaning.
    */
-  export interface IColumn extends IAutoMovieSolidRibbon.IColumn {
+  export interface IColumn extends IAutoMovieBlendColumn {
     /** The rails it runs between. */
     rail: IAutoMovieSolidRail.IRail;
 
@@ -182,13 +182,6 @@ export namespace IAutoMovieSolidJoin {
        * exceptions propagate. Rail results may be cached while widths reads
        * this law again, so changing the law invalidates the join's consistency.
        *
-       * @evidence contracts/development/common.md#meaningful-documentation States parameter/output units, repeated reads, retained dependency stability and propagated exceptions.
-       * @evidenceExclude contracts/development/implementation.md#principled-implementation This is an authored chord-law callback; its owner supplies the calculation.
-       * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature declares a scalar law and has no implementation body.
-       * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Admission of the returned chord belongs to the rail solve; this declaration supplies no fallback value.
-       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The law's evaluation cost belongs to its provider; the signature imposes no complexity bound.
-       * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The callback contract owns no cache; the join separately caches rails and reads live width values.
-       * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The join retains the law and its dependencies for its lifetime; the callback declaration acquires no resource.
        */
       host(t: number): number;
     };

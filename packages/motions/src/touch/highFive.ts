@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -16,6 +17,9 @@ import type {
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieResolveMutualGoal,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -128,8 +132,8 @@ export namespace highFive {
    */
   export function meeting(
     kind: IAutoMovieMotionHumanHighFive.Kind,
-    side: IAutoMovieMotionHumanHand.Side,
-  ): IAutoMovieMotionMeeting.IKind {
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionMeetingKind {
     const height: IAutoMovieMotionHumanTargetGrid.Height = HEIGHTS[kind];
     const surface: IAutoMovieMotionHumanHand.Surface =
       kind === "fist" ? "fist" : "palm";
@@ -139,9 +143,7 @@ export namespace highFive {
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => {
         const arms: IAutoMovieResolveMutualGoal.ISide[] = roles.map(
-          (
-            r: IAutoMovieMotionMeeting.IRole,
-          ): IAutoMovieResolveMutualGoal.ISide =>
+          (r: IAutoMovieMotionMeetingRole): IAutoMovieResolveMutualGoal.ISide =>
             handshake.arm(
               r.body,
               side,
@@ -155,11 +157,7 @@ export namespace highFive {
           leaned: readonly IAutoMovieResolveMutualGoal.ISide[],
         ): number =>
           roles.reduce(
-            (
-              sum: number,
-              r: IAutoMovieMotionMeeting.IRole,
-              k: number,
-            ): number =>
+            (sum: number, r: IAutoMovieMotionMeetingRole, k: number): number =>
               sum +
               AutoMovieMotionHumanTargetGrid.height(r.body, height) *
                 r.body.measure.stature -
@@ -240,15 +238,15 @@ export namespace highFive {
     const p: IAutoMovieMotionHumanHighFive.IParams = context.params;
     const body = context.body;
     const kind: IAutoMovieMotionHumanHighFive.Kind = p.kind ?? "high";
-    const side: IAutoMovieMotionHumanHand.Side = p.side ?? "right";
+    const side: AutoMovieHumanSide = p.side ?? "right";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const met: IAutoMovieMotionMeeting.IMeeting = context.meeting(
+    const met: IAutoMovieMotionMeeting = context.meeting(
       meeting(kind, side),
       "slapper",
       { role: "slapper", subject: p.partner },
       p.window,
     );
-    const local: IAutoMovieMotionMeeting.ITiming = AutoMovieMotionMeeting.local(
+    const local: IAutoMovieMotionMeetingTiming = AutoMovieMotionMeeting.local(
       met,
       context.start,
     );
@@ -293,13 +291,13 @@ export namespace highFive {
         ? 0
         : Math.max(0, local.ready - Math.max(0.05, own));
     const reach: number = Math.max(0.05, local.ready - lead);
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+    const timed: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: reach,
       attack: 0,
       hold: Math.max(0, local.relax - local.ready),
       retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,

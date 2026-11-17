@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieRecoveryOpenArcIncidence,
   IAutoMovieRecoveryOpenSlabGraph,
+  IAutoMovieRecoverySlabConnectivityGroup,
   IAutoMovieRecoverySlabGraph,
 } from "@automovie/interface";
 
@@ -328,10 +330,10 @@ export namespace RecoveryOpenSlabGraph {
           ).length === 2,
       );
       const endpoint: (
-        end: IAutoMovieRecoveryOpenSlabGraph.Arc["ends"][number],
+        end: IAutoMovieRecoveryOpenArcIncidence["ends"][number],
         side: "before" | "after",
       ) => number | undefined = (
-        end: IAutoMovieRecoveryOpenSlabGraph.Arc["ends"][number],
+        end: IAutoMovieRecoveryOpenArcIncidence["ends"][number],
         side: "before" | "after",
       ): number | undefined => {
         if (
@@ -354,15 +356,15 @@ export namespace RecoveryOpenSlabGraph {
         );
         return found.size === 1 ? found.values().next().value : undefined;
       };
-      const groups: IAutoMovieRecoverySlabGraph.Group[] = sheet({
+      const groups: IAutoMovieRecoverySlabConnectivityGroup[] = sheet({
         beforeMm: input.beforeMm,
         afterMm: input.afterMm,
         before: input.before.map(
-          (arc: IAutoMovieRecoveryOpenSlabGraph.Arc): ReadonlySet<number> =>
+          (arc: IAutoMovieRecoveryOpenArcIncidence): ReadonlySet<number> =>
             arc.faces,
         ),
         after: input.after.map(
-          (arc: IAutoMovieRecoveryOpenSlabGraph.Arc): ReadonlySet<number> =>
+          (arc: IAutoMovieRecoveryOpenArcIncidence): ReadonlySet<number> =>
             arc.faces,
         ),
         defects: [...input.defects, localInvalid],
@@ -400,9 +402,9 @@ export namespace RecoveryOpenSlabGraph {
           reason =
             "Ordinary open transport requires exactly two simple boundary paths across the slab";
         if (reason === null) {
-          const before: IAutoMovieRecoveryOpenSlabGraph.Arc =
+          const before: IAutoMovieRecoveryOpenArcIncidence =
               input.before[group.before[0]!]!,
-            after: IAutoMovieRecoveryOpenSlabGraph.Arc =
+            after: IAutoMovieRecoveryOpenArcIncidence =
               input.after[group.after[0]!]!;
           const a: number | undefined = endpoint(before.ends[0], "before"),
             b: number | undefined = endpoint(before.ends[1], "before");

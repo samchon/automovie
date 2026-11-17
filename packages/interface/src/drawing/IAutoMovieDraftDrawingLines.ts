@@ -56,7 +56,18 @@ export namespace IAutoMovieDraftDrawingLines {
     /** Whether the view projection cuts geometry; must agree with the view's projection as resolved by autoMovieDrawingHasCut. */
     cut: boolean;
 
-    /** Synchronous inclusion predicate, called for each element and for boundary spaces until one passes. Null space denotes an unassigned element. Must keep inputs stable; exceptions propagate and the callback is not retained. */
+    /**
+     * Synchronous inclusion predicate, called for each element and for boundary spaces until one passes. Null space denotes an unassigned element. Must keep inputs stable; exceptions propagate and the callback is not retained.
+     * The caller implements kind/space selection; draftAutoMovieDrawingLines invokes it synchronously for elements and candidate boundary spaces without retaining it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States null-space meaning, stable-input duty, short-circuit calls and propagated exceptions.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature specifies the callback result and failure contract; the caller-supplied body owns the method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable member is an injected boundary with no implementation decomposition; the named caller and consumer own their respective bodies.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No executable branch or compensation is implemented by this signature; the supplied body must honor the documented result and failure semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy; callback cost belongs to the supplied implementation and is not bounded by the type.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration coordinates no calls or cache; the consuming operation owns invocation frequency and the supplied body owns any effect-safe reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no handle or task; the callback owner must manage captured state and resources for the documented invocation lifetime.
+     */
     drawn: (kind: string, space: string | null) => boolean;
   };
 

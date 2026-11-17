@@ -2,7 +2,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieConstructionParallelAxis,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewOutline,
@@ -69,9 +69,9 @@ export namespace AutoMovieViewParallelAxis {
         return `parallel origin ${coordinate}: ${source.detail}`;
       curves.push(source);
     }
-    const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
+    const at: (station: number) => IAutoMovieLoftSectionFrame = (
       station: number,
-    ): IAutoMovieLoftFrame.IFrame => {
+    ): IAutoMovieLoftSectionFrame => {
       const point: AutoMovieVector3Tuple = [0, 0, 0];
       for (let c: number = 0; c < 3; c++) {
         const value: number | string = AutoMovieViewOutline.value(

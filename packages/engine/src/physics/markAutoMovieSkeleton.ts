@@ -1,7 +1,7 @@
 import type {
   IAutoMovieMark,
   IAutoMovieMarkSkeleton,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalSegmentState,
 } from "@automovie/interface";
 
 /**
@@ -33,7 +33,7 @@ export function markAutoMovieSkeleton(
   const marks: IAutoMovieMark[] = [];
   for (const body of props.bodies) {
     const at: (bone: string) => number[] = (bone: string): number[] => {
-      const state: IAutoMoviePhysicsCache.ISegment | undefined =
+      const state: IAutoMoviePhysicalSegmentState | undefined =
         props.frame.bodies[body.id]?.[bone];
       if (state === undefined)
         throw new Error(

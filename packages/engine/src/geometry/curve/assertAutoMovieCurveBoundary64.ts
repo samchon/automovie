@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCurveBoundary64,
 } from "@automovie/interface";
 
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
@@ -20,7 +20,7 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assertion mutates and retains no boundary or coefficient array.
  */
 export function assertAutoMovieCurveBoundary64(
-  boundary: IAutoMovieCurve64.Boundary,
+  boundary: IAutoMovieCurveBoundary64,
 ): void {
   if (
     !boundary ||

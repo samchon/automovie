@@ -2,9 +2,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieIntegrateMotionTrajectory,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolveMomentum,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -258,7 +258,7 @@ export namespace integrateAirborneRotation {
 
 /** Apply the inverse composite tensor through its principal frame. */
 function inverse(
-  frame: IAutoMovieResolveMomentum.IPrincipal,
+  frame: IAutoMoviePrincipalTensorFrame,
   vector: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   const local: IAutoMovieVector3 = Quaternion.rotateVector(

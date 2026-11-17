@@ -100,7 +100,7 @@ export function test_human_motion_leg_touch(): void {
                 with: part,
               }).node,
           });
-        const placed: IAutoMovieMotionHumanSegment.ISegment =
+        const placed: IAutoMovieMotionHumanSegment =
           performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +

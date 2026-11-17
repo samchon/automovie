@@ -1,5 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMovieRigidTransform,
   IAutoMovieSeedPhysicalChainTarget,
   IAutoMovieTwoBoneArticulation,
   IAutoMovieVector3,
@@ -53,17 +55,15 @@ export function seedPhysicalChainTarget(
   const lower: IAutoMovieVector3 = Vector3.subtract(tipPoint, point(middle));
   if (Vector3.length(Vector3.cross(upper, lower)) > input.tolerance ** 2)
     return;
-  const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
-    input.profile.joints.find(
-      (candidate: (typeof input.profile.joints)[number]): boolean =>
-        candidate.child === middle,
-    );
+  const joint: IAutoMoviePhysicalJoint | undefined = input.profile.joints.find(
+    (candidate: (typeof input.profile.joints)[number]): boolean =>
+      candidate.child === middle,
+  );
   if (!joint?.axes.length) return;
-  const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(
-      input.targets[joint.parent]!.rotation,
-      joint.parentFrame.rotation,
-    );
+  const frame: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    input.targets[joint.parent]!.rotation,
+    joint.parentFrame.rotation,
+  );
   const goal: IAutoMovieVector3 = Vector3.subtract(
     input.goal,
     Vector3.subtract(endpoint, tipPoint),
@@ -73,7 +73,7 @@ export function seedPhysicalChainTarget(
     upper,
   );
   const axes: {
-    axis: IAutoMoviePhysicalProfile.IAxis;
+    axis: IAutoMoviePhysicalJointAxis;
     direction: IAutoMovieVector3;
     score: number;
   }[] = joint.axes
@@ -81,7 +81,7 @@ export function seedPhysicalChainTarget(
       (
         axis: (typeof joint.axes)[number],
       ): {
-        axis: IAutoMoviePhysicalProfile.IAxis;
+        axis: IAutoMoviePhysicalJointAxis;
         direction: IAutoMovieVector3;
         score: number;
       } => {
@@ -103,27 +103,27 @@ export function seedPhysicalChainTarget(
     .sort(
       (
         a: {
-          axis: IAutoMoviePhysicalProfile.IAxis;
+          axis: IAutoMoviePhysicalJointAxis;
           direction: IAutoMovieVector3;
           score: number;
         },
         b: {
-          axis: IAutoMoviePhysicalProfile.IAxis;
+          axis: IAutoMoviePhysicalJointAxis;
           direction: IAutoMovieVector3;
           score: number;
         },
       ): number => b.score - a.score,
     );
   const chosen: (typeof axes)[number] = axes[0]!;
-  const originalUpper: IAutoMoviePhysicalProfile.ITransform["rotation"] = {
+  const originalUpper: IAutoMovieRigidTransform["rotation"] = {
     ...input.targets[first]!.rotation,
   };
-  const originalLower: IAutoMoviePhysicalProfile.ITransform["rotation"] = {
+  const originalLower: IAutoMovieRigidTransform["rotation"] = {
     ...input.targets[middle]!.rotation,
   };
-  const originalTip:
-    | IAutoMoviePhysicalProfile.ITransform["rotation"]
-    | undefined = tip ? { ...input.targets[tip]!.rotation } : undefined;
+  const originalTip: IAutoMovieRigidTransform["rotation"] | undefined = tip
+    ? { ...input.targets[tip]!.rotation }
+    : undefined;
   const solution: IAutoMovieTwoBoneArticulation | null =
     twoBoneChainArticulation({
       upper: { worldPosition: point(first), worldRotation: originalUpper },
@@ -136,10 +136,14 @@ export function seedPhysicalChainTarget(
       ),
     });
   if (!solution) return;
-  const upperWorld: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(originalUpper, solution.upper);
-  const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(upperWorld, Quaternion.inverse(originalUpper));
+  const upperWorld: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    originalUpper,
+    solution.upper,
+  );
+  const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    upperWorld,
+    Quaternion.inverse(originalUpper),
+  );
   fit(first, upperWorld);
   fit(
     middle,
@@ -158,9 +162,9 @@ export function seedPhysicalChainTarget(
   /** Project the analytic orientation through only the declared bounded motor axes. */
   function fit(
     bone: string,
-    world: IAutoMoviePhysicalProfile.ITransform["rotation"],
+    world: IAutoMovieRigidTransform["rotation"],
   ): void {
-    const targetJoint: IAutoMoviePhysicalProfile.IJoint | undefined =
+    const targetJoint: IAutoMoviePhysicalJoint | undefined =
       input.profile.joints.find(
         (candidate: (typeof input.profile.joints)[number]): boolean =>
           candidate.child === bone,
@@ -168,14 +172,14 @@ export function seedPhysicalChainTarget(
     if (!targetJoint) return;
     for (let pass: number = 0; pass < 3; pass++)
       for (const axis of targetJoint.axes) {
-        const parentFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        const parentFrame: IAutoMovieRigidTransform["rotation"] =
           Quaternion.multiply(
             input.targets[targetJoint.parent]!.rotation,
             targetJoint.parentFrame.rotation,
           );
-        const inverse: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        const inverse: IAutoMovieRigidTransform["rotation"] =
           Quaternion.inverse(parentFrame);
-        const current: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        const current: IAutoMovieRigidTransform["rotation"] =
           Quaternion.multiply(
             inverse,
             Quaternion.multiply(
@@ -183,7 +187,7 @@ export function seedPhysicalChainTarget(
               targetJoint.childFrame.rotation,
             ),
           );
-        const desired: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        const desired: IAutoMovieRigidTransform["rotation"] =
           Quaternion.multiply(
             inverse,
             Quaternion.multiply(world, targetJoint.childFrame.rotation),

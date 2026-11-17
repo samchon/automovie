@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -194,7 +195,7 @@ export namespace crouch {
 
     // The clock: descent, hold, rise.
     const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "descend", seconds: down },
         { name: "lowest", seconds: hold },
@@ -228,8 +229,7 @@ export namespace crouch {
     ): IAutoMovieMotionHumanPosture["limbs"] => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const) {
-        const goal: IAutoMovieMotionHumanPosture.IGoal =
-          posture.limbs[`${side}Leg`]!;
+        const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
         const flat: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: goal.point,
           rotation: goal.rotation ?? HumanFrame.turn(yaw),

@@ -2,7 +2,8 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSpan,
   IAutoMovieHumanBodyApertures,
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -60,7 +61,7 @@ export namespace AutoMovieHumanApertureSpan {
   export function of(
     prepared: IAutoMovieHumanBodyApertures.IPrepared,
     chains: readonly IAutoMovieLoftChain[],
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    events: readonly IAutoMovieHumanBranchEvent[],
   ): IAutoMovieHumanApertureSpan.ISpan | string {
     const margin: readonly [number, number, number][] = prepared.edge;
     const range: [number, number] = AutoMovieHumanLoftAperture.range(margin);
@@ -340,11 +341,11 @@ export namespace AutoMovieHumanApertureSpan {
   function shared(
     a: IAutoMovieLoftChain,
     b: IAutoMovieLoftChain,
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    events: readonly IAutoMovieHumanBranchEvent[],
   ): IRing | null {
     for (const e of events) {
       const child: string | undefined = e.splits.find(
-        (sp: IAutoMovieHumanBodyCalibration.ISplit): boolean =>
+        (sp: IAutoMovieHumanBranchSplit): boolean =>
           sp.child === a.name || sp.child === b.name,
       )?.child;
       if (child === undefined) continue;

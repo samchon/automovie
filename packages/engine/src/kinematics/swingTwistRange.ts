@@ -3,9 +3,11 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieSwingTwistBasis,
+  IAutoMovieSwingTwistChartPosition,
   IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -88,7 +90,7 @@ export namespace swingTwistRange {
   export function of(
     bone: AutoMovieHumanoidBone,
     skeleton?: IAutoMovieSkeleton,
-  ): IAutoMovieSwingTwistRange.IJoint | undefined {
+  ): IAutoMovieJointRotationFrame | undefined {
     const key: object = skeleton ?? NO_SKELETON;
     let kept: IKept | undefined = FRAMES.get(key);
     if (
@@ -107,7 +109,7 @@ export namespace swingTwistRange {
     }
     if (kept.frames.has(bone)) return kept.frames.get(bone);
     const axes: IAutoMovieJointAxes | undefined = kept.table[bone];
-    const frame: IAutoMovieSwingTwistRange.IJoint | undefined =
+    const frame: IAutoMovieJointRotationFrame | undefined =
       axes === undefined
         ? undefined
         : { axes, frame: HUMANOID_REST_FRAME[bone] };
@@ -121,7 +123,7 @@ export namespace swingTwistRange {
     table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
     frames: Map<
       AutoMovieHumanoidBone,
-      IAutoMovieSwingTwistRange.IJoint | undefined
+      IAutoMovieJointRotationFrame | undefined
     >;
   }
 
@@ -148,7 +150,7 @@ export namespace swingTwistRange {
    */
   export function read(
     q: IAutoMovieQuaternion,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieSwingTwistRange.IReading {
     const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
       joint.axes,
@@ -199,7 +201,7 @@ export namespace swingTwistRange {
   export function overshoot(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): number {
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
@@ -232,7 +234,7 @@ export namespace swingTwistRange {
   export function project(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
     const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
       joint.axes,
@@ -289,8 +291,8 @@ export namespace swingTwistRange {
   export function chart(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
-  ): IAutoMovieSwingTwistRange.IChartResult {
+    joint: IAutoMovieJointRotationFrame,
+  ): IAutoMovieSwingTwistChartPosition {
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const k: number =
       reading.swing / radius(constraint, joint, reading.azimuth);
@@ -319,9 +321,9 @@ export namespace swingTwistRange {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function placed(
-    place: IAutoMovieSwingTwistRange.IChartResult,
+    place: IAutoMovieSwingTwistChartPosition,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
     const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
       joint.axes,
@@ -380,7 +382,7 @@ export namespace swingTwistRange {
     b: IAutoMovieQuaternion,
     share: number,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
     const from: { x: number; y: number; twist: number } = chart(
       a,
@@ -421,7 +423,7 @@ export namespace swingTwistRange {
    */
   export function radius(
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieSwingTwistRange.IJoint,
+    joint: IAutoMovieJointRotationFrame,
     azimuth: number,
   ): number {
     const table: Float64Array = swingTwistRegion.table(constraint, joint);

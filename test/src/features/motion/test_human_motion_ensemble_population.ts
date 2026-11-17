@@ -132,8 +132,7 @@ export function test_human_motion_ensemble_population(): void {
         }),
     ),
   });
-  const segment: IAutoMovieMotionHumanSegment.ISegment =
-    performance.segments("p.0")[1]!;
+  const segment: IAutoMovieMotionHumanSegment = performance.segments("p.0")[1]!;
   const strikes: { seconds: number; side: string }[] = segment.plan.events
     .filter((ev: IAutoMovieMotionEvent): boolean =>
       /^(left|right)HeelStrike\d+$/.test(ev.name),

@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmPhrase,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -319,7 +319,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function swing(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     from: number,
     to: number,
     angles: (

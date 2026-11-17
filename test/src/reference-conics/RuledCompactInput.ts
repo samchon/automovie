@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
 import { convertAutoMovieRecoveryCurves } from "@automovie/recovery";
@@ -41,14 +41,14 @@ export namespace RuledCompactInput {
     loft: {
       sections: {
         coordinateMm: number;
-        loops: { curve: IAutoMovieCurve64.Cubic }[];
+        loops: { curve: IAutoMovieCubicBezierCurve64 }[];
       }[];
     };
     /** Original section identities, closed qualification and all open observations. */
     reports: {
       coordinateMm: number;
       fits: Quality[];
-      open: (Quality & { curve: IAutoMovieCurve64.Cubic })[];
+      open: (Quality & { curve: IAutoMovieCubicBezierCurve64 })[];
       diagnostics: string[];
     }[];
     /** Original acquisition policy, not a new native-precision claim. */
@@ -79,7 +79,7 @@ export namespace RuledCompactInput {
     /** Original closed/open ordinal, unchanged by refitting. */
     ordinal: number;
     /** The original data slot, not a copied coefficient graph. */
-    holder: { curve: IAutoMovieCurve64.Cubic };
+    holder: { curve: IAutoMovieCubicBezierCurve64 };
     /** Its original qualification record, aligned by section and ordinal. */
     quality: Quality;
   }

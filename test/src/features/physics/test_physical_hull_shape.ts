@@ -11,9 +11,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -52,7 +53,7 @@ import assert from "node:assert/strict";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
 export function test_physical_hull_shape(): void {
-  const still: P.ITransform = {
+  const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
@@ -76,8 +77,8 @@ export function test_physical_hull_shape(): void {
   ): boolean => Vector3.length(Vector3.subtract(a, b)) <= e;
   const hullOf = (
     points: IAutoMovieVector3[],
-    transform: P.ITransform = still,
-  ): P.IShape => ({
+    transform: IAutoMovieRigidTransform = still,
+  ): IAutoMoviePhysicalShape => ({
     id: "hull",
     material: "solid",
     transform,
@@ -86,8 +87,8 @@ export function test_physical_hull_shape(): void {
   });
   const boxOf = (
     h: IAutoMovieVector3,
-    transform: P.ITransform = still,
-  ): P.IShape => ({
+    transform: IAutoMovieRigidTransform = still,
+  ): IAutoMoviePhysicalShape => ({
     id: "box",
     material: "solid",
     transform,
@@ -158,13 +159,13 @@ export function test_physical_hull_shape(): void {
 
   // 3. Nearest point, normal and distance. A quarter turn about Y carries the
   // hull's local X to world -Z and its local Z to world +X.
-  const quarter: P.ITransform = {
+  const quarter: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
-  const hull: P.IShape = hullOf(corners(half));
+  const hull: IAutoMoviePhysicalShape = hullOf(corners(half));
   const point = (
-    pose: P.ITransform,
+    pose: IAutoMovieRigidTransform,
     p: IAutoMovieVector3,
   ): IAutoMoviePhysicalShapeNearest.IResult =>
     physicalShapeNearest(pose, hull, p, p);
@@ -198,16 +199,16 @@ export function test_physical_hull_shape(): void {
         Vector3.scale({ x: 0.3, y: 0.4, z: 0.3 }, 1 / Math.sqrt(0.34)),
       ),
   );
-  const pose: P.ITransform = {
+  const pose: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
   };
-  const transform: P.ITransform = {
+  const transform: IAutoMovieRigidTransform = {
     position: { x: 0.1, y: -0.2, z: 0.3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 35),
   };
-  const turnedHull: P.IShape = hullOf(corners(half), transform);
-  const turnedBox: P.IShape = boxOf(half, transform);
+  const turnedHull: IAutoMoviePhysicalShape = hullOf(corners(half), transform);
+  const turnedBox: IAutoMoviePhysicalShape = boxOf(half, transform);
   let seed: number = 12345;
   const random = (): number => {
     seed = (seed * 1103515245 + 12345) % 2147483648;
@@ -248,7 +249,7 @@ export function test_physical_hull_shape(): void {
     z: 0,
   };
   const spans = (
-    shape: P.IShape,
+    shape: IAutoMoviePhysicalShape,
     axis: IAutoMovieVector3,
     low: number,
     high: number,
@@ -312,7 +313,9 @@ export function test_physical_hull_shape(): void {
   );
 
   // 5. Erosion.
-  const eroded: P.IShape = hullOf(physicalHullErode(corners(half), 0.05));
+  const eroded: IAutoMoviePhysicalShape = hullOf(
+    physicalHullErode(corners(half), 0.05),
+  );
   const erodedBounds: ReturnType<typeof physicalShapeBounds> =
     physicalShapeBounds(still, eroded);
   TestValidator.predicate(
@@ -332,28 +335,28 @@ export function test_physical_hull_shape(): void {
     x: number,
     degrees: number,
     axis: IAutoMovieVector3,
-  ): P.ITransform => ({
+  ): IAutoMovieRigidTransform => ({
     position: { x, y: 0, z: 0 },
     rotation: Quaternion.fromAxisAngle(axis, degrees),
   });
   const cube: IAutoMovieVector3 = { x: 0.5, y: 0.5, z: 0.5 };
   const pair = (
-    poseA: P.ITransform,
-    a: P.IShape,
-    poseB: P.ITransform,
-    b: P.IShape,
+    poseA: IAutoMovieRigidTransform,
+    a: IAutoMoviePhysicalShape,
+    poseB: IAutoMovieRigidTransform,
+    b: IAutoMoviePhysicalShape,
     expected: number,
   ): boolean =>
     Math.abs(physicalShapePairDistance(poseA, a, poseB, b) - expected) < 1e-7 &&
     Math.abs(physicalShapePairDistance(poseB, b, poseA, a) - expected) < 1e-7;
-  const ball = (radius: number): P.IShape => ({
+  const ball = (radius: number): IAutoMoviePhysicalShape => ({
     id: "sphere",
     material: "solid",
     transform: still,
     kind: "sphere",
     radius,
   });
-  const rod: P.IShape = {
+  const rod: IAutoMoviePhysicalShape = {
     id: "capsule",
     material: "solid",
     transform: still,
@@ -365,8 +368,8 @@ export function test_physical_hull_shape(): void {
   // cube B at x = 3 turned 45 degrees about Z shows the edge along Z at
   // x = 3 - 0.5 sqrt 2. The two edges are skew and nearest at their middles.
   const skew: number = 3 - Math.SQRT2;
-  const turnedY: P.ITransform = at(0, 45, axes[1]!);
-  const turnedZ: P.ITransform = at(3, 45, axes[2]!);
+  const turnedY: IAutoMovieRigidTransform = at(0, 45, axes[1]!);
+  const turnedZ: IAutoMovieRigidTransform = at(3, 45, axes[2]!);
   TestValidator.predicate(
     "shape pair distances",
     pair(still, ball(0.2), at(1, 0, axes[0]!), ball(0.3), 0.5) &&

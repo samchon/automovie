@@ -2,7 +2,7 @@ import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanLegAxis,
   IAutoMovieHumanLegCentreLine,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
@@ -70,11 +70,11 @@ export namespace AutoMovieHumanLegCentreLine {
         b: { at: number; offset: number },
       ): number => a.at - b.at,
     );
-    const u: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const u: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       forward.map((m: { at: number; offset: number }): number => m.at),
       forward.map((m: { at: number; offset: number }): number => m.offset),
     );
-    const v: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const v: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       [input.ankle.at, input.knee, input.crotch.at],
       [low[1], 0, high[1]],
     );

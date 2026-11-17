@@ -5,15 +5,17 @@ import {
   samplePoseVelocity,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMoviePoseRig,
+  IAutoMoviePoseState,
   IAutoMovieRandom,
   IAutoMovieResolvedBone,
-  IAutoMovieSamplePoseVelocity,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
@@ -55,7 +57,7 @@ export namespace HumanSegmentPose {
       ? undefined
       : person.cache.get(seconds);
     if (cached !== undefined) return cached;
-    let active: IAutoMovieMotionHumanSegment.ISegment | undefined;
+    let active: IAutoMovieMotionHumanSegment | undefined;
     for (const s of person.segments)
       if (s.entryTime <= seconds + 1e-12) active = s;
     const pose: IAutoMoviePose =
@@ -82,7 +84,7 @@ export namespace HumanSegmentPose {
    */
   export function of(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     seconds: number,
   ): IAutoMoviePose {
     return seeded(person, segment, seconds).pose;
@@ -106,7 +108,7 @@ export namespace HumanSegmentPose {
    */
   export function seeded(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     seconds: number,
     near?: INear,
   ): ISeeded {
@@ -186,8 +188,8 @@ export namespace HumanSegmentPose {
     const fit = (
       name: string,
       at: IAutoMoviePose,
-      limb: IAutoMovieMotionHumanPosture.Limb,
-      goal: IAutoMovieMotionHumanPosture.IGoal,
+      limb: AutoMovieHumanLimb,
+      goal: IAutoMovieHumanLimbGoal,
     ): IAutoMoviePose => {
       const fitted: IAutoMovieSeededChainFit = resolveHumanPosture.limbSeeded(
         body,
@@ -235,7 +237,7 @@ export namespace HumanSegmentPose {
         const effector: IAutoMovieResolvedBone = map.get(
           `${side}${arm ? "Hand" : "Foot"}`,
         )!;
-        const goal: IAutoMovieMotionHumanPosture.IGoal = {
+        const goal: IAutoMovieHumanLimbGoal = {
           point: effector.worldPosition,
           rotation: effector.worldRotation,
           bend: map.get(`${side}${arm ? "LowerArm" : "LowerLeg"}`)!
@@ -339,7 +341,7 @@ export namespace HumanSegmentPose {
     const tolerance: number = samplePoseVelocity.tolerance(STEP, duration);
     let fits: IFits = new Map();
     const samples: IAutoMoviePose[] = [];
-    const state: IAutoMovieSamplePoseVelocity.IState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = samplePoseVelocity(
       (t: number): IAutoMoviePose => {
         const instant: ISeeded = read(t);
         fits = instant.seeds;
@@ -427,7 +429,7 @@ export namespace HumanSegmentPose {
    */
   export interface IContinued {
     /** The pose at the second, read cold, and its rates. */
-    state: IAutoMovieSamplePoseVelocity.IState;
+    state: IAutoMoviePoseState;
 
     /** The continued samples at the second and one and two steps toward its side. */
     samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];
@@ -441,7 +443,7 @@ export namespace HumanSegmentPose {
     // Each layer draws from streams keyed by its own name, as IHumanLayer
     // documents, so two layers that name a channel alike stay independent.
     const action = (): IAutoMovieMotionHumanLayer.IAction | undefined => {
-      let active: IAutoMovieMotionHumanSegment.ISegment | undefined;
+      let active: IAutoMovieMotionHumanSegment | undefined;
       for (const s of person.segments)
         if (s.entryTime <= seconds + 1e-12) active = s;
       return active === undefined

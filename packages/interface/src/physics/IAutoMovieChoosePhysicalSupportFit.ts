@@ -1,13 +1,14 @@
-import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
+import type { IAutoMoviePhysicalJoint } from "./IAutoMoviePhysicalJoint";
 
 /**
  * Candidate ranking by metre residual admission, then joint-angle continuity.
  * The selected Fit is returned by identity, retaining any caller-specific fields.
  *
  * @evidence contracts/development/design.md#principled-representation Generic candidates carry the same pose/residual contract while preserving richer result fields; admissible fits rank by squared geodesic rotation distance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only target poses and residuals constrain Fit; joint/reference inputs supply continuity without duplicating a full planner result.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface choosePhysicalSupportFit returns one original candidate, so its generic preserves fields consumed by the caller instead of copying a parallel result shape.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Empty candidates throw; if none meet tolerance the least-error candidate is returned without claiming success, and equal scores retain input order.
- * @evidence contracts/development/common.md#meaningful-documentation Residual units, optional reference meaning, borrowed inputs and identity-preserving selection are explicit.
+ * @evidence contracts/development/common.md#meaningful-documentation States candidate ordering, residual admission, reference continuity and earlier-candidate tie handling.
  */
 export namespace IAutoMovieChoosePhysicalSupportFit {
   /**
@@ -22,11 +23,16 @@ export namespace IAutoMovieChoosePhysicalSupportFit {
    * equally valid solution never jumps. Without an admissible fit the smallest
    * residual wins. Ties keep the earlier candidate, so callers list the
    * authored-seed fit first.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States candidate ordering, residual admission, reference continuity and earlier-candidate tie handling.
+   * @evidence contracts/development/design.md#principled-representation Fit retains the candidate's complete subtype while requiring world transforms and metre residuals; tolerance and nonempty candidates are runtime premises.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface choosePhysicalSupportFit returns one original candidate, so its generic preserves fields consumed by the caller instead of copying a parallel result shape.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Without an admissible candidate the lowest residual remains visible; an absent completed reference cannot establish temporal continuity.
    */
   export type IInput<
     Fit extends {
       /** Candidate world bone poses, borrowed and returned with the selected candidate. */
-      targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
+      targets: Readonly<Record<string, IAutoMovieRigidTransform>>;
       /** Per-goal nonnegative metre errors; empty means zero maximum error. */
       residuals: Readonly<Record<string, number>>;
     },
@@ -34,8 +40,8 @@ export namespace IAutoMovieChoosePhysicalSupportFit {
     /** Nonempty candidates in tie-break order. */ candidates: readonly Fit[];
     /** The fit's own metre residual tolerance. */ tolerance: number;
     /** Completed fitted placements at the replan boundary, if any. */ reference?: Readonly<
-      Record<string, IAutoMoviePhysicalProfile.ITransform>
+      Record<string, IAutoMovieRigidTransform>
     >;
-    /** Joints whose rotations measure continuity. */ joints: readonly IAutoMoviePhysicalProfile.IJoint[];
+    /** Joints whose rotations measure continuity. */ joints: readonly IAutoMoviePhysicalJoint[];
   };
 }

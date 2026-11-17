@@ -1,6 +1,11 @@
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 import RAPIER, {
@@ -88,16 +93,17 @@ export function bindPhysicalWorld(
     const dynamic: Set<string> = new Set();
     bound.segments.set(body.id, local);
     bound.dynamic.set(body.id, dynamic);
-    const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> = new Map(
+    const parents: Map<string, IAutoMoviePhysicalJoint> = new Map(
       body.profile.joints.map(
-        (
-          joint: IAutoMoviePhysicalProfile.IJoint,
-        ): [string, IAutoMoviePhysicalProfile.IJoint] => [joint.child, joint],
+        (joint: IAutoMoviePhysicalJoint): [string, IAutoMoviePhysicalJoint] => [
+          joint.child,
+          joint,
+        ],
       ),
     );
     bound.jointByChild.set(body.id, parents);
     for (const segment of body.profile.segments) {
-      const target: IAutoMoviePhysicalProfile.ITransform =
+      const target: IAutoMovieRigidTransform =
         body.targets[0]!.segments[segment.bone]!;
       const factor: number =
         body.mode.kind === "exaggerated" ? body.mode.gravity : 1;
@@ -164,7 +170,7 @@ export function bindPhysicalWorld(
       bound.bodies.set(`${body.id}/${segment.bone}`, rigid);
       local.set(segment.bone, rigid);
       for (const shape of segment.shapes) {
-        const material: IAutoMoviePhysicalProfile.IMaterial =
+        const material: IAutoMoviePhysicalMaterial =
           body.profile.materials.find(
             (candidate: (typeof body.profile.materials)[number]): boolean =>
               candidate.id === shape.material,
@@ -210,7 +216,7 @@ export function bindPhysicalWorld(
         });
         if (material.compliance > 0) {
           const depth: number = material.maximumCompression!;
-          let coreShape: IAutoMoviePhysicalProfile.IShape;
+          let coreShape: IAutoMoviePhysicalShape;
           if (shape.kind === "box")
             coreShape = {
               ...shape,
@@ -316,15 +322,13 @@ export function bindPhysicalWorld(
       }
       bound.joints.set(`${body.id}/${joint.id}`, native);
     }
-    const order: IAutoMoviePhysicalProfile.IJoint[] = [];
-    const pending: Set<IAutoMoviePhysicalProfile.IJoint> = new Set(
-      body.profile.joints,
-    );
+    const order: IAutoMoviePhysicalJoint[] = [];
+    const pending: Set<IAutoMoviePhysicalJoint> = new Set(body.profile.joints);
     while (pending.size > 0)
       for (const joint of pending)
         if (
           ![...pending].some(
-            (next: IAutoMoviePhysicalProfile.IJoint): boolean =>
+            (next: IAutoMoviePhysicalJoint): boolean =>
               next.parent === joint.child,
           )
         ) {
@@ -334,27 +338,25 @@ export function bindPhysicalWorld(
     bound.gravityOrder.set(body.id, order);
     bound.order.set(body.id, [
       body.profile.segments.find(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+        (segment: IAutoMoviePhysicalSegment): boolean =>
           !body.profile.joints.some(
-            (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+            (joint: IAutoMoviePhysicalJoint): boolean =>
               joint.child === segment.bone,
           ),
       )!,
       ...[...order]
         .reverse()
         .map(
-          (
-            joint: IAutoMoviePhysicalProfile.IJoint,
-          ): IAutoMoviePhysicalProfile.ISegment =>
+          (joint: IAutoMoviePhysicalJoint): IAutoMoviePhysicalSegment =>
             body.profile.segments.find(
-              (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              (segment: IAutoMoviePhysicalSegment): boolean =>
                 segment.bone === joint.child,
             )!,
         ),
     ]);
   }
   for (const body of input.bodies) {
-    const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> =
+    const parents: Map<string, IAutoMoviePhysicalJoint> =
       bound.jointByChild.get(body.id)!;
     const posture: Set<string> = new Set(
       body.balance?.pattern.limbs.flatMap(

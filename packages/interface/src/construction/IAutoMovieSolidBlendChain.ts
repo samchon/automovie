@@ -1,8 +1,8 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieBlendColumn } from "./IAutoMovieBlendColumn";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidIntersection } from "./IAutoMovieSolidIntersection";
 import type { IAutoMovieSolidMesh } from "./IAutoMovieSolidMesh";
-import type { IAutoMovieSolidRibbon } from "./IAutoMovieSolidRibbon";
 
 /**
  * Periodic ribbon strips and their source-rail correspondence for solid assembly.
@@ -86,7 +86,7 @@ export namespace IAutoMovieSolidBlendChain {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts strip rejects a nonpositive/nonfinite mean span but relies on compatible finite columns and spline admission; an empty list yields null through its invalid mean.
    * @evidence contracts/development/common.md#meaningful-documentation States column clock, cross-share derivatives, physical scaling and input/result ownership.
    */
-  export type IStripColumns = readonly IAutoMovieSolidRibbon.IColumn[];
+  export type IStripColumns = readonly IAutoMovieBlendColumn[];
 
   /**
    * Optional interior cross-sections in the same phase-column order as the rails.

@@ -1,4 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieRecoveryBoundaryCut } from "./IAutoMovieRecoveryBoundaryCut";
 import type { IAutoMovieRecoveryChartBoundaryNetwork } from "./IAutoMovieRecoveryChartBoundaryNetwork";
 
 /**
@@ -30,7 +31,7 @@ export namespace IAutoMovieRecoveryChartBoundaryNetworkRegistry {
         /** Canonical ordered endpoint identities of the original boundary edge. */
         endpoints: [string, string];
         /** Fraction-indexed boundary-cut records for one original edge. */
-        values: Map<number, IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut>;
+        values: Map<number, IAutoMovieRecoveryBoundaryCut>;
       }
     >;
 
@@ -58,10 +59,7 @@ export namespace IAutoMovieRecoveryChartBoundaryNetworkRegistry {
     aliases: Map<string, string>;
 
     /** Per-edge cut records ordered by increasing fraction from its canonical first endpoint. */
-    orderedCuts: Map<
-      string,
-      IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut[]
-    >;
+    orderedCuts: Map<string, IAutoMovieRecoveryBoundaryCut[]>;
 
     /** Declared shared break identities retained across every incident chart boundary. */
     canonicalBreaks: Set<string>;
@@ -97,27 +95,5 @@ export namespace IAutoMovieRecoveryChartBoundaryNetworkRegistry {
       b: Readonly<AutoMovieVector3Tuple>,
       c: Readonly<AutoMovieVector3Tuple>,
     ) => Readonly<AutoMovieVector3Tuple>;
-  };
-
-  /**
-   * Cut within recovery chart boundary network registry. Stable incidence identity used for deterministic registry lookup; matching text does not imply coordinate equality.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Stable incidence identity used for deterministic registry lookup; matching text does not imply coordinate equality. Dimensionless position along the original canonical edge, in increasing endpoint order.
-   * @evidence contracts/development/design.md#principled-representation Register immutable boundary ancestry and copied chart observations before augmentation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartBoundaryNetwork, RecoveryChartBoundaryNetworkAugment, RecoveryChartBoundaryNetworkBindings share IAutoMovieRecoveryChartBoundaryNetworkRegistry's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stable incidence identity used for deterministic registry lookup; matching text does not imply coordinate equality.
-   */
-  export type Cut = {
-    /** Stable incidence identity used for deterministic registry lookup; matching text does not imply coordinate equality. */
-    key: string;
-
-    /** Dimensionless position along the original canonical edge, in increasing endpoint order. */
-    fraction: number;
-
-    /** Physical point in the source frame; camera triangulation uses the admitted translation scale. */
-    point: Readonly<AutoMovieVector3Tuple>;
-
-    /** Explicit original-to-canonical incidence aliases; no proximity matching is inferred. */
-    aliases: Set<string>;
   };
 }

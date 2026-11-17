@@ -2,6 +2,8 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -131,14 +133,13 @@ function rootRadius(
   calibration: IAutoMovieHumanBodyCalibration,
   side: "left" | "right",
 ): number {
-  const event: IAutoMovieHumanBodyCalibration.IEvent = calibration.events.find(
-    (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
+  const event: IAutoMovieHumanBranchEvent = calibration.events.find(
+    (e: IAutoMovieHumanBranchEvent): boolean =>
       e.parent === "upper" && e.direction === "down",
   )!;
   const ring: AutoMovieVector3Tuple[] = event.splits
     .find(
-      (sp: IAutoMovieHumanBodyCalibration.ISplit): boolean =>
-        sp.child === `arm.${side}`,
+      (sp: IAutoMovieHumanBranchSplit): boolean => sp.child === `arm.${side}`,
     )!
     .arcs.flatMap(([from, to]: [number, number]): AutoMovieVector3Tuple[] => {
       const span: number = to >= from ? to - from : to + 2 * Math.PI - from;

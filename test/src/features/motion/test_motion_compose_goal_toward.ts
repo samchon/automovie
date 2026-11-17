@@ -1,4 +1,6 @@
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanGoal,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -44,7 +46,7 @@ export function test_motion_compose_goal_toward(): void {
     Math.abs(a.x - b.x) <= 1e-9 &&
     Math.abs(a.y - b.y) <= 1e-9 &&
     Math.abs(a.z - b.z) <= 1e-9;
-  const held: IAutoMovieMotionHumanPosture.IGoal = {
+  const held: IAutoMovieHumanLimbGoal = {
     point: { x: 0.1, y: 1, z: 0.2 },
     bend: { x: 0.4, y: 0.8, z: 0 },
   };
@@ -56,15 +58,15 @@ export function test_motion_compose_goal_toward(): void {
     joints: {},
     limbs: { leftArm: held },
   };
-  const goal: IAutoMovieMotionHumanPosture.IGoal = {
+  const goal: IAutoMovieHumanLimbGoal = {
     point: { x: 0.3, y: 1.4, z: 0.6 },
     bend: { x: 0.4, y: 0.8, z: 0 },
   };
   const at = (
     weight: number,
     origin?: IAutoMovieMotionHumanGoal.Frame,
-    limb: IAutoMovieMotionHumanPosture.Limb = "leftArm",
-  ): IAutoMovieMotionHumanPosture.IGoal =>
+    limb: AutoMovieHumanLimb = "leftArm",
+  ): IAutoMovieHumanLimbGoal =>
     AutoMovieMotionHumanGoal.toward(
       {
         limb,

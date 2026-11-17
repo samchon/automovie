@@ -6,8 +6,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -45,7 +47,8 @@ export async function test_physical_contact_binding(): Promise<void> {
     source: {
       bone: "support-0",
       shape: profile.segments.find(
-        (segment: P.ISegment): boolean => segment.bone === "support-0",
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === "support-0",
       )!.shapes[0]!.id,
     },
     target: { body: "receiver", bone: "root", shape: "surface" },
@@ -75,7 +78,7 @@ export async function test_physical_contact_binding(): Promise<void> {
       y: 0.3,
       z: 0.3,
     };
-  const initial: Record<string, Record<string, P.ITransform>> = {
+  const initial: Record<string, Record<string, IAutoMovieRigidTransform>> = {
     mechanism: source.targets[0]!.segments,
     receiver: panel.targets[0]!.segments,
   };
@@ -125,7 +128,8 @@ export async function test_physical_contact_binding(): Promise<void> {
       body: "mechanism",
       bone: "support-0",
       shape: profile.segments.find(
-        (segment: P.ISegment): boolean => segment.bone === "support-0",
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === "support-0",
       )!.shapes[0]!,
       pose: second.targets["support-0"]!,
     },

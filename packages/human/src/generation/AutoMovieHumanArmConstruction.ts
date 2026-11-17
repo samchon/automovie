@@ -6,11 +6,13 @@ import type {
   IAutoMovieHumanArmPrior,
   IAutoMovieHumanArmScye,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanHandConstruction,
   IAutoMovieHumanHandForm,
   IAutoMovieHumanHandMeasures,
   IAutoMovieHumanHandScales,
-  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieHumanNailWindow,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -73,10 +75,10 @@ export namespace AutoMovieHumanArmConstruction {
     chains: IAutoMovieLoftChain[];
 
     /** The digits' poles. */
-    poles: IAutoMovieHumanBodyCalibration.IPole[];
+    poles: IAutoMovieHumanSurfacePole[];
 
     /** The digits' nail plates. */
-    nails: IAutoMovieHumanBodyCalibration.INail[];
+    nails: IAutoMovieHumanNailWindow[];
 
     /** The bone landmarks. */
     bones: IAutoMovieHumanArmConstruction.IBones;
@@ -95,7 +97,7 @@ export namespace AutoMovieHumanArmConstruction {
   export function add(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanArmConstruction.IInputs,
-    skeleton?: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton?: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     const limbs: ILimb[] = (["left", "right"] as const).map(
       (side: "left" | "right"): ILimb =>
@@ -111,15 +113,11 @@ export namespace AutoMovieHumanArmConstruction {
       events: [...calibration.events, ...events()],
       poles: [
         ...calibration.poles,
-        ...limbs.flatMap(
-          (l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles,
-        ),
+        ...limbs.flatMap((l: ILimb): IAutoMovieHumanSurfacePole[] => l.poles),
       ],
       nails: [
         ...(calibration.nails ?? []),
-        ...limbs.flatMap(
-          (l: ILimb): IAutoMovieHumanBodyCalibration.INail[] => l.nails,
-        ),
+        ...limbs.flatMap((l: ILimb): IAutoMovieHumanNailWindow[] => l.nails),
       ],
     };
   }
@@ -196,7 +194,7 @@ export namespace AutoMovieHumanArmConstruction {
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanArmConstruction.IInputs,
     side: "left" | "right",
-    skeleton?: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton?: readonly IAutoMovieHumanCalibrationBone[],
     lofted: boolean = true,
   ): ILimb {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
@@ -355,13 +353,13 @@ export namespace AutoMovieHumanArmConstruction {
    * @returns The elbow, or undefined without a skeleton.
    */
   function elbowOf(
-    skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[] | undefined,
+    skeleton: readonly IAutoMovieHumanCalibrationBone[] | undefined,
     side: "left" | "right",
     sign: 1 | -1,
   ): AutoMovieVector3Tuple | undefined {
     if (skeleton === undefined) return undefined;
-    const bone: IAutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
-      (b: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
+    const bone: IAutoMovieHumanCalibrationBone | undefined = skeleton.find(
+      (b: IAutoMovieHumanCalibrationBone): boolean =>
         b.bone === `${side}LowerArm`,
     );
     if (bone === undefined)

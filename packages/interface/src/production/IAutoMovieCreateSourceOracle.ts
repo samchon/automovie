@@ -2,7 +2,14 @@ import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation"
 import type { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
-/** Data and callback contracts shared by the CreateSourceOracle operations. */
+/**
+ * Data and callback contracts shared by the CreateSourceOracle operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Build the deterministic helpers a shot source reads through its build context. Member documentation states the supplied records, units and absence meanings used by createAutoMovieSourceOracle.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Ground and slot answers reuse compiled population laws; missing own-property ids throw instead of falling through to inherited object properties or re-reading designs.
+ * @evidence contracts/development/design.md#principled-representation world supplies surfaces while formationRuntime and instanceSetRuntime index already compiled populations; the oracle reads current borrowed records and delegates slot-range checks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieCreateSourceOracle, used by createAutoMovieSourceOracle. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieCreateSourceOracle {
   /**
    * Build the deterministic helpers a shot source reads through its build context.
@@ -23,6 +30,11 @@ export namespace IAutoMovieCreateSourceOracle {
    * The oracle keeps references to the three props, not copies, so it answers
    * from whatever those records hold when each method is called. Slot indices
    * are passed through to the slot regenerators, which own their range checks.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Build the deterministic helpers a shot source reads through its build context. Member documentation states the supplied records, units and absence meanings used by createAutoMovieSourceOracle.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Ground and slot answers reuse compiled population laws; missing own-property ids throw instead of falling through to inherited object properties or re-reading designs.
+   * @evidence contracts/development/design.md#principled-representation world supplies surfaces while formationRuntime and instanceSetRuntime index already compiled populations; the oracle reads current borrowed records and delegates slot-range checks.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieCreateSourceOracle.IProps, used by createAutoMovieSourceOracle. Its world, formationRuntime, instanceSetRuntime members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** World whose surfaces answer ground height. */

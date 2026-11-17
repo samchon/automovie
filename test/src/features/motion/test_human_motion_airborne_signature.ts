@@ -5,7 +5,9 @@ import {
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanAirborneShape,
@@ -110,7 +112,7 @@ export function test_human_motion_airborne_signature(): void {
               findings.push(`${label}: refused otherwise: ${String(error)}`);
             continue;
           }
-          const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+          const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
           const touchdown: number =
             s.start +
             s.plan.events.find(
@@ -203,7 +205,7 @@ export function test_human_motion_airborne_signature(): void {
   const end = (
     shape: IAutoMovieMotionHumanAirborneShape.Shape,
     bone: AutoMovieHumanoidBone,
-    kept: IAutoMovieMotionHumanPosture.Limb,
+    kept: AutoMovieHumanLimb,
   ): IAutoMovieVector3 =>
     poseBones(
       man,
@@ -220,8 +222,7 @@ export function test_human_motion_airborne_signature(): void {
     const laid: IAutoMovieMotionHumanPosture = HumanAirborneShape.layer(
       shape,
     ).apply(standing, 0, context);
-    const moved: IAutoMovieMotionHumanPosture.IGoal | undefined =
-      laid.limbs[limb];
+    const moved: IAutoMovieHumanLimbGoal | undefined = laid.limbs[limb];
     if (
       moved === undefined ||
       Vector3.length(Vector3.subtract(moved.point, end(shape, bone, kept))) >

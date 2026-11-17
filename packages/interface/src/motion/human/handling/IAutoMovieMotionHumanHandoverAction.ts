@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHandover";
 
 /**
@@ -34,10 +34,10 @@ export namespace IAutoMovieMotionHumanHandoverAction {
     handle: string;
 
     /** Giver's holding hand; the law selects the right hand when omitted. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** Receiver's taking hand; the law selects the right hand when omitted. */
-    receiverHand?: IAutoMovieMotionHumanHand.Side;
+    receiverHand?: AutoMovieHumanSide;
 
     /** Prop mass in kilograms used by the shared transfer timing; 0.09 when omitted. */
     mass?: number;

@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieResolveHydrodynamicForce,
 } from "@automovie/interface";
 
@@ -92,7 +92,7 @@ export namespace resolveHydrodynamicForce {
    * @param segment The profile's segment.
    * @returns Cubic metres.
    */
-  export function volume(segment: IAutoMoviePhysicalProfile.ISegment): number {
+  export function volume(segment: IAutoMoviePhysicalSegment): number {
     let sum: number = 0;
     for (const shape of segment.shapes) {
       if (shape.kind === "sphere") sum += (4 / 3) * Math.PI * shape.radius ** 3;

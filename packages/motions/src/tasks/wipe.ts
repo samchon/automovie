@@ -1,13 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanLeanInto,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanWipe,
@@ -117,7 +118,7 @@ export namespace wipe {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const cycles: number = context.params.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -171,9 +172,7 @@ export namespace wipe {
           ).point;
         },
         // The arm on the circle's start, as the stroke lays the palm there.
-        arm: (
-          posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieMotionHumanPosture.IGoal =>
+        arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
           AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
@@ -197,7 +196,7 @@ export namespace wipe {
       ),
       0.1,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: travel,
         attack: PERIOD * cycles,

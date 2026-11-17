@@ -6,9 +6,10 @@ import {
   integrateMotionTrajectory,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanForceSite,
   IAutoMovieIntegrateMotionTrajectory,
-  IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanForceExchange,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -296,13 +297,11 @@ export namespace HumanForceExchange {
    */
   export function pull(
     props: IAutoMovieMotionHumanForceExchange.IPullProps,
-  ): IAutoMovieMotionHumanForce.ISustained[] {
+  ): IAutoMovieMotionHumanSustainedForce[] {
     const each: number =
       props.sites.length === 0 ? 0 : props.force / props.sites.length;
     return props.sites.map(
-      (
-        at: IAutoMovieMotionHumanForce.At,
-      ): IAutoMovieMotionHumanForce.ISustained => ({
+      (at: AutoMovieHumanForceSite): IAutoMovieMotionHumanSustainedForce => ({
         kind: "sustained",
         subject: props.subject,
         at,

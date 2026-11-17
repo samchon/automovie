@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmTarget,
@@ -83,7 +84,7 @@ export namespace AutoMovieMotionHumanTarget {
     place: IAutoMovieMotionHumanTarget.IDefault,
   ): IAutoMovieMotionHumanTarget.IPlace {
     const m = body.measure;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };
@@ -222,7 +223,7 @@ export namespace AutoMovieMotionHumanTarget {
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     options: IAutoMovieMotionHumanTarget.IHand = {},
   ): IAutoMovieMotionHumanArmTarget.ITarget {

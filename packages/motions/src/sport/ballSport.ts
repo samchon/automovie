@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -142,7 +143,7 @@ export namespace ballSport {
         : p.kind === "throwIn"
           ? 0.35
           : 0.25;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: p.kind === "throwIn" ? 0.7 : READY,
         attack,
@@ -196,7 +197,7 @@ export namespace ballSport {
     let thrown:
       | {
           contacts: IAutoMovieMotionHumanContactWindow[];
-          launches: IAutoMovieMotionHumanActionPlan.ILaunch[];
+          launches: IAutoMovieMotionPropLaunch[];
         }
       | undefined = undefined;
     const pad: number = AutoMovieMotionHumanTouchEffector.pad(body, "right", {

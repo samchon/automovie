@@ -4,9 +4,9 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -88,7 +88,7 @@ export function test_human_motion_ride_rowing(): void {
     for (const name of ["m-average", "f-small"] as const) {
       const label: string = `${name} on ${water} water`;
       const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-      const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
+      const placed = (seconds: number): IAutoMovieRigidTransform => {
         const placement: IAutoMovieTransform = ride.at(
           Math.max(0, seconds - WAIT),
         ).placement;

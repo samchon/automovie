@@ -1,14 +1,17 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeatedReach,
   IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieResolveMutualGoal,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -55,15 +58,15 @@ export namespace handshakeMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The kind closes over its props only.
    */
   export function kind(props: {
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
     pump: number;
     shake: number;
     arm: (
       body: IAutoMovieMotionHumanBody,
       shoulder: IAutoMovieVector3,
     ) => IAutoMovieResolveMutualGoal.ISide;
-  }): IAutoMovieMotionMeeting.IKind {
-    const shoulder = (role: IAutoMovieMotionMeeting.IRole): IAutoMovieVector3 =>
+  }): IAutoMovieMotionMeetingKind {
+    const shoulder = (role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
       role.bones.get(`${props.side}UpperArm`)!.worldPosition;
     return {
       name: `handshake-${props.side}`,
@@ -73,7 +76,7 @@ export namespace handshakeMeeting {
         along: AutoMovieMotionHumanTarget.DEFAULTS.ahead,
       },
       place: (
-        roles: readonly IAutoMovieMotionMeeting.IRole[],
+        roles: readonly IAutoMovieMotionMeetingRole[],
       ): Record<string, IAutoMovieVector3> => {
         const met: handshakeOffer.IMeeting = HumanSeatedReach.goal<
           handshakeOffer.ISide,
@@ -93,8 +96,8 @@ export namespace handshakeMeeting {
         return { meet: met.point, along: Vector3.add(met.point, met.fingers) };
       },
       timing: (
-        role: IAutoMovieMotionMeeting.IRole,
-      ): IAutoMovieMotionMeeting.ITiming => {
+        role: IAutoMovieMotionMeetingRole,
+      ): IAutoMovieMotionMeetingTiming => {
         const reach: number = HumanPrehension.nominal(
           props.arm(role.body, shoulder(role)).reach,
           0,
@@ -140,14 +143,14 @@ export namespace handshakeMeeting {
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext<{ partner: string }>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     phases: { pump: number; shake: number },
     arm: (
       body: IAutoMovieMotionHumanBody,
       shoulder: IAutoMovieVector3,
     ) => IAutoMovieResolveMutualGoal.ISide,
   ): IRead {
-    const shared: IAutoMovieMotionMeeting.IMeeting = context.meeting(
+    const shared: IAutoMovieMotionMeeting = context.meeting(
       kind({ side, pump: phases.pump, shake: phases.shake, arm }),
       ROLE,
       { role: ROLE, subject: context.params.partner },

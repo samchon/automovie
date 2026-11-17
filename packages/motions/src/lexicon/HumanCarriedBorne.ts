@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -67,7 +68,7 @@ export namespace HumanCarriedBorne {
       context.params.carry ?? "piggyback";
     const row: IAutoMovieMotionHumanCarried.IRow = HumanCarried.CARRIES[carry];
     const body: IAutoMovieMotionHumanBody = context.body;
-    const carrier: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
+    const carrier: IAutoMovieMotionHumanPerformerReader | undefined =
       by === undefined ? undefined : context.performer(by);
 
     // A second helper takes the carry's other side (#3440).
@@ -87,7 +88,7 @@ export namespace HumanCarriedBorne {
         reason: `a second helper takes the other side of a carry that has one and a first bearer, and the ${carry} ${by === undefined ? "has no first bearer" : "has no other side"}`,
         fix: "name a first bearer and a carry with another side, or no second helper",
       });
-    const helper: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
+    const helper: IAutoMovieMotionHumanPerformerReader | undefined =
       second === undefined ? undefined : context.performer(second);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const [hip, knee, apart]: readonly [number, number, number] = row.legs;
@@ -185,7 +186,7 @@ export namespace HumanCarriedBorne {
           });
         }
         const theirs: ReturnType<
-          IAutoMovieMotionHumanActionContext.IPerformer["bones"]
+          IAutoMovieMotionHumanPerformerReader["bones"]
         > = carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
         const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
         const turned: IAutoMovieMotionHumanPosture = {

@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanThrowObjectForm,
   IAutoMovieQuaternion,
@@ -68,7 +68,7 @@ export namespace throwObjectRelease {
     body: IAutoMovieMotionHumanBody;
 
     /** The throwing hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The style. */
     style: IAutoMovieMotionHumanThrowObjectForm.Style;
@@ -89,7 +89,7 @@ export namespace throwObjectRelease {
   export function point(props: IProps): IAutoMovieVector3 {
     const { body, side, style, standing } = props;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: standing.root,
       yaw: standing.yaw,
     };

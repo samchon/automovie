@@ -2,9 +2,16 @@ import type { IAutoMovieHumanArmConstruction } from "../IAutoMovieHumanArmConstr
 import type { IAutoMovieHumanBodyLane } from "../IAutoMovieHumanBodyLane";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanLimbRest } from "../IAutoMovieHumanLimbRest";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 
-/** Type contracts exchanged by AutoMovieHumanArmSources; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanArmSources; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanArmSources exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IOutput, IInput. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanArmSources; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IOutput, IInput contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanArmSources {
   /** Source-only capabilities; no full body, raw loft or proximal join is implied.
    *
@@ -15,19 +22,59 @@ export namespace IAutoMovieHumanArmSources {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `digitNames`; callers supply the complete record.
    */
   export interface IOutput {
-    /** Same arm definition used by production and the hand contact owner. */
-    definition(): IAutoMovieHumanSiteViewPart.IDefinition;
+    /**
+     * Request the retained complete arm definition; the first demand prepares the arm controls and later demands return that definition. Preparation failures propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Request the retained complete arm definition; the first demand prepares the arm controls and later demands return that definition. Preparation failures propagate.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanArmSources owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanArmSources.IOutput.definition declares the invocation boundary only; AutoMovieHumanArmSources and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanArmSources.IOutput.definition must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanArmSources.IOutput.definition owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanArmSources and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanArmSources producer or caller supplying the callback owns captured state and its lifetime.
+     */
+    definition(): IAutoMovieHumanSourceDefinition;
 
-    /** Explicit production arm metadata; its trunk fold is assembly-owned. */
+    /**
+     * Return fresh assembly metadata referring to the retained arm definition and original joints; the assembly supplies the trunk fold separately.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Return fresh assembly metadata referring to the retained arm definition and original joints; the assembly supplies the trunk fold separately.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanArmSources owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanArmSources.IOutput.arm declares the invocation boundary only; AutoMovieHumanArmSources and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanArmSources.IOutput.arm must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanArmSources.IOutput.arm owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanArmSources and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanArmSources producer or caller supplying the callback owns captured state and its lifetime.
+     */
     arm(): Omit<IAutoMovieHumanBodyLane.ISide["arm"], "trunk">;
 
     /** Existing digit names without authoring their geometry. */
     digitNames: readonly string[];
 
-    /** Request one actual digit while reusing its shared palm controls. */
+    /**
+     * Request a side-qualified digit name from digitNames, reusing its retained palm controls and result; return undefined for an unknown name. Preparation failures propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Request a side-qualified digit name from digitNames, reusing its retained palm controls and result; return undefined for an unknown name. Preparation failures propagate.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanArmSources owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanArmSources.IOutput.digit declares the invocation boundary only; AutoMovieHumanArmSources and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanArmSources.IOutput.digit must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanArmSources.IOutput.digit owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanArmSources and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanArmSources producer or caller supplying the callback owns captured state and its lifetime.
+     */
     digit(name: string): IAutoMovieHumanBodyLane.IDigit | undefined;
 
-    /** Explicit all-digit request used only by full assembly. */
+    /**
+     * Request all four fingers and the thumb in digitNames order; return a new array containing the retained digit results. Preparation failures propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Request all four fingers and the thumb in digitNames order; return a new array containing the retained digit results. Preparation failures propagate.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanArmSources owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanArmSources.IOutput.fingers declares the invocation boundary only; AutoMovieHumanArmSources and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanArmSources.IOutput.fingers must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanArmSources.IOutput.fingers owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanArmSources and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanArmSources producer or caller supplying the callback owns captured state and its lifetime.
+     */
     fingers(): IAutoMovieHumanBodyLane.IDigit[];
   }
 

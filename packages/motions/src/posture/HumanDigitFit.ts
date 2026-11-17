@@ -11,13 +11,14 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieCurlChainUntilContact,
   IAutoMovieFitDigitToTarget,
+  IAutoMovieHumanDigitGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanGrip,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -78,8 +79,7 @@ export namespace HumanDigitFit {
     if (digits === undefined) return pose;
     let out: IAutoMoviePose = pose;
     for (const digit of HumanPosture.DIGITS) {
-      const goal: IAutoMovieMotionHumanPosture.IDigitGoal | undefined =
-        digits[digit];
+      const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
       const side: "left" | "right" = digit.startsWith("left")
         ? "left"
@@ -258,7 +258,7 @@ const nearBody: (
         p: IAutoMovieMotionHumanColliders.IPlaced,
       ): IAutoMovieCurlChainUntilContact.ICollider[] =>
         p.shapes
-          .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
+          .filter((shape: IAutoMoviePhysicalShape): boolean => {
             const ball: IAutoMovieMotionHumanColliders.IBall =
               HumanColliders.bound(shape);
             const centre: IAutoMovieVector3 = Vector3.add(
@@ -281,7 +281,7 @@ const nearBody: (
           })
           .map(
             (
-              shape: IAutoMoviePhysicalProfile.IShape,
+              shape: IAutoMoviePhysicalShape,
             ): IAutoMovieCurlChainUntilContact.ICollider => ({
               shape,
               frame: p.pose,
@@ -317,12 +317,12 @@ const carried: (
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
-  goal: IAutoMovieMotionHumanPosture.IDigitGoal,
+  goal: IAutoMovieHumanDigitGoal,
 ) => { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } = (
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
-  goal: IAutoMovieMotionHumanPosture.IDigitGoal,
+  goal: IAutoMovieHumanDigitGoal,
 ): { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } => {
   const placed: IAutoMovieResolvedBone = poseBones(body, pose).get(bone)!;
   return {

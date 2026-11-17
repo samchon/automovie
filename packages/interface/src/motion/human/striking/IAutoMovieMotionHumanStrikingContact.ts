@@ -1,4 +1,5 @@
-import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
+import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysicalShape";
 
 /**
  * When and where a moving weapon first touches a surface of another body.
@@ -24,7 +25,7 @@ import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysi
  * @evidence contracts/development/common.md#meaningful-documentation pose: The posed frame of the segment that carries the shape, world metres.
  * @evidence contracts/development/design.md#principled-representation pose: The posed frame of the segment that carries the shape, world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: reaction/knockdown.ts (knockdown.shapes, return); reaction/knockdown.ts (knockdown.lowest, colliders); reaction/knockdown.ts (knockdown.bottom, c); striking/StrikingBody.ts (StrikingBody.colliders, return); striking/StrikingContact.ts (StrikingContact.distance, shape); striking/StrikingContact.ts (StrikingContact.nearest, shapes).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMoviePhysicalProfile.ITransform, IAutoMoviePhysicalProfile.IShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieRigidTransform, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanStrikingContact {
   /**
@@ -40,10 +41,10 @@ export namespace IAutoMovieMotionHumanStrikingContact {
     name: string;
 
     /** The posed frame of the segment that carries the shape, world metres. */
-    pose: IAutoMoviePhysicalProfile.ITransform;
+    pose: IAutoMovieRigidTransform;
 
     /** The profile shape, placed by `pose` composed with its own transform. */
-    shape: IAutoMoviePhysicalProfile.IShape;
+    shape: IAutoMoviePhysicalShape;
   }
 
   /**

@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieRigidTransform,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -244,7 +245,7 @@ export function test_human_motion_lexicon_rows_soft(): void {
     });
     let worst: number = 0;
     for (let t: number = 0; t <= p.duration; t += 0.1) {
-      const f: IAutoMovieMotionHumanProp.IFrame = p.prop("pole", t);
+      const f: IAutoMovieRigidTransform = p.prop("pole", t);
       const s: number[] = p.soft("flag", t);
       [0, 6, 12, 18].forEach((particle: number, k: number): void => {
         const ring: IAutoMovieVector3 = Vector3.add(

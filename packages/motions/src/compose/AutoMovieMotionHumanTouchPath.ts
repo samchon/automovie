@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -50,7 +50,7 @@ export namespace AutoMovieMotionHumanTouchPath {
   export function lay(
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     fallback: IAutoMovieVector3,
@@ -94,7 +94,7 @@ export namespace AutoMovieMotionHumanTouchPath {
   export function reach(
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     elbow: "natural" | "level" = "natural",
     from?: IAutoMovieVector3,
@@ -113,7 +113,7 @@ export namespace AutoMovieMotionHumanTouchPath {
 function elbowOf(
   body: IAutoMovieMotionHumanBody,
   posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
   elbow: "natural" | "level",
 ): IAutoMovieVector3 {
   const outward: number = side === "left" ? 1 : -1;

@@ -9,7 +9,7 @@ import type {
   IAutoMovieConstructionRealization,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -120,7 +120,7 @@ namespace FamilyConicMerge {
             (k * Math.PI) / 4,
           );
           let at: number = limb.family.tips![1]!.from;
-          let frame: IAutoMovieLoftFrame.IFrame = host.axis.at(at);
+          let frame: IAutoMovieLoftSectionFrame = host.axis.at(at);
           for (let i: number = 0; i < 20; ++i) {
             const t: number[] = [
               frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],

@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanDefenceOutcome,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPunch,
 } from "@automovie/interface";
@@ -100,9 +101,7 @@ export namespace defend {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function telegraph(
-    attack: IAutoMovieMotionHumanActionContext.IPlaced,
-  ): number {
+  export function telegraph(attack: IAutoMovieMotionHumanPlacedAction): number {
     if (attack.family === "kick")
       return (attack.params as IAutoMovieMotionHumanKick.IParams).technique ===
         "round"
@@ -163,9 +162,7 @@ export namespace defend {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanDefend.IParams = context.params;
-    const attack: IAutoMovieMotionHumanActionContext.IPlaced = context.action(
-      p.against,
-    );
+    const attack: IAutoMovieMotionHumanPlacedAction = context.action(p.against);
 
     // A feint has no contact: the defender bites on the moment the strike it
     // shows would have landed, which the feint declares, and which is how a

@@ -1,6 +1,7 @@
 import type {
   IAutoMovieEvaluateSchedule,
   IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 /**
@@ -25,7 +26,7 @@ export function evaluateAutoMovieSchedule(
 ): IAutoMovieEvaluateSchedule.IInstant {
   const active: IAutoMovieEvaluateSchedule.IActive[] = [];
   const states: Record<string, unknown> = {};
-  const ended: Map<string, IAutoMovieSchedule.IEntry> = new Map();
+  const ended: Map<string, IAutoMovieScheduleEntry> = new Map();
   for (const entry of schedule.entries) {
     if (entry.start <= seconds && seconds < entry.end)
       active.push({
@@ -34,7 +35,7 @@ export function evaluateAutoMovieSchedule(
         phase: (seconds - entry.start) / (entry.end - entry.start),
       });
     if (entry.end <= seconds && entry.state !== undefined) {
-      const previous: IAutoMovieSchedule.IEntry | undefined = ended.get(
+      const previous: IAutoMovieScheduleEntry | undefined = ended.get(
         entry.subject,
       );
       if (

@@ -1,6 +1,8 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -9,9 +11,11 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRegrasp,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -94,20 +98,19 @@ export namespace regrasp {
         reason: `the ${side} hand does not hold ${subject} at the act's start`,
         fix: "take the object up in that hand first",
       });
-    const read: IAutoMovieMotionHumanActionContext.IProp =
-      context.prop(subject);
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const placed: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
     ).get(`${side}Hand`)!;
-    const hand: IAutoMovieMotionHumanProp.IFrame = {
+    const hand: IAutoMovieRigidTransform = {
       position: placed.worldPosition,
       rotation: placed.worldRotation,
     };
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const limb: IAutoMovieMotionHumanPosture.Limb = `${side}Arm`;
-    const still: IAutoMovieMotionHumanPosture.IGoal = {
+    const limb: AutoMovieHumanLimb = `${side}Arm`;
+    const still: IAutoMovieHumanLimbGoal = {
       ...(hold.limbs[limb] ?? {
         bend: Vector3.add(hand.position, { x: 0, y: -1, z: 0 }),
       }),
@@ -194,21 +197,21 @@ export namespace regrasp {
   export function inHand(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
     prop: IAutoMovieMotionHumanProp,
-    frame: IAutoMovieMotionHumanProp.IFrame,
-    hand: IAutoMovieMotionHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
+    hand: IAutoMovieRigidTransform,
   ): NonNullable<IAutoMovieMotionHumanContactWindow["inHand"]> {
     const { side, kind } = context.params;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
 
     // Where it is held now, in the hand's frame.
-    const start: IAutoMovieMotionHumanProp.IFrame = {
+    const start: IAutoMovieRigidTransform = {
       position: Quaternion.rotateVector(
         inverse,
         Vector3.subtract(frame.position, hand.position),
       ),
       rotation: Quaternion.multiply(inverse, frame.rotation),
     };
-    let end: IAutoMovieMotionHumanProp.IFrame;
+    let end: IAutoMovieRigidTransform;
     if (kind === "regrip") {
       const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
         context.body,
@@ -260,7 +263,7 @@ export namespace regrasp {
     const arc: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(end.rotation, Quaternion.inverse(start.rotation)),
     );
-    return (share: number): IAutoMovieMotionHumanProp.IFrame => {
+    return (share: number): IAutoMovieRigidTransform => {
       const s: number = minimumJerk(Math.min(1, Math.max(0, share))).s;
       const rotation: IAutoMovieQuaternion = Quaternion.slerp(
         Quaternion.identity(),
@@ -333,11 +336,11 @@ const site: (
 /** An affordance's axis line in the world: its translation and its `+X`. */
 const line: (
   prop: IAutoMovieMotionHumanProp,
-  frame: IAutoMovieMotionHumanProp.IFrame,
+  frame: IAutoMovieRigidTransform,
   id: string,
 ) => { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } = (
   prop: IAutoMovieMotionHumanProp,
-  frame: IAutoMovieMotionHumanProp.IFrame,
+  frame: IAutoMovieRigidTransform,
   id: string,
 ): { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } => {
   const affordance: IAutoMovieAffordance = site(prop, id);

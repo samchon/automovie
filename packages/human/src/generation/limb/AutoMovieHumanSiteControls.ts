@@ -4,9 +4,10 @@ import {
   AutoMovieViewSection,
 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteConstraints,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
   IAutoMovieLoftContract,
   IAutoMovieLoftViewSource,
   IAutoMovieViewAxis,
@@ -24,7 +25,7 @@ export namespace AutoMovieHumanSiteControls {
    * call-owned declaration, physical parameter and available source jets.
    */
   export function prepare(
-    input: IAutoMovieHumanSiteViewPart.IInput,
+    input: IAutoMovieHumanSectionSource,
     constraints?: IAutoMovieHumanSiteConstraints.IOwner,
     sharedFrame?: IAutoMovieHumanSiteControls.IFrame,
   ): IAutoMovieHumanSiteControls.IOutput {
@@ -48,11 +49,11 @@ export namespace AutoMovieHumanSiteControls {
     const frame: IAutoMovieViewAxis.IAxis | string =
       sharedFrame?.value ?? AutoMovieConstructionViews.frame(input.axis);
     if (typeof frame === "string") return fail("axis", frame);
-    const sites: IAutoMovieHumanSiteViewPart.ISite[] = input.sites;
+    const sites: IAutoMovieHumanSectionSite[] = input.sites;
     if (sites.length < 2)
       return fail("sites", `${sites.length} sites; a part needs at least two`);
     for (let k: number = 0; k < sites.length; k++) {
-      const s: IAutoMovieHumanSiteViewPart.ISite = sites[k]!;
+      const s: IAutoMovieHumanSectionSite = sites[k]!;
       if (k > 0 && !(s.station > sites[k - 1]!.station))
         return fail(
           "sites",
@@ -66,7 +67,7 @@ export namespace AutoMovieHumanSiteControls {
           `site ${s.site}: edges [${s.edges.join(", ")}] mm do not hold the axis inside the box`,
         );
     }
-    const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] = input.pole;
+    const pole: IAutoMovieHumanSectionSource["pole"] = input.pole;
     const bottom: number | null =
       pole === undefined || pole.end === "top"
         ? null
@@ -128,7 +129,7 @@ export namespace AutoMovieHumanSiteControls {
     }
     const shoulderKnots: IAutoMovieViewPart.IKnot[] = sites.map(
       (
-        site: IAutoMovieHumanSiteViewPart.ISite,
+        site: IAutoMovieHumanSectionSite,
         k: number,
       ): IAutoMovieViewPart.IKnot => ({
         site: site.site,
@@ -156,7 +157,7 @@ export namespace AutoMovieHumanSiteControls {
           : { jet: input.fullnessPoleJets.top }),
       });
     const stations: number[] = sites.map(
-      (site: IAutoMovieHumanSiteViewPart.ISite): number => site.station,
+      (site: IAutoMovieHumanSectionSite): number => site.station,
     );
     if (bottom !== null) stations.unshift(bottom);
     if (top !== null) stations.push(top);
@@ -215,13 +216,13 @@ export namespace AutoMovieHumanSiteControls {
   /** Copy a signed original scalar, including its authored normalized jets, bounds and zero closing knots. */
   export function outline(
     input: Pick<
-      IAutoMovieHumanSiteViewPart.IInput,
+      IAutoMovieHumanSectionSource,
       "sites" | "pole" | "poleJets" | "ranges" | "parameter"
     >,
     quarter: 0 | 1 | 2 | 3,
   ): IAutoMovieViewPart.IOutline {
     const knots: IAutoMovieViewPart.IKnot[] = input.sites.map(
-      (site: IAutoMovieHumanSiteViewPart.ISite): IAutoMovieViewPart.IKnot => ({
+      (site: IAutoMovieHumanSectionSite): IAutoMovieViewPart.IKnot => ({
         site: site.site,
         station: site.station,
         value: site.edges[quarter],
@@ -230,7 +231,7 @@ export namespace AutoMovieHumanSiteControls {
           : { jet: site.jets[quarter] }),
       }),
     );
-    const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] = input.pole;
+    const pole: IAutoMovieHumanSectionSource["pole"] = input.pole;
     if (pole !== undefined && pole.end !== "top")
       knots.unshift({
         site: "bottom pole",

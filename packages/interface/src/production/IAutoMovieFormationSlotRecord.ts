@@ -1,6 +1,13 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/** Identity and placement inputs shared by authored and compiled formation-slot regeneration. */
+/**
+ * Identity and placement inputs shared by authored and compiled formation-slot regeneration.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents node naming, heading units and seeded phase identity, separating these from actor promotion and placement.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Actor promotion does not change the base model or seeded phase, and a slot address remains distinct from the generated scene-node string.
+ * @evidence contracts/development/design.md#principled-representation Authored formation/model IDs, world-Y heading degrees and the deterministic seed are carried unchanged; formation admission and placement own numeric and slot validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Both formationSlot and compiledFormationSlot pass these four fields to one identity law, while their distinct hero tables remain with those callers.
+ */
 export namespace IAutoMovieFormationSlotRecord {
   /**
    * Formation fields that determine a regenerated slot's stable node identity, model, heading and motion phase.

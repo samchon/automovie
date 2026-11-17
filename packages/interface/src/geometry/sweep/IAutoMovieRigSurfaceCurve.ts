@@ -2,7 +2,14 @@ import type { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
 import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 import type { IAutoMovieSurfacePoint } from "./IAutoMovieSurfacePoint";
 
-/** Nodes and optional bone motion used to rebuild a network curve per pose. */
+/**
+ * Nodes and optional bone motion used to rebuild a network curve per pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Metre through points and live endpoint nodes share one model frame, with optional bone-buffer transport of directions. Negative bone or null buffer disables through-data transport; valid nonnegative indices and endpoint finalization remain caller premises.
+ * @evidence contracts/development/design.md#principled-representation Metre through points and live endpoint nodes share one model frame, with optional bone-buffer transport of directions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSurfaceCurve is shared by network patch boundaries, bridges and construction observations.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Negative bone or null buffer disables through-data transport; valid nonnegative indices and endpoint finalization remain caller premises.
+ */
 export namespace IAutoMovieRigSurfaceCurve {
   /**
    * Compile a network curve for per-pose evaluation.

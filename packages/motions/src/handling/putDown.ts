@@ -1,6 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -9,11 +13,11 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrehension,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPutDown,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -95,7 +99,7 @@ export namespace putDown {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = context.entry.posture;
 
@@ -104,13 +108,13 @@ export namespace putDown {
       body,
       context.entry.pose,
     ).get(`${side}Hand`)!;
-    const prop: IAutoMovieMotionHumanProp.IFrame = context
+    const prop: IAutoMovieRigidTransform = context
       .prop(context.params.prop)
       .frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand.worldRotation,
     );
-    const offset: IAutoMovieMotionHumanProp.IFrame = {
+    const offset: IAutoMovieRigidTransform = {
       position: Quaternion.rotateVector(
         inverse,
         Vector3.subtract(prop.position, hand.worldPosition),
@@ -164,8 +168,10 @@ export namespace putDown {
     const on = context.params.on;
     const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
       context.params.onto;
-    const wearing: IAutoMovieMotionHumanProp.IFrame | undefined =
-      putDownTarget.of(context, context.entry.pose);
+    const wearing: IAutoMovieRigidTransform | undefined = putDownTarget.of(
+      context,
+      context.entry.pose,
+    );
     if (wearing === undefined && context.params.at === undefined)
       throw new HumanRefusal({
         kind: "parameter",
@@ -212,7 +218,7 @@ export namespace putDown {
           : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
-    const reference: IAutoMovieMotionHumanPosture.IReference =
+    const reference: IAutoMovieHumanLimbReference =
       resolveHumanPosture.reference(
         context.entry.pose,
         side === "left" ? "leftArm" : "rightArm",
@@ -247,7 +253,7 @@ export namespace putDown {
         held,
         "take the prop by a grasp that places its socket on the receiver",
       );
-    const constraint: IAutoMovieMotionHumanPosture.IGoal | undefined =
+    const constraint: IAutoMovieHumanLimbGoal | undefined =
       tool === undefined
         ? undefined
         : StrikingHeld.goal(context, tool, frame, 0, bend);
@@ -304,8 +310,7 @@ export namespace putDown {
       side,
       "relaxed",
     );
-    const limb: IAutoMovieMotionHumanPosture.Limb =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
@@ -439,14 +444,14 @@ export namespace putDown {
       ahead.grip.side !== (ahead.params.hand ?? "right")
     )
       return [];
-    const destination: IAutoMovieMotionHumanProp.IFrame = putDownTarget.of(
+    const destination: IAutoMovieRigidTransform = putDownTarget.of(
       ahead,
       resolveHumanPosture(ahead.body, ahead.grip.posture),
     )!;
     const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({
       tip: via,
     });
-    const frame: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.parent(
+    const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
       destination,
       tool.held!.frame,
     );

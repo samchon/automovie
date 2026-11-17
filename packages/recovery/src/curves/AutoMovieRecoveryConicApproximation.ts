@@ -1,4 +1,10 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMovieCubicCriticalParameters,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 
 import { findAutoMovieRecoveryCubicCriticalParameters } from "./findAutoMovieRecoveryCubicCriticalParameters";
 
@@ -30,12 +36,12 @@ export namespace AutoMovieRecoveryConicApproximation {
    */
   export function cubicCriticalParameters(
     controls: readonly [
-      IAutoMovieConicApproximation.Point,
-      IAutoMovieConicApproximation.Point,
-      IAutoMovieConicApproximation.Point,
-      IAutoMovieConicApproximation.Point,
+      Readonly<AutoMovieVector2Tuple>,
+      Readonly<AutoMovieVector2Tuple>,
+      Readonly<AutoMovieVector2Tuple>,
+      Readonly<AutoMovieVector2Tuple>,
     ],
-  ): IAutoMovieConicApproximation.ICubicCriticalParameters {
+  ): IAutoMovieCubicCriticalParameters {
     return findAutoMovieRecoveryCubicCriticalParameters(controls);
   }
 
@@ -51,9 +57,9 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pure call retains no input or resources after return.
    */
   export function evaluate(
-    arc: IAutoMovieConicApproximation.IArc,
+    arc: IAutoMovieRegisteredConicArc,
     u: number,
-  ): IAutoMovieConicApproximation.Point {
+  ): Readonly<AutoMovieVector2Tuple> {
     const a: number = (1 - u) ** 2;
     const b: number = 2 * arc.weight * u * (1 - u);
     const c: number = u * u;
@@ -82,8 +88,8 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No resources or state survive the call.
    */
   export function distance(
-    a: IAutoMovieConicApproximation.Point,
-    b: IAutoMovieConicApproximation.Point,
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
   ): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1]);
   }
@@ -100,8 +106,8 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns no retained state or external handle.
    */
   export function cross(
-    a: IAutoMovieConicApproximation.Point,
-    b: IAutoMovieConicApproximation.Point,
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
   ): number {
     return a[0] * b[1] - a[1] * b[0];
   }
@@ -118,7 +124,7 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No callbacks, source arrays or process resources are retained.
    */
   export function validate(
-    curve: IAutoMovieConicApproximation.ICurve,
+    curve: IAutoMoviePlanarCurveSource,
     options: IAutoMovieConicApproximation.IOptions,
   ): string[] {
     const errors: string[] = [];

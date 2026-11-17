@@ -2,6 +2,7 @@ import {
   IAutoMovieAngleRange,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  type IAutoMovieJointRotationFrame,
   type IAutoMovieScanJointRom,
   type IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
@@ -65,7 +66,7 @@ export const scanJointRom: (
     actual: number,
     overshoot: number | undefined,
   ) => void,
-  rig?: IAutoMovieSwingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ) => void = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
@@ -74,13 +75,13 @@ export const scanJointRom: (
     actual: number,
     overshoot: number | undefined,
   ) => void,
-  rig?: IAutoMovieSwingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ): void => {
   // A ball joint gated by swing and twist reads its rotation, not its three
   // angles: the swing past the reach of its flexion and abduction ranges,
   // then the twist past its interval, in the frame its clinical angles are
   // written in: the caller's rig's, or the humanoid tables'.
-  const range: IAutoMovieSwingTwistRange.IJoint | undefined =
+  const range: IAutoMovieJointRotationFrame | undefined =
     constraint.swingTwist === undefined || constraint.swingTwist === null
       ? undefined
       : (rig ?? swingTwistRange.of(joint.bone));

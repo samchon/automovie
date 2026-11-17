@@ -1,7 +1,7 @@
 import { AutoMovieLoftSection } from "@automovie/engine";
 import type {
-  IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodySurfaceLoft,
+  IAutoMovieHumanSurfaceAppendage,
   IAutoMovieHumanSurfaceBoundary,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieLoftChain,
@@ -227,7 +227,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    */
   export function join(
     context: IAutoMovieHumanSurfaceContext,
-    appendage: IAutoMovieHumanBodyCalibration.IAppendage,
+    appendage: IAutoMovieHumanSurfaceAppendage,
   ): void {
     const base: IAutoMovieLoftChain = chain(context, appendage.base);
     const own: IAutoMovieLoftChain = chain(context, appendage.chain);

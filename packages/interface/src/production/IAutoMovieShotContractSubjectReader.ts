@@ -80,7 +80,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No default skeleton replaces a missing rig; `null` makes the readers that need one fail.
    * @evidence contracts/development/common.md#meaningful-documentation States the precedence of the two sources and the `null` answer.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One map read and at most one call of the caller's lookup.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's lookup is not memoized here because its cost and caching are the caller's, as `IAutoMovieShotRuntime.skeleton` states.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's lookup is not memoized here because its cost and caching are the caller's, as `IAutoMovieEngineShotRuntime.skeleton` states.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a model-owned or caller-owned rig and keeps no reference to it.
    */
   skeleton(node: IAutoMovieSceneNode): IAutoMovieSkeleton | null;

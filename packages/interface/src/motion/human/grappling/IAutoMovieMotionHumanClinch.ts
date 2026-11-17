@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Taking a clinch grip on a partner standing within reach and holding it:
@@ -31,7 +31,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.clinch, params); grappling/clinch.ts (clinch.plan, context); grappling/clinch.ts (clinch.regions, grip); grappling/clinch.ts (clinch.regions, return); grappling/clinch.ts (clinch.place, return); grappling/clinch.ts (clinch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion, IAutoMovieMotionManner.IManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanClinch {
   /**
@@ -52,7 +52,7 @@ export namespace IAutoMovieMotionHumanClinch {
     grip?: IAutoMovieMotionHumanClinch.Grip;
 
     /** The collar hand of `collarSleeve`; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** Seconds the grip is held; 2 when absent.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -74,7 +74,7 @@ export namespace IAutoMovieMotionHumanClinch {
     };
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**
@@ -93,10 +93,10 @@ export namespace IAutoMovieMotionHumanClinch {
    * @evidence contracts/development/common.md#meaningful-documentation region: Partner body region grasped by this hand. across: Lateral offset toward the partner's left, in shares of half the partner's shoulder width.
    * @evidence contracts/development/design.md#principled-representation region: Partner body region grasped by this hand. across: Lateral offset toward the partner's left, in shares of half the partner's shoulder width.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/clinch.ts (clinch.regions, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IRegionsResult = Record<
-    IAutoMovieMotionHumanHand.Side,
+    AutoMovieHumanSide,
     {
       /** Partner body region grasped by this hand. */
       region: AutoMovieHumanoidRegion;

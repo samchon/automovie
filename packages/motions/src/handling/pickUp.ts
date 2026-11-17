@@ -1,5 +1,7 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -141,7 +143,7 @@ export namespace pickUp {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const steadied: boolean =
       context.entry.holds[side === "left" ? "right" : "left"] ===
       context.params.prop;
@@ -266,8 +268,7 @@ export namespace pickUp {
       open,
       closed,
     };
-    const limb: IAutoMovieMotionHumanPosture.Limb =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const rest: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const hand: IAutoMovieMotionHumanContactWindow["part"] =

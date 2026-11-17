@@ -1,13 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -149,7 +150,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
   export function reaching(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     from: IAutoMovieMotionHumanArmClearance.IArm,
     to: IAutoMovieMotionHumanArmClearance.IArm,
   ): number {
@@ -236,10 +237,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     span: IAutoMovieMotionHumanArmPlanned.ISpan,
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
     before: (seconds: number) => IAutoMovieMotionHumanPosture,
-  ): Map<
-    IAutoMovieMotionHumanHand.Side,
-    IAutoMovieMotionHumanArmTrajectory.Trajectory
-  > {
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     // Each phrase is an interval cut into pieces, its own end left to the
     // next one; an empty interval (a hold that lasts to the end, a reach
     // that starts on its site) has no piece, and the last phrase closes on
@@ -281,16 +279,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
       }
       return found;
     };
-    const goals: Map<number, IAutoMovieMotionHumanPosture.IGoal>[] =
-      carries.map(
-        (): Map<number, IAutoMovieMotionHumanPosture.IGoal> => new Map(),
-      );
-    const aimed = (
-      a: number,
-      t: number,
-    ): IAutoMovieMotionHumanPosture.IGoal => {
-      let found: IAutoMovieMotionHumanPosture.IGoal | undefined =
-        goals[a]!.get(t);
+    const goals: Map<number, IAutoMovieHumanLimbGoal>[] = carries.map(
+      (): Map<number, IAutoMovieHumanLimbGoal> => new Map(),
+    );
+    const aimed = (a: number, t: number): IAutoMovieHumanLimbGoal => {
+      let found: IAutoMovieHumanLimbGoal | undefined = goals[a]!.get(t);
       if (found === undefined)
         goals[a]!.set(t, (found = aim(carries[a]!, at(t).posture, t)));
       return found;
@@ -365,7 +358,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
               _: IAutoMovieMotionHumanArmPlanned.IPlanned,
               a: number,
             ): IAutoMovieMotionHumanColliders.IPlaced[] => {
-              const goal: IAutoMovieMotionHumanPosture.IGoal = aimed(a, t);
+              const goal: IAutoMovieHumanLimbGoal = aimed(a, t);
               return [...(goal.clear ?? []), ...(goal.rests ?? [])];
             },
           ),
@@ -492,7 +485,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
           c: IAutoMovieMotionHumanArmPlanned.IPlanned,
           a: number,
         ): [
-          IAutoMovieMotionHumanHand.Side,
+          AutoMovieHumanSide,
           IAutoMovieMotionHumanArmTrajectory.Trajectory,
         ] => [c.side, solved[a]!],
       ),
@@ -535,10 +528,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       ...posture,
       limbs,
     });
-    const goal: IAutoMovieMotionHumanPosture.IGoal = carry.goal(
-      posture,
-      seconds,
-    );
+    const goal: IAutoMovieHumanLimbGoal = carry.goal(posture, seconds);
     const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal);
     const then: HumanArmTrajectory.ISite = site(
       body,
@@ -557,7 +547,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     return (carry.perceived ?? carry.goal)(posture, seconds);
   }
 
@@ -566,9 +556,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    goal: IAutoMovieHumanLimbGoal,
   ): HumanArmTrajectory.ISite {
-    const world: IAutoMovieMotionHumanPosture.IGoal = resolveHumanPosture.world(
+    const world: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
       body,
       pose,
       `${carry.side}Arm`,

@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanDigitSection; runtime evaluation remains in Human. */
+/**
+ * Digit half-extents, normalized curvatures and planar section controls in phase order. Runtime construction and admission remain with AutoMovieHumanDigitSection in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes digit half-extents, normalized curvatures and planar section controls in phase order; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Digit half-extents, normalized curvatures and planar section controls in phase order. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanDigitSection; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing DigitSection contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanDigitSection {
   /** A section's shape, millimetres and normalised constants.
    *
@@ -28,28 +35,23 @@ export namespace IAutoMovieHumanDigitSection {
     dorsalApex: number;
   }
 
-  /** Result of AutoMovieHumanDigitSection.controls. The section's control points in its frame, `[b, n]` per control point,
-  phase `2 pi m / count` from the radial side point toward the palm.
-  @param count Control points, a multiple of 2 with at least four spans per half.
+  /**
+   * Ordered planar [b, n] control points in millimetres, sampled at phases 2*pi*m/count from the radial side toward the palm. These are spline controls, not on-curve samples.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The section's control points in its frame, `[b, n]` per control point, phase `2 pi m / count` from the radial side point toward the palm.
- * @evidence contracts/development/design.md#principled-representation The section's control points in its frame, `[b, n]` per control point, phase `2 pi m / count` from the radial side point toward the palm.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitSection.ControlsResult is the canonical exchange used by AutoMovieHumanDigitSection.controls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanDigitSection.controls for the section's control points in its frame, `[b, n]` per control point, phase `2 pi m / count` from the radial side point toward the palm.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Ordered planar [b, n] control points in millimetres, sampled at phases 2*pi*m/count from the radial side toward the palm. These are spline controls, not on-curve samples.
+   * @evidence contracts/development/design.md#principled-representation Ordered planar [b, n] control points in millimetres, sampled at phases 2*pi*m/count from the radial side toward the palm. These are spline controls, not on-curve samples.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitSection.ControlsResult is the canonical exchange used by AutoMovieHumanDigitSection.controls.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanDigitSection input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type ControlsResult = [number, number][];
 
-  /** Result of AutoMovieHumanDigitSection.knots. Points of the section at its knots, `[b, n]`, phase `2 pi m / count`:
-  the uniform cubic B-spline of {@link controls} evaluated where an
-  interpolating consumer reads it back, so the guides' jets survive the
-  interpolation exactly.
+  /**
+   * On-curve planar [b, n] knot samples in millimetres from the same uniform cubic B-spline. Their uniform phases match the section controls so an interpolating consumer preserves the guide jets.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Points of the section at its knots, `[b, n]`, phase `2 pi m / count`: the uniform cubic B-spline of {@link controls} evaluated where an interpolating consumer reads it back, so the guides' jets survive the interpolation exactly.
- * @evidence contracts/development/design.md#principled-representation Points of the section at its knots, `[b, n]`, phase `2 pi m / count`: the uniform cubic B-spline of {@link controls} evaluated where an interpolating consumer reads it back, so the guides' jets survive the interpolation exactly.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitSection.KnotsResult is the canonical exchange used by AutoMovieHumanDigitSection.knots.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanDigitSection.knots for points of the section at its knots, `[b, n]`, phase `2 pi m / count`: the uniform cubic B-spline of {@link controls} evaluated where an interpolating consumer reads it back, so the guides' jets survive the interpolation exactly.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation On-curve planar [b, n] knot samples in millimetres from the same uniform cubic B-spline. Their uniform phases match the section controls so an interpolating consumer preserves the guide jets.
+   * @evidence contracts/development/design.md#principled-representation On-curve planar [b, n] knot samples in millimetres from the same uniform cubic B-spline. Their uniform phases match the section controls so an interpolating consumer preserves the guide jets.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitSection.KnotsResult is the canonical exchange used by AutoMovieHumanDigitSection.knots.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanDigitSection input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type KnotsResult = [number, number][];
 }

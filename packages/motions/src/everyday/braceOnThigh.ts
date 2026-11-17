@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -46,9 +47,7 @@ export function braceOnThigh(
     to: duration,
     rest,
     weight,
-    goal: (
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanPosture.IGoal => {
+    goal: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal => {
       const bones = poseBones(body, resolveHumanPosture(body, posture));
       const thigh = bones.get(`${side}UpperLeg`)!;
       const kneeAt: IAutoMovieVector3 = bones.get(

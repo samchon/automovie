@@ -1,10 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -61,9 +63,9 @@ export namespace pushSledHandles {
     sled: string,
     left: string,
     right: string,
-  ): Record<IAutoMovieMotionHumanHand.Side, IHandle> {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(sled);
-    const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
+  ): Record<AutoMovieHumanSide, IHandle> {
+    const read: IAutoMovieMotionHumanPropReader = context.prop(sled);
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const handle = (id: string): IHandle => {
       const found: IAutoMovieAffordance | undefined = (
         read.prop.affordances ?? []

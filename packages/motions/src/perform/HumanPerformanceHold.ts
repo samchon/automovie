@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -54,7 +55,7 @@ export namespace HumanPerformanceHold {
     subject: string,
     seconds: number,
     own?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
@@ -99,8 +100,12 @@ export namespace HumanPerformanceHold {
       ): number => (g.from < seconds ? Math.max(latest, g.from) : latest),
       -Infinity,
     );
-    const flown: IAutoMovieMotionHumanProp.IFrame | undefined =
-      HumanPropFlight.frame(self, subject, seconds, since);
+    const flown: IAutoMovieRigidTransform | undefined = HumanPropFlight.frame(
+      self,
+      subject,
+      seconds,
+      since,
+    );
     if (flown !== undefined) return flown;
     const window: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
       active ?? released;
@@ -115,7 +120,7 @@ export namespace HumanPerformanceHold {
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
       at: number,
       supplied?: typeof own,
-    ): IAutoMovieMotionHumanProp.IFrame => {
+    ): IAutoMovieRigidTransform => {
       if (w.mount !== undefined) return socket(self, w.mount, at, supplied);
       if (w.bone === undefined)
         return HumanPerformanceRead.hand(self, w.subject, w.side, at);
@@ -128,7 +133,7 @@ export namespace HumanPerformanceHold {
     };
     const seat = (
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
-    ): IAutoMovieMotionHumanProp.IFrame => {
+    ): IAutoMovieRigidTransform => {
       if (w.offset !== undefined) return w.offset;
       const earlier: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
         w.bone !== undefined || w.mount !== undefined
@@ -144,9 +149,12 @@ export namespace HumanPerformanceHold {
                 g.to >= w.from - 1e-6,
             );
       if (earlier !== undefined) return (w.offset = moved(earlier, earlier.to));
-      const before: IAutoMovieMotionHumanProp.IFrame =
-        HumanPerformanceHold.prop(self, subject, w.from - 1e-6);
-      const hand: IAutoMovieMotionHumanProp.IFrame = carrier(w, w.from);
+      const before: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
+        self,
+        subject,
+        w.from - 1e-6,
+      );
+      const hand: IAutoMovieRigidTransform = carrier(w, w.from);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
       return (w.offset = {
         position: Quaternion.rotateVector(
@@ -161,11 +169,11 @@ export namespace HumanPerformanceHold {
     const moved = (
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
       at: number,
-    ): IAutoMovieMotionHumanProp.IFrame => {
-      const stored: IAutoMovieMotionHumanProp.IFrame = seat(w);
+    ): IAutoMovieRigidTransform => {
+      const stored: IAutoMovieRigidTransform = seat(w);
       if (w.inHand === undefined) return stored;
       const span: number = w.to - w.from;
-      const d: IAutoMovieMotionHumanProp.IFrame = w.inHand(
+      const d: IAutoMovieRigidTransform = w.inHand(
         span > 0 ? Math.min(1, Math.max(0, (at - w.from) / span)) : 1,
       );
       return {
@@ -229,7 +237,7 @@ export namespace HumanPerformanceHold {
       subject: string;
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     const onto: IAutoMovieMotionHumanProp | undefined = self.props.get(
       mount.prop,
     );
@@ -237,7 +245,7 @@ export namespace HumanPerformanceHold {
       throw HumanPerformanceRead.missing("prop", mount.prop, [
         ...self.props.keys(),
       ]);
-    const frame: IAutoMovieMotionHumanProp.IFrame = HumanPerformanceHold.prop(
+    const frame: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
       self,
       mount.prop,
       seconds,

@@ -1,5 +1,5 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * A whole-body self action while standing (#3285): the yawn-and-stretch with
@@ -34,7 +34,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation side: The arm of a fist pump; `right` when absent. count: Pumps or rolls; 3 for a pump, 2 for a roll when absent.
  * @evidence contracts/development/design.md#principled-representation side: The arm of a fist pump; `right` when absent. count: Pumps or rolls; 3 for a pump, 2 for a roll when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.selfAction, params); touch/selfAction.ts (selfAction.plan, context); touch/selfAction.ts (selfAction.plan); executable/cases/selfCases.ts (selfCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSelfAction {
   /**
@@ -52,13 +52,13 @@ export namespace IAutoMovieMotionHumanSelfAction {
     kind: IAutoMovieMotionHumanSelfAction.Kind;
 
     /** The arm of a fist pump; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** Pumps or rolls; 3 for a pump, 2 for a roll when absent. */
     count?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

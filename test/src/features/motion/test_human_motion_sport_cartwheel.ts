@@ -87,10 +87,10 @@ export function test_human_motion_sport_cartwheel(): void {
       body,
       0,
     );
-    const wheel: IAutoMovieMotionHumanSegment.ISegment = film
+    const wheel: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+        (s: IAutoMovieMotionHumanSegment): boolean =>
           s.name === "cartwheelLeft",
       )!;
     const at = (share: number): number =>

@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanVault,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -66,7 +67,7 @@ export namespace vault {
       prop: context.params.on,
       affordance: "surface",
     });
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+    const read: IAutoMovieMotionHumanPropReader = context.prop(
       context.params.on,
     );
     const rotation: IAutoMovieQuaternion = read.frame(context.start).rotation;

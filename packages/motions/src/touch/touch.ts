@@ -1,5 +1,7 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -8,7 +10,6 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTouch,
@@ -148,10 +149,7 @@ export namespace touch {
     // one whose arm reaches the region with the least strain (	ouchSide).
     const touching: IAutoMovieMotionHumanTouchEffector.IEffector =
       AutoMovieMotionHumanTouchForm.curled(EFFECTORS[p.with ?? "palm"], kind);
-    const first: IAutoMovieMotionHumanHand.Side = touchSide.of(
-      context,
-      touching,
-    );
+    const first: AutoMovieHumanSide = touchSide.of(context, touching);
     const resting = AutoMovieMotionHumanTouchContacts.sided(
       p.rests,
       first,
@@ -189,13 +187,13 @@ export namespace touch {
         ? touchPresented.of(context, first, p.target)
         : null;
     const bones = shown?.bones ?? poseBones(body, context.entry.pose);
-    const hands: [IAutoMovieMotionHumanHand.Side, IAutoMovieMotionTarget][] = [
+    const hands: [AutoMovieHumanSide, IAutoMovieMotionTarget][] = [
       [first, p.target],
       ...(p.other === undefined
         ? []
         : [
             [first === "right" ? "left" : "right", p.other] as [
-              IAutoMovieMotionHumanHand.Side,
+              AutoMovieHumanSide,
               IAutoMovieMotionTarget,
             ],
           ]),
@@ -227,7 +225,7 @@ export namespace touch {
     // what the stance reaches for, and the whole arm what the lean weighs.
     const laidOn = (
       posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanPosture.IGoal =>
+    ): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanTouchLaid.rest(
         body,
         posture,
@@ -304,7 +302,7 @@ export namespace touch {
         AutoMovieMotionHumanTouchForm.FORMS[kind].period,
       ),
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: count * repetition,
@@ -324,7 +322,7 @@ export namespace touch {
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, shown.side),
-          goal: (): IAutoMovieMotionHumanPosture.IGoal => shown.goal,
+          goal: (): IAutoMovieHumanLimbGoal => shown.goal,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
           // The shown hand's reach, hold and return, planned over the

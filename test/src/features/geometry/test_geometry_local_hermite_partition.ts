@@ -4,8 +4,9 @@ import {
   tessellateAutoMovieCurveGrid64,
 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteField64,
   IAutoMovieLocalHermiteStream64,
 } from "@automovie/interface";
@@ -15,10 +16,10 @@ import { nclose } from "../internal/nclose";
 
 /** Exact real-arithmetic half restrictions, formed independently of the field and tessellator. */
 const halve: (
-  span: IAutoMovieCurve64.Span,
-) => [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] = (
-  span: IAutoMovieCurve64.Span,
-): [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] => {
+  span: AutoMovieCubicBezierControls3,
+) => [AutoMovieCubicBezierControls3, AutoMovieCubicBezierControls3] = (
+  span: AutoMovieCubicBezierControls3,
+): [AutoMovieCubicBezierControls3, AutoMovieCubicBezierControls3] => {
   const mean: (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
@@ -194,9 +195,9 @@ const translatedStrip: (
  */
 export function test_geometry_local_hermite_partition(): void {
   const count: number = 10000;
-  const course: (station: number) => IAutoMovieCurve64.Cubic = (
+  const course: (station: number) => IAutoMovieCubicBezierCurve64 = (
     station: number,
-  ): IAutoMovieCurve64.Cubic => ({
+  ): IAutoMovieCubicBezierCurve64 => ({
     type: "cubicBezier",
     name: `affine-${station}`,
     closed: false,
@@ -205,7 +206,7 @@ export function test_geometry_local_hermite_partition(): void {
     phaseIntervals: Array.from({ length: count }, (): number => 1 / count),
     spans: Array.from(
       { length: count },
-      (_: unknown, i: number): IAutoMovieCurve64.Span => [
+      (_: unknown, i: number): AutoMovieCubicBezierControls3 => [
         [i / count, station, 0],
         [(i + 1 / 3) / count, station, 0],
         [(i + 2 / 3) / count, station, 0],
@@ -213,7 +214,7 @@ export function test_geometry_local_hermite_partition(): void {
       ],
     ),
   });
-  const courses: IAutoMovieCurve64.Cubic[] = [course(0), course(3)];
+  const courses: IAutoMovieCubicBezierCurve64[] = [course(0), course(3)];
   const field: IAutoMovieLocalHermiteField64.Prepared =
     AutoMovieLocalHermiteField64.prepare([0, 3], courses, "ruled");
   for (const station of [0, 1])
@@ -261,10 +262,10 @@ export function test_geometry_local_hermite_partition(): void {
   );
   const refuses: (
     stations: number[],
-    input: IAutoMovieCurve64.Cubic[],
+    input: IAutoMovieCubicBezierCurve64[],
   ) => boolean = (
     stations: number[],
-    input: IAutoMovieCurve64.Cubic[],
+    input: IAutoMovieCubicBezierCurve64[],
   ): boolean => {
     try {
       AutoMovieLocalHermiteField64.prepare(stations, input);
@@ -273,7 +274,7 @@ export function test_geometry_local_hermite_partition(): void {
       return error instanceof Error;
     }
   };
-  const short: IAutoMovieCurve64.Cubic = {
+  const short: IAutoMovieCubicBezierCurve64 = {
     ...courses[0]!,
     phaseIntervals: courses[0]!.phaseIntervals.map(
       (width: number): number => width * 0.9,
@@ -283,7 +284,7 @@ export function test_geometry_local_hermite_partition(): void {
     "short chart refuses",
     refuses([0, 3], [short, courses[1]!]),
   );
-  const collapsed: IAutoMovieCurve64.Cubic = {
+  const collapsed: IAutoMovieCubicBezierCurve64 = {
     ...courses[0]!,
     spans: [courses[0]!.spans[0]!, courses[0]!.spans[1]!],
     phaseIntervals: [1, Number.EPSILON],
@@ -297,8 +298,8 @@ export function test_geometry_local_hermite_partition(): void {
     refuses([0, 0], courses),
   );
   const stations: number[] = [0, 2, 5];
-  const quadratic: IAutoMovieCurve64.Cubic[] = stations.map(
-    (s: number): IAutoMovieCurve64.Cubic => ({
+  const quadratic: IAutoMovieCubicBezierCurve64[] = stations.map(
+    (s: number): IAutoMovieCubicBezierCurve64 => ({
       type: "cubicBezier",
       name: `quadratic-${s}`,
       closed: false,
@@ -362,25 +363,27 @@ export function test_geometry_local_hermite_partition(): void {
           const height: number = gap * scale,
             k: number = (4 / 3) * Math.tan(Math.PI / 8),
             radiusM: number = scale * 0.001;
-          const source: IAutoMovieCurve64.Cubic[] = [0, height, 2 * height].map(
-            (station: number, i: number): IAutoMovieCurve64.Cubic => {
-              const span: IAutoMovieCurve64.Span = [
-                [scale, station, 0],
-                [scale, station, k * scale],
-                [k * scale, station, scale],
-                [0, station, scale],
-              ];
-              return {
-                type: "cubicBezier",
-                name: `translated-${i}`,
-                closed: false,
-                unit: "mm",
-                phaseUnit: "normalized",
-                spans: i === 1 ? halve(span) : [span],
-                phaseIntervals: i === 1 ? [0.5, 0.5] : [1],
-              };
-            },
-          );
+          const source: IAutoMovieCubicBezierCurve64[] = [
+            0,
+            height,
+            2 * height,
+          ].map((station: number, i: number): IAutoMovieCubicBezierCurve64 => {
+            const span: AutoMovieCubicBezierControls3 = [
+              [scale, station, 0],
+              [scale, station, k * scale],
+              [k * scale, station, scale],
+              [0, station, scale],
+            ];
+            return {
+              type: "cubicBezier",
+              name: `translated-${i}`,
+              closed: false,
+              unit: "mm",
+              phaseUnit: "normalized",
+              spans: i === 1 ? halve(span) : [span],
+              phaseIntervals: i === 1 ? [0.5, 0.5] : [1],
+            };
+          });
           const snapshot: string = JSON.stringify(source),
             positions: number[] = [],
             indices: number[] = [],

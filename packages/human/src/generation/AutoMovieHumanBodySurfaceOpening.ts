@@ -2,7 +2,8 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSpan,
   IAutoMovieHumanBodyApertures,
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanConstructionPath,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieLoftChain,
@@ -46,7 +47,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     context: IAutoMovieHumanSurfaceContext,
     prepared: IAutoMovieHumanBodyApertures.IPrepared,
     span: IAutoMovieHumanApertureSpan.ISpan,
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    events: readonly IAutoMovieHumanBranchEvent[],
   ): IAutoMovieHumanConstructionPath[] {
     // A slit's rim is drawn on its chains as the line it closes on.
     const seam = prepared.aperture.seam;
@@ -213,7 +214,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
    */
   function beyond(
     context: IAutoMovieHumanSurfaceContext,
-    events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
+    events: readonly IAutoMovieHumanBranchEvent[],
     name: string,
     end: "bottom" | "top",
     t: number,
@@ -229,7 +230,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
         e.direction === "down" ? "bottom" : "top";
       if (e.parent === name && end === contact) {
         const child: string | undefined = e.splits.find(
-          (sp: IAutoMovieHumanBodyCalibration.ISplit): boolean =>
+          (sp: IAutoMovieHumanBranchSplit): boolean =>
             context.chains.has(sp.child) && sp.arcs.some(holds),
         )?.child;
         return child === undefined ? null : chain(context, child);
@@ -239,8 +240,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
       if (
         end === childEnd &&
         e.splits.some(
-          (sp: IAutoMovieHumanBodyCalibration.ISplit): boolean =>
-            sp.child === name,
+          (sp: IAutoMovieHumanBranchSplit): boolean => sp.child === name,
         )
       )
         return chain(context, e.parent);

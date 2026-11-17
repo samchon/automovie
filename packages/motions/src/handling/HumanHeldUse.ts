@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
@@ -79,7 +81,7 @@ export namespace HumanHeldUse {
       IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "prop" | "start"
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
   ): IAutoMovieMotionHumanGrasp.IKey | null {
@@ -138,7 +140,7 @@ export namespace HumanHeldUse {
       IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "prop" | "start"
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     prop: string,
     point: string,
     grasp: IAutoMovieMotionHumanHeldUse.IGrasp,
@@ -261,8 +263,7 @@ export namespace HumanHeldUse {
   ): IAutoMovieMotionHumanPrimitive[] {
     const { context, clock } = props;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const other: IAutoMovieMotionHumanHand.Side =
-      props.side === "right" ? "left" : "right";
+    const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,
@@ -324,11 +325,8 @@ export namespace HumanHeldUse {
         goal: (
           posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IAutoMovieMotionHumanPosture.IGoal => {
-          const first: IAutoMovieMotionHumanPosture.IGoal = props.goal(
-            posture,
-            seconds,
-          );
+        ): IAutoMovieHumanLimbGoal => {
+          const first: IAutoMovieHumanLimbGoal = props.goal(posture, seconds);
           const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
             body,
             other,

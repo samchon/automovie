@@ -11,7 +11,10 @@ export type { IAutoMovieRecoveryObservationTransported } from "./IAutoMovieRecov
 export type { IAutoMovieRecoveryObservationTransportRefused } from "./IAutoMovieRecoveryObservationTransportRefused";
 export type { IAutoMovieRecoveryObservedInteriorPoint } from "./IAutoMovieRecoveryObservedInteriorPoint";
 export type { IAutoMovieRecoveryObservedPoint } from "./IAutoMovieRecoveryObservedPoint";
+export type { IAutoMovieRecoveryOrderedContour } from "./IAutoMovieRecoveryOrderedContour";
+export type { IAutoMovieRecoveryOrderedCuts } from "./IAutoMovieRecoveryOrderedCuts";
 export type { IAutoMovieRecoveryOrderedLineage } from "./IAutoMovieRecoveryOrderedLineage";
+export type { IAutoMovieRecoverySavedCurveBinding } from "./IAutoMovieRecoverySavedCurveBinding";
 export type { IAutoMovieRecoverySlabObservation } from "./IAutoMovieRecoverySlabObservation";
 export type { IAutoMovieRecoverySourceLineage } from "./IAutoMovieRecoverySourceLineage";
 export type { IAutoMovieRecoveryTransportedObservationRow } from "./IAutoMovieRecoveryTransportedObservationRow";

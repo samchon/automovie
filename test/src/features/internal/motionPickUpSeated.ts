@@ -114,7 +114,7 @@ export function motionPickUpSeated(
 
   // The seated shoulder and chest, from a film that only sits.
   const still: IAutoMovieMotionHumanPerformance = perform(null);
-  const sat: IAutoMovieMotionHumanSegment.ISegment = still.segments("a")[0]!;
+  const sat: IAutoMovieMotionHumanSegment = still.segments("a")[0]!;
   const reader0: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     still,
     "a",
@@ -152,12 +152,9 @@ export function motionPickUpSeated(
       body,
       0,
     );
-    const pick: IAutoMovieMotionHumanSegment.ISegment = film
+    const pick: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "pickUp",
-      )!;
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "pickUp")!;
     const grasp: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??

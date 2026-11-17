@@ -4,8 +4,10 @@ import {
   resolveHydrodynamicForce,
 } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieResolveHydrodynamicForce,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -109,13 +111,13 @@ export function test_engine_hydrodynamic_force(): void {
     findings.push("sea water does not lift in its density's ratio");
 
   // 4. Volumes.
-  const transform: IAutoMoviePhysicalProfile.ITransform = {
+  const transform: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const segment = (
-    shapes: IAutoMoviePhysicalProfile.IShape[],
-  ): IAutoMoviePhysicalProfile.ISegment => ({
+    shapes: IAutoMoviePhysicalShape[],
+  ): IAutoMoviePhysicalSegment => ({
     bone: "hips",
     neutral: transform,
     mass: 1,
@@ -124,14 +126,14 @@ export function test_engine_hydrodynamic_force(): void {
     inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
     shapes,
   });
-  const sphere: IAutoMoviePhysicalProfile.IShape = {
+  const sphere: IAutoMoviePhysicalShape = {
     id: "s",
     material: "m",
     transform,
     kind: "sphere",
     radius: 0.1,
   };
-  const capsule: IAutoMoviePhysicalProfile.IShape = {
+  const capsule: IAutoMoviePhysicalShape = {
     id: "c",
     material: "m",
     transform,
@@ -139,7 +141,7 @@ export function test_engine_hydrodynamic_force(): void {
     radius: 0.05,
     halfLength: 0.2,
   };
-  const box: IAutoMoviePhysicalProfile.IShape = {
+  const box: IAutoMoviePhysicalShape = {
     id: "b",
     material: "m",
     transform,

@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieSolidRibbon,
+  IAutoMovieBlendCrossJet,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -61,7 +61,7 @@ export namespace AutoMovieSolidRibbon {
     du: number,
     dv: number,
     a: number,
-  ): IAutoMovieSolidRibbon.IRibbon {
+  ): IAutoMovieBlendCrossJet {
     const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
     return {
       point: j.p,

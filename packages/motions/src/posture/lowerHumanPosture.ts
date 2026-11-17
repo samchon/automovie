@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -31,7 +32,7 @@ export function lowerHumanPosture(
   // bone moves with that bone, so the root cannot be solved against it here.
   const legs: { side: "left" | "right"; goal: IAutoMovieVector3 }[] = [];
   for (const side of ["left", "right"] as const) {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+    const goal: IAutoMovieHumanLimbGoal | undefined =
       posture.limbs[`${side}Leg`];
     if (goal?.planted === true && goal.on === undefined)
       legs.push({ side, goal: goal.point });

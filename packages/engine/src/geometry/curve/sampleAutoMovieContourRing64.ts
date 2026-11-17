@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoftCurves64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieSampleContourRing64,
 } from "@automovie/interface";
 
@@ -23,7 +23,7 @@ import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves6
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Knots and source restrictions transfer to one loft invocation and expire with it; input controls remain caller-owned and no global cache survives.
  */
 export function sampleAutoMovieContourRing64(
-  curve: IAutoMovieCurve64.Cubic,
+  curve: IAutoMovieCubicBezierCurve64,
   toleranceMm: number,
 ): IAutoMovieSampleContourRing64.IResult {
   const name: string = typeof curve?.name === "string" ? curve.name : "";

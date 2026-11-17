@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanHeadTapeBrow; runtime evaluation remains in Human. */
+/**
+ * Brow tape search modes, sagittal ear attachments and dimensionless continuation coordinates.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHeadTapeBrow in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Brow tape search modes, sagittal ear attachments and dimensionless continuation coordinates. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only Mode, P2, MaximumSeed declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation Mode, P2, MaximumSeed separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadTapeBrow exchanges the named Mode, P2, MaximumSeed contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHeadTapeBrow {
   /**
    * How the posterior anchor is searched.
@@ -30,28 +39,19 @@ export namespace IAutoMovieHumanHeadTapeBrow {
    */
   export type P2 = readonly [number, number];
 
-  /** The seed argument of AutoMovieHumanHeadTapeBrow.maximum. Maximize the observed posterior course at a fixed original brow seat.
-  A local maximum bracketed by two scan sites is refined by Brent's method
-  for a one-dimensional extremum without derivatives (R. P. Brent,
-  Algorithms for Minimization without Derivatives, 1973, ch. 5: golden-section
-  steps safeguarding successive parabolic interpolation). It replaces the
-  former pure golden-section refinement with the same termination: the
-  retained bracket is at most 1e-7 of the ownership span. Golden section
-  shrinks the bracket by 0.618 per measurement, about 33 measurements from a
-  two-site bracket; Brent's parabolic steps converge superlinearly near the
-  smooth maximum of the course length, and its golden safeguard keeps the
-  worst case near the golden-section count. Both locate the same local
-  maximum to that bracket; at the maximum the length is stationary, so the
-  course length differs between them by about half its second derivative
-  times the squared bracket, far below the closure's 1e-8 mm residual.
-  Inadmissible planes (below an ear attachment) read as minus infinity and
-  force golden steps, exactly as the comparisons of the former search did.
+  /**
+   * Continuation coordinates from an earlier brow-course result. The first slot
+   * is the course's anterior coordinate, published as zero by the fixed-brow
+   * search; the posterior search reads only the second slot. That slot is the
+   * dimensionless share `(back - first) / (brow - first)` of the current
+   * ownership interval and must map to a finite station inside that interval.
+   * A seed does not certify a maximum: the selected search mode controls the
+   * neighbouring-site check and complete-search fallback.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Maximize the observed posterior course at a fixed original brow seat.
- * @evidence contracts/development/design.md#principled-representation Maximize the observed posterior course at a fixed original brow seat. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanHeadTapeBrow.MaximumSeed is the canonical exchange used by AutoMovieHumanHeadTapeBrow.maximum.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanHeadTapeBrow.maximum for maximize the observed posterior course at a fixed original brow seat.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Defines both coordinate slots, the posterior share's current-interval interpretation and the seed's lack of a maximum guarantee.
+   * @evidence contracts/development/design.md#principled-representation A readonly two-number tuple accepts the coordinates of an existing course. AutoMovieHumanHeadTapeBrow.maximum validates the mapped posterior station; numeric finiteness and interval membership are not enforced by the tuple.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadTape passes a previous course's coordinates into AutoMovieHumanHeadTapeBrow.maximum; retaining both slots preserves that result-to-input exchange.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The first coordinate is retained because callers pass the full course coordinates, while the fixed-brow search uses only the posterior coordinate. No convergence or residual claim is encoded in the tuple.
+   */
   export type MaximumSeed = readonly [number, number];
 }

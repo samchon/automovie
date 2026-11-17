@@ -4,8 +4,8 @@ import type {
   IAutoMoviePose,
   IAutoMoviePoseJointCodec,
   IAutoMoviePoseRig,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
-  IAutoMovieSamplePoseVelocity,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -68,8 +68,8 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains only the captured offsets and the codec, bounded by the joint count.
  */
 export function inertializePose(
-  source: IAutoMovieSamplePoseVelocity.IState,
-  target: IAutoMovieSamplePoseVelocity.IState,
+  source: IAutoMoviePoseState,
+  target: IAutoMoviePoseState,
   duration: number,
   through: boolean = false,
   rig?: IAutoMoviePoseRig,

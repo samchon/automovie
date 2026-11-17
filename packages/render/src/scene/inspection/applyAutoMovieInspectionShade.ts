@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionRequest } from "@automovie/interface";
+import type { AutoMovieInspectionShade } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
@@ -55,7 +55,7 @@ void main() {
  */
 export function applyAutoMovieInspectionShade(
   scene: THREE.Scene,
-  shade: IAutoMovieInspectionRequest.Shade,
+  shade: AutoMovieInspectionShade,
 ): {
   /** Bring the shade to the scene as it stands now; call it after every change of the scene and before drawing. */
   update: () => void;

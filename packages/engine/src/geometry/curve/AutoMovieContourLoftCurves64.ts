@@ -1,8 +1,9 @@
 import type {
   AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
   IAutoMovieContourLoftCurves64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
@@ -307,7 +308,7 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function tessellate(
-    primitive: IAutoMovieCurve64.Cubic,
+    primitive: IAutoMovieCubicBezierCurve64,
     toleranceMm: number,
   ): IAutoMovieContourLoftCurves64.Knot[] {
     assertAutoMovieCurve64(primitive);
@@ -316,11 +317,12 @@ export namespace AutoMovieContourLoftCurves64 {
         "Closed cubic and positive physical chord tolerance required",
       );
     if (
-      primitive.spans.some((span: IAutoMovieCurve64.Span, i: number): boolean =>
-        span[3].some(
-          (x: number, k: number): boolean =>
-            x !== primitive.spans[(i + 1) % primitive.spans.length][0][k],
-        ),
+      primitive.spans.some(
+        (span: AutoMovieCubicBezierControls3, i: number): boolean =>
+          span[3].some(
+            (x: number, k: number): boolean =>
+              x !== primitive.spans[(i + 1) % primitive.spans.length][0][k],
+          ),
       )
     )
       throw new Error(
@@ -328,25 +330,27 @@ export namespace AutoMovieContourLoftCurves64 {
       );
     let leaves: IAutoMovieContourLoftCurves64.Leaf[] = [];
     let phase: number = 0;
-    primitive.spans.forEach((span: IAutoMovieCurve64.Span, i: number): void => {
-      const width: number = primitive.phaseIntervals[i]!;
-      for (const leaf of partition(
-        {
-          net: span.map(
-            (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
-              M.clone(p),
-          ),
-          original: span,
-          path: 0,
-          start: phase,
-          end: phase + width,
-          depth: 0,
-        },
-        toleranceMm,
-      ))
-        leaves.push(leaf);
-      phase += width;
-    });
+    primitive.spans.forEach(
+      (span: AutoMovieCubicBezierControls3, i: number): void => {
+        const width: number = primitive.phaseIntervals[i]!;
+        for (const leaf of partition(
+          {
+            net: span.map(
+              (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
+                M.clone(p),
+            ),
+            original: span,
+            path: 0,
+            start: phase,
+            end: phase + width,
+            depth: 0,
+          },
+          toleranceMm,
+        ))
+          leaves.push(leaf);
+        phase += width;
+      },
+    );
     const moving: typeof leaves = leaves.filter(
       (leaf: IAutoMovieContourLoftCurves64.Leaf): boolean =>
         !controls(leaf).every((p: AutoMovieVector3Tuple): boolean =>

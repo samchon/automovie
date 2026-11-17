@@ -3,8 +3,8 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -131,7 +131,7 @@ export function test_archetype_keyboard_typing(): void {
       });
 
       // 3. The keyboard stays where it was placed.
-      const placed: IAutoMovieMotionHumanProp.IFrame = film.prop("keyboard", 0);
+      const placed: IAutoMovieRigidTransform = film.prop("keyboard", 0);
       let moved: number = 0;
       for (let s: number = 0; s <= film.duration; s += 0.1)
         moved = Math.max(

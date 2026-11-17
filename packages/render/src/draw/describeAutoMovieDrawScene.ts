@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieCaptureInstant,
   IAutoMovieCaptureSubject,
+  IAutoMovieInspectionDrawable,
   IAutoMovieMark,
 } from "@automovie/interface";
 import * as THREE from "three";
@@ -68,10 +70,7 @@ export function describeAutoMovieDrawScene(
       ),
     ],
     drawables: [...boxes].map(
-      ([path, box]: [
-        string,
-        THREE.Box3,
-      ]): IAutoMovieCaptureSubject.IDrawable => ({
+      ([path, box]: [string, THREE.Box3]): IAutoMovieInspectionDrawable => ({
         path,
         min: { x: box.min.x, y: box.min.y, z: box.min.z },
         max: { x: box.max.x, y: box.max.y, z: box.max.z },
@@ -91,7 +90,7 @@ export function describeAutoMovieDrawScene(
             (instant: {
               seconds: number;
               label: string;
-            }): IAutoMovieCaptureSubject.IInstant => ({
+            }): IAutoMovieCaptureInstant => ({
               seconds: instant.seconds,
               label: instant.label,
             }),

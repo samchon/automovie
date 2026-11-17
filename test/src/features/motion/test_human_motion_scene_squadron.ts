@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -119,7 +120,7 @@ export function test_human_motion_scene_squadron(): void {
         m: IAutoMovieMotionHumanEnsemble.IMember,
         i: number,
       ): IAutoMovieMotionHumanProp => {
-        const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
+        const placed = (seconds: number): IAutoMovieRigidTransform => {
           const sample: ReturnType<ReturnType<typeof rideHorse>["at"]> =
             rides[i]!.at(seconds);
           return {
@@ -272,12 +273,9 @@ export function test_human_motion_scene_squadron(): void {
 
   // 4. Posting at the trot: on the saddle at each of the horse's diagonal footfalls.
   for (const m of squadron.members) {
-    const ride: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
+    const ride: IAutoMovieMotionHumanSegment | undefined = performance
       .segments(m.subject)
-      .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "ride",
-      );
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "ride");
     if (ride === undefined) {
       findings.push(`${m.subject} does not ride`);
       continue;

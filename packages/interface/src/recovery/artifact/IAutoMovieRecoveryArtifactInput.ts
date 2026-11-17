@@ -10,19 +10,18 @@ import type {
 } from "../../index";
 
 /**
- * Already generated geometry, source-free input binding and current publication observations.
+ * Generated geometry, its exact coefficient binding and current run observations
+ * borrowed by createAutoMovieRecoveryArtifact for one publication snapshot.
+ * Counts and memory probes run synchronously; memory updates peaks before the
+ * peak record is read. The assembler retains geometry/report references in its
+ * result, so publication must observe the same run state and spool identities.
+ * Pair counts describe processing and retained coverage separately; none proves
+ * source fidelity. started uses the host's monotonic millisecond clock.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Already generated immutable closed and analytic base. Current bounded open-mesh spool.
- * @evidence contracts/development/design.md#principled-representation Sample host memory byte populations and update observed peaks.
-@evidence contracts/development/implementation.md#principled-implementation The implementation samples current run-owned counters without generating geometry.
-@evidence contracts/development/implementation.md#clear-and-simple-structure The callback exposes the publication owner current observations.
-@evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No estimate, replacement geometry or inferred completion is supplied.
-@evidence contracts/development/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
-@evidence contracts/development/implementation.md#efficient-algorithms Reads a fixed set of counters or host memory populations without traversing generated geometry.
-@evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the run counters and observed peaks rather than recounting geometry.
-@evidence contracts/development/implementation.md#bound-retention-and-release-resources The callback belongs to the active reconstruction run and returns a fresh small record without retaining it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieRecoveryArtifact share IAutoMovieRecoveryArtifactInput's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Actual run generation reports.
+ * @evidence contracts/development/common.md#meaningful-documentation States borrowed geometry, synchronous probes, clock units, publication lifetime and separate processing/coverage claims.
+ * @evidence contracts/development/design.md#principled-representation Existing reconstruction, spool, coefficient and binding records accompany explicit pair populations and observed host byte counters from the same run.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The artifact assembler reads these records without regenerating geometry; the reconstruction host owns run progress, output path and memory observation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The input does not infer absent domains or promote complete processing into visual fidelity; consistency between supplied counters and generated records remains the run owner's duty.
  */
 
 export interface IAutoMovieRecoveryArtifactInput {

@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanBodyBox; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanBodyBox; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanBodyBox exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups Level, IFields, IBox, RangeResult, IPlaceSupplied, PlaceBreadth, PlaceDepth, IPlaceResult. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanBodyBox; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the Level, IFields, IBox, RangeResult, IPlaceSupplied, PlaceBreadth, PlaceDepth, IPlaceResult contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanBodyBox {
   /** A trunk level whose breadth, depth and girth are all published.
    *

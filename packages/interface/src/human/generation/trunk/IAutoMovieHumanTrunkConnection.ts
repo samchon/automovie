@@ -1,9 +1,16 @@
-import type { IAutoMovieLoftFrame } from "../../../construction/IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "../../../construction/IAutoMovieLoftSectionFrame";
 import type { IAutoMovieLoftSectionSource } from "../../../construction/IAutoMovieLoftSectionSource";
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkConnection; runtime evaluation remains in Human. */
+/**
+ * Native neck boundary fields and physical-station frame derivatives before coefficient construction. Runtime construction and admission remain with AutoMovieHumanTrunkConnection in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes native neck boundary fields and physical-station frame derivatives before coefficient construction; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Native neck boundary fields and physical-station frame derivatives before coefficient construction. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanTrunkConnection; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing TrunkConnection contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanTrunkConnection {
   /** One actual native generating boundary and frame2; this original view declares no additional phase lift.
    *
@@ -40,13 +47,13 @@ export namespace IAutoMovieHumanTrunkConnection {
     y: number;
 
     /** Original world origin and fixed +X/+Z basis. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
 
     /** Actual first derivative in physical station millimetres. */
-    frameSlopes: IAutoMovieLoftFrame.IFrame;
+    frameSlopes: IAutoMovieLoftSectionFrame;
 
     /** Actual second derivative in the same physical station. */
-    frameCurvatures: IAutoMovieLoftFrame.IFrame;
+    frameCurvatures: IAutoMovieLoftSectionFrame;
   }
 
   /** A boundary read from an actual interval part additionally retains that part's original declarations.

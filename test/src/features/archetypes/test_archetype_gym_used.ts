@@ -14,9 +14,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -110,11 +110,9 @@ export function test_archetype_gym_used(): void {
       row: string,
       event: string,
     ): number => {
-      const found: IAutoMovieMotionHumanSegment.ISegment = film
+      const found: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -188,7 +186,7 @@ export function test_archetype_gym_used(): void {
           .node,
       });
       const end: number = film.duration;
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("sled", end);
+      const frame: IAutoMovieRigidTransform = film.prop("sled", end);
       const gripped: number = when(film, "sledPush", "gripped");
       const offs: string[] = [];
       let off: number = 0;
@@ -203,7 +201,7 @@ export function test_archetype_gym_used(): void {
               socket,
               film.bones("a", s).get(socket.bone)!,
             ).point;
-          const placed: IAutoMovieMotionHumanProp.IFrame = film.prop("sled", s);
+          const placed: IAutoMovieRigidTransform = film.prop("sled", s);
           const handle: IAutoMovieAffordance = sled.affordance(side);
           const middle: IAutoMovieVector3 = Vector3.add(
             placed.position,

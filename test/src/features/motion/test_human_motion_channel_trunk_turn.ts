@@ -1,5 +1,5 @@
 import type {
-  AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType,
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
@@ -29,7 +29,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the three numbered scenarios.
  */
 export function test_human_motion_channel_trunk_turn(): void {
-  const claims: AutoMovieMotionHumanChannelType.Claim[] = ["trunkTurn"];
+  const claims: AutoMovieMotionHumanChannelClaim[] = ["trunkTurn"];
 
   // 1. Coverage.
   for (const bone of ["spine", "chest", "upperChest"] as const)

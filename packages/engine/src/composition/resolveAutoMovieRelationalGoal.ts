@@ -1,7 +1,7 @@
 import type {
   IAutoMovieFitPhysicalWholeBodyTarget,
-  IAutoMoviePhysicalProfile,
   IAutoMovieResolveRelationalGoal,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -40,8 +40,9 @@ export function resolveAutoMovieRelationalGoal(
     input.bodies[input.goal.target.subject];
   if (!performer || !target)
     throw new Error(`Unknown relational subject of ${input.performer}`);
-  const prior: Record<string, IAutoMoviePhysicalProfile.ITransform> =
-    performer.pose(input.seconds);
+  const prior: Record<string, IAutoMovieRigidTransform> = performer.pose(
+    input.seconds,
+  );
   const { start, end }: { start: number; end: number } = input.goal.window;
   if (input.seconds < start || input.seconds > end)
     return {
@@ -58,9 +59,10 @@ export function resolveAutoMovieRelationalGoal(
     throw new Error(
       `Unknown region ${input.goal.target.subject}.${input.goal.target.region}`,
     );
-  const read: Record<string, IAutoMoviePhysicalProfile.ITransform> =
-    target.pose(input.goal.lock === "freeze" ? start : input.seconds);
-  const pose: IAutoMoviePhysicalProfile.ITransform = read[region.bone]!;
+  const read: Record<string, IAutoMovieRigidTransform> = target.pose(
+    input.goal.lock === "freeze" ? start : input.seconds,
+  );
+  const pose: IAutoMovieRigidTransform = read[region.bone]!;
   const point: IAutoMovieVector3 = Vector3.add(
     pose.position,
     Quaternion.rotateVector(pose.rotation, region.localPoint),
@@ -68,7 +70,7 @@ export function resolveAutoMovieRelationalGoal(
   const support: IAutoMovieResolveRelationalGoal.ISupport = performer.support(
     input.seconds,
   );
-  const held: IAutoMoviePhysicalProfile.ITransform = prior[support.bone]!;
+  const held: IAutoMovieRigidTransform = prior[support.bone]!;
   const fit: IAutoMovieFitPhysicalWholeBodyTarget.IResult =
     fitPhysicalWholeBodyTarget({
       profile: performer.profile,

@@ -6,7 +6,7 @@ import type {
   IAutoMovieConstructionSplitSeam,
   IAutoMovieConstructionState,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieSolidBody,
   IAutoMovieSolidCycle,
   IAutoMovieSolidMesh,
@@ -97,7 +97,7 @@ export function AutoMovieConstructionSplitRealize(
       hostChain.layers[
         node.hostEnd === "bottom" ? 0 : hostChain.layers.length - 1
       ]!;
-    const frame: IAutoMovieLoftFrame.IFrame =
+    const frame: IAutoMovieLoftSectionFrame =
       layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
     const normal: Vec3 | null = AutoMovieSolidVector.unit(
       AutoMovieSolidVector.scale(
@@ -454,7 +454,7 @@ function fan(
       hostChain.layers[
         node.hostEnd === "bottom" ? 0 : hostChain.layers.length - 1
       ]!;
-    const frame: IAutoMovieLoftFrame.IFrame =
+    const frame: IAutoMovieLoftSectionFrame =
       layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
     const normal: Vec3 | null = AutoMovieSolidVector.unit(
       AutoMovieSolidVector.scale(

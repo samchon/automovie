@@ -95,7 +95,7 @@ export namespace motionSportRows {
           ],
           composition: c.build().node,
         });
-        const act: IAutoMovieMotionHumanSegment.ISegment | undefined =
+        const act: IAutoMovieMotionHumanSegment | undefined =
           film.segments("a")[1];
         if (act === undefined || !(act.end - act.entryTime > 0))
           complaints.push(`${c.label} on ${name} (${level}): it plans no time`);

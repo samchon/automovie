@@ -8,7 +8,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmAxis,
   IAutoMovieHumanArmBones,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
@@ -61,8 +61,8 @@ export namespace AutoMovieHumanArmAxis {
       read: (p: IAutoMovieHumanArmAxis.IFixedChart) => AutoMovieVector3Tuple,
     ): ((s: number) => AutoMovieVector3Jet2) => {
       const components: AutoMovieVector3Tuple[] = planes.map(read);
-      const splines: IAutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
-        (k: number): IAutoMovieNaturalSpline.ISpline =>
+      const splines: IAutoMovieNaturalCubicSpline[] = [0, 1, 2].map(
+        (k: number): IAutoMovieNaturalCubicSpline =>
           AutoMovieNaturalSpline.create(
             stations,
             components.map((p: AutoMovieVector3Tuple): number => p[k]!),

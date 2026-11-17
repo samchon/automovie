@@ -1,8 +1,9 @@
 import type {
   AutoMovieBernsteinGrid64,
   AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieCurveGrid64,
   IAutoMovieMesh,
   IAutoMoviePchipField64,
@@ -35,7 +36,7 @@ type SpanFamily = { grids: AutoMovieBernsteinGrid64[] };
 export function tessellateAutoMovieCurveGrid64(
   input: IAutoMovieCurveGrid64.Input,
 ): IAutoMovieCurveGrid64.Result {
-  const courses: readonly IAutoMovieCurve64.Cubic[] = input.courses;
+  const courses: readonly IAutoMovieCubicBezierCurve64[] = input.courses;
   const stations: readonly number[] = input.stations;
   const periodic: boolean = input.period !== undefined;
   const count: number = courses.length;
@@ -82,7 +83,7 @@ export function tessellateAutoMovieCurveGrid64(
       "Additional station samples must lie inside the supported chart",
     );
   const partitions: number[][] = courses.map(
-    (course: IAutoMovieCurve64.Cubic): number[] => {
+    (course: IAutoMovieCubicBezierCurve64): number[] => {
       assertAutoMovieCurve64(course);
       if (
         course.type !== "cubicBezier" ||
@@ -101,9 +102,9 @@ export function tessellateAutoMovieCurveGrid64(
     (a: number, b: number): number => a - b,
   );
   const nets: AutoMovieBernsteinPolynomial64[][] = courses.map(
-    (course: IAutoMovieCurve64.Cubic): AutoMovieBernsteinPolynomial64[] =>
+    (course: IAutoMovieCubicBezierCurve64): AutoMovieBernsteinPolynomial64[] =>
       course.spans.map(
-        (span: IAutoMovieCurve64.Span): AutoMovieBernsteinPolynomial64 =>
+        (span: AutoMovieCubicBezierControls3): AutoMovieBernsteinPolynomial64 =>
           span.map(V.clone),
       ),
   );
@@ -135,9 +136,9 @@ export function tessellateAutoMovieCurveGrid64(
     a[0] * b[1] - a[1] * b[0],
   ];
   const courseLength: number = Math.max(
-    ...courses.map((course: IAutoMovieCurve64.Cubic): number =>
+    ...courses.map((course: IAutoMovieCubicBezierCurve64): number =>
       course.spans.reduce(
-        (total: number, span: IAutoMovieCurve64.Span): number =>
+        (total: number, span: AutoMovieCubicBezierControls3): number =>
           total +
           span
             .slice(1)
@@ -245,7 +246,7 @@ export function tessellateAutoMovieCurveGrid64(
   const lines: IAutoMovieCurveGrid64.Result["construction"]["lines"] =
     courses.map(
       (
-        course: IAutoMovieCurve64.Cubic,
+        course: IAutoMovieCubicBezierCurve64,
       ): IAutoMovieCurveGrid64.Result["construction"]["lines"][number] => ({
         id: course.name,
         closed: false,
@@ -262,7 +263,7 @@ export function tessellateAutoMovieCurveGrid64(
     const b: number = common[index + 1]!;
     const controls: AutoMovieBernsteinPolynomial64[] = courses.map(
       (
-        _course: IAutoMovieCurve64.Cubic,
+        _course: IAutoMovieCubicBezierCurve64,
         j: number,
       ): AutoMovieBernsteinPolynomial64 => {
         const k: number = locate(partitions[j]!, a);
@@ -482,7 +483,7 @@ export function tessellateAutoMovieCurveGrid64(
     counts: {
       courses: count,
       inputSpans: courses.reduce(
-        (sum: number, course: IAutoMovieCurve64.Cubic): number =>
+        (sum: number, course: IAutoMovieCubicBezierCurve64): number =>
           sum + course.spans.length,
         0,
       ),

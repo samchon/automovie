@@ -162,7 +162,7 @@ export namespace exercise {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const top: number = 0.3;
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
+    const timed: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
       ...AutoMovieMotionClock.repeat(
         [
           { name: "eccentricStart", seconds: tempo[0] },
@@ -173,7 +173,7 @@ export namespace exercise {
         reps,
       ),
     ]);
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.of(timed.duration, [
         ...timed.instants,
         { name: "relax", seconds: timed.duration },
@@ -195,7 +195,7 @@ export namespace exercise {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw: entry.yaw,
     };

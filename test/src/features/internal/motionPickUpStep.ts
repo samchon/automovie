@@ -110,7 +110,7 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
       arm + socket + body.measure.stature / 8,
     );
     const film: IAutoMovieMotionHumanPerformance = perform(at);
-    const pick: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[0]!;
+    const pick: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
     const lifted: number = film.prop("glass", pick.end).position.y - at.y;
     if (!(lifted >= 0.05))
       complaints.push(

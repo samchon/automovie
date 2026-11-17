@@ -1,8 +1,9 @@
 import { Quaternion, physicalShapeNearest } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,12 +40,12 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 scenarios and what each pins.
  */
 export function test_physical_shape_tapered_segment(): void {
-  const still: P.ITransform = {
+  const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
   const half: number = 0.05;
-  const shapes: Record<string, P.IShape> = {
+  const shapes: Record<string, IAutoMoviePhysicalShape> = {
     sphere: {
       id: "sphere",
       material: "solid",

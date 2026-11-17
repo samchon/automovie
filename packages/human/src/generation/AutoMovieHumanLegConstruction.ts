@@ -1,7 +1,7 @@
 import type {
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanLegConstruction,
-  IAutoMovieHumanSkeletonLaw,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
 } from "@automovie/interface";
@@ -46,7 +46,7 @@ export namespace AutoMovieHumanLegConstruction {
   export function apply(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanLegConstruction.IInputs,
-    skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
     const found: IAutoMovieLoftContract.IDiagnostic[] =
@@ -86,7 +86,7 @@ export namespace AutoMovieHumanLegConstruction {
   export function stand(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanLegConstruction.IInputs,
-    skeleton?: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton?: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     return AutoMovieHumanLegStand.of(calibration, inputs, skeleton);
   }
@@ -101,7 +101,7 @@ export namespace AutoMovieHumanLegConstruction {
   export function add(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanLegConstruction.IInputs,
-    skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[],
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
     const found: IAutoMovieLoftContract.IDiagnostic[] =

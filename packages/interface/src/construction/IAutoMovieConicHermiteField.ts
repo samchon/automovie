@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the ConicHermiteField operations. */
+/**
+ * Data and callback contracts shared by the ConicHermiteField operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Projective readings pair physical points with interior log probabilities; direction readings pair increasing-polar unit tangents with their logarithmic speed scale.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ConicHermiteField publishes these intermediate readings to the conic geometry readers through interface-owned types.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An empty log array denotes an explicit endpoint; neither record replaces a failed finite geometry reading.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes interior probabilities, endpoint behavior and tangent orientation.
+ */
 export namespace IAutoMovieConicHermiteField {
   /**
    * Point and normalized homogeneous log probabilities at one clock.

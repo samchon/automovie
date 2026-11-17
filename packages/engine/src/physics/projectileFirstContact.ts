@@ -1,11 +1,12 @@
 import type {
   IAutoMovieHit,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieProjectile,
   IAutoMovieProjectileFirstContact,
   IAutoMovieProjectileState,
   IAutoMovieResolveContactEvents,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -32,7 +33,8 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  * moves less than `thickness` in one step: `thickness` over the largest
  * speed any point of the projectile reaches in the span, which is the
  * larger end speed for a drag-free flight (the squared speed is convex in
- * time), the drag flight's bound otherwise (`projectileDragFlight.fastest`),
+ * time), including an explicit zero drag factor; positive drag uses the
+ * flight's finite global bound (`projectileDragFlight.fastest`),
  * plus a spinning tail's turning speed. A collider thinner than `thickness`
  * can be crossed within one step: the stated blind spot, as the resolver
  * states its own. The point and the normal are the struck collider's
@@ -100,14 +102,19 @@ export function projectileFirstContact(
   let owner: string = "projectile";
   while (ids.has(owner)) owner = `${owner}'`;
 
-  // The largest speed of any point of the projectile over the span.
-  const centre: number =
+  // Zero drag with gravity has no finite all-time bound. Its finite-span
+  // squared speed is convex, so the two endpoint speeds bound this search.
+  const flightBound: number | undefined =
     projectile.drag === undefined
+      ? undefined
+      : projectileDragFlight(projectile).fastest;
+  const centre: number =
+    flightBound === undefined || flightBound === Infinity
       ? Math.max(
           Vector3.length(projectileAt(projectile, span.from).velocity),
           Vector3.length(projectileAt(projectile, span.to).velocity),
         )
-      : projectileDragFlight(projectile).fastest;
+      : flightBound;
   const reach: number =
     options.tail === undefined ? 0 : Vector3.length(options.tail);
   const turning: number =
@@ -257,8 +264,8 @@ export namespace projectileFirstContact {
    */
   export function shape(
     id: string,
-    shape: IAutoMoviePhysicalProfile.IShape,
-    pose: (seconds: number) => IAutoMoviePhysicalProfile.ITransform,
+    shape: IAutoMoviePhysicalShape,
+    pose: (seconds: number) => IAutoMovieRigidTransform,
   ): IAutoMovieProjectileFirstContact.ICollider {
     return {
       id,

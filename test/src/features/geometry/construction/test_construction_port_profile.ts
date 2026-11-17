@@ -1,5 +1,6 @@
 import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
+  IAutoMovieConstructionBandProfile,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
   IAutoMovieConstructionRealization,
@@ -62,13 +63,13 @@ export function test_construction_port_profile(): void {
     0.06,
     7,
   );
-  const window: Omit<IAutoMovieConstructionPort.IProfile, "knots"> = {
+  const window: Omit<IAutoMovieConstructionBandProfile, "knots"> = {
     start: -0.4,
     end: 0.4,
     transition: 0.6,
   };
   const port = (
-    profiles?: IAutoMovieConstructionPort.IProfile[],
+    profiles?: IAutoMovieConstructionBandProfile[],
   ): IAutoMovieConstructionPort => ({
     type: "port",
     name: "port.arm",
@@ -261,7 +262,7 @@ export function test_construction_port_profile(): void {
     failures.push(`the depth at a quarter of the span is ${quarter} mm`);
 
   // 6. Admission.
-  const refusals: [string, IAutoMovieConstructionPort.IProfile][] = [
+  const refusals: [string, IAutoMovieConstructionBandProfile][] = [
     ["a knot at the share 1", { knots: [[1, 0.002]], ...window }],
     ["a transition of 0", { knots: [[0.5, 0.002]], ...window, transition: 0 }],
   ];

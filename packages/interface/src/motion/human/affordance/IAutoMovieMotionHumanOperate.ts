@@ -1,6 +1,6 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanOperateInsert } from "./IAutoMovieMotionHumanOperateInsert";
 
 /**
@@ -58,7 +58,7 @@ import type { IAutoMovieMotionHumanOperateInsert } from "./IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation hand: The hand; `right` when absent. travel: How far it goes in, metres; 0.005 when absent. turn: How far it turns, degrees; positive clockwise as the hand sees it.
  * @evidence contracts/development/design.md#principled-representation hand: The hand; `right` when absent. travel: How far it goes in, metres; 0.005 when absent. turn: How far it turns, degrees; positive clockwise as the hand sees it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, kind); affordance/operateState.ts (operateState.at, mechanism); affordance/operate.ts (operate.plan, context); chain/HumanChainManual.ts (HumanChainManual.operate, params); affordance/operate.ts (operate.WIDTH); affordance/operate.ts (operate.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionManner.IManner, IAutoMovieMotionTarget, IAutoMovieMotionHumanOperateInsert.IMechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieMotionHumanOperateInsert.IMechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanOperate {
   /**
@@ -76,10 +76,10 @@ export namespace IAutoMovieMotionHumanOperate {
     mechanism: IAutoMovieMotionHumanOperate.Mechanism;
 
     /** The hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

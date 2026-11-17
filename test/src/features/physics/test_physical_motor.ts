@@ -1,8 +1,10 @@
 import { Quaternion, physicalJointMotorCommand } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalJointMotorCommand,
   IAutoMovieQuaternion,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +30,7 @@ const DT: number = 1 / 960;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A single-axis error yields the implicit PD speed (k e) / (c + k dt) with the declared cap.).
  */
 export function test_physical_motor(): void {
-  const joint: P.IJoint = hinge();
+  const joint: IAutoMoviePhysicalJoint = hinge();
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
   const base: Parameters<typeof physicalJointMotorCommand>[0] = {
@@ -92,7 +94,7 @@ export function test_physical_motor(): void {
   // Withdrawn strength keeps only passive damping.
   const withdrawn: IAutoMoviePhysicalJointMotorCommand.IOutput =
     physicalJointMotorCommand({ ...base, strength: 0 });
-  const passive: P.IJoint = hinge(0.5);
+  const passive: IAutoMoviePhysicalJoint = hinge(0.5);
   const damped: IAutoMoviePhysicalJointMotorCommand.IOutput =
     physicalJointMotorCommand({
       ...base,
@@ -158,8 +160,8 @@ function axis(
 }
 
 /** A three-axis joint with a +-0.6 rad twist about z and the given passive damping. */
-function hinge(passiveDamping?: number): P.IJoint {
-  const identity: P.ITransform = {
+function hinge(passiveDamping?: number): IAutoMoviePhysicalJoint {
+  const identity: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
@@ -170,7 +172,7 @@ function hinge(passiveDamping?: number): P.IJoint {
     parentFrame: identity,
     childFrame: identity,
     axes: (["x", "y", "z"] as const).map(
-      (name: "x" | "y" | "z"): P.IAxis => ({
+      (name: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
         axis: name,
         minimum: name === "z" ? -0.6 : -1.2,
         maximum: name === "z" ? 0.6 : 1.2,

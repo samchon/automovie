@@ -1,10 +1,16 @@
 import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain";
 import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftContract";
 import type { IAutoMovieSolidBody } from "../../construction/IAutoMovieSolidBody";
-import type { IAutoMovieSolidMesh } from "../../construction/IAutoMovieSolidMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanMouthConstruction } from "./IAutoMovieHumanMouthConstruction";
-import type { IAutoMovieHumanSkeletonLaw } from "./IAutoMovieHumanSkeletonLaw";
+import type { IAutoMovieHumanBranchEvent } from "./IAutoMovieHumanBranchEvent";
+import type { IAutoMovieHumanCalibrationBone } from "./IAutoMovieHumanCalibrationBone";
+import type { IAutoMovieHumanEyeSeat } from "./IAutoMovieHumanEyeSeat";
+import type { IAutoMovieHumanHeadAttachmentLandmarks } from "./IAutoMovieHumanHeadAttachmentLandmarks";
+import type { IAutoMovieHumanNailWindow } from "./IAutoMovieHumanNailWindow";
+import type { IAutoMovieHumanOralAnatomy } from "./IAutoMovieHumanOralAnatomy";
+import type { IAutoMovieHumanSurfaceAppendage } from "./IAutoMovieHumanSurfaceAppendage";
+import type { IAutoMovieHumanSurfaceMerge } from "./IAutoMovieHumanSurfaceMerge";
+import type { IAutoMovieHumanSurfacePole } from "./IAutoMovieHumanSurfacePole";
 import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
 
 /**
@@ -17,14 +23,14 @@ import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandma
  *
  * ## Chain tree
  *
- * Chains are joined by {@link IEvent}s. At an event the parent's end section
+ * Chains are joined by {@link IAutoMovieHumanBranchEvent}s. At an event the parent's end section
  * is the contact of several child sections touching at pinch points: a
  * `down` event sits at the parent's bottom with its children below (a
  * crotch, an axilla, the webs between fingers), an `up` event at the
  * parent's top with its children above (an ear rim leaving the head). The
  * parent generates the contact ring once; each child's adjacent end is the
  * arcs of that ring along the parent's phases, so the chains share those
- * vertices. A chain end with no event closes at an {@link IPole}.
+ * vertices. A chain end with no event closes at an {@link IAutoMovieHumanSurfacePole}.
  *
  * Calibration is one stage of the campaign plan: the coefficients first
  * reproduce one specimen, then are replaced by laws in the public inputs
@@ -44,16 +50,16 @@ export interface IAutoMovieHumanBodyCalibration {
   chains: IAutoMovieLoftChain[];
 
   /** Branch events, at most one per chain end. */
-  events: IAutoMovieHumanBodyCalibration.IEvent[];
+  events: IAutoMovieHumanBranchEvent[];
 
   /** Closing points of chain ends without an event. */
-  poles: IAutoMovieHumanBodyCalibration.IPole[];
+  poles: IAutoMovieHumanSurfacePole[];
 
   /** Anatomical openings cut from the skin by world position, e.g. the eyelid apertures. */
   apertures: IAutoMovieHumanLoftAperture[];
 
   /** Eyeball globes seated behind the eyelid apertures. */
-  eyes: IAutoMovieHumanBodyCalibration.IEye[];
+  eyes: IAutoMovieHumanEyeSeat[];
 
   /**
    * Contracts the body law's pieces broke while building this calibration,
@@ -71,7 +77,7 @@ export interface IAutoMovieHumanBodyCalibration {
    * the head, a limb on the trunk) instead of sharing a contact ring. Absent
    * means none.
    */
-  appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
+  appendages?: IAutoMovieHumanSurfaceAppendage[];
 
   /**
    * Solid merges and diffs drawn by the solid tessellation
@@ -79,7 +85,7 @@ export interface IAutoMovieHumanBodyCalibration {
    * chain between a host chain and a part chain. Every chain a merge names is
    * drawn as a trimmed face, not by events or rings. Absent means none.
    */
-  merges?: IAutoMovieHumanBodyCalibration.IMerge[];
+  merges?: IAutoMovieHumanSurfaceMerge[];
 
   /**
    * Solids built as bodies of trimmed faces (`AutoMovieSolidBody`):
@@ -95,21 +101,21 @@ export interface IAutoMovieHumanBodyCalibration {
    * The bind skeleton the limbs were lofted on, placed before any limb skin
    * by `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
    */
-  skeleton?: IAutoMovieHumanSkeletonLaw.IBone[];
+  skeleton?: IAutoMovieHumanCalibrationBone[];
 
   /**
    * The mouth behind the `mouth` aperture: the lips' contact line, the teeth,
    * the cavity's lining and the tongue, placed by `AutoMovieHumanMouth`.
    * Absent on a calibration whose head has no generated mouth.
    */
-  mouth?: IAutoMovieHumanMouthConstruction.IMouth;
+  mouth?: IAutoMovieHumanOralAnatomy;
 
   /**
    * The head's landmarks as its construction solved them, so parts placed on
    * the head (hair, garments) attach through landmarks instead of
    * coordinates. Absent on a calibration whose head is not generated.
    */
-  head?: IAutoMovieHumanBodyCalibration.IHeadLandmarks;
+  head?: IAutoMovieHumanHeadAttachmentLandmarks;
 
   /**
    * The trunk's landmarks as its solve placed them, left side: the shoulders'
@@ -126,327 +132,5 @@ export interface IAutoMovieHumanBodyCalibration {
    * chain lifted by the plate's thickness. Absent on a calibration without
    * digits.
    */
-  nails?: IAutoMovieHumanBodyCalibration.INail[];
-}
-
-/** Type contracts exchanged by IAutoMovieHumanBodyCalibration; runtime evaluation remains in Human. */
-export namespace IAutoMovieHumanBodyCalibration {
-  /** Split of a parent's end ring into its children's adjacent end rings.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Split of a parent's end ring into its children's adjacent end rings.
-   * @evidence contracts/development/design.md#principled-representation `parent`: Parent chain whose end layer is the contact section. `direction`: `down`: the contact is the parent's bottom layer and the children lie below it; `up`: the contact is the parent's top layer and the children lie above it. `splits`: Children and the parent-phase arcs that form their adjacent end rings.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHandEvents.events. Read by AutoMovieHumanApertureSpan.of, AutoMovieHumanApertureSpan.shared, AutoMovieHumanBodySurfaceContact.contact. Also types AutoMovieHumanArmScye.event, AutoMovieHumanLegCrotchRoot.event.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `fillet`: Length over which a child turns onto the parent's tangent plane, in radii of its end ring. `shared`: The children already leave the contact in the parent's tangent plane, by their own construction, so the join leaves them as built. `web`: Whether the children start apart from the parent's ring, joined to it by the webs' own surface (`AutoMovieHumanBodyWeb`): each child's adjacent end is its own section past the webs' crests, and the skin from the parent's ring to those sections, the saddle of every web included, is built by the surface.
-   */
-  export interface IEvent {
-    /** Parent chain whose end layer is the contact section. */
-    parent: string;
-
-    /**
-     * `down`: the contact is the parent's bottom layer and the children lie
-     * below it; `up`: the contact is the parent's top layer and the
-     * children lie above it.
-     */
-    direction: "down" | "up";
-
-    /** Children and the parent-phase arcs that form their adjacent end rings. */
-    splits: ISplit[];
-
-    /**
-     * Length over which a child turns onto the parent's tangent plane, in
-     * radii of its end ring. Absent, the child turns within its last interval.
-     */
-    fillet?: number;
-
-    /**
-     * The children already leave the contact in the parent's tangent plane, by
-     * their own construction, so the join leaves them as built. Absent, the join
-     * moves each child's end ring onto the parent's and re-slopes it.
-     */
-    shared?: true;
-
-    /**
-     * Whether the children start apart from the parent's ring, joined to it by
-     * the webs' own surface (`AutoMovieHumanBodyWeb`): each child's adjacent end
-     * is its own section past the webs' crests, and the skin from the parent's
-     * ring to those sections, the saddle of every web included, is built by the
-     * surface. Absent, the children's ends are the arcs themselves, closed across
-     * each span by a chord.
-     */
-    web?: boolean;
-  }
-
-  /** One child's share of a parent's contact ring.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One child's share of a parent's contact ring.
-   * @evidence contracts/development/design.md#principled-representation `child`: Child chain whose adjacent end layer meets the parent's contact layer. `arcs`: Parent-phase arcs `[from, to]` in radians, in ring order. `shared`: This child already leaves the contact by its own construction with the parent's jet across it, as a limb's root strip does, so the join leaves it as built while it still settles the event's other children.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Also types AutoMovieHumanFootConstruction.splits, AutoMovieHumanArmScye.split.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `shared`: This child already leaves the contact by its own construction with the parent's jet across it, as a limb's root strip does, so the join leaves it as built while it still settles the event's other children.
-   */
-  export interface ISplit {
-    /** Child chain whose adjacent end layer meets the parent's contact layer. */
-    child: string;
-
-    /**
-     * Parent-phase arcs `[from, to]` in radians, in ring order. An arc runs
-     * forward in phase from `from` to `to` and wraps through 2pi when
-     * `to < from`; `[0, 2pi]` is the whole ring, a continuation event where
-     * a chain changes its correspondence rule. Other arc ends are pinch
-     * phases, where the parent's section touches itself; consecutive
-     * children share the vertex at a pinch.
-     */
-    arcs: [number, number][];
-
-    /**
-     * This child already leaves the contact by its own construction with the
-     * parent's jet across it, as a limb's root strip does, so the join leaves it
-     * as built while it still settles the event's other children. Absent, the
-     * event's own `shared` decides.
-     */
-    shared?: true;
-  }
-
-  /** Surface pole closing a chain end.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Surface pole closing a chain end.
-   * @evidence contracts/development/design.md#principled-representation `chain`: Chain whose end the pole closes. `end`: Which end of the chain. `point`: Pole point `[x, y, z]` in mm: the recovered critical point (crown, fingertip) when one exists, otherwise the chain's axis point at that end for a provisional closure.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Also types AutoMovieHumanBodySurfacePoles.calibrated, AutoMovieHumanNeckSurface.crown.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `chain`, `end`, `point`, `critical`; callers supply the complete record.
-   */
-  export interface IPole {
-    /** Chain whose end the pole closes. */
-    chain: string;
-
-    /** Which end of the chain. */
-    end: "top" | "bottom";
-
-    /**
-     * Pole point `[x, y, z]` in mm: the recovered critical point (crown,
-     * fingertip) when one exists, otherwise the chain's axis point at that
-     * end for a provisional closure.
-     */
-    point: [number, number, number];
-
-    /** Whether the pole is a recovered critical point rather than a provisional closure. */
-    critical: boolean;
-  }
-
-  /**
-   * One eyeball globe, fitted as a sphere to the reference eyeball surface.
-   * The generator scales it with the body and hands it to the appearance
-   * layer, which builds the eyeball there.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One eyeball globe, fitted as a sphere to the reference eyeball surface.
-   * @evidence contracts/development/design.md#principled-representation `side`: Anatomical side: left is +Z. `centre`: Globe centre in mm. `radius`: Globe radius in mm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanBodyApertures.prepare, AutoMovieHumanEyelid.create, AutoMovieHumanEyelid.seat. Also types AutoMovieHumanBodyApertures.globe, AutoMovieHumanSkeletonLaw.eyes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `side`, `centre`, `radius`; callers supply the complete record.
-   */
-  export interface IEye {
-    /** Anatomical side: left is +Z. */
-    side: "left" | "right";
-
-    /** Globe centre in mm. */
-    centre: [number, number, number];
-
-    /** Globe radius in mm. */
-    radius: number;
-  }
-
-  /**
-   * One appendage: a chain whose end meets a closed root loop on its base
-   * chain through a transition strip.
-   *
-   * The base is not lofted inside the loop. Between the loop on the base and
-   * the appendage's end ring, a strip `T(t, w)` runs from the appendage
-   * (w = 0) to the base (w = 1) as the quintic Hermite of the two curves,
-   * their cross derivatives and their second cross derivatives, so the
-   * skin is continuous in position, tangent plane and curvature across both
-   * edges (G2). Ring phase t of the appendage's end and loop parameter t
-   * name the same strip column.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One appendage: a chain whose end meets a closed root loop on its base chain through a transition strip.
-   * @evidence contracts/development/design.md#principled-representation `chain`: Appendage chain. `end`: End of the appendage chain that meets the root loop. `base`: Base chain the loop lies on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanBodyRoots.join, AutoMovieHumanBodyStrip.controls, AutoMovieHumanBodyStrip.column.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `winding`: Turn of the root loop's phase round the base's cap pole, for a loop that winds once round it (a digit's or toe's on the palm's or the sole's cap): the base is left out beyond the loop toward the pole. `rows`: Interior rows of the strip, from the appendage toward the base: each the offsets of one row from the edges' quintic blend at its Greville abscissa, in the blend's frame there (along the ring, the normal and their cross product), as three periodic cubic B-splines in the ring phase of M control points, `[a_0 ..
-   */
-  export interface IAppendage {
-    /** Appendage chain. */
-    chain: string;
-
-    /** End of the appendage chain that meets the root loop. */
-    end: "bottom" | "top";
-
-    /** Base chain the loop lies on. */
-    base: string;
-
-    /**
-     * Root loop in the base's chart as a periodic cubic B-spline of M
-     * control points `[s_0 .. s_{M-1}, t_0 .. t_{M-1}]`: station in mm and
-     * phase in radians, the phases continuous (unwrapped) round the loop.
-     * Either turning sense is accepted. With a winding, the phase is the
-     * winding times the loop parameter plus this remainder.
-     */
-    root: number[];
-
-    /**
-     * Turn of the root loop's phase round the base's cap pole, for a loop
-     * that winds once round it (a digit's or toe's on the palm's or the
-     * sole's cap): the base is left out beyond the loop toward the pole.
-     * Absent means none: the loop encloses its region of the chart.
-     */
-    winding?: 1 | -1;
-
-    /**
-     * Cross-derivative length of the strip at both edges as a share of the
-     * chord between them: 1 lays the strip like a straight blend, more
-     * makes it fuller.
-     */
-    reach: number;
-
-    /**
-     * Interior rows of the strip, from the appendage toward the base: each
-     * the offsets of one row from the edges' quintic blend at its Greville
-     * abscissa, in the blend's frame there (along the ring, the normal and
-     * their cross product), as three periodic cubic B-splines in the ring
-     * phase of M control points, `[a_0 .. a_{M-1}, b_0 .., c_0 ..]` in mm
-     * (`AutoMovieHumanBodyStrip`). Absent means none: the strip is then the
-     * six edge rows alone.
-     */
-    rows?: number[][];
-  }
-
-  /**
-   * One solid join as published data: its blend chain
-   * (`AutoMovieSolidBlendChain`) and the two rails as trim loops of
-   * their faces, column `k` of each loop at the blend's phase `2 pi k / n`.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One solid join as published data: its blend chain (`AutoMovieSolidBlendChain`) and the two rails as trim loops of their faces, column `k` of each loop at the blend's phase `2 pi k / n`.
-   * @evidence contracts/development/design.md#principled-representation `blend`: The blend chain's name, in `chains`. `host`: The host chain's name: the face the whole host rail lies on, unless `hostChains` names each column's. `hostChains`: The host chain of each column of `hostLoop`, for a rail that crosses the faces of a merged body (`AutoMovieSolidBody`): column `k`'s chart point lies on chain `hostChains[k]`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Also types AutoMovieHumanBodySurfaceSolids.merges.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `hostChains`: The host chain of each column of `hostLoop`, for a rail that crosses the faces of a merged body (`AutoMovieSolidBody`): column `k`'s chart point lies on chain `hostChains[k]`. `partAcross`: The part's chart direction at each column toward and past its rail, of unit world speed (`AutoMovieSolidBlendChain.IBlend.partAcross`): along its station under the phase parameter, square to the curve under the angle. `curve`: The intersection curve's point at each column, mm (`AutoMovieSolidBlendChain.IBlend.curve`). `widths`: The declared chords at each column, mm (`AutoMovieSolidBlendChain.IBlend.widths`). `parameter`: The kind of the curve's parameter: `phase`, `angle` or `arc` (`AutoMovieSolidBlendChain.IBlend.parameter`). `diff`: Whether the join is a diff, whose part face (the cutter's wall) faces into the cutter.
-   */
-  export interface IMerge {
-    /** The blend chain's name, in `chains`. */
-    blend: string;
-
-    /** The host chain's name: the face the whole host rail lies on, unless `hostChains` names each column's. */
-    host: string;
-
-    /**
-     * The host chain of each column of `hostLoop`, for a rail that crosses the
-     * faces of a merged body (`AutoMovieSolidBody`): column `k`'s chart
-     * point lies on chain `hostChains[k]`. Absent, every column is on `host`.
-     */
-    hostChains?: string[];
-
-    /** The part chain's name. */
-    part: string;
-
-    /** The blend chain's station span, mm. */
-    length: number;
-
-    /** The host's rail as a trim of the host's face. */
-    hostLoop: IAutoMovieSolidMesh.ILoopChart;
-
-    /** The part's rail as a trim of the part's face. */
-    partLoop: IAutoMovieSolidMesh.ILoopChart;
-
-    /** The host's chart direction at each column toward and past its rail, of unit world speed (`AutoMovieSolidBlendChain.IBlend.across`). */
-    across: [number, number][];
-
-    /**
-     * The part's chart direction at each column toward and past its rail, of
-     * unit world speed (`AutoMovieSolidBlendChain.IBlend.partAcross`):
-     * along its station under the phase parameter, square to the curve under
-     * the angle. Absent, the station direction `sigma`.
-     */
-    partAcross?: [number, number][];
-
-    /** The intersection curve's point at each column, mm (`AutoMovieSolidBlendChain.IBlend.curve`). Absent on an entry built before it was published. */
-    curve?: [number, number, number][];
-
-    /** The declared chords at each column, mm (`AutoMovieSolidBlendChain.IBlend.widths`). */
-    widths?: {
-      /** Declared host-side chord width in millimetres at each corresponding blend column, in phase order. */
-      host: number[];
-      /** Declared part-side chord width in millimetres at each blend column; null means its part rail is constrained to one fixed station. */
-      part: (number | null)[];
-    };
-
-    /** The kind of the curve's parameter: `phase`, `angle` or `arc` (`AutoMovieSolidBlendChain.IBlend.parameter`). */
-    parameter?: "phase" | "angle" | "arc";
-
-    /** The part's kept side in its station (`AutoMovieSolidBlendChain.IBlend.sigma`). */
-    sigma: 1 | -1;
-
-    /** Rows of the blend between its rails, at least 1. */
-    rows: number;
-
-    /** Whether the join is a diff, whose part face (the cutter's wall) faces into the cutter. Absent, a merge. */
-    diff?: boolean;
-  }
-
-  /** Head-owned attachment sites from its generating profile and eye margins, `[x, y, z]` calibration millimetres; these sites alone do not certify the realized skin.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Head-owned attachment sites from its generating profile and eye margins, `[x, y, z]` calibration millimetres; these sites alone do not certify the realized skin.
-   * @evidence contracts/development/design.md#principled-representation `vertex`: Vertex, the crown's highest point on the midline. `glabella`: Glabella, the forehead's most prominent midline point. `nasion`: Soft-tissue nasion.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadAnchors.of.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `otobasion`: Actual ear roots, otobasion superius and inferius; absent until the realized ear module publishes its shared attachment boundary.
-   */
-  export interface IHeadLandmarks {
-    /** Vertex, the crown's highest point on the midline. */
-    vertex: [number, number, number];
-
-    /** Glabella, the forehead's most prominent midline point. */
-    glabella: [number, number, number];
-
-    /** Soft-tissue nasion. */
-    nasion: [number, number, number];
-
-    /** Lateral extreme of each eye's own planned margin, using that side's inputs. */
-    exocanthion: Record<"left" | "right", [number, number, number]>;
-
-    /** Actual ear roots, otobasion superius and inferius; absent until the realized ear module publishes its shared attachment boundary. */
-    otobasion?: Record<
-      "left" | "right",
-      {
-        /** Upper vermilion landmark in the registered body frame, millimetres. */
-        superius: [number, number, number];
-        /** Lower vermilion landmark in the registered body frame, millimetres. */
-        inferius: [number, number, number];
-      }
-    >;
-  }
-
-  /** A nail plate's window on its digit chain.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A nail plate's window on its digit chain.
-   * @evidence contracts/development/design.md#principled-representation `chain`: Digit chain the plate lies on, e.g. `root`: Chain station of the plate's root (the cuticle), mm. `edge`: Chain station of the plate's free edge, mm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanFootToeChain.nail.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `chain`, `root`, `edge`, `width`, `dorsal`; callers supply the complete record.
-   */
-  export interface INail {
-    /** Digit chain the plate lies on, e.g. `finger.left.index`. */
-    chain: string;
-
-    /** Chain station of the plate's root (the cuticle), mm. */
-    root: number;
-
-    /** Chain station of the plate's free edge, mm. */
-    edge: number;
-
-    /** Width of the plate edge to edge, mm. */
-    width: number;
-
-    /** Unit dorsal direction at the root: the side of the chain the plate lies on. */
-    dorsal: [number, number, number];
-  }
+  nails?: IAutoMovieHumanNailWindow[];
 }

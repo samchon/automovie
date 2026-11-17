@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -105,7 +106,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       composition: composition.node,
     });
   const instant = (
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     event: string,
   ): number =>
     segment.start +
@@ -172,9 +173,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         })
         .handToFace({ task: "drink", prop: "glass" }),
     );
-    const lift: IAutoMovieMotionHumanSegment.ISegment = drunk.segments("a")[0]!;
-    const drink: IAutoMovieMotionHumanSegment.ISegment =
-      drunk.segments("a")[1]!;
+    const lift: IAutoMovieMotionHumanSegment = drunk.segments("a")[0]!;
+    const drink: IAutoMovieMotionHumanSegment = drunk.segments("a")[1]!;
     const atMouth: number = instant(drink, "atMouth");
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const axis = (seconds: number): IAutoMovieVector3 =>
@@ -274,10 +274,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         .registered("smoke", { prop: "cigarette" }),
     );
     const seconds: number = instant(smoked.segments("a")[1]!, "atLips");
-    const frame: IAutoMovieMotionHumanProp.IFrame = smoked.prop(
-      "cigarette",
-      seconds,
-    );
+    const frame: IAutoMovieRigidTransform = smoked.prop("cigarette", seconds);
     const off: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

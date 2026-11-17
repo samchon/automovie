@@ -60,8 +60,7 @@ export function test_human_motion_jump_takeoff(): void {
       composition: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 })
         .node,
     });
-    const initial: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const initial: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     for (const leading of [null, "left", "right"] as const) {
       const angle = (side: "left" | "right"): number =>
         leading === null ? 0 : leading === side ? 20 : -20;

@@ -1,7 +1,14 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 import type { AutoMovieHumanSide } from "../AutoMovieHumanSide";
 
-/** Type contracts exchanged by AutoMovieHumanFootSurface; runtime evaluation remains in Human. */
+/**
+ * Retained foot source samples and plantar landmark addresses for rigid display modules in metres. Runtime construction and admission remain with AutoMovieHumanFootSurface in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes retained foot source samples and plantar landmark addresses for rigid display modules in metres; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Retained foot source samples and plantar landmark addresses for rigid display modules in metres. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanFootSurface; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing FootSurface contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanFootSurface {
   /** One sampled loft course; descriptor extents do not resize its retained points.
    *

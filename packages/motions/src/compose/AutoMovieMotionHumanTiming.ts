@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieMotionClock,
   IAutoMovieMotionHumanTiming,
+  IAutoMovieMotionPhraseDurations,
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
@@ -187,7 +187,7 @@ export namespace AutoMovieMotionHumanTiming {
    */
   export function phrase(
     roles: IAutoMovieMotionHumanTiming.IRoles,
-  ): IAutoMovieMotionClock.IPhrase {
+  ): IAutoMovieMotionPhraseDurations {
     return {
       prepare: seconds(roles.prepare),
       ...(roles.wait !== undefined ? { wait: seconds(roles.wait) } : {}),

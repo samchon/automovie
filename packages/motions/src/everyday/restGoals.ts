@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
@@ -47,22 +48,17 @@ import { restElbowSupport } from "./restElbowSupport";
 export function restGoals(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-  places: Record<
-    IAutoMovieMotionHumanHand.Side,
-    IAutoMovieMotionHumanRest.Place
-  >,
-): Partial<
-  Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>
-> {
+  places: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.Place>,
+): Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>> {
   const out: Partial<
-    Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>
   > = {};
   const m = body.measure;
   const region = (
     name: AutoMovieHumanoidRegion,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
     HumanTrunk.region(body, posture, name);
-  const frame: IAutoMovieMotionHumanFrame.IFrame = {
+  const frame: IAutoMovieMotionHumanFrame = {
     origin: posture.root,
     yaw: posture.yaw,
   };
@@ -74,7 +70,7 @@ export function restGoals(
   // The hint rides the root and the heading only, as the rest places were
   // captured: a standing rest does not pitch or roll the trunk.
   const elbow = (
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     place: keyof typeof restGoals.BENDS,
   ): IAutoMovieVector3 =>
     AutoMovieMotionHumanBend.arm(
@@ -84,7 +80,7 @@ export function restGoals(
       restGoals.BENDS[place],
     );
   const lay = (
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     place: keyof typeof restGoals.BENDS,
     surface: IAutoMovieMotionHumanHand.Surface,
     shape: IAutoMovieMotionHumanHand.Shape,
@@ -140,10 +136,7 @@ export function restGoals(
       case "claspedFront":
       case "claspedBehind": {
         if (side === "right") break;
-        const elbows: Record<
-          IAutoMovieMotionHumanHand.Side,
-          IAutoMovieVector3
-        > = {
+        const elbows: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
           left: elbow("left", place),
           right: elbow("right", place),
         };
@@ -191,8 +184,7 @@ export function restGoals(
     Object.assign(out, restCrossedArms(body, posture));
   for (const side of ["left", "right"] as const) {
     if (places[side] !== "elbowSupport") continue;
-    const other: IAutoMovieMotionHumanHand.Side =
-      side === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     out[side] = restElbowSupport(
       body,
       posture,

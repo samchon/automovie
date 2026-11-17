@@ -1,7 +1,8 @@
 import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type {
+  AutoMovieMotionSampleSide,
   IAutoMoviePose,
-  IAutoMovieSamplePoseVelocity,
+  IAutoMoviePoseVelocity,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -54,9 +55,9 @@ export function test_motion_pose_velocity_side(): void {
   const read = (
     sample: (s: number) => IAutoMoviePose,
     seconds: number,
-    side: IAutoMovieSamplePoseVelocity.Side,
+    side: AutoMovieMotionSampleSide,
   ): [number, number, number] => {
-    const v: IAutoMovieSamplePoseVelocity.IVelocity = samplePoseVelocity(
+    const v: IAutoMoviePoseVelocity = samplePoseVelocity(
       sample,
       seconds,
       1e-3,

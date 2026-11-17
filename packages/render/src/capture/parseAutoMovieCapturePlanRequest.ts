@@ -1,6 +1,8 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRequestSource,
+  IAutoMovieCaptureSampling,
   IAutoMovieInspectionRequest,
 } from "@automovie/interface";
 
@@ -99,9 +101,9 @@ export function parseAutoMovieCapturePlanRequest(
     parseAutoMovieInspectionRequest(read);
   if (given.has("passes") && given.has("shade"))
     throw new Error("Capture passes and shade name one thing; give only one");
-  const passes: IAutoMovieInspectionRequest.Shade[] = given.has("passes")
+  const passes: AutoMovieInspectionShade[] = given.has("passes")
     ? distinct("passes", read("passes")!, items(read("passes")!)).map(
-        (text: string): IAutoMovieInspectionRequest.Shade => shadeOf(text),
+        (text: string): AutoMovieInspectionShade => shadeOf(text),
       )
     : [inspection.shade];
   if (passes.length === 0)
@@ -113,7 +115,7 @@ export function parseAutoMovieCapturePlanRequest(
     (given.has("from") || given.has("to") || given.has("rate"))
   )
     throw new Error("Capture at excludes from, to and rate");
-  const sampling: IAutoMovieCapturePlanRequest.Sampling = given.has("at")
+  const sampling: IAutoMovieCaptureSampling = given.has("at")
     ? { kind: "at", seconds: seconds("at", read("at")!, true) }
     : even(read);
 
@@ -217,7 +219,7 @@ function distinct(key: string, text: string, values: string[]): string[] {
 }
 
 /** A shade, read by the inspection core so the shade list has one owner. */
-function shadeOf(text: string): IAutoMovieInspectionRequest.Shade {
+function shadeOf(text: string): AutoMovieInspectionShade {
   try {
     return parseAutoMovieInspectionRequest((key: string): string | undefined =>
       key === "shade" ? text : undefined,
@@ -283,9 +285,7 @@ function seconds(key: string, text: string, required: boolean): number[] {
 }
 
 /** An even sampling from `from`, `to` and `rate`. */
-function even(
-  read: (key: string) => string | null,
-): IAutoMovieCapturePlanRequest.Sampling {
+function even(read: (key: string) => string | null): IAutoMovieCaptureSampling {
   const from: number = bounded("from", read("from"), 0, Infinity) ?? 0;
   const to: number | null = bounded("to", read("to"), 0, Infinity);
   if (to !== null && !(to > from))

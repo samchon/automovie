@@ -1,8 +1,16 @@
 import type { IAutoMovieViewAxis } from "../../../construction/IAutoMovieViewAxis";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieHumanSiteViewPart } from "./IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSectionSite } from "./IAutoMovieHumanSectionSite";
+import type { IAutoMovieHumanSectionSource } from "./IAutoMovieHumanSectionSource";
 
-/** Type contracts exchanged by AutoMovieHumanWalkPart; runtime evaluation remains in Human. */
+/**
+ * Bone/share-addressed site inputs and their authoritative pre-loft course mapping. Runtime construction and admission remain with AutoMovieHumanWalkPart in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes bone/share-addressed site inputs and their authoritative pre-loft course mapping; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Bone/share-addressed site inputs and their authoritative pre-loft course mapping. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanWalkPart; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing WalkPart contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanWalkPart {
   /** The identical pre-loft declaration and its authoritative course mapping.
    *
@@ -14,10 +22,20 @@ export namespace IAutoMovieHumanWalkPart {
    */
   export interface ISource {
     /** Actual input later consumed by SiteViewPart.create, calibration mm. */
-    input: IAutoMovieHumanSiteViewPart.IInput;
+    input: IAutoMovieHumanSectionSource;
     /** Straight-run bounds computed from the canonical metre axis. */
     runs: readonly IAutoMovieViewAxis.IRun[];
-    /** Actual source station of a bone/share; no second axis is constructed. */
+    /**
+     * Actual source station of a bone/share; no second axis is constructed.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Actual source station of a bone/share; no second axis is constructed.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This station signature specifies the documented callback contract without an implementation body; AutoMovieHumanWalkPart and its supplied callbacks own the numerical method and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes station at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanWalkPart.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual station provider is responsible for satisfying the documented semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanWalkPart determines the work per station call.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanWalkPart's runtime provider owns reuse and must preserve the documented source identity and effects.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the station provider and the caller retaining its containing record own the callback and its captured dependencies.
+     */
     station: (bone: number, share: number) => number;
   }
 
@@ -43,9 +61,9 @@ export namespace IAutoMovieHumanWalkPart {
     edges: [number, number, number, number];
 
     /** A tape solved on the site's box, or a sourced shoulder. */
-    fullness: IAutoMovieHumanSiteViewPart.ISite["fullness"];
+    fullness: IAutoMovieHumanSectionSite["fullness"];
     /** Optional normalized-parameter edge jets, in the same chart as edges. */
-    jets?: IAutoMovieHumanSiteViewPart.ISite["jets"];
+    jets?: IAutoMovieHumanSectionSite["jets"];
   }
 
   /** What a walk part is built from.
@@ -75,7 +93,7 @@ export namespace IAutoMovieHumanWalkPart {
     /** The sites, by rising place along the walk. */
     sites: ISite[];
     /** Optional scalar closed-span bounds in the caller's chart; these impose no moving world-plane constraint. */
-    ranges?: IAutoMovieHumanSiteViewPart.IInput["ranges"];
+    ranges?: IAutoMovieHumanSectionSource["ranges"];
 
     /** Optional material-frame transition between actual bone/share positions; signed up is projected into the endpoint's normal plane by the engine. */
     roll?: {

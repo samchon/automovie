@@ -1,5 +1,8 @@
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
+import type {
+  IAutoMoviePlanarHermiteKnot,
+  IAutoMovieStationHermiteLoop,
+} from "@automovie/interface";
 
 /** An independent cubic Hermite, written here from its factored basis functions. */
 function hermite(
@@ -24,7 +27,7 @@ function hermite(
 /** The largest distance of a dense loop from its knots' spans, on the loop's own chord-length parameter. */
 function deviation(
   dense: [number, number][],
-  loop: { knots: IAutoMovieMeshExtract.ILoopKnot[]; length: number },
+  loop: { knots: IAutoMoviePlanarHermiteKnot[]; length: number },
 ): number {
   const t: number[] = [0];
   for (let j: number = 1; j < dense.length; ++j)
@@ -37,8 +40,8 @@ function deviation(
     );
   let worst: number = 0;
   for (let k: number = 0; k < loop.knots.length; ++k) {
-    const a: IAutoMovieMeshExtract.ILoopKnot = loop.knots[k]!;
-    const b: IAutoMovieMeshExtract.ILoopKnot =
+    const a: IAutoMoviePlanarHermiteKnot = loop.knots[k]!;
+    const b: IAutoMoviePlanarHermiteKnot =
       loop.knots[(k + 1) % loop.knots.length]!;
     const tb: number = b.t > a.t ? b.t : b.t + loop.length;
     for (let i: number = a.index; i !== b.index; i = (i + 1) % dense.length) {
@@ -117,14 +120,14 @@ export function test_geometry_extract_loop(): void {
     ],
   );
   const loop: {
-    knots: IAutoMovieMeshExtract.ILoopKnot[];
+    knots: IAutoMoviePlanarHermiteKnot[];
     length: number;
     error: number;
   } = X.reduceLoop(ellipse, 0.5);
   for (const i of [0, 90, 180, 270])
     if (
       !loop.knots.some(
-        (k: IAutoMovieMeshExtract.ILoopKnot): boolean => k.index === i,
+        (k: IAutoMoviePlanarHermiteKnot): boolean => k.index === i,
       )
     )
       failures.push(`the ellipse's axis extreme ${i} was removed`);
@@ -138,7 +141,7 @@ export function test_geometry_extract_loop(): void {
     failures.push("a tighter loop tolerance does not keep more knots");
   if (
     !X.reduceLoop(ellipse, 0.5, [45]).knots.some(
-      (k: IAutoMovieMeshExtract.ILoopKnot): boolean => k.index === 45,
+      (k: IAutoMoviePlanarHermiteKnot): boolean => k.index === 45,
     )
   )
     failures.push("a pinned loop landmark was removed");
@@ -161,7 +164,7 @@ export function test_geometry_extract_loop(): void {
     ],
   ] as const) {
     const faceted: {
-      knots: IAutoMovieMeshExtract.ILoopKnot[];
+      knots: IAutoMoviePlanarHermiteKnot[];
       length: number;
       error: number;
     } = X.reduceLoop(dense, 0.5);
@@ -188,11 +191,7 @@ export function test_geometry_extract_loop(): void {
       [50, 4.1, -1],
       [100, 2.2, 1],
     ].map(
-      ([
-        station,
-        start,
-        sign,
-      ]: number[]): IAutoMovieMeshExtract.IStationLoop => ({
+      ([station, start, sign]: number[]): IAutoMovieStationHermiteLoop => ({
         station: station!,
         loop: X.reduceLoop(circle(20 + station! / 10, start!, sign!), 0.05),
       }),

@@ -126,7 +126,7 @@ export namespace stretch {
       INTENSITY[p.intensity ?? "moderate"];
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
         attack: 0,
@@ -135,7 +135,7 @@ export namespace stretch {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -150,7 +150,7 @@ export namespace stretch {
     const side: "left" | "right" = p.side ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
     const sign: number = side === "left" ? 1 : -1;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw: entry.yaw,
     };

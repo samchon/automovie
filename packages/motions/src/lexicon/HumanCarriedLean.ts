@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedLean,
   IAutoMovieMotionHumanLayer,
@@ -150,10 +151,10 @@ export namespace HumanCarriedLean {
     pitch: number,
     roll: number,
   ): IAutoMovieMotionHumanPosture {
-    const legs: IAutoMovieMotionHumanPosture.IGoal[] = [
+    const legs: IAutoMovieHumanLimbGoal[] = [
       posture.limbs.leftLeg,
       posture.limbs.rightLeg,
-    ].filter((g): g is IAutoMovieMotionHumanPosture.IGoal => g !== undefined);
+    ].filter((g): g is IAutoMovieHumanLimbGoal => g !== undefined);
     const pivot: IAutoMovieVector3 =
       legs.length === 0
         ? posture.root
@@ -161,7 +162,7 @@ export namespace HumanCarriedLean {
             legs.reduce(
               (
                 s: IAutoMovieVector3,
-                g: IAutoMovieMotionHumanPosture.IGoal,
+                g: IAutoMovieHumanLimbGoal,
               ): IAutoMovieVector3 => Vector3.add(s, g.point),
               { x: 0, y: 0, z: 0 },
             ),

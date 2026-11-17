@@ -64,7 +64,7 @@ export function test_human_motion_emblem_kiss_sweep(): void {
             .registered("blownKiss", {})
             .registered("blownKissSend", {}).node,
         });
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const instant = (event: string): number =>
         placed.start +

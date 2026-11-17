@@ -5,10 +5,11 @@ import {
   tessellateAutoMovieContourLoft64,
 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
   IAutoMovieContourLoftCurves64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -276,13 +277,15 @@ export function assertContourLoftBoundaryCore(): {
   for (const winding of [1, -1] as const) {
     const prismSections: IAutoMovieContourLoft64.ISection[] = [0, 3, 6].map(
       (y: number, i: number): IAutoMovieContourLoft64.ISection => {
-        const curve: IAutoMovieCurve64.Cubic = O.curve(
+        const curve: IAutoMovieCubicBezierCurve64 = O.curve(
           `prism-${i}`,
           rectangle(y, 0, 3, 1.5),
           [1, 2, 4, 8],
         );
-        const spans: IAutoMovieCurve64.Span[] = curve.spans.flatMap(
-          (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span[] => {
+        const spans: AutoMovieCubicBezierControls3[] = curve.spans.flatMap(
+          (
+            span: AutoMovieCubicBezierControls3,
+          ): AutoMovieCubicBezierControls3[] => {
             const halves: [O.V[], O.V[]] = S.split(
               span.map(
                 (point: Readonly<AutoMovieVector3Tuple>): O.V => [
@@ -294,7 +297,7 @@ export function assertContourLoftBoundaryCore(): {
               0.5,
             );
             return halves.map(
-              (net: O.V[]): IAutoMovieCurve64.Span => [
+              (net: O.V[]): AutoMovieCubicBezierControls3 => [
                 net[0],
                 net[1],
                 net[2],

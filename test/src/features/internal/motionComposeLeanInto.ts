@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLeanInto,
@@ -76,7 +77,7 @@ import { motionHumanBody } from "./motionHumanBody";
 export function motionComposeLeanInto(name: motionHumanBody.Name): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const all: motionComplaints.IGatherer = motionComplaints();
-  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -279,7 +280,7 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
         // 5. The arm held on its goal through the lean and the return.
         const reaching = (
           posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieMotionHumanPosture.IGoal => ({
+        ): IAutoMovieHumanLimbGoal => ({
           point: far,
           bend: AutoMovieMotionHumanBend.hang(body, posture, side),
         });

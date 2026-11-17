@@ -11,8 +11,8 @@ import {
 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicSection,
-  IAutoMovieLoftFrame,
   IAutoMovieLoftRelief,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewChain,
   IAutoMovieViewLoft,
@@ -1776,7 +1776,7 @@ namespace FamilyConicBody {
           next[2]!.start - next[2]!.from - (former[1]!.start - former[1]!.from),
         );
         const at: number = (former[1]!.start + former[1]!.end) / 2;
-        const old: IAutoMovieLoftFrame.IFrame = (
+        const old: IAutoMovieLoftSectionFrame = (
           AutoMovieViewAxis.jointed(
             formerCentres,
             [30, 10],
@@ -1784,7 +1784,7 @@ namespace FamilyConicBody {
           ) as IAutoMovieViewAxis.IAxis
         ).at(at);
         const roll = (up: R.V): number => {
-          const now: IAutoMovieLoftFrame.IFrame = (
+          const now: IAutoMovieLoftSectionFrame = (
             AutoMovieViewAxis.jointed(
               armCentres,
               armHalves,
@@ -1856,7 +1856,7 @@ namespace FamilyConicBody {
         next[1]!.start - next[1]!.from - (now[2]!.start - now[2]!.from),
       );
       const at: number = (now[2]!.start + now[2]!.end) / 2;
-      const old: IAutoMovieLoftFrame.IFrame = (
+      const old: IAutoMovieLoftSectionFrame = (
         AutoMovieViewAxis.jointed(
           armCentres,
           armHalves,
@@ -1887,7 +1887,7 @@ namespace FamilyConicBody {
           Math.cos(theta) * e1[1] + Math.sin(theta) * e2[1],
           Math.cos(theta) * e1[2] + Math.sin(theta) * e2[2],
         ];
-        const frame: IAutoMovieLoftFrame.IFrame = (
+        const frame: IAutoMovieLoftSectionFrame = (
           AutoMovieViewAxis.jointed(
             isbCentres,
             isbHalves,
@@ -3139,7 +3139,7 @@ namespace FamilyConicBody {
       const depthAt = (a: number, b: number): number => {
         if (depthGrid === null) {
           const half: number = CONCHA_DEPTH!;
-          const f0: IAutoMovieLoftFrame.IFrame = axis.at(0);
+          const f0: IAutoMovieLoftSectionFrame = axis.at(0);
           const o: R.V = [f0.origin[0], f0.origin[1], f0.origin[2]];
           const u: R.V = [f0.u[0], f0.u[1], f0.u[2]];
           const v: R.V = [f0.v[0], f0.v[1], f0.v[2]];
@@ -3262,7 +3262,7 @@ namespace FamilyConicBody {
       // 360 rays to the nearest, the floor and the reach, then drawn in along the polygon's normal. A plane's cut through the body mesh
       // alone is open where it meets the head mesh, so the rays read the crossing segments, not closed loops.
       const air = (
-        frame: IAutoMovieLoftFrame.IFrame,
+        frame: IAutoMovieLoftSectionFrame,
         spec: NonNullable<IPart["air"]>,
       ): C.P[] | null => {
         airInvented = null;
@@ -3442,7 +3442,7 @@ namespace FamilyConicBody {
         | ((side: number, s: number) => number | undefined)
         | undefined;
       const cut = (
-        frame: IAutoMovieLoftFrame.IFrame,
+        frame: IAutoMovieLoftSectionFrame,
         s: number,
       ): C.P[] | null => {
         piece = null;
@@ -3878,7 +3878,7 @@ namespace FamilyConicBody {
         s <= domain[1] + 1e-9;
         s += step / 2, ++i
       ) {
-        const frame: IAutoMovieLoftFrame.IFrame = axis.at(s);
+        const frame: IAutoMovieLoftSectionFrame = axis.at(s);
         if (plainRead !== null && (s < skinRange[0]! || s > skinRange[1]!)) {
           const points: C.P[] = own(s);
           rows.push({ s, points, heldout: i % 2 === 1 });
@@ -4505,7 +4505,7 @@ namespace FamilyConicBody {
           JSON.stringify({
             part: part.name,
             rows: rows.map((row: F.IRow, i: number) => {
-              const frame: IAutoMovieLoftFrame.IFrame = axis.at(row.s);
+              const frame: IAutoMovieLoftSectionFrame = axis.at(row.s);
               return {
                 s: row.s,
                 origin: [...frame.origin],
@@ -5903,7 +5903,7 @@ namespace FamilyConicBody {
         // and `v`).
         const rounds: IWindow[] = (BARE ? [] : (part.rounds ?? [])).map(
           (net): IWindow => {
-            const frame: IAutoMovieLoftFrame.IFrame = course.at(
+            const frame: IAutoMovieLoftSectionFrame = course.at(
               (net.stations[0] + net.stations[1]) / 2,
             );
             const phases: [number, number] = net.window?.phases ?? [
@@ -5983,7 +5983,7 @@ namespace FamilyConicBody {
                   read(row.s),
                   definition.layout,
                 );
-                const frame: IAutoMovieLoftFrame.IFrame = course.at(row.s);
+                const frame: IAutoMovieLoftSectionFrame = course.at(row.s);
                 const inChart = (axis: readonly number[]): C.P => [
                   axis[0]! * frame.u[0] +
                     axis[1]! * frame.u[1] +
@@ -6422,7 +6422,7 @@ namespace FamilyConicBody {
                 180) /
               Math.PI;
             // The plane's normal, the course's tangent: u x v.
-            const normal = (f: IAutoMovieLoftFrame.IFrame): number[] => [
+            const normal = (f: IAutoMovieLoftSectionFrame): number[] => [
               f.u[1]! * f.v[2]! - f.u[2]! * f.v[1]!,
               f.u[2]! * f.v[0]! - f.u[0]! * f.v[2]!,
               f.u[0]! * f.v[1]! - f.u[1]! * f.v[0]!,
@@ -6463,7 +6463,7 @@ namespace FamilyConicBody {
       }[] = [];
       rows.forEach((row: F.IRow, i: number): void => {
         // The regenerated section as a dense chart polyline; every observed skin vertex is measured to it.
-        const frame: IAutoMovieLoftFrame.IFrame = stage.at(row.s);
+        const frame: IAutoMovieLoftSectionFrame = stage.at(row.s);
         const ring: C.P[] = Array.from(
           { length: 512 },
           (_: unknown, j: number): C.P => {
@@ -7201,7 +7201,7 @@ namespace FamilyConicBody {
           const from: number = cluster[0] - pad;
           const to: number = cluster[1] + pad;
           const stations: [number, number] = [run[0]! - 30, run.at(-1)! + 30];
-          const frame: IAutoMovieLoftFrame.IFrame = course.at(
+          const frame: IAutoMovieLoftSectionFrame = course.at(
             (stations[0] + stations[1]) / 2,
           );
           const axis: [number, number, number] = [0, 1, 2].map(
@@ -8064,7 +8064,7 @@ namespace FamilyConicBody {
   }
 
   /** A section chart's point in the world, mm. */
-  function chartToWorld(frame: IAutoMovieLoftFrame.IFrame, p: C.P): R.V {
+  function chartToWorld(frame: IAutoMovieLoftSectionFrame, p: C.P): R.V {
     return [0, 1, 2].map(
       (k: number): number =>
         frame.origin[k]! + p[0] * frame.u[k]! + p[1] * frame.v[k]!,
@@ -8080,7 +8080,7 @@ namespace FamilyConicBody {
    */
   function without(
     loop: readonly C.P[],
-    frame: IAutoMovieLoftFrame.IFrame,
+    frame: IAutoMovieLoftSectionFrame,
     outside: (p: R.V) => number,
     round?: (p: R.V) => number,
     opening?: (p: R.V) => number,

@@ -1,8 +1,8 @@
 import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieRecoveryCurveFormat,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryAuthorityRecord,
   IAutoMovieRecoveryHermiteCurve,
   IAutoMovieRecoveryHermiteSpan,
@@ -36,7 +36,7 @@ export function rebindRecoveryCurveAuthorities(
     IAutoMovieRecoveryAuthorityRecord,
     Map<number, Readonly<AutoMovieVector3Tuple>>
   > = new Map();
-  const curveCache: WeakMap<object, readonly IAutoMovieCurve64.Span[]> =
+  const curveCache: WeakMap<object, readonly AutoMovieCubicBezierControls3[]> =
     new WeakMap();
   const record: (
     value: unknown,
@@ -61,17 +61,19 @@ export function rebindRecoveryCurveAuthorities(
       throw new Error("A bound curve publication requires explicit arrays");
     return value;
   };
-  const canonical: (value: unknown) => readonly IAutoMovieCurve64.Span[] = (
+  const canonical: (
     value: unknown,
-  ): readonly IAutoMovieCurve64.Span[] => {
+  ) => readonly AutoMovieCubicBezierControls3[] = (
+    value: unknown,
+  ): readonly AutoMovieCubicBezierControls3[] => {
     const row: IAutoMovieRecoveryAuthorityRecord = required(value);
-    const previous: readonly IAutoMovieCurve64.Span[] | undefined =
+    const previous: readonly AutoMovieCubicBezierControls3[] | undefined =
       curveCache.get(row);
     if (previous) return previous;
     if (row.type === "cubicBezier") {
-      const spans: readonly IAutoMovieCurve64.Span[] = array(
+      const spans: readonly AutoMovieCubicBezierControls3[] = array(
         row.spans,
-      ) as readonly IAutoMovieCurve64.Span[];
+      ) as readonly AutoMovieCubicBezierControls3[];
       curveCache.set(row, spans);
       return spans;
     }
@@ -81,11 +83,11 @@ export function rebindRecoveryCurveAuthorities(
       );
     const curve: IAutoMovieRecoveryHermiteCurve =
       value as IAutoMovieRecoveryHermiteCurve;
-    const spans: readonly IAutoMovieCurve64.Span[] = curve.spans.map(
+    const spans: readonly AutoMovieCubicBezierControls3[] = curve.spans.map(
       (
         span: IAutoMovieRecoveryHermiteSpan,
         index: number,
-      ): IAutoMovieCurve64.Span =>
+      ): AutoMovieCubicBezierControls3 =>
         M.hermite(
           M.clone(span.start),
           M.clone(span.end),
@@ -230,13 +232,13 @@ export function rebindRecoveryCurveAuthorities(
     const spans: (
       name: unknown,
     ) => readonly [
-      readonly IAutoMovieCurve64.Span[],
-      readonly IAutoMovieCurve64.Span[],
+      readonly AutoMovieCubicBezierControls3[],
+      readonly AutoMovieCubicBezierControls3[],
     ] = (
       name: unknown,
     ): readonly [
-      readonly IAutoMovieCurve64.Span[],
-      readonly IAutoMovieCurve64.Span[],
+      readonly AutoMovieCubicBezierControls3[],
+      readonly AutoMovieCubicBezierControls3[],
     ] => {
       if (
         typeof name !== "string" ||
@@ -259,8 +261,8 @@ export function rebindRecoveryCurveAuthorities(
         for (const value of array(family.boundaries)) {
           const boundary: IAutoMovieRecoveryAuthorityRecord = required(value);
           const [before, after]: readonly [
-            readonly IAutoMovieCurve64.Span[],
-            readonly IAutoMovieCurve64.Span[],
+            readonly AutoMovieCubicBezierControls3[],
+            readonly AutoMovieCubicBezierControls3[],
           ] = spans(boundary.curveName);
           const ids: readonly unknown[] = array(boundary.controlIds);
           if (before.length !== ids.length || after.length !== ids.length)
@@ -314,8 +316,8 @@ export function rebindRecoveryCurveAuthorities(
           )
             continue;
           const [before, after]: readonly [
-            readonly IAutoMovieCurve64.Span[],
-            readonly IAutoMovieCurve64.Span[],
+            readonly AutoMovieCubicBezierControls3[],
+            readonly AutoMovieCubicBezierControls3[],
           ] = spans(binding.curveName);
           if (
             typeof binding.span !== "number" ||

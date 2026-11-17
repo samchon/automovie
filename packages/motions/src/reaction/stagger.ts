@@ -220,7 +220,7 @@ export namespace stagger {
     }
     // The first step's landing, the instant the clock names the catch by.
     const swing: number = recovery.steps[0]!.land;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       recovery.settled,
       [
         { name: "tipped", seconds: 0.5 * swing },

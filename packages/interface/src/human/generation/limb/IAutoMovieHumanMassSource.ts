@@ -3,7 +3,14 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanGlutealParent } from "../trunk/IAutoMovieHumanGlutealParent";
 
-/** Type contracts exchanged by AutoMovieHumanMassSource; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanMassSource; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanMassSource exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IConnection, IContact, ISeed. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanMassSource; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IConnection, IContact, ISeed contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanMassSource {
   /** Actual parent-derived placement, not a central curvature estimate.
    *
@@ -37,7 +44,17 @@ export namespace IAutoMovieHumanMassSource {
     };
     /** Whether the original supported root was kept or only a new inward prefix was authored. */
     transfer?: "original-root" | "inner-prefix";
-    /** Same whole-parent reader that determined the root, with its explicit absence. */
+    /**
+     * Same whole-parent reader that determined the root, with its explicit absence.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Same whole-parent reader that determined the root, with its explicit absence.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanMassSource owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanMassSource.IConnection.contact declares the invocation boundary only; AutoMovieHumanMassSource and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanMassSource.IConnection.contact must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanMassSource.IConnection.contact owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanMassSource and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanMassSource producer or caller supplying the callback owns captured state and its lifetime.
+     */
     contact(phi: number): IContact | string;
   }
 

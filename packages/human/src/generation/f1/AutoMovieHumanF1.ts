@@ -5,9 +5,10 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieConstructionBandProfile,
   IAutoMovieConstructionFill,
   IAutoMovieConstructionNode,
-  IAutoMovieConstructionPort,
+  IAutoMovieConstructionPortLoop,
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
   IAutoMovieHumanConicLoft,
@@ -15,7 +16,7 @@ import type {
   IAutoMovieHumanF1,
   IAutoMovieHumanF1Placement,
   IAutoMovieHumanSegmentFrame,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
@@ -367,8 +368,10 @@ export namespace AutoMovieHumanF1 {
   function trunkChart(
     placed: IAutoMovieHumanF1.IAssembly,
   ): (p: readonly number[]) => IChart {
-    const pelvis: IAutoMovieHumanSegmentFrame.IFrame =
-      AutoMovieHumanF1Placement.frame("pelvis", placed.frames);
+    const pelvis: IAutoMovieHumanSegmentFrame = AutoMovieHumanF1Placement.frame(
+      "pelvis",
+      placed.frames,
+    );
     const floor: AutoMovieVector3Tuple = F.toLocal(
       pelvis,
       placed.body.trunk.centres[0]!,
@@ -821,7 +824,7 @@ export namespace AutoMovieHumanF1 {
   const NOSE_SUBNASAL_MM: number = 2.5;
 
   /**
-   * The nose's band's cross profiles (`IAutoMovieConstructionPort.IProfile`), depths in metres along its inward normal, on its loop clock
+   * The nose's band's cross profiles (`IAutoMovieConstructionBandProfile`), depths in metres along its inward normal, on its loop clock
    * (0 at the dorsum, a quarter turn at the +Z wing, a half turn under the columella). Read by `FamilyConicScan.ts band band.nose 64`: the
    * reference skin's depth below the plain band along its normal at shares 0.1 to 0.9 of its span, with the sidewall's net
    * (`AutoMovieHumanF1Nose`, `nose.side`) on, averaged over each window's columns and over the two sides (`+Z` and its mirror clock):
@@ -832,7 +835,7 @@ export namespace AutoMovieHumanF1 {
    *   so the last knot takes 0.6 mm and the ring's own share is left to the floor's net.
    * Each window fades over 0.2 rad of clock (0.15 under the sill, where the columella's columns between the two stand within 0.35 mm).
    */
-  const NOSE_PROFILES: IAutoMovieConstructionPort.IProfile[] = [
+  const NOSE_PROFILES: IAutoMovieConstructionBandProfile[] = [
     {
       start: 1.57,
       end: 2.36,
@@ -1077,7 +1080,7 @@ export namespace AutoMovieHumanF1 {
   export function armscye(
     side: 1 | -1,
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
-  ): IAutoMovieConstructionPort.ILoop {
+  ): IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily =
       side > 0
         ? placed.body.arm
@@ -1155,7 +1158,7 @@ export namespace AutoMovieHumanF1 {
     margin: number | ((clock: number) => number),
     radius: number,
     sense: 1 | -1,
-  ): IAutoMovieConstructionPort.ILoop {
+  ): IAutoMovieConstructionPortLoop {
     const span = (c: 0 | 1): [number, number] => [
       Math.min(...outline.map((q: [number, number]): number => q[c])),
       Math.max(...outline.map((q: [number, number]): number => q[c])),
@@ -1321,7 +1324,7 @@ export namespace AutoMovieHumanF1 {
    */
   export function nostril(
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
-  ): IAutoMovieConstructionPort.ILoop {
+  ): IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily = placed.body.nose;
     const first: number = family.knots[0]!;
     const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(
@@ -1375,7 +1378,7 @@ export namespace AutoMovieHumanF1 {
   export function mammary(
     side: 1 | -1,
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
-  ): IAutoMovieConstructionPort.ILoop {
+  ): IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily = placed.body.breast;
     const first: number = family.knots[0]!;
     const rail: number = first + RAIL_MM.breast;
@@ -1388,7 +1391,7 @@ export namespace AutoMovieHumanF1 {
     const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
 
     // The course's point and directions at the rail: along it, up squared to it, and to +Z square to both.
-    const frame: IAutoMovieLoftFrame.IFrame =
+    const frame: IAutoMovieLoftSectionFrame =
       AutoMovieHumanConicLoft.axis(family).at(rail);
     const w: number[] = [0, 1, 2].map(
       (k: number): number => family.centres[1]![k]! - family.centres[0]![k]!,
@@ -1820,7 +1823,7 @@ export namespace AutoMovieHumanF1 {
       const course: IAutoMovieViewAxis.IAxis =
         AutoMovieHumanConicLoft.axis(family);
       const reach = (s: number, t: number): number => {
-        const [from, to]: IAutoMovieLoftFrame.IFrame[] = [
+        const [from, to]: IAutoMovieLoftSectionFrame[] = [
           course.at(s),
           course.at(t),
         ];

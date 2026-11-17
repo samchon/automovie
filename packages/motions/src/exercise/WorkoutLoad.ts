@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanHand,
@@ -93,9 +95,8 @@ export namespace WorkoutLoad {
     midfoot: boolean = false,
   ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const side: IAutoMovieMotionHumanHand.Side = load.hand ?? "right";
-    const other: IAutoMovieMotionHumanHand.Side =
-      side === "right" ? "left" : "right";
+    const side: AutoMovieHumanSide = load.hand ?? "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
 
     // The holding hand keeps the fingers it closed on the prop: a key
     // writes every joint, the fingers among them.
@@ -173,8 +174,8 @@ export namespace WorkoutLoad {
     );
     const bend = (
       posture: IAutoMovieMotionHumanPosture,
-      arm: IAutoMovieMotionHumanHand.Side,
-      goal: Pick<IAutoMovieMotionHumanPosture.IGoal, "point" | "rotation">,
+      arm: AutoMovieHumanSide,
+      goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
     ): IAutoMovieVector3 =>
       AutoMovieMotionHumanBend.solve({
         body,
@@ -276,7 +277,7 @@ export namespace WorkoutLoad {
                 }),
               ),
             };
-        const first: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
+        const first: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
           context,
           tool,
           frame,

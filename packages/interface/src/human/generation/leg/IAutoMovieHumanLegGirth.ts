@@ -1,7 +1,14 @@
 import type { IAutoMovieHumanLegProfile } from "./IAutoMovieHumanLegProfile";
 import type { IAutoMovieHumanLegStations } from "./IAutoMovieHumanLegStations";
 
-/** Type contracts exchanged by AutoMovieHumanLegGirth; runtime evaluation remains in Human. */
+/**
+ * Leg tapes, endpoint conditions, ordered normalized rows and millimetre-station girth readers. Runtime construction and admission remain with AutoMovieHumanLegGirth in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes leg tapes, endpoint conditions, ordered normalized rows and millimetre-station girth readers; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Leg tapes, endpoint conditions, ordered normalized rows and millimetre-station girth readers. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegGirth; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegGirth contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLegGirth {
   /** The tapes the law reads, mm.
    *
@@ -52,28 +59,23 @@ export namespace IAutoMovieHumanLegGirth {
     site?: number;
   }
 
-  /** The table argument of AutoMovieHumanLegGirth.ratioAt. A table's ratio at a share: linear between its two rows either side, held
-  at the end rows past them.
-  @param table Rows `[share, ratio]` by increasing share.
-  @param share The share read.
+  /**
+   * Readonly [station share, ratio] rows in increasing share order; both components are dimensionless. The reader interpolates linearly between rows and holds the endpoint ratios outside them.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation A table's ratio at a share: linear between its two rows either side, held at the end rows past them.
- * @evidence contracts/development/design.md#principled-representation A table's ratio at a share: linear between its two rows either side, held at the end rows past them. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegGirth.RatioAtTable is the canonical exchange used by AutoMovieHumanLegGirth.ratioAt.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLegGirth.ratioAt for a table's ratio at a share: linear between its two rows either side, held at the end rows past them.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Readonly [station share, ratio] rows in increasing share order; both components are dimensionless. The reader interpolates linearly between rows and holds the endpoint ratios outside them.
+   * @evidence contracts/development/design.md#principled-representation Readonly [station share, ratio] rows in increasing share order; both components are dimensionless. The reader interpolates linearly between rows and holds the endpoint ratios outside them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegGirth.RatioAtTable is the canonical exchange used by AutoMovieHumanLegGirth.ratioAt.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanLegGirth input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type RatioAtTable = readonly (readonly [number, number])[];
 
-  /** Result of AutoMovieHumanLegGirth.of. The girth law.
-  @param input The tapes, the joints and the scale.
-  @returns The girth the section asks for at a station, mm, held at the end knots past them.
+  /**
+   * Requested section girth in millimetres at physical station s in millimetres. The produced law holds its endpoint values beyond the first and last knots.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The girth law.
- * @evidence contracts/development/design.md#principled-representation The girth law. The callable takes s and returns number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegGirth.OfResult is the canonical exchange used by AutoMovieHumanLegGirth.of.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLegGirth.of for the girth law.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Requested section girth in millimetres at physical station s in millimetres. The produced law holds its endpoint values beyond the first and last knots.
+   * @evidence contracts/development/design.md#principled-representation Requested section girth in millimetres at physical station s in millimetres. The produced law holds its endpoint values beyond the first and last knots.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegGirth.OfResult is the canonical exchange used by AutoMovieHumanLegGirth.of.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanLegGirth input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type OfResult = (s: number) => number;
 }

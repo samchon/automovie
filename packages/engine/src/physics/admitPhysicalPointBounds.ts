@@ -1,6 +1,8 @@
 import type {
   IAutoMoviePhysicalPointBound,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -60,15 +62,15 @@ export function admitPhysicalPointBounds(
       (bound.reference.shape !== undefined &&
         (typeof bound.reference.shape !== "string" ||
           !reference?.segments.some(
-            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            (segment: IAutoMoviePhysicalSegment): boolean =>
               segment.bone === bound.reference.bone &&
               segment.shapes.some(
-                (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+                (shape: IAutoMoviePhysicalShape): boolean =>
                   shape.id === bound.reference.shape,
               ),
           ))) ||
       !reference?.segments.some(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+        (segment: IAutoMoviePhysicalSegment): boolean =>
           segment.bone === bound.reference.bone,
       ) ||
       !isPhysicalActuatorChain(profile, bound.chain, bound.source.bone) ||

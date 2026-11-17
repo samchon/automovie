@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieSamplePoseVelocity } from "../../IAutoMovieSamplePoseVelocity";
+import type { IAutoMoviePoseVelocity } from "../../IAutoMoviePoseVelocity";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
@@ -18,10 +18,10 @@ import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHuman
  * plan from (the remaining joint offsets) is left to the transition's
  * inertialization. Every point is in world metres.
  *
- * @evidence contracts/development/common.md#meaningful-documentation acceleration: The root's linear acceleration as displayed up to the entry, world metres per second squared: a path that continues the root from the entry starts with it, so the rates of the joints a planted foot is re-solved through do not change slope at the cut.
- * @evidence contracts/development/design.md#principled-representation acceleration: The root's linear acceleration as displayed up to the entry, world metres per second squared: a path that continues the root from the entry starts with it, so the rates of the joints a planted foot is re-solved through do not change slope at the cut.
+ * @evidence contracts/development/common.md#meaningful-documentation acceleration: The root's linear acceleration as displayed up to the entry, world metres per second squared: a path that continues the root from the entry starts with it, so the rates of the joints a planted foot is re-solved through do not change slope at the cut. ankle: The ankle joint, world metres. velocity: The ankle's velocity as displayed up to the entry, world metres per second. acceleration: The ankle's acceleration as displayed up to the entry, world metres per second squared.
+ * @evidence contracts/development/design.md#principled-representation acceleration: The root's linear acceleration as displayed up to the entry, world metres per second squared: a path that continues the root from the entry starts with it, so the rates of the joints a planted foot is re-solved through do not change slope at the cut. ankle: The ankle joint, world metres. velocity: The ankle's velocity as displayed up to the entry, world metres per second. acceleration: The ankle's acceleration as displayed up to the entry, world metres per second squared.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jumpTakeoff.ts (jumpTakeoff, entry); actions/stand.ts (stand.feet, entry); actions/standFeet.ts (standFeet.of, entry); actions/walkFacing.ts (walkFacing.share, entry); carrier/HumanSupportFrame.ts (HumanSupportFrame.floor, entry); everyday/seated.ts (seated.floor, entry).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMoviePose, IAutoMovieSamplePoseVelocity.IVelocity, IAutoMovieVector3, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanBase identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMoviePose, IAutoMoviePoseVelocity, IAutoMovieVector3, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanBase identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanContactWindow.Support, AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionPlan identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanEntryState {
   /** Film second of the entry. */
@@ -31,7 +31,7 @@ export interface IAutoMovieMotionHumanEntryState {
   pose: IAutoMoviePose;
 
   /** Its velocity. */
-  velocity: IAutoMovieSamplePoseVelocity.IVelocity;
+  velocity: IAutoMoviePoseVelocity;
 
   /**
    * The root's linear acceleration as displayed up to the entry, world metres
@@ -80,10 +80,6 @@ export interface IAutoMovieMotionHumanEntryState {
 /**
  * Contracts used by jumpTakeoff, stand.feet, standFeet.of, walkFacing.share.
  *
- * @evidence contracts/development/common.md#meaningful-documentation ankle: The ankle joint, world metres. velocity: The ankle's velocity as displayed up to the entry, world metres per second. acceleration: The ankle's acceleration as displayed up to the entry, world metres per second squared.
- * @evidence contracts/development/design.md#principled-representation ankle: The ankle joint, world metres. velocity: The ankle's velocity as displayed up to the entry, world metres per second. acceleration: The ankle's acceleration as displayed up to the entry, world metres per second squared.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jumpTakeoff.ts (jumpTakeoff, entry); actions/stand.ts (stand.feet, entry); actions/standFeet.ts (standFeet.of, entry); actions/walkFacing.ts (walkFacing.share, entry); carrier/HumanSupportFrame.ts (HumanSupportFrame.floor, entry); everyday/seated.ts (seated.floor, entry).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanContactWindow.Support, AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionPlan identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanEntryState {
   /**

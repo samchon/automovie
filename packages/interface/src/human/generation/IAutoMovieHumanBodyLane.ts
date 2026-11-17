@@ -14,10 +14,21 @@ import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 import type { IAutoMovieHumanLegBones } from "./leg/IAutoMovieHumanLegBones";
 import type { IAutoMovieHumanLegWalk } from "./leg/IAutoMovieHumanLegWalk";
 import type { IAutoMovieHumanDigitWalk } from "./limb/IAutoMovieHumanDigitWalk";
-import type { IAutoMovieHumanSiteViewPart } from "./limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanNamedSource } from "./limb/IAutoMovieHumanNamedSource";
+import type { IAutoMovieHumanSourceDefinition } from "./limb/IAutoMovieHumanSourceDefinition";
+import type { IAutoMovieHumanSourceRealization } from "./limb/IAutoMovieHumanSourceRealization";
 import type { IAutoMovieHumanTrunkBuild } from "./trunk/IAutoMovieHumanTrunkBuild";
 
-/** Type contracts exchanged by AutoMovieHumanBodyLane; runtime evaluation remains in Human. */
+/**
+ * Original limb/head inputs, attachment folds and production-tree results, retaining source failures before realization.
+ *
+ * The interface package owns these declarations; AutoMovieHumanBodyLane in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Original limb/head inputs, attachment folds and production-tree results, retaining source failures before realization. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IFold, ISide, IDigit, IToe, IInput, IOutput, IDefinition declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IFold, ISide, IDigit, IToe, IInput, IOutput, IDefinition separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanBodyLane exchanges the named IFold, ISide, IDigit, IToe, IInput, IOutput, IDefinition contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanBodyLane {
   /** A join's seed search and fold, calibration mm.
    *
@@ -64,7 +75,7 @@ export namespace IAutoMovieHumanBodyLane {
       definition: IAutoMovieHumanLegWalk.IDefinition;
       /** Publish the actual leg consuming this final/trial parent's named hip source. */
       bind(
-        parent: IAutoMovieHumanSiteViewPart.IDefinition,
+        parent: IAutoMovieHumanSourceDefinition,
         station: number,
       ): IAutoMovieHumanLegWalk.IDefinition;
       /** Physical station and phase interval of this limb's shared fold with the trunk. */
@@ -76,7 +87,7 @@ export namespace IAutoMovieHumanBodyLane {
     /** The arm's bones, the palm's last centre and reach, its sites' laws and joints, its fold onto the trunk. */
     arm: {
       /** Identical normalized original shared by this loft and hand attachments. */
-      definition: IAutoMovieHumanSiteViewPart.IDefinition;
+      definition: IAutoMovieHumanSourceDefinition;
       /** Resolved joint centres for this limb in the registered body frame, millimetres. */
       bones: Pick<
         IAutoMovieHumanArmBones.IBones,
@@ -108,13 +119,23 @@ export namespace IAutoMovieHumanBodyLane {
     /** The foot. */
     foot: IAutoMovieHumanFootPart.IInput;
     /** Same final foot original consumed by its loft and toe contact readers. */
-    footDefinition: IAutoMovieHumanSiteViewPart.IDefinition;
+    footDefinition: IAutoMovieHumanSourceDefinition;
 
     /** The fingers and the thumb, each with its web's fold onto the palm. */
     fingers: IDigit[];
     /** Actual digit factory keys; enumeration does not evaluate their geometry. */
     digitNames: readonly string[];
-    /** Prepare just this actual digit original; other digits are not evaluated. */
+    /**
+     * Prepare just this actual digit original; other digits are not evaluated.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Prepare just this actual digit original; other digits are not evaluated.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBodyLane and the callback provider must satisfy the documented digit contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBodyLane and its callback provider own the cost of each digit invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBodyLane and the callback provider determine when the inputs to digit describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBodyLane and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanBodyLane.ISide.digit callable contract, without an implementation body. AutoMovieHumanBodyLane and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanBodyLane.ISide.digit declares only the invocation boundary; decomposition belongs to AutoMovieHumanBodyLane and the callback provider.
+     */
     digit(name: string): IDigit | undefined;
 
     /** The toes, each with its web's fold onto the forefoot. */
@@ -133,7 +154,7 @@ export namespace IAutoMovieHumanBodyLane {
    */
   export interface IDigit {
     /** Same prepared original consumed by both the selected reader and production raw loft. */
-    definition: IAutoMovieHumanSiteViewPart.IDefinition;
+    definition: IAutoMovieHumanSourceDefinition;
     /** The digit. */
     digit: IAutoMovieHumanDigitWalk.IInput;
 
@@ -144,14 +165,13 @@ export namespace IAutoMovieHumanBodyLane {
   /**
    * A toe's foot-axis skin source and its declared fold onto the forefoot.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps the fixed foot-observation source separate from a finger's joint-normal input.
-   * @evidence contracts/common.md#clear-and-simple-design One toe input and fold are sufficient for the existing branch assembly.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No final join success, skeletal registration or missing-source substitute is encoded.
-   * @evidence contracts/common.md#meaningful-documentation States source-plane ownership and distinguishes the pending fold from a realized attachment.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration owns no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The branch builder owns source construction and sharing.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The definition caller owns the record and its source input.
-   *
+   * Keeps the fixed foot-observation source separate from a finger's joint-normal input.
+   * One toe input and fold are sufficient for the existing branch assembly.
+   * No final join success, skeletal registration or missing-source substitute is encoded.
+   * States source-plane ownership and distinguishes the pending fold from a realized attachment.
+   * This declaration owns no algorithm.
+   * The branch builder owns source construction and sharing.
+   * The definition caller owns the record and its source input.
    *
    * @evidence contracts/development/common.md#meaningful-documentation A toe's foot-axis skin source and its declared fold onto the forefoot.
    * @evidence contracts/development/design.md#principled-representation `definition`: Same final fixed-chart original consumed by production and selected readers. `toe`: Fixed observation-plane input, distinct from a finger's bone-normal walk. `fold`: The source attachment's fold declaration; final realization remains separate.
@@ -160,7 +180,7 @@ export namespace IAutoMovieHumanBodyLane {
    */
   export interface IToe {
     /** Same final fixed-chart original consumed by production and selected readers. */
-    definition: IAutoMovieHumanSiteViewPart.IDefinition;
+    definition: IAutoMovieHumanSourceDefinition;
     /** Fixed observation-plane input, distinct from a finger's bone-normal walk. */
     toe: IAutoMovieHumanToePart.IInput;
 
@@ -185,7 +205,7 @@ export namespace IAutoMovieHumanBodyLane {
     /** Same already prepared trunk/tape-pass result, when an original reader evaluated it first. */
     preparedTrunk?: IAutoMovieHumanTrunkBuild.IOutput;
     /** Actually requested raw originals from this same preparation context. */
-    preparedSources?: ReadonlyMap<string, IAutoMovieHumanSiteViewPart.IResult>;
+    preparedSources?: ReadonlyMap<string, IAutoMovieHumanSourceRealization>;
 
     /** Both sides. */
     sides: Record<"left" | "right", ISide>;
@@ -236,6 +256,6 @@ export namespace IAutoMovieHumanBodyLane {
     /** Source-builder and tree-assembly premises; final join diagnostics do not exist yet. */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
     /** Actual named builder results, including null admissions and views absent from the final tree. */
-    sources: IAutoMovieHumanSiteViewPart.ISource[];
+    sources: IAutoMovieHumanNamedSource[];
   }
 }

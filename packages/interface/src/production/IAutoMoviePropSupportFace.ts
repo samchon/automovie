@@ -50,6 +50,11 @@ export namespace IAutoMoviePropSupportFace {
    * Nothing is guessed. A citation that does not resolve, a host that is not staged, a contact of a kind that carries no face (`handle`, `socket`, `hook`), a `stack-top` without an extent, a patch whose region encloses no area, and a top staged edge-on to the ground each answer `null`, because a face nobody can measure is not a face a prop can be proven off. The edge-on top's height over the ground plan is not a function, so there is no rule to read it by, and inventing one would refuse or excuse a prop for a number the author never wrote.
    *
    * Lookups take the first record of a given id, exactly as {@link propAnchorFrame} does and for the same reason: contradicting ids are {@link validatePropPlacements}'s own refusal, by name.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The face one `on-support` relation resolves to, or `null` when the record states none. Member documentation states the supplied records, units and absence meanings used by builtEnvironmentSupportStatus, propSupportFace, propSupportGap, validatePropPlacementGeometry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Space and other target kinds are excluded by the union; unresolved, unmeasurable or edge-on support faces remain null instead of receiving invented footprints or heights.
+   * @evidence contracts/development/design.md#principled-representation target is restricted to a support patch or prop affordance; environments and optional prop/staging registries resolve its rest-world face in metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMoviePropSupportFace.IProps, used by builtEnvironmentSupportStatus, propSupportFace, propSupportGap, validatePropPlacementGeometry. Its target, environments, props, set members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** The `on-support` relation's target: a patch, or another prop's contact. */

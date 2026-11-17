@@ -6,8 +6,10 @@ import {
   planPhysicalBalanceTargets,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
@@ -38,13 +40,17 @@ export async function test_physical_balance_targets(): Promise<void> {
   const policy: NonNullable<
     IAutoMoviePhysicalSimulationInput.IBody["balance"]
   > = PhysicalSupportFixtures.body(profile, 1).balance!;
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
-  const actual: P.ITransform = structuredClone(targets.body!);
+  const actual: IAutoMovieRigidTransform = structuredClone(targets.body!);
   actual.position.x += 0.02;
   actual.position.y -= 0.015;
   const goals: Record<string, V> = Object.fromEntries(
@@ -86,7 +92,7 @@ export async function test_physical_balance_targets(): Promise<void> {
       nclose(Vector3.length(error), 0, 0.001),
     );
     for (const segment of profile.segments.filter(
-      (segment: P.ISegment): boolean =>
+      (segment: IAutoMoviePhysicalSegment): boolean =>
         (limb.contacts ?? [limb.bone]).includes(segment.bone),
     ))
       for (const shape of segment.shapes)

@@ -1,5 +1,7 @@
 import type {
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
@@ -42,12 +44,10 @@ export function admitPhysicalReleasePolicy(
     Array.from(selected).every(
       (id: string): boolean =>
         typeof id === "string" &&
-        profile.segments.some(
-          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-            segment.shapes.some(
-              (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
-                shape.id === id,
-            ),
+        profile.segments.some((segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.shapes.some(
+            (shape: IAutoMoviePhysicalShape): boolean => shape.id === id,
+          ),
         ),
     );
   if (

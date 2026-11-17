@@ -6,7 +6,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -42,34 +45,45 @@ export function test_physical_support_redundancy(): void {
     ...body.balance!.pattern,
     limbs: [limb],
   };
-  const joints: Map<string, P.IJoint> = new Map(
-    profile.joints.map((joint: P.IJoint): [string, P.IJoint] => [
-      joint.child,
-      joint,
-    ]),
+  const joints: Map<string, IAutoMoviePhysicalJoint> = new Map(
+    profile.joints.map(
+      (joint: IAutoMoviePhysicalJoint): [string, IAutoMoviePhysicalJoint] => [
+        joint.child,
+        joint,
+      ],
+    ),
   );
   const descendants: Map<string, readonly string[]> = new Map(
-    profile.segments.map((segment: P.ISegment): [string, string[]] => [
-      segment.bone,
-      subtree(segment.bone),
-    ]),
+    profile.segments.map(
+      (segment: IAutoMoviePhysicalSegment): [string, string[]] => [
+        segment.bone,
+        subtree(segment.bone),
+      ],
+    ),
   );
-  const authored: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const authored: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
   const chain: readonly string[] = ["upper-0", "lower-0", "support-0"];
 
   // 1. A pure first-order null-space zig-zag returns to the authored posture.
   const alpha: number = 0.005;
-  const zigzag: Record<string, P.ITransform> = pose({
+  const zigzag: Record<string, IAutoMovieRigidTransform> = pose({
     "upper-0": alpha,
     "lower-0": -2 * alpha,
     "support-0": alpha,
   });
-  const returned: Record<string, P.ITransform> = warm(zigzag, chain);
+  const returned: Record<string, IAutoMovieRigidTransform> = warm(
+    zigzag,
+    chain,
+  );
   TestValidator.predicate(
     "null-space zig-zag leaves the endpoint fixed to first order",
     vclose(endpoint(zigzag), endpoint(authored), 1e-4),
@@ -84,8 +98,10 @@ export function test_physical_support_redundancy(): void {
 
   // 2. A task-moving hip rotation keeps its endpoint while its null part returns.
   const beta: number = 0.002;
-  const hip: Record<string, P.ITransform> = pose({ "upper-0": beta });
-  const kept: Record<string, P.ITransform> = warm(hip, chain);
+  const hip: Record<string, IAutoMovieRigidTransform> = pose({
+    "upper-0": beta,
+  });
+  const kept: Record<string, IAutoMovieRigidTransform> = warm(hip, chain);
   TestValidator.predicate(
     "the previous task-space endpoint is meaningfully away from authored",
     !vclose(endpoint(hip), endpoint(authored), 1e-3),
@@ -100,7 +116,9 @@ export function test_physical_support_redundancy(): void {
   );
 
   // 3. Without redundancy the previous coordinates stay exactly warm.
-  const branch: Record<string, P.ITransform> = warm(hip, ["upper-0"]);
+  const branch: Record<string, IAutoMovieRigidTransform> = warm(hip, [
+    "upper-0",
+  ]);
   TestValidator.predicate(
     "a non-redundant fit keeps its previous coordinates",
     Math.abs(angle(branch, "upper-0") - beta) <= 1e-12 &&
@@ -108,7 +126,7 @@ export function test_physical_support_redundancy(): void {
   );
 
   // 4. A previous correction cheaper than the fit tolerance returns fully.
-  const small: Record<string, P.ITransform> = warm(
+  const small: Record<string, IAutoMovieRigidTransform> = warm(
     pose({ "upper-0": 0.0005 }),
     chain,
   );
@@ -121,16 +139,16 @@ export function test_physical_support_redundancy(): void {
 
   /** World support endpoint of the tested limb. */
   function endpoint(
-    poses: Readonly<Record<string, P.ITransform>>,
-  ): P.ITransform["position"] {
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  ): IAutoMovieRigidTransform["position"] {
     return physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
   }
 
   /** Run the warm seed with identical current and preceding authored poses. */
   function warm(
-    previous: Readonly<Record<string, P.ITransform>>,
+    previous: Readonly<Record<string, IAutoMovieRigidTransform>>,
     selected: readonly string[],
-  ): Record<string, P.ITransform> {
+  ): Record<string, IAutoMovieRigidTransform> {
     return warmPhysicalSupportTargets({
       order: profile.segments,
       joints,
@@ -148,8 +166,9 @@ export function test_physical_support_redundancy(): void {
   /** Authored neutral with the given x-axis twist coordinates, applied parent-first. */
   function pose(
     angles: Readonly<Record<string, number>>,
-  ): Record<string, P.ITransform> {
-    const result: Record<string, P.ITransform> = structuredClone(authored);
+  ): Record<string, IAutoMovieRigidTransform> {
+    const result: Record<string, IAutoMovieRigidTransform> =
+      structuredClone(authored);
     for (const bone of chain)
       if (angles[bone] !== undefined)
         setPhysicalTargetJointRotation(
@@ -168,11 +187,11 @@ export function test_physical_support_redundancy(): void {
 
   /** Independent x-axis twist coordinate of one joint, read from world poses. */
   function angle(
-    poses: Readonly<Record<string, P.ITransform>>,
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     bone: string,
   ): number {
-    const joint: P.IJoint = joints.get(bone)!;
-    const relative: P.ITransform["rotation"] = Quaternion.multiply(
+    const joint: IAutoMoviePhysicalJoint = joints.get(bone)!;
+    const relative: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
       Quaternion.inverse(
         Quaternion.multiply(
           poses[joint.parent]!.rotation,
@@ -191,8 +210,12 @@ export function test_physical_support_redundancy(): void {
     return [
       bone,
       ...profile.joints
-        .filter((joint: P.IJoint): boolean => joint.parent === bone)
-        .flatMap((joint: P.IJoint): string[] => subtree(joint.child)),
+        .filter(
+          (joint: IAutoMoviePhysicalJoint): boolean => joint.parent === bone,
+        )
+        .flatMap((joint: IAutoMoviePhysicalJoint): string[] =>
+          subtree(joint.child),
+        ),
     ];
   }
 }

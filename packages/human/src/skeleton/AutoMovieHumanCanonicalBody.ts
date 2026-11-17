@@ -9,8 +9,10 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieHumanBindBone,
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanBodySources,
+  IAutoMovieHumanBonePlacement,
   IAutoMovieHumanCanonicalBody,
   IAutoMovieHumanCanonicalSolids,
   IAutoMovieHumanParameters,
@@ -215,10 +217,8 @@ export namespace AutoMovieHumanCanonicalBody {
       p[1]!,
       p[0]!,
     ];
-    const bones: IAutoMovieHumanSkeleton.IBone[] = body.joints.map(
-      (
-        j: IAutoMovieHumanCanonicalBody.IJoint,
-      ): IAutoMovieHumanSkeleton.IBone => ({
+    const bones: IAutoMovieHumanBindBone[] = body.joints.map(
+      (j: IAutoMovieHumanCanonicalBody.IJoint): IAutoMovieHumanBindBone => ({
         bone: j.bone,
         parent: j.parent,
         position: flip(j.position),
@@ -226,12 +226,10 @@ export namespace AutoMovieHumanCanonicalBody {
         radius: j.radius,
       }),
     );
-    const posed: IAutoMovieHumanSkeleton.IPlacement[] =
+    const posed: IAutoMovieHumanBonePlacement[] =
       pose === undefined
         ? bones.map(
-            (
-              b: IAutoMovieHumanSkeleton.IBone,
-            ): IAutoMovieHumanSkeleton.IPlacement => ({
+            (b: IAutoMovieHumanBindBone): IAutoMovieHumanBonePlacement => ({
               bone: b.bone,
               position: [...b.position],
               rotation: [0, 0, 0, 1],
@@ -240,7 +238,7 @@ export namespace AutoMovieHumanCanonicalBody {
         : place(body, pose).map(
             (
               p: IAutoMovieHumanCanonicalBody.IPlacement,
-            ): IAutoMovieHumanSkeleton.IPlacement => {
+            ): IAutoMovieHumanBonePlacement => {
               const q: IAutoMovieQuaternion = reflectRotation(p.rotation);
               return {
                 bone: p.bone,

@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -105,7 +106,7 @@ export namespace motionSocialToast {
           composition: composition.node,
         });
       const instant = (
-        segment: IAutoMovieMotionHumanSegment.ISegment,
+        segment: IAutoMovieMotionHumanSegment,
         event: string,
       ): number =>
         segment.start +
@@ -192,10 +193,7 @@ export namespace motionSocialToast {
           glass.affordance("lip").frame.translation;
         const radius: number = Math.hypot(lip.x, lip.z);
         const centre = (prop: string): IAutoMovieVector3 => {
-          const frame: IAutoMovieMotionHumanProp.IFrame = toast.prop(
-            prop,
-            meet,
-          );
+          const frame: IAutoMovieRigidTransform = toast.prop(prop, meet);
           return Vector3.add(
             frame.position,
             Quaternion.rotateVector(frame.rotation, { x: 0, y: lip.y, z: 0 }),

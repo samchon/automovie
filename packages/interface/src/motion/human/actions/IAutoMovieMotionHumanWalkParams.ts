@@ -54,7 +54,7 @@ export interface IAutoMovieMotionHumanWalkParams {
    * its tempo slows the speed at that step, so the cadence falls with it.
    * Neutral when absent.
    */
-  manner?: IAutoMovieMotionManner.IManner;
+  manner?: IAutoMovieMotionManner;
 
   /**
    * A formation slot to keep (`walkStation.resolve`): the walk goes along

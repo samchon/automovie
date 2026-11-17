@@ -1,4 +1,4 @@
-import type { IAutoMovieNaturalSpline } from "@automovie/interface";
+import type { IAutoMovieNaturalCubicSpline } from "@automovie/interface";
 
 /**
  * Natural cubic spline through knots: the C2 curve of least bending that
@@ -31,7 +31,7 @@ export namespace AutoMovieNaturalSpline {
   export function create(
     xs: readonly number[],
     ys: readonly number[],
-  ): IAutoMovieNaturalSpline.ISpline {
+  ): IAutoMovieNaturalCubicSpline {
     const n: number = xs.length;
     const diagonal: number[] = new Array<number>(n).fill(1);
     const upper: number[] = new Array<number>(n).fill(0);
@@ -66,7 +66,7 @@ export namespace AutoMovieNaturalSpline {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no input, buffer or handle.
    */
   export function evaluate(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     x: number,
   ): number {
     const k: number = interval(spline.xs, x);
@@ -75,11 +75,11 @@ export namespace AutoMovieNaturalSpline {
 
   /** Same polynomial and tangent arithmetic at an already selected span. */
   function valueAt(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     x: number,
     k: number,
   ): number {
-    const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
+    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = x - xs[k]!;
     const slope: number =
@@ -122,7 +122,7 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fresh two-number result escapes; the spline is not mutated or retained.
    */
   export function derivative(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     x: number,
   ): [number, number] {
     const k: number = interval(spline.xs, x);
@@ -131,11 +131,11 @@ export namespace AutoMovieNaturalSpline {
 
   /** Same derivative and exterior arithmetic at an already selected span. */
   function derivativeAt(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     x: number,
     k: number,
   ): [number, number] {
-    const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
+    const { xs, ys, curvatures }: IAutoMovieNaturalCubicSpline = spline;
     const n: number = xs.length;
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = Math.min(h, Math.max(0, x - xs[k]!));
@@ -165,7 +165,7 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fresh three-number tuple and local derivative pair are call-owned; nothing is retained.
    */
   export function read(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     x: number,
   ): [number, number, number] {
     const k: number = interval(spline.xs, x);
@@ -204,10 +204,10 @@ export namespace AutoMovieNaturalSpline {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function jerk(
-    spline: IAutoMovieNaturalSpline.ISpline,
+    spline: IAutoMovieNaturalCubicSpline,
     x: number,
   ): number {
-    const { xs, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
+    const { xs, curvatures }: IAutoMovieNaturalCubicSpline = spline;
     const n: number = xs.length;
     if (!(x >= xs[0]! && x <= xs[n - 1]!)) return 0;
     const k: number = interval(xs, x);

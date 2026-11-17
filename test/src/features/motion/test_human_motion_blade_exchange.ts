@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -62,7 +62,7 @@ export function test_human_motion_blade_exchange(): void {
   const tip: IAutoMovieVector3 = sword.affordance("point").frame.translation;
   const complaints: string[] = [];
   const placed = (
-    frame: IAutoMovieMotionHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
@@ -160,15 +160,12 @@ export function test_human_motion_blade_exchange(): void {
     const named = (
       subject: string,
       name: string,
-    ): IAutoMovieMotionHumanSegment.ISegment =>
+    ): IAutoMovieMotionHumanSegment =>
       film
         .segments(subject)
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === name,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === name)!;
     const instant = (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       event: string,
     ): number =>
       segment.start +
@@ -179,7 +176,7 @@ export function test_human_motion_blade_exchange(): void {
       subject: "a" | "b",
       seconds: number,
     ): readonly [IAutoMovieVector3, IAutoMovieVector3] => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+      const frame: IAutoMovieRigidTransform = film.prop(
         `sword-${subject}`,
         seconds,
       );
@@ -197,8 +194,8 @@ export function test_human_motion_blade_exchange(): void {
       );
 
     // 1. The parry's stroke on the cut's decisive instant.
-    const cut: IAutoMovieMotionHumanSegment.ISegment = named("a", "cut");
-    const parry: IAutoMovieMotionHumanSegment.ISegment = named("b", "parry");
+    const cut: IAutoMovieMotionHumanSegment = named("a", "cut");
+    const parry: IAutoMovieMotionHumanSegment = named("b", "parry");
     const met: number = cut.start + (cut.plan.contact ?? Number.NaN);
     const closed: number = instant(parry, "stroke");
     if (!(Math.abs(closed - met) <= FRAME))
@@ -224,10 +221,7 @@ export function test_human_motion_blade_exchange(): void {
       );
 
     // 4. The riposte finds the attacker.
-    const riposte: IAutoMovieMotionHumanSegment.ISegment = named(
-      "b",
-      "riposte",
-    );
+    const riposte: IAutoMovieMotionHumanSegment = named("b", "riposte");
     const struck: number = riposte.start + (riposte.plan.contact ?? Number.NaN);
     const missed: number = apart(
       blade("b", struck)[1],

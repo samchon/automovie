@@ -82,7 +82,7 @@ export function test_human_motion_travel_inchworm(): void {
       body,
       0,
     );
-    const [worm]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+    const [worm]: readonly IAutoMovieMotionHumanSegment[] =
       performance.segments("a");
     const event = (label: string): number =>
       worm!.start +

@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -169,7 +170,7 @@ export namespace swim {
         COORDINATION.novice,
         COORDINATION.elite,
       );
-    const instants: IAutoMovieMotionClock.IInstant[] = [];
+    const instants: IAutoMovieMotionClockInstant[] = [];
     for (let i: number = 0; i < cycles; i++)
       if (p.kind === "frontCrawl") {
         instants.push(
@@ -182,10 +183,10 @@ export namespace swim {
         );
       } else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
     const duration: number = cycles * period;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      duration,
-      [...instants, { name: "relax", seconds: duration }],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+      ...instants,
+      { name: "relax", seconds: duration },
+    ]);
     const phase = (s: number, offset: number = 0): number => {
       const u: number = s / period + offset;
       return u - Math.floor(u);

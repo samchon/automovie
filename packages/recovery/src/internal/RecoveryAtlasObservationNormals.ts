@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieRecoveryAtlasObservationState,
+  IAutoMovieRecoveryAtlasObservationInput,
 } from "@automovie/interface";
 
 /**
@@ -15,7 +15,7 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation call owns O(F) private normal storage; it is not published as engine geometry and is released with that call.
  */
 export function RecoveryAtlasObservationNormals(
-  input: IAutoMovieRecoveryAtlasObservationState["Input"],
+  input: IAutoMovieRecoveryAtlasObservationInput,
 ): number[][] {
   return input.triangles.map(
     (triangle: readonly [number, number, number]): number[] => {

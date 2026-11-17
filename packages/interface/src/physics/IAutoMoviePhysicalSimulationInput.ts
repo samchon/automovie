@@ -1,12 +1,20 @@
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieAdvancePhysicalBalance } from "./IAutoMovieAdvancePhysicalBalance";
 import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
 import type { IAutoMoviePerformanceMode } from "./IAutoMoviePerformanceMode";
 import type { IAutoMoviePhysicalContactBinding } from "./IAutoMoviePhysicalContactBinding";
 import type { IAutoMoviePhysicalPointBound } from "./IAutoMoviePhysicalPointBound";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
+import type { IAutoMoviePhysicalRecoveryPolicy } from "./IAutoMoviePhysicalRecoveryPolicy";
 
-/** Sampled physical-scene inputs, bounded controller policy and requested-torque diagnostics. */
+/**
+ * Sampled physical-scene inputs, bounded controller policy and requested-torque diagnostics.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Authored world poses and causal ownership/control policy for one cache sample. One scene body's physical profile, authored samples and bounded controller policy.
+ * @evidence contracts/development/design.md#principled-representation Sample k supplies continuous poses at k/rate seconds but its discrete policy owns the preceding interval [(k-1)/rate,k/rate); sample zero initializes ownership. targets includes zero and all duration times rate endpoints; translational gains use N/m and N s/m, angular gains N m/rad and N m s/rad.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalSimulation clones targets before admission and identity hashing; physical target fitting may derive different motor goals without rewriting these authored samples. Simulation compute clones this descriptor, supplies documented defaults and admits it before allocating native objects; optional controllers add only the declared physical policy.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts admitPhysicalTargets requires complete segment coverage, finite native-range positions, unit quaternions and strengths in [0,1]. dynamicSegments must explicitly include descendants of every selected parent. admitPhysicalBody, admitPhysicalReleasePolicy and admitPhysicalTargets own cross-field validation. Internal actuation requires supportTracking or balance; omitted optional controllers are inactive.
+ */
 export namespace IAutoMoviePhysicalSimulationInput {
   /**
    * Authored world poses and causal ownership/control policy for one cache sample.
@@ -20,7 +28,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
    */
   export interface ITarget {
     /** Complete authored world bone-origin poses: positions in metres and unit rotations. Admission requires exactly every profile segment. */
-    segments: Record<string, IAutoMoviePhysicalProfile.ITransform>;
+    segments: Record<string, IAutoMovieRigidTransform>;
 
     /** Explicit descendant-closed set of dynamic bones in simulated modes; omitted selects all, [] selects authored motion. Include every descendant of a selected parent. Kinematic mode remains authored regardless. */
     dynamicSegments?: string[];
@@ -101,7 +109,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
     complianceStrength: number;
 
     /** Optional generic support feedback; omission leaves balance to authored tracking. */
-    balance?: IAutoMovieAdvancePhysicalBalance.IPolicy;
+    balance?: IAutoMoviePhysicalRecoveryPolicy;
 
     /** Optional bounded world-orientation motor for the root; omission leaves root orientation without this motor. */
     rootTorque?: {

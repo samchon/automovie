@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -86,11 +87,10 @@ export function dressCases(
             .act("dress", { item, prop: "item", hand: "right" }),
           [wearable(item, { x: -0.2, y: who.body.measure.hipHeight, z: 0.35 })],
         );
-      const act: IAutoMovieMotionHumanSegment.ISegment = performance
+      const act: IAutoMovieMotionHumanSegment = performance
         .segments("a")
         .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === "dress",
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "dress",
         )!;
       const stroke: number =
         act.start +
@@ -139,10 +139,7 @@ export function dressCases(
       };
       const bones = performance.bones("a", stroke);
       const region = who.body.surfaces.regions[dress.WORN[item]];
-      const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-        "item",
-        stroke,
-      );
+      const frame: IAutoMovieRigidTransform = performance.prop("item", stroke);
       const steadied: number = Vector3.length(
         Vector3.subtract(surface(bones, "left"), want(bones, "left")),
       );

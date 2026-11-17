@@ -3,8 +3,8 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -58,11 +58,9 @@ export function test_archetype_sport_strike(): void {
     film: IAutoMovieMotionHumanPerformance,
     row: string,
   ): number => {
-    const act: IAutoMovieMotionHumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-      )!;
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
     return act.start + (act.plan.contact ?? Number.NaN);
   };
   for (const name of ["m-average", "f-small"] as const) {
@@ -117,7 +115,7 @@ export function test_archetype_sport_strike(): void {
           }).node,
       });
       const at: number = contact(film, "forehand");
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("racket", at);
+      const frame: IAutoMovieRigidTransform = film.prop("racket", at);
       // The ball's centre in the racket's own frame.
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(frame.rotation),

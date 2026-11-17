@@ -1,6 +1,13 @@
 import type { IAutoMovieSubdivisionStencil } from "./IAutoMovieSubdivisionStencil";
 
-/** Borrowed stencils, targets and writable buffers for an in-place inverse subdivision solve. */
+/**
+ * Borrowed stencils, targets and writable buffers for an in-place inverse subdivision solve.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Borrowed limit stencils and packed targets share one spatial unit with writable position and scratch buffers. Free-mask zero holds a control; capacity, finite inputs and distinct buffer storage are caller premises because this kernel performs no admission.
+ * @evidence contracts/development/design.md#principled-representation Borrowed limit stencils and packed targets share one spatial unit with writable position and scratch buffers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface solveAutoMovieSubdivisionLimit updates caller storage for the one-shot fitter and reusable network rigs.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Free-mask zero holds a control; capacity, finite inputs and distinct buffer storage are caller premises because this kernel performs no admission.
+ */
 export namespace IAutoMovieSolveSubdivisionLimit {
   /**
    * Solve, in place, the control positions whose Catmull-Clark limit points

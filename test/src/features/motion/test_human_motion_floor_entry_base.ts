@@ -85,7 +85,7 @@ export function test_human_motion_floor_entry_base(): void {
         );
         return;
       }
-      const second: IAutoMovieMotionHumanSegment.ISegment =
+      const second: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const at: number = second.entryTime;
       const left: Bones = performance.bones("a", at - STEP);

@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionTarget,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -128,14 +129,12 @@ export function test_human_motion_firearm_shot(): void {
         .registered("takeAim", { gun: "pistol", target: aimed, seconds: 0.5 })
         .registered("recoil", { gun: "pistol" }),
     );
-    const named = (row: string): IAutoMovieMotionHumanSegment.ISegment =>
+    const named = (row: string): IAutoMovieMotionHumanSegment =>
       film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
     const instant = (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       event: string,
     ): number =>
       segment.start +
@@ -145,10 +144,7 @@ export function test_human_motion_firearm_shot(): void {
     const line = (seconds: number): IAutoMovieVector3 =>
       Quaternion.rotateVector(film.prop("pistol", seconds).rotation, bore);
     const off = (seconds: number): number => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "pistol",
-        seconds,
-      );
+      const frame: IAutoMovieRigidTransform = film.prop("pistol", seconds);
       return degrees(
         line(seconds),
         Vector3.subtract(
@@ -164,7 +160,7 @@ export function test_human_motion_firearm_shot(): void {
       (Math.asin(Math.max(-1, Math.min(1, line(seconds).y))) * 180) / Math.PI;
 
     // 1. Presented, the bore is on the target.
-    const aim: IAutoMovieMotionHumanSegment.ISegment = named("takeAim");
+    const aim: IAutoMovieMotionHumanSegment = named("takeAim");
     for (const seconds of [
       instant(aim, "stroke"),
       (instant(aim, "stroke") + aim.end) / 2,
@@ -176,7 +172,7 @@ export function test_human_motion_firearm_shot(): void {
         );
 
     // 2. The shot lifts the muzzle and lets it back.
-    const shot: IAutoMovieMotionHumanSegment.ISegment = named("recoil");
+    const shot: IAutoMovieMotionHumanSegment = named("recoil");
     const trigger: number = shot.start + (shot.plan.contact ?? Number.NaN);
     const rise: number =
       elevation(instant(shot, "stroke")) - elevation(trigger);
@@ -190,12 +186,9 @@ export function test_human_motion_firearm_shot(): void {
       );
 
     // 3. The pistol stays in the hand.
-    const draw: IAutoMovieMotionHumanSegment.ISegment = named("drawFirearm");
+    const draw: IAutoMovieMotionHumanSegment = named("drawFirearm");
     const held = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "pistol",
-        seconds,
-      );
+      const frame: IAutoMovieRigidTransform = film.prop("pistol", seconds);
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;

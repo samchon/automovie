@@ -1,5 +1,6 @@
 import { resolveAutoMovieHumanoidRingModules } from "@automovie/engine";
 import type {
+  IAutoMovieHumanBindBone,
   IAutoMovieHumanSkeleton,
   IAutoMovieResolveHumanoidRingModules,
   IAutoMovieVector3,
@@ -24,9 +25,9 @@ import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
  */
 export function buildHumanPolygonParts(
   output: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
-  boneAt: (name: string) => IAutoMovieHumanSkeleton.IBone,
+  boneAt: (name: string) => IAutoMovieHumanBindBone,
   add: (
-    bone: IAutoMovieHumanSkeleton.IBone,
+    bone: IAutoMovieHumanBindBone,
     rings: buildHumanPolygonModule.ISection[],
     axis: THREE.Vector3,
     breadth?: THREE.Vector3,

@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryAtlasObservationState } from "./IAutoMovieRecoveryAtlasObservationState";
+import type { IAutoMovieRecoveryAtlasObservationInput } from "../observation/IAutoMovieRecoveryAtlasObservationInput";
+import type { IAutoMovieRecoveryEventRegion } from "./IAutoMovieRecoveryEventRegion";
+import type { IAutoMovieRecoverySourceComponent } from "./IAutoMovieRecoverySourceComponent";
+import type { IAutoMovieRecoverySourceCrease } from "./IAutoMovieRecoverySourceCrease";
 
 /**
  * Observe original component crease edges with the existing oriented source normals.
@@ -21,13 +24,13 @@ export namespace IAutoMovieRecoveryAtlasObservationCreases {
 
   export type Operation = (context: {
     /** Borrowed complete admitted observation request shared by this phase; the phase does not change its source selection. */
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
 
     /** Query-local source-cell and topology observation, borrowed unchanged for this chart pass. */
-    observed: IAutoMovieRecoveryAtlasObservationState["Observed"];
+    observed: IAutoMovieRecoveryEventRegion.Result;
 
     /** One observed source-cell component with independent topology qualification. */
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    component: IAutoMovieRecoverySourceComponent;
 
     /** Observed original face-normal directions used only for acquisition qualification, never generated-surface fallback. */
     sourceNormals: number[][];
@@ -44,6 +47,6 @@ export namespace IAutoMovieRecoveryAtlasObservationCreases {
     /** Original face ordinals touched by admitted or unsupported crease observations. */
     creaseFaces: number[];
     /** Original source crease edges admitted by the declared angular policy, retaining both incident face owners. */
-    featureEdges: IAutoMovieRecoveryAtlasObservationState["Feature"][];
+    featureEdges: IAutoMovieRecoverySourceCrease[];
   };
 }

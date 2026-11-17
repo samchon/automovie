@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureRecord,
@@ -143,7 +144,7 @@ export async function test_capture_run_order(): Promise<void> {
       record.request,
       record.sheets,
       record.files,
-      record.rows.map((row: IAutoMovieCaptureRecord.Row): unknown[] => [
+      record.rows.map((row: IAutoMovieCaptureCellRecord): unknown[] => [
         row.name,
         row.state,
         row.sheet,

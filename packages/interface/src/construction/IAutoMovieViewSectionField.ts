@@ -1,7 +1,14 @@
 import type { IAutoMovieConicFieldJet } from "./IAutoMovieConicFieldJet";
 import type { IAutoMovieViewConic } from "./IAutoMovieViewConic";
 
-/** Data and callback contracts shared by the ViewSectionField operations. */
+/**
+ * Data and callback contracts shared by the ViewSectionField operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Station jets fix [value,ds,dss]; radial jets fix six station/phase partials with station mm and phase radians, paired with the same numeric prepared geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewSectionField publishes source-jet preparations for native section readers using the canonical ConicFieldJet algebra.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The prepared discriminant requires successful factory admission; fixed tuple lengths alone do not prove finite physical2.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines tuple order, independent coordinates and immutable value-copyable preparation.
+ */
 export namespace IAutoMovieViewSectionField {
   /**
    * Actual scalar [value,ds,dss] in regular physical station mm.

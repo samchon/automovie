@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionManner,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import {
   AutoMovieMotionManner,
@@ -58,7 +58,7 @@ export function test_human_motion_recompose_exercise(): void {
   const perform = (
     body: IAutoMovieMotionHumanBody,
     act: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
-    cues?: Readonly<Record<string, readonly IAutoMovieResolveSchedule.ICue[]>>,
+    cues?: Readonly<Record<string, readonly IAutoMovieScheduleCue[]>>,
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "recompose-exercise",
@@ -75,7 +75,7 @@ export function test_human_motion_recompose_exercise(): void {
       ...(cues === undefined ? {} : { cues }),
     });
   const events = (p: IAutoMovieMotionHumanPerformance): Map<string, number> => {
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     return new Map(
       s.plan.events.map((e: IAutoMovieMotionEvent): [string, number] => [
         e.name,
@@ -95,9 +95,9 @@ export function test_human_motion_recompose_exercise(): void {
 
     for (const bpm of [96, 128]) {
       const period: number = 60 / bpm;
-      const track: IAutoMovieResolveSchedule.ICue[] = Array.from(
+      const track: IAutoMovieScheduleCue[] = Array.from(
         { length: 12 },
-        (_: unknown, k: number): IAutoMovieResolveSchedule.ICue => ({
+        (_: unknown, k: number): IAutoMovieScheduleCue => ({
           name: "beat",
           seconds: START + 0.37 + k * period,
         }),
@@ -285,7 +285,7 @@ export function test_human_motion_recompose_exercise(): void {
         .swim({ kind: "frontCrawl", cycles: 2 }).node,
     });
     const placed: Map<string, number> = events(p);
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     const period: number =
       placed.get("entryRight2")! - placed.get("entryRight1")! ||
       s.plan.duration / 2;

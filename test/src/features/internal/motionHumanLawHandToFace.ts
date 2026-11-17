@@ -110,7 +110,7 @@ export function motionHumanLawHandToFace(
   // which phase it falls in.
   const events: string = film.performance
     .segments("a")
-    .flatMap((segment: IAutoMovieMotionHumanSegment.ISegment): string[] =>
+    .flatMap((segment: IAutoMovieMotionHumanSegment): string[] =>
       segment.plan.events.map(
         (event: { name: string; share: number }): string =>
           `${event.name} ${(segment.start + event.share * segment.plan.duration).toFixed(2)}`,

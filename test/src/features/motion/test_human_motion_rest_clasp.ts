@@ -1,8 +1,8 @@
 import { physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanRest,
   IAutoMovieVector3,
@@ -73,7 +73,7 @@ export function test_human_motion_rest_clasp(): void {
       const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
         performance.bones("a", t);
       const goals: Partial<
-        Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>
+        Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>
       > = rest.goals(body, performance.posture("a", t), {
         left: place,
         right: place,

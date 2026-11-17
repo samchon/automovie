@@ -3,8 +3,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/HumanColliders";
@@ -47,10 +48,10 @@ export namespace HandOverlap {
 /** One collider with the posed frame of the segment that carries it. */
 interface IPlaced {
   /** The segment's posed frame, world metres. */
-  pose: IAutoMoviePhysicalProfile.ITransform;
+  pose: IAutoMovieRigidTransform;
 
   /** The shape, placed by `pose` composed with its own transform. */
-  shape: IAutoMoviePhysicalProfile.IShape;
+  shape: IAutoMoviePhysicalShape;
 }
 
 /** A person's right-hand phalanx, palm and forearm colliders, placed. */
@@ -68,7 +69,7 @@ function colliders(
     )
     .flatMap((segment: IAutoMovieMotionHumanColliders.IPlaced): IPlaced[] =>
       segment.shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): IPlaced => ({
+        (shape: IAutoMoviePhysicalShape): IPlaced => ({
           pose: segment.pose,
           shape,
         }),

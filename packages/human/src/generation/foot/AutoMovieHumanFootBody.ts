@@ -7,7 +7,7 @@ import type {
   IAutoMovieHumanFootWebLine,
   IAutoMovieHumanLimbFrame,
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanFootArc } from "./AutoMovieHumanFootArc";
@@ -63,7 +63,7 @@ export namespace AutoMovieHumanFootBody {
       station: number,
       force: boolean,
     ): IAutoMovieHumanFootBody.ISection | string => {
-      const frame: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(
+      const frame: IAutoMovieLoftSectionFrame = AutoMovieHumanFootFan.plane(
         line,
         station,
       );

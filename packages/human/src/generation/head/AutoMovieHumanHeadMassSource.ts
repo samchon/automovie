@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanHeadLandmarks,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadMassSource,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -264,7 +264,7 @@ export namespace AutoMovieHumanHeadMassSource {
     const rootSpan: number = Math.sqrt(plan.vertex - first);
     for (const [k, station] of stations.entries()) {
       const site: string = named.get(station) ?? `head.${k}`;
-      const frame: IAutoMovieLoftFrame.IFrame = axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(station);
       const atPole: boolean = site === "vertex";
       const radial: IAutoMovieViewOutline.IReading | string | null =
         radius !== null && station <= neck!.band[1]

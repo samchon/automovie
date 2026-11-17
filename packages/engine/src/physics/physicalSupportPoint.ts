@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -18,7 +18,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
 export function physicalSupportPoint(
-  pose: IAutoMoviePhysicalProfile.ITransform,
+  pose: IAutoMovieRigidTransform,
   localPoint?: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   return localPoint

@@ -1,6 +1,6 @@
 import type {
   IAutoMovieCombinePhysicalMassProperties,
-  IAutoMoviePhysicalPrincipalAxes,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -82,8 +82,7 @@ export function combinePhysicalMassProperties(
   if (!tensor.flat().every(Number.isFinite))
     throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
 
-  const axes3: IAutoMoviePhysicalPrincipalAxes.IResult =
-    physicalPrincipalAxes(tensor);
+  const axes3: IAutoMoviePrincipalTensorFrame = physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;
   if (

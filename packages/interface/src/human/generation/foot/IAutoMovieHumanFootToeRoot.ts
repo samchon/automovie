@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanFootToeRoot; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanFootToeRoot; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanFootToeRoot exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups OfDepth. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanFootToeRoot; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the OfDepth contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanFootToeRoot {
   /** The depth argument of AutoMovieHumanFootToeRoot.of. The first section's length along a toe's line, mm.
   @param breadth The toe's line and breadth.

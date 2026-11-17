@@ -132,7 +132,7 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function excursion(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     to: IAutoMovieMotionHumanRoot.IOffset,
@@ -164,7 +164,7 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shift(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     by: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPrimitive {
@@ -197,7 +197,7 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function face(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     yaw: number,
   ): IAutoMovieMotionHumanPrimitive {

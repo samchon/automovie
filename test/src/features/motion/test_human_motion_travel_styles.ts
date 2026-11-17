@@ -130,8 +130,7 @@ export function test_human_motion_travel_styles(): void {
       );
       return null;
     }
-    const segment: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",

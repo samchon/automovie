@@ -1,4 +1,8 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieCubicCriticalParameters,
+  IAutoMoviePlanarCurveSource,
+} from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -7,10 +11,8 @@ import path from "node:path";
 /** Private observation reader; only index rows explicitly marked closed enter the experiment. */
 export namespace ConicPaperInput {
   /** Weak source-identity reuse shares exact preprocessing between the two methods without retaining source curves. */
-  const criticalCache: WeakMap<
-    Span,
-    IAutoMovieConicApproximation.ICubicCriticalParameters
-  > = new WeakMap();
+  const criticalCache: WeakMap<Span, IAutoMovieCubicCriticalParameters> =
+    new WeakMap();
   /** Spatial coefficients retain the saved millimetre, +X forward/+Y up/+Z left chart. */
   export type V = readonly [number, number, number];
   /** Four actual Bernstein controls, not interpolated display points. */
@@ -203,10 +205,10 @@ export namespace ConicPaperInput {
     span: Span,
     u: number,
     order: 0 | 1 | 2 | 3 | 4 | 5,
-  ): IAutoMovieConicApproximation.Point {
+  ): Readonly<AutoMovieVector2Tuple> {
     if (order >= 4) return [0, 0];
-    let controls: IAutoMovieConicApproximation.Point[] = span.map(
-      (p: V): IAutoMovieConicApproximation.Point => [p[0], p[2]],
+    let controls: Readonly<AutoMovieVector2Tuple>[] = span.map(
+      (p: V): Readonly<AutoMovieVector2Tuple> => [p[0], p[2]],
     );
     for (let k: number = 0; k < order; ++k) {
       const degree: number = controls.length - 1;
@@ -214,9 +216,9 @@ export namespace ConicPaperInput {
         .slice(1)
         .map(
           (
-            p: IAutoMovieConicApproximation.Point,
+            p: Readonly<AutoMovieVector2Tuple>,
             i: number,
-          ): IAutoMovieConicApproximation.Point => [
+          ): Readonly<AutoMovieVector2Tuple> => [
             degree * (p[0] - controls[i]![0]),
             degree * (p[1] - controls[i]![1]),
           ],
@@ -227,9 +229,9 @@ export namespace ConicPaperInput {
         .slice(1)
         .map(
           (
-            p: IAutoMovieConicApproximation.Point,
+            p: Readonly<AutoMovieVector2Tuple>,
             i: number,
-          ): IAutoMovieConicApproximation.Point => [
+          ): Readonly<AutoMovieVector2Tuple> => [
             (1 - u) * controls[i]![0] + u * p[0],
             (1 - u) * controls[i]![1] + u * p[1],
           ],
@@ -244,11 +246,10 @@ export namespace ConicPaperInput {
     query: () => void,
     method: "ahn" | "ghosh",
     report: (summary: CriticalSummary, diagnostics: readonly string[]) => void,
-  ): IAutoMovieConicApproximation.ICurve {
+  ): IAutoMoviePlanarCurveSource {
     const started: number = performance.now();
-    let critical:
-      | IAutoMovieConicApproximation.ICubicCriticalParameters
-      | undefined = criticalCache.get(span);
+    let critical: IAutoMovieCubicCriticalParameters | undefined =
+      criticalCache.get(span);
     const cached: boolean = critical !== undefined;
     if (critical === undefined) {
       critical = C.cubicCriticalParameters([
@@ -298,14 +299,14 @@ export namespace ConicPaperInput {
       domain: [ordinal, ordinal + 1],
       breaks: mapped,
       closed: false,
-      evaluate: (t: number): IAutoMovieConicApproximation.Point => {
+      evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {
         query();
         return value(span, t - ordinal, 0);
       },
       derivative: (
         t: number,
         order: 1 | 2 | 3 | 4 | 5,
-      ): IAutoMovieConicApproximation.Point => {
+      ): Readonly<AutoMovieVector2Tuple> => {
         query();
         return value(span, t - ordinal, order);
       },

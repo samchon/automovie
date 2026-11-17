@@ -1,15 +1,17 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTravelLeaf,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -89,7 +91,7 @@ export namespace HumanTravelLeaf {
             reason: `a door is held after the hand has reached it, which takes ${TAKE} s`,
             fix: "hold the door longer",
           });
-        const door: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+        const door: IAutoMovieMotionHumanPropReader = context.prop(
           context.params.door,
         );
         const id: string = context.params.handle;
@@ -117,7 +119,7 @@ export namespace HumanTravelLeaf {
         const handle = (
           film: number,
         ): Parameters<typeof HumanMountRider.hold>[3] => {
-          const frame: IAutoMovieMotionHumanProp.IFrame = door.frame(film);
+          const frame: IAutoMovieRigidTransform = door.frame(film);
           const moved:
             | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
             | undefined = door.prop.point?.(id, film);
@@ -238,7 +240,7 @@ export namespace HumanTravelLeaf {
           posture: IAutoMovieMotionHumanPosture,
           t: number,
         ): boolean => {
-          const goal: IAutoMovieMotionHumanPosture.IGoal = HumanMountRider.hold(
+          const goal: IAutoMovieHumanLimbGoal = HumanMountRider.hold(
             body,
             side,
             posture,

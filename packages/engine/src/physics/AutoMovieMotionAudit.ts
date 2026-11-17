@@ -2,7 +2,8 @@ import type {
   IAutoMovieMeasurePhysicalMotionConstraint,
   IAutoMovieMotionAudit,
   IAutoMovieMotionGeometry,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
   IAutoMoviePreparePhysicalGeometry,
 } from "@automovie/interface";
 
@@ -43,20 +44,20 @@ export namespace AutoMovieMotionAudit {
     const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
       await Geometry();
     const findings: IAutoMovieMotionAudit.IFinding[] = [];
-    let previous: IAutoMoviePhysicsCache.IFrame | undefined;
+    let previous: IAutoMoviePhysicalFrame | undefined;
     const count: number = Math.ceil((input.end - input.start) * input.rate);
     for (let index: number = 0; index <= count; index++) {
       const seconds: number = Math.min(
         input.end,
         input.start + index / input.rate,
       );
-      const frame: IAutoMoviePhysicsCache.IFrame = input.sample(seconds);
+      const frame: IAutoMoviePhysicalFrame = input.sample(seconds);
       admitPhysicalMotionFrame(frame, input.bodies, seconds);
       for (const body of input.bodies) {
         for (const joint of motionAuditGeometry(body).joints) {
-          const parent: IAutoMoviePhysicsCache.ISegment | undefined =
+          const parent: IAutoMoviePhysicalSegmentState | undefined =
             frame.bodies[body.id]?.[joint.parent];
-          const child: IAutoMoviePhysicsCache.ISegment | undefined =
+          const child: IAutoMoviePhysicalSegmentState | undefined =
             frame.bodies[body.id]?.[joint.child];
           if (!parent || !child)
             throw new Error(
@@ -121,13 +122,13 @@ export namespace AutoMovieMotionAudit {
         }
       for (const body of input.bodies)
         for (const segment of motionAuditGeometry(body).segments) {
-          const state: IAutoMoviePhysicsCache.ISegment | undefined =
+          const state: IAutoMoviePhysicalSegmentState | undefined =
             frame.bodies[body.id]?.[segment.bone];
           if (!state)
             throw new Error(
               `Motion audit missing ${body.id}/${segment.bone} at ${seconds}`,
             );
-          const before: IAutoMoviePhysicsCache.ISegment | undefined =
+          const before: IAutoMoviePhysicalSegmentState | undefined =
             previous?.bodies[body.id]?.[segment.bone];
           const limit: number | undefined = body.speeds[segment.bone];
           if (before && limit !== undefined && seconds > previous!.seconds) {

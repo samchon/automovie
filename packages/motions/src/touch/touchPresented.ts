@@ -1,8 +1,9 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -35,10 +36,10 @@ export namespace touchPresented {
    */
   export interface IPresented {
     /** The arm. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** Its goal, world, on the entry posture. */
-    goal: IAutoMovieMotionHumanPosture.IGoal;
+    goal: IAutoMovieHumanLimbGoal;
 
     /** The body's bones with that arm at its goal. */
     bones: ReturnType<typeof poseBones>;
@@ -66,13 +67,12 @@ export namespace touchPresented {
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     target: IAutoMovieMotionTarget,
   ): IPresented | null {
     if (target.kind !== "self") return null;
     const body = context.body;
-    const other: IAutoMovieMotionHumanHand.Side =
-      side === "right" ? "left" : "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const bone = body.surfaces.regions[target.region].bone;
     if (
       bone !== `${other}UpperArm` &&
@@ -81,7 +81,7 @@ export namespace touchPresented {
     )
       return null;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: entry.root,
       yaw: entry.yaw,
     };
@@ -98,7 +98,7 @@ export namespace touchPresented {
       HumanFrame.turn(entry.yaw),
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
     );
-    const goal: IAutoMovieMotionHumanPosture.IGoal =
+    const goal: IAutoMovieHumanLimbGoal =
       AutoMovieMotionHumanTouchEffector.goal(
         body,
         other,

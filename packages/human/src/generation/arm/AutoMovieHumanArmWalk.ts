@@ -6,8 +6,11 @@ import type {
   IAutoMovieHumanArmHandControls,
   IAutoMovieHumanArmJointWindows,
   IAutoMovieHumanArmWalk,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanWalkPart,
 } from "@automovie/interface";
 
@@ -125,35 +128,31 @@ export namespace AutoMovieHumanArmWalk {
     const handControls: IAutoMovieHumanArmHandControls.IOutput | undefined =
       connection?.hand ??
       (source.input.sites.some(
-        (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
-          site.site === "forearm",
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "forearm",
       ) &&
       source.input.sites.some(
-        (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
-          site.site === "wrist",
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "wrist",
       )
         ? AutoMovieHumanArmHandControls.create(arrangement)
         : undefined);
     if (handControls?.hand.controls === null) return handControls.hand;
-    const connected: IAutoMovieHumanSiteViewPart.IInput =
+    const connected: IAutoMovieHumanSectionSource =
       handControls?.connect(source.input) ?? source.input;
 
     /** Original callers lacking a hand chart retain their direct whole-source controls. */
     const shared: (
-      input: IAutoMovieHumanSiteViewPart.IInput,
+      input: IAutoMovieHumanSectionSource,
     ) => IAutoMovieHumanArmWalk.IPrepared = (
-      input: IAutoMovieHumanSiteViewPart.IInput,
+      input: IAutoMovieHumanSectionSource,
     ): IAutoMovieHumanArmWalk.IPrepared => {
       const prepared: IAutoMovieHumanSiteControls.IOutput =
         AutoMovieHumanSiteControls.prepare(input);
       if (prepared.controls === null)
         return { controls: null, diagnostics: prepared.diagnostics };
       const original: IAutoMovieHumanSiteControls.IControls = prepared.controls;
-      const wrist: IAutoMovieHumanSiteViewPart.ISite | undefined =
-        input.sites.find(
-          (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
-            site.site === "wrist",
-        );
+      const wrist: IAutoMovieHumanSectionSite | undefined = input.sites.find(
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "wrist",
+      );
       const hand: IAutoMovieHumanArmWalk.IHandChart | null =
         wrist === undefined
           ? null
@@ -172,7 +171,7 @@ export namespace AutoMovieHumanArmWalk {
       };
     };
     const prepareInput: (
-      input: IAutoMovieHumanSiteViewPart.IInput,
+      input: IAutoMovieHumanSectionSource,
     ) => IAutoMovieHumanArmWalk.IPrepared = handControls?.prepare ?? shared;
     if (measuring === undefined) return prepareInput(connected);
     const end: number = source.station(
@@ -199,7 +198,7 @@ export namespace AutoMovieHumanArmWalk {
   /** Publish this actual arm from its shared generating controls; callers needing the palm request prepare directly. */
   export function define(
     ...args: IAutoMovieHumanArmWalk.DefineArgs
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     return AutoMovieHumanSiteViewPart.fromControls(prepare(...args));
   }
 
@@ -215,7 +214,7 @@ export namespace AutoMovieHumanArmWalk {
     crease?: AutoMovieVector3Tuple,
     radial?: AutoMovieVector3Tuple,
     measuring?: IAutoMovieHumanArmWalk.IMeasuring,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(
       define(
         name,

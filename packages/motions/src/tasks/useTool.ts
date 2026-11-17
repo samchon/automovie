@@ -1,14 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanToolWork,
@@ -137,7 +138,7 @@ export namespace useTool {
     const m = body.measure;
     const kind: IAutoMovieMotionHumanToolWork.Kind = context.params.tool;
     const subject: string = context.params.prop;
-    const side: IAutoMovieMotionHumanHand.Side =
+    const side: AutoMovieHumanSide =
       context.params.hand ??
       (context.entry.holds.left === subject &&
       context.entry.holds.right !== subject
@@ -270,7 +271,7 @@ export namespace useTool {
       0.03,
     );
     const period: number = PERIODS[kind];
-    const phases: IAutoMovieMotionClock.IPhase[] = [
+    const phases: IAutoMovieMotionClockPhase[] = [
       { name: "reaching", seconds: travel },
     ];
     for (let k: number = 1; k <= cycles; k++)
@@ -279,7 +280,7 @@ export namespace useTool {
         { name: `contact${k}`, seconds: period / 2 },
       );
     phases.push({ name: "recover", seconds: travel });
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
       { holds: [] },

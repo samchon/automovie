@@ -1,11 +1,14 @@
-import type { IAutoMovieRecoverySlabGraph } from "@automovie/interface";
+import type {
+  IAutoMovieRecoverySlabConnectivityGroup,
+  IAutoMovieRecoverySlabGraph,
+} from "@automovie/interface";
 
 /**
  * Source observation graph for explicit continuation between adjacent plane cuts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Inputs distinguish private transient triangle support from source-independent curve-graph output.
  * @evidence contracts/development/design.md#principled-representation Source triangle incidence and complete scalar-overlap candidates define clipped-sheet components whose boundary ordinals remain distinct from original face IDs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared source closure supplies repeated slab queries and their IAutoMovieRecoverySlabGraph.Group results.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared source closure supplies repeated slab queries and their IAutoMovieRecoverySlabConnectivityGroup results.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Open defects, hidden components and ambiguous support remain unsupported; source orientation and generated-surface fidelity are not inferred.
  */
 export namespace RecoverySlabGraph {
@@ -72,7 +75,7 @@ export namespace RecoverySlabGraph {
         Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
         "triangles" | "canon" | "heights"
       >,
-    ): IAutoMovieRecoverySlabGraph.Group[] => {
+    ): IAutoMovieRecoverySlabConnectivityGroup[] => {
       if (
         !Number.isFinite(input.beforeMm) ||
         !Number.isFinite(input.afterMm) ||
@@ -160,7 +163,8 @@ export namespace RecoverySlabGraph {
           }
         }
       }
-      const groups: Map<number, IAutoMovieRecoverySlabGraph.Group> = new Map();
+      const groups: Map<number, IAutoMovieRecoverySlabConnectivityGroup> =
+        new Map();
       const roots: (support: ReadonlySet<number>) => Set<number> = (
         support: ReadonlySet<number>,
       ): Set<number> => {
@@ -179,9 +183,9 @@ export namespace RecoverySlabGraph {
         }
         return result;
       };
-      const ensure: (id: number) => IAutoMovieRecoverySlabGraph.Group = (
+      const ensure: (id: number) => IAutoMovieRecoverySlabConnectivityGroup = (
         id: number,
-      ): IAutoMovieRecoverySlabGraph.Group => {
+      ): IAutoMovieRecoverySlabConnectivityGroup => {
         if (!groups.has(id))
           groups.set(id, {
             before: [],
@@ -197,13 +201,16 @@ export namespace RecoverySlabGraph {
           const found: Set<number> = roots(input[side][i]!);
           if (found.size === 1) ensure([...found][0]!)[side].push(i);
           else {
-            const group: IAutoMovieRecoverySlabGraph.Group = ensure(orphan--);
+            const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+              orphan--,
+            );
             group[side].push(i);
             group.supported = false;
             group.reason =
               "Boundary support has no unique clipped-slab component";
             for (const id of found) {
-              const affected: IAutoMovieRecoverySlabGraph.Group = ensure(id);
+              const affected: IAutoMovieRecoverySlabConnectivityGroup =
+                ensure(id);
               affected.supported = false;
               affected.reason =
                 "A boundary touches multiple clipped-slab components";
@@ -214,14 +221,14 @@ export namespace RecoverySlabGraph {
       for (let i: number = 0; i < (input.probes?.length ?? 0); i++) {
         const found: Set<number> = roots(input.probes![i]!);
         if (found.size === 1) {
-          const group: IAutoMovieRecoverySlabGraph.Group = ensure(
+          const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
             [...found][0]!,
           );
           (group.probes ??= []).push(i);
         } else {
           const affected: number[] = found.size ? [...found] : [orphan--];
           for (const id of affected) {
-            const group: IAutoMovieRecoverySlabGraph.Group = ensure(id);
+            const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(id);
             (group.probes ??= []).push(i);
             group.supported = false;
             group.reason =
@@ -231,13 +238,15 @@ export namespace RecoverySlabGraph {
       }
       for (const support of input.defects)
         for (const id of roots(support)) {
-          const group: IAutoMovieRecoverySlabGraph.Group = ensure(id);
+          const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(id);
           group.supported = false;
           group.reason =
             "Open, isolated or unrepresented source contour in this slab component";
         }
       for (const triangle of invalid) {
-        const group: IAutoMovieRecoverySlabGraph.Group = ensure(root(triangle));
+        const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+          root(triangle),
+        );
         group.supported = false;
         group.reason =
           "Degenerate or nonmanifold source incidence in this slab component";
@@ -246,7 +255,9 @@ export namespace RecoverySlabGraph {
       // Retain its omission instead of silently deleting it from the observation.
       for (let ti: number = 0; ti < capacity; ti++)
         if (parent[ti] !== -1) {
-          const group: IAutoMovieRecoverySlabGraph.Group = ensure(root(ti));
+          const group: IAutoMovieRecoverySlabConnectivityGroup = ensure(
+            root(ti),
+          );
           if (group.before.length === 0 && group.after.length === 0) {
             group.supported = false;
             group.reason ??=

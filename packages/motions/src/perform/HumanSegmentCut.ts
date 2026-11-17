@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanInterruptRow,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -34,8 +34,8 @@ export namespace HumanSegmentCut {
    */
   export function row(
     subject: string,
-    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
-    before: IAutoMovieSchedule.IEntry | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
+    before: IAutoMovieScheduleEntry | undefined,
     name: AutoMovieMotionHumanActionKey,
     start: number,
     accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {},

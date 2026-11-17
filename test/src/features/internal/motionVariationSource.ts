@@ -29,7 +29,7 @@ export const motionVariationSource: (props?: {
     variation?: number;
   } = {},
 ): IAutoMovieMotionHumanVariation.ISource => {
-  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: props.skill ?? 0 },
     props.seed ?? "film",
   );

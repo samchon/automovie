@@ -1,4 +1,5 @@
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterLabel } from "../picture/IAutoMovieRasterLabel.js";
 import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
 
 /**
@@ -20,7 +21,7 @@ export interface IAutoMovieCaptureDrawing {
   /**
    * Labels to stamp, each with the pixel of the picture where its box's top-left corner goes, such as the anchor of a mark.
    */
-  labels: IAutoMovieCaptureDrawing.ILabel[];
+  labels: IAutoMovieRasterLabel[];
 
   /**
    * Identity of the renderer that drew the still, such as `swiftshader` or a GPU name; absent when the host does not state it.
@@ -41,33 +42,4 @@ export interface IAutoMovieCaptureDrawing {
    * What each pattern of the cell's request and view resolved to, as `resolveAutoMovieCapturePatterns` gives it on the draw page; absent when the host does not state it.
    */
   resolved?: IAutoMovieCaptureResolution[];
-}
-
-/**
- * Pixel label data returned by the host and consumed by the capture stamp, with no font or canvas dependency.
- *
- * @evidence contracts/development/design.md#principled-representation Pixel label data returned by the host and consumed by the capture stamp, with no font or canvas dependency.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These members belong to IAutoMovieCaptureDrawing and are consumed with its enclosing record, rather than a second top-level vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Member discriminants and documented null/empty cases preserve the enclosing record's supported states.
- * @evidence contracts/development/common.md#meaningful-documentation Member comments state the relevant coordinate frames, units and outcome semantics.
- */
-export namespace IAutoMovieCaptureDrawing {
-  /**
-   * One label to stamp on a still.
-   *
-   * @evidence contracts/development/design.md#principled-representation Text and the pixel of the picture where its box starts.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, read by the stamp.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A box that would leave the picture is moved inside it by the stamp rather than refused.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and its frame.
-   */
-  export interface ILabel {
-    /** The text; characters outside the stamp's font draw blank. */
-    text: string;
-
-    /** Column of the box's top-left corner, in pixels from the left. */
-    x: number;
-
-    /** Row of the box's top-left corner, in pixels from the top. */
-    y: number;
-  }
 }

@@ -7,8 +7,10 @@ import {
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieHumanCanonicalBody,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -111,32 +113,28 @@ export function* colliderCases(
         slot.where = where;
       }
     };
-    const left: IAutoMoviePhysicalProfile.ISegment[] =
-      body.profile.segments.filter(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-          !segment.bone.startsWith("right"),
-      );
-    const hulled = (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+    const left: IAutoMoviePhysicalSegment[] = body.profile.segments.filter(
+      (segment: IAutoMoviePhysicalSegment): boolean =>
+        !segment.bone.startsWith("right"),
+    );
+    const hulled = (segment: IAutoMoviePhysicalSegment): boolean =>
       segment.shapes.every(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
-          shape.kind === "hull",
+        (shape: IAutoMoviePhysicalShape): boolean => shape.kind === "hull",
       );
 
     // The drawing against its colliders.
     for (const mesh of meshes) {
-      const segment: IAutoMoviePhysicalProfile.ISegment | undefined = left.find(
-        (s: IAutoMoviePhysicalProfile.ISegment): boolean =>
-          s.bone === mesh.carrier,
+      const segment: IAutoMoviePhysicalSegment | undefined = left.find(
+        (s: IAutoMoviePhysicalSegment): boolean => s.bone === mesh.carrier,
       );
       if (segment === undefined)
         throw new Error(`The drawn ${mesh.joint} has no collider segment`);
       const off = (p: THREE.Vector3): number =>
         Math.min(
-          ...segment.shapes.map(
-            (shape: IAutoMoviePhysicalProfile.IShape): number =>
-              Math.abs(
-                physicalShapeSegmentDistance(segment.neutral, shape, p, p),
-              ),
+          ...segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
+            Math.abs(
+              physicalShapeSegmentDistance(segment.neutral, shape, p, p),
+            ),
           ),
         );
       // How far a drawn point stands outside every shape of the segment; a
@@ -146,9 +144,8 @@ export function* colliderCases(
         Math.max(
           0,
           Math.min(
-            ...segment.shapes.map(
-              (shape: IAutoMoviePhysicalProfile.IShape): number =>
-                physicalShapeSegmentDistance(segment.neutral, shape, p, p),
+            ...segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
+              physicalShapeSegmentDistance(segment.neutral, shape, p, p),
             ),
           ),
         );
@@ -301,8 +298,8 @@ function inside(p: THREE.Vector3, triangles: THREE.Triangle[]): boolean {
  * and longitude and its side at eighths of its length.
  */
 function samples(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
 ): THREE.Vector3[] {
   const centre: IAutoMovieVector3 = Vector3.add(
     pose.position,

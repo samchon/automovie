@@ -1,6 +1,6 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryEventCurveSource,
 } from "@automovie/interface";
 
@@ -18,7 +18,7 @@ import type {
  */
 export function readRecoveryEventCurveParent(
   source: IAutoMovieRecoveryEventCurveSource,
-): IAutoMovieCurve64.Span {
+): AutoMovieCubicBezierControls3 {
   const curve: IAutoMovieRecoveryEventCurveSource["curve"] = source.curve;
   if (
     !curve ||
@@ -32,7 +32,7 @@ export function readRecoveryEventCurveParent(
     throw new Error(
       "A native event authority requires one millimetre cubic and its original positive phase width",
     );
-  const net: IAutoMovieCurve64.Span = curve.spans[0]!;
+  const net: AutoMovieCubicBezierControls3 = curve.spans[0]!;
   if (
     !Array.isArray(net) ||
     net.length !== 4 ||

@@ -10,9 +10,10 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanSupportFrame,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -187,11 +188,12 @@ export namespace HumanSupportFrame {
         velocity: { x: 0, y: 0, z: 0 },
         acceleration: { x: 0, y: 0, z: 0 },
       };
-    const frame = (t: number): IAutoMovieMotionHumanProp.IFrame => {
+    const frame = (t: number): IAutoMovieRigidTransform => {
       if (support.kind === "prop")
         return context.prop(support.subject).frame(t);
-      const other: IAutoMovieMotionHumanActionContext.IPerformer =
-        context.performer(support.subject);
+      const other: IAutoMovieMotionHumanPerformerReader = context.performer(
+        support.subject,
+      );
       const bone: AutoMovieHumanoidBone =
         "bone" in support
           ? support.bone
@@ -200,7 +202,7 @@ export namespace HumanSupportFrame {
       return HumanPropFrame.bone(posed);
     };
     const h: number = integrateMotionTrajectory.STEP;
-    const now: IAutoMovieMotionHumanProp.IFrame = frame(seconds);
+    const now: IAutoMovieRigidTransform = frame(seconds);
 
     // A person is read only up to the second evaluated: backward differences.
     const [before, after]: [IAutoMovieVector3, IAutoMovieVector3] =

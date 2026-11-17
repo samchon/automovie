@@ -98,8 +98,7 @@ export function toolCases(
       const plan: IAutoMovieMotionHumanUseTool.IPlan = performance
         .segments("a")
         .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === "useTool",
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "useTool",
         )!.plan as IAutoMovieMotionHumanUseTool.IPlan;
       const at: IAutoMovieVector3 = plan.tool.on;
       const tip = (t: number): IAutoMovieVector3 => {

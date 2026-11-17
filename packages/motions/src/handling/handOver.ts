@@ -1,21 +1,25 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandover,
   IAutoMovieMotionHumanHandoverAction,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrehension,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSeatedReach,
   IAutoMovieMotionMeeting,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -88,21 +92,22 @@ export namespace handOver {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandoverAction.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const receiver: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(context.params.to);
-    const receiverSide: IAutoMovieMotionHumanHand.Side =
+    const receiver: IAutoMovieMotionHumanPerformerReader = context.performer(
+      context.params.to,
+    );
+    const receiverSide: AutoMovieHumanSide =
       context.params.receiverHand ?? "right";
     const prop: IAutoMovieMotionHumanProp = context.prop(
       context.params.prop,
     ).prop;
-    const frame: IAutoMovieMotionHumanProp.IFrame = context
+    const frame: IAutoMovieRigidTransform = context
       .prop(context.params.prop)
       .frame(context.start);
     // The place both partners read from one meeting record.
-    const met: IAutoMovieMotionMeeting.IMeeting = context.meeting(
+    const met: IAutoMovieMotionMeeting = context.meeting(
       HumanHandoverMeeting.kind({
         giver: side,
         receiver: receiverSide,
@@ -209,8 +214,7 @@ export namespace handOver {
       side,
       "relaxed",
     );
-    const limb: IAutoMovieMotionHumanPosture.Limb =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       body,
       held,
@@ -221,28 +225,27 @@ export namespace handOver {
     // solved once on its own. The offer at a small giver's shoulder height
     // needs another elbow than the carry, so a reference of the carry alone
     // left the wrist to make up the forearm's pitch and tilted the prop.
-    const carried: IAutoMovieMotionHumanPosture.IReference =
-      resolveHumanPosture.reference(context.entry.pose, limb);
-    const offered: IAutoMovieMotionHumanPosture.IReference =
-      resolveHumanPosture.reference(
-        resolveHumanPosture(body, {
-          ...leaned(1),
-          limbs: {
-            ...held.limbs,
-            [limb]: {
-              point: shared.giverAt.point,
-              rotation: shared.giverAt.rotation,
-              bend,
-            },
+    const carried: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+      context.entry.pose,
+      limb,
+    );
+    const offered: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+      resolveHumanPosture(body, {
+        ...leaned(1),
+        limbs: {
+          ...held.limbs,
+          [limb]: {
+            point: shared.giverAt.point,
+            rotation: shared.giverAt.rotation,
+            bend,
           },
-        }),
-        limb,
-      );
+        },
+      }),
+      limb,
+    );
     // Blended as rotations: the two solutions may be written in different
     // charts of the shoulder.
-    const between = (
-      share: number,
-    ): IAutoMovieMotionHumanPosture.IReference => ({
+    const between = (share: number): IAutoMovieHumanLimbReference => ({
       upper: blendHumanJoint(
         body,
         `${side}UpperArm`,

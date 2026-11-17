@@ -1,7 +1,7 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPickUp,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -70,7 +70,7 @@ export namespace pickUpStance {
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     lift: number,
     authored: IAutoMovieMotionHumanGrasp.ITarget,
   ): IChosen {

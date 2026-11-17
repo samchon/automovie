@@ -1,3 +1,4 @@
+export type { AutoMovieRecoverySourceTopologyIssueCode } from "./AutoMovieRecoverySourceTopologyIssueCode";
 export type { AutoMovieRecoverySqpCorrection } from "./AutoMovieRecoverySqpCorrection";
 export type { IAutoMovieGhoshConicApproximationBalance } from "./IAutoMovieGhoshConicApproximationBalance";
 export type { IAutoMovieGhoshConicApproximationDisplacement } from "./IAutoMovieGhoshConicApproximationDisplacement";
@@ -14,8 +15,8 @@ export type { IAutoMovieRecoveryAtlasObservationCreases } from "./IAutoMovieReco
 export type { IAutoMovieRecoveryAtlasObservationFeatures } from "./IAutoMovieRecoveryAtlasObservationFeatures";
 export type { IAutoMovieRecoveryAtlasObservationPublish } from "./IAutoMovieRecoveryAtlasObservationPublish";
 export type { IAutoMovieRecoveryAtlasObservationSource } from "./IAutoMovieRecoveryAtlasObservationSource";
-export type { IAutoMovieRecoveryAtlasObservationState } from "./IAutoMovieRecoveryAtlasObservationState";
 export type { IAutoMovieRecoveryAuthorityRecord } from "./IAutoMovieRecoveryAuthorityRecord";
+export type { IAutoMovieRecoveryBoundaryCut } from "./IAutoMovieRecoveryBoundaryCut";
 export type { IAutoMovieRecoveryCameraChartCreationOperation } from "./IAutoMovieRecoveryCameraChartCreationOperation";
 export type { IAutoMovieRecoveryCameraEstimateCreationOperation } from "./IAutoMovieRecoveryCameraEstimateCreationOperation";
 export type { IAutoMovieRecoveryCameraMapAdmissionOperation } from "./IAutoMovieRecoveryCameraMapAdmissionOperation";
@@ -49,6 +50,7 @@ export type { IAutoMovieRecoveryChartFitReport } from "./IAutoMovieRecoveryChart
 export type { IAutoMovieRecoveryChartFitRows } from "./IAutoMovieRecoveryChartFitRows";
 export type { IAutoMovieRecoveryChartFitSolve } from "./IAutoMovieRecoveryChartFitSolve";
 export type { IAutoMovieRecoveryChartFitSystem } from "./IAutoMovieRecoveryChartFitSystem";
+export type { IAutoMovieRecoveryChartInventory } from "./IAutoMovieRecoveryChartInventory";
 export type { IAutoMovieRecoveryChartLeafAssembly } from "./IAutoMovieRecoveryChartLeafAssembly";
 export type { IAutoMovieRecoveryChartLeafBoundaryPreparationOperation } from "./IAutoMovieRecoveryChartLeafBoundaryPreparationOperation";
 export type { IAutoMovieRecoveryChartLeafControls } from "./IAutoMovieRecoveryChartLeafControls";
@@ -61,6 +63,7 @@ export type { IAutoMovieRecoveryCheckpointReporting } from "./IAutoMovieRecovery
 export type { IAutoMovieRecoveryContourFaceSupportCollectionOperation } from "./IAutoMovieRecoveryContourFaceSupportCollectionOperation";
 export type { IAutoMovieRecoveryCriticalBracketsPreparationOperation } from "./IAutoMovieRecoveryCriticalBracketsPreparationOperation";
 export type { IAutoMovieRecoveryCurvatureAdmission } from "./IAutoMovieRecoveryCurvatureAdmission";
+export type { IAutoMovieRecoveryDirectedEdgeIncidence } from "./IAutoMovieRecoveryDirectedEdgeIncidence";
 export type { IAutoMovieRecoveryDiskBoundaryPreparationOperation } from "./IAutoMovieRecoveryDiskBoundaryPreparationOperation";
 export type { IAutoMovieRecoveryDiskChart } from "./IAutoMovieRecoveryDiskChart";
 export type { IAutoMovieRecoveryDomainsDescriptionOperation } from "./IAutoMovieRecoveryDomainsDescriptionOperation";
@@ -105,6 +108,7 @@ export type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "./IAutoMo
 export type { IAutoMovieRecoveryImagePointsNormalizationOperation } from "./IAutoMovieRecoveryImagePointsNormalizationOperation";
 export type { IAutoMovieRecoveryImageProfilesFittingOperation } from "./IAutoMovieRecoveryImageProfilesFittingOperation";
 export type { IAutoMovieRecoveryImageSupportsPreparationOperation } from "./IAutoMovieRecoveryImageSupportsPreparationOperation";
+export type { IAutoMovieRecoveryIndexedCrease } from "./IAutoMovieRecoveryIndexedCrease";
 export type { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh";
 export type { IAutoMovieRecoveryLinkedTrack } from "./IAutoMovieRecoveryLinkedTrack";
 export type { IAutoMovieRecoveryLocalContinuationPreparationOperation } from "./IAutoMovieRecoveryLocalContinuationPreparationOperation";
@@ -134,11 +138,16 @@ export type { IAutoMovieRecoveryMeshIncidencePreparationOperation } from "./IAut
 export type { IAutoMovieRecoveryMultiBoundaryChart } from "./IAutoMovieRecoveryMultiBoundaryChart";
 export type { IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation } from "./IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation";
 export type { IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "./IAutoMovieRecoveryNamedDomainsDescriptionOperation";
+export type { IAutoMovieRecoveryObservedMeshTopology } from "./IAutoMovieRecoveryObservedMeshTopology";
+export type { IAutoMovieRecoveryOpenArcAddress } from "./IAutoMovieRecoveryOpenArcAddress";
+export type { IAutoMovieRecoveryOpenArcIncidence } from "./IAutoMovieRecoveryOpenArcIncidence";
+export type { IAutoMovieRecoveryOpenContinuationEdge } from "./IAutoMovieRecoveryOpenContinuationEdge";
 export type { IAutoMovieRecoveryOpenContinuationRow } from "./IAutoMovieRecoveryOpenContinuationRow";
 export type { IAutoMovieRecoveryOpenReconstructionOperation } from "./IAutoMovieRecoveryOpenReconstructionOperation";
 export type { IAutoMovieRecoveryOpenRunDescriptionOperation } from "./IAutoMovieRecoveryOpenRunDescriptionOperation";
 export type { IAutoMovieRecoveryOpenRunsPreparationOperation } from "./IAutoMovieRecoveryOpenRunsPreparationOperation";
 export type { IAutoMovieRecoveryOpenSlabGraph } from "./IAutoMovieRecoveryOpenSlabGraph";
+export type { IAutoMovieRecoveryPendingChartObservation } from "./IAutoMovieRecoveryPendingChartObservation";
 export type { IAutoMovieRecoveryPoseModelCreationOperation } from "./IAutoMovieRecoveryPoseModelCreationOperation";
 export type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "./IAutoMovieRecoveryPoseResidualsLinearizeOperation";
 export type { IAutoMovieRecoveryRelativePoseStepOperation } from "./IAutoMovieRecoveryRelativePoseStepOperation";
@@ -170,9 +179,19 @@ export type { IAutoMovieRecoverySceneSupportCollectionOperation } from "./IAutoM
 export type { IAutoMovieRecoverySceneTrackTriangulationOperation } from "./IAutoMovieRecoverySceneTrackTriangulationOperation";
 export type { IAutoMovieRecoverySceneTriangulation } from "./IAutoMovieRecoverySceneTriangulation";
 export type { IAutoMovieRecoverySectionObservationOperation } from "./IAutoMovieRecoverySectionObservationOperation";
+export type { IAutoMovieRecoverySlabConnectivityGroup } from "./IAutoMovieRecoverySlabConnectivityGroup";
 export type { IAutoMovieRecoverySlabGraph } from "./IAutoMovieRecoverySlabGraph";
+export type { IAutoMovieRecoverySourceCell } from "./IAutoMovieRecoverySourceCell";
+export type { IAutoMovieRecoverySourceCellNode } from "./IAutoMovieRecoverySourceCellNode";
+export type { IAutoMovieRecoverySourceComponent } from "./IAutoMovieRecoverySourceComponent";
+export type { IAutoMovieRecoverySourceCrease } from "./IAutoMovieRecoverySourceCrease";
+export type { IAutoMovieRecoverySourceHalfedge } from "./IAutoMovieRecoverySourceHalfedge";
+export type { IAutoMovieRecoverySourcePort } from "./IAutoMovieRecoverySourcePort";
+export type { IAutoMovieRecoverySourcePortReference } from "./IAutoMovieRecoverySourcePortReference";
 export type { IAutoMovieRecoverySourceSlabsObservationOperation } from "./IAutoMovieRecoverySourceSlabsObservationOperation";
 export type { IAutoMovieRecoverySourceTerminalsObservationOperation } from "./IAutoMovieRecoverySourceTerminalsObservationOperation";
+export type { IAutoMovieRecoverySourceTopology } from "./IAutoMovieRecoverySourceTopology";
+export type { IAutoMovieRecoverySourceTopologyIssue } from "./IAutoMovieRecoverySourceTopologyIssue";
 export type { IAutoMovieRecoverySqpArc } from "./IAutoMovieRecoverySqpArc";
 export type { IAutoMovieRecoverySqpMix } from "./IAutoMovieRecoverySqpMix";
 export type { IAutoMovieRecoverySqpOptions } from "./IAutoMovieRecoverySqpOptions";

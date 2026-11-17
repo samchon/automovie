@@ -1,7 +1,9 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -123,16 +125,9 @@ export namespace pushSled {
         "degrees",
       );
 
-    const grips: Record<
-      IAutoMovieMotionHumanHand.Side,
-      pushSledHandles.IHandle
-    > = pushSledHandles.of(
-      context,
-      p.sled,
-      p.left ?? "left",
-      p.right ?? "right",
-    );
-    const sockets: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = {
+    const grips: Record<AutoMovieHumanSide, pushSledHandles.IHandle> =
+      pushSledHandles.of(context, p.sled, p.left ?? "left", p.right ?? "right");
+    const sockets: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanHand.offset(body, "left", "grip", "fist").point,
       right: HumanHand.offset(body, "right", "grip", "fist").point,
     };
@@ -253,9 +248,9 @@ export namespace pushSled {
     // An arm's goal on a hold: where the arm cannot meet its turn, the grip
     // socket stays on the handle and the turn gives.
     const goal = (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
       hold: Hold,
-    ): IAutoMovieMotionHumanPosture.IGoal => ({
+    ): IAutoMovieHumanLimbGoal => ({
       point: hold.wrist.point,
       rotation: hold.wrist.rotation,
       contact: sockets[side],
@@ -263,7 +258,7 @@ export namespace pushSled {
     });
     const fit = (
       posture: IAutoMovieMotionHumanPosture,
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
       hold: Hold,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
@@ -286,7 +281,7 @@ export namespace pushSled {
     );
     type Grasp = { point: IAutoMovieVector3; hold: Hold; off: number };
     type Held = { hold: Hold; off: number };
-    const take = (side: IAutoMovieMotionHumanHand.Side): Held => {
+    const take = (side: AutoMovieHumanSide): Held => {
       const { frame: at, symmetry, length } = grips[side];
 
       // A turn and a place on the handle: the point, the hold the arm takes
@@ -398,7 +393,7 @@ export namespace pushSled {
         });
       return { hold: grasp(choice.values).hold, off: choice.miss };
     };
-    const taken: Record<IAutoMovieMotionHumanHand.Side, Held> = {
+    const taken: Record<AutoMovieHumanSide, Held> = {
       left: take("left"),
       right: take("right"),
     };
@@ -422,7 +417,7 @@ export namespace pushSled {
 
     // The hands reach for the holds they keep, so the reach ends where the
     // hold begins.
-    const kept: Record<IAutoMovieMotionHumanHand.Side, Hold> = {
+    const kept: Record<AutoMovieHumanSide, Hold> = {
       left: taken.left.hold,
       right: taken.right.hold,
     };
@@ -430,7 +425,7 @@ export namespace pushSled {
       ...HumanHand.shape("left", "fist"),
       ...HumanHand.shape("right", "fist"),
     };
-    const sides: IAutoMovieMotionHumanHand.Side[] = ["left", "right"];
+    const sides: AutoMovieHumanSide[] = ["left", "right"];
 
     // The arms carried on the leaning walk from the entry's arms to the
     // handles by `SETTLE`, then held on them as the load is carried, the
@@ -441,9 +436,7 @@ export namespace pushSled {
       contacts: [
         ...base.contacts,
         ...sides.map(
-          (
-            side: IAutoMovieMotionHumanHand.Side,
-          ): IAutoMovieMotionHumanContactWindow => ({
+          (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,
             // A load that does not move is pressed, bearing none of the
             // body's weight, not gripped, so it stays where it stands.

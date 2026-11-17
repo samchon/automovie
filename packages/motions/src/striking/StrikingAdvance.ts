@@ -56,7 +56,7 @@ export namespace StrikingAdvance {
     context: IAutoMovieMotionHumanActionContext,
     stroke: IAutoMovieMotionHumanStrikingAdvance.IBaseStroke,
   ): IAutoMovieMotionHumanActionPlan => {
-    const clock: IAutoMovieMotionClock.IClock = stroke.clock;
+    const clock: IAutoMovieMotionClock = stroke.clock;
     const duration: number = clock.duration;
     if (stroke.advance === "none")
       return AutoMovieMotionHumanBase.under(context, duration);

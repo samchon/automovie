@@ -67,7 +67,7 @@ export function test_human_motion_recompose_mutual(): void {
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   const instant = (
-    segment: IAutoMovieMotionHumanSegment.ISegment | undefined,
+    segment: IAutoMovieMotionHumanSegment | undefined,
     event: string,
   ): number =>
     segment === undefined
@@ -168,10 +168,8 @@ export function test_human_motion_recompose_mutual(): void {
             other: start("b"),
           }),
         );
-        const sa: IAutoMovieMotionHumanSegment.ISegment | undefined =
-          p.segments("a")[1];
-        const sb: IAutoMovieMotionHumanSegment.ISegment | undefined =
-          p.segments("b")[1];
+        const sa: IAutoMovieMotionHumanSegment | undefined = p.segments("a")[1];
+        const sb: IAutoMovieMotionHumanSegment | undefined = p.segments("b")[1];
         const clasp: number = instant(sa, "clasp");
         if (!(Math.abs(clasp - instant(sb, "clasp")) <= 1e-9))
           findings.push(
@@ -309,17 +307,15 @@ export function test_human_motion_recompose_mutual(): void {
           ),
           [HumanObject.prop("mug", mug, before("a"))],
         );
-        const give: IAutoMovieMotionHumanSegment.ISegment | undefined = p
+        const give: IAutoMovieMotionHumanSegment | undefined = p
           .segments("a")
           .find(
-            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-              s.name === "handOver",
+            (s: IAutoMovieMotionHumanSegment): boolean => s.name === "handOver",
           );
-        const take: IAutoMovieMotionHumanSegment.ISegment | undefined = p
+        const take: IAutoMovieMotionHumanSegment | undefined = p
           .segments("b")
           .find(
-            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-              s.name === "receive",
+            (s: IAutoMovieMotionHumanSegment): boolean => s.name === "receive",
           );
         if (!(instant(take, "gripClosed") < instant(give, "release")))
           findings.push(
@@ -338,7 +334,7 @@ export function test_human_motion_recompose_mutual(): void {
             { region: "cheekLeft" },
           ),
         );
-        const k: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+        const k: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
         const contact: number = instant(k, "contact");
         if (!(contact > k.entryTime && contact < k.end))
           findings.push(
@@ -368,8 +364,7 @@ export function test_human_motion_recompose_mutual(): void {
             },
             [HumanObject.prop(name, prop, before("a"))],
           );
-          const pick: IAutoMovieMotionHumanSegment.ISegment =
-            p.segments("a")[1]!;
+          const pick: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
           const closed: number = instant(pick, "gripClosed");
           const lifted: number = instant(pick, "lifted");
           if (!(closed < lifted))
@@ -421,7 +416,7 @@ export function test_human_motion_recompose_mutual(): void {
             p
               .segments("a")
               .find(
-                (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+                (s: IAutoMovieMotionHumanSegment): boolean =>
                   s.name === "throwObject",
               ),
             "release",
@@ -430,7 +425,7 @@ export function test_human_motion_recompose_mutual(): void {
             p
               .segments("b")
               .find(
-                (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+                (s: IAutoMovieMotionHumanSegment): boolean =>
                   s.name === "catchObject",
               ),
             "secured",
@@ -473,7 +468,7 @@ export function test_human_motion_recompose_mutual(): void {
               }),
             ],
           );
-          const kick: IAutoMovieMotionHumanSegment.ISegment | undefined =
+          const kick: IAutoMovieMotionHumanSegment | undefined =
             p.segments("a")[1];
           const stroke: number = instant(kick, "stroke");
           if (!(stroke > kick!.entryTime && stroke < kick!.end))

@@ -1,6 +1,9 @@
 import { AutoMovieViewParameter } from "@automovie/engine";
 import type {
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanTrunkAxis,
   IAutoMovieHumanTrunkSectionFamily,
   IAutoMovieHumanTrunkViewPart,
@@ -77,7 +80,7 @@ export namespace AutoMovieHumanTrunkViewPart {
   export function create(
     views: IAutoMovieHumanTrunkViews,
     top?: IAutoMovieHumanTrunkViewPart.ITop,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(define(views, top));
   }
 
@@ -89,7 +92,7 @@ export namespace AutoMovieHumanTrunkViewPart {
       string,
       IAutoMovieHumanTrunkSectionFamily.IPlane
     > = AutoMovieHumanTrunkSectionFamily.define(views),
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     // A site whose back stands at or before its front has no depth, and one
     // at or under the perineum no place above the pole.
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
@@ -201,7 +204,7 @@ export namespace AutoMovieHumanTrunkViewPart {
 
     // The hidden cap's nonzero tangent is authored in normalized angle tau.
     // The shared map owns theta; no physical station jet is fabricated at a pole.
-    let poleJets: IAutoMovieHumanSiteViewPart.IInput["poleJets"] = undefined;
+    let poleJets: IAutoMovieHumanSectionSource["poleJets"] = undefined;
     if (top !== undefined) {
       const theta: number = AutoMovieViewParameter.at(
         { type: "angle", bottom: views.perineum.y, top: top.y },
@@ -221,7 +224,7 @@ export namespace AutoMovieHumanTrunkViewPart {
     }
 
     const definition: Pick<
-      IAutoMovieHumanSiteViewPart.IInput,
+      IAutoMovieHumanSectionSource,
       "sites" | "pole" | "poleJets" | "ranges" | "fullnessRange"
     > = {
       // Native shoulder values must stay in (0,1) between their named sites.
@@ -231,9 +234,7 @@ export namespace AutoMovieHumanTrunkViewPart {
       // interior shoulder positive without clamping an evaluated source.
       fullnessRange: { minimum: 0, maximum: 1 },
       sites: views.sites.map(
-        (
-          s: IAutoMovieHumanTrunkViews.ISite,
-        ): IAutoMovieHumanSiteViewPart.ISite => {
+        (s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieHumanSectionSite => {
           const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
@@ -263,7 +264,7 @@ export namespace AutoMovieHumanTrunkViewPart {
               { minimum: 0, maximum: null },
               { minimum: null, maximum: 0 },
               { minimum: null, maximum: 0 },
-            ] as NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]>,
+            ] as NonNullable<IAutoMovieHumanSectionSource["ranges"]>,
           }),
     };
     const back: IAutoMovieViewPart.IOutline = {
@@ -320,7 +321,7 @@ export namespace AutoMovieHumanTrunkViewPart {
           },
         ],
       };
-    const built: IAutoMovieHumanSiteViewPart.IDefinition =
+    const built: IAutoMovieHumanSourceDefinition =
       AutoMovieHumanSiteViewPart.define({
         name: NAME,
         axis: axis.axis,
@@ -329,7 +330,7 @@ export namespace AutoMovieHumanTrunkViewPart {
         samples: SAMPLES,
         gap: GAP,
       });
-    const prepared: IAutoMovieHumanSiteViewPart.IDefinition = {
+    const prepared: IAutoMovieHumanSourceDefinition = {
       ...built,
       diagnostics: [...diagnostics, ...built.diagnostics],
     };

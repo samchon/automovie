@@ -1,4 +1,4 @@
-import type { IAutoMovieConstructionProfile } from "./IAutoMovieConstructionProfile";
+import type { IAutoMovieConstructionProfileLoop } from "./IAutoMovieConstructionProfileLoop";
 
 /**
  * Adaptive station/piece-coordinate grids for original profile tessellation.
@@ -23,7 +23,7 @@ export namespace IAutoMovieConstructionProfileGrid {
    */
   export interface IGrid {
     /** Same copied declaration whose original functions were sampled. */
-    loop: IAutoMovieConstructionProfile.ILoop;
+    loop: IAutoMovieConstructionProfileLoop;
 
     /** Strictly increasing regular station rows in millimetres; declared collapsed endpoints are omitted. */
     stations: number[];

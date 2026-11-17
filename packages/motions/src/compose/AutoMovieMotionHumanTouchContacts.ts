@@ -1,8 +1,8 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanTouchContacts,
 } from "@automovie/interface";
 
@@ -43,12 +43,10 @@ export namespace AutoMovieMotionHumanTouchContacts {
     declared:
       | readonly IAutoMovieMotionHumanTouchContacts.IDeclared[]
       | undefined,
-    first: IAutoMovieMotionHumanHand.Side,
+    first: AutoMovieHumanSide,
     both: boolean,
     subject: string,
-  ): (
-    side: IAutoMovieMotionHumanHand.Side,
-  ) => IAutoMovieMotionHumanTouchContacts.IRest[] {
+  ): (side: AutoMovieHumanSide) => IAutoMovieMotionHumanTouchContacts.IRest[] {
     const rests: readonly IAutoMovieMotionHumanTouchContacts.IDeclared[] =
       declared ?? [];
     if (
@@ -75,7 +73,7 @@ export namespace AutoMovieMotionHumanTouchContacts {
             ? (`left${bone.slice(5)}` as AutoMovieHumanoidBone)
             : bone;
     return (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanTouchContacts.IRest[] =>
       rests
         .filter(
@@ -113,8 +111,8 @@ export namespace AutoMovieMotionHumanTouchContacts {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function windows(
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     hand: IAutoMovieMotionHumanContactWindow.Support | undefined,
     rests: readonly IAutoMovieMotionHumanTouchContacts.IRest[],
   ): IAutoMovieMotionHumanContactWindow[] {

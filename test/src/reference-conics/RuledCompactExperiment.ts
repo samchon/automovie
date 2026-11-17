@@ -1,4 +1,7 @@
-import type { IAutoMovieCurve64, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieModel,
+} from "@automovie/interface";
 import { approximateAutoMovieRecoveryCompactCurves } from "@automovie/recovery";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -322,7 +325,7 @@ export async function RuledCompactExperiment(): Promise<void> {
 
 /** Independent elementary checks cover open-end preservation and an interior-error bound before private input is read. */
 function verifyAlgebra(): void {
-  const curve: IAutoMovieCurve64.Cubic = {
+  const curve: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "open-line",
     closed: false,
@@ -340,7 +343,7 @@ function verifyAlgebra(): void {
   };
   if (!A.prepare(curve).accepted)
     throw new Error("An open curve was incorrectly closed");
-  const changed: IAutoMovieCurve64.Cubic = {
+  const changed: IAutoMovieCubicBezierCurve64 = {
     ...curve,
     spans: [
       [
@@ -353,7 +356,7 @@ function verifyAlgebra(): void {
   };
   if (A.bound(curve, changed, 0.5, (): boolean => true).accepted)
     throw new Error("A cubic interior extremum escaped the independent bound");
-  const bounded: IAutoMovieCurve64.Cubic = {
+  const bounded: IAutoMovieCubicBezierCurve64 = {
     ...curve,
     spans: [
       [

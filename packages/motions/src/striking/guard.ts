@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -285,8 +286,8 @@ export namespace guard {
       "leftArm" | "rightArm"
     > = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
-      const to: IAutoMovieMotionHumanPosture.IGoal = hands[arm]!;
-      const from: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      const to: IAutoMovieHumanLimbGoal = hands[arm]!;
+      const from: IAutoMovieHumanLimbGoal | undefined =
         context.entry.posture.limbs[arm];
       out[arm] =
         from === undefined

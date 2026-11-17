@@ -5,6 +5,8 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanPostureRotation,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieJointPose,
   IAutoMovieMotionEvent,
@@ -70,9 +72,7 @@ export function test_human_motion_core_rotation(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const chest: number = body.measure.chestHeight;
-    const reach = (
-      side: "left" | "right",
-    ): IAutoMovieMotionHumanPosture.IGoal => ({
+    const reach = (side: "left" | "right"): IAutoMovieHumanLimbGoal => ({
       point: { x: side === "left" ? 0.15 : -0.15, y: chest, z: 0.35 },
       bend: { x: side === "left" ? 0.5 : -0.5, y: chest - 0.3, z: 0 },
     });
@@ -141,11 +141,11 @@ export function test_human_motion_core_rotation(): void {
     }
 
     // 2. Mixing is a slerp.
-    const a: IAutoMovieMotionHumanPosture.IRotation = {
+    const a: IAutoMovieHumanPostureRotation = {
       about,
       turn: turns[0]!,
     };
-    const b: IAutoMovieMotionHumanPosture.IRotation = {
+    const b: IAutoMovieHumanPostureRotation = {
       about,
       turn: turns[2]!,
     };
@@ -254,7 +254,7 @@ export function test_human_motion_core_rotation(): void {
         .stand({ seconds: 0.5 })
         .swim({ kind: "frontCrawl", cycles: 2, water }).node,
     });
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     for (const e of s.plan.events.filter((x: IAutoMovieMotionEvent): boolean =>
       x.name.startsWith("breath"),
     )) {

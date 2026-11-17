@@ -112,7 +112,7 @@ export namespace give {
     HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: 0,
       attack: RISE,
       hold: RETURN[0],

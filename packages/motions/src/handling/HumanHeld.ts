@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
@@ -75,7 +75,7 @@ export namespace HumanHeld {
       "body" | "entry" | "prop"
     >,
     row: IAutoMovieMotionHumanHeld.IUse,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     subject: string,
     point?: string,
     turn: number = 0,
@@ -242,7 +242,7 @@ export namespace HumanHeld {
       "body" | "entry" | "prop"
     >,
     row: IAutoMovieMotionHumanHeld.IUse,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     subject: string,
     point: string | undefined,
     posture: IAutoMovieMotionHumanPosture,
@@ -351,7 +351,7 @@ export namespace HumanHeld {
       "body" | "entry" | "prop"
     >,
     plan: IAutoMovieMotionHumanActionPlan,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     subject: string,
   ): IAutoMovieMotionHumanActionPlan {
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(

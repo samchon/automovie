@@ -2,11 +2,11 @@ import { createCar } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanObject,
-  IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionObstacleAperture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -63,12 +63,11 @@ export function test_human_motion_travel_car(): void {
     where,
     "driverSeat",
   );
-  const door: IAutoMovieMotionHumanObstacle.IAperture = HumanObstacle.apertures(
+  const door: IAutoMovieMotionObstacleAperture = HumanObstacle.apertures(
     car,
     where,
   ).find(
-    (a: IAutoMovieMotionHumanObstacle.IAperture): boolean =>
-      a.id === "driverAperture",
+    (a: IAutoMovieMotionObstacleAperture): boolean => a.id === "driverAperture",
   )!;
   const depth: number = seat.depth ?? 0.45;
 
@@ -91,7 +90,7 @@ export function test_human_motion_travel_car(): void {
   // Standing in the doorway with the back to the seat's door-side edge.
   const perform = (
     body: IAutoMovieMotionHumanBody,
-    through: IAutoMovieMotionHumanObstacle.IAperture,
+    through: IAutoMovieMotionObstacleAperture,
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "car",
@@ -132,8 +131,7 @@ export function test_human_motion_travel_car(): void {
       body,
       0,
     );
-    const entry: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const entry: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
 
     // 2. The crown stays under the door's top.
     let highest: { over: number; at: number } = { over: -Infinity, at: 0 };

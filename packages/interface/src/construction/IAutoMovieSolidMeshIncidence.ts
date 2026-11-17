@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the SolidMeshIncidence operations. */
+/**
+ * Data and callback contracts shared by the SolidMeshIncidence operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IWalk represents a directed left boundary in the native periodic cover, coindexing IDs and integer lifts with a closing winding.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface SolidMeshIncidence supplies these boundary components to mesh planning and open-end extraction.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The type carries actual occurrences rather than merging equal IDs across turns; incidence construction checks valid walks.
+ * @evidence contracts/development/common.md#meaningful-documentation States nonrepeated closing vertex, first lift zero and total return turn.
+ */
 export namespace IAutoMovieSolidMeshIncidence {
   /**
    * One directed left boundary component in the native parameter cover.

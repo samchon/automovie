@@ -1,12 +1,15 @@
 import type {
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieMeshPlaneIntersection,
   IAutoMovieMeshSectionOrientation,
   IAutoMoviePlaneFrameConstruction,
   IAutoMoviePolylineFit,
   IAutoMovieRecoveryHermiteCurve,
   IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOrderedContour,
+  IAutoMovieRecoveryOrderedCuts,
   IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySavedCurveBinding,
   IAutoMovieRecoverySectionObservationOperation,
 } from "@automovie/interface";
 
@@ -37,9 +40,9 @@ import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
  */
 export function bindRecoveryOrderedFits(
   input: IAutoMovieRecoveryOrderedLineage.Input,
-  cuts: IAutoMovieRecoveryOrderedLineage.Cuts,
+  cuts: IAutoMovieRecoveryOrderedCuts,
   targets: readonly IAutoMovieRecoveryOrderedLineage.Target[],
-): IAutoMovieRecoveryOrderedLineage.Binding[] {
+): IAutoMovieRecoverySavedCurveBinding[] {
   if (
     cuts.sourceIdentity !== input.sourceIdentity ||
     cuts.sourceSelectionIdentity !== input.sourceSelectionIdentity
@@ -67,9 +70,9 @@ export function bindRecoveryOrderedFits(
   return targets.map(
     (
       target: IAutoMovieRecoveryOrderedLineage.Target,
-    ): IAutoMovieRecoveryOrderedLineage.Binding => {
+    ): IAutoMovieRecoverySavedCurveBinding => {
       const base: Pick<
-        IAutoMovieRecoveryOrderedLineage.Binding,
+        IAutoMovieRecoverySavedCurveBinding,
         "coordinateMm" | "contourIndex" | "observationIdentity"
       > = {
         coordinateMm: target.coordinateMm,
@@ -77,7 +80,7 @@ export function bindRecoveryOrderedFits(
         observationIdentity: target.observationIdentity,
       };
       const completedStages: NonNullable<
-        IAutoMovieRecoveryOrderedLineage.Binding["completedStages"]
+        IAutoMovieRecoverySavedCurveBinding["completedStages"]
       > = [];
       let replayFitQualification:
         | Omit<IAutoMoviePolylineFit, "curve">
@@ -90,17 +93,15 @@ export function bindRecoveryOrderedFits(
         if (seen.has(key)) throw new Error("Repeated saved-fit target");
         seen.add(key);
         const section:
-          | IAutoMovieRecoveryOrderedLineage.Cuts["sections"][number]
+          | IAutoMovieRecoveryOrderedCuts["sections"][number]
           | undefined = cuts.sections.find(
-          (
-            s: IAutoMovieRecoveryOrderedLineage.Cuts["sections"][number],
-          ): boolean =>
+          (s: IAutoMovieRecoveryOrderedCuts["sections"][number]): boolean =>
             s.coordinateMm === target.coordinateMm &&
             s.observationIdentity === target.observationIdentity,
         );
-        const raw: IAutoMovieRecoveryOrderedLineage.Contour | undefined =
+        const raw: IAutoMovieRecoveryOrderedContour | undefined =
           section?.contours.find(
-            (c: IAutoMovieRecoveryOrderedLineage.Contour): boolean =>
+            (c: IAutoMovieRecoveryOrderedContour): boolean =>
               c.contourIndex === target.contourIndex,
           );
         if (!raw || raw.points.length < (raw.closed ? 3 : 2))
@@ -170,7 +171,7 @@ export function bindRecoveryOrderedFits(
         // The private fitter borrows mutable tuples; own these copies without changing source metadata or casting away readonly.
         const points: IAutoMovieMeshPlaneIntersection[] = raw.points.map(
           (
-            p: IAutoMovieRecoveryOrderedLineage.Contour["points"][number],
+            p: IAutoMovieRecoveryOrderedContour["points"][number],
           ): IAutoMovieMeshPlaneIntersection => ({
             p: [p.p[0], p.p[1], p.p[2]],
             a: p.a,
@@ -192,7 +193,7 @@ export function bindRecoveryOrderedFits(
               traces.push(trace);
             },
           });
-        const fitted: IAutoMovieCurve64.Cubic | undefined =
+        const fitted: IAutoMovieCubicBezierCurve64 | undefined =
           observed.section.loops[0]?.curve ?? observed.report.open[0]?.curve;
         if (fitted !== undefined) {
           const openFit: (typeof observed.report.open)[number] | undefined =
@@ -213,7 +214,7 @@ export function bindRecoveryOrderedFits(
               "Replay did not emit one accepted trace",
           );
         const converted:
-          | IAutoMovieCurve64.Cubic
+          | IAutoMovieCubicBezierCurve64
           | IAutoMovieRecoveryHermiteCurve = convertAutoMovieRecoveryCurves(
           fitted,
           target.curve.type === "cubicHermite" ? "hermite" : "bezier",
@@ -237,7 +238,7 @@ export function bindRecoveryOrderedFits(
         for (const h of target.curve.phaseIntervals)
           starts.push(starts.at(-1)! + h);
         const samples: NonNullable<
-          IAutoMovieRecoveryOrderedLineage.Binding["samples"]
+          IAutoMovieRecoverySavedCurveBinding["samples"]
         > = [];
         for (const span of trace.spans) {
           if (
@@ -273,13 +274,13 @@ export function bindRecoveryOrderedFits(
         const hermite: IAutoMovieRecoveryHermiteCurve =
           convertAutoMovieRecoveryCurves(target.curve, "hermite");
         const endpointJets: NonNullable<
-          IAutoMovieRecoveryOrderedLineage.Binding["endpointJets"]
+          IAutoMovieRecoverySavedCurveBinding["endpointJets"]
         > = hermite.spans.map(
           (
             s: (typeof hermite.spans)[number],
             spanIndex: number,
           ): NonNullable<
-            IAutoMovieRecoveryOrderedLineage.Binding["endpointJets"]
+            IAutoMovieRecoverySavedCurveBinding["endpointJets"]
           >[number] => ({
             spanIndex,
             widthMm: hermite.phaseIntervals[spanIndex]!,
@@ -328,7 +329,7 @@ export function bindRecoveryOrderedFits(
  *
  */
 function geometry(
-  curve: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve,
+  curve: IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve,
 ): string {
   return JSON.stringify({
     type: curve.type,

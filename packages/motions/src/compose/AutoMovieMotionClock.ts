@@ -1,7 +1,10 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
+  IAutoMovieMotionClockPhase,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionPhraseDurations,
 } from "@automovie/interface";
 
 /**
@@ -46,8 +49,8 @@ export namespace AutoMovieMotionClock {
    */
   export function of(
     duration: number,
-    instants: readonly IAutoMovieMotionClock.IInstant[],
-  ): IAutoMovieMotionClock.IClock {
+    instants: readonly IAutoMovieMotionClockInstant[],
+  ): IAutoMovieMotionClock {
     if (!(duration > 0)) throw new Error("A clock lasts a positive time");
     const times: Map<string, number> = new Map([
       [START, 0],
@@ -62,19 +65,17 @@ export namespace AutoMovieMotionClock {
         );
       times.set(instant.name, Math.min(duration, instant.seconds));
     }
-    const sorted: IAutoMovieMotionClock.IInstant[] = instants
+    const sorted: IAutoMovieMotionClockInstant[] = instants
       .map(
-        (
-          i: IAutoMovieMotionClock.IInstant,
-        ): IAutoMovieMotionClock.IInstant => ({
+        (i: IAutoMovieMotionClockInstant): IAutoMovieMotionClockInstant => ({
           name: i.name,
           seconds: times.get(i.name)!,
         }),
       )
       .sort(
         (
-          a: IAutoMovieMotionClock.IInstant,
-          b: IAutoMovieMotionClock.IInstant,
+          a: IAutoMovieMotionClockInstant,
+          b: IAutoMovieMotionClockInstant,
         ): number => a.seconds - b.seconds,
       );
     const at = (name: string): number => {
@@ -109,7 +110,7 @@ export namespace AutoMovieMotionClock {
         ),
       events: (): IAutoMovieMotionEvent[] =>
         sorted.map(
-          (i: IAutoMovieMotionClock.IInstant): IAutoMovieMotionEvent => ({
+          (i: IAutoMovieMotionClockInstant): IAutoMovieMotionEvent => ({
             name: i.name,
             share: i.seconds / duration,
           }),
@@ -134,9 +135,9 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
   export function sequence(
-    phases: readonly IAutoMovieMotionClock.IPhase[],
-  ): IAutoMovieMotionClock.IClock {
-    const instants: IAutoMovieMotionClock.IInstant[] = [];
+    phases: readonly IAutoMovieMotionClockPhase[],
+  ): IAutoMovieMotionClock {
+    const instants: IAutoMovieMotionClockInstant[] = [];
     let seconds: number = 0;
     for (const phase of phases) {
       if (!(phase.seconds >= 0))
@@ -179,8 +180,8 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
   export function phrase(
-    durations: IAutoMovieMotionClock.IPhrase,
-  ): IAutoMovieMotionClock.IClock {
+    durations: IAutoMovieMotionPhraseDurations,
+  ): IAutoMovieMotionClock {
     const lengths: readonly number[] = [
       durations.prepare,
       durations.wait ?? 0,
@@ -189,7 +190,7 @@ export namespace AutoMovieMotionClock {
       durations.hold ?? 0,
       durations.retract,
     ];
-    const instants: IAutoMovieMotionClock.IInstant[] = [];
+    const instants: IAutoMovieMotionClockInstant[] = [];
     let seconds: number = 0;
     lengths.forEach((length: number, i: number): void => {
       if (!(length >= 0))
@@ -219,18 +220,16 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function repeat(
-    span: readonly IAutoMovieMotionClock.IPhase[],
+    span: readonly IAutoMovieMotionClockPhase[],
     count: number,
-  ): IAutoMovieMotionClock.IPhase[] {
+  ): IAutoMovieMotionClockPhase[] {
     if (!(Number.isInteger(count) && count > 0))
       throw new Error("A movement repeats a positive whole number of times");
     return Array.from(
       { length: count },
-      (_: unknown, i: number): IAutoMovieMotionClock.IPhase[] =>
+      (_: unknown, i: number): IAutoMovieMotionClockPhase[] =>
         span.map(
-          (
-            phase: IAutoMovieMotionClock.IPhase,
-          ): IAutoMovieMotionClock.IPhase => ({
+          (phase: IAutoMovieMotionClockPhase): IAutoMovieMotionClockPhase => ({
             name: `${phase.name}${i + 1}`,
             seconds: phase.seconds,
           }),
@@ -259,7 +258,7 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function through(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string, string],
     seconds: number,
   ): number {
@@ -298,7 +297,7 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function wave(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     seconds: number,
@@ -332,10 +331,10 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
   export function stretch(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     factor: (opening: string) => number,
-  ): IAutoMovieMotionClock.IClock {
-    const instants: IAutoMovieMotionClock.IInstant[] = [];
+  ): IAutoMovieMotionClock {
+    const instants: IAutoMovieMotionClockInstant[] = [];
     let opening: string = START;
     let before: number = 0;
     let seconds: number = 0;
@@ -377,10 +376,10 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function scale(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     tempo: number,
     fixed: readonly string[] = [],
-  ): IAutoMovieMotionClock.IClock {
+  ): IAutoMovieMotionClock {
     for (const name of fixed) clock.at(name);
     return stretch(clock, (opening: string): number =>
       fixed.includes(opening) ? 1 : tempo,
@@ -408,10 +407,10 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function align(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     instant: string,
     seconds: number,
-  ): IAutoMovieMotionClock.IClock {
+  ): IAutoMovieMotionClock {
     const at: number = clock.at(instant);
     if (!(at > 0) || !(seconds > 0))
       throw new Error(

@@ -10,8 +10,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
   IAutoMovieLoftSectionSource,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieLoftViewRead,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
@@ -105,12 +105,12 @@ function clipped(failures: string[], input: IAutoMovieViewPart): void {
           "clipped source point",
           failures,
         );
-        const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           chain,
           s,
           phi,
         );
-        const expected: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        const expected: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
           original,
           s,
           phi,

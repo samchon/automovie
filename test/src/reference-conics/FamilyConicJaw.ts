@@ -1,6 +1,6 @@
 import { AutoMovieMeshExtract as M } from "@automovie/engine";
 import { AutoMovieHumanConicLoft } from "@automovie/human";
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
+import type { IAutoMovieMeshSectionCut } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -97,7 +97,7 @@ namespace FamilyConicJaw {
       frame.v[2]! * frame.u[0]! - frame.v[0]! * frame.u[2]!,
       frame.v[0]! * frame.u[1]! - frame.v[1]! * frame.u[0]!,
     ];
-    const section: IAutoMovieMeshExtract.ISection = M.outline(
+    const section: IAutoMovieMeshSectionCut = M.outline(
       mesh,
       {
         origin: [...frame.origin] as V3,

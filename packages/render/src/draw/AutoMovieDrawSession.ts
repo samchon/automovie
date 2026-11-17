@@ -1,4 +1,5 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCaptureCell,
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
@@ -216,13 +217,13 @@ export class AutoMovieDrawSession {
    */
   public async frame(
     seconds: number,
-    passes: readonly IAutoMovieInspectionRequest.Shade[],
+    passes: readonly AutoMovieInspectionShade[],
   ): Promise<IAutoMovieDrawnPass[]> {
     const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
       (): undefined => undefined,
     );
     const pictures: {
-      pass: IAutoMovieInspectionRequest.Shade;
+      pass: AutoMovieInspectionShade;
       picture: IAutoMovieRasterImage;
     }[] = [];
     for (const pass of passes) {

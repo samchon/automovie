@@ -2,7 +2,14 @@ import type { IAutoMovieSubdivisionParameter } from "../IAutoMovieSubdivisionPar
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 
-/** Transfer of one quad address between sampled tiers through their common patch chart. */
+/**
+ * Transfer of one quad address between sampled tiers through their common patch chart.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A source quad address passes through one dimensionless patch chart into a destination tier's quad address. Matching ordered names cannot prove equivalent authored ranges; callers supply the same network chart and corner=null.
+ * @evidence contracts/development/design.md#principled-representation A source quad address passes through one dimensionless patch chart into a destination tier's quad address.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface mapAutoMovieSurfaceTier composes source bilinear coordinates with locateAutoMovieSurfaceCoordinate using canonical cage types.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Matching ordered names cannot prove equivalent authored ranges; callers supply the same network chart and corner=null.
+ */
 export namespace IAutoMovieMapSurfaceTier {
   /**
    * Inputs for carrying a point bound to one tier's cage onto another tier of the same

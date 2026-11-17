@@ -4,11 +4,11 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieVector3,
@@ -89,7 +89,7 @@ export function everydayGestureVerdicts(
     deg(Math.asin(Math.max(-1, Math.min(1, -forwardOf(t, bone).y))));
   const yaw = (t: number, bone: AutoMovieHumanoidBone): number =>
     deg(Math.atan2(forwardOf(t, bone).x, forwardOf(t, bone).z));
-  const palm = (t: number, side: IAutoMovieMotionHumanHand.Side) =>
+  const palm = (t: number, side: AutoMovieHumanSide) =>
     HumanHand.frame(body, performance.bones("a", t), side, "palm");
   const joint = (t: number, bone: AutoMovieHumanoidBone): number =>
     (performance.pose("a", t).joints as IAutoMovieJointPose[]).find(

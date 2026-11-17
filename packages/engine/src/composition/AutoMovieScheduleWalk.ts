@@ -1,8 +1,9 @@
 import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
-  IAutoMovieResolveSchedule,
-  IAutoMovieSchedule,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
 
@@ -35,7 +36,7 @@ export namespace AutoMovieScheduleWalk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record lives as long as the walk.
    */
   export function create(
-    laws: IAutoMovieResolveSchedule.ILaws,
+    laws: IAutoMovieScheduleLaws,
   ): IAutoMovieScheduleWalk.IWalk {
     return {
       laws,
@@ -66,19 +67,16 @@ export namespace AutoMovieScheduleWalk {
   export function instants(
     walk: IAutoMovieScheduleWalk.IWalk,
     of: string,
-  ): readonly IAutoMovieResolveSchedule.ICue[] | undefined {
-    const entry: IAutoMovieSchedule.IEntry | undefined = walk.anchored.get(of);
+  ): readonly IAutoMovieScheduleCue[] | undefined {
+    const entry: IAutoMovieScheduleEntry | undefined = walk.anchored.get(of);
 
     // A name that is no anchor and no fixed track may be a track the laws
     // compute from what is placed so far (a struck person's hits).
     if (entry === undefined)
       return walk.tracks.get(of) ?? walk.laws.instants?.(of, walk.entries);
-    const events: readonly IAutoMovieResolveSchedule.ICue[] =
-      entry.events ?? [];
+    const events: readonly IAutoMovieScheduleCue[] = entry.events ?? [];
     const named: (name: string) => boolean = (name: string): boolean =>
-      events.some(
-        (e: IAutoMovieResolveSchedule.ICue): boolean => e.name === name,
-      );
+      events.some((e: IAutoMovieScheduleCue): boolean => e.name === name);
     return [
       ...(named("start") ? [] : [{ name: "start", seconds: entry.start }]),
       ...events,
@@ -125,18 +123,16 @@ export namespace AutoMovieScheduleWalk {
    */
   export function instant(
     of: string,
-    events: readonly IAutoMovieResolveSchedule.ICue[],
+    events: readonly IAutoMovieScheduleCue[],
     name: string,
     index: number,
     by: IAutoMovieIntent | undefined,
   ): number {
-    const same: IAutoMovieResolveSchedule.ICue[] = events.filter(
-      (e: IAutoMovieResolveSchedule.ICue): boolean => e.name === name,
+    const same: IAutoMovieScheduleCue[] = events.filter(
+      (e: IAutoMovieScheduleCue): boolean => e.name === name,
     );
     const names: string[] = [
-      ...new Set(
-        events.map((e: IAutoMovieResolveSchedule.ICue): string => e.name),
-      ),
+      ...new Set(events.map((e: IAutoMovieScheduleCue): string => e.name)),
     ];
     if (same.length === 0)
       throw new AutoMovieScheduleError(
@@ -150,7 +146,7 @@ export namespace AutoMovieScheduleWalk {
           alternatives: names,
         },
       );
-    const found: IAutoMovieResolveSchedule.ICue | undefined = same[index];
+    const found: IAutoMovieScheduleCue | undefined = same[index];
     if (found === undefined)
       throw new AutoMovieScheduleError(
         `${of} has ${same.length} ${name} events, so index ${index} names none (the first is 0)`,
@@ -161,7 +157,7 @@ export namespace AutoMovieScheduleWalk {
           of,
           value: index,
           alternatives: same.map(
-            (_: IAutoMovieResolveSchedule.ICue, i: number): string => String(i),
+            (_: IAutoMovieScheduleCue, i: number): string => String(i),
           ),
         },
       );

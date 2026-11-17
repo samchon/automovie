@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -133,14 +134,14 @@ export function test_human_motion_social_toast_four_glasses(): void {
   // 2, 3. Every rim at the point, every glass upright.
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
   for (const [subject, role] of cast) {
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
+    const placed: IAutoMovieMotionHumanSegment =
       performance.segments(subject)[1]!;
     const meet: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "meet")?.share ??
         NaN) *
         placed.plan.duration;
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+    const frame: IAutoMovieRigidTransform = performance.prop(
       `glass-${subject}`,
       meet,
     );

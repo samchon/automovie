@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSignature,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -53,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_layer_instants(): void {
   const complaints: string[] = [];
   const FRAME: number = 1 / 24;
-  const cues: Record<string, readonly IAutoMovieResolveSchedule.ICue[]> = {
+  const cues: Record<string, readonly IAutoMovieScheduleCue[]> = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 3, accents: [2] }]),
   };
   const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {

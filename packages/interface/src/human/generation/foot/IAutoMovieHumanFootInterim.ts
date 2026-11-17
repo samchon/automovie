@@ -3,13 +3,20 @@ import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tu
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanLegWalk } from "../leg/IAutoMovieHumanLegWalk";
 import type { IAutoMovieHumanSiteControls } from "../limb/IAutoMovieHumanSiteControls";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 import type { IAutoMovieHumanFootFrame } from "./IAutoMovieHumanFootFrame";
 import type { IAutoMovieHumanFootPart } from "./IAutoMovieHumanFootPart";
 import type { IAutoMovieHumanFootSource } from "./IAutoMovieHumanFootSource";
 import type { IAutoMovieHumanFootToeSources } from "./IAutoMovieHumanFootToeSources";
 
-/** Type contracts exchanged by AutoMovieHumanFootInterim; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanFootInterim; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanFootInterim exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IAnkleSource, IDefinition, IPrepared, DefineArgs. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanFootInterim; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IAnkleSource, IDefinition, IPrepared, DefineArgs contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanFootInterim {
   /** A real leg-family ankle capability, without claiming that its upper parent is already complete.
    *
@@ -33,26 +40,17 @@ export namespace IAutoMovieHumanFootInterim {
    * The foot input and all five toe sources sharing its actual floor frame
    * and metatarsal support origin, before loft or skin construction.
    *
-   * @evidence contracts/common.md#principled-implementation Makes the actual foot's heel, axis and regional supports the source for every toe.
-   * @evidence contracts/common.md#clear-and-simple-design Owns one foot input and five explicit attachment records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not recover placement from a generated course or reuse the old skeletal foot's different yaw and origin.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes source inputs from a realized foot, and skin attachments from skeletal centres.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result type declares no runtime algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The define owner determines how the records are shared.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The generating call owns the finite result without global retention.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The foot input and all five toe sources sharing its actual floor frame and metatarsal support origin, before loft or skin construction.
-   * @evidence contracts/development/design.md#principled-representation `foot`: The actual foot builder input, including its shared regional support datum. `definition`: Same final original read by the attachments, metric owner and production loft. `toes`: Hallux first, each with its actual generated attachment and walk.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanFootInterim.define.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `foot`, `definition`, `toes`, `diagnostics`; callers supply the complete record.
+   * @evidence contracts/development/design.md#principled-representation Makes the actual foot's heel, axis and regional supports the source for every toe. `foot`: The actual foot builder input, including its shared regional support datum. `definition`: Same final original read by the attachments, metric owner and production loft. `toes`: Hallux first, each with its actual generated attachment and walk.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owns one foot input and five explicit attachment records. Returned by AutoMovieHumanFootInterim.define.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not recover placement from a generated course or reuse the old skeletal foot's different yaw and origin. Required fields are `foot`, `definition`, `toes`, `diagnostics`; callers supply the complete record.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes source inputs from a realized foot, and skin attachments from skeletal centres. The foot input and all five toe sources sharing its actual floor frame and metatarsal support origin, before loft or skin construction.
    */
   export interface IDefinition {
     /** The actual foot builder input, including its shared regional support datum. */
     foot: IAutoMovieHumanFootPart.IInput;
 
     /** Same final original read by the attachments, metric owner and production loft. */
-    definition: IAutoMovieHumanSiteViewPart.IDefinition;
+    definition: IAutoMovieHumanSourceDefinition;
 
     /** Hallux first, each with its actual generated attachment and walk. */
     toes: IAutoMovieHumanFootToeSources.ICandidate[];
@@ -73,8 +71,18 @@ export namespace IAutoMovieHumanFootInterim {
     /** Same original scalar/frame controls consumed by the foot and its toe contacts. */
     controls: IAutoMovieHumanSiteControls.IOutput;
 
-    /** Publish the actual foot only on explicit original/assembly demand, retaining one identical result. */
-    definition(): IAutoMovieHumanSiteViewPart.IDefinition;
+    /**
+     * Publish the actual foot only on explicit original/assembly demand, retaining one identical result.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Publish the actual foot only on explicit original/assembly demand, retaining one identical result.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanFootInterim owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootInterim.IPrepared.definition declares the invocation boundary only; AutoMovieHumanFootInterim and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanFootInterim.IPrepared.definition must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanFootInterim.IPrepared.definition owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanFootInterim and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanFootInterim producer or caller supplying the callback owns captured state and its lifetime.
+     */
+    definition(): IAutoMovieHumanSourceDefinition;
   }
 
   /** The args argument of AutoMovieHumanFootInterim.define. Explicit original-parent publication preserves the previous public definition contract.

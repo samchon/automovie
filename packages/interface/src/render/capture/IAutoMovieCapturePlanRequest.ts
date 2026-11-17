@@ -1,5 +1,7 @@
+import type { AutoMovieInspectionShade } from "../inspection/AutoMovieInspectionShade.js";
 import type { IAutoMovieInspectionRequest } from "../inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
+import type { IAutoMovieCaptureSampling } from "./IAutoMovieCaptureSampling.js";
 
 /**
  * Everything one capture asks for, as `parseAutoMovieCapturePlanRequest` reads it from named text values and `formatAutoMovieCapturePlanRequest` writes it back: the subject, its times, views, passes and selections, the reader budget, the round, and the inspection of every still.
@@ -20,7 +22,7 @@ export interface IAutoMovieCapturePlanRequest {
   /**
    * Which seconds are drawn besides the frames around the events.
    */
-  sampling: IAutoMovieCapturePlanRequest.Sampling;
+  sampling: IAutoMovieCaptureSampling;
 
   /**
    * Subject seconds of contacts, joins and decisive instants; every frame of the subject's grid within `window` frames of each is drawn.
@@ -45,7 +47,7 @@ export interface IAutoMovieCapturePlanRequest {
   /**
    * Shades the stills are drawn in, in drawing order, sharing each view's camera. Never empty; the first equals `inspection.shade`.
    */
-  passes: IAutoMovieInspectionRequest.Shade[];
+  passes: AutoMovieInspectionShade[];
 
   /**
    * Path pattern of the units whose selections are swept, each drawn alone and with the neighbours within `margin`; null draws the request's own selection once.
@@ -81,46 +83,4 @@ export interface IAutoMovieCapturePlanRequest {
    * What every still shows: selection, shade, marks, cut and stroke.
    */
   inspection: IAutoMovieInspectionRequest;
-}
-
-/**
- * Sampling alternatives retain explicit subject seconds or an evenly spaced subject-time range before grid rounding.
- *
- * @evidence contracts/development/design.md#principled-representation Sampling alternatives retain explicit subject seconds or an evenly spaced subject-time range before grid rounding.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These members belong to IAutoMovieCapturePlanRequest and are consumed with its enclosing record, rather than a second top-level vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Member discriminants and documented null/empty cases preserve the enclosing record's supported states.
- * @evidence contracts/development/common.md#meaningful-documentation Member comments state the relevant coordinate frames, units and outcome semantics.
- */
-export namespace IAutoMovieCapturePlanRequest {
-  /**
-   * The seconds a capture draws besides its event windows.
-   *
-   * `even` samples `[from, to)` every `1 / rate` seconds, each sample moved to the nearest frame of the subject's grid so it is a frame the subject encodes; `to` null runs to the subject's end. `at` draws the given seconds exactly as written.
-   *
-   * @evidence contracts/development/design.md#principled-representation The two ways to choose seconds need different data, so they are a union keyed by `kind`, and a request cannot give a rate with explicit seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members the grammar's `from`, `to`, `rate` and `at` keys read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The subject's end is null rather than a number guessed before the subject is known.
-   * @evidence contracts/development/common.md#meaningful-documentation States each form's rule, units and what a null end means.
-   */
-  export type Sampling =
-    | {
-        /** Samples at an even rate. */
-        kind: "even";
-
-        /** First second, inclusive, zero or more. */
-        from: number;
-
-        /** End second, exclusive, or null for the subject's end. */
-        to: number | null;
-
-        /** Stills per second, positive. */
-        rate: number;
-      }
-    | {
-        /** Explicit seconds. */
-        kind: "at";
-
-        /** The seconds, in the order written, at least one. */
-        seconds: number[];
-      };
 }

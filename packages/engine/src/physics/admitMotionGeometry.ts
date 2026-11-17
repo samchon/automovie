@@ -1,7 +1,7 @@
 import type {
   IAutoMovieMotionGeometry,
   IAutoMoviePhysicalHullFaces,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -28,8 +28,8 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
     Number.isFinite(Math.fround(1 / value));
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
     scalar(value) && value >= 0 && (value === 0 || Math.fround(value) > 0);
-  const transform: (value: IAutoMoviePhysicalProfile.ITransform) => boolean = (
-    value: IAutoMoviePhysicalProfile.ITransform,
+  const transform: (value: IAutoMovieRigidTransform) => boolean = (
+    value: IAutoMovieRigidTransform,
   ): boolean =>
     !!value?.position &&
     !!value.rotation &&

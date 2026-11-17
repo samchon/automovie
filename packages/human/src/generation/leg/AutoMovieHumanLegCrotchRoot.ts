@@ -2,6 +2,8 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanLegCrotchFillet,
   IAutoMovieHumanLegCrotchRoot,
   IAutoMovieHumanLimbRootStrip,
@@ -58,16 +60,14 @@ export namespace AutoMovieHumanLegCrotchRoot {
     const trunk: IAutoMovieLoftChain = calibration.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === "trunk",
     )!;
-    const event: IAutoMovieHumanBodyCalibration.IEvent =
-      calibration.events.find(
-        (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
-          e.parent === "trunk" && e.direction === "down",
-      )!;
+    const event: IAutoMovieHumanBranchEvent = calibration.events.find(
+      (e: IAutoMovieHumanBranchEvent): boolean =>
+        e.parent === "trunk" && e.direction === "down",
+    )!;
     return {
       trunk,
       arcs: event.splits.find(
-        (s: IAutoMovieHumanBodyCalibration.ISplit): boolean =>
-          s.child === `leg.${side}`,
+        (s: IAutoMovieHumanBranchSplit): boolean => s.child === `leg.${side}`,
       )!.arcs,
     };
   }

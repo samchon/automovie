@@ -1,5 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -86,10 +87,7 @@ export namespace pushSledStance {
     walk: IAutoMovieMotionHumanActionPlan,
     settle: number,
     feet: IAutoMovieMotionHumanEntryState["feet"],
-    handles: Record<
-      IAutoMovieMotionHumanHand.Side,
-      IAutoMovieMotionHumanHand.IFrame
-    >,
+    handles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanHand.IFrame>,
     lean: number,
     incline?: number,
   ): IStance {
@@ -101,7 +99,7 @@ export namespace pushSledStance {
     let rise: number = 0;
     for (let t: number = settle; t <= walk.duration; t += 1 / RATE)
       rise = Math.max(rise, walk.posture(t).root.y - standing.root.y);
-    const asked: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = {
+    const asked: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanHand.reach(body, "left", "grip", handles.left, "fist").point,
       right: HumanHand.reach(body, "right", "grip", handles.right, "fist")
         .point,
@@ -172,7 +170,7 @@ export namespace pushSledStance {
   ): number {
     return Math.min(
       ...(["left", "right"] as const).map(
-        (foot: IAutoMovieMotionHumanHand.Side): number =>
+        (foot: AutoMovieHumanSide): number =>
           feet[foot].ankle.y +
           Quaternion.rotateVector(
             feet[foot].rotation,

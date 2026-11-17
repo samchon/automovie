@@ -8,8 +8,8 @@ import {
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -106,7 +106,7 @@ export function test_archetype_assembly_ride(): void {
 
   // 2. A rider on a member's seat is carried with it.
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
+  const placed = (seconds: number): IAutoMovieRigidTransform => {
     const sample: IAutoMovieTransform = ride.at(seconds).placement;
     return { position: sample.translation, rotation: sample.rotation };
   };

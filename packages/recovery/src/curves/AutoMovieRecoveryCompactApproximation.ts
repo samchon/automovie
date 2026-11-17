@@ -1,7 +1,7 @@
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
 import type {
-  IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
+  AutoMovieVector2Tuple,
+  IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
 
 import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecoveryConicApproximation";
@@ -27,20 +27,20 @@ export namespace AutoMovieRecoveryCompactApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary scalar arrays expire after each pure call; no input or handle is retained.
    */
   export function evaluate(
-    piece: IAutoMovieCompactCurveApproximation.IPiece,
+    piece: IAutoMovieRegisteredPlanarCurvePiece,
     u: number,
-  ): IAutoMovieConicApproximation.Point {
+  ): Readonly<AutoMovieVector2Tuple> {
     if (piece.kind === "conic") return Conic.evaluate(piece, u);
     return [
       B.scalar(
         piece.controls.map(
-          (p: IAutoMovieConicApproximation.Point): number => p[0],
+          (p: Readonly<AutoMovieVector2Tuple>): number => p[0],
         ),
         u,
       ),
       B.scalar(
         piece.controls.map(
-          (p: IAutoMovieConicApproximation.Point): number => p[1],
+          (p: Readonly<AutoMovieVector2Tuple>): number => p[1],
         ),
         u,
       ),
@@ -60,13 +60,13 @@ export namespace AutoMovieRecoveryCompactApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function borrows the immutable coefficient array and retains no data after return.
    */
   export function storedScalars(
-    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[],
+    pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[],
   ): number {
     let total: number = 0;
-    let previous: IAutoMovieConicApproximation.Point | undefined;
+    let previous: Readonly<AutoMovieVector2Tuple> | undefined;
     for (const piece of pieces) {
       total += 2 * piece.controls.length + 3;
-      const first: IAutoMovieConicApproximation.Point = piece.controls[0]!;
+      const first: Readonly<AutoMovieVector2Tuple> = piece.controls[0]!;
       if (
         previous !== undefined &&
         previous[0] === first[0] &&

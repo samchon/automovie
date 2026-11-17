@@ -3,12 +3,15 @@ import {
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandover,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieResolveMutualGoal,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -131,15 +134,15 @@ export namespace HumanHandoverMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The kind closes over its props only.
    */
   export function kind(props: {
-    giver: IAutoMovieMotionHumanHand.Side;
-    receiver: IAutoMovieMotionHumanHand.Side;
+    giver: AutoMovieHumanSide;
+    receiver: AutoMovieHumanSide;
     prop: IAutoMovieMotionHumanProp;
-    frame: IAutoMovieMotionHumanProp.IFrame;
+    frame: IAutoMovieRigidTransform;
     handle: string;
     exchange: number;
-  }): IAutoMovieMotionMeeting.IKind {
+  }): IAutoMovieMotionMeetingKind {
     const person = (
-      role: IAutoMovieMotionMeeting.IRole,
+      role: IAutoMovieMotionMeetingRole,
     ): IAutoMovieMotionHumanHandover.IPerson => ({
       body: role.body,
       side: role.name === GIVER ? props.giver : props.receiver,
@@ -150,13 +153,13 @@ export namespace HumanHandoverMeeting {
       roles: [GIVER, RECEIVER],
       contacts: { meet: AutoMovieMotionHumanTarget.DEFAULTS.ahead },
       place: (
-        roles: readonly IAutoMovieMotionMeeting.IRole[],
+        roles: readonly IAutoMovieMotionMeetingRole[],
       ): Record<string, IAutoMovieVector3> => {
-        const giver: IAutoMovieMotionMeeting.IRole = roles.find(
-          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === GIVER,
+        const giver: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === GIVER,
         )!;
-        const receiver: IAutoMovieMotionMeeting.IRole = roles.find(
-          (r: IAutoMovieMotionMeeting.IRole): boolean => r.name === RECEIVER,
+        const receiver: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === RECEIVER,
         )!;
         const inputs: IGoal = goal(
           {
@@ -181,9 +184,9 @@ export namespace HumanHandoverMeeting {
         };
       },
       timing: (
-        role: IAutoMovieMotionMeeting.IRole,
-      ): IAutoMovieMotionMeeting.ITiming => {
-        const side: IAutoMovieMotionHumanHand.Side =
+        role: IAutoMovieMotionMeetingRole,
+      ): IAutoMovieMotionMeetingTiming => {
+        const side: AutoMovieHumanSide =
           role.name === GIVER ? props.giver : props.receiver;
         const reach: number = HumanPrehension.nominal(
           handshake.arm(

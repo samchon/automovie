@@ -1,6 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLimbFitFrame,
   IAutoMovieMotionHumanPosture,
@@ -73,7 +74,7 @@ export function test_human_motion_core_fit_frame(): void {
   ): IAutoMovieMotionHumanPosture => {
     const base: IAutoMovieMotionHumanPosture = stand.posture(body, at, yaw);
     const reach: number = 0.8 * (body.measure.upperArm + body.measure.forearm);
-    const goal: IAutoMovieMotionHumanPosture.IGoal = {
+    const goal: IAutoMovieHumanLimbGoal = {
       point: turn(
         {
           x: -0.25,

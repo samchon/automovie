@@ -3,9 +3,12 @@ import type {
   IAutoMoviePhysicalContactBinding,
   IAutoMoviePhysicalContactBindingRows,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeSurfaceAnchor,
   IAutoMoviePoses,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -34,11 +37,11 @@ export function physicalContactBindingRows(
     (
       binding: IAutoMoviePhysicalContactBinding,
     ): { id: string; rows: IAutoMovieLinearizePhysicalTargetRows.IRows } => {
-      const source: IAutoMoviePhysicalProfile.IShape = shape(
+      const source: IAutoMoviePhysicalShape = shape(
         input.profiles[input.body]!,
         binding.source,
       );
-      const receiver: IAutoMoviePhysicalProfile.IShape = shape(
+      const receiver: IAutoMoviePhysicalShape = shape(
         input.profiles[binding.target.body]!,
         binding.target,
       );
@@ -49,9 +52,9 @@ export function physicalContactBindingRows(
       ]);
       const references: (
         poses: IAutoMoviePoses,
-      ) => IAutoMoviePhysicalProfile.ITransform[] = (
+      ) => IAutoMovieRigidTransform[] = (
         poses: IAutoMoviePoses,
-      ): IAutoMoviePhysicalProfile.ITransform[] => [
+      ): IAutoMovieRigidTransform[] => [
         poses[binding.source.bone]!,
         receiverPose(poses),
       ];
@@ -79,8 +82,8 @@ export function physicalContactBindingRows(
               poses: IAutoMoviePoses,
             ): ((probe: IAutoMoviePoses) => number[]) => {
               const model: (
-                first: IAutoMoviePhysicalProfile.ITransform,
-                second: IAutoMoviePhysicalProfile.ITransform,
+                first: IAutoMovieRigidTransform,
+                second: IAutoMovieRigidTransform,
               ) => number = linearizePhysicalSeparation(
                 input.geometry,
                 first(poses),
@@ -95,9 +98,7 @@ export function physicalContactBindingRows(
           },
         };
       }
-      const pose: IAutoMoviePhysicalProfile.ITransform = receiverPose(
-        input.initial,
-      );
+      const pose: IAutoMovieRigidTransform = receiverPose(input.initial);
       const measured: ReturnType<
         IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
       > = input.geometry.contact(
@@ -134,8 +135,7 @@ export function physicalContactBindingRows(
         memoizePhysicalTransformValue(
           references,
           (poses: IAutoMoviePoses): number[] => {
-            const target: IAutoMoviePhysicalProfile.ITransform =
-              receiverPose(poses);
+            const target: IAutoMovieRigidTransform = receiverPose(poses);
             const endpoint: IAutoMovieVector3 = Vector3.subtract(
               physicalSupportPoint(target, point),
               Vector3.scale(
@@ -160,9 +160,7 @@ export function physicalContactBindingRows(
       };
 
       /** Same-body references follow the candidate; external receivers remain actual. */
-      function receiverPose(
-        poses: IAutoMoviePoses,
-      ): IAutoMoviePhysicalProfile.ITransform {
+      function receiverPose(poses: IAutoMoviePoses): IAutoMovieRigidTransform {
         return own
           ? poses[binding.target.bone]!
           : input.actual[binding.target.body]![binding.target.bone]!;
@@ -197,14 +195,14 @@ export function physicalContactBindingRows(
 function shape(
   profile: IAutoMoviePhysicalProfile,
   selector: { bone: string; shape: string },
-): IAutoMoviePhysicalProfile.IShape {
+): IAutoMoviePhysicalShape {
   return profile.segments
     .find(
-      (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+      (segment: IAutoMoviePhysicalSegment): boolean =>
         segment.bone === selector.bone,
     )!
     .shapes.find(
-      (candidate: IAutoMoviePhysicalProfile.IShape): boolean =>
+      (candidate: IAutoMoviePhysicalShape): boolean =>
         candidate.id === selector.shape,
     )!;
 }

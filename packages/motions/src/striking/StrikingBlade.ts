@@ -1,9 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingAdvance,
   IAutoMovieMotionHumanStrikingBlade,
@@ -69,7 +71,7 @@ export namespace StrikingBlade {
    */
   export function shoulder(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     advance: IAutoMovieMotionHumanStrikingAdvance.Advance,
     line: IAutoMovieVector3,
     travel: number = StrikingAdvance.travel(context, advance),
@@ -143,8 +145,7 @@ export namespace StrikingBlade {
     const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
     const body: IAutoMovieMotionHumanBody = context.body;
     const duration: number = clock.duration;
-    const other: IAutoMovieMotionHumanHand.Side =
-      tool.side === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     const base: IAutoMovieMotionHumanActionPlan = StrikingAdvance.base(
       context,
       stroke,
@@ -244,7 +245,7 @@ export namespace StrikingBlade {
     // pose and carried on the chest from the shoulder, since a hint solved
     // anew at each instant jumped by 0.24 m inside one 1/48 s step and
     // swapped the arm's configuration by itself.
-    let anchored: IAutoMovieMotionHumanPosture.IReference | undefined;
+    let anchored: IAutoMovieHumanLimbReference | undefined;
     let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
@@ -259,13 +260,13 @@ export namespace StrikingBlade {
         Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
       );
     };
-    const reference = (): IAutoMovieMotionHumanPosture.IReference => {
+    const reference = (): IAutoMovieHumanLimbReference => {
       if (anchored !== undefined) return anchored;
 
       // A stroke that starts from the pose the previous action holds keeps
       // that arm: its elbow's hint, carried on the chest as it stood, and
       // its reference, so the same pose is the same arm at the boundary.
-      const entered: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      const entered: IAutoMovieHumanLimbGoal | undefined =
         stroke.kept === true
           ? context.entry.posture.limbs[`${tool.side}Arm`]
           : undefined;
@@ -293,7 +294,7 @@ export namespace StrikingBlade {
         decisive,
         stroke.support,
       );
-      const goal: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
+      const goal: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
         context,
         tool,
         decisive,
@@ -348,7 +349,7 @@ export namespace StrikingBlade {
           posture,
           t,
         );
-        const first: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
+        const first: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
           context,
           tool,
           at,

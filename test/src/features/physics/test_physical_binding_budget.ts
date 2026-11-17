@@ -5,6 +5,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePreparePhysicalGeometry,
   IAutoMoviePhysicalProfile as P,
@@ -54,7 +58,8 @@ export async function test_physical_binding_budget(): Promise<void> {
         source: {
           bone: "upper-0",
           shape: own.segments.find(
-            (segment: P.ISegment): boolean => segment.bone === "upper-0",
+            (segment: IAutoMoviePhysicalSegment): boolean =>
+              segment.bone === "upper-0",
           )!.shapes[0]!.id,
         },
         target: { body: "receiver", bone: "root", shape: "surface" },
@@ -109,7 +114,7 @@ export async function test_physical_binding_budget(): Promise<void> {
   for (const segment of compound.segments)
     segment.shapes = Array.from(
       { length: 3 },
-      (_: unknown, index: number): P.IShape => ({
+      (_: unknown, index: number): IAutoMoviePhysicalShape => ({
         ...structuredClone(segment.shapes[0]!),
         id: `${segment.shapes[0]!.id}-${index}`,
       }),
@@ -136,13 +141,13 @@ export async function test_physical_binding_budget(): Promise<void> {
     id: "over-residual-budget",
   });
   assert.throws((): string => Simulation.identity(bounded), /budget/);
-  const root: P.ISegment = structuredClone(
+  const root: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere(0.01).segments[0]!,
   );
-  const leaves: P.ISegment[] = Array.from(
+  const leaves: IAutoMoviePhysicalSegment[] = Array.from(
     { length: 65 },
-    (_: unknown, index: number): P.ISegment => {
-      const segment: P.ISegment = structuredClone(root);
+    (_: unknown, index: number): IAutoMoviePhysicalSegment => {
+      const segment: IAutoMoviePhysicalSegment = structuredClone(root);
       segment.bone = `leaf-${index}`;
       const angle: number = (2 * Math.PI * index) / 65;
       segment.neutral.position = {
@@ -159,14 +164,14 @@ export async function test_physical_binding_budget(): Promise<void> {
     centerOfMass: {
       x:
         leaves.reduce(
-          (sum: number, segment: P.ISegment): number =>
+          (sum: number, segment: IAutoMoviePhysicalSegment): number =>
             sum + segment.neutral.position.x,
           0,
         ) / 66,
       y: 1,
       z:
         leaves.reduce(
-          (sum: number, segment: P.ISegment): number =>
+          (sum: number, segment: IAutoMoviePhysicalSegment): number =>
             sum + segment.neutral.position.z,
           0,
         ) / 66,
@@ -176,7 +181,7 @@ export async function test_physical_binding_budget(): Promise<void> {
     materials: structuredClone(receiver.materials),
     segments: [root, ...leaves],
     joints: leaves.map(
-      (segment: P.ISegment): P.IJoint => ({
+      (segment: IAutoMoviePhysicalSegment): IAutoMoviePhysicalJoint => ({
         id: segment.bone,
         parent: root.bone,
         child: segment.bone,
@@ -218,7 +223,7 @@ export async function test_physical_binding_budget(): Promise<void> {
     coordinates.bodies[0]!;
   selected.maximumBindings = 65;
   const independent: Binding[] = leaves.map(
-    (segment: P.ISegment, index: number): Binding => ({
+    (segment: IAutoMoviePhysicalSegment, index: number): Binding => ({
       id: `independent-${index}`,
       kind: "separate",
       chain: [segment.bone],
@@ -265,7 +270,9 @@ export async function test_physical_binding_budget(): Promise<void> {
   selected.targets[0]!.pointBounds = [];
   Simulation.identity(coordinates);
   for (const active of [48, 64, 65]) {
-    const branches: P.ISegment[] = structuredClone(leaves.slice(0, 24));
+    const branches: IAutoMoviePhysicalSegment[] = structuredClone(
+      leaves.slice(0, 24),
+    );
     const compact: P = {
       ...structuredClone(star),
       id: `locked-axis-star-${active}`,
@@ -275,24 +282,30 @@ export async function test_physical_binding_budget(): Promise<void> {
       centerOfMass: {
         x:
           branches.reduce(
-            (sum: number, segment: P.ISegment): number =>
+            (sum: number, segment: IAutoMoviePhysicalSegment): number =>
               sum + segment.neutral.position.x,
             0,
           ) / 25,
         y: 1,
         z:
           branches.reduce(
-            (sum: number, segment: P.ISegment): number =>
+            (sum: number, segment: IAutoMoviePhysicalSegment): number =>
               sum + segment.neutral.position.z,
             0,
           ) / 25,
       },
       segments: [structuredClone(root), ...branches],
       joints: star.joints.slice(0, 24).map(
-        (joint: P.IJoint, index: number): P.IJoint => ({
+        (
+          joint: IAutoMoviePhysicalJoint,
+          index: number,
+        ): IAutoMoviePhysicalJoint => ({
           ...structuredClone(joint),
           axes: (["x", "y", "z"] as const).map(
-            (axis: P.IAxis["axis"], coordinate: number): P.IAxis => ({
+            (
+              axis: IAutoMoviePhysicalJointAxis["axis"],
+              coordinate: number,
+            ): IAutoMoviePhysicalJointAxis => ({
               ...joint.axes[0]!,
               axis,
               minimum: index * 3 + coordinate < active ? -1 : 0,

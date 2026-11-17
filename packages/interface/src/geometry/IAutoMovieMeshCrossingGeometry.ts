@@ -1,7 +1,14 @@
 import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
 import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry";
 
-/** Data and callback contracts shared by the MeshCrossingGeometry operations. */
+/**
+ * Data and callback contracts shared by the MeshCrossingGeometry operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Original triangle ordinals and copied metre corners share one query snapshot frame and exact enclosing hierarchy. Degenerate triangles retain their original ordinal; absent hierarchy denotes an empty index run rather than failed geometry.
+ * @evidence contracts/development/design.md#principled-representation Original triangle ordinals and copied metre corners share one query snapshot frame and exact enclosing hierarchy.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMeshCrossingGeometry constructs the snapshots consumed by crossing queries; canonical mesh and hierarchy contracts remain imported.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Degenerate triangles retain their original ordinal; absent hierarchy denotes an empty index run rather than failed geometry.
+ */
 export namespace IAutoMovieMeshCrossingGeometry {
   /**
    * One original triangle, including degenerate triangles, in one snapshot.

@@ -1,11 +1,12 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieConstructionPort,
+  IAutoMovieBlendColumn,
+  IAutoMovieBlendCrossJet,
+  IAutoMovieConstructionBandProfile64,
   IAutoMovieConstructionSplit,
   IAutoMovieConstructionSplitBand,
   IAutoMovieConstructionSplitSeam,
   IAutoMovieLoftChain,
-  IAutoMovieSolidRibbon,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -231,13 +232,10 @@ export namespace AutoMovieConstructionSplitBand {
       const x: number = d / seam.corner;
       return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
     };
-    const near: (
+    const near: (k: number, L: number) => IAutoMovieBlendCrossJet | string = (
       k: number,
       L: number,
-    ) => IAutoMovieSolidRibbon.IRibbon | string = (
-      k: number,
-      L: number,
-    ): IAutoMovieSolidRibbon.IRibbon | string => {
+    ): IAutoMovieBlendCrossJet | string => {
       if (k > m) {
         const reading: IAutoMovieConstructionSplitSeam.IPoint | null =
           seamAt[k] ?? null;
@@ -270,7 +268,7 @@ export namespace AutoMovieConstructionSplitBand {
       const hostSpeed: number = norm(ring[k]!.u);
       if (!(hostSpeed > 0))
         return `column ${k}: the host's station speed vanishes at its end`;
-      const own: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
+      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(
         input.host.surface,
         input.host.station,
         hostPhases[k]!,
@@ -449,11 +447,8 @@ export namespace AutoMovieConstructionSplitBand {
     // The ribbons' reach toward each fork (`IAutoMovieConstructionSplit.IProfile.reach`): first derivative by the share, second by its
     // square, so each column only slows across its start and its curvature there, and the band's G2 to the host, are kept.
     const reach: number = input.reach ?? 1;
-    const near = (
-      k: number,
-      L: number,
-    ): IAutoMovieSolidRibbon.IRibbon | string => {
-      const made: IAutoMovieSolidRibbon.IRibbon | string = turned(k, L);
+    const near = (k: number, L: number): IAutoMovieBlendCrossJet | string => {
+      const made: IAutoMovieBlendCrossJet | string = turned(k, L);
       if (typeof made === "string" || reach === 1) return made;
       const lambda: number =
         reach +
@@ -469,10 +464,7 @@ export namespace AutoMovieConstructionSplitBand {
         second: scale(made.second, lambda * lambda),
       };
     };
-    const turned = (
-      k: number,
-      L: number,
-    ): IAutoMovieSolidRibbon.IRibbon | string => {
+    const turned = (k: number, L: number): IAutoMovieBlendCrossJet | string => {
       const i: number = owner[k]!;
       const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
       const fromStart: number = within[k]! * step;
@@ -515,7 +507,7 @@ export namespace AutoMovieConstructionSplitBand {
       );
       if (!(hostSpeed > 0))
         return `column ${k}: the host's station speed vanishes at its end`;
-      const own: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
+      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(
         input.host.surface,
         input.host.station,
         phases[k]!,
@@ -593,20 +585,20 @@ export namespace AutoMovieConstructionSplitBand {
    * @param child The child side: its surface, its rail station, `into` into its kept side.
    * @param crease The declared crease window on the child side, or absent.
    * @param correspondence How the child's rail is matched to the loop: by angle about the rail's centroid, or by arclength share.
-   * @param ribbons Whether every column takes the band's one common ribbon scale, or its own (`local`).
-   * @param profiles A port band's cross profiles, their depths in mm (`IAutoMovieConstructionPort.IProfile`); absent, none.
+   * @param ribbons Whether every column takes the band's one common ribbon scale, or its own (`column`).
+   * @param profiles A port band's cross profiles, their depths in mm (`IAutoMovieConstructionBandProfile64`); absent, none.
    * @returns The strip, or the refusal.
    */
   export function strip(
     name: string,
     loop: readonly AutoMovieVector3Tuple[],
-    near: (k: number, L: number) => IAutoMovieSolidRibbon.IRibbon | string,
+    near: (k: number, L: number) => IAutoMovieBlendCrossJet | string,
     outward: AutoMovieVector3Tuple,
     child: IAutoMovieConstructionSplitBand.ISide,
     crease?: IAutoMovieConstructionSplit.ICrease,
     correspondence: "angle" | "length" = "angle",
     ribbons: "common" | "column" = "common",
-    profiles: readonly IAutoMovieConstructionPort.IProfile[] = [],
+    profiles: readonly IAutoMovieConstructionBandProfile64[] = [],
   ): IAutoMovieConstructionSplitBand.IStrip | string {
     const n: number = loop.length;
     const childPhases: number[] | string =
@@ -614,8 +606,8 @@ export namespace AutoMovieConstructionSplitBand {
     if (typeof childPhases === "string") return childPhases;
 
     const columns: {
-      start: IAutoMovieSolidRibbon.IRibbon;
-      end: IAutoMovieSolidRibbon.IRibbon;
+      start: IAutoMovieBlendCrossJet;
+      end: IAutoMovieBlendCrossJet;
     }[] = [];
     for (let k: number = 0; k < n; ++k) {
       const station: number = railAt(child, childPhases[k]!);
@@ -628,9 +620,9 @@ export namespace AutoMovieConstructionSplitBand {
       const childSpeed: number = norm(far.u);
       if (!(Number.isFinite(L) && L > 0 && childSpeed > 0))
         return `column ${k}: the loop point and the child's rail point coincide or the child's station speed vanishes`;
-      const start: IAutoMovieSolidRibbon.IRibbon | string = near(k, L);
+      const start: IAutoMovieBlendCrossJet | string = near(k, L);
       if (typeof start === "string") return start;
-      const own: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
+      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(
         child.surface,
         station,
         childPhases[k]!,
@@ -639,7 +631,7 @@ export namespace AutoMovieConstructionSplitBand {
         L / childSpeed,
       );
       const w: number = weight((2 * Math.PI * k) / n, crease);
-      const end: IAutoMovieSolidRibbon.IRibbon =
+      const end: IAutoMovieBlendCrossJet =
         w === 0
           ? own
           : {
@@ -781,7 +773,7 @@ export namespace AutoMovieConstructionSplitBand {
   }
 
   /**
-   * A profiled band's interior cross sections (`IAutoMovieConstructionPort.IProfile`): at every share any profile names, each column's
+   * A profiled band's interior cross sections (`IAutoMovieConstructionBandProfile64`): at every share any profile names, each column's
    * point and station derivatives on the plain band, per unit share, carried in along the plain band's inward unit normal by the sum of the
    * profiles' depths there, each weighted by its window at the column's clock, with the depth's own slope and bend across the band. The
    * normal's own turn across the band is left out of the derivatives; the strip stays a C2 piecewise quintic through its rails and these
@@ -797,7 +789,7 @@ export namespace AutoMovieConstructionSplitBand {
     plain: IAutoMovieSolidSurface,
     L: number,
     n: number,
-    profiles: readonly IAutoMovieConstructionPort.IProfile[],
+    profiles: readonly IAutoMovieConstructionBandProfile64[],
   ): {
     t: number;
     jets: [
@@ -808,14 +800,14 @@ export namespace AutoMovieConstructionSplitBand {
   }[] {
     const shares: number[] = [
       ...new Set(
-        profiles.flatMap((p: IAutoMovieConstructionPort.IProfile): number[] =>
+        profiles.flatMap((p: IAutoMovieConstructionBandProfile64): number[] =>
           p.knots.map((k: [number, number]): number => k[0]),
         ),
       ),
     ].sort((a: number, b: number): number => a - b);
     const depths: ((t: number) => [number, number, number])[] = profiles.map(
       (
-        p: IAutoMovieConstructionPort.IProfile,
+        p: IAutoMovieConstructionBandProfile64,
       ): ((t: number) => [number, number, number]) =>
         clamped(
           [0, ...p.knots.map((k: [number, number]): number => k[0]), 1],
@@ -861,7 +853,7 @@ export namespace AutoMovieConstructionSplitBand {
             let depth: [number, number, number] = [0, 0, 0];
             profiles.forEach(
               (
-                profile: IAutoMovieConstructionPort.IProfile,
+                profile: IAutoMovieConstructionBandProfile64,
                 i: number,
               ): void => {
                 const w: number = weight(c, profile);
@@ -976,7 +968,7 @@ export namespace AutoMovieConstructionSplitBand {
    * monotone (curves.md, Diagnose the Controls), so the column cannot turn
    * back and fold over itself.
    */
-  function monotone(column: IAutoMovieSolidRibbon.IColumn, f: number): boolean {
+  function monotone(column: IAutoMovieBlendColumn, f: number): boolean {
     const a: AutoMovieVector3Tuple = column.start.point;
     const b: AutoMovieVector3Tuple = column.end.point;
     const chord: AutoMovieVector3Tuple = sub(b, a);
@@ -1036,16 +1028,16 @@ export namespace AutoMovieConstructionSplitBand {
    * the band it builds.
    */
   function local(
-    columns: readonly IAutoMovieSolidRibbon.IColumn[],
+    columns: readonly IAutoMovieBlendColumn[],
     backward: readonly number[],
     factors: readonly number[],
-    forward: readonly IAutoMovieSolidRibbon.IColumn[],
+    forward: readonly IAutoMovieBlendColumn[],
   ): number[] | string {
     const n: number = columns.length;
     if (forward.length === 0) return columns.map((): number => 1);
     const turn: number = 2 * Math.PI;
     const own: number[] = columns.map(
-      (column: IAutoMovieSolidRibbon.IColumn): number => {
+      (column: IAutoMovieBlendColumn): number => {
         const i: number = forward.indexOf(column);
         return i < 0 ? Infinity : Math.log(factors[i]!);
       },
@@ -1059,7 +1051,7 @@ export namespace AutoMovieConstructionSplitBand {
     const goal: number[] = [...own];
     for (let pass: number = 0; pass < 64; ++pass) {
       const envelope: number[] = columns.map(
-        (_: IAutoMovieSolidRibbon.IColumn, k: number): number =>
+        (_: IAutoMovieBlendColumn, k: number): number =>
           Math.min(
             0,
             ...goal.map(
@@ -1069,7 +1061,7 @@ export namespace AutoMovieConstructionSplitBand {
           ),
       );
       const smooth: number[] = columns.map(
-        (_: IAutoMovieSolidRibbon.IColumn, k: number): number => {
+        (_: IAutoMovieBlendColumn, k: number): number => {
           let [sum, weight]: [number, number] = [0, 0];
           for (let j: number = 0; j < n; ++j) {
             const w: number = Math.exp(
@@ -1123,7 +1115,7 @@ export namespace AutoMovieConstructionSplitBand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function largest(
-    column: IAutoMovieSolidRibbon.IColumn,
+    column: IAutoMovieBlendColumn,
     from: number,
   ): number | null {
     if (monotone(column, from)) return from;

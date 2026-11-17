@@ -1,7 +1,7 @@
 import type {
+  IAutoMovieInspectionFocus,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
-  IAutoMovieInspectionView,
   IAutoMovieMark,
 } from "@automovie/interface";
 import type * as THREE from "three";
@@ -92,7 +92,7 @@ export interface IAutoMovieInspectionHandle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers and keeps nothing.
    */
   bounds: (
-    focus?: IAutoMovieInspectionView.IFocus | null,
+    focus?: IAutoMovieInspectionFocus | null,
   ) => IAutoMovieViewerSubjectBounds | null;
 
   /**

@@ -1,4 +1,11 @@
-/** Input topology and independently owned output of a one-shot inverse subdivision fit. */
+/**
+ * Input topology and independently owned output of a one-shot inverse subdivision fit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Quad topology and packed targets share one spatial unit; fitted controls retain that unit and report their measured limit residual. Pinned controls are held rather than limit-interpolated; structural buffers do not establish full manifoldness or convergence.
+ * @evidence contracts/development/design.md#principled-representation Quad topology and packed targets share one spatial unit; fitted controls retain that unit and report their measured limit residual.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionLimit builds stencils and delegates the solve; callers own the resulting controls and acceptance decision.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Pinned controls are held rather than limit-interpolated; structural buffers do not establish full manifoldness or convergence.
+ */
 export namespace IAutoMovieFitSubdivisionLimit {
   /**
    * Solve control positions of a quad cage whose Catmull-Clark limit surface
@@ -45,14 +52,14 @@ export namespace IAutoMovieFitSubdivisionLimit {
    *
    * @evidence contracts/development/design.md#principled-representation Positions retain the target frame and length unit; residual is a Euclidean length and the two fields do not encode a convergence guarantee.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The one-shot fitter returns newly allocated controls and the residual needed to judge the fit; the stencil and ping-pong buffers remain private.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Iteration exhaustion is exposed through residual rather than hidden by a success boolean; at the cap the measured and returned iterates differ by one update.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Iteration exhaustion is exposed through residual rather than hidden by a success boolean; the reported residual measures the returned controls even at the iteration cap.
    * @evidence contracts/development/common.md#meaningful-documentation States mutable output ownership, held-control meaning, residual units and the iteration-cap limitation.
    */
   export type IResult = {
     /** Newly allocated mutable packed XYZ controls, in targets' frame and unit. Held controls equal their target; no storage is shared with input arrays. */
     positions: number[];
 
-    /** Largest Euclidean free-vertex residual measured in the final iteration, in the target length unit; zero if no vertex is free. Exhausting 2,000 iterations does not throw. At that limit the returned controls include one subsequent update, so this value measures the preceding iterate. */
+    /** Largest Euclidean free-vertex residual measured in the final iteration, in the target length unit; zero if no vertex is free. Exhausting 2,000 iterations does not throw. At the iteration cap, a final residual traversal measures the returned controls after the last permitted update. */
     residual: number;
   };
 }

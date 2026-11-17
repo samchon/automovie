@@ -7,6 +7,8 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanFrame, HumanPerformance } from "@automovie/motions";
@@ -49,11 +51,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_meeting_roles(): void {
   const complaints: string[] = [];
   const SHARE: number = 0.75;
-  const kind: IAutoMovieMotionMeeting.IKind = {
+  const kind: IAutoMovieMotionMeetingKind = {
     name: "toast",
     roles: ["drinker", "drinker", "drinker"],
     contacts: { clink: { height: SHARE, range: 0.8, facing: "performer" } },
-    timing: (): IAutoMovieMotionMeeting.ITiming => ({
+    timing: (): IAutoMovieMotionMeetingTiming => ({
       ready: 0.6,
       stroke: 0.8,
       relax: 1.4,
@@ -78,8 +80,8 @@ export function test_human_motion_core_meeting_roles(): void {
   const read = (
     bodies: readonly IAutoMovieMotionHumanBody[],
     order: readonly string[],
-  ): Map<string, IAutoMovieMotionMeeting.IMeeting> => {
-    const seen: Map<string, IAutoMovieMotionMeeting.IMeeting> = new Map();
+  ): Map<string, IAutoMovieMotionMeeting> => {
+    const seen: Map<string, IAutoMovieMotionMeeting> = new Map();
     const clink: IAutoMovieMotionHumanActionLaw<never> = {
       name: "clink",
       interrupts: {},
@@ -139,13 +141,11 @@ export function test_human_motion_core_meeting_roles(): void {
     });
     return seen;
   };
-  const place = (
-    meeting: IAutoMovieMotionMeeting.IMeeting,
-  ): IAutoMovieVector3 =>
+  const place = (meeting: IAutoMovieMotionMeeting): IAutoMovieVector3 =>
     HumanFrame.point(meeting.frame, meeting.contacts.clink!);
   const apart = (
-    one: IAutoMovieMotionMeeting.IMeeting,
-    other: IAutoMovieMotionMeeting.IMeeting,
+    one: IAutoMovieMotionMeeting,
+    other: IAutoMovieMotionMeeting,
   ): number =>
     Math.max(
       Math.hypot(
@@ -162,7 +162,7 @@ export function test_human_motion_core_meeting_roles(): void {
       Math.abs(one.instants.stroke - other.instants.stroke),
       Math.abs(one.instants.relax - other.instants.relax),
       one.roles.every(
-        (role: IAutoMovieMotionMeeting.IMeeting["roles"][number], i: number) =>
+        (role: IAutoMovieMotionMeeting["roles"][number], i: number) =>
           role.subject === other.roles[i]?.subject,
       )
         ? 0
@@ -183,15 +183,11 @@ export function test_human_motion_core_meeting_roles(): void {
     ["c", "a", "b"],
     ["c", "b", "a"],
   ];
-  let reference: IAutoMovieMotionMeeting.IMeeting | undefined;
+  let reference: IAutoMovieMotionMeeting | undefined;
   for (const order of ORDERS) {
-    const seen: Map<string, IAutoMovieMotionMeeting.IMeeting> = read(
-      mixed,
-      order,
-    );
+    const seen: Map<string, IAutoMovieMotionMeeting> = read(mixed, order);
     for (const subject of SUBJECTS) {
-      const meeting: IAutoMovieMotionMeeting.IMeeting | undefined =
-        seen.get(subject);
+      const meeting: IAutoMovieMotionMeeting | undefined = seen.get(subject);
       if (meeting === undefined) {
         complaints.push(
           `composed ${order.join(", ")}: ${subject} read nothing`,
@@ -223,7 +219,7 @@ export function test_human_motion_core_meeting_roles(): void {
 
   // 3. Three of one body meet on the middle.
   const average: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const even: IAutoMovieMotionMeeting.IMeeting | undefined = read(
+  const even: IAutoMovieMotionMeeting | undefined = read(
     [average, average, average],
     SUBJECTS,
   ).get("a");

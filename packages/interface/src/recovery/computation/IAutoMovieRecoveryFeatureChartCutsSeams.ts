@@ -1,5 +1,6 @@
 import type { IAutoMovieRecoveryFeatureChartCuts } from "./IAutoMovieRecoveryFeatureChartCuts";
-import type { IAutoMovieRecoveryFeatureChartCutsSubdivide } from "./IAutoMovieRecoveryFeatureChartCutsSubdivide";
+import type { IAutoMovieRecoveryIndexedCrease } from "./IAutoMovieRecoveryIndexedCrease";
+import type { IAutoMovieRecoveryObservedMeshTopology } from "./IAutoMovieRecoveryObservedMeshTopology";
 
 /**
  * Publish maximal feature arcs with their two actual coherent boundary banks.
@@ -23,10 +24,10 @@ export namespace IAutoMovieRecoveryFeatureChartCutsSeams {
   export type Operation = (
     context: {
       /** Topology of the subdivided observation mesh before chart-local extraction. */
-      subdivided: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology;
+      subdivided: IAutoMovieRecoveryObservedMeshTopology;
 
       /** Crease-edge registry after required edge subdivision, retaining original feature ownership. */
-      expanded: Map<string, IAutoMovieRecoveryFeatureChartCutsSeams.Feature>;
+      expanded: Map<string, IAutoMovieRecoveryIndexedCrease>;
 
       /** Physical incidence identities aligned with the current vertex array. */
       physical: string[];
@@ -38,7 +39,7 @@ export namespace IAutoMovieRecoveryFeatureChartCutsSeams {
       remap: Map<number, number>[];
 
       /** Topology recomputed after subdivision, used to verify the emitted chart incidence. */
-      actual: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology;
+      actual: IAutoMovieRecoveryObservedMeshTopology;
 
       /** Shared source vertex index to chart-local index for the current component. */
       localOf: Map<number, number>;
@@ -65,15 +66,4 @@ export namespace IAutoMovieRecoveryFeatureChartCutsSeams {
     edge: (a: number, b: number) => string,
     lex: (a: string, b: string) => number,
   ) => ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>;
-
-  /**
-   * Feature within recovery feature chart cuts seams. Its referenced contract retains the same units, ordering and absence semantics.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Publish maximal feature arcs with their two actual coherent boundary banks.
-   * @evidence contracts/development/design.md#principled-representation Publish maximal feature arcs with their two actual coherent boundary banks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryFeatureChartCutsSeams share IAutoMovieRecoveryFeatureChartCutsSeams's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
-   */
-  export type Feature =
-    Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0]["featureEdges"][number];
 }

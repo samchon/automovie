@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
@@ -142,18 +143,17 @@ export namespace crawlFeet {
   export function planted(
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
-    measured: IAutoMovieMotionHumanFrame.IFrame,
+    measured: IAutoMovieMotionHumanFrame,
     knees: Record<"left" | "right", IAutoMovieVector3>,
     ahead: number,
   ): {
-    frame: IAutoMovieMotionHumanFrame.IFrame;
+    frame: IAutoMovieMotionHumanFrame;
     tucks: Record<"left" | "right", ITuck>;
   } {
     const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
     const feet = sides.map((side: "left" | "right") => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        standing.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(measured.yaw),

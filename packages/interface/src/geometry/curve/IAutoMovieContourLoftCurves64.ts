@@ -1,7 +1,14 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { AutoMovieCubicBezierControls3 } from "./AutoMovieCubicBezierControls3";
 
-/** Data and callback contracts shared by the ContourLoftCurves64 operations. */
+/**
+ * Data and callback contracts shared by the ContourLoftCurves64 operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Millimetre polygon arclength charts, evaluated source phases and exact Bernstein restrictions remain distinct records. Optional materialized nets and lazy original/path data describe existing representations; their consistency is a numerical-owner premise, not a fitted mesh substitute.
+ * @evidence contracts/development/design.md#principled-representation Millimetre polygon arclength charts, evaluated source phases and exact Bernstein restrictions remain distinct records.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieContourLoftCurves64 exchanges these records with contour sampling and interaction refinement.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional materialized nets and lazy original/path data describe existing representations; their consistency is a numerical-owner premise, not a fitted mesh substitute.
+ */
 export namespace IAutoMovieContourLoftCurves64 {
   /**
    * A closed polygon's physical arclength chart, in millimetres.
@@ -53,7 +60,7 @@ export namespace IAutoMovieContourLoftCurves64 {
     /** Materialized positive source restriction; absent until needed for a compact half-path leaf. */
     net?: AutoMovieVector3Tuple[];
     /** Immutable original cubic authority for lazy materialization. */
-    original?: IAutoMovieCurve64.Span;
+    original?: AutoMovieCubicBezierControls3;
     /** Binary left/right half path from the original span, with length depth. */
     path?: number;
     /** Inherited source phase of its first control. */

@@ -1,7 +1,14 @@
 import type { IAutoMovieSoftBodyDomain } from "./IAutoMovieSoftBodyDomain";
 import type { IAutoMovieWearableSoftFrame } from "./IAutoMovieWearableSoftFrame";
 
-/** Complete primary-motion history and admission slot for one wearable cloth replay. */
+/**
+ * Complete primary-motion history and admission slot for one wearable cloth replay.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines inclusive fixed-step history, slot admission, rigid offsets, default state, result ownership and propagated failures.
+ * @evidence contracts/development/design.md#principled-representation Frames carry world-metre poses at absolute domain steps; safe integer coverage and subject bounds are checked by simulateAutoMovieWearableSoftBody, while general domain validity remains separate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses canonical domain and wearable frame contracts; slot and ceiling are explicit inputs because the resolver does not own a global live-subject registry.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Complete snapshots replace hidden motion callbacks or interpolated missing frames; the budget slot admits this call without proving global slot uniqueness.
+ */
 export namespace IAutoMovieSimulateWearableSoftBody {
   /**
    * Borrowed domain and absolute primary-motion snapshots for resolving moving anchors/body capsules and replaying cloth from rest. The resolver checks the subject slot, target step, inclusive frame coverage, frame indices and nonblank unique node/actor ids. Every required bone must resolve uniquely. Used anchor transforms require finite positions/offsets and unit quaternions within 1e-6 squared-length error; offsets rotate and translate without scale. Resolved boundary vectors and capsule radii are admitted before integration.

@@ -1,6 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryChartControlRelations,
+  IAutoMovieRecoveryChartFit,
   IAutoMovieRecoveryChartFitPrepare,
 } from "@automovie/interface";
 
@@ -120,7 +121,7 @@ export function RecoveryChartFitPrepare(
   const totalWeight: number = input.observations.reduce(
     (
       sum: number,
-      row: IAutoMovieRecoveryChartFitPrepare.Input["observations"][number],
+      row: IAutoMovieRecoveryChartFit.Input["observations"][number],
     ): number => sum + row.weight,
     0,
   );

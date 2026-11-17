@@ -1,6 +1,8 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieRecoverySourceHalfedge,
   IAutoMovieRecoverySourceLineage,
+  IAutoMovieRecoverySourceTopology,
 } from "../../index";
 
 /** Acquisition-only source incidence for a finite observed slab. Input face ordinals and slab-local occurrence identities bind measured ports and source topology; this record is not engine generation input. Source positions, triangle arrays and normals are absent except for measured critical positions. Critical brackets identify source intervals rather than fitted curves at those brackets.
@@ -59,34 +61,7 @@ export interface IAutoMovieRecoverySlabObservation {
     }>;
 
     /** Every observed two-cell halfedge occurrence, including interior edges. Cycle and port occurrence IDs join here. Side names describe scalar strata; physicalBoundary separately records an actual source boundary edge. */
-    occurrences: Array<{
-      /** Opaque occurrence identity owned by this slab. */
-      id: string;
-
-      /** Opaque numeric clipped-cell address owned by this slab, not a triangle ordinal. */
-      cell: number;
-
-      /** Face ordinal in the supplied triangles array. */
-      face: number;
-
-      /** Raw starting node address in nodes. */
-      from: string;
-
-      /** Raw ending node address in nodes. */
-      to: string;
-
-      /** Opaque declared edge-incidence identity; equal addresses retain separate occurrences. */
-      edge: string;
-
-      /** Actual scalar-boundary classification; physical alone does not establish a source boundary. */
-      side: "before" | "after" | "physical";
-
-      /** Whether the declared source edge has exactly one original face occurrence. */
-      physicalBoundary: boolean;
-
-      /** Owning component ID in components. */
-      component: number;
-    }>;
+    occurrences: IAutoMovieRecoverySourceHalfedge[];
   };
 
   /** Every edge-connected two-dimensional source component, including unrepresented or unsupported components. */
@@ -98,34 +73,7 @@ export interface IAutoMovieRecoverySlabObservation {
     sourceTriangleIds: number[];
 
     /** Observed relative-sheet incidence counts and independently qualified manifold/orientation invariants; no embedding claim follows. */
-    topology: {
-      /** Actual vertex population of this generated run or observed component. */
-      vertices: number;
-
-      /** Distinct edge-incidence population used in the component's Euler accounting. */
-      edges: number;
-
-      /** Two-cell face population used in the observed component's Euler accounting. */
-      faces: number;
-
-      /** Euler characteristic V-E+F of the relative sheet, or null when its topology cannot be qualified. */
-      euler: number | null;
-
-      /** Whether the observed local incidence meets the owning operation's manifold checks; no embedding claim follows. */
-      manifold: boolean;
-
-      /** Whether face parity admits coherent orientation, or null when the sheet cannot be qualified. */
-      orientable: boolean | null;
-
-      /** Whether original face directions already agree across the admitted adjacency. */
-      inputOrientationConsistent: boolean;
-
-      /** Number of closed boundary cycles in the observed relative sheet. */
-      boundaryCycles: number;
-
-      /** Genus derived only for a qualified connected orientable sheet, otherwise null. */
-      genus: number | null;
-    };
+    topology: IAutoMovieRecoverySourceTopology;
 
     /** Ordered incidence-node addresses and occurrence traversal words from the same observed boundary walk. Nodes use sourceIncidence.nodes incidenceId, while occurrence endpoints use raw id. */
     cycles: Array<{

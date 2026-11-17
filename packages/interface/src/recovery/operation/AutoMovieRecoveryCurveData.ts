@@ -1,6 +1,6 @@
+import type { IAutoMovieCubicBezierCurve64 } from "../../geometry/curve/IAutoMovieCubicBezierCurve64";
 import type {
   AutoMovieRecoveryCurveFormat,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryHermiteCurve,
 } from "../../index";
 
@@ -15,7 +15,7 @@ import type {
 export type AutoMovieRecoveryCurveData<
   T,
   Format extends AutoMovieRecoveryCurveFormat,
-> = T extends IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve
+> = T extends IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve
   ? {
       [Key in keyof Omit<T, "type" | "spans">]: AutoMovieRecoveryCurveData<
         T[Key],
@@ -23,7 +23,7 @@ export type AutoMovieRecoveryCurveData<
       >;
     } & (Format extends "hermite"
       ? IAutoMovieRecoveryHermiteCurve
-      : IAutoMovieCurve64.Cubic)
+      : IAutoMovieCubicBezierCurve64)
   : T extends object
     ? { [Key in keyof T]: AutoMovieRecoveryCurveData<T[Key], Format> }
     : T;

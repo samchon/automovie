@@ -5,7 +5,9 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -206,8 +208,8 @@ export namespace GymnasticsFlight {
       );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const [limb, goal] of Object.entries(posture.limbs) as [
-      IAutoMovieMotionHumanPosture.Limb,
-      IAutoMovieMotionHumanPosture.IGoal,
+      AutoMovieHumanLimb,
+      IAutoMovieHumanLimbGoal,
     ][])
       limbs[limb] =
         goal.on !== undefined

@@ -73,7 +73,7 @@ export function test_human_motion_travel_stride_variation(): void {
             : standing.registered(row, { to })
           ).node,
         });
-      const segment: IAutoMovieMotionHumanSegment.ISegment =
+      const segment: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,

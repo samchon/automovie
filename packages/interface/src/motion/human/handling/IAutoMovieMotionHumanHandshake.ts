@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * Shaking hands with a partner: both bring the same hand's palm to one
@@ -22,7 +22,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * solves each arm (`HumanHand.place`, the Final IK and Unreal Control Rig
  * practice of an effector socket on a world target), and through the clasp
  * and the pump the arm keeps the configuration it clasped in
- * (`IAutoMovieMotionHumanPosture.IGoal.reference`); the feet stay planted as the stand law
+ * (`IAutoMovieHumanLimbGoal.reference`); the feet stay planted as the stand law
  * places them. Both partners read the point from one meeting record
  * (`handshakeMeeting`), computed once from the two shoulders, so the palms
  * meet without either reading the other's moving hand. A seated pair whose
@@ -72,7 +72,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. pumps: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. height: How high the shoulder joint stands above the floor, metres.
  * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. pumps: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. height: How high the shoulder joint stands above the floor, metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.handshake, params); chain/HumanChainMutual.ts (HumanChainMutual.handshake, params); handling/handshake.ts (handshake.plan, context); HumanChain.ts (HumanChain.pair, return); HumanChain.ts (HumanChain.pair, params); handling/handshake.ts (handshake.stance, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHandshake {
   /**
@@ -83,14 +83,14 @@ export namespace IAutoMovieMotionHumanHandshake {
    * @evidence contracts/development/common.md#meaningful-documentation hand: The shaking hand; `right` when absent. pumps: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#principled-representation hand: The shaking hand; `right` when absent. pumps: Pump cycles; 2 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.handshake, params); chain/HumanChainMutual.ts (HumanChainMutual.handshake, params); handling/handshake.ts (handshake.plan, context); HumanChain.ts (HumanChain.pair, return); HumanChain.ts (HumanChain.pair, params); actions/HumanMutual.ts (HumanMutual.handshake).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The partner's subject id. */
     partner: string;
 
     /** The shaking hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** Pump cycles; 2 when absent.
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.

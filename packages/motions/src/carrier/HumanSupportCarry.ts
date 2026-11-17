@@ -1,13 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSupportAim,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanSupportFrame,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -46,12 +48,12 @@ export namespace HumanSupportCarry {
    * @returns The carry.
    */
   export function of(
-    frame: (seconds: number) => IAutoMovieMotionHumanProp.IFrame,
+    frame: (seconds: number) => IAutoMovieRigidTransform,
     start: number,
     seconds: number,
   ): IAutoMovieMotionHumanSupportCarry.ICarry {
-    const first: IAutoMovieMotionHumanProp.IFrame = frame(start);
-    const now: IAutoMovieMotionHumanProp.IFrame = frame(seconds);
+    const first: IAutoMovieRigidTransform = frame(start);
+    const now: IAutoMovieRigidTransform = frame(seconds);
     const turn: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(now.rotation, Quaternion.inverse(first.rotation)),
     );
@@ -88,7 +90,7 @@ export namespace HumanSupportCarry {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const [limb, goal] of Object.entries(posture.limbs) as [
       keyof IAutoMovieMotionHumanPosture["limbs"],
-      IAutoMovieMotionHumanPosture.IGoal,
+      IAutoMovieHumanLimbGoal,
     ][])
       limbs[limb] =
         goal.on !== undefined
@@ -128,7 +130,7 @@ export namespace HumanSupportCarry {
     plan: IAutoMovieMotionHumanActionPlan,
     prop: string,
   ): IAutoMovieMotionHumanActionPlan {
-    const frame = (seconds: number): IAutoMovieMotionHumanProp.IFrame =>
+    const frame = (seconds: number): IAutoMovieRigidTransform =>
       context.prop(prop).frame(seconds);
     return {
       ...plan,
@@ -175,7 +177,7 @@ export namespace HumanSupportCarry {
     // On the ground there is nothing to carry: the plan is kept as made.
     if (HumanSupportFrame.of(context).kind === "ground")
       return { ...plan, channels };
-    const frame = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
+    const frame = (seconds: number): IAutoMovieRigidTransform => {
       const at: IAutoMovieMotionHumanSupportFrame.IFrame = HumanSupportFrame.at(
         context,
         seconds,
@@ -209,9 +211,7 @@ export namespace HumanSupportCarry {
         ? {}
         : {
             launches: plan.launches.map(
-              (
-                l: IAutoMovieMotionHumanActionPlan.ILaunch,
-              ): IAutoMovieMotionHumanActionPlan.ILaunch =>
+              (l: IAutoMovieMotionPropLaunch): IAutoMovieMotionPropLaunch =>
                 launch(context, frame, l),
             ),
           }),
@@ -229,9 +229,9 @@ export namespace HumanSupportCarry {
       IAutoMovieMotionHumanActionContext,
       "entry" | "prop" | "performer" | "start"
     >,
-    frame: (seconds: number) => IAutoMovieMotionHumanProp.IFrame,
-    l: IAutoMovieMotionHumanActionPlan.ILaunch,
-  ): IAutoMovieMotionHumanActionPlan.ILaunch {
+    frame: (seconds: number) => IAutoMovieRigidTransform,
+    l: IAutoMovieMotionPropLaunch,
+  ): IAutoMovieMotionPropLaunch {
     const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
       frame,
       context.start,

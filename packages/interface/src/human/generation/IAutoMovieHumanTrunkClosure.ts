@@ -1,7 +1,16 @@
 import type { IAutoMovieLoftRelief } from "../../construction/IAutoMovieLoftRelief";
 import type { IAutoMovieHumanTrunkColumn } from "./IAutoMovieHumanTrunkColumn";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkClosure; runtime evaluation remains in Human. */
+/**
+ * A callback selecting the reliefs acting at a tape site for a candidate trunk column.
+ *
+ * The interface package owns these declarations; AutoMovieHumanTrunkClosure in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A callback selecting the reliefs acting at a tape site for a candidate trunk column. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only Reliefs declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation Reliefs separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanTrunkClosure exchanges the named Reliefs contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanTrunkClosure {
   /** A function of the column giving the reliefs that act at a tape's site.
    *

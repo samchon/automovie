@@ -1,4 +1,4 @@
-import type { IAutoMovieCompactCurveApproximation } from "@automovie/interface";
+import type { IAutoMovieRegisteredPlanarCurvePiece } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -399,14 +399,14 @@ async function sizes(
   const oldCurves: {
     key: string;
     y: number;
-    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[];
+    pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[];
   }[] = packet.loops.map(
     (
       loop: I.Loop,
     ): {
       key: string;
       y: number;
-      pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[];
+      pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[];
     } => ({ key: loop.key, y: loop.heightMm, pieces: S.prepare(loop).pieces }),
   );
   const newCurves: typeof oldCurves = packet.loops.map(
@@ -424,7 +424,7 @@ async function sizes(
         key: c.key,
         y: c.y,
         pieces: c.pieces.map(
-          (p: IAutoMovieCompactCurveApproximation.IPiece): object =>
+          (p: IAutoMovieRegisteredPlanarCurvePiece): object =>
             p.kind === "polynomial"
               ? {
                   kind: p.kind,
@@ -452,8 +452,7 @@ async function sizes(
       a[0] === b[0] && a[1] === b[1];
     for (const curve of curves) {
       for (let i: number = 0; i < curve.pieces.length; ++i) {
-        const piece: IAutoMovieCompactCurveApproximation.IPiece =
-          curve.pieces[i]!;
+        const piece: IAutoMovieRegisteredPlanarCurvePiece = curve.pieces[i]!;
         for (let j: number = 0; j < piece.controls.length; ++j) {
           if (
             i > 0 &&
@@ -474,13 +473,12 @@ async function sizes(
         values.push(
           curve.pieces[0]!.domain[0],
           ...curve.pieces.map(
-            (p: IAutoMovieCompactCurveApproximation.IPiece): number =>
-              p.domain[1],
+            (p: IAutoMovieRegisteredPlanarCurvePiece): number => p.domain[1],
           ),
         );
       values.push(
         ...curve.pieces.map(
-          (p: IAutoMovieCompactCurveApproximation.IPiece): number =>
+          (p: IAutoMovieRegisteredPlanarCurvePiece): number =>
             p.kind === "polynomial" ? p.degree : p.weight,
         ),
         curve.y,

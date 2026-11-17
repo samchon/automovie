@@ -1,10 +1,12 @@
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicPose,
   IAutoMovieHumanF1Placement,
   IAutoMovieHumanF1Placing,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 import { AutoMovieHumanConicPose } from "../conic/AutoMovieHumanConicPose";
@@ -71,7 +73,7 @@ export namespace AutoMovieHumanF1Placement {
    */
   export const NEUTRAL: IAutoMovieHumanF1Placement.IPose = (
     name: string,
-  ): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+  ): AutoMovieMatrix3Tuple | undefined =>
     ARTICULATED.includes(name) ? F.IDENTITY : undefined;
   /** The frames of a pose; absent, the reference pose. */
   export function frames(
@@ -84,8 +86,8 @@ export namespace AutoMovieHumanF1Placement {
   export function frame(
     name: string,
     at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
-    const found: IAutoMovieHumanSegmentFrame.IFrame | undefined = at.get(name);
+  ): IAutoMovieHumanSegmentFrame {
+    const found: IAutoMovieHumanSegmentFrame | undefined = at.get(name);
     if (found === undefined) throw new Error("f1 has no segment " + name);
     return found;
   }
@@ -145,7 +147,7 @@ export namespace AutoMovieHumanF1Placement {
       const far: IAutoMovieHumanF1Placing.IPlaced = T.POINTS[name]!;
       const parent: string | null =
         T.CHAIN.find(
-          (joint: IAutoMovieHumanSegmentFrame.IJoint): boolean =>
+          (joint: IAutoMovieHumanSegmentJoint): boolean =>
             joint.name === far.frame,
         )?.parent ?? null;
       return far.local.every((x: number): boolean => x === 0) && parent !== null

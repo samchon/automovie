@@ -1,6 +1,10 @@
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCurveBoundary64,
+  IAutoMovieCurveBoundaryEdge64,
+  IAutoMovieCurveBoundaryPublication64,
+  IAutoMovieCurveHierarchyFrame64,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,24 +26,28 @@ export class AutoMovieCurveParentContext {
   public readonly revision: string;
 
   /** Resolved world frames owned by this context, keyed by node. */
-  private readonly frames: Map<string, IAutoMovieCurve64.Frame> = new Map();
+  private readonly frames: Map<string, IAutoMovieCurveHierarchyFrame64> =
+    new Map();
 
   /** Column-major local-to-world matrices reused by point transforms. */
   private readonly matrices: Map<string, number[]> = new Map();
 
   /** Cloned and frozen routing declarations keyed by boundary ID. */
-  private readonly edges: Map<string, IAutoMovieCurve64.Edge> = new Map();
+  private readonly edges: Map<string, IAutoMovieCurveBoundaryEdge64> =
+    new Map();
 
   /** Genuine frozen publications, bounded by the declared edge count. */
-  private readonly published: Map<string, IAutoMovieCurve64.Operator> =
-    new Map();
+  private readonly published: Map<
+    string,
+    IAutoMovieCurveBoundaryPublication64
+  > = new Map();
 
   /**
    * Admit and resolve the supplied parent-first frames and clone the directed edge declarations. Construction throws before a usable context exists if a transform or graph endpoint is invalid.
    */
   public constructor(
-    localFrames: readonly IAutoMovieCurve64.Frame[],
-    edges: readonly IAutoMovieCurve64.Edge[],
+    localFrames: readonly IAutoMovieCurveHierarchyFrame64[],
+    edges: readonly IAutoMovieCurveBoundaryEdge64[],
   ) {
     for (const frame of localFrames) {
       if (
@@ -70,14 +78,14 @@ export class AutoMovieCurveParentContext {
           if (Math.abs(dot - (i === j ? 1 : 0)) > 64 * Number.EPSILON)
             throw new Error("Proper orthonormal frame required");
         }
-      const r: IAutoMovieCurve64.Matrix = frame.rotation;
+      const r: AutoMovieMatrix3Tuple.ReadonlyRows = frame.rotation;
       const determinant: number =
         r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1]) -
         r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0]) +
         r[0][2] * (r[1][0] * r[2][1] - r[1][1] * r[2][0]);
       if (determinant <= 0)
         throw new Error("Reflected frames are not proper rotations");
-      const parent: IAutoMovieCurve64.Frame | undefined =
+      const parent: IAutoMovieCurveHierarchyFrame64 | undefined =
         frame.parent === null ? undefined : this.frames.get(frame.parent);
       const local: number[] = [
         r[0][0],
@@ -99,13 +107,13 @@ export class AutoMovieCurveParentContext {
         parent === undefined
           ? local
           : Matrix4.multiply(this.matrices.get(parent.bone)!, local);
-      const rotation: IAutoMovieCurve64.Matrix = [0, 1, 2].map(
+      const rotation: AutoMovieMatrix3Tuple.ReadonlyRows = [0, 1, 2].map(
         (i: number): Readonly<AutoMovieVector3Tuple> => [
           world[i]!,
           world[4 + i]!,
           world[8 + i]!,
         ],
-      ) as unknown as IAutoMovieCurve64.Matrix;
+      ) as unknown as AutoMovieMatrix3Tuple.ReadonlyRows;
       const translation: Readonly<AutoMovieVector3Tuple> = [
         world[12]!,
         world[13]!,
@@ -151,7 +159,8 @@ export class AutoMovieCurveParentContext {
     bone: string,
     vector: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> {
-    const frame: IAutoMovieCurve64.Frame | undefined = this.frames.get(bone);
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (
       frame === undefined ||
       vector.length !== 3 ||
@@ -224,7 +233,8 @@ export class AutoMovieCurveParentContext {
     bone: string,
     vector: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> {
-    const frame: IAutoMovieCurve64.Frame | undefined = this.frames.get(bone);
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (
       frame === undefined ||
       vector.length !== 3 ||
@@ -262,7 +272,8 @@ export class AutoMovieCurveParentContext {
     bone: string,
     point: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> {
-    const frame: IAutoMovieCurve64.Frame | undefined = this.frames.get(bone);
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (frame === undefined) throw new Error("Unknown bone");
     return this.inverseDirection(
       bone,
@@ -283,8 +294,9 @@ export class AutoMovieCurveParentContext {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolved frame is reused as the snapshot source; returned snapshots are independent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clone and the context retains only its original frame.
    */
-  public frame(bone: string): IAutoMovieCurve64.Frame {
-    const frame: IAutoMovieCurve64.Frame | undefined = this.frames.get(bone);
+  public frame(bone: string): IAutoMovieCurveHierarchyFrame64 {
+    const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
+      this.frames.get(bone);
     if (frame === undefined) throw new Error("Unknown bone");
     return structuredClone(frame);
   }
@@ -303,10 +315,10 @@ export class AutoMovieCurveParentContext {
   public publish(
     region: string,
     bone: string,
-    boundary: IAutoMovieCurve64.Boundary,
-  ): IAutoMovieCurve64.Operator {
+    boundary: IAutoMovieCurveBoundary64,
+  ): IAutoMovieCurveBoundaryPublication64 {
     assertAutoMovieCurveBoundary64(boundary);
-    const edge: IAutoMovieCurve64.Edge | undefined = this.edges.get(
+    const edge: IAutoMovieCurveBoundaryEdge64 | undefined = this.edges.get(
       boundary.id,
     );
     if (
@@ -317,7 +329,7 @@ export class AutoMovieCurveParentContext {
       this.published.has(boundary.id)
     )
       throw new Error("Wrong or repeated anatomical boundary owner");
-    const value: IAutoMovieCurve64.Boundary = structuredClone(boundary);
+    const value: IAutoMovieCurveBoundary64 = structuredClone(boundary);
     const freeze: (item: unknown) => void = (item: unknown): void => {
       if (item !== null && typeof item === "object") {
         for (const child of Object.values(item)) freeze(child);
@@ -325,7 +337,7 @@ export class AutoMovieCurveParentContext {
       }
     };
     freeze(value);
-    const operator: IAutoMovieCurve64.Operator = Object.freeze({
+    const operator: IAutoMovieCurveBoundaryPublication64 = Object.freeze({
       edge,
       contextRevision: this.revision,
       value,
@@ -348,9 +360,9 @@ export class AutoMovieCurveParentContext {
   public bind(
     region: string,
     bone: string,
-    operator: IAutoMovieCurve64.Operator,
-  ): IAutoMovieCurve64.Boundary {
-    const edge: IAutoMovieCurve64.Edge | undefined = this.edges.get(
+    operator: IAutoMovieCurveBoundaryPublication64,
+  ): IAutoMovieCurveBoundary64 {
+    const edge: IAutoMovieCurveBoundaryEdge64 | undefined = this.edges.get(
       operator.value.id,
     );
     if (

@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the ConicHermite operations. */
+/**
+ * Data and callback contracts shared by the ConicHermite operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IPatch keeps a rational cubic's deficit/height chart, source-length extents and inverse-length curvature with dimensionless controls and weights.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ConicHermite prepares these records for ViewConic and ConicHermiteField; T shares numeric and source-jet formulas.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Array cardinality and positive weights are preparation premises, not guarantees of the readonly array types.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives patch coordinates, clock, control normalization and weight meaning.
+ */
 export namespace IAutoMovieConicHermite {
   /**
    * One short rational cubic in deficit/height coordinates.

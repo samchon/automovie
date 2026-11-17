@@ -13,8 +13,8 @@ import type {
   IAutoMovieConstructionDiagnostic,
   IAutoMovieConstructionRealization,
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
   IAutoMovieLoftSectionSource,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -95,7 +95,7 @@ export namespace ConstructionNativeContinuation {
     y: number,
     phi: number,
     scale: number,
-  ): IAutoMovieLoftJet.IJet {
+  ): IAutoMovieLoftSurfaceJet {
     const q: number = y / scale;
     const r: number = scale * (3 + q + q * q);
     const first: number = 1 + 2 * q;
@@ -154,8 +154,12 @@ export namespace ConstructionNativeContinuation {
     const result: IAutoMovieLoftChain | string =
       AutoMovieConstructionContinuation.apply(host, "top", part, "bottom");
     if (typeof result === "string") throw new Error(result);
-    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(result, 0, 0.37);
-    const expected: IAutoMovieLoftJet.IJet = oracle(1, 0.37, 1);
+    const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+      result,
+      0,
+      0.37,
+    );
+    const expected: IAutoMovieLoftSurfaceJet = oracle(1, 0.37, 1);
     expected.p[1] += 0.6;
     expected.s[1] += 0.8;
     expected.ss[1] += 0.6;
@@ -418,12 +422,12 @@ export namespace ConstructionNativeContinuation {
           (candidate: IAutoMovieLoftChain): boolean => candidate.name === name,
         )!;
         for (const station of [0, 0.25, 0.75, 1]) {
-          const expected: IAutoMovieLoftJet.IJet = oracle(
+          const expected: IAutoMovieLoftSurfaceJet = oracle(
             offset + station,
             0.37,
             1,
           );
-          const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+          const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
             current,
             station,
             0.37,

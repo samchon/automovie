@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
-/** Data and callback contracts shared by the ViewJointedCourse operations. */
+/**
+ * Data and callback contracts shared by the ViewJointedCourse operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Course data separates unit segment directions and mm lengths from quintic-angle turns with radian angles and mm setback/station values.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewJointedCourse shares admitted turn data with straight-run placement and axis frame evaluation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly straight joints explicitly carry zero turn axis/length; nonoverlap and finite geometry are engine admission premises.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents turn coordinates, straight-joint convention and retained segment order.
+ */
 export namespace IAutoMovieViewJointedCourse {
   /**
    * A prepared turn shared by admission, straight-run placement and frame evaluation.

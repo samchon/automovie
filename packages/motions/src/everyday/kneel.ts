@@ -177,7 +177,7 @@ export namespace kneel {
         });
       phases.push({ name: "stood", seconds: 0, from: 0, to: 0 });
     }
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
         phases.map((p: IPhase) => ({ name: p.name, seconds: p.seconds })),
       ),

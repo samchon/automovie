@@ -6,7 +6,7 @@ import {
   AutoMovieNaturalSpline as S,
 } from "@automovie/engine";
 import type {
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewLoft,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -66,8 +66,8 @@ export namespace PartConicFields {
       P.measure(row.points, pieces),
     );
     const xs: number[] = rows.map((row: T.Row): number => row.s);
-    const dense: IAutoMovieNaturalSpline.ISpline[] = values[0]!.map(
-      (_: number, field: number): IAutoMovieNaturalSpline.ISpline =>
+    const dense: IAutoMovieNaturalCubicSpline[] = values[0]!.map(
+      (_: number, field: number): IAutoMovieNaturalCubicSpline =>
         S.create(
           xs,
           values.map((value: number[]): number => value[field]!),
@@ -84,7 +84,7 @@ export namespace PartConicFields {
         (a: number, b: number): number => a - b,
       );
       const fields: IAutoMovieViewPart.IKnot[][] = dense.map(
-        (spline: IAutoMovieNaturalSpline.ISpline): IAutoMovieViewPart.IKnot[] =>
+        (spline: IAutoMovieNaturalCubicSpline): IAutoMovieViewPart.IKnot[] =>
           indices.map((index: number): IAutoMovieViewPart.IKnot => {
             const jet: [number, number, number] = S.read(spline, xs[index]!);
             return {

@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHandover";
 
 /**
@@ -30,7 +30,7 @@ import type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHando
  * @evidence contracts/development/common.md#meaningful-documentation hand: The receiver's taking hand; `right` when absent. giverHand: The giver's holding hand; `right` when absent. mass: The prop's mass, kilograms; 0.09 when absent.
  * @evidence contracts/development/design.md#principled-representation hand: The receiver's taking hand; `right` when absent. giverHand: The giver's holding hand; `right` when absent. mass: The prop's mass, kilograms; 0.09 when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.receive, params); handling/receive.ts (receive.plan, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHandover.Outcome identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanHandover.Outcome identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanReceive {
   /**
@@ -41,7 +41,7 @@ export namespace IAutoMovieMotionHumanReceive {
    * @evidence contracts/development/common.md#meaningful-documentation hand: The receiver's taking hand; `right` when absent. giverHand: The giver's holding hand; `right` when absent. mass: The prop's mass, kilograms; 0.09 when absent.
    * @evidence contracts/development/design.md#principled-representation hand: The receiver's taking hand; `right` when absent. giverHand: The giver's holding hand; `right` when absent. mass: The prop's mass, kilograms; 0.09 when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.receive, params); handling/receive.ts (receive.plan, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHandover.Outcome identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanHandover.Outcome identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The offered prop's subject id. */
@@ -54,10 +54,10 @@ export namespace IAutoMovieMotionHumanReceive {
     handle: string;
 
     /** The receiver's taking hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** The giver's holding hand; `right` when absent. */
-    giverHand?: IAutoMovieMotionHumanHand.Side;
+    giverHand?: AutoMovieHumanSide;
 
     /** The prop's mass, kilograms; 0.09 when absent. */
     mass?: number;

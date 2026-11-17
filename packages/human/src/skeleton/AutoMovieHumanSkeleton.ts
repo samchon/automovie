@@ -1,10 +1,14 @@
 import type {
+  AutoMovieHumanPoseProjectionEvaluator,
+  IAutoMovieHumanBindBone,
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanFootSurface,
   IAutoMovieHumanJointCentres,
   IAutoMovieHumanNeckSurface,
   IAutoMovieHumanNeutral,
   IAutoMovieHumanParameters,
+  IAutoMovieHumanPoseEvaluator,
+  IAutoMovieHumanPoseProjection,
   IAutoMovieHumanPreparedKinematics,
   IAutoMovieHumanSkeleton,
 } from "@automovie/interface";
@@ -82,7 +86,7 @@ export namespace AutoMovieHumanSkeleton {
   export function prepare(
     params: IAutoMovieHumanParameters,
     options: IAutoMovieHumanSkeleton.IPrepareOptions = {},
-  ): IAutoMovieHumanSkeleton.PoseEvaluator {
+  ): IAutoMovieHumanPoseEvaluator {
     const height: number = AutoMovieHumanBodyAnatomy.resolve(params).stature;
     if (!(height > 0))
       throw new Error("Human stickman requires a positive stature");
@@ -122,10 +126,8 @@ export namespace AutoMovieHumanSkeleton {
     const joints: IAutoMovieHumanJointCentres.IJoint[] = neutral.joints;
     const kinematics: IAutoMovieHumanPreparedKinematics.IPrepared =
       Kinematics.prepare(joints, neutral, scale, mmScale);
-    const rest: IAutoMovieHumanSkeleton.IBone[] = bind.map(
-      (
-        joint: IAutoMovieHumanJointCentres.IJoint,
-      ): IAutoMovieHumanSkeleton.IBone => ({
+    const rest: IAutoMovieHumanBindBone[] = bind.map(
+      (joint: IAutoMovieHumanJointCentres.IJoint): IAutoMovieHumanBindBone => ({
         bone: joint.bone,
         parent: joint.parent,
         position: Math3D.times(joint.position, scale),
@@ -134,19 +136,17 @@ export namespace AutoMovieHumanSkeleton {
       }),
     );
 
-    const evaluate: IAutoMovieHumanSkeleton.PoseEvaluator = (
+    const evaluate: IAutoMovieHumanPoseEvaluator = (
       input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
       clamp: boolean = true,
     ): IAutoMovieHumanSkeleton.IOutput => {
-      const output: IAutoMovieHumanSkeleton.IProjection = kinematics.evaluate(
+      const output: IAutoMovieHumanPoseProjection = kinematics.evaluate(
         input,
         clamp,
       );
       return {
         bones: rest.map(
-          (
-            bone: IAutoMovieHumanSkeleton.IBone,
-          ): IAutoMovieHumanSkeleton.IBone => ({
+          (bone: IAutoMovieHumanBindBone): IAutoMovieHumanBindBone => ({
             ...bone,
             position: [...bone.position],
             tip: bone.tip === null ? null : [...bone.tip],
@@ -162,13 +162,13 @@ export namespace AutoMovieHumanSkeleton {
     };
     evaluate.project = (
       names: readonly string[],
-    ): IAutoMovieHumanSkeleton.ProjectionEvaluator => {
+    ): AutoMovieHumanPoseProjectionEvaluator => {
       const selection: IAutoMovieHumanPreparedKinematics.ISelection =
         kinematics.select(names);
       return (
         input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
         clamp: boolean = true,
-      ): IAutoMovieHumanSkeleton.IProjection =>
+      ): IAutoMovieHumanPoseProjection =>
         kinematics.evaluate(input, clamp, selection);
     };
     return evaluate;

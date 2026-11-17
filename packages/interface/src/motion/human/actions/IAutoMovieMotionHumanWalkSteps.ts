@@ -86,7 +86,17 @@ export namespace IAutoMovieMotionHumanWalkSteps {
     /** The longest step, metres. */
     longest: number;
 
-    /** The realised step period for a planned one, seconds (timing variability). */
+    /**
+     * The realised step period for a planned one, seconds (timing variability).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IInput.period: The realised step period for a planned one, seconds (timing variability).
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkSteps.IInput.period is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkSteps.IInput.period is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkSteps.IInput.period is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkSteps.IInput.period is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkSteps.IInput.period is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkSteps.IInput.period is used through packages/motions/src/actions/walk.ts.
+     */
     period(seconds: number): number;
 
     /** Swing duration in step periods; 0.8 (a walk's 40 % of the stride) when absent, above 1 for a run's flight. */
@@ -126,19 +136,69 @@ export namespace IAutoMovieMotionHumanWalkSteps {
       to: number;
     }[];
 
-    /** The rig origin before `reach`, world metres. */
+    /**
+     * The rig origin before `reach`, world metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.root: The rig origin before `reach`, world metres.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkSteps.IPlan.root is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkSteps.IPlan.root is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkSteps.IPlan.root is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkSteps.IPlan.root is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkSteps.IPlan.root is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkSteps.IPlan.root is used through packages/motions/src/actions/walk.ts.
+     */
     root(seconds: number): IAutoMovieVector3;
 
-    /** The heading, degrees. */
+    /**
+     * The heading, degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.yaw: The heading, degrees.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkSteps.IPlan.yaw is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkSteps.IPlan.yaw is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkSteps.IPlan.yaw is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkSteps.IPlan.yaw is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkSteps.IPlan.yaw is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkSteps.IPlan.yaw is used through packages/motions/src/actions/walk.ts.
+     */
     yaw(seconds: number): number;
 
-    /** Stride phase: 0.25 at a left heel strike, one per stride. */
+    /**
+     * Stride phase: 0.25 at a left heel strike, one per stride.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.phase: Stride phase: 0.25 at a left heel strike, one per stride.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkSteps.IPlan.phase is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkSteps.IPlan.phase is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkSteps.IPlan.phase is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkSteps.IPlan.phase is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkSteps.IPlan.phase is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkSteps.IPlan.phase is used through packages/motions/src/actions/walk.ts.
+     */
     phase(seconds: number): number;
 
-    /** How much the body is walking, 0 standing to 1 in full stride. */
+    /**
+     * How much the body is walking, 0 standing to 1 in full stride.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.amount: How much the body is walking, 0 standing to 1 in full stride.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkSteps.IPlan.amount is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkSteps.IPlan.amount is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkSteps.IPlan.amount is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkSteps.IPlan.amount is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkSteps.IPlan.amount is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkSteps.IPlan.amount is used through packages/motions/src/actions/walk.ts.
+     */
     amount(seconds: number): number;
 
-    /** A foot's scheduled stance at an instant. */
+    /**
+     * A foot's scheduled stance at an instant.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkSteps.IPlan.foot: A foot's scheduled stance at an instant.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkSteps.IPlan.foot is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkSteps.IPlan.foot is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkSteps.IPlan.foot is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkSteps.IPlan.foot is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkSteps.IPlan.foot is used through packages/motions/src/actions/walk.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkSteps.IPlan.foot is used through packages/motions/src/actions/walk.ts.
+     */
     foot(
       side: "left" | "right",
       seconds: number,

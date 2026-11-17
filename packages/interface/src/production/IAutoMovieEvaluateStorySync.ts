@@ -2,6 +2,11 @@ import type { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
 
 /**
  * Event addresses and read callbacks for a story-clock simultaneity verdict.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Event addresses and read callbacks for a story-clock simultaneity verdict. Callbacks return shot-local event seconds and a shot-to-story affine pin; tolerance is finite nonnegative story seconds admitted by the caller. Spread compares the earliest and latest mapped values inclusively.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing/nonfinite values produce an unresolved failed verdict, not invented times. Callback exceptions propagate and neither callback nor returned pin is retained after evaluation.
+ * @evidence contracts/development/design.md#principled-representation Callbacks return shot-local event seconds and a shot-to-story affine pin; tolerance is finite nonnegative story seconds admitted by the caller. Spread compares the earliest and latest mapped values inclusively.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface evaluateAutoMovieStorySync uses these callbacks once per listed address to build ordered measurement points; the edit timeline never determines story simultaneity.
  */
 export namespace IAutoMovieEvaluateStorySync {
   /**
@@ -34,11 +39,27 @@ export namespace IAutoMovieEvaluateStorySync {
 
     /**
      * Synchronous story-clock pin lookup, called once per address after realized even when the realization is unavailable. Null leaves the point unresolved; exceptions propagate and the pin is borrowed only during the call.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Synchronous story-clock pin lookup, called once per address after realized even when the realization is unavailable. Null leaves the point unresolved; exceptions propagate and the pin is borrowed only during the call. Member documentation states the supplied records, units and absence meanings used by evaluateAutoMovieStorySync.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts pin declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms pin declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work pin declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources pin declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns callback captures and their release; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation pin declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync provides the callback body and its numerical method; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure pin declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     pin: (shot: string) => IAutoMovieShotStoryTime | null;
 
     /**
      * Synchronous event-time lookup in shot-local seconds, called once per listed address. Null or a nonfinite answer leaves the point unresolved; finite negative values are not rejected here. Exceptions propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Synchronous event-time lookup in shot-local seconds, called once per listed address. Null or a nonfinite answer leaves the point unresolved; finite negative values are not rejected here. Exceptions propagate. Member documentation states the supplied records, units and absence meanings used by evaluateAutoMovieStorySync.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts realized declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms realized declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work realized declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources realized declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns callback captures and their release; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation realized declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync provides the callback body and its numerical method; the invocation and result obligations remain on this member.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure realized declares a callable signature with no body. The implementation supplied to or returned by evaluateAutoMovieStorySync owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     realized: (shot: string, event: string) => number | null;
   };

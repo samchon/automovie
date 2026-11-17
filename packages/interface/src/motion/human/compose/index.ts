@@ -1,5 +1,8 @@
 export type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
+export type { AutoMovieMotionHumanChannelClaim } from "./AutoMovieMotionHumanChannelClaim";
 export type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
+export type { IAutoMovieMotionClockInstant } from "./IAutoMovieMotionClockInstant";
+export type { IAutoMovieMotionClockPhase } from "./IAutoMovieMotionClockPhase";
 export type { IAutoMovieMotionCoupling } from "./IAutoMovieMotionCoupling";
 export type { IAutoMovieMotionHumanArmAngles } from "./IAutoMovieMotionHumanArmAngles";
 export type { IAutoMovieMotionHumanArmCarry } from "./IAutoMovieMotionHumanArmCarry";
@@ -40,3 +43,7 @@ export type { IAutoMovieMotionHumanVariation } from "./IAutoMovieMotionHumanVari
 export type { IAutoMovieMotionHumanVariationPlace } from "./IAutoMovieMotionHumanVariationPlace";
 export type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
 export type { IAutoMovieMotionMeeting } from "./IAutoMovieMotionMeeting";
+export type { IAutoMovieMotionMeetingKind } from "./IAutoMovieMotionMeetingKind";
+export type { IAutoMovieMotionMeetingRole } from "./IAutoMovieMotionMeetingRole";
+export type { IAutoMovieMotionMeetingTiming } from "./IAutoMovieMotionMeetingTiming";
+export type { IAutoMovieMotionPhraseDurations } from "./IAutoMovieMotionPhraseDurations";

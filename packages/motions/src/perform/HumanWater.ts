@@ -11,7 +11,7 @@ import type {
   IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWater,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolveHydrodynamicForce,
   IAutoMovieResolvedBone,
@@ -60,7 +60,7 @@ export namespace HumanWater {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     velocity: IAutoMovieVector3,
-    water: IAutoMovieMotionHumanWater.IWater,
+    water: IAutoMovieMotionHumanWater,
   ): IAutoMovieMotionHumanWater.ISum {
     let buoyancy: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let drag: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -68,7 +68,7 @@ export namespace HumanWater {
     let volume: number = 0;
     const model: IAutoMovieResolveCenterOfMass.IModel = modelOf(body);
     body.profile.segments.forEach(
-      (segment: IAutoMoviePhysicalProfile.ISegment, i: number): void => {
+      (segment: IAutoMoviePhysicalSegment, i: number): void => {
         const v: number = resolveHydrodynamicForce.volume(segment);
         if (!(v > 0)) return;
         const s: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
@@ -105,7 +105,7 @@ export namespace HumanWater {
   export function float(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    water: IAutoMovieMotionHumanWater.IWater,
+    water: IAutoMovieMotionHumanWater,
   ): number | null {
     const weight: number = body.profile.mass * AutoMovieGravity.STANDARD;
     const lift = (dy: number): number =>
@@ -146,7 +146,7 @@ export namespace HumanWater {
     direction: IAutoMovieVector3,
     v0: number,
     seconds: number,
-    water: IAutoMovieMotionHumanWater.IWater,
+    water: IAutoMovieMotionHumanWater,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     return integrateMotionTrajectory({
       f: (

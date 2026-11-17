@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieMeshCriticalPoints,
   IAutoMovieMeshPlaneCut,
   IAutoMovieMeshSectionOrientation,
@@ -12,6 +12,7 @@ import type {
   IAutoMovieRecoveryMeshIncidencePreparationOperation,
   IAutoMovieRecoveryMeshSections,
   IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySlabConnectivityGroup,
   IAutoMovieRecoverySlabGraph,
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
@@ -290,7 +291,7 @@ export function extractRecoveryMeshSections(
             };
           (
             section.loops as {
-              curve: IAutoMovieCurve64.Cubic;
+              curve: IAutoMovieCubicBezierCurve64;
               winding: 1 | -1;
             }[]
           ).push({
@@ -420,7 +421,7 @@ export function extractRecoveryMeshSections(
         event.level <= after.section.coordinateMm
       )
         defects.push(vertexFaces.get(event.vertex) ?? new Set());
-    const groups: IAutoMovieRecoverySlabGraph.Group[] = observe({
+    const groups: IAutoMovieRecoverySlabConnectivityGroup[] = observe({
       beforeMm: before.section.coordinateMm,
       afterMm: after.section.coordinateMm,
       before: before.faces,

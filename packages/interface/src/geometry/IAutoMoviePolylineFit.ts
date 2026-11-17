@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 } from "../index";
+import type { IAutoMovieCubicBezierCurve64 } from "./curve/IAutoMovieCubicBezierCurve64";
 
 /** Fitted cubic coefficients with finite-observation residuals and error accounting.
  * RecoveryBezierFit.fit constructs this owned result after numerical admission.
@@ -12,7 +12,7 @@ import type { IAutoMovieCurve64 } from "../index";
  */
 export interface IAutoMoviePolylineFit {
   /** Fitted millimetre coefficients with their original physical phase widths. */
-  curve: IAutoMovieCurve64.Cubic;
+  curve: IAutoMovieCubicBezierCurve64;
 
   /** Largest observed point-to-corresponding-parameter residual, millimetres. */
   sampleMaximumMm: number;

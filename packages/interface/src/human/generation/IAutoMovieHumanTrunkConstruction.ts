@@ -3,7 +3,14 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
 import type { IAutoMovieHumanTrunkNeckSeat } from "./IAutoMovieHumanTrunkNeckSeat";
 import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkConstruction; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanTrunkConstruction; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanTrunkConstruction exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IPlacement, IPrepareOriginal. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanTrunkConstruction; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IPlacement, IPrepareOriginal contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanTrunkConstruction {
   /** One actual solve and its placement metadata, before legacy chains are requested.
    *
@@ -31,7 +38,17 @@ export namespace IAutoMovieHumanTrunkConstruction {
   export type IPrepareOriginal = {
     /** Previously prepared neck seat shared with the trunk's upper support. */
     seat: IAutoMovieHumanTrunkNeckSeat.ISeat;
-    /** Explicitly request the original neck chain; no geometry is requested until this callback is called. */
+    /**
+     * Explicitly request the original neck chain; no geometry is requested until this callback is called.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Explicitly request the original neck chain; no geometry is requested until this callback is called.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanTrunkConstruction owns the numerical method described above.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkConstruction.IPrepareOriginal.raw declares the invocation boundary only; AutoMovieHumanTrunkConstruction and its callback provider own the implementation decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanTrunkConstruction.IPrepareOriginal.raw must justify them.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanTrunkConstruction.IPrepareOriginal.raw owns its time and space costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanTrunkConstruction and the callback's provider own sharing under the stated input and result contract.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanTrunkConstruction producer or caller supplying the callback owns captured state and its lifetime.
+     */
     raw: () => IAutoMovieLoftChain;
   };
 }

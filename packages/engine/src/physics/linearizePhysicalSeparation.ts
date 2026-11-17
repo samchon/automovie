@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -31,8 +31,8 @@ export function linearizePhysicalSeparation(
   b: IAutoMoviePreparePhysicalGeometry.ICollider,
   measured?: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>,
 ): (
-  first: IAutoMoviePhysicalProfile.ITransform,
-  second: IAutoMoviePhysicalProfile.ITransform,
+  first: IAutoMovieRigidTransform,
+  second: IAutoMovieRigidTransform,
 ) => number {
   const receipt: ReturnType<
     IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
@@ -56,8 +56,8 @@ export function linearizePhysicalSeparation(
   );
   const difference: IAutoMovieVector3 = Vector3.subtract(second, first);
   return (
-    poseA: IAutoMoviePhysicalProfile.ITransform,
-    poseB: IAutoMoviePhysicalProfile.ITransform,
+    poseA: IAutoMovieRigidTransform,
+    poseB: IAutoMovieRigidTransform,
   ): number =>
     receipt.separation +
     Vector3.dot(

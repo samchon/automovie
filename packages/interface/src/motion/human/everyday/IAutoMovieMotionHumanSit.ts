@@ -46,7 +46,7 @@ import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated"
  * @evidence contracts/development/common.md#meaningful-documentation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
  * @evidence contracts/development/design.md#principled-representation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.sit, params); everyday/sit.ts (sit.plan, context); everyday/sit.ts (sit.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSit {
   /**
@@ -57,7 +57,7 @@ export namespace IAutoMovieMotionHumanSit {
    * @evidence contracts/development/common.md#meaningful-documentation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
    * @evidence contracts/development/design.md#principled-representation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.sit, params); everyday/sit.ts (sit.plan, context); everyday/sit.ts (sit.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The seat. */
@@ -81,6 +81,6 @@ export namespace IAutoMovieMotionHumanSit {
     legs?: "parallel" | "crossed";
 
     /** How it is performed: the manner's tempo stretches or shortens the descent, or the climb onto a high seat; neutral when absent. No span of sitting down is fixed by gravity, since the legs lower the body under control. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 }

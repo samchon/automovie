@@ -5,7 +5,7 @@ import {
   trackPhysicalWorld,
 } from "@automovie/engine";
 import type {
-  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -55,7 +55,7 @@ export async function test_physical_recovery_release(): Promise<void> {
       input,
       false,
     );
-    const state: IAutoMovieAdvancePhysicalBalance.IState = {
+    const state: IAutoMoviePhysicalRecoveryState = {
       last: "unrecoverable",
       failedLanding: true,
       lostSince: 0,
@@ -103,7 +103,7 @@ export async function test_physical_recovery_release(): Promise<void> {
       false,
     );
     for (let step: number = 0; step < 4; step++) landed.step();
-    const state: IAutoMovieAdvancePhysicalBalance.IState = {
+    const state: IAutoMoviePhysicalRecoveryState = {
       last: "unrecoverable",
       failedLanding: true,
       lostSince: 0,

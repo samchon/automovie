@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -148,7 +150,7 @@ export namespace operate {
     const body: IAutoMovieMotionHumanBody = context.body;
     const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
       context.params.mechanism;
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const at: IAutoMovieMotionTarget =
@@ -215,7 +217,7 @@ export namespace operate {
       distance,
       WIDTH[mechanism.kind],
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         wait: AutoMovieMotionHumanTiming.PAUSES.brief,
@@ -351,9 +353,7 @@ export namespace operate {
           ).point;
         },
         // The arm on the part at the stroke's start, as the stroke grips it.
-        arm: (
-          posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieMotionHumanPosture.IGoal =>
+        arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
           AutoMovieMotionHumanArm.goal(body, side, target(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,

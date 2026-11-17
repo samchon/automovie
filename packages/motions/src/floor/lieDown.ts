@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -222,7 +223,7 @@ export namespace lieDown {
         : { pitch: entered.pitch, roll: entered.roll, joints: entered.joints },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
     ];
-    const phases: IAutoMovieMotionClock.IPhase[] = [
+    const phases: IAutoMovieMotionClockPhase[] = [
       { name: "getDown", seconds: PHASE },
       ...route
         .slice(0, -1)
@@ -230,7 +231,7 @@ export namespace lieDown {
       { name: route.at(-1)![1], seconds: 0 },
       { name: "settled", seconds: hold },
     ];
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
       { holds: ["settled"] },

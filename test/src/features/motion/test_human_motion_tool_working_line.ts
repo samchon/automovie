@@ -2,8 +2,8 @@ import { createBow } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHeld,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanRefusal, StrikingHeld } from "@automovie/motions";
@@ -31,7 +31,7 @@ import { vclose } from "../internal/vclose";
 export function test_human_motion_tool_working_line(): void {
   const bow: ReturnType<typeof createBow> = createBow({ kind: "longbow" });
   const read = (
-    frame: IAutoMovieMotionHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
     from: string = "nock",
   ): IAutoMovieMotionHumanStrikingHeld.ITool => {
     const held: IAutoMovieMotionHumanHeld.IHeld = {
@@ -42,7 +42,7 @@ export function test_human_motion_tool_working_line(): void {
     };
     return StrikingHeld.read(held, { from, tip: "rest" });
   };
-  const identity: IAutoMovieMotionHumanProp.IFrame = {
+  const identity: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
@@ -67,7 +67,7 @@ export function test_human_motion_tool_working_line(): void {
     "the rest's contact normal is transverse to the arrow line",
     Math.abs(Vector3.dot(normal, initial.axis)) < 0.2,
   );
-  const moved: IAutoMovieMotionHumanProp.IFrame = {
+  const moved: IAutoMovieRigidTransform = {
     position: { x: 0.4, y: -0.2, z: 0.3 },
     rotation: Quaternion.multiply(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 73),

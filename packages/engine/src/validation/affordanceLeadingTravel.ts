@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
   IAutoMovieAffordanceTravelRange,
 } from "@automovie/interface";
 
@@ -22,7 +22,7 @@ import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function affordanceLeadingTravel(
-  follows: IAutoMovieAffordance.Follows,
+  follows: IAutoMovieAffordanceCoupling,
   follower: number,
   domain?: IAutoMovieAffordanceTravelRange.IResult,
 ): number | null {
@@ -92,7 +92,7 @@ export function affordanceLeadingTravel(
 
 /** Refuse values outside the legal domain's forward image, recover its exact bounds, or leave an interior request to inversion. */
 function endpoint(
-  follows: IAutoMovieAffordance.Follows,
+  follows: IAutoMovieAffordanceCoupling,
   follower: number,
   domain: { minimum: number | null; maximum: number | null },
   direction: number,

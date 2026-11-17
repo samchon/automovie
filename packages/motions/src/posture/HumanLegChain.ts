@@ -12,6 +12,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedChainGeometry,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLegChain,
   IAutoMoviePose,
@@ -69,7 +70,7 @@ export namespace HumanLegChain {
     target: IAutoMovieVector3,
     held: IAutoMovieMotionHumanLegChain.ISwivel,
   ): IAutoMovieMotionHumanLegChain.IPosed | null {
-    const chain: IAutoMovieHingedArmSwivel.IChain = chainOf(
+    const chain: IAutoMovieHingedChainGeometry = chainOf(
       body,
       side,
       pelvis,
@@ -125,7 +126,7 @@ export namespace HumanLegChain {
   ): IAutoMovieMotionHumanLegChain.ISwivel {
     const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
     const shank: IAutoMovieResolvedBone = bones.get(`${side}LowerLeg`)!;
-    const chain: IAutoMovieHingedArmSwivel.IChain = chainOf(
+    const chain: IAutoMovieHingedChainGeometry = chainOf(
       body,
       side,
       bones.get("hips")!.worldRotation,
@@ -276,7 +277,7 @@ export namespace HumanLegChain {
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
-  ): IAutoMovieHingedArmSwivel.IChain {
+  ): IAutoMovieHingedChainGeometry {
     const rest: IRest = restOf(body, side);
     return {
       upper: {

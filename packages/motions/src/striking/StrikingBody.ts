@@ -16,7 +16,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingBody,
   IAutoMovieMotionHumanStrikingContact,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -314,7 +314,7 @@ export namespace StrikingBody {
       ): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
         segment.shapes.map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
+            shape: IAutoMoviePhysicalShape,
           ): IAutoMovieMotionHumanStrikingContact.ICollider => ({
             name: segment.bone,
             pose: segment.pose,

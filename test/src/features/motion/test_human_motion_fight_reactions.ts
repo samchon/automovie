@@ -104,16 +104,13 @@ export function test_human_motion_fight_reactions(): void {
               .sync({ of: "attack" }),
           ).node,
       });
-      const struck: IAutoMovieMotionHumanSegment.ISegment = film
+      const struck: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === act,
-        )!;
-      const answer: IAutoMovieMotionHumanSegment.ISegment = film
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === act)!;
+      const answer: IAutoMovieMotionHumanSegment = film
         .segments("b")
         .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === response,
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === response,
         )!;
       const contact: number =
         struck.start + (struck.plan.contact ?? Number.NaN);

@@ -5,7 +5,9 @@ import {
   trackPhysicalSupports,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
   IAutoMovieVector3 as V,
@@ -30,11 +32,11 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  */
 export async function test_physical_support_departure(): Promise<void> {
   await RAPIER.init();
-  const root: P.ISegment = structuredClone(
+  const root: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere(0.03).segments[0]!,
   );
   root.neutral.position = { x: 0, y: 0.5, z: 0 };
-  const foot: P.ISegment = structuredClone(
+  const foot: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere().segments[0]!,
   );
   foot.bone = "foot";
@@ -171,10 +173,14 @@ export async function test_physical_support_departure(): Promise<void> {
         Object.fromEntries(
           profile.segments.map(
             (
-              segment: P.ISegment,
+              segment: IAutoMoviePhysicalSegment,
             ): [
               string,
-              { pose: P.ITransform; velocity: V; angularVelocity: V },
+              {
+                pose: IAutoMovieRigidTransform;
+                velocity: V;
+                angularVelocity: V;
+              },
             ] => [
               segment.bone,
               {

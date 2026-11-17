@@ -1,36 +1,39 @@
-/** Type contracts exchanged by AutoMovieHumanTrunkTapes; runtime evaluation remains in Human. */
-export namespace IAutoMovieHumanTrunkTapes {
-  /** Result of AutoMovieHumanTrunkTapes.points. A section's points in its plane `[x, z]`, the reliefs that reach its
-  height moving them along their axes.
-   *
+/**
+ * Planar trunk tape samples and the trial-half-width girth reader used by the solve. Runtime construction and admission remain with AutoMovieHumanTrunkTapes in Human.
  *
- * @evidence contracts/development/common.md#meaningful-documentation A section's points in its plane `[x, z]`, the reliefs that reach its height moving them along their axes.
- * @evidence contracts/development/design.md#principled-representation A section's points in its plane `[x, z]`, the reliefs that reach its height moving them along their axes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkTapes.PointsResult is the canonical exchange used by AutoMovieHumanTrunkTapes.points.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanTrunkTapes.points for a section's points in its plane `[x, z]`, the reliefs that reach its height moving them along their axes.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes planar trunk tape samples and the trial-half-width girth reader used by the solve; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Planar trunk tape samples and the trial-half-width girth reader used by the solve. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanTrunkTapes; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing TrunkTapes contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
+export namespace IAutoMovieHumanTrunkTapes {
+  /**
+   * Planar body-frame [x, z] section samples in calibration millimetres after the reliefs reaching that height have displaced their points.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Planar body-frame [x, z] section samples in calibration millimetres after the reliefs reaching that height have displaced their points.
+   * @evidence contracts/development/design.md#principled-representation Planar body-frame [x, z] section samples in calibration millimetres after the reliefs reaching that height have displaced their points.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkTapes.PointsResult is the canonical exchange used by AutoMovieHumanTrunkTapes.points.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanTrunkTapes input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type PointsResult = [number, number][];
 
-  /** The points argument of AutoMovieHumanTrunkTapes.hull. Hull perimeter of planar points.
+  /**
+   * Borrowed planar [x, z] samples in calibration millimetres whose convex-hull perimeter defines the trunk tape. Point order is not a polygon-winding requirement.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Hull perimeter of planar points.
-   * @evidence contracts/development/design.md#principled-representation Hull perimeter of planar points. The outer tuple/array is readonly; nested element types determine whether their contents can change.
+   * @evidence contracts/development/common.md#meaningful-documentation Borrowed planar [x, z] samples in calibration millimetres whose convex-hull perimeter defines the trunk tape. Point order is not a polygon-winding requirement.
+   * @evidence contracts/development/design.md#principled-representation Borrowed planar [x, z] samples in calibration millimetres whose convex-hull perimeter defines the trunk tape. Point order is not a polygon-winding requirement.
    * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkTapes.HullPoints is the canonical exchange used by AutoMovieHumanTrunkTapes.hull.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanTrunkTapes.hull for hull perimeter of planar points.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanTrunkTapes input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
    */
   export type HullPoints = readonly [number, number][];
 
-  /** The girth argument of AutoMovieHumanTrunkTapes.solve. The half width at which a section's tape reads its input.
-  @param tape The tape, mm.
-  @param girth The tape read at a trial half width.
-  @param guess A half width to start from, mm.
+  /**
+   * Read the section's tape girth in millimetres at a trial half width in millimetres. The caller owns the target tape, initial guess and root solve.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The half width at which a section's tape reads its input.
- * @evidence contracts/development/design.md#principled-representation The half width at which a section's tape reads its input. The callable takes width and returns number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkTapes.SolveGirth is the canonical exchange used by AutoMovieHumanTrunkTapes.solve.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanTrunkTapes.solve for the half width at which a section's tape reads its input.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Read the section's tape girth in millimetres at a trial half width in millimetres. The caller owns the target tape, initial guess and root solve.
+   * @evidence contracts/development/design.md#principled-representation Read the section's tape girth in millimetres at a trial half width in millimetres. The caller owns the target tape, initial guess and root solve.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkTapes.SolveGirth is the canonical exchange used by AutoMovieHumanTrunkTapes.solve.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanTrunkTapes input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type SolveGirth = (width: number) => number;
 }

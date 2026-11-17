@@ -42,7 +42,17 @@ export interface IAutoMovieHumanTrunkSolution {
   /** Already requested legacy neck chain; null during original-only preparation. */
   neck: IAutoMovieLoftChain | null;
 
-  /** Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it. */
+  /**
+   * Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBodySources and AutoMovieHumanTrunkConstruction and the callback provider must satisfy the documented rawNeck contract.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBodySources and AutoMovieHumanTrunkConstruction and its callback provider own the cost of each rawNeck invocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBodySources and AutoMovieHumanTrunkConstruction and the callback provider determine when the inputs to rawNeck describe equivalent work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBodySources and AutoMovieHumanTrunkConstruction and the callback provider own any captured source data and the callable's lifetime.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanTrunkSolution.rawNeck callable contract, without an implementation body. AutoMovieHumanBodySources and AutoMovieHumanTrunkConstruction and its supplied callbacks own the numerical method and admission of the documented arguments.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkSolution.rawNeck declares only the invocation boundary; decomposition belongs to AutoMovieHumanBodySources and AutoMovieHumanTrunkConstruction and the callback provider.
+   */
   rawNeck?: () => IAutoMovieLoftChain;
 
   /** The trapezius line from the shoulder point to the neck's ring. */

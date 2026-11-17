@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanTrunkColumn,
   IAutoMovieHumanTrunkKey,
   IAutoMovieHumanTrunkSection,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanTrunkColumn {
       const used: IAutoMovieHumanTrunkKey[] = keys.filter(
         (k: IAutoMovieHumanTrunkKey): boolean => pick(k) !== null,
       );
-      const s: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+      const s: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
         used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
         used.map((k: IAutoMovieHumanTrunkKey): number => pick(k)!),
       );

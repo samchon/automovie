@@ -1,9 +1,11 @@
 import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouch,
@@ -61,7 +63,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
   export function bend(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
@@ -77,27 +79,26 @@ export namespace AutoMovieMotionHumanTouchLaid {
       tangent,
       side,
     );
-    const g: IAutoMovieMotionHumanPosture.IGoal =
-      AutoMovieMotionHumanTouchEffector.goal(
+    const g: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchEffector.goal(
+      body,
+      side,
+      effector,
+      place.point,
+      ...lie(
         body,
+        posture,
         side,
-        effector,
+        along,
         place.point,
-        ...lie(
-          body,
-          posture,
-          side,
-          along,
-          place.point,
-          normal,
-          travel,
-          facing,
-          elbow,
-          undefined,
-          lean,
-        ),
-        AutoMovieMotionHumanBend.hang(body, posture, side),
-      );
+        normal,
+        travel,
+        facing,
+        elbow,
+        undefined,
+        lean,
+      ),
+      AutoMovieMotionHumanBend.hang(body, posture, side),
+    );
     return (
       elbow === "level"
         ? AutoMovieMotionHumanBend.level
@@ -143,7 +144,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
   export function laid(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
@@ -153,7 +154,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     elbow?: IAutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
     lean?: number,
-  ): NonNullable<IAutoMovieMotionHumanPosture.IGoal["reference"]> {
+  ): NonNullable<IAutoMovieHumanLimbGoal["reference"]> {
     return reference(
       body,
       posture,
@@ -198,18 +199,17 @@ export namespace AutoMovieMotionHumanTouchLaid {
   export function reference(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
-  ): NonNullable<IAutoMovieMotionHumanPosture.IGoal["reference"]> {
+    side: AutoMovieHumanSide,
+    goal: IAutoMovieHumanLimbGoal,
+  ): NonNullable<IAutoMovieHumanLimbGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const solved: IAutoMovieMotionHumanPosture.IReference =
-      resolveHumanPosture.reference(
-        resolveHumanPosture(body, {
-          ...posture,
-          limbs: { ...posture.limbs, [limb]: goal },
-        }),
-        limb,
-      );
+    const solved: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+      resolveHumanPosture(body, {
+        ...posture,
+        limbs: { ...posture.limbs, [limb]: goal },
+      }),
+      limb,
+    );
 
     // A law does not ask a joint at the end of its range: the forearm's
     // twist is kept `MARGIN` degrees inside the forearm's own range.
@@ -266,7 +266,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
   export function rest(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
@@ -276,7 +276,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     elbow?: IAutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
     lean?: number,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
     const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
       normal,
@@ -338,7 +338,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
   export function settled(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
@@ -351,7 +351,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
       side,
     );
     for (let round: number = 0; round < 3; ++round) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = rest(
+      const goal: IAutoMovieHumanLimbGoal = rest(
         body,
         posture,
         side,
@@ -416,7 +416,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
   export function lie(
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     lay: IAutoMovieMotionHumanTouch.ITouch["lay"],
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,

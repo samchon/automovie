@@ -4,8 +4,8 @@ import type {
   AutoMovieHumanoidSocket,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieSoftAnchorBinding,
   IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
@@ -74,7 +74,7 @@ export function HumanPerformanceSoftBoundary(
       continue;
     }
     if (binding.kind === "node") {
-      const frame: IAutoMovieMotionHumanProp.IFrame = HumanPerformanceRead.prop(
+      const frame: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
         state,
         binding.node,
         seconds,

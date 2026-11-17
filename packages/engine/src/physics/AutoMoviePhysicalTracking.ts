@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalTracking,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -35,7 +35,7 @@ export namespace AutoMoviePhysicalTracking {
     current: IAutoMovieQuaternion,
     target: IAutoMovieQuaternion,
     velocity: IAutoMovieVector3,
-    axes: readonly IAutoMoviePhysicalProfile.IAxis[],
+    axes: readonly IAutoMoviePhysicalJointAxis[],
     inertia: IAutoMovieVector3,
     dt: number,
     strength: number,

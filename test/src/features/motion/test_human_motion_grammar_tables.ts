@@ -67,10 +67,9 @@ export function test_human_motion_grammar_tables(): void {
         .gesture({ kind: "wave", manner: { variation: 1 } }).node,
     });
   const stroke = (seed: string): number => {
-    const wave: IAutoMovieMotionHumanSegment.ISegment = perform(
-      seed,
-      laws,
-    ).segments("a")[1]!;
+    const wave: IAutoMovieMotionHumanSegment = perform(seed, laws).segments(
+      "a",
+    )[1]!;
     const share: number =
       wave.plan.events.find(
         (event: { name: string; share: number }): boolean =>

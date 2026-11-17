@@ -16,10 +16,10 @@ import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanForm
  * (`HumanManoeuvre.append`), so the cuts, refusals and verdicts are the
  * march's and the stand's.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a manoeuvre is, its four choices, where drills live and how a part is performed.
- * @evidence contracts/development/design.md#principled-representation Two formations, a rule as four closed unions, the instant of the word and the travel; a part is a member's slot, delay, way and arrival.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanManoeuvre.plan` reads and returns.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A drill is a row over the four primitives, never code of its own.
+ * @evidence contracts/development/common.md#meaningful-documentation States what a manoeuvre is, its four choices, where drills live and how a part is performed. arrive: What each rank does on arrival: the front, the rear or every rank stands or kneels; stands when absent. member: The member's index. delay: Seconds after the word it steps off, before its own latency.
+ * @evidence contracts/development/design.md#principled-representation Two formations, a rule as four closed unions, the instant of the word and the travel; a part is a member's slot, delay, way and arrival. arrive: What each rank does on arrival: the front, the rear or every rank stands or kneels; stands when absent. member: The member's index. delay: Seconds after the word it steps off, before its own latency.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What `HumanManoeuvre.plan` reads and returns. Runtime boundary references: ensemble/HumanManoeuvre.ts (HumanManoeuvre.plan, manoeuvre); ensemble/HumanManoeuvre.ts (HumanManoeuvre.append, manoeuvre); ensemble/HumanManoeuvre.ts (flanked, manoeuvre); ensemble/HumanManoeuvre.ts (travelSpeeds, manoeuvre); ensemble/HumanManoeuvre.ts (steered, manoeuvre); ensemble/manoeuvreWheel.ts (manoeuvreWheel, manoeuvre).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A drill is a row over the four primitives, never code of its own. Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanFormation.IStation identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanManoeuvre {
   /** The formation the members stand in. */
@@ -49,10 +49,6 @@ export interface IAutoMovieMotionHumanManoeuvre {
 /**
  * Contracts used by HumanManoeuvre.plan, HumanManoeuvre.append, flanked, travelSpeeds.
  *
- * @evidence contracts/development/common.md#meaningful-documentation arrive: What each rank does on arrival: the front, the rear or every rank stands or kneels; stands when absent. member: The member's index. delay: Seconds after the word it steps off, before its own latency.
- * @evidence contracts/development/design.md#principled-representation arrive: What each rank does on arrival: the front, the rear or every rank stands or kneels; stands when absent. member: The member's index. delay: Seconds after the word it steps off, before its own latency.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: ensemble/HumanManoeuvre.ts (HumanManoeuvre.plan, manoeuvre); ensemble/HumanManoeuvre.ts (HumanManoeuvre.append, manoeuvre); ensemble/HumanManoeuvre.ts (flanked, manoeuvre); ensemble/HumanManoeuvre.ts (travelSpeeds, manoeuvre); ensemble/HumanManoeuvre.ts (steered, manoeuvre); ensemble/manoeuvreWheel.ts (manoeuvreWheel, manoeuvre).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanFormation.IStation identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanManoeuvre {
   /**

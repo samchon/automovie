@@ -231,7 +231,7 @@ export function test_human_motion_ensemble_formation(): void {
       march
         .segments(m.subject)
         .reduce(
-          (n: number, s: IAutoMovieMotionHumanSegment.ISegment): number =>
+          (n: number, s: IAutoMovieMotionHumanSegment): number =>
             n +
             s.plan.events.filter((e) => /HeelStrike\d+$/.test(e.name)).length,
           0,
@@ -240,7 +240,7 @@ export function test_human_motion_ensemble_formation(): void {
   if (Math.max(...counts) - Math.min(...counts) > 1)
     findings.push(`the marchers took ${counts.join(", ")} steps`);
   for (const m of troop.members) {
-    const last: IAutoMovieMotionHumanSegment.ISegment = march
+    const last: IAutoMovieMotionHumanSegment = march
       .segments(m.subject)
       .at(-1)!;
     const root: IAutoMovieVector3 = march.posture(m.subject, last.end).root;
@@ -250,9 +250,7 @@ export function test_human_motion_ensemble_formation(): void {
       findings.push(`${m.subject} ends ${off.toFixed(3)} m from its slot`);
 
     // Through the frame's standing start and its gathering of speed, before it turns its corner (where a rigid line's inner file must swing back, which the stepping plan's way does not), the count kept and the place kept by the step's length.
-    const segment: IAutoMovieMotionHumanSegment.ISegment = march.segments(
-      m.subject,
-    )[0]!;
+    const segment: IAutoMovieMotionHumanSegment = march.segments(m.subject)[0]!;
     const half: number = 0.5 * HumanGait.MARCH.step * m.body.measure.hipHeight;
     for (const e of segment.plan.events.filter(
       (e: IAutoMovieMotionEvent): boolean => /HeelStrike\d+$/.test(e.name),
@@ -328,7 +326,7 @@ export function test_human_motion_ensemble_formation(): void {
     ),
   });
   for (const m of pair.members) {
-    const last: IAutoMovieMotionHumanSegment.ISegment = walking
+    const last: IAutoMovieMotionHumanSegment = walking
       .segments(m.subject)
       .at(-1)!;
     const root: IAutoMovieVector3 = walking.posture(m.subject, last.end).root;
@@ -429,8 +427,7 @@ export function test_human_motion_ensemble_formation(): void {
         }),
     ),
   });
-  const walked: IAutoMovieMotionHumanSegment.ISegment =
-    dressed.segments("d.0")[0]!;
+  const walked: IAutoMovieMotionHumanSegment = dressed.segments("d.0")[0]!;
   const reach: number = Math.hypot(
     dressed.posture("d.0", walked.end).root.x -
       HumanFormation.slot(marks, 0, stop).at.x,

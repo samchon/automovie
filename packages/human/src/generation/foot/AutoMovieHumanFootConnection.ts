@@ -7,7 +7,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootConnection,
   IAutoMovieHumanFootSource,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanFootConnection {
     across: number,
     slope: number = 0,
   ): IAutoMovieHumanFootConnection.IChord {
-    const frame: IAutoMovieLoftFrame.IFrame = (
+    const frame: IAutoMovieLoftSectionFrame = (
       owner.axis ?? owner.part.axis
     ).at(station);
     if (
@@ -141,7 +141,7 @@ export namespace AutoMovieHumanFootConnection {
     station: number,
     along: AutoMovieVector3Tuple,
   ): IAutoMovieHumanFootConnection.IAnkle {
-    const frame: IAutoMovieLoftFrame.IFrame = (
+    const frame: IAutoMovieLoftSectionFrame = (
       owner.axis ?? owner.part.axis
     ).at(station);
     const across: AutoMovieVector3Tuple = [along[2], 0, -along[0]];

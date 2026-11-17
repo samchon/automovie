@@ -1,6 +1,8 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieBernsteinCurvePiece64,
+  IAutoMovieCurvePrimitive64,
 } from "@automovie/interface";
 
 /**
@@ -18,7 +20,7 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar locals and helper closures are allocated for one call; the input is neither cloned nor retained.
  */
 export function assertAutoMovieCurve64(
-  curve: IAutoMovieCurve64.Primitive,
+  curve: IAutoMovieCurvePrimitive64,
 ): void {
   const dense: (
     a: unknown,
@@ -92,8 +94,10 @@ export function assertAutoMovieCurve64(
   }
   if (curve.type !== "cubicBezier" && curve.type !== "bernstein")
     throw new Error("Unsupported actual primitive");
-  const pieces: readonly (IAutoMovieCurve64.Span | IAutoMovieCurve64.Piece)[] =
-    curve.type === "cubicBezier" ? curve.spans : curve.pieces;
+  const pieces: readonly (
+    | AutoMovieCubicBezierControls3
+    | IAutoMovieBernsteinCurvePiece64
+  )[] = curve.type === "cubicBezier" ? curve.spans : curve.pieces;
   dense(pieces);
   dense(curve.phaseIntervals, pieces.length);
   let cumulative: number = 0;

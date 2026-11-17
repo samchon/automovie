@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanBackProfile; runtime evaluation remains in Human. */
+/**
+ * Survey back-shape inputs and a person's height-parameterized sagittal profile, with millimetre derivatives.
+ *
+ * The interface package owns these declarations; AutoMovieHumanBackProfile in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Survey back-shape inputs and a person's height-parameterized sagittal profile, with millimetre derivatives. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IShape, IKnot, IProfile, IColumn declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IShape, IKnot, IProfile, IColumn separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanBackProfile exchanges the named IShape, IKnot, IProfile, IColumn contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanBackProfile {
   /** One sex's back shape, the survey's means; angles in degrees, length in mm.
    *
@@ -69,6 +78,14 @@ export namespace IAutoMovieHumanBackProfile {
      * The forward place at a height relative to cervicale's, with its first
      * and second derivatives in height; above cervicale it holds cervicale's
      * tangent, below the PSIS level it runs on along that level's tangent.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The forward place at a height relative to cervicale's, with its first and second derivatives in height; above cervicale it holds cervicale's tangent, below the PSIS level it runs on along that level's tangent.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBackProfile and the callback provider must satisfy the documented at contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBackProfile and its callback provider own the cost of each at invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBackProfile and the callback provider determine when the inputs to at describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBackProfile and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanBackProfile.IProfile.at callable contract, without an implementation body. AutoMovieHumanBackProfile and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanBackProfile.IProfile.at declares only the invocation boundary; decomposition belongs to AutoMovieHumanBackProfile and the callback provider.
      */
     at: (y: number) => [number, number, number];
   }

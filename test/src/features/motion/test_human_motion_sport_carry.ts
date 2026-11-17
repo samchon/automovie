@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSignature,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -60,7 +60,7 @@ export function test_human_motion_sport_carry(): void {
   // The bell's half-width across the body, from its own colliders about its
   // vertical axis.
   const across: number = Math.max(
-    ...bell.shapes().map((shape: IAutoMoviePhysicalProfile.IShape): number => {
+    ...bell.shapes().map((shape: IAutoMoviePhysicalShape): number => {
       const bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
         physicalShapeBounds(
           { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },

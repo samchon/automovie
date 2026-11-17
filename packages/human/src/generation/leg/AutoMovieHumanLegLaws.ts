@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanLegMassPrior,
   IAutoMovieHumanLegWalk,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
@@ -104,7 +104,7 @@ export namespace AutoMovieHumanLegLaws {
       (a: { height: number }, b: { height: number }): number =>
         a.height - b.height,
     );
-    const skin: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const skin: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       rows.map((row: { height: number }): number => row.height),
       rows.map((row: { value: number }): number => row.value),
     );

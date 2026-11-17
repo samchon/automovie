@@ -2,7 +2,7 @@ import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkKey,
   IAutoMovieHumanTrunkProfileFront,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 /**
@@ -31,11 +31,10 @@ export namespace AutoMovieHumanTrunkProfileFront {
     const marks: [number, number][] = keys
       .filter((k: IAutoMovieHumanTrunkKey): boolean => k.front !== null)
       .map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.front!]);
-    const spline: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(
-        marks.map((m: [number, number]): number => m[0]),
-        marks.map((m: [number, number]): number => m[1]),
-      );
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      marks.map((m: [number, number]): number => m[0]),
+      marks.map((m: [number, number]): number => m[1]),
+    );
 
     return {
       at: (y: number): number => AutoMovieNaturalSpline.evaluate(spline, y),

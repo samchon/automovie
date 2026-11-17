@@ -1,8 +1,8 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanLeg } from "./IAutoMovieMotionHumanLeg";
 import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
@@ -16,7 +16,7 @@ import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation contact: What the foot bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's size: the extent scales a place in the air about where the foot leaves from. A phrase that states a contact keeps its place whatever the extent. Neutral when absent. target: Retained callback for the foot's tapping target frame on the phrase clock.
  * @evidence contracts/development/design.md#principled-representation contact: What the foot bears on while it is on its place, when the place is solid; absent for a place in the air, which gives no contact window. manner: The manner's size: the extent scales a place in the air about where the foot leaves from. A phrase that states a contact keeps its place whatever the extent. Neutral when absent. target: Retained callback for the foot's tapping target frame on the phrase clock.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.extended, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.bearing, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.cleared, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.lift, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.tap, props); compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.swing, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionClock.IClock, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLegPhrase {
   /**
@@ -34,10 +34,10 @@ export namespace IAutoMovieMotionHumanLegPhrase {
     body: IAutoMovieMotionHumanBody;
 
     /** A clock with the standard instants of a phrase. */
-    clock: IAutoMovieMotionClock.IClock;
+    clock: IAutoMovieMotionClock;
 
     /** The leg. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** Where the foot stands before and after the phrase. */
     stance: IAutoMovieMotionHumanFoot.IPlacement;
@@ -90,7 +90,7 @@ export namespace IAutoMovieMotionHumanLegPhrase {
    * @evidence contracts/development/common.md#meaningful-documentation chamber: Retained callback for the prepared leg target frame. target: Retained callback for the leg's strike target frame. weapons: Borrowed weapon declarations carried through the swing; omitted means none.
    * @evidence contracts/development/design.md#principled-representation chamber: Retained callback for the prepared leg target frame. target: Retained callback for the leg's strike target frame. weapons: Borrowed weapon declarations carried through the swing; omitted means none.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanLegPhrase.ts (AutoMovieMotionHumanLegPhrase.swing, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLegPhrase.IPhrase, IAutoMovieMotionHumanLeg.Frame, IAutoMovieMotionHumanActionPlan.IWeapon identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLegPhrase.IPhrase, IAutoMovieMotionHumanLeg.Frame, IAutoMovieMotionWeaponPath identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ISwingProps = IAutoMovieMotionHumanLegPhrase.IPhrase & {
     /** Retained callback for the prepared leg target frame. */
@@ -98,7 +98,7 @@ export namespace IAutoMovieMotionHumanLegPhrase {
     /** Retained callback for the leg's strike target frame. */
     target: IAutoMovieMotionHumanLeg.Frame;
     /** Borrowed weapon declarations carried through the swing; omitted means none. */
-    weapons?: readonly IAutoMovieMotionHumanActionPlan.IWeapon[];
+    weapons?: readonly IAutoMovieMotionWeaponPath[];
   };
 
   /**

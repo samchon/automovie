@@ -134,8 +134,7 @@ export function test_human_motion_travel_door_leaf(): void {
       body,
       180,
     );
-    const hold: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[0]!;
+    const hold: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
     const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
       Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
@@ -192,8 +191,7 @@ export function test_human_motion_travel_door_leaf(): void {
     if (whole !== null) {
       const followed: IAutoMovieMotionHumanSignature.IReader =
         HumanSignature.of(whole, "a", body, 180);
-      const held: IAutoMovieMotionHumanSegment.ISegment =
-        whole.segments("a")[0]!;
+      const held: IAutoMovieMotionHumanSegment = whole.segments("a")[0]!;
       let away: number = 0;
       for (const t of HumanSignature.times(
         held.entryTime + HumanTravelLeaf.TAKE + 0.05,

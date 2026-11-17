@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -63,7 +64,7 @@ export function test_human_motion_prop_mount(): void {
     extent: null,
   };
   const placed = (
-    parent: IAutoMovieMotionHumanProp.IFrame,
+    parent: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(
@@ -84,11 +85,11 @@ export function test_human_motion_prop_mount(): void {
     }),
   };
   for (const worn of [false, true]) {
-    const moving = (seconds: number): IAutoMovieMotionHumanProp.IFrame => ({
+    const moving = (seconds: number): IAutoMovieRigidTransform => ({
       position: { x: seconds, y: 1, z: -seconds / 2 },
       rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30 * seconds),
     });
-    const before: IAutoMovieMotionHumanProp.IFrame = worn
+    const before: IAutoMovieRigidTransform = worn
       ? { position: initial.worldPosition, rotation: initial.worldRotation }
       : moving(0);
     const part = (
@@ -143,7 +144,7 @@ export function test_human_motion_prop_mount(): void {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         film.bones("a", seconds);
       const hips: IAutoMovieResolvedBone = bones.get("hips")!;
-      const parent: IAutoMovieMotionHumanProp.IFrame = worn
+      const parent: IAutoMovieRigidTransform = worn
         ? { position: hips.worldPosition, rotation: hips.worldRotation }
         : moving(seconds);
       const supplied: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -189,10 +190,7 @@ export function test_human_motion_prop_mount(): void {
           `${worn ? "worn" : "fixture"} ${subject} is aimed on the supplied body at ${seconds}`,
           vclose(aimed, worn ? Vector3.add(expected, displacement) : expected),
         );
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-          subject,
-          seconds,
-        );
+        const frame: IAutoMovieRigidTransform = film.prop(subject, seconds);
         TestValidator.predicate(
           `${worn ? "worn" : "fixture"} ${subject} follows its socket at ${seconds}`,
           vclose(placed(frame, tip), expected),

@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionPropHold } from "../law/IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -46,7 +46,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * @evidence contracts/development/common.md#meaningful-documentation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
  * @evidence contracts/development/design.md#principled-representation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, return); exercise/WorkoutLoad.ts (WorkoutLoad.of, load); exercise/workout.ts (workout.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanActionPlan.IHold identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionPropHold identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWorkoutLoad {
   /**
@@ -57,14 +57,14 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
    * @evidence contracts/development/common.md#meaningful-documentation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
    * @evidence contracts/development/design.md#principled-representation hand: The hand that holds it; `right` when absent. other: The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. handle: The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, load).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The held prop's subject id. */
     prop: string;
 
     /** The hand that holds it; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. */
     other?: string;
@@ -79,7 +79,7 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
    * @evidence contracts/development/common.md#meaningful-documentation apply: The posture with its hands on the load. contacts: The grip's contact window. holds: The hold the action leaves as it found it.
    * @evidence contracts/development/design.md#principled-representation apply: The posture with its hands on the load. contacts: The grip's contact window. holds: The hold the action leaves as it found it.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/WorkoutLoad.ts (WorkoutLoad.of, return); exercise/workout.ts (workout.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanActionPlan.IHold, IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionPropHold, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ILoad {
     /**
@@ -102,9 +102,9 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
     contacts: IAutoMovieMotionHumanContactWindow[];
 
     /** The hold the action leaves as it found it. */
-    holds: IAutoMovieMotionHumanActionPlan.IHold[];
+    holds: IAutoMovieMotionPropHold[];
 
     /** The hands the load drives. */
-    hands: IAutoMovieMotionHumanHand.Side[];
+    hands: AutoMovieHumanSide[];
   }
 }

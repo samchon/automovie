@@ -1,10 +1,12 @@
 import type {
-  IAutoMovieAdvancePhysicalBalance,
   IAutoMoviePhysicalBalanceReference,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalTargetInterval,
   IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
@@ -38,14 +40,14 @@ export function trackPhysicalBalanceTargets(input: {
   /** Native wrappers and transient interval plans. */ bound: Bound;
   /** Enclosing interval and native substep clock. */ step: number;
   /** Current exact native tick time. */ seconds: number;
-  /** Actual root selector. */ root: IAutoMoviePhysicalProfile.ISegment;
+  /** Actual root selector. */ root: IAutoMoviePhysicalSegment;
   /** Full sampled motor references, updated together. */ goals: Record<
     string,
     IAutoMovieSamplePhysicalTarget.IResult
   >;
   /** Current declared ownership and effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Measured stance owners. */ planted: readonly string[];
-  /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: IAutoMovieAdvancePhysicalBalance.IState;
+  /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: IAutoMoviePhysicalRecoveryState;
 }): IAutoMovieTrackPhysicalBalanceTargets.IResult {
   const { body, bound, goals }: typeof input = input;
   const policy: NonNullable<
@@ -57,7 +59,7 @@ export function trackPhysicalBalanceTargets(input: {
   const revision: number = input.state.revision ?? 0;
   if (planned?.step !== input.step || planned.revision !== revision) {
     const previous: typeof planned = planned;
-    const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+    const targets: Record<string, IAutoMovieRigidTransform> = {
       ...input.target.segments,
     };
     if (input.state.rootOffset)
@@ -75,7 +77,7 @@ export function trackPhysicalBalanceTargets(input: {
         input.step / input.settings.rate,
       );
     const base: RigidBody = bound.segments.get(body.id)!.get(input.root.bone)!;
-    const root: { bone: string; pose: IAutoMoviePhysicalProfile.ITransform } = {
+    const root: { bone: string; pose: IAutoMovieRigidTransform } = {
       bone: input.root.bone,
       pose: { position: base.translation(), rotation: base.rotation() },
     };
@@ -97,9 +99,9 @@ export function trackPhysicalBalanceTargets(input: {
     );
     const tolerance: number = policy.targetTolerance ?? 0.001;
     const fit: (
-      seed?: Record<string, IAutoMoviePhysicalProfile.ITransform>,
+      seed?: Record<string, IAutoMovieRigidTransform>,
     ) => IAutoMoviePlanPhysicalSupportTargets.IResult = (
-      seed?: Record<string, IAutoMoviePhysicalProfile.ITransform>,
+      seed?: Record<string, IAutoMovieRigidTransform>,
     ): IAutoMoviePlanPhysicalSupportTargets.IResult =>
       planPhysicalBalanceTargets({
         profile: body.profile,
@@ -116,7 +118,7 @@ export function trackPhysicalBalanceTargets(input: {
         tolerance,
       });
     const posture: ReadonlySet<string> = bound.posture.get(body.id)!;
-    const joints: ReadonlyMap<string, IAutoMoviePhysicalProfile.IJoint> =
+    const joints: ReadonlyMap<string, IAutoMoviePhysicalJoint> =
       bound.jointByChild.get(body.id)!;
     const result: IAutoMoviePlanPhysicalSupportTargets.IResult =
       choosePhysicalSupportFit({
@@ -144,13 +146,13 @@ export function trackPhysicalBalanceTargets(input: {
         tolerance,
         reference: reference?.completed,
         joints: [...posture]
-          .map((bone: string): IAutoMoviePhysicalProfile.IJoint | undefined =>
+          .map((bone: string): IAutoMoviePhysicalJoint | undefined =>
             joints.get(bone),
           )
           .filter(
             (
-              joint: IAutoMoviePhysicalProfile.IJoint | undefined,
-            ): joint is IAutoMoviePhysicalProfile.IJoint => !!joint,
+              joint: IAutoMoviePhysicalJoint | undefined,
+            ): joint is IAutoMoviePhysicalJoint => !!joint,
           ),
       });
     const interval: IAutoMoviePhysicalTargetInterval.IPlan = Interval.plan({

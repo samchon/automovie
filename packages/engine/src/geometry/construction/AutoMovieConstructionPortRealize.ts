@@ -1,5 +1,8 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
+  IAutoMovieConstructionBandProfile,
+  IAutoMovieConstructionBandProfile64,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
   IAutoMovieConstructionSplitBand,
@@ -8,7 +11,6 @@ import type {
   IAutoMovieSolidBody,
   IAutoMovieSolidCycle,
   IAutoMovieSolidMesh,
-  IAutoMovieSolidRibbon,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -150,13 +152,10 @@ export function AutoMovieConstructionPortRealize(
     const loop: Vec3[] = jets.map(
       (j: IAutoMovieSolidSurface.IJet): Vec3 => [j.p[0], j.p[1], j.p[2]],
     );
-    const near: (
+    const near: (k: number, L: number) => IAutoMovieBlendCrossJet | string = (
       k: number,
       L: number,
-    ) => IAutoMovieSolidRibbon.IRibbon | string = (
-      k: number,
-      L: number,
-    ): IAutoMovieSolidRibbon.IRibbon | string => {
+    ): IAutoMovieBlendCrossJet | string => {
       const j: IAutoMovieSolidSurface.IJet = jets[k]!;
       const [du, dv]: [number, number] = inward[k]!;
       const speed: number = AutoMovieSolidVector.norm(
@@ -203,8 +202,8 @@ export function AutoMovieConstructionPortRealize(
         node.ribbons ?? "common",
         (node.profiles ?? []).map(
           (
-            p: IAutoMovieConstructionPort.IProfile,
-          ): IAutoMovieConstructionPort.IProfile => ({
+            p: IAutoMovieConstructionBandProfile,
+          ): IAutoMovieConstructionBandProfile64 => ({
             ...p,
             knots: p.knots.map(
               ([t, depth]: [number, number]): [number, number] => [

@@ -1,6 +1,7 @@
 import type {
+  IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -11,15 +12,15 @@ import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
 export namespace AutoMovieHumanSiteDefinition {
   /** Preserve ordinary source definition while both consumers can explicitly share its preceding mathematical controls. */
   export function of(
-    input: IAutoMovieHumanSiteViewPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+    input: IAutoMovieHumanSectionSource,
+  ): IAutoMovieHumanSourceDefinition {
     return publish(AutoMovieHumanSiteControls.prepare(input));
   }
 
   /** Construct the actual original part/view from the same admitted controls, without solving or rebuilding another part. */
   export function publish(
     prepared: IAutoMovieHumanSiteControls.IOutput,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
+  ): IAutoMovieHumanSourceDefinition {
     const controls: IAutoMovieHumanSiteControls.IControls | null =
       prepared.controls;
     if (controls === null)
@@ -41,7 +42,7 @@ export namespace AutoMovieHumanSiteDefinition {
   /** Preserve the original signed scalar declaration and qualified normalized jets at its actual parameter. */
   export function outline(
     input: Pick<
-      IAutoMovieHumanSiteViewPart.IInput,
+      IAutoMovieHumanSectionSource,
       "sites" | "pole" | "poleJets" | "ranges" | "parameter"
     >,
     quarter: 0 | 1 | 2 | 3,

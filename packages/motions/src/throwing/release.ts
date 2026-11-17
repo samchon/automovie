@@ -4,6 +4,7 @@ import {
   integrateMotionTrajectory,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -12,8 +13,9 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanRelease,
+  IAutoMovieMotionPropLaunch,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -78,7 +80,7 @@ export namespace release {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRelease.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body = context.body;
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const held: string | undefined =
       context.params.prop ?? context.entry.holds[side];
     if (held === undefined && context.params.launch === undefined)
@@ -92,18 +94,15 @@ export namespace release {
 
     // The grip's frame at the entry, kept in the chest's frame.
     const bones = poseBones(body, context.entry.pose);
-    const chest: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.bone(
+    const chest: IAutoMovieRigidTransform = HumanPropFrame.bone(
       bones.get("chest")!,
     );
-    const grip: IAutoMovieMotionHumanProp.IFrame = {
+    const grip: IAutoMovieRigidTransform = {
       position: HumanHand.frame(body, bones, side, "grip").point,
       rotation: bones.get(`${side}Hand`)!.worldRotation,
     };
-    const kept: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.relative(
-      chest,
-      grip,
-    );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
+    const kept: IAutoMovieRigidTransform = HumanPropFrame.relative(chest, grip);
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
       { name: "hold", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
       { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
     ]);
@@ -111,7 +110,7 @@ export namespace release {
       AutoMovieMotionHumanBase.under(context, clock.duration);
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanProp.IFrame =>
+    ): IAutoMovieRigidTransform =>
       HumanPropFrame.compose(
         HumanPropFrame.bone(HumanTrunk.resolve(body, posture).get("chest")!),
         kept,
@@ -137,7 +136,7 @@ export namespace release {
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => {
-        const at: IAutoMovieMotionHumanProp.IFrame = carried(posture);
+        const at: IAutoMovieRigidTransform = carried(posture);
         const shape: IAutoMovieMotionHumanHand.Shape =
           seconds < clock.at("open") ? "fist" : "flat";
         const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
@@ -187,7 +186,7 @@ export namespace release {
       Vector3.subtract(point(open + h), point(open - h)),
       1 / (2 * h),
     );
-    const launches: IAutoMovieMotionHumanActionPlan.ILaunch[] = [];
+    const launches: IAutoMovieMotionPropLaunch[] = [];
     if (held !== undefined && context.params.launch?.prop !== held)
       launches.push({
         prop: held,
@@ -198,9 +197,7 @@ export namespace release {
     const launch = context.params.launch;
     if (launch !== undefined) {
       const prop = context.prop(launch.prop);
-      const frame: IAutoMovieMotionHumanProp.IFrame = prop.frame(
-        context.start + open,
-      );
+      const frame: IAutoMovieRigidTransform = prop.frame(context.start + open);
       const place = (id: string): IAutoMovieVector3 => {
         const local = prop.prop.points[id];
         if (local === undefined)

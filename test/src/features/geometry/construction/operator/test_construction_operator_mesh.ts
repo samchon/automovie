@@ -7,11 +7,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
   IAutoMovieLoftContract,
   IAutoMovieSolidBlendChain,
   IAutoMovieSolidJoin,
   IAutoMovieSolidMesh,
-  IAutoMovieSolidRibbon,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -78,7 +78,7 @@ export function test_construction_operator_mesh(): void {
     )!;
     const phase: number = (2 * Math.PI * k) / count;
     for (const w of [0, 0.3, 0.7, 1]) {
-      const exact: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidBlend.jet(
+      const exact: IAutoMovieBlendCrossJet = AutoMovieSolidBlend.jet(
         c.start,
         c.end,
         w,

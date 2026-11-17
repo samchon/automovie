@@ -9,8 +9,9 @@ import type {
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -47,7 +48,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     bone: AutoMovieHumanoidBone;
 
     /** The segment's shapes. */
-    shapes: readonly IAutoMoviePhysicalProfile.IShape[];
+    shapes: readonly IAutoMoviePhysicalShape[];
 
     /** The probes: the shapes' corners, then points along the bone. */
     probes: IAutoMovieVector3[];
@@ -289,7 +290,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     // Each shape's bounding sphere in segment j's frame: a probe outside it
     // is outside the shape, which then adds no depth.
     const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
-      (shape: IAutoMoviePhysicalProfile.IShape) => {
+      (shape: IAutoMoviePhysicalShape) => {
         const ball: IAutoMovieMotionHumanColliders.IBall =
           HumanColliders.bound(shape);
         return {
@@ -309,7 +310,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       );
       let deepest: number = 0;
       for (let s: number = 0; s < b.shapes.length; s++) {
-        const shape: IAutoMoviePhysicalProfile.IShape = b.shapes[s]!;
+        const shape: IAutoMoviePhysicalShape = b.shapes[s]!;
         if (
           Vector3.length(Vector3.subtract(local, balls[s]!.centre)) >=
           balls[s]!.radius
@@ -459,7 +460,7 @@ const MODELS: WeakMap<
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;
 
 /** The identity frame a shape's distance is read in. */
-const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
+const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };

@@ -1,7 +1,8 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
@@ -25,7 +26,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/common.md#meaningful-documentation feet: Both feet as they stand flat, when the body stands on them alone and may rise onto its toes; no rise when absent. share: The share of the arm's length (upper arm and forearm) the wrist is kept within. wrist: The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
  * @evidence contracts/development/design.md#principled-representation feet: Both feet as they stand flat, when the body stands on them alone and may rise onto its toes; no rise when absent. share: The share of the arm's length (upper arm and forearm) the wrist is kept within. wrist: The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanTouchStance.ts (AutoMovieMotionHumanTouchStance.solve, props); compose/AutoMovieMotionHumanTouchStance.ts (AutoMovieMotionHumanTouchStance.solve, return); touch/touch.ts (touch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise.Stance, IAutoMovieMotionHumanHand.Side, IAutoMovieVector3, IAutoMovieMotionHumanPosture.IGoal identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise.Stance, AutoMovieHumanSide, IAutoMovieVector3, IAutoMovieHumanLimbGoal identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTouchStance {
   /**
@@ -47,7 +48,7 @@ export namespace IAutoMovieMotionHumanTouchStance {
     feet?: IAutoMovieMotionHumanRise.Stance;
 
     /** The working hand. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The share of the arm's length (upper arm and forearm) the wrist is kept within. */
     share: number;
@@ -79,9 +80,7 @@ export namespace IAutoMovieMotionHumanTouchStance {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
-    arm?: (
-      posture: IAutoMovieMotionHumanPosture,
-    ) => IAutoMovieMotionHumanPosture.IGoal;
+    arm?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieHumanLimbGoal;
 
     /**
      * The refusal's message for a wrist left `beyond` metres out of reach at a lean of `limit` degrees.
@@ -133,7 +132,7 @@ export namespace IAutoMovieMotionHumanTouchStance {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
     primitives: (
-      clock: IAutoMovieMotionClock.IClock,
+      clock: IAutoMovieMotionClock,
     ) => IAutoMovieMotionHumanPrimitive[];
   }
 }

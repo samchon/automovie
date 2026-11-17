@@ -1,7 +1,14 @@
+import type { IAutoMovieBlendCrossJet } from "./IAutoMovieBlendCrossJet";
 import type { IAutoMovieLoftContract } from "./IAutoMovieLoftContract";
-import type { IAutoMovieSolidRibbon } from "./IAutoMovieSolidRibbon";
 
-/** Data and callback contracts shared by the SolidTrim operations. */
+/**
+ * Data and callback contracts shared by the SolidTrim operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Trim capabilities retain a periodic chart loop, landmark feet, membership and world-mm transverse ribbons; nullable results preserve premise diagnostics.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface SolidTrim publishes these prepared readers to solid construction and reuses SolidRibbon and LoftContract result vocabulary.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not turn a failed landmark foot or self-crossing loop into a trim; the engine controls admission.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents loop layout, radian clock, periodic query branches and failure result.
+ */
 export namespace IAutoMovieSolidTrim {
   /**
    * A chart trim with its prepared loop, foot metadata, sampled classifier and transverse-ribbon reader.
@@ -68,7 +75,7 @@ export namespace IAutoMovieSolidTrim {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared loop/orientation but reads the queried surface for direction and again in SolidRibbon; no shared queried jet is passed between them.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callback retains its trim/surface dependencies and returns one small ribbon; it owns no growing parameter cache or resource handle.
      */
-    ribbon(t: number, a: number): IAutoMovieSolidRibbon.IRibbon;
+    ribbon(t: number, a: number): IAutoMovieBlendCrossJet;
   }
 
   /**

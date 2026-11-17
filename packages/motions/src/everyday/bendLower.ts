@@ -1,11 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -70,7 +71,7 @@ export namespace bendLower {
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: posture.root,
       yaw: posture.yaw,
     };
@@ -93,8 +94,7 @@ export namespace bendLower {
     const heel: number = HEEL[strategy] * share;
     if (heel > 0)
       for (const leg of ["leftLeg", "rightLeg"] as const) {
-        const goal0: IAutoMovieMotionHumanPosture.IGoal | undefined =
-          posture.limbs[leg];
+        const goal0: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
         if (goal0 === undefined || goal0.rotation === undefined) continue;
         const side: "left" | "right" = leg === "leftLeg" ? "left" : "right";
         const flat: IAutoMovieMotionHumanFoot.IPlacement = {
@@ -185,7 +185,7 @@ export namespace bendLower {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     lean: number,
     reach: number = REACH * (body.measure.upperArm + body.measure.forearm) +
@@ -259,7 +259,7 @@ export namespace bendLower {
     body: IAutoMovieMotionHumanBody,
     upright: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     reach?: number,
   ): IAutoMovieMotionHumanBendLower.ISolved {

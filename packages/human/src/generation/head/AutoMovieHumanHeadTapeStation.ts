@@ -6,7 +6,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadTapeSource,
   IAutoMovieHumanHeadTapeStation,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionNative,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanHeadTapeStation {
       station,
       point(phase: number): AutoMovieVector3Tuple {
         if (pointReader !== undefined) return pointReader(phase);
-        const frame: IAutoMovieLoftFrame.IFrame = reader.part.axis.at(station);
+        const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
         const read: (phi: number) => AutoMovieVector3Tuple = (
           phi: number,
         ): AutoMovieVector3Tuple =>
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanHeadTapeStation {
         return value;
       },
       value(phase: number): IAutoMovieHumanHeadTapeStation.IReading {
-        const frame: IAutoMovieLoftFrame.IFrame = reader.part.axis.at(station);
+        const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
         const local: IAutoMovieHumanHeadTapeStation.IReading["local"] =
           native().phase(phase);
         const point: AutoMovieVector3Tuple = vector(frame, local.p).map(
@@ -166,7 +166,7 @@ export namespace AutoMovieHumanHeadTapeStation {
         throw new Error(`Head tape original span: ${inputs}`);
       const native: ReturnType<typeof AutoMovieLoftSectionNative.point> =
         AutoMovieLoftSectionNative.point(inputs);
-      const frame: IAutoMovieLoftFrame.IFrame = reader.part.axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
       if (
         Math.hypot(
           frame.u[0] - 1,
@@ -210,7 +210,7 @@ export namespace AutoMovieHumanHeadTapeStation {
 
   /** Restore a native local vector without an origin translation. */
   export function vector(
-    frame: IAutoMovieLoftFrame.IFrame,
+    frame: IAutoMovieLoftSectionFrame,
     local: IAutoMovieHumanHeadTapeStation.VectorLocal,
   ): AutoMovieVector3Tuple {
     return frame.u.map(

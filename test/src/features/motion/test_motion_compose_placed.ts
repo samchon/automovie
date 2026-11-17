@@ -1,6 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
@@ -272,14 +273,17 @@ export function test_motion_compose_placed(): void {
       `${side}: the wrist puts the palm on the point, facing as asked`,
       near(read.point, at, 1e-9) && near(read.normal, facing, 1e-9),
     );
-    const goal: IAutoMovieMotionHumanPosture.IGoal =
-      AutoMovieMotionHumanArm.goal(body, side, {
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArm.goal(
+      body,
+      side,
+      {
         surface: "palm",
         shape: "flat",
         point: at,
         rotation: reach.rotation,
         bend: { x: 0, y: 0, z: 0 },
-      });
+      },
+    );
     complaints.check(
       `${side}: the goal's wrist and contact put the palm on the point`,
       near(goal.point, reach.point, 1e-9) &&
@@ -410,8 +414,11 @@ export function test_motion_compose_placed(): void {
     );
     const held: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(stance, side);
-    const wanted: IAutoMovieMotionHumanPosture.IGoal =
-      AutoMovieMotionHumanArm.goal(body, side, handTarget);
+    const wanted: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArm.goal(
+      body,
+      side,
+      handTarget,
+    );
     const carry = (weight: number): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.carried({
         body,

@@ -1,8 +1,11 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -41,7 +44,7 @@ export namespace AutoMovieHumanFootPart {
    */
   export function create(
     input: IAutoMovieHumanFootPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -59,10 +62,10 @@ export namespace AutoMovieHumanFootPart {
    */
   export function define(
     input: IAutoMovieHumanFootPart.IInput,
-    base?: IAutoMovieHumanSiteViewPart.IDefinition,
-  ): IAutoMovieHumanSiteViewPart.IDefinition {
-    const declaration: IAutoMovieHumanSiteViewPart.IInput = source(input);
-    const prepared: IAutoMovieHumanSiteViewPart.IDefinition =
+    base?: IAutoMovieHumanSourceDefinition,
+  ): IAutoMovieHumanSourceDefinition {
+    const declaration: IAutoMovieHumanSectionSource = source(input);
+    const prepared: IAutoMovieHumanSourceDefinition =
       base ?? AutoMovieHumanSiteViewPart.define(declaration);
     if (prepared.part === null || input.dorsal === undefined) return prepared;
     const part: IAutoMovieViewPart = {
@@ -94,7 +97,7 @@ export namespace AutoMovieHumanFootPart {
     input: IAutoMovieHumanFootPart.IInput,
     base?: IAutoMovieHumanSiteControls.IOutput,
   ): IAutoMovieHumanSiteControls.IOutput {
-    const declaration: IAutoMovieHumanSiteViewPart.IInput = source(input);
+    const declaration: IAutoMovieHumanSectionSource = source(input);
     const prepared: IAutoMovieHumanSiteControls.IOutput =
       base ?? AutoMovieHumanSiteControls.prepare(declaration);
     const original: IAutoMovieHumanSiteControls.IControls | null =
@@ -137,7 +140,7 @@ export namespace AutoMovieHumanFootPart {
    */
   export function source(
     input: IAutoMovieHumanFootPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IInput {
+  ): IAutoMovieHumanSectionSource {
     // The chart: u up and v = up x along, so the stations advance along
     // v x u = along (`AutoMovieViewAxis.straight`). With the toes
     // forward v points to the body's right: medial on the left foot, lateral
@@ -169,7 +172,7 @@ export namespace AutoMovieHumanFootPart {
         (s: {
           site: string;
           law: IAutoMovieHumanFootPart.ISiteLaw;
-        }): IAutoMovieHumanSiteViewPart.ISite => ({
+        }): IAutoMovieHumanSectionSite => ({
           site: s.site,
           station: s.law.share * input.length,
           edges: swap(s.law.edges),
@@ -182,7 +185,7 @@ export namespace AutoMovieHumanFootPart {
                   undefined,
                   s.law.plantarJet,
                   undefined,
-                ] as NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]>,
+                ] as NonNullable<IAutoMovieHumanSectionSite["jets"]>,
               }),
         }),
       ),
@@ -194,7 +197,7 @@ export namespace AutoMovieHumanFootPart {
               undefined,
               input.plantarRange,
               undefined,
-            ] as NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]>,
+            ] as NonNullable<IAutoMovieHumanSectionSource["ranges"]>,
           }),
       pole: {
         end: "both",

@@ -92,7 +92,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation from: Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent.
  * @evidence contracts/development/design.md#principled-representation from: Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.stagger, params); reaction/stagger.ts (stagger.plan, context); reaction/stagger.ts (stagger.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanStagger {
   /**
@@ -113,6 +113,6 @@ export namespace IAutoMovieMotionHumanStagger {
     speed: number;
 
     /** How it is performed: the tempo scales the trunk's righting after the last step. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 }

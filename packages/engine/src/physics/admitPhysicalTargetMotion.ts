@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
@@ -30,8 +30,7 @@ export function admitPhysicalTargetMotion(
   );
   for (const [step, target] of body.targets.entries()) {
     for (const segment of body.profile.segments) {
-      const pose: IAutoMoviePhysicalProfile.ITransform =
-        target.segments[segment.bone]!;
+      const pose: IAutoMovieRigidTransform = target.segments[segment.bone]!;
       const motion: IAutoMovieSamplePhysicalTarget.IResult =
         samplePhysicalTarget(
           step === 0 ? pose : body.targets[step - 1]!.segments[segment.bone]!,
@@ -60,7 +59,7 @@ export function admitPhysicalTargetMotion(
         [joint.parent, joint.parentFrame],
         [joint.child, joint.childFrame],
       ] as const) {
-        const anchor: IAutoMoviePhysicalProfile.ITransform["position"] =
+        const anchor: IAutoMovieRigidTransform["position"] =
           physicalSupportPoint(target.segments[bone]!, frame.position);
         if (![anchor.x, anchor.y, anchor.z].every(scalar))
           throw new Error(

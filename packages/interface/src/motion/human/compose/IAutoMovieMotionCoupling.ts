@@ -10,10 +10,10 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  * weight it carries, and the borne mass with its centre, which the
  * bearer's balance takes in.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, frame and unit.
- * @evidence contracts/development/design.md#principled-representation A coupled contact is a part of one body on a region of the other with a load share, the support model of #3425 between two people; the carried mass and its centre are what the bearer's moment balance (#3431) reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two role names, the contacts, the borne mass and centre, and the borne body's key frame, legs and bearer's stance.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The frames are bearer bones' own (the anchor bone's), so the record is plain data that survives a move of the pair and keeps no body.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, frame and unit. load: The share of the borne weight it carries, in [0, 1]; a grip carries none.
+ * @evidence contracts/development/design.md#principled-representation A coupled contact is a part of one body on a region of the other with a load share, the support model of #3425 between two people; the carried mass and its centre are what the bearer's moment balance (#3431) reads. load: The share of the borne weight it carries, in [0, 1]; a grip carries none.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The two role names, the contacts, the borne mass and centre, and the borne body's key frame, legs and bearer's stance. Runtime boundary references: lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, return); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple, return); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.load, coupling); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.lean, coupling); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.standing, coupling); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.bearable, coupling).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The frames are bearer bones' own (the anchor bone's), so the record is plain data that survives a move of the pair and keeps no body. Shares the canonical IAutoMovieMotionHumanContactWindow, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionCoupling {
   /** The bearing role's name. */
@@ -95,10 +95,6 @@ export interface IAutoMovieMotionCoupling {
  * out: the contacts are then the present role's default places and the
  * meeting is not solid, so each role's law performs alone in the air.
  *
- * @evidence contracts/development/common.md#meaningful-documentation load: The share of the borne weight it carries, in [0, 1]; a grip carries none.
- * @evidence contracts/development/design.md#principled-representation load: The share of the borne weight it carries, in [0, 1]; a grip carries none.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.kind, return); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple, return); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.load, coupling); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.lean, coupling); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.standing, coupling); lexicon/HumanCarriedCouplingLoad.ts (HumanCarriedCouplingLoad.bearable, coupling).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanContactWindow, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionCoupling {
   /**

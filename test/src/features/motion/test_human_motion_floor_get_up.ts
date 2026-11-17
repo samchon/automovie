@@ -106,7 +106,7 @@ export function test_human_motion_floor_get_up(): void {
         );
         return;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       let fastest: { speed: number; bone: string; seconds: number } = {
         speed: 0,

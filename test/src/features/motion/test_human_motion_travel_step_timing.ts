@@ -74,8 +74,7 @@ export function test_human_motion_travel_step_timing(): void {
         .stand({ seconds: 0.3 })
         .walk({ to: { x: 0, y: 0, z: 6 } }).node,
     });
-    const segment: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     return {
       strikes: segment.plan.events
         .filter((e: IAutoMovieMotionEvent): boolean =>

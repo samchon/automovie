@@ -5,10 +5,10 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodyStrip,
+  IAutoMovieHumanSurfaceAppendage,
   IAutoMovieLoftChain,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSurfaceJet,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
@@ -52,7 +52,7 @@ export namespace AutoMovieHumanBodyStrip {
   export function controls(
     base: IAutoMovieLoftChain,
     appendage: IAutoMovieLoftChain,
-    root: IAutoMovieHumanBodyCalibration.IAppendage,
+    root: IAutoMovieHumanSurfaceAppendage,
     u: number,
     sense: number,
   ): AutoMovieVector3Tuple[] {
@@ -191,7 +191,7 @@ export namespace AutoMovieHumanBodyStrip {
     ds: number,
   ): IAutoMovieHumanBodyStrip.AcrossResult {
     if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
         chain,
         clamp(chain, s),
         t,
@@ -238,7 +238,7 @@ export namespace AutoMovieHumanBodyStrip {
   function column(
     base: IAutoMovieLoftChain,
     appendage: IAutoMovieLoftChain,
-    root: IAutoMovieHumanBodyCalibration.IAppendage,
+    root: IAutoMovieHumanSurfaceAppendage,
     u: number,
     sense: number,
   ): IAutoMovieHumanBodyStrip.IColumn {
@@ -297,7 +297,7 @@ export namespace AutoMovieHumanBodyStrip {
     let Pt: AutoMovieVector3Tuple;
     let Ps: AutoMovieVector3Tuple;
     if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
         chain,
         clamp(chain, s),
         t,
@@ -375,7 +375,7 @@ export namespace AutoMovieHumanBodyStrip {
     outward: number,
   ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] {
     if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, end, u);
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, end, u);
       return arcLength(scale(j.s, outward), j.ss);
     }
     const p0: AutoMovieVector3Tuple = surface(chain, end, u);

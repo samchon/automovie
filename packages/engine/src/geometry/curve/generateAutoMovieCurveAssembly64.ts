@@ -1,6 +1,8 @@
 import type {
-  IAutoMovieCurve64,
   IAutoMovieCurveAssembly64,
+  IAutoMovieCurveBoundary64,
+  IAutoMovieCurveBoundaryEdge64,
+  IAutoMovieCurveBoundaryPublication64,
   IAutoMovieCurveParentContext,
   IAutoMovieGenerateCurveAssembly64,
 } from "@automovie/interface";
@@ -32,7 +34,8 @@ export function generateAutoMovieCurveAssembly64<
   );
   const pending: Map<string, IAutoMovieCurveAssembly64.Factory<T>> = new Map();
   const regions: Map<string, T> = new Map();
-  const operators: Map<string, IAutoMovieCurve64.Operator> = new Map();
+  const operators: Map<string, IAutoMovieCurveBoundaryPublication64> =
+    new Map();
   for (const factory of props.factories) {
     if (!factory.region || pending.has(factory.region))
       throw new Error("Unique regional factories required");
@@ -44,31 +47,35 @@ export function generateAutoMovieCurveAssembly64<
   while (pending.size !== 0) {
     let progressed: boolean = false;
     for (const [name, factory] of pending) {
-      const incoming: readonly IAutoMovieCurve64.Edge[] = props.edges.filter(
-        (edge: IAutoMovieCurve64.Edge): boolean => edge.consumerRegion === name,
-      );
+      const incoming: readonly IAutoMovieCurveBoundaryEdge64[] =
+        props.edges.filter(
+          (edge: IAutoMovieCurveBoundaryEdge64): boolean =>
+            edge.consumerRegion === name,
+        );
       if (
-        !incoming.every((edge: IAutoMovieCurve64.Edge): boolean =>
+        !incoming.every((edge: IAutoMovieCurveBoundaryEdge64): boolean =>
           operators.has(edge.id),
         )
       )
         continue;
-      const upstream: Map<string, IAutoMovieCurve64.Boundary> = new Map();
+      const upstream: Map<string, IAutoMovieCurveBoundary64> = new Map();
       for (const edge of incoming)
         upstream.set(
           edge.id,
           context.bind(name, edge.consumerBone, operators.get(edge.id)!),
         );
       const generated: T = factory.construct(context, upstream);
-      const outgoing: readonly IAutoMovieCurve64.Edge[] = props.edges.filter(
-        (edge: IAutoMovieCurve64.Edge): boolean => edge.ownerRegion === name,
-      );
+      const outgoing: readonly IAutoMovieCurveBoundaryEdge64[] =
+        props.edges.filter(
+          (edge: IAutoMovieCurveBoundaryEdge64): boolean =>
+            edge.ownerRegion === name,
+        );
       if (generated.boundaries.length !== outgoing.length)
         throw new Error(
           "A regional factory must publish every owned boundary exactly once",
         );
       for (const boundary of generated.boundaries) {
-        const operator: IAutoMovieCurve64.Operator = context.publish(
+        const operator: IAutoMovieCurveBoundaryPublication64 = context.publish(
           name,
           boundary.bone,
           boundary.value,

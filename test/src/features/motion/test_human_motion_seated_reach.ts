@@ -94,10 +94,8 @@ export function test_human_motion_seated_reach(): void {
     sit("a").with(sit("b")),
   );
   for (const who of ["a", "b"] as const) {
-    const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
-      sat.segments(who);
-    const last: IAutoMovieMotionHumanSegment.ISegment =
-      segments[segments.length - 1]!;
+    const segments: readonly IAutoMovieMotionHumanSegment[] = sat.segments(who);
+    const last: IAutoMovieMotionHumanSegment = segments[segments.length - 1]!;
     const seats: IAutoMovieMotionHumanContactWindow[] =
       last.plan.contacts.filter(
         (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "seat",
@@ -146,7 +144,7 @@ export function test_human_motion_seated_reach(): void {
         other: sit("b"),
       }),
     );
-    const shake: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+    const shake: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     const clasp: number =
       shake.start +
       shake.plan.events.find(
@@ -165,8 +163,7 @@ export function test_human_motion_seated_reach(): void {
       wrists <= hands,
     );
     for (const who of ["a", "b"] as const) {
-      const segment: IAutoMovieMotionHumanSegment.ISegment =
-        p.segments(who)[1]!;
+      const segment: IAutoMovieMotionHumanSegment = p.segments(who)[1]!;
       const settled: IAutoMovieVector3 = p
         .bones(who, segment.entryTime)
         .get("hips")!.worldPosition;

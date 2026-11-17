@@ -1,6 +1,6 @@
 import type {
   IAutoMovieConstructionOutlineParameter,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewHermite,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -142,11 +142,10 @@ export namespace AutoMovieViewOutline {
         detail:
           "source parameters do not increase by finite intervals through the source knots",
       };
-    const spline: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(
-        parameters,
-        knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-      );
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      parameters,
+      knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
+    );
     if (!spline.curvatures.every(Number.isFinite))
       return {
         contract: "outline",

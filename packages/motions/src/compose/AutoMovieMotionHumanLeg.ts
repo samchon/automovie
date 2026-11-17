@@ -1,9 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanLeg,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -86,10 +87,10 @@ export namespace AutoMovieMotionHumanLeg {
   export function goal(
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     return {
       point: placement.ankle,
       rotation: placement.rotation,
@@ -166,8 +167,8 @@ export namespace AutoMovieMotionHumanLeg {
    */
   export function plant(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
     at: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieMotionHumanPrimitive {
@@ -205,8 +206,8 @@ export namespace AutoMovieMotionHumanLeg {
    */
   export function step(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
     from: IAutoMovieMotionHumanFoot.IPlacement,
     to: IAutoMovieMotionHumanFoot.IPlacement,

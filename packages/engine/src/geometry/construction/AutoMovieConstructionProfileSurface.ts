@@ -1,8 +1,9 @@
 import type {
   AutoMovieVector2Tuple,
-  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileLoop,
+  IAutoMovieConstructionProfilePiece,
   IAutoMovieConstructionProfileSource,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftWorldJetWorld,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
@@ -31,8 +32,8 @@ import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 export function AutoMovieConstructionProfileSurface(
   source: IAutoMovieConstructionProfileSource,
   family: string,
-  loop: IAutoMovieConstructionProfile.ILoop,
-  piece: IAutoMovieConstructionProfile.IPiece,
+  loop: IAutoMovieConstructionProfileLoop,
+  piece: IAutoMovieConstructionProfilePiece,
   curve: IAutoMovieConstructionProfileSource.ICurve,
   originalDomain?: readonly [number, number],
 ): IAutoMovieSolidSurface {
@@ -82,7 +83,7 @@ export function AutoMovieConstructionProfileSurface(
         clock(station, phase),
       );
       pair(local);
-      const frame: IAutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = source.plane.axis.at(station);
       frameRow(frame);
       const point: [number, number, number] = [0, 1, 2].map(
         (k: number): number =>
@@ -151,7 +152,7 @@ function pair(value: readonly number[]): void {
 }
 
 /** Copy actual frame value/first/second operands without manufacturing absent data. */
-function frameRow(frame: IAutoMovieLoftFrame.IFrame): number[] {
+function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   const row: number[] = [];
   for (const key of ["origin", "u", "v"] as const) {
     if (

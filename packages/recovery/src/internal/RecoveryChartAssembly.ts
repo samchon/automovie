@@ -1,7 +1,7 @@
 import { AutoMovieBernstein64 as S } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryChartAssembly,
   IAutoMovieRecoveryChartLeafAssembly,
 } from "@automovie/interface";
@@ -52,7 +52,7 @@ export function RecoveryChartAssembly(
   const ids: Map<string, number> = new Map(),
     spans: Map<
       string,
-      { net: IAutoMovieCurve64.Span; uses: number; boundary: string }
+      { net: AutoMovieCubicBezierControls3; uses: number; boundary: string }
     > = new Map(),
     boundaryUses: Map<string, number> = new Map(),
     endpoints: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
@@ -121,7 +121,7 @@ export function RecoveryChartAssembly(
               : binding.canonicalKnots.findIndex(
                   (end: number, i: number): boolean => i > 0 && parameter < end,
                 ) - 1;
-        const original: IAutoMovieCurve64.Span =
+        const original: AutoMovieCubicBezierControls3 =
             binding.canonicalCurve.spans[which]!,
           localParameter: number =
             (parameter - binding.canonicalKnots[which]!) /
@@ -153,7 +153,11 @@ export function RecoveryChartAssembly(
           ),
           key: string = `${binding.id}:${a}:${b}`;
         let span:
-          | { net: IAutoMovieCurve64.Span; uses: number; boundary: string }
+          | {
+              net: AutoMovieCubicBezierControls3;
+              uses: number;
+              boundary: string;
+            }
           | undefined = spans.get(key);
         if (!span) {
           const which: number =
@@ -168,7 +172,7 @@ export function RecoveryChartAssembly(
             throw new Error(
               "A canonical boundary interval crosses an unregistered coefficient knot",
             );
-          const raw: IAutoMovieCurve64.Span = S.restrict(
+          const raw: AutoMovieCubicBezierControls3 = S.restrict(
             binding.canonicalCurve.spans[which]!.map(
               (
                 point: Readonly<AutoMovieVector3Tuple>,
@@ -176,8 +180,8 @@ export function RecoveryChartAssembly(
             ),
             (a - start) / (end - start),
             (b - start) / (end - start),
-          ) as unknown as IAutoMovieCurve64.Span;
-          const net: IAutoMovieCurve64.Span = [
+          ) as unknown as AutoMovieCubicBezierControls3;
+          const net: AutoMovieCubicBezierControls3 = [
             endpoint(a),
             raw[1],
             raw[2],

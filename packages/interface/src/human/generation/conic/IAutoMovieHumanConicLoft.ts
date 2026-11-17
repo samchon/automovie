@@ -2,7 +2,14 @@ import type { IAutoMovieLoftRelief } from "../../../construction/IAutoMovieLoftR
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanConicSection } from "./IAutoMovieHumanConicSection";
 
-/** Type contracts exchanged by AutoMovieHumanConicLoft; runtime evaluation remains in Human. */
+/**
+ * Conic-family courses, section fields, chart roll and terminal caps in millimetres and radians. Runtime construction and admission remain with AutoMovieHumanConicLoft in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes conic-family courses, section fields, chart roll and terminal caps in millimetres and radians; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Conic-family courses, section fields, chart roll and terminal caps in millimetres and radians. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanConicLoft; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing ConicLoft contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanConicLoft {
   /** The complete authored definition of one part.
    *
@@ -149,13 +156,13 @@ export namespace IAutoMovieHumanConicLoft {
     rings?: number;
   }
 
-  /** Result of AutoMovieHumanConicLoft.reader. The family's field vector at one station.
+  /**
+   * Read the conic family's field vector at station s, measured in millimetres along its course. Field order and units follow the family's section layout.
    *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The family's field vector at one station.
-   * @evidence contracts/development/design.md#principled-representation The family's field vector at one station. The callable takes s and returns number[].
+   * @evidence contracts/development/common.md#meaningful-documentation Read the conic family's field vector at station s, measured in millimetres along its course. Field order and units follow the family's section layout.
+   * @evidence contracts/development/design.md#principled-representation Read the conic family's field vector at station s, measured in millimetres along its course. Field order and units follow the family's section layout.
    * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanConicLoft.ReaderResult is the canonical exchange used by AutoMovieHumanConicLoft.reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanConicLoft.reader for the family's field vector at one station.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanConicLoft input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
    */
   export type ReaderResult = (s: number) => number[];
 }

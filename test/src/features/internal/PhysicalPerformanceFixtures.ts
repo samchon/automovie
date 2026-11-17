@@ -7,7 +7,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieStepPlanner,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
@@ -37,13 +40,13 @@ export namespace PhysicalPerformanceFixtures {
         } => {
           const human: boolean = profile.id === "human";
           const bone: string = `${side}${human ? "Midfoot" : "LowerLeg"}`;
-          const segment: P.ISegment = profile.segments.find(
+          const segment: IAutoMoviePhysicalSegment = profile.segments.find(
             (candidate: (typeof profile.segments)[number]): boolean =>
               candidate.bone === bone,
           )!;
           let localPoint: IAutoMovieVector3 | undefined;
           if (!human) {
-            const shape: P.IShape = segment.shapes[0]!;
+            const shape: IAutoMoviePhysicalShape = segment.shapes[0]!;
             if (shape.kind !== "capsule")
               throw new Error(
                 "Stickman acceptance requires its existing actual shin capsule",
@@ -95,16 +98,17 @@ export namespace PhysicalPerformanceFixtures {
     const pattern: IAutoMovieFootfallPattern = supports(profile);
     const forward: IAutoMovieVector3 =
       profile.id === "human" ? { x: 1, y: 0, z: 0 } : { x: 0, y: 0, z: 1 };
-    const original: Record<string, P.ITransform> = Object.fromEntries(
-      profile.segments.map(
-        (
-          segment: (typeof profile.segments)[number],
-        ): [string, P.ITransform] => [
-          segment.bone,
-          structuredClone(segment.neutral),
-        ],
-      ),
-    );
+    const original: Record<string, IAutoMovieRigidTransform> =
+      Object.fromEntries(
+        profile.segments.map(
+          (
+            segment: (typeof profile.segments)[number],
+          ): [string, IAutoMovieRigidTransform] => [
+            segment.bone,
+            structuredClone(segment.neutral),
+          ],
+        ),
+      );
     const gap: number =
       profile.id === "human"
         ? 0
@@ -180,21 +184,25 @@ export namespace PhysicalPerformanceFixtures {
         step: number,
       ): IAutoMoviePhysicalSimulationInput.ITarget => {
         const seconds: number = step / 120;
-        const targets: Record<string, P.ITransform> = Object.fromEntries(
-          Object.entries(original).map(
-            ([bone, pose]: [string, P.ITransform]): [string, P.ITransform] => [
-              bone,
-              {
-                position: {
-                  x: pose.position.x + forward.x * seconds * 0.12,
-                  y: pose.position.y - 0.03,
-                  z: pose.position.z + forward.z * seconds * 0.12,
+        const targets: Record<string, IAutoMovieRigidTransform> =
+          Object.fromEntries(
+            Object.entries(original).map(
+              ([bone, pose]: [string, IAutoMovieRigidTransform]): [
+                string,
+                IAutoMovieRigidTransform,
+              ] => [
+                bone,
+                {
+                  position: {
+                    x: pose.position.x + forward.x * seconds * 0.12,
+                    y: pose.position.y - 0.03,
+                    z: pose.position.z + forward.z * seconds * 0.12,
+                  },
+                  rotation: { ...pose.rotation },
                 },
-                rotation: { ...pose.rotation },
-              },
-            ],
-          ),
-        );
+              ],
+            ),
+          );
         const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
           pattern.limbs.map(
             (

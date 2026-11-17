@@ -3,7 +3,16 @@ import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLof
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanTrunkSectionFamily } from "./IAutoMovieHumanTrunkSectionFamily";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkTape; runtime evaluation remains in Human. */
+/**
+ * Whole-source tape trials and coupled parent cuts, preserving source provenance and refusal results.
+ *
+ * The interface package owns these declarations; AutoMovieHumanTrunkTape in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Whole-source tape trials and coupled parent cuts, preserving source provenance and refusal results. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IInput, IMass, IResult, ParentRecords declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IInput, IMass, IResult, ParentRecords separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanTrunkTape exchanges the named IInput, IMass, IResult, ParentRecords contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanTrunkTape {
   /** What the solve reads.
    *
@@ -36,7 +45,17 @@ export namespace IAutoMovieHumanTrunkTape {
         phase: number;
       }[];
     }[];
-    /** Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair. */
+    /**
+     * Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanTrunkTape and the callback provider must satisfy the documented parentsAt contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanTrunkTape and its callback provider own the cost of each parentsAt invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanTrunkTape and the callback provider determine when the inputs to parentsAt describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanTrunkTape and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanTrunkTape.IInput.parentsAt callable contract, without an implementation body. AutoMovieHumanTrunkTape and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkTape.IInput.parentsAt declares only the invocation boundary; decomposition belongs to AutoMovieHumanTrunkTape and the callback provider.
+     */
     parentsAt?(shoulder: number): NonNullable<IInput["parents"]>;
 
     /** The tape, mm. */

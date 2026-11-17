@@ -85,7 +85,7 @@ export function test_human_motion_perturb(): void {
     impulse: IAutoMovieVector3 | null,
     outcome?: IAutoMovieMotionHumanPerturb.IParams["outcome"],
   ): IAutoMovieMotionHumanPerformance => {
-    const forces: IAutoMovieMotionHumanForce.IForce[] =
+    const forces: IAutoMovieMotionHumanForce[] =
       impulse === null
         ? []
         : [
@@ -151,8 +151,7 @@ export function test_human_motion_perturb(): void {
           );
           continue;
         }
-        const segment: IAutoMovieMotionHumanSegment.ISegment =
-          p.segments("a")[1]!;
+        const segment: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
         const events: string[] = names(segment.plan);
 
         // 1. The plan placed is the outcome's.
@@ -304,7 +303,7 @@ export function test_human_motion_perturb(): void {
 
     // 6. No impulse: nothing moves.
     const quiet: IAutoMovieMotionHumanPerformance = perform(body, null);
-    const q: IAutoMovieMotionHumanSegment.ISegment = quiet.segments("a")[1]!;
+    const q: IAutoMovieMotionHumanSegment = quiet.segments("a")[1]!;
     const c0: IAutoMovieVector3 = centre(quiet, q.entryTime);
     for (let t: number = q.entryTime; t <= q.end; t += 1 / 12) {
       const c: IAutoMovieVector3 = centre(quiet, t);

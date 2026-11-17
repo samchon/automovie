@@ -3,7 +3,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanNeckSurface,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 /**
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       minZ = Math.min(minZ, point[2]);
       maxZ = Math.max(maxZ, point[2]);
     }
-    const frame: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
+    const frame: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(
       chain,
       station,
     );

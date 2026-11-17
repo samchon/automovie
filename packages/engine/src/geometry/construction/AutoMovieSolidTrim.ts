@@ -1,8 +1,8 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
   IAutoMovieLoftContract,
   IAutoMovieSolidFoot,
-  IAutoMovieSolidRibbon,
   IAutoMovieSolidSurface,
   IAutoMovieSolidTrim,
 } from "@automovie/interface";
@@ -208,7 +208,7 @@ export namespace AutoMovieSolidTrim {
           "regular chart",
           `the surface's chart degenerates on the loop at sample ${i}`,
         );
-    const ribbon = (t: number, a: number): IAutoMovieSolidRibbon.IRibbon => {
+    const ribbon = (t: number, a: number): IAutoMovieBlendCrossJet => {
       // Sampled regularity does not certify the intervals between samples;
       // the existing zero-direction fallback remains an explicit limitation.
       const [u, v, du, dv]: [number, number, number, number] =

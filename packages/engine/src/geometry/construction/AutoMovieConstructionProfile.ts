@@ -1,5 +1,8 @@
 import type {
   IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileLoop,
+  IAutoMovieConstructionProfilePiece,
+  IAutoMovieConstructionProfileRegion,
   IAutoMovieConstructionProfileSource,
   IAutoMoviePreparedConstructionProfile,
   IAutoMovieSolidAtlas,
@@ -20,9 +23,9 @@ interface Piece {
   /** Next ordered piece of this same complete loop. */
   next: number;
   /** Value-copied original interval declaration. */
-  piece: IAutoMovieConstructionProfile.IPiece;
+  piece: IAutoMovieConstructionProfilePiece;
   /** Value-copied physical loop interval and explicit orientation. */
-  loop: IAutoMovieConstructionProfile.ILoop;
+  loop: IAutoMovieConstructionProfileLoop;
   /** Borrowed immutable original function owner. */
   curve: IAutoMovieConstructionProfileSource.ICurve;
   /** Actual chart surface, physical station mm by normalized piece coordinate. */
@@ -78,7 +81,7 @@ export namespace AutoMovieConstructionProfile {
     const records: Piece[] = [];
     const byPiece: Map<string, Piece> = new Map();
     const byLoop: Map<string, Piece[]> = new Map();
-    const byRegion: Map<string, IAutoMovieConstructionProfile.IRegion> =
+    const byRegion: Map<string, IAutoMovieConstructionProfileRegion> =
       new Map();
     for (const loop of definition.loops) {
       if (
@@ -296,7 +299,7 @@ export namespace AutoMovieConstructionProfile {
         station: number,
         coordinate: number,
       ): boolean => {
-        const region: IAutoMovieConstructionProfile.IRegion | undefined =
+        const region: IAutoMovieConstructionProfileRegion | undefined =
           byRegion.get(regionId);
         const record: Piece | undefined = byPiece.get(pieceId);
         if (region === undefined || record === undefined)

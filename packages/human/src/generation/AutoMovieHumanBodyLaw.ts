@@ -13,7 +13,8 @@ import type {
   IAutoMovieHumanLegConstruction,
   IAutoMovieHumanLegIdentity,
   IAutoMovieHumanParameters,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieHumanTrunkInputs,
 } from "@automovie/interface";
@@ -124,7 +125,7 @@ export namespace AutoMovieHumanBodyLaw {
         context.neckSource,
         context.head,
       );
-    const rawSources: Map<string, IAutoMovieHumanSiteViewPart.IResult> =
+    const rawSources: Map<string, IAutoMovieHumanSourceRealization> =
       context.rawSources ?? new Map();
     context.rawSources = rawSources;
     const lane: IAutoMovieHumanBodyLane.IDefinition =
@@ -175,7 +176,7 @@ export namespace AutoMovieHumanBodyLaw {
   export function trunkLoft(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
-  ): IAutoMovieHumanSiteViewPart.IResult | null {
+  ): IAutoMovieHumanSourceRealization | null {
     return AutoMovieHumanBodyPreparation.loft(context, name);
   }
 
@@ -183,7 +184,7 @@ export namespace AutoMovieHumanBodyLaw {
   export function original(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
-  ): IAutoMovieHumanSiteViewPart.IDefinition | null {
+  ): IAutoMovieHumanSourceDefinition | null {
     return AutoMovieHumanBodyPreparation.original(context, name);
   }
 

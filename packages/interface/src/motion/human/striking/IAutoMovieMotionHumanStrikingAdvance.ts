@@ -23,7 +23,7 @@ import type { IAutoMovieMotionClock } from "../compose/IAutoMovieMotionClock";
  * @evidence contracts/development/common.md#meaningful-documentation clock: Strike action's relative event clock. travel: Optional approach distance in metres; omitted uses the selected advance's full travel.
  * @evidence contracts/development/design.md#principled-representation clock: Strike action's relative event clock. travel: Optional approach distance in metres; omitted uses the selected advance's full travel.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.aim.within, candidate); lexicon/HumanSword.ts (HumanSword.aim.advance, candidate); striking/StrikingAdvance.ts (StrikingAdvance.travel, advance); striking/StrikingBlade.ts (StrikingBlade.shoulder, advance); striking/StrikingAdvance.ts (StrikingAdvance.base, stroke); lexicon/HumanSword.ts (HumanSword.aim).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionClock.IClock, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionClock, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanStrikingAdvance {
   /**
@@ -42,11 +42,11 @@ export namespace IAutoMovieMotionHumanStrikingAdvance {
    * @evidence contracts/development/common.md#meaningful-documentation clock: Strike action's relative event clock. travel: Optional approach distance in metres; omitted uses the selected advance's full travel.
    * @evidence contracts/development/design.md#principled-representation clock: Strike action's relative event clock. travel: Optional approach distance in metres; omitted uses the selected advance's full travel.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/StrikingAdvance.ts (StrikingAdvance.base, stroke).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionClock.IClock, IAutoMovieMotionHumanStrikingAdvance.Advance, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionClock, IAutoMovieMotionHumanStrikingAdvance.Advance, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IBaseStroke = {
     /** Strike action's relative event clock. */
-    clock: IAutoMovieMotionClock.IClock;
+    clock: IAutoMovieMotionClock;
     /** Stepping mode used to approach the target. */
     advance: IAutoMovieMotionHumanStrikingAdvance.Advance;
     /** Optional approach distance in metres; omitted uses the selected advance's full travel. */

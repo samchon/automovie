@@ -16,11 +16,6 @@ export type IAutoMovieValidation =
 
 /**
  * Success and failure envelopes for the checks that actually ran.
- *
- * @evidence contracts/development/design.md#principled-representation The boolean discriminator separates warning-only or clean success from a list containing at least one error.
- * @evidence contracts/development/design.md#minimal-and-owned-surface toValidation and its callers share these arms while typia ingress keeps its distinct data/errors envelope.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Success does not claim uninvoked validators passed, and failure retains warnings beside errors.
- * @evidence contracts/development/common.md#meaningful-documentation Success and failure envelopes for the checks that actually ran. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMovieValidation {
   /**

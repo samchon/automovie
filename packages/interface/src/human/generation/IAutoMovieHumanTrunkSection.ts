@@ -45,12 +45,28 @@ export interface IAutoMovieHumanTrunkSection {
    * The front quadrant's displacement toward the back at a lateral place
    * (the inguinal fold), mm: the value and its first and second derivatives
    * in z.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The front quadrant's displacement toward the back at a lateral place (the inguinal fold), mm: the value and its first and second derivatives in z.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This foldFront signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkColumn and its section/fold builders and its supplied callbacks own the numerical method and its premises.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes foldFront at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkColumn and its section/fold builders.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual foldFront provider is responsible for satisfying the documented semantics.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkColumn and its section/fold builders determines the work per foldFront call.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkColumn and its section/fold builders's runtime provider owns reuse and must preserve the documented source identity and effects.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the foldFront provider and the caller retaining its containing record own the callback and its captured dependencies.
    */
   foldFront: (z: number) => [number, number, number];
 
   /**
    * The back quadrant's displacement toward the front at a lateral place
    * (the gluteal cleft), mm, with its first and second derivatives in z.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The back quadrant's displacement toward the front at a lateral place (the gluteal cleft), mm, with its first and second derivatives in z.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This foldBack signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkColumn and its section/fold builders and its supplied callbacks own the numerical method and its premises.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes foldBack at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkColumn and its section/fold builders.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual foldBack provider is responsible for satisfying the documented semantics.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkColumn and its section/fold builders determines the work per foldBack call.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkColumn and its section/fold builders's runtime provider owns reuse and must preserve the documented source identity and effects.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the foldBack provider and the caller retaining its containing record own the callback and its captured dependencies.
    */
   foldBack: (z: number) => [number, number, number];
 }

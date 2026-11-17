@@ -1,7 +1,14 @@
 import type { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
 import type { IAutoMovieAnalysisRun } from "./IAutoMovieAnalysisRun";
 
-/** Data and callback contracts shared by the SummarizeAnalysis operations. */
+/**
+ * Data and callback contracts shared by the SummarizeAnalysis operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Roll every run of one design revision into one bounded verdict. Member documentation states the supplied records, units and absence meanings used by summarizeAutoMovieAnalysis.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The canonical run array keeps stale and unmeasured inputs visible; a missing domain cannot become success through an empty request and omitted gaps remain counted.
+ * @evidence contracts/development/design.md#principled-representation revision identifies the design being judged, required names at least one domain and maxGaps bounds listed gaps; summarizeAutoMovieAnalysis validates runs, uniqueness and the positive integer bound.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieSummarizeAnalysis, used by summarizeAutoMovieAnalysis. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieSummarizeAnalysis {
   /**
    * Roll every run of one design revision into one bounded verdict.
@@ -29,6 +36,11 @@ export namespace IAutoMovieSummarizeAnalysis {
    * Throws on a blank revision, a gap bound that is not a positive safe integer,
    * an empty or unknown required domain, a run that fails validation, and a run
    * id reported twice.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Roll every run of one design revision into one bounded verdict. Member documentation states the supplied records, units and absence meanings used by summarizeAutoMovieAnalysis.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The canonical run array keeps stale and unmeasured inputs visible; a missing domain cannot become success through an empty request and omitted gaps remain counted.
+   * @evidence contracts/development/design.md#principled-representation revision identifies the design being judged, required names at least one domain and maxGaps bounds listed gaps; summarizeAutoMovieAnalysis validates runs, uniqueness and the positive integer bound.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieSummarizeAnalysis.IProps, used by summarizeAutoMovieAnalysis. Its runs, revision, required, maxGaps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Runs to roll up; each is validated before it is counted. */

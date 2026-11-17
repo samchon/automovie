@@ -3,7 +3,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadEarRidge,
   IAutoMovieHumanHeadEarRidgeAxis,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -102,7 +102,7 @@ export namespace AutoMovieHumanHeadEarRidgeAxis {
         ),
       };
     const axis: IAutoMovieViewAxis.IAxis = {
-      at: (station: number): IAutoMovieLoftFrame.IFrame => {
+      at: (station: number): IAutoMovieLoftSectionFrame => {
         const readings: IAutoMovieViewOutline.IReading[] = coordinates.map(
           (
             outline: IAutoMovieViewOutline.IOutline,

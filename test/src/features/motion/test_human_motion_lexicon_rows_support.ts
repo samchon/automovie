@@ -111,13 +111,9 @@ export function test_human_motion_lexicon_rows_support(): void {
         );
         continue;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment | undefined =
-        performance
-          .segments("a")
-          .find(
-            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-              s.name === row,
-          );
+      const placed: IAutoMovieMotionHumanSegment | undefined = performance
+        .segments("a")
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row);
       complaints.check(
         `${cell}: placed as ${placed?.name ?? "nothing"}`,
         placed?.name === row,

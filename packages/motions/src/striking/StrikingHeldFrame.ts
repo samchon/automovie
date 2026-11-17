@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
@@ -48,7 +48,7 @@ export namespace StrikingHeldFrame {
     },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     const prop: string = held.prop;
-    const side: IAutoMovieMotionHumanHand.Side = held.side;
+    const side: AutoMovieHumanSide = held.side;
     const tip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
       AutoMovieMotionHumanHeld.point(held, points.tip);
     // An explicit origin defines the working line separately from the

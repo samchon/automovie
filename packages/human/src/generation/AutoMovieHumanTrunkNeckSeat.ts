@@ -8,7 +8,7 @@ import {
 import type {
   IAutoMovieHumanTrunkNeckSeat,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
@@ -133,17 +133,17 @@ export namespace AutoMovieHumanTrunkNeckSeat {
       throw new Error(
         "The old trunk needs a regular level +X/+Z neck boundary at the same world height",
       );
-    const frame: IAutoMovieLoftFrame.IFrame = a.frame ?? {
+    const frame: IAutoMovieLoftSectionFrame = a.frame ?? {
       origin: [0, a.y, 0],
       u: [1, 0, 0],
       v: [0, 0, 1],
     };
-    const frameSlopes: IAutoMovieLoftFrame.IFrame = a.frameSlopes ?? {
+    const frameSlopes: IAutoMovieLoftSectionFrame = a.frameSlopes ?? {
       origin: [0, 1, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],
     };
-    const frameCurvatures: IAutoMovieLoftFrame.IFrame = a.frameCurvatures ?? {
+    const frameCurvatures: IAutoMovieLoftSectionFrame = a.frameCurvatures ?? {
       origin: [0, 0, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],

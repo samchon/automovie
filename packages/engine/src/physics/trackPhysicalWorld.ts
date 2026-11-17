@@ -5,8 +5,11 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalGravityTorques,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalRecoveryPolicy,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
@@ -55,13 +58,13 @@ export function trackPhysicalWorld(
   step: number,
   softened: Map<string, number>,
   diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
-  recovery: Record<string, IAutoMovieAdvancePhysicalBalance.IState>,
+  recovery: Record<string, IAutoMoviePhysicalRecoveryState>,
   contacts: readonly IAutoMovieContactReceipt[],
   seconds: number,
 ): void {
   const dt: number = world.timestep;
   let scene:
-    | Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>>
+    | Record<string, Record<string, IAutoMovieRigidTransform>>
     | undefined;
   for (const body of input.bodies) {
     const target: IAutoMoviePhysicalSimulationInput.ITarget =
@@ -96,9 +99,7 @@ export function trackPhysicalWorld(
       seconds,
       input.rate,
     );
-    const root: IAutoMoviePhysicalProfile.ISegment = bound.order.get(
-      body.id,
-    )![0]!;
+    const root: IAutoMoviePhysicalSegment = bound.order.get(body.id)![0]!;
     const earlyFit: boolean =
       body.mode.kind === "kinematic" ||
       target.dynamicSegments !== undefined ||
@@ -207,16 +208,13 @@ export function trackPhysicalWorld(
                 ([bone, goal]: [
                   string,
                   IAutoMovieSamplePhysicalTarget.IResult,
-                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [
-                  bone,
-                  goal.pose,
-                ],
+                ]): [string, IAutoMovieRigidTransform] => [bone, goal.pose],
               ),
             ),
             velocities: Object.fromEntries(
               body.balance.pattern.limbs.map(
                 (
-                  limb: IAutoMovieAdvancePhysicalBalance.IPolicy["pattern"]["limbs"][number],
+                  limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
                 ): [string, IAutoMovieVector3] => {
                   const goal: IAutoMovieSamplePhysicalTarget.IResult =
                     authoredGoals[limb.bone]!;
@@ -411,26 +409,26 @@ export function trackPhysicalWorld(
       if (!dynamic.has(joint.child)) continue;
       const parent: RigidBody = bound.bodies.get(`${body.id}/${joint.parent}`)!;
       const child: RigidBody = bound.bodies.get(`${body.id}/${joint.child}`)!;
-      const parentFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const parentFrame: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
-      const childFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const childFrame: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(child.rotation(), joint.childFrame.rotation);
-      const desiredParent: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const desiredParent: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(
           goals[joint.parent]!.pose.rotation,
           joint.parentFrame.rotation,
         );
-      const desiredChild: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const desiredChild: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(
           goals[joint.child]!.pose.rotation,
           joint.childFrame.rotation,
         );
-      const inv: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      const inv: IAutoMovieRigidTransform["rotation"] =
         Quaternion.inverse(parentFrame);
       const moving: boolean =
         body.balance?.pattern.limbs.some(
           (
-            limb: IAutoMovieAdvancePhysicalBalance.IPolicy["pattern"]["limbs"][number],
+            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
           ): boolean =>
             (recovery[body.id]?.swing?.bone === limb.bone ||
               recovery[body.id]?.offsets[limb.bone] !== undefined) &&

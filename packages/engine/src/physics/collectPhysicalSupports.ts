@@ -2,6 +2,7 @@ import type {
   IAutoMovieCollectPhysicalSupports,
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalProfile,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -100,9 +101,9 @@ export function collectPhysicalSupports(input: {
           receipt.b.body === input.body &&
           patches.includes(receipt.b.bone) &&
           receipt.a.body === "floor";
-        const material: IAutoMoviePhysicalProfile.IMaterial | undefined =
+        const material: IAutoMoviePhysicalMaterial | undefined =
           input.profile.materials.find(
-            (candidate: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+            (candidate: IAutoMoviePhysicalMaterial): boolean =>
               candidate.id ===
               (first
                 ? receipt.a.material

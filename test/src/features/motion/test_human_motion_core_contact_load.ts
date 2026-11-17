@@ -83,8 +83,7 @@ export function test_human_motion_core_contact_load(): void {
       .registered("kneelSit").node,
   });
   const film: motionHumanLaw.IFilm = motionHumanLaw.film(performance);
-  const kneel: IAutoMovieMotionHumanSegment.ISegment =
-    performance.segments("a")[1]!;
+  const kneel: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
   const floor: number = 0.06 * man.measure.stature;
   let down: number | null = null;
   for (let t: number = kneel.entryTime; t <= kneel.end; t += 1 / 24) {

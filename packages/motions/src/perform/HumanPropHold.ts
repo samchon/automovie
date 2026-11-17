@@ -6,9 +6,9 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -33,10 +33,10 @@ export namespace HumanPropHold {
   /** One hand on the prop: its grip socket's frame and the prop's frame in it, the offset its grip keeps. */
   export interface IHand {
     /** The hand's grip socket, world. */
-    hand: IAutoMovieMotionHumanProp.IFrame;
+    hand: IAutoMovieRigidTransform;
 
     /** The prop's frame in the hand's grip frame. */
-    offset: IAutoMovieMotionHumanProp.IFrame;
+    offset: IAutoMovieRigidTransform;
   }
 
   /**
@@ -54,7 +54,7 @@ export namespace HumanPropHold {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function fit(a: IHand, b: IHand): IAutoMovieMotionHumanProp.IFrame {
+  export function fit(a: IHand, b: IHand): IAutoMovieRigidTransform {
     const turn = (h: IHand): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(h.hand.rotation, h.offset.rotation),
@@ -127,7 +127,7 @@ export namespace HumanPropHold {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     grip: { side: "left" | "right"; bone?: AutoMovieHumanoidBone },
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     if (grip.bone !== undefined) {
       const bone: IAutoMovieResolvedBone = bones.get(grip.bone)!;
       return { position: bone.worldPosition, rotation: bone.worldRotation };

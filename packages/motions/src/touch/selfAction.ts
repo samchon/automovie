@@ -1,6 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -101,7 +103,7 @@ export namespace selfAction {
   /** An arm a kind raises: its side, its place, the hand's shape and whether its fist pumps. */
   interface IRaised {
     /** The arm. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The place of the air the hand goes to. */
     grid: IAutoMovieMotionHumanTargetGrid.IGrid;
@@ -160,7 +162,7 @@ export namespace selfAction {
     const raised: readonly IRaised[] =
       kind === "stretch" || kind === "victory"
         ? (["right", "left"] as const).map(
-            (side: IAutoMovieMotionHumanHand.Side): IRaised => ({
+            (side: AutoMovieHumanSide): IRaised => ({
               side,
               grid: PLACES[kind],
               shape: kind === "victory" ? "fist" : "flat",
@@ -184,7 +186,7 @@ export namespace selfAction {
       posture: IAutoMovieMotionHumanPosture,
       r: IRaised,
       drop: number,
-    ): IAutoMovieMotionHumanPosture.IGoal => {
+    ): IAutoMovieHumanLimbGoal => {
       const place = AutoMovieMotionHumanTarget.fallback(
         body,
         posture,
@@ -255,7 +257,7 @@ export namespace selfAction {
           : count *
             AutoMovieMotionHumanTiming.seconds("beat") *
             (kind === "fistPump" ? 1 : 2.5);
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: rise,
         attack,
@@ -267,7 +269,7 @@ export namespace selfAction {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
     const raise = (r: IRaised): void => {
-      const side: IAutoMovieMotionHumanHand.Side = r.side;
+      const side: AutoMovieHumanSide = r.side;
       primitives.push(
         AutoMovieMotionHumanArm.carried({
           body,
@@ -290,7 +292,7 @@ export namespace selfAction {
           goal: (
             posture: IAutoMovieMotionHumanPosture,
             seconds: number,
-          ): IAutoMovieMotionHumanPosture.IGoal =>
+          ): IAutoMovieHumanLimbGoal =>
             placed(
               posture,
               r,

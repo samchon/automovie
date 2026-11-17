@@ -151,9 +151,7 @@ export namespace jump {
       (Math.atan2(to.x - root0.x, to.z - root0.z) * 180) / Math.PI,
       entry.posture.yaw,
     );
-    const frame = (
-      origin: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanFrame.IFrame => ({
+    const frame = (origin: IAutoMovieVector3): IAutoMovieMotionHumanFrame => ({
       origin: { ...origin, y: 0 },
       yaw: heading,
     });

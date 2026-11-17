@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -7,7 +8,6 @@ import type {
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -108,7 +108,7 @@ export namespace bend {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const side: IAutoMovieMotionHumanHand.Side = context.params.side ?? "right";
+    const side: AutoMovieHumanSide = context.params.side ?? "right";
     const hold: number = context.params.hold ?? 0.5;
     HumanBound.least("hold", hold, 0, "s");
     const target: IAutoMovieVector3 = context.aim(
@@ -196,8 +196,7 @@ export namespace bend {
         // The free palm braces on its own thigh just above the knee, as people
         // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
         // 2016, J Biomech 49:881), moving there from where it hangs.
-        const free: IAutoMovieMotionHumanHand.Side =
-          side === "left" ? "right" : "left";
+        const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
         const thigh = hanging.get(`${free}UpperLeg`)!;
         const kneeAt: IAutoMovieVector3 = hanging.get(
           `${free}LowerLeg`,
@@ -294,7 +293,7 @@ export namespace bend {
     body: IAutoMovieMotionHumanBody,
     upright: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     strategy: IAutoMovieMotionHumanBend.Strategy,
     reach?: number,
   ): IAutoMovieMotionHumanBendLower.ISolved {

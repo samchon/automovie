@@ -4,6 +4,8 @@ import type { IAutoMovieCurlChainUntilContact } from "../../../pose/IAutoMovieCu
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
+import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
@@ -108,7 +110,7 @@ export namespace IAutoMovieMotionHumanGrasp {
     bound?: number;
 
     /** The limb goal the key is fitted by, as the action that asks it fits its own pose (its effector's kept point, its elbow); the wrist at `wrist` with `bend`, the elbow left to the body, when absent. */
-    goal?: IAutoMovieMotionHumanPosture.IGoal;
+    goal?: IAutoMovieHumanLimbGoal;
 
     /** False for a key another action asks, which that action fits on its own arm solution: the key is fitted without the grasp's (`reachable`'s reference). Fitted on the grasp's when absent. */
     reference?: false;
@@ -120,7 +122,7 @@ export namespace IAutoMovieMotionHumanGrasp {
    * @evidence contracts/development/common.md#meaningful-documentation turn: Degrees of the chosen turn. tilt: Degrees of the chosen tilt. miss: The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position.
    * @evidence contracts/development/design.md#principled-representation turn: Degrees of the chosen turn. tilt: Degrees of the chosen tilt. miss: The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.choose.fits, return); handling/HumanClasp.ts (HumanClasp.choose.aBones, r); handling/HumanClasp.ts (HumanClasp.choose.bBones, r); handling/HumanClasp.ts (HumanClasp.choose.admitted, reaches); handling/HumanClasp.ts (HumanClasp.choose.admitted.all, _); handling/HumanGrasp.ts (HumanGrasp.reachable, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.IWrist, IAutoMovieMotionHumanPosture.IReference, IAutoMoviePose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.IWrist, IAutoMovieHumanLimbReference, IAutoMoviePose identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IReach {
     /** Degrees of the chosen turn. */
@@ -136,7 +138,7 @@ export namespace IAutoMovieMotionHumanGrasp {
     shown: IAutoMovieMotionHumanHand.IWrist;
 
     /** The arm's solution at the grasp, the reference of the whole stroke. */
-    reference: IAutoMovieMotionHumanPosture.IReference;
+    reference: IAutoMovieHumanLimbReference;
 
     /** The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position. */
     miss: number;
@@ -168,7 +170,17 @@ export namespace IAutoMovieMotionHumanGrasp {
   export type IReachableRequired = {
     /** Largest accepted score in the caller's measure units. pickUpSearch uses a dimensionless maximum residual-to-bound ratio and bound 1. Acceptance is prioritised before cost; if no candidate passes, reachable returns the least measured candidate for its caller to reject. */
     bound: number;
-    /** Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local. */
+    /**
+     * Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrasp.IReachableRequired.measure: Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
+     */
     measure: (
       keys: readonly number[],
       judged: readonly number[],

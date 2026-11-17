@@ -8,8 +8,8 @@ import {
   AutoMovieViewSection,
 } from "@automovie/engine";
 import type {
-  IAutoMovieLoftJet,
   IAutoMovieLoftPhaseSource,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewConic,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
@@ -115,7 +115,7 @@ export function test_construction_phase_fidelity(): void {
             const legacy: number[] = AutoMovieSplineCurve.jet(old, 32, phi);
             if (outside(legacy, a, b)) oldOutside++;
             if (inward(legacy)) oldInward++;
-            const final: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+            const final: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
               result.chain,
               0.37,
               phi,

@@ -8,7 +8,7 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple.js
  * The adapter requires exact tuple lengths, finite components and squared
  * quaternion norm within 1e-6 of one before mutating any bone, and writes unit scale.
  *
- * IAutoMoviePhysicalProfile.ITransform instead uses mutable object components
+ * IAutoMovieRigidTransform instead uses mutable object components
  * named position/rotation and a frame selected by each physical-profile field.
  * IAutoMovieTransform adds authored scale to object-valued translation/rotation.
  * This read-only evaluator view preserves its tuple representation and fixed

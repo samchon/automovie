@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieCaptureDrawing,
   IAutoMovieRasterImage,
+  IAutoMovieRasterLabel,
 } from "@automovie/interface";
 import { stampAutoMovieDrawLegend } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -62,7 +62,7 @@ export function test_draw_legend_corner(): void {
 
   // 1. Empty picture: bottom-left.
   const empty: IAutoMovieRasterImage = blank();
-  const first: IAutoMovieCaptureDrawing.ILabel[] = stampAutoMovieDrawLegend(
+  const first: IAutoMovieRasterLabel[] = stampAutoMovieDrawLegend(
     empty,
     legend,
     1,
@@ -83,7 +83,7 @@ export function test_draw_legend_corner(): void {
   // 2. A figure in the bottom-left corner.
   const left: IAutoMovieRasterImage = blank();
   draw(left, 0, 45);
-  const second: IAutoMovieCaptureDrawing.ILabel[] = stampAutoMovieDrawLegend(
+  const second: IAutoMovieRasterLabel[] = stampAutoMovieDrawLegend(
     left,
     legend,
     1,

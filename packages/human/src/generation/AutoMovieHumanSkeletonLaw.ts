@@ -1,6 +1,8 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
+  IAutoMovieHumanEyeSeat,
   IAutoMovieHumanFootBones,
   IAutoMovieHumanHandBones,
   IAutoMovieHumanHeadLane,
@@ -48,7 +50,7 @@ export namespace AutoMovieHumanSkeletonLaw {
   export function derive(
     root: IAutoMovieHumanBodyCalibration,
     inputs: IAutoMovieHumanSkeletonLaw.IInputs,
-  ): IAutoMovieHumanSkeletonLaw.IBone[] {
+  ): IAutoMovieHumanCalibrationBone[] {
     return define(root, inputs).bones;
   }
 
@@ -110,7 +112,7 @@ export namespace AutoMovieHumanSkeletonLaw {
     head: IAutoMovieHumanSkeletonLaw.IInputs["head"],
     S: number,
   ): IAutoMovieHumanSkeletonLaw.IOutput {
-    const bones: IAutoMovieHumanSkeletonLaw.IBone[] = [];
+    const bones: IAutoMovieHumanCalibrationBone[] = [];
     const neckBase: AutoMovieVector3Tuple = head.skeleton.neckBase;
     const add: (
       bone: string,
@@ -134,12 +136,11 @@ export namespace AutoMovieHumanSkeletonLaw {
     add("head", "atlas", occiput, crown, crown);
 
     // Jaw and eyes (conventional facial placements, see the joint-range note).
-    const eyes: IAutoMovieHumanBodyCalibration.IEye[] = head.eyes;
+    const eyes: IAutoMovieHumanEyeSeat[] = head.eyes;
     const eyeMid: AutoMovieVector3Tuple = [0, 1, 2].map(
       (i: number): number =>
         eyes.reduce(
-          (a: number, e: IAutoMovieHumanBodyCalibration.IEye): number =>
-            a + e.centre[i]!,
+          (a: number, e: IAutoMovieHumanEyeSeat): number => a + e.centre[i]!,
           0,
         ) / Math.max(1, eyes.length),
     ) as AutoMovieVector3Tuple;
@@ -160,8 +161,7 @@ export namespace AutoMovieHumanSkeletonLaw {
     }
 
     const index: number = body.bones.findIndex(
-      (bone: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
-        bone.bone === "chest",
+      (bone: IAutoMovieHumanCalibrationBone): boolean => bone.bone === "chest",
     );
     if (index < 0)
       throw new Error("Head completion requires the actual body chest bone");
@@ -181,7 +181,7 @@ export namespace AutoMovieHumanSkeletonLaw {
     inputs: IAutoMovieHumanSkeletonLaw.IBodyInputs,
   ): IAutoMovieHumanSkeletonLaw.IOutput {
     const S: number = root.stature;
-    const bones: IAutoMovieHumanSkeletonLaw.IBone[] = [];
+    const bones: IAutoMovieHumanCalibrationBone[] = [];
     const hands: IAutoMovieHumanSkeletonLaw.IOutput["hands"] =
       {} as IAutoMovieHumanSkeletonLaw.IOutput["hands"];
     const add: (

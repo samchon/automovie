@@ -1,6 +1,6 @@
 import type {
   IAutoMovieLoftContract,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewCurves,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -86,7 +86,7 @@ export namespace AutoMovieViewCurves {
     const scalar: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(curve.outline, station);
     if (typeof scalar === "string") return `${curve.name}: ${scalar}`;
-    let frame: IAutoMovieLoftFrame.IFrame;
+    let frame: IAutoMovieLoftSectionFrame;
     try {
       frame = axis.at(station);
     } catch (error: unknown) {

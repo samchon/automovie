@@ -5,11 +5,11 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanManipulate,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
@@ -74,8 +74,8 @@ const keypad = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
 });
 
 /** The touch-typing chart's digit for a letter, written from the standard home-row assignment. */
-const chart = (letter: string): [IAutoMovieMotionHumanHand.Side, string] => {
-  const rows: [string, IAutoMovieMotionHumanHand.Side, string][] = [
+const chart = (letter: string): [AutoMovieHumanSide, string] => {
+  const rows: [string, AutoMovieHumanSide, string][] = [
     ["qaz", "left", "little"],
     ["wsx", "left", "ring"],
     ["edc", "left", "middle"],
@@ -130,7 +130,7 @@ export function test_human_motion_manipulate(): void {
   // A digit's tip on its displayed distal phalanx, as the fit placed it.
   const tipOf = (
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     digit: string,
   ): IAutoMovieVector3 => {
     const region: IAutoMovieHumanoidSurfaces.IFrame =
@@ -175,7 +175,7 @@ export function test_human_motion_manipulate(): void {
     });
   const text: string = "the quick fox";
   const presses = (p: IAutoMovieMotionHumanPerformance): number[] => {
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a").at(-1)!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
     return s.plan.events
       .filter((e) => e.name.startsWith("press"))
       .map((e) => s.start + e.share * s.plan.duration);

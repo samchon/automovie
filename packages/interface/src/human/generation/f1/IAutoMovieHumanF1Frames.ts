@@ -1,7 +1,16 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanSegmentFrame } from "../frame/IAutoMovieHumanSegmentFrame";
 
-/** Type contracts exchanged by AutoMovieHumanF1Frames; runtime evaluation remains in Human. */
+/**
+ * Reference joint and skin-landmark tables, segment frames and the clinical angle sequences they define.
+ *
+ * The interface package owns these declarations; AutoMovieHumanF1Frames in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Reference joint and skin-landmark tables, segment frames and the clinical angle sequences they define. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only ISegment, IAngles, IJointLandmarks, ILandmarks declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation ISegment, IAngles, IJointLandmarks, ILandmarks separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanF1Frames exchanges the named ISegment, IAngles, IJointLandmarks, ILandmarks contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanF1Frames {
   /** One segment: its name, parent, rule and reference frame.
    *
@@ -22,7 +31,7 @@ export namespace IAutoMovieHumanF1Frames {
     rule: string;
 
     /** The frame in the reference pose, figure frame, mm. */
-    frame: IAutoMovieHumanSegmentFrame.IFrame;
+    frame: IAutoMovieHumanSegmentFrame;
   }
 
   /** A joint ISB writes angles for: the segment it moves and the angle sequence.

@@ -16,7 +16,7 @@ import type {
   IAutoMovieHumanHeadComposer,
   IAutoMovieHumanHeadFeatures,
   IAutoMovieHumanHeadTree,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieVector3,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -312,17 +312,17 @@ export namespace AutoMovieHumanHeadTree {
     const original: IAutoMovieConstructionAxis | null =
       AutoMovieViewParallelAxis.source(part.axis);
     if (original !== null) return original;
-    const frames: IAutoMovieLoftFrame.IFrame[] = part.stations.map(
-      (s: number): IAutoMovieLoftFrame.IFrame => part.axis.at(s),
+    const frames: IAutoMovieLoftSectionFrame[] = part.stations.map(
+      (s: number): IAutoMovieLoftSectionFrame => part.axis.at(s),
     );
-    const first: IAutoMovieLoftFrame.IFrame = frames[0]!;
+    const first: IAutoMovieLoftSectionFrame = frames[0]!;
     const same: (a: readonly number[], b: readonly number[]) => boolean = (
       a: readonly number[],
       b: readonly number[],
     ): boolean =>
       Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!) < 1e-9;
     const parallel: boolean = frames.every(
-      (f: IAutoMovieLoftFrame.IFrame): boolean =>
+      (f: IAutoMovieLoftSectionFrame): boolean =>
         same(f.u, first.u) && same(f.v, first.v),
     );
     // A straight axis: parallel planes whose origins run along their normal
@@ -332,10 +332,10 @@ export namespace AutoMovieHumanHeadTree {
       first.v[2] * first.u[0] - first.v[0] * first.u[2],
       first.v[0] * first.u[1] - first.v[1] * first.u[0],
     ];
-    const zero: IAutoMovieLoftFrame.IFrame = part.axis.at(0);
+    const zero: IAutoMovieLoftSectionFrame = part.axis.at(0);
     const straight: boolean =
       parallel &&
-      frames.every((f: IAutoMovieLoftFrame.IFrame, k: number): boolean =>
+      frames.every((f: IAutoMovieLoftSectionFrame, k: number): boolean =>
         same(f.origin, [
           zero.origin[0] + w[0]! * part.stations[k]!,
           zero.origin[1] + w[1]! * part.stations[k]!,
@@ -356,7 +356,7 @@ export namespace AutoMovieHumanHeadTree {
       same(first.u, [1, 0, 0]) &&
       same(first.v, [0, 0, 1]) &&
       frames.every(
-        (f: IAutoMovieLoftFrame.IFrame, k: number): boolean =>
+        (f: IAutoMovieLoftSectionFrame, k: number): boolean =>
           Math.abs(f.origin[1] - part.stations[k]!) < 1e-9,
       );
     if (level) {

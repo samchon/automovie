@@ -1,7 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSimulationInput,
-  IAutoMoviePhysicsCache,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -21,14 +21,14 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
 export function createPhysicalKinematicFrame(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   step: number,
-): IAutoMoviePhysicsCache.IFrame {
-  const bodies: IAutoMoviePhysicsCache.IFrame["bodies"] = Object.create(null);
+): IAutoMoviePhysicalFrame {
+  const bodies: IAutoMoviePhysicalFrame["bodies"] = Object.create(null);
   for (const body of input.bodies) {
     bodies[body.id] = Object.create(null);
     for (const segment of body.profile.segments) {
-      const pose: IAutoMoviePhysicalProfile.ITransform =
+      const pose: IAutoMovieRigidTransform =
         body.targets[step]!.segments[segment.bone]!;
-      const before: IAutoMoviePhysicalProfile.ITransform =
+      const before: IAutoMovieRigidTransform =
         body.targets[Math.max(0, step - 1)]!.segments[segment.bone]!;
       bodies[body.id]![segment.bone] = {
         ...structuredClone(pose),

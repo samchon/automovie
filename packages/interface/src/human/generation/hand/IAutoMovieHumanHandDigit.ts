@@ -1,4 +1,4 @@
-import type { IAutoMovieNaturalSpline } from "../../../construction/IAutoMovieNaturalSpline";
+import type { IAutoMovieNaturalCubicSpline } from "../../../construction/IAutoMovieNaturalCubicSpline";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanHandClear } from "./IAutoMovieHumanHandClear";
 
@@ -19,7 +19,7 @@ export interface IAutoMovieHumanHandDigit {
   centre: AutoMovieVector3Tuple;
 
   /** Natural splines of the line's three coordinates over the length along it, mm of the form. */
-  line: IAutoMovieNaturalSpline.ISpline[];
+  line: IAutoMovieNaturalCubicSpline[];
 
   /** `[length, half width]` knots across the digit, mm of the form. */
   width: [number, number][];

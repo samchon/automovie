@@ -11,10 +11,10 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  * through forward kinematics, or on a motion a test builds by hand to prove a
  * check catches a defect.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the audit reads and which producers satisfy it.
- * @evidence contracts/development/design.md#principled-representation The displayed bones are the only thing drawn, and the contact windows the only declared intent a geometric check needs; both are read as their owners declare them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, a structural subset of `HumanPerformance`, each read by an audit check.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the contact window and the engine's resolved bone; no cast or optional member.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the audit reads and which producers satisfy it. start: Where the action's own clock starts, film seconds. entryTime: Where the action takes the body over, film seconds. end: Where it ends, film seconds.
+ * @evidence contracts/development/design.md#principled-representation The displayed bones are the only thing drawn, and the contact windows the only declared intent a geometric check needs; both are read as their owners declare them. start: Where the action's own clock starts, film seconds. entryTime: Where the action takes the body over, film seconds. end: Where it ends, film seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, a structural subset of `HumanPerformance`, each read by an audit check. Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, source); audit/AutoMovieMotionHumanAudit.ts (remember, source); audit/AutoMovieMotionHumanAudit.ts (remember, return); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.measure, motion); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.margin, motion); audit/AutoMovieMotionHumanAuditContact.ts (AutoMovieMotionHumanAuditContact.measure, motion).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the contact window and the engine's resolved bone; no cast or optional member. Shares the canonical IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanAuditMotion {
   /** The motion's length, film seconds. */
@@ -26,6 +26,14 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @param subject The person.
    * @param seconds Film seconds, within the motion.
    * @returns The bones, world frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.bones: A person's displayed bones.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
    */
   bones(
     subject: string,
@@ -37,6 +45,14 @@ export interface IAutoMovieMotionHumanAuditMotion {
    *
    * @param subject The person.
    * @returns The actions; empty for a motion that declares no contact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.segments: A person's placed actions, in film order.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
    */
   segments(subject: string): readonly IAutoMovieMotionHumanAuditMotion.ISpan[];
 }
@@ -44,10 +60,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
 /**
  * Companion types and readers of {@link IAutoMovieMotionHumanAuditMotion}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation start: Where the action's own clock starts, film seconds. entryTime: Where the action takes the body over, film seconds. end: Where it ends, film seconds.
- * @evidence contracts/development/design.md#principled-representation start: Where the action's own clock starts, film seconds. entryTime: Where the action takes the body over, film seconds. end: Where it ends, film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, source); audit/AutoMovieMotionHumanAudit.ts (remember, source); audit/AutoMovieMotionHumanAudit.ts (remember, return); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.measure, motion); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.margin, motion); audit/AutoMovieMotionHumanAuditContact.ts (AutoMovieMotionHumanAuditContact.measure, motion).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanAuditMotion {
   /**

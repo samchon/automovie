@@ -4,10 +4,10 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -110,10 +110,7 @@ export function test_human_motion_prop_held_walk(): void {
     (sip.plan.events.find((e): boolean => e.name === "atMouth")?.share ?? NaN) *
       sip.plan.duration;
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
-  const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-    "glass",
-    seconds,
-  );
+  const frame: IAutoMovieRigidTransform = performance.prop("glass", seconds);
   const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
     x: 0,
     y: 1,
@@ -159,8 +156,7 @@ export function test_human_motion_prop_held_walk(): void {
     );
 
   // 3. The glass stays in the hand.
-  const pick: IAutoMovieMotionHumanSegment.ISegment =
-    performance.segments("a")[0]!;
+  const pick: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
   const from: number =
     pick.start +
     (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??

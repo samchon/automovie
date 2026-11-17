@@ -1,8 +1,8 @@
 import { Vector3, swivelArcs } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSwivelBound,
   IAutoMovieResolvedBone,
@@ -48,7 +48,7 @@ export namespace AutoMovieMotionHumanSwivelBound {
   export function arm(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanSwivelBound.IArm {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = trunk(
       body,

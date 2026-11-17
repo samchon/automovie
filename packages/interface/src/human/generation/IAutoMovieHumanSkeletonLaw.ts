@@ -1,6 +1,7 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 import type { AutoMovieHumanSex } from "../AutoMovieHumanSex";
 import type { IAutoMovieHumanArmConstruction } from "./IAutoMovieHumanArmConstruction";
+import type { IAutoMovieHumanCalibrationBone } from "./IAutoMovieHumanCalibrationBone";
 import type { IAutoMovieHumanFootConstruction } from "./IAutoMovieHumanFootConstruction";
 import type { IAutoMovieHumanLegConstruction } from "./IAutoMovieHumanLegConstruction";
 import type { IAutoMovieHumanLimbRest } from "./IAutoMovieHumanLimbRest";
@@ -8,33 +9,15 @@ import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandma
 import type { IAutoMovieHumanHandBones } from "./hand/IAutoMovieHumanHandBones";
 import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 
-/** Type contracts exchanged by AutoMovieHumanSkeletonLaw; runtime evaluation remains in Human. */
+/**
+ * Parent-before-child bind bone records and the shared anatomical inputs used to place them. Runtime construction and admission remain with AutoMovieHumanSkeletonLaw in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes parent-before-child bind bone records and the shared anatomical inputs used to place them; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Parent-before-child bind bone records and the shared anatomical inputs used to place them. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanSkeletonLaw; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing SkeletonLaw contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanSkeletonLaw {
-  /** One bone of the bind skeleton.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One bone of the bind skeleton.
-   * @evidence contracts/development/design.md#principled-representation `bone`: Bone id; humanoid names where the engine vocabulary has one. `parent`: Parent bone, or null for the root `hips`. `position`: Joint centre in mm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanSkeletonLaw.derive. Read by AutoMovieHumanArmConstruction.add, AutoMovieHumanArmConstruction.limb, AutoMovieHumanArmConstruction.elbowOf. Also types AutoMovieHumanArmConstruction.bone, AutoMovieHumanSkeletonLaw.bones.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `bone`, `parent`, `position`, `toward`, `tip`; callers supply the complete record.
-   */
-  export interface IBone {
-    /** Bone id; humanoid names where the engine vocabulary has one. */
-    bone: string;
-
-    /** Parent bone, or null for the root `hips`. */
-    parent: string | null;
-
-    /** Joint centre in mm. */
-    position: [number, number, number];
-
-    /** Point the bone's segment points to at rest, defining its long axis, mm. */
-    toward: [number, number, number];
-
-    /** End of a leaf bone's drawn segment in mm, null for a bone whose children end it. */
-    tip: [number, number, number] | null;
-  }
-
   /** Bind bones and the identical pure hand records from which their joints were placed.
    *
    *
@@ -45,7 +28,7 @@ export namespace IAutoMovieHumanSkeletonLaw {
    */
   export interface IOutput {
     /** Parent-before-child bone records. */
-    bones: IBone[];
+    bones: IAutoMovieHumanCalibrationBone[];
 
     /** Actual sided joint/material-frame definitions, before any digit skin. */
     hands: Record<"left" | "right", IAutoMovieHumanHandBones.IOutput>;

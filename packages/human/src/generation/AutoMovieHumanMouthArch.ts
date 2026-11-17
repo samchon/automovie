@@ -1,7 +1,7 @@
 import type {
   IAutoMovieHumanMouthArch,
-  IAutoMovieHumanMouthConstruction,
   IAutoMovieHumanMouthPrior,
+  IAutoMovieHumanToothPlacement,
 } from "@automovie/interface";
 
 import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
@@ -89,8 +89,8 @@ export namespace AutoMovieHumanMouthArch {
     edge: IAutoMovieHumanMouthArch.PlaceEdge,
     cant: number,
     jaw: "upper" | "lower",
-  ): IAutoMovieHumanMouthConstruction.ITooth[] {
-    const out: IAutoMovieHumanMouthConstruction.ITooth[] = [];
+  ): IAutoMovieHumanToothPlacement[] {
+    const out: IAutoMovieHumanToothPlacement[] = [];
     const front: number = beta(upper, 0);
     for (const side of [1, -1] as const) {
       let length: number = 0;

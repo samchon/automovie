@@ -1,6 +1,8 @@
 import type {
+  AutoMovieVector2Tuple,
   IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
+  IAutoMoviePiecewisePlanarCurveSource,
+  IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
 import {
   AutoMovieRecoveryCompactApproximation as C,
@@ -40,19 +42,19 @@ export function test_recovery_compact_curves(): void {
     { length: 15 },
     (_v: unknown, i: number): number => (i + 1) / 16,
   );
-  const cubic: IAutoMovieCompactCurveApproximation.ICurve = {
+  const cubic: IAutoMoviePiecewisePlanarCurveSource = {
     domain: [0, 1],
     knots,
     breaks: [],
     closed: false,
-    evaluate(t: number): IAutoMovieConicApproximation.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       const y: number = t * t + 0.1 * t ** 3;
       return [250 + 3 * t + 2 * y, -400 - t + 4 * y];
     },
     derivative(
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point {
+    ): Readonly<AutoMovieVector2Tuple> {
       const y: number =
         order === 1
           ? 2 * t + 0.3 * t * t
@@ -92,18 +94,18 @@ export function test_recovery_compact_curves(): void {
         ) < 1e-9,
       );
   }
-  const quintic: IAutoMovieCompactCurveApproximation.ICurve = {
+  const quintic: IAutoMoviePiecewisePlanarCurveSource = {
     domain: [0, 1],
     knots,
     breaks: [],
     closed: false,
-    evaluate(t: number): IAutoMovieConicApproximation.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [t, t ** 5];
     },
     derivative(
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point {
+    ): Readonly<AutoMovieVector2Tuple> {
       const coefficients: readonly number[] = [0, 5, 20, 60, 120, 120];
       return [order === 1 ? 1 : 0, coefficients[order]! * t ** (5 - order)];
     },
@@ -138,12 +140,12 @@ export function test_recovery_compact_curves(): void {
     false,
   );
 
-  const ellipse: IAutoMovieCompactCurveApproximation.ICurve = {
+  const ellipse: IAutoMoviePiecewisePlanarCurveSource = {
     domain: [0, 1],
     knots,
     breaks: [],
     closed: true,
-    evaluate(t: number): IAutoMovieConicApproximation.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return t === 1
         ? [40, 0]
         : [40 * Math.cos(2 * Math.PI * t), 20 * Math.sin(2 * Math.PI * t)];
@@ -151,7 +153,7 @@ export function test_recovery_compact_curves(): void {
     derivative(
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point {
+    ): Readonly<AutoMovieVector2Tuple> {
       const angle: number = 2 * Math.PI * t + (order * Math.PI) / 2;
       return [
         40 * (2 * Math.PI) ** order * Math.cos(angle),
@@ -172,26 +174,26 @@ export function test_recovery_compact_curves(): void {
       "conic",
     );
     for (let i: number = 0; i <= 97; ++i) {
-      const p: IAutoMovieConicApproximation.Point = C.evaluate(piece, i / 97);
+      const p: Readonly<AutoMovieVector2Tuple> = C.evaluate(piece, i / 97);
       TestValidator.predicate(
         "independent implicit ellipse",
         nclose((p[0] / 40) ** 2 + (p[1] / 20) ** 2, 1, 1e-10),
       );
     }
   }
-  const corner: IAutoMovieCompactCurveApproximation.ICurve = {
+  const corner: IAutoMoviePiecewisePlanarCurveSource = {
     domain: [0, 1],
     knots,
     breaks: [0.5],
     closed: false,
-    evaluate(t: number): IAutoMovieConicApproximation.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [t, Math.max(0, t - 0.5)];
     },
     derivative(
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
       side?: "left" | "right",
-    ): IAutoMovieConicApproximation.Point {
+    ): Readonly<AutoMovieVector2Tuple> {
       return order === 1
         ? [1, t < 0.5 || (t === 0.5 && side === "left") ? 0 : 1]
         : [0, 0];
@@ -206,23 +208,23 @@ export function test_recovery_compact_curves(): void {
   TestValidator.predicate(
     "no piece crosses real corner",
     angular.pieces.every(
-      (piece: IAutoMovieCompactCurveApproximation.IPiece): boolean =>
+      (piece: IAutoMovieRegisteredPlanarCurvePiece): boolean =>
         piece.domain[1] <= 0.5 || piece.domain[0] >= 0.5,
     ),
   );
 
-  const exponential: IAutoMovieCompactCurveApproximation.ICurve = {
+  const exponential: IAutoMoviePiecewisePlanarCurveSource = {
     domain: [0, 1],
     knots,
     breaks: [],
     closed: false,
-    evaluate(t: number): IAutoMovieConicApproximation.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [t, Math.exp(t)];
     },
     derivative(
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point {
+    ): Readonly<AutoMovieVector2Tuple> {
       return [order === 1 ? 1 : 0, Math.exp(t)];
     },
   };
@@ -239,8 +241,8 @@ export function test_recovery_compact_curves(): void {
     for (let i: number = 0; i <= 137; ++i) {
       const t: number =
         piece.domain[0] + ((piece.domain[1] - piece.domain[0]) * i) / 137;
-      const p: IAutoMovieConicApproximation.Point = C.evaluate(piece, i / 137);
-      const q: IAutoMovieConicApproximation.Point = exponential.evaluate(t);
+      const p: Readonly<AutoMovieVector2Tuple> = C.evaluate(piece, i / 137);
+      const q: Readonly<AutoMovieVector2Tuple> = exponential.evaluate(t);
 
       // Every held-out pair supplies a distance witness in each direction;
       // the true nearest distance cannot exceed this independent witness.
@@ -264,7 +266,7 @@ export function test_recovery_compact_curves(): void {
     approximate(
       {
         ...cubic,
-        evaluate(): IAutoMovieConicApproximation.Point {
+        evaluate(): Readonly<AutoMovieVector2Tuple> {
           return [NaN, 0];
         },
       },

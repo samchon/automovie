@@ -9,11 +9,11 @@ import {
   skeletonJointAxes,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -69,7 +69,7 @@ export namespace HumanHandAttitude {
   export function held(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieMotionHumanPosture {
     const upper: AutoMovieHumanoidBone = `${side}UpperArm`;

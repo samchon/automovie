@@ -3,10 +3,13 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanSword,
   IAutoMovieMotionHumanSwordParry,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -95,9 +98,7 @@ export namespace HumanSwordParry {
     }
 
     // The attacker's blade where the attack is stopped, at its decisive instant.
-    const attack: IAutoMovieMotionHumanActionContext.IPlaced = context.action(
-      p.against,
-    );
+    const attack: IAutoMovieMotionHumanPlacedAction = context.action(p.against);
     const theirs: string | undefined = attack.plan.wields?.prop;
     if (theirs === undefined)
       throw new HumanRefusal({
@@ -109,7 +110,7 @@ export namespace HumanSwordParry {
       });
     const seconds: number =
       attack.start + (attack.plan.contact ?? attack.plan.duration);
-    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(theirs);
+    const held: IAutoMovieMotionHumanPropReader = context.prop(theirs);
     const tip: IAutoMovieMotionHumanProp["points"][string] | undefined =
       held.prop.points.point;
     if (tip === undefined)
@@ -124,7 +125,7 @@ export namespace HumanSwordParry {
         reason: `${theirs} declares no point, so its blade's line is unknown`,
         fix: "parry an attack made with a prop that declares its point",
       });
-    const frame: IAutoMovieMotionHumanProp.IFrame = held.frame(seconds);
+    const frame: IAutoMovieRigidTransform = held.frame(seconds);
     const along: IAutoMovieVector3 = Quaternion.rotateVector(
       frame.rotation,
       tip.normal,

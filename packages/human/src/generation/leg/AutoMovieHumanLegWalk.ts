@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanLegBones,
   IAutoMovieHumanLegProximal,
   IAutoMovieHumanLegWalk,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanWalkPart,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -208,7 +208,7 @@ export namespace AutoMovieHumanLegWalk {
     law: IAutoMovieHumanLegWalk.ILaw,
     gap: number,
     parent?: IAutoMovieHumanLegProximal.IParent,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(
       define(name, bones, law, gap, parent),
     );

@@ -1,6 +1,8 @@
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 /**
@@ -24,7 +26,7 @@ export namespace AutoMovieHumanSegmentFrame {
     origin: AutoMovieVector3Tuple,
     y: AutoMovieVector3Tuple,
     z: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+  ): IAutoMovieHumanSegmentFrame {
     const Y: AutoMovieVector3Tuple = unit(y);
     const Z: AutoMovieVector3Tuple = perpendicular(z, Y);
     return { origin, axes: [cross(Y, Z), Y, Z] };
@@ -35,7 +37,7 @@ export namespace AutoMovieHumanSegmentFrame {
     origin: AutoMovieVector3Tuple,
     y: AutoMovieVector3Tuple,
     x: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+  ): IAutoMovieHumanSegmentFrame {
     const Y: AutoMovieVector3Tuple = unit(y);
     const X: AutoMovieVector3Tuple = perpendicular(x, Y);
     return { origin, axes: [X, Y, cross(X, Y)] };
@@ -46,7 +48,7 @@ export namespace AutoMovieHumanSegmentFrame {
     origin: AutoMovieVector3Tuple,
     x: AutoMovieVector3Tuple,
     y: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+  ): IAutoMovieHumanSegmentFrame {
     const X: AutoMovieVector3Tuple = unit(x);
     const Y: AutoMovieVector3Tuple = perpendicular(y, X);
     return { origin, axes: [X, Y, cross(X, Y)] };
@@ -55,8 +57,8 @@ export namespace AutoMovieHumanSegmentFrame {
   /** A frame at `origin` with the axes of `parent`: a segment rigid to and parallel with its parent. */
   export function parallel(
     origin: AutoMovieVector3Tuple,
-    parent: IAutoMovieHumanSegmentFrame.IFrame,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+    parent: IAutoMovieHumanSegmentFrame,
+  ): IAutoMovieHumanSegmentFrame {
     return {
       origin,
       axes: [[...parent.axes[0]], [...parent.axes[1]], [...parent.axes[2]]],
@@ -72,7 +74,7 @@ export namespace AutoMovieHumanSegmentFrame {
     gh: AutoMovieVector3Tuple,
     el: AutoMovieVector3Tuple,
     em: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+  ): IAutoMovieHumanSegmentFrame {
     const Y: AutoMovieVector3Tuple = unit(sub(gh, mid(el, em)));
     const X: AutoMovieVector3Tuple = perpendicular(
       cross(sub(el, gh), sub(em, gh)),
@@ -93,7 +95,7 @@ export namespace AutoMovieHumanSegmentFrame {
     rs: AutoMovieVector3Tuple,
     el: AutoMovieVector3Tuple,
     em: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+  ): IAutoMovieHumanSegmentFrame {
     const e: AutoMovieVector3Tuple = mid(el, em);
     const Y: AutoMovieVector3Tuple = unit(sub(e, us));
     const X: AutoMovieVector3Tuple = perpendicular(
@@ -112,14 +114,14 @@ export namespace AutoMovieHumanSegmentFrame {
     hip: AutoMovieVector3Tuple,
     lateral: AutoMovieVector3Tuple,
     medial: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+  ): IAutoMovieHumanSegmentFrame {
     return fromYZ(hip, sub(hip, mid(lateral, medial)), sub(lateral, medial));
   }
 
   /** The axes as the columns of a matrix. */
   export function matrix(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
-  ): IAutoMovieHumanSegmentFrame.M3 {
+    frame: IAutoMovieHumanSegmentFrame,
+  ): AutoMovieMatrix3Tuple {
     const [x, y, z]: [
       AutoMovieVector3Tuple,
       AutoMovieVector3Tuple,
@@ -135,8 +137,8 @@ export namespace AutoMovieHumanSegmentFrame {
   /** The frame whose axes are the columns of `m`. */
   export function columns(
     origin: AutoMovieVector3Tuple,
-    m: IAutoMovieHumanSegmentFrame.M3,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+    m: AutoMovieMatrix3Tuple,
+  ): IAutoMovieHumanSegmentFrame {
     return {
       origin,
       axes: [
@@ -149,7 +151,7 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** A point of the figure's frame in the segment's frame: `A^T (p - o)`. */
   export function toLocal(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
+    frame: IAutoMovieHumanSegmentFrame,
     p: AutoMovieVector3Tuple,
   ): AutoMovieVector3Tuple {
     return toLocalDirection(frame, sub(p, frame.origin));
@@ -157,7 +159,7 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** A direction of the figure's frame in the segment's frame: `A^T d`. */
   export function toLocalDirection(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
+    frame: IAutoMovieHumanSegmentFrame,
     d: AutoMovieVector3Tuple,
   ): AutoMovieVector3Tuple {
     return [
@@ -169,7 +171,7 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** A point of the segment's frame in the figure's frame: `o + A q`. */
   export function toWorld(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
+    frame: IAutoMovieHumanSegmentFrame,
     q: AutoMovieVector3Tuple,
   ): AutoMovieVector3Tuple {
     return add(frame.origin, toWorldDirection(frame, q));
@@ -177,7 +179,7 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** A direction of the segment's frame in the figure's frame: `A q`. */
   export function toWorldDirection(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
+    frame: IAutoMovieHumanSegmentFrame,
     q: AutoMovieVector3Tuple,
   ): AutoMovieVector3Tuple {
     const [x, y, z]: [
@@ -194,9 +196,9 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** `child`, written in `parent`'s frame, placed in the figure's frame: the rigid transform `parent o child`. */
   export function compose(
-    parent: IAutoMovieHumanSegmentFrame.IFrame,
-    child: IAutoMovieHumanSegmentFrame.IFrame,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+    parent: IAutoMovieHumanSegmentFrame,
+    child: IAutoMovieHumanSegmentFrame,
+  ): IAutoMovieHumanSegmentFrame {
     return {
       origin: toWorld(parent, child.origin),
       axes: [
@@ -209,16 +211,16 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** The inverse rigid transform: the figure's frame written in the segment's frame, so `compose(frame, inverse(frame))` is the identity. */
   export function inverse(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
-    const m: IAutoMovieHumanSegmentFrame.M3 = transpose(matrix(frame));
+    frame: IAutoMovieHumanSegmentFrame,
+  ): IAutoMovieHumanSegmentFrame {
+    const m: AutoMovieMatrix3Tuple = transpose(matrix(frame));
     return columns(scale(multiplyVector(m, frame.origin), -1), m);
   }
 
   /** `child` written in `parent`'s frame: its origin `A_p^T (o_c - o_p)` and its rotation `A_p^T A_c`. */
   export function relative(
-    parent: IAutoMovieHumanSegmentFrame.IFrame,
-    child: IAutoMovieHumanSegmentFrame.IFrame,
+    parent: IAutoMovieHumanSegmentFrame,
+    child: IAutoMovieHumanSegmentFrame,
   ): IAutoMovieHumanSegmentFrame.IRelativeResult {
     return {
       offset: toLocal(parent, child.origin),
@@ -231,8 +233,8 @@ export namespace AutoMovieHumanSegmentFrame {
    * right-handed. Its joint rotations are `D R D` with `D = diag(1, 1, -1)`, since `S A D` replaces `A` on both sides.
    */
   export function mirror(
-    frame: IAutoMovieHumanSegmentFrame.IFrame,
-  ): IAutoMovieHumanSegmentFrame.IFrame {
+    frame: IAutoMovieHumanSegmentFrame,
+  ): IAutoMovieHumanSegmentFrame {
     const s = (v: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
       v[0],
       v[1],
@@ -247,19 +249,19 @@ export namespace AutoMovieHumanSegmentFrame {
   }
 
   /**
-   * The chain of a tree of segments given parent-first: each segment's origin in its parent's frame and its reference rotation. The
-   * root's offset is its origin and its rotation its axes, both in the figure's frame.
+   * Convert parent-first frames in common figure coordinates into parent-local
+   * joint offsets and reference rotations. A root retains figure coordinates.
    */
   export function chain(
     segments: IAutoMovieHumanSegmentFrame.ChainSegments,
-  ): IAutoMovieHumanSegmentFrame.IJoint[] {
-    const placed: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = new Map();
+  ): IAutoMovieHumanSegmentJoint[] {
+    const placed: Map<string, IAutoMovieHumanSegmentFrame> = new Map();
     return segments.map(
       (segment: {
         name: string;
         parent: string | null;
-        frame: IAutoMovieHumanSegmentFrame.IFrame;
-      }): IAutoMovieHumanSegmentFrame.IJoint => {
+        frame: IAutoMovieHumanSegmentFrame;
+      }): IAutoMovieHumanSegmentJoint => {
         placed.set(segment.name, segment.frame);
         if (segment.parent === null)
           return {
@@ -268,8 +270,9 @@ export namespace AutoMovieHumanSegmentFrame {
             offset: [...segment.frame.origin],
             rotation: matrix(segment.frame),
           };
-        const parent: IAutoMovieHumanSegmentFrame.IFrame | undefined =
-          placed.get(segment.parent);
+        const parent: IAutoMovieHumanSegmentFrame | undefined = placed.get(
+          segment.parent,
+        );
         if (parent === undefined)
           throw new Error(
             "Segment " +
@@ -288,22 +291,23 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /**
    * The frames of a posed chain: `A_child = A_parent R` and `o_child = o_parent + A_parent offset`, parent first. `pose` gives a joint's
-   * rotation by name; a joint it leaves undefined keeps its reference rotation, so `world(joints, () => undefined)` returns the reference
-   * frames and identity rotations the neutral body.
+   * replacement rotation by name; undefined keeps its reference rotation, so
+   * `world(joints, () => undefined)` reconstructs the reference frames. A supplied
+   * rotation replaces that reference rather than multiplying it as a delta.
    */
   export function world(
-    joints: readonly IAutoMovieHumanSegmentFrame.IJoint[],
+    joints: readonly IAutoMovieHumanSegmentJoint[],
     pose: IAutoMovieHumanSegmentFrame.WorldPose,
-  ): Map<string, IAutoMovieHumanSegmentFrame.IFrame> {
-    const out: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = new Map();
+  ): Map<string, IAutoMovieHumanSegmentFrame> {
+    const out: Map<string, IAutoMovieHumanSegmentFrame> = new Map();
     for (const joint of joints) {
-      const rotation: IAutoMovieHumanSegmentFrame.M3 =
+      const rotation: AutoMovieMatrix3Tuple =
         pose(joint.name) ?? joint.rotation;
       if (joint.parent === null) {
         out.set(joint.name, columns([...joint.offset], rotation));
         continue;
       }
-      const parent: IAutoMovieHumanSegmentFrame.IFrame | undefined = out.get(
+      const parent: IAutoMovieHumanSegmentFrame | undefined = out.get(
         joint.parent,
       );
       if (parent === undefined)
@@ -322,10 +326,7 @@ export namespace AutoMovieHumanSegmentFrame {
   }
 
   /** The rotation by `angle` radians about the unit axis `axis` (0 X, 1 Y, 2 Z) of the frame it acts in. */
-  export function about(
-    axis: 0 | 1 | 2,
-    angle: number,
-  ): IAutoMovieHumanSegmentFrame.M3 {
+  export function about(axis: 0 | 1 | 2, angle: number): AutoMovieMatrix3Tuple {
     const c: number = Math.cos(angle);
     const s: number = Math.sin(angle);
     if (axis === 0)
@@ -354,7 +355,7 @@ export namespace AutoMovieHumanSegmentFrame {
    * `R[2][1] = sin b`, `R[0][1] = -sin a cos b`, `R[1][1] = cos a cos b`, `R[2][0] = -cos b sin c`, `R[2][2] = cos b cos c`.
    */
   export function cardanZXY(
-    r: IAutoMovieHumanSegmentFrame.M3,
+    r: AutoMovieMatrix3Tuple,
   ): IAutoMovieHumanSegmentFrame.CardanZXYResult {
     return [
       Math.atan2(-r[0][1], r[1][1]),
@@ -372,7 +373,7 @@ export namespace AutoMovieHumanSegmentFrame {
    * `R[1][0] = sin b sin c`, `R[1][2] = -sin b cos c`, so with `sin b <= 0`: `a = atan2(-R[0][1], -R[2][1])`, `c = atan2(-R[1][0], R[1][2])`.
    */
   export function eulerYXY(
-    r: IAutoMovieHumanSegmentFrame.M3,
+    r: AutoMovieMatrix3Tuple,
   ): IAutoMovieHumanSegmentFrame.EulerYXYResult {
     return [
       Math.atan2(-r[0][1], -r[2][1]),
@@ -383,9 +384,9 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** Matrix product. */
   export function multiply(
-    a: IAutoMovieHumanSegmentFrame.M3,
-    b: IAutoMovieHumanSegmentFrame.M3,
-  ): IAutoMovieHumanSegmentFrame.M3 {
+    a: AutoMovieMatrix3Tuple,
+    b: AutoMovieMatrix3Tuple,
+  ): AutoMovieMatrix3Tuple {
     const row = (i: number): AutoMovieVector3Tuple =>
       [0, 1, 2].map(
         (j: number): number =>
@@ -396,16 +397,14 @@ export namespace AutoMovieHumanSegmentFrame {
 
   /** Matrix times a vector. */
   export function multiplyVector(
-    m: IAutoMovieHumanSegmentFrame.M3,
+    m: AutoMovieMatrix3Tuple,
     v: AutoMovieVector3Tuple,
   ): AutoMovieVector3Tuple {
     return [dot(m[0], v), dot(m[1], v), dot(m[2], v)];
   }
 
   /** Transpose. */
-  export function transpose(
-    m: IAutoMovieHumanSegmentFrame.M3,
-  ): IAutoMovieHumanSegmentFrame.M3 {
+  export function transpose(m: AutoMovieMatrix3Tuple): AutoMovieMatrix3Tuple {
     return [
       [m[0][0], m[1][0], m[2][0]],
       [m[0][1], m[1][1], m[2][1]],
@@ -414,7 +413,7 @@ export namespace AutoMovieHumanSegmentFrame {
   }
 
   /** The identity rotation. */
-  export const IDENTITY: IAutoMovieHumanSegmentFrame.M3 = [
+  export const IDENTITY: AutoMovieMatrix3Tuple = [
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, 1],

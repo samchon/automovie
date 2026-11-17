@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
@@ -23,7 +23,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. side: The passing hand of both runners; `right` when absent.
  * @evidence contracts/development/design.md#principled-representation baton: The baton's subject id, worn on the incoming runner's passing hand; mimed when absent. side: The passing hand of both runners; `right` when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/relayPass.ts (relayPass.plan, context); handling/relayPass.ts (relayPass.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRelayPass {
   /**
@@ -53,6 +53,6 @@ export namespace IAutoMovieMotionHumanRelayPass {
     end?: string;
 
     /** The passing hand of both runners; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
   }
 }

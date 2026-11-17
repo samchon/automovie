@@ -1,10 +1,10 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -83,7 +83,7 @@ export namespace pickUpLift {
    */
   export function raise(
     context: IAutoMovieMotionHumanActionContext<object>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     lifted: IAutoMovieVector3,
     stance: pickUpPosture.IStance | null,
     held: IAutoMovieMotionHumanPosture,
@@ -206,7 +206,7 @@ export namespace pickUpLift {
       prop: string;
       handle: string;
     }>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     lift: number,
     plan: IAutoMovieMotionHumanActionPlan,
     closed: number,
@@ -238,7 +238,7 @@ export namespace pickUpLift {
   /** The arm's shoulder joint on a posture, world metres. */
   const shoulder = (
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;

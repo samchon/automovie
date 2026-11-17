@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -305,7 +306,7 @@ export namespace sit {
         weight: (seconds: number): number => hand(side, seconds),
         goal: (
           posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieMotionHumanPosture.IGoal =>
+        ): IAutoMovieHumanLimbGoal =>
           rest === undefined
             ? seated.hands(body, posture)[`${side}Arm`]!
             : seated.armrest(body, posture, side, rest, seat.yaw),

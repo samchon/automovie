@@ -1,6 +1,6 @@
 import type {
   IAutoMovieCaptureResolution,
-  IAutoMovieInspectionRequest,
+  IAutoMovieInspectionColorAssignment,
   IAutoMovieInspectionView,
   IAutoMovieResolveCapturePatternsProps,
 } from "@automovie/interface";
@@ -47,7 +47,7 @@ export function resolveAutoMovieCapturePatterns(
       pattern,
     ]),
     ...props.request.color.map(
-      (entry: IAutoMovieInspectionRequest.IColor): ["color", string] => [
+      (entry: IAutoMovieInspectionColorAssignment): ["color", string] => [
         "color",
         entry.pattern,
       ],

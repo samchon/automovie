@@ -2,12 +2,14 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
   IAutoMovieHumanArmPrior,
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanDigitCentreLine,
   IAutoMovieHumanHandConstruction,
   IAutoMovieHumanHandDigit,
   IAutoMovieHumanHandFinger,
   IAutoMovieHumanHandForm,
   IAutoMovieHumanHandWrist,
+  IAutoMovieHumanNailWindow,
+  IAutoMovieHumanSurfacePole,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -129,11 +131,11 @@ export namespace AutoMovieHumanHandConstruction {
     // each finger from its knuckle, the middle one reaching the hand length.
     const fingers: IAutoMovieHumanHandFinger[] =
       AutoMovieHumanHandFingers.digitsOf(hand, measures, law, joints);
-    const lines: IAutoMovieHumanHandConstruction.ILine[] = hand.digits.map(
+    const lines: IAutoMovieHumanDigitCentreLine[] = hand.digits.map(
       (
         _: IAutoMovieHumanHandDigit,
         i: number,
-      ): IAutoMovieHumanHandConstruction.ILine => {
+      ): IAutoMovieHumanDigitCentreLine => {
         const own: IAutoMovieHumanHandFinger = fingers[i]!;
         return {
           name: prior.digits[i]!.name.replace("{side}", input.side),
@@ -196,7 +198,7 @@ export namespace AutoMovieHumanHandConstruction {
         (
           _: IAutoMovieHumanHandDigit,
           i: number,
-        ): IAutoMovieHumanBodyCalibration.IPole => ({
+        ): IAutoMovieHumanSurfacePole => ({
           chain: prior.digits[i]!.name.replace("{side}", input.side),
           end: "bottom",
           critical: true,
@@ -206,10 +208,7 @@ export namespace AutoMovieHumanHandConstruction {
       // A digit chain's station is the length back from its cap
       // (`AutoMovieHumanHandDigitChain`), along the straight distal line.
       nails: hand.digits.map(
-        (
-          _: IAutoMovieHumanHandDigit,
-          i: number,
-        ): IAutoMovieHumanBodyCalibration.INail => {
+        (_: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanNailWindow => {
           const own: IAutoMovieHumanHandFinger = fingers[i]!;
           return {
             chain: prior.digits[i]!.name.replace("{side}", input.side),

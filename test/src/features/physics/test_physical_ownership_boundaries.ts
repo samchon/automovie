@@ -4,6 +4,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
@@ -169,8 +170,9 @@ export async function test_physical_ownership_boundaries(): Promise<void> {
 
 /** Equal-mass bodies have a 0.3 m horizontal separation and one limited hinge. */
 function pair(duration: number): IAutoMoviePhysicalSimulationInput.IBody {
-  const prototype: P.ISegment = PhysicalFixtures.sphere().segments[0]!;
-  const root: P.ISegment = {
+  const prototype: IAutoMoviePhysicalSegment =
+    PhysicalFixtures.sphere().segments[0]!;
+  const root: IAutoMoviePhysicalSegment = {
     ...structuredClone(prototype),
     bone: "root",
     neutral: {
@@ -178,7 +180,7 @@ function pair(duration: number): IAutoMoviePhysicalSimulationInput.IBody {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     },
   };
-  const child: P.ISegment = {
+  const child: IAutoMoviePhysicalSegment = {
     ...structuredClone(prototype),
     bone: "child",
     neutral: {

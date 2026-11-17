@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalTargetInterval,
+  IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
 } from "@automovie/interface";
 
@@ -44,10 +44,7 @@ export namespace PhysicalTargetInterval {
                 ([bone, goal]: [
                   string,
                   IAutoMovieSamplePhysicalTarget.IResult,
-                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [
-                  bone,
-                  goal.pose,
-                ],
+                ]): [string, IAutoMovieRigidTransform] => [bone, goal.pose],
               ),
             )
           : input.previous?.step === input.step - 1
@@ -147,8 +144,8 @@ const MOTIONS: WeakMap<
     bones: Map<
       string,
       {
-        before: IAutoMoviePhysicalProfile.ITransform;
-        after: IAutoMoviePhysicalProfile.ITransform;
+        before: IAutoMovieRigidTransform;
+        after: IAutoMovieRigidTransform;
         sample: (fraction: number) => IAutoMovieSamplePhysicalTarget.IResult;
       }
     >;

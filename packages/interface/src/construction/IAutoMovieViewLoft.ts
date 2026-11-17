@@ -1,6 +1,6 @@
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieLoftContract } from "./IAutoMovieLoftContract";
-import type { IAutoMovieLoftFrame } from "./IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieViewChain } from "./IAutoMovieViewChain";
 import type { IAutoMovieViewSection } from "./IAutoMovieViewSection";
@@ -63,7 +63,7 @@ export namespace IAutoMovieViewLoft {
     station: number;
 
     /** Actual axis.at(station) frame retained without cloning: world-mm origin and dimensionless local u/v axes. Preserve it while the resulting chain/surface uses the same frame data. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
 
     /** Admitted four-quarter section in local millimetres, used to generate compatibility spline coefficients and retained for guide/curvature inspection. */
     section: IAutoMovieViewSection.ISection;
@@ -82,7 +82,7 @@ export namespace IAutoMovieViewLoft {
     station: number;
 
     /** Actual axis.at(station) frame retained without cloning: world-mm origin and dimensionless local u/v axes. Its owner must preserve the value while published geometry retains it. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
 
     /** Admitted local conic chain, including guide contacts and declared splits; its arc joins may be only G1 even when individual arcs have second derivatives. */
     chain: IAutoMovieViewChain.ISection;

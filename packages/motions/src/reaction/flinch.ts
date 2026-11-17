@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -134,7 +135,7 @@ export namespace flinch {
 
     // The startle's rise is a reflex and keeps its time; the return follows
     // the manner's tempo.
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase(
         AutoMovieMotionHumanTiming.phrase({
           prepare: "none",
@@ -185,9 +186,7 @@ export namespace flinch {
     // A glove before the face on the trunk the action has placed so far.
     const cover =
       (side: "left" | "right") =>
-      (
-        posture: IAutoMovieMotionHumanPosture,
-      ): IAutoMovieMotionHumanPosture.IGoal => {
+      (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal => {
         const bones = StrikingBody.trunk(body, posture);
         const face = StrikingBody.region(body, bones, "face");
         const fist: number = StrikingQuality.fist(m.hand);

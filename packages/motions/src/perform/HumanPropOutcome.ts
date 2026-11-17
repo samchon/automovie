@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieProjectile,
   IAutoMovieProjectileContinue,
   IAutoMovieProjectileState,
@@ -325,7 +325,7 @@ export namespace HumanPropOutcome {
   }
 
   /** A shape's half thickness, metres; a hull is not counted. */
-  function half(shape: IAutoMoviePhysicalProfile.IShape): number {
+  function half(shape: IAutoMoviePhysicalShape): number {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? shape.radius
       : shape.kind === "box"

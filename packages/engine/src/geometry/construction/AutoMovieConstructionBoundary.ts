@@ -1,6 +1,6 @@
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
@@ -12,9 +12,9 @@ import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 
 /** Physical value, first and second derivatives of one actual section frame. */
 type Frames = readonly [
-  IAutoMovieLoftFrame.IFrame,
-  IAutoMovieLoftFrame.IFrame,
-  IAutoMovieLoftFrame.IFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionFrame,
 ];
 
 /** Three world coordinates, in the order retained by the original frame. */

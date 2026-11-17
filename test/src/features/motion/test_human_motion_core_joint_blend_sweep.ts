@@ -10,9 +10,9 @@ import {
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
-  IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
 import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -66,7 +66,7 @@ export function test_human_motion_core_joint_blend_sweep(): void {
     body.skeleton,
     HUMANOID_JOINT_AXES,
   ).rightUpperArm!;
-  const joint: IAutoMovieSwingTwistRange.IJoint = {
+  const joint: IAutoMovieJointRotationFrame = {
     axes,
     frame: HUMANOID_REST_FRAME.rightUpperArm,
   };

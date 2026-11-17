@@ -4,19 +4,12 @@ import type { IAutoMovieHumanHeadIdentity } from "../head/IAutoMovieHumanHeadIde
  * Public head dimensions and body context in world millimetres. The head lane
  * consumes this record without invoking the retired head-chain assembly.
  *
- * @evidence contracts/common.md#principled-implementation Carries anatomical inputs and the body context needed to place the head; no generated surface is an input.
- * @evidence contracts/common.md#clear-and-simple-design One record is shared by the body law, head layout and debug consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No person selector or compensating dimension.
- * @evidence contracts/common.md#meaningful-documentation Names the units and meaning of the dimensions and normalized controls.
- * @evidenceExclude contracts/performance.md#efficient-algorithms An input type has no algorithm.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This record owns no computation or cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns this fixed-size record and its head identity.
- *
+ * The caller owns this fixed-size record and its head identity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Public head dimensions and body context in world millimetres.
- * @evidence contracts/development/design.md#principled-representation `head`: Public head identity in world millimetres. `height`: Stature, mm. `neckLength`: Derived requested-height control for the optional neck exterior display, mm; not a public neck-length measurement or the head plan's stature closure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanBodyLaw.headInputs, AutoMovieHumanHeadInputs.of. Read by AutoMovieHumanHeadLandmarks.layout, AutoMovieHumanNeckSource.of, AutoMovieHumanHeadLane.create. Also types AutoMovieHumanBodyLaw.head, AutoMovieHumanHeadInputs.head.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `head`, `height`, `neckLength`, `neck`, `neckBase`, `sex`, `fat`; callers supply the complete record.
+ * @evidence contracts/development/design.md#principled-representation Carries anatomical inputs and the body context needed to place the head; no generated surface is an input.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record is shared by the body law, head layout and debug consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No person selector or compensating dimension.
  */
 export interface IAutoMovieHumanHeadInputs {
   /** Public head identity in world millimetres. */

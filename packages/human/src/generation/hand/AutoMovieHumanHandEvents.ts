@@ -1,5 +1,6 @@
 import type {
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanHandForm,
 } from "@automovie/interface";
 
@@ -14,11 +15,9 @@ const { form }: typeof AutoMovieHumanHandForm = AutoMovieHumanHandForm;
  */
 export namespace AutoMovieHumanHandEvents {
   /** Both hands' events: the form's for the left, reflected for the right. */
-  export function events(): IAutoMovieHumanBodyCalibration.IEvent[] {
+  export function events(): IAutoMovieHumanBranchEvent[] {
     return form().events.flatMap(
-      (
-        e: IAutoMovieHumanHandForm.IEvent,
-      ): IAutoMovieHumanBodyCalibration.IEvent[] => [
+      (e: IAutoMovieHumanHandForm.IEvent): IAutoMovieHumanBranchEvent[] => [
         {
           parent: e.parent.replace("{side}", "left"),
           direction: "down",
@@ -26,7 +25,7 @@ export namespace AutoMovieHumanHandEvents {
           splits: e.splits.map(
             (
               s: IAutoMovieHumanHandForm.ISplit,
-            ): IAutoMovieHumanBodyCalibration.ISplit => ({
+            ): IAutoMovieHumanBranchSplit => ({
               child: s.child.replace("{side}", "left"),
               arcs: s.arcs.map((a: [number, number]): [number, number] => [
                 a[0],
@@ -42,7 +41,7 @@ export namespace AutoMovieHumanHandEvents {
           splits: [...e.splits].reverse().map(
             (
               s: IAutoMovieHumanHandForm.ISplit,
-            ): IAutoMovieHumanBodyCalibration.ISplit => ({
+            ): IAutoMovieHumanBranchSplit => ({
               child: s.child.replace("{side}", "right"),
               arcs: [...s.arcs]
                 .reverse()

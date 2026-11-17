@@ -1,5 +1,6 @@
 import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
@@ -9,13 +10,12 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanStand,
   IAutoMovieMotionHumanStandUpright,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieRandom,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -84,7 +84,7 @@ export namespace stand {
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
-    side: IAutoMovieMotionHumanHand.Side = "right",
+    side: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
     HumanBound.above("seconds", duration, 0, "s");
@@ -139,7 +139,7 @@ export namespace stand {
             yaw: 0,
           }
         : HumanSupportCarry.of(
-            (t: number): IAutoMovieMotionHumanProp.IFrame =>
+            (t: number): IAutoMovieRigidTransform =>
               context.prop(on.prop).frame(t),
             context.start,
             context.start + seconds,
@@ -354,7 +354,7 @@ export namespace stand {
     yaw: number,
     feet: Record<"left" | "right", IAutoMovieVector3>,
   ): IAutoMovieMotionHumanPosture["limbs"] {
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: root, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin: root, yaw };
     // The knee points over the foot (Perry and Burnfield): the foot has no
     // axial joint, so its toe-out comes from the hip's twist that this hint sets.
     const knee = (side: "left" | "right"): IAutoMovieVector3 =>
@@ -418,7 +418,7 @@ export namespace stand {
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     >,
   ): IAutoMovieMotionHumanPosture {
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: at, yaw };
+    const frame: IAutoMovieMotionHumanFrame = { origin: at, yaw };
     const feet = {} as Record<"left" | "right", IAutoMovieVector3>;
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;

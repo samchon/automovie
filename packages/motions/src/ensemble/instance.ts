@@ -1,10 +1,13 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieMotionHumanActionKey,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanInstance,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -79,8 +82,9 @@ export namespace instance {
           "an instance lasts a positive time and lags by a whole number of frames",
         fix: "give a positive span and a whole, nonnegative shift",
       });
-    const template: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(p.of);
+    const template: IAutoMovieMotionHumanPerformerReader = context.performer(
+      p.of,
+    );
     const read:
       | ((seconds: number) => IAutoMovieMotionHumanPosture)
       | undefined = template.posture?.bind(template);
@@ -146,8 +150,8 @@ export namespace instance {
           add(root, rotate(sub(point, t.root), turn));
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         for (const [limb, goal] of Object.entries(t.limbs) as [
-          IAutoMovieMotionHumanPosture.Limb,
-          IAutoMovieMotionHumanPosture.IGoal,
+          AutoMovieHumanLimb,
+          IAutoMovieHumanLimbGoal,
         ][]) {
           if (goal.clear !== undefined || goal.rests !== undefined)
             throw new HumanRefusal({

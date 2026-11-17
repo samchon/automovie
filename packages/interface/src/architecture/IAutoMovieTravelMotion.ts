@@ -19,11 +19,6 @@ export type IAutoMovieTravelMotion =
   | IAutoMovieTravelMotion.IPrismatic;
 /**
  * Revolute and prismatic travel alternatives of one moving member.
- *
- * @evidence contracts/development/design.md#principled-representation The variants preserve radians versus metres and each joint's local axis and rest-zero interval.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Opening leaves and connector carriages use these alternatives through the enclosing travel union.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only revolute motion carries a pivot; neither arm invents a named operating-state value.
- * @evidence contracts/development/common.md#meaningful-documentation Revolute and prismatic travel alternatives of one moving member. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMovieTravelMotion {
   /**

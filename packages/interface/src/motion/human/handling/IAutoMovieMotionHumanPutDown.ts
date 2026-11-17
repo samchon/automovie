@@ -1,7 +1,7 @@
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Setting a held prop down at a place and letting go.
@@ -21,7 +21,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * rested: its resting rotation is the one it was
  * declared with, turned about the vertical to the asked heading, so a bottle
  * carried at a tilt still lands upright. The arm keeps the configuration it
- * carried the prop in (`IAutoMovieMotionHumanPosture.IGoal.reference`). Inverse kinematics solves the arm; the rest of the body holds the posture
+ * carried the prop in (`IAutoMovieHumanLimbGoal.reference`). Inverse kinematics solves the arm; the rest of the body holds the posture
  * it was entered in.
  *
  * Phases: a transport of the hand to the placing frame, timed by the
@@ -40,7 +40,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation at: Where the prop's origin goes, world metres; required unless `on` or `onto` is given. on: The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. offset: The prop's frame in the bone's posed frame, metres.
  * @evidence contracts/development/design.md#principled-representation at: Where the prop's origin goes, world metres; required unless `on` or `onto` is given. on: The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. offset: The prop's frame in the bone's posed frame, metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.putDown, params); handling/putDown.ts (putDown.plan, context); handling/putDown.ts (putDown.demands, ahead); handling/putDownTarget.ts (putDownTarget.of, context); handling/putDown.ts (putDown.plan); handling/putDownTarget.ts (putDownTarget.of).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieMotionHumanProp.IFrame, IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieRigidTransform, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPutDown {
   /**
@@ -51,7 +51,7 @@ export namespace IAutoMovieMotionHumanPutDown {
    * @evidence contracts/development/common.md#meaningful-documentation at: Where the prop's origin goes, world metres; required unless `on` or `onto` is given. on: The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. offset: The prop's frame in the bone's posed frame, metres.
    * @evidence contracts/development/design.md#principled-representation at: Where the prop's origin goes, world metres; required unless `on` or `onto` is given. on: The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. offset: The prop's frame in the bone's posed frame, metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.putDown, params); handling/putDown.ts (putDown.plan, context); handling/putDown.ts (putDown.demands, ahead); handling/putDownTarget.ts (putDownTarget.of, context); handling/putDown.ts (putDown.plan); handling/putDownTarget.ts (putDownTarget.of).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieMotionHumanProp.IFrame, IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieRigidTransform, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The held prop's subject id. */
@@ -66,7 +66,7 @@ export namespace IAutoMovieMotionHumanPutDown {
       bone: AutoMovieHumanoidBone;
 
       /** The prop's frame in the bone's posed frame, metres. */
-      offset: IAutoMovieMotionHumanProp.IFrame;
+      offset: IAutoMovieRigidTransform;
     };
 
     /**
@@ -89,6 +89,6 @@ export namespace IAutoMovieMotionHumanPutDown {
     yaw?: number;
 
     /** The holding hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
   }
 }

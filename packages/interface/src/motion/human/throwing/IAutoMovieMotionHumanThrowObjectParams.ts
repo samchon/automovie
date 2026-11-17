@@ -1,7 +1,7 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanThrowObjectForm } from "./IAutoMovieMotionHumanThrowObjectForm";
 import type { IAutoMovieMotionHumanThrowObjectLever } from "./IAutoMovieMotionHumanThrowObjectLever";
 
@@ -23,7 +23,7 @@ export interface IAutoMovieMotionHumanThrowObjectParams {
   style?: IAutoMovieMotionHumanThrowObjectForm.Style;
 
   /** The throwing hand; `right` when absent. */
-  hand?: IAutoMovieMotionHumanHand.Side;
+  hand?: AutoMovieHumanSide;
 
   /**
    * The held prop thrown: it rides the hand to the release, then flies
@@ -53,5 +53,5 @@ export interface IAutoMovieMotionHumanThrowObjectParams {
   implement?: IAutoMovieMotionHumanThrowObjectLever.IImplement;
 
   /** How it is performed. */
-  manner?: IAutoMovieMotionManner.IManner;
+  manner?: IAutoMovieMotionManner;
 }

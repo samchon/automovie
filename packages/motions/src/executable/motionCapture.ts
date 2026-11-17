@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
 } from "@automovie/interface";
@@ -166,8 +167,8 @@ export async function motionCapture(): Promise<void> {
         failed += report(capture) + 1;
         continue;
       }
-      const undrawn: IAutoMovieCaptureRecord.Row[] = record.rows.filter(
-        (row: IAutoMovieCaptureRecord.Row): boolean => row.state === "failed",
+      const undrawn: IAutoMovieCaptureCellRecord[] = record.rows.filter(
+        (row: IAutoMovieCaptureCellRecord): boolean => row.state === "failed",
       );
       console.log(
         `${capture.name}: ${record.rows.length - undrawn.length} of ${record.rows.length} cells drawn in ${path.join(ROOT, "media", "capture", capture.name)}`,

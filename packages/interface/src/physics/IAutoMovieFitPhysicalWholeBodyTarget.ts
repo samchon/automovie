@@ -1,12 +1,27 @@
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
-/** Data and callback contracts shared by the FitPhysicalWholeBodyTarget operations. */
+/**
+ * A whole-body fit and its residual report. Fit a whole articulated body to one endpoint goal while a support segment stays held, turning only about its contact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates total fit residual, endpoint error and optional weighted direction error. Defines the held support, allowed turn, selected bones and independent endpoint/direction task.
+ * @evidence contracts/development/design.md#principled-representation World bone transforms accompany nonnegative metre residual norms; approach is zero when no direction task exists. World and bone-local metre points, unit directions, radian support limits and metre residual weights form a bounded articulation problem.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface fitPhysicalWholeBodyTarget returns the original segment population for downstream motor targets and diagnostics. fitPhysicalWholeBodyTarget reroots the canonical profile and delegates the selected coordinates to the shared articulation solver.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reported motor goals do not move actual bodies, and residuals remain measurable when the target cannot be reached. An optional approach adds a weighted direction task; finite budgets and residuals do not guarantee an unreachable goal is met.
+ */
 export namespace IAutoMovieFitPhysicalWholeBodyTarget {
-  /** A whole-body fit and its residual report. */
+  /**
+   * A whole-body fit and its residual report.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Separates total fit residual, endpoint error and optional weighted direction error.
+   * @evidence contracts/development/design.md#principled-representation World bone transforms accompany nonnegative metre residual norms; approach is zero when no direction task exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface fitPhysicalWholeBodyTarget returns the original segment population for downstream motor targets and diagnostics.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reported motor goals do not move actual bodies, and residuals remain measurable when the target cannot be reached.
+   */
   export interface IResult {
     /** World pose of every original segment. */
-    targets: Record<string, IAutoMoviePhysicalProfile.ITransform>;
+    targets: Record<string, IAutoMovieRigidTransform>;
 
     /** Total residual norm, metres. */
     residual: number;
@@ -32,11 +47,16 @@ export namespace IAutoMovieFitPhysicalWholeBodyTarget {
    * decreases. The residual is the goal point's world error in metres and,
    * when an approach is declared, the weighted difference between the
    * endpoint's local direction carried to world and the approach direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the held support, allowed turn, selected bones and independent endpoint/direction task.
+   * @evidence contracts/development/design.md#principled-representation World and bone-local metre points, unit directions, radian support limits and metre residual weights form a bounded articulation problem.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface fitPhysicalWholeBodyTarget reroots the canonical profile and delegates the selected coordinates to the shared articulation solver.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An optional approach adds a weighted direction task; finite budgets and residuals do not guarantee an unreachable goal is met.
    */
   export type IInput = {
     /** Admitted fixed-pivot tree. */ profile: IAutoMoviePhysicalProfile;
     /** Current world pose of every segment. */ targets: Readonly<
-      Record<string, IAutoMoviePhysicalProfile.ITransform>
+      Record<string, IAutoMovieRigidTransform>
     >;
     /** The held support and its bounded turn about the contact normal. */ support: {
       /** Held segment. */ bone: string;

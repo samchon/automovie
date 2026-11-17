@@ -7,11 +7,13 @@ import {
   AutoMovieHumanF1Placing as T,
 } from "@automovie/human";
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
   IAutoMovieHumanF1Placement,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 /**
@@ -66,16 +68,16 @@ export function test_human_f1_placement(): void {
   };
 
   // 1: a made chain with a closed-form answer.
-  const quarter: IAutoMovieHumanSegmentFrame.M3 = [
+  const quarter: AutoMovieMatrix3Tuple = [
     [0, -1, 0],
     [1, 0, 0],
     [0, 0, 1],
   ];
-  const made: IAutoMovieHumanSegmentFrame.IJoint[] = [
+  const made: IAutoMovieHumanSegmentJoint[] = [
     { name: "root", parent: null, offset: [1, 2, 3], rotation: quarter },
     { name: "child", parent: "root", offset: [0, 10, 0], rotation: quarter },
   ];
-  const turned: IAutoMovieHumanSegmentFrame.IFrame = F.world(
+  const turned: IAutoMovieHumanSegmentFrame = F.world(
     made,
     (): undefined => undefined,
   ).get("child")!;
@@ -86,9 +88,9 @@ export function test_human_f1_placement(): void {
     [-1, 0, 0],
     1e-12,
   );
-  const straight: IAutoMovieHumanSegmentFrame.IFrame = F.world(
+  const straight: IAutoMovieHumanSegmentFrame = F.world(
     made,
-    (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+    (name: string): AutoMovieMatrix3Tuple | undefined =>
       name === "child" ? F.IDENTITY : undefined,
   ).get("child")!;
   near(
@@ -220,11 +222,11 @@ export function test_human_f1_placement(): void {
   );
 
   // 4: a parent's rotation moves its children exactly and nothing else.
-  const chain: Map<string, IAutoMovieHumanSegmentFrame.IJoint> = new Map(
+  const chain: Map<string, IAutoMovieHumanSegmentJoint> = new Map(
     T.CHAIN.map(
       (
-        joint: IAutoMovieHumanSegmentFrame.IJoint,
-      ): [string, IAutoMovieHumanSegmentFrame.IJoint] => [joint.name, joint],
+        joint: IAutoMovieHumanSegmentJoint,
+      ): [string, IAutoMovieHumanSegmentJoint] => [joint.name, joint],
     ),
   );
   const under = (segment: string, ancestor: string): boolean => {
@@ -236,13 +238,13 @@ export function test_human_f1_placement(): void {
       if (at === ancestor) return true;
     return false;
   };
-  const posed: Record<string, IAutoMovieHumanSegmentFrame.M3> = {
+  const posed: Record<string, AutoMovieMatrix3Tuple> = {
     forearm: F.multiply(F.about(2, 0.7), F.about(0, -0.4)),
     femur: F.multiply(F.about(0, 0.3), F.about(1, 0.5)),
   };
   const pose: IAutoMovieHumanF1Placement.IPose = (
     name: string,
-  ): IAutoMovieHumanSegmentFrame.M3 | undefined => posed[name];
+  ): AutoMovieMatrix3Tuple | undefined => posed[name];
   const frames: IAutoMovieHumanF1Placement.IFrames = P.frames(pose);
   // The rigid motion of everything past a turned joint: about the joint's centre by Q = A_p R' R^T A_p^T, A_p the parent's reference axes.
   const motion = (
@@ -250,10 +252,10 @@ export function test_human_f1_placement(): void {
   ): ((p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple) & {
     turn: (d: AutoMovieVector3Tuple) => AutoMovieVector3Tuple;
   } => {
-    const parent: IAutoMovieHumanSegmentFrame.M3 = F.matrix(
+    const parent: AutoMovieMatrix3Tuple = F.matrix(
       P.frame(chain.get(joint)!.parent!),
     );
-    const q: IAutoMovieHumanSegmentFrame.M3 = F.multiply(
+    const q: AutoMovieMatrix3Tuple = F.multiply(
       F.multiply(
         parent,
         F.multiply(posed[joint]!, F.transpose(chain.get(joint)!.rotation)),

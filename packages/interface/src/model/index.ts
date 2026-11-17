@@ -4,6 +4,7 @@ export type { AutoMovieGripKind } from "./AutoMovieGripKind";
 export type { AutoMovieImportedModelLodLevel } from "./AutoMovieImportedModelLodLevel";
 export type { AutoMovieImportedModelProfile } from "./AutoMovieImportedModelProfile";
 export type { IAutoMovieAffordance } from "./IAutoMovieAffordance";
+export type { IAutoMovieAffordanceCoupling } from "./IAutoMovieAffordanceCoupling";
 export type { IAutoMovieBicubicAtlasGeometry } from "./IAutoMovieBicubicAtlasGeometry";
 export type { IAutoMovieBody } from "./IAutoMovieBody";
 export type { IAutoMovieBodyContact } from "./IAutoMovieBodyContact";

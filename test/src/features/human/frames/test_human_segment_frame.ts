@@ -1,7 +1,9 @@
 import { AutoMovieHumanSegmentFrame as F } from "@automovie/human";
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 /**
@@ -47,18 +49,15 @@ export function test_human_segment_frame(): void {
   };
   const frame = (
     label: string,
-    got: IAutoMovieHumanSegmentFrame.IFrame,
-    want: IAutoMovieHumanSegmentFrame.IFrame,
+    got: IAutoMovieHumanSegmentFrame,
+    want: IAutoMovieHumanSegmentFrame,
     tolerance: number = 1e-12,
   ): void => {
     near(label + " origin", got.origin, want.origin, tolerance);
     for (let k: number = 0; k < 3; ++k)
       near(label + " axis " + "XYZ"[k], got.axes[k]!, want.axes[k]!, tolerance);
   };
-  const healthy = (
-    label: string,
-    f: IAutoMovieHumanSegmentFrame.IFrame,
-  ): void => {
+  const healthy = (label: string, f: IAutoMovieHumanSegmentFrame): void => {
     const [x, y, z]: [
       AutoMovieVector3Tuple,
       AutoMovieVector3Tuple,
@@ -70,7 +69,7 @@ export function test_human_segment_frame(): void {
   };
 
   // A known rotation Q and a rotated landmark set: p -> o + Q p.
-  const Q: IAutoMovieHumanSegmentFrame.M3 = F.multiply(
+  const Q: AutoMovieMatrix3Tuple = F.multiply(
     F.multiply(F.about(2, 0.3), F.about(0, -0.2)),
     F.about(1, 0.5),
   );
@@ -80,7 +79,7 @@ export function test_human_segment_frame(): void {
   const turned = (
     origin: AutoMovieVector3Tuple,
     axes: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple],
-  ): IAutoMovieHumanSegmentFrame.IFrame => ({
+  ): IAutoMovieHumanSegmentFrame => ({
     origin,
     axes: axes.map(
       (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
@@ -89,7 +88,7 @@ export function test_human_segment_frame(): void {
   });
 
   // 1 and 2: the ISB definitions.
-  const humerus: IAutoMovieHumanSegmentFrame.IFrame = F.humerus(
+  const humerus: IAutoMovieHumanSegmentFrame = F.humerus(
     at([0, 0, 0]),
     at([0, -300, 25]),
     at([0, -300, -25]),
@@ -104,7 +103,7 @@ export function test_human_segment_frame(): void {
       [0, 0, 1],
     ]),
   );
-  const forearm: IAutoMovieHumanSegmentFrame.IFrame = F.forearm(
+  const forearm: IAutoMovieHumanSegmentFrame = F.forearm(
     at([0, -300, 0]),
     at([0, -550, -22]),
     at([0, -550, 22]),
@@ -121,7 +120,7 @@ export function test_human_segment_frame(): void {
       [0, -22, 250],
     ]),
   );
-  const femur: IAutoMovieHumanSegmentFrame.IFrame = F.femur(
+  const femur: IAutoMovieHumanSegmentFrame = F.femur(
     at([0, 0, 0]),
     at([5, -400, 45]),
     at([5, -400, -45]),
@@ -140,14 +139,14 @@ export function test_human_segment_frame(): void {
     ["fromYZ", F.fromYZ(o, [1, 2, 3], [0.3, -1, 2])],
     ["fromYX", F.fromYX(o, [1, 2, 3], [0.3, -1, 2])],
     ["fromXY", F.fromXY(o, [1, 2, 3], [0.3, -1, 2])],
-  ] as [string, IAutoMovieHumanSegmentFrame.IFrame][])
+  ] as [string, IAutoMovieHumanSegmentFrame][])
     healthy(label, f);
   near("fromYZ keeps Y", F.fromYZ(o, [0, 2, 0], [1, 1, 1]).axes[1], [0, 1, 0]);
   near("fromYX keeps Y", F.fromYX(o, [0, 2, 0], [1, 1, 1]).axes[1], [0, 1, 0]);
   near("fromXY keeps X", F.fromXY(o, [2, 0, 0], [1, 1, 1]).axes[0], [1, 0, 0]);
 
   // 3: the mirror.
-  const twin: IAutoMovieHumanSegmentFrame.IFrame = F.mirror(forearm);
+  const twin: IAutoMovieHumanSegmentFrame = F.mirror(forearm);
   healthy("twin", twin);
   near("twin origin", twin.origin, [
     forearm.origin[0],
@@ -155,31 +154,28 @@ export function test_human_segment_frame(): void {
     -forearm.origin[2],
   ]);
   frame("mirror twice", F.mirror(twin), forearm);
-  const D: IAutoMovieHumanSegmentFrame.M3 = [
+  const D: AutoMovieMatrix3Tuple = [
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, -1],
   ];
-  const R: IAutoMovieHumanSegmentFrame.M3 = F.relative(
-    humerus,
-    forearm,
-  ).rotation;
-  const twinR: IAutoMovieHumanSegmentFrame.M3 = F.relative(
+  const R: AutoMovieMatrix3Tuple = F.relative(humerus, forearm).rotation;
+  const twinR: AutoMovieMatrix3Tuple = F.relative(
     F.mirror(humerus),
     twin,
   ).rotation;
   near("twin rotation", twinR.flat(), F.multiply(F.multiply(D, R), D).flat());
 
   // 4: composition and inverse.
-  const a: IAutoMovieHumanSegmentFrame.IFrame = F.columns(
+  const a: IAutoMovieHumanSegmentFrame = F.columns(
     [1, 2, 3],
     F.multiply(F.about(0, 0.7), F.about(2, -1.1)),
   );
-  const b: IAutoMovieHumanSegmentFrame.IFrame = F.columns(
+  const b: IAutoMovieHumanSegmentFrame = F.columns(
     [-40, 5, 12],
     F.multiply(F.about(1, 0.4), F.about(0, 2.2)),
   );
-  const c: IAutoMovieHumanSegmentFrame.IFrame = F.columns(
+  const c: IAutoMovieHumanSegmentFrame = F.columns(
     [7, -9, 30],
     F.multiply(F.about(2, 1.3), F.about(1, -0.6)),
   );
@@ -216,16 +212,16 @@ export function test_human_segment_frame(): void {
   );
 
   // 5: a chain of three segments.
-  const root: IAutoMovieHumanSegmentFrame.IFrame = F.columns(
+  const root: IAutoMovieHumanSegmentFrame = F.columns(
     [0, 900, 0],
     F.about(1, 0.2),
   );
-  const upper: IAutoMovieHumanSegmentFrame.IFrame = F.fromYZ(
+  const upper: IAutoMovieHumanSegmentFrame = F.fromYZ(
     [20, 1350, 140],
     [0.1, 1, -0.6],
     [0, 0, 1],
   );
-  const lower: IAutoMovieHumanSegmentFrame.IFrame = F.fromYZ(
+  const lower: IAutoMovieHumanSegmentFrame = F.fromYZ(
     [25, 1100, 300],
     [-0.4, 1, -0.5],
     [0.2, 0, 1],
@@ -233,22 +229,22 @@ export function test_human_segment_frame(): void {
   const segments: {
     name: string;
     parent: string | null;
-    frame: IAutoMovieHumanSegmentFrame.IFrame;
+    frame: IAutoMovieHumanSegmentFrame;
   }[] = [
     { name: "root", parent: null, frame: root },
     { name: "upper", parent: "root", frame: upper },
     { name: "lower", parent: "upper", frame: lower },
   ];
-  const joints: IAutoMovieHumanSegmentFrame.IJoint[] = F.chain(segments);
-  const reference: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = F.world(
+  const joints: IAutoMovieHumanSegmentJoint[] = F.chain(segments);
+  const reference: Map<string, IAutoMovieHumanSegmentFrame> = F.world(
     joints,
     (): undefined => undefined,
   );
   for (const s of segments)
     frame("reference " + s.name, reference.get(s.name)!, s.frame, 1e-12 * 1500);
-  const neutral: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = F.world(
+  const neutral: Map<string, IAutoMovieHumanSegmentFrame> = F.world(
     joints,
-    (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+    (name: string): AutoMovieMatrix3Tuple | undefined =>
       name === "root" ? undefined : F.IDENTITY,
   );
   for (const s of segments)
@@ -267,9 +263,9 @@ export function test_human_segment_frame(): void {
 
   // Turn the upper segment by 0.4 rad about its own Z: the lower one turns by Rodrigues' rotation about that axis through its origin.
   const angle: number = 0.4;
-  const posed: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = F.world(
+  const posed: Map<string, IAutoMovieHumanSegmentFrame> = F.world(
     joints,
-    (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+    (name: string): AutoMovieMatrix3Tuple | undefined =>
       name === "upper"
         ? F.multiply(joints[1]!.rotation, F.about(2, angle))
         : undefined,
@@ -300,7 +296,7 @@ export function test_human_segment_frame(): void {
   );
   const local: {
     offset: AutoMovieVector3Tuple;
-    rotation: IAutoMovieHumanSegmentFrame.M3;
+    rotation: AutoMovieMatrix3Tuple;
   } = F.relative(posed.get("upper")!, posed.get("lower")!);
   near("local offset unchanged", local.offset, joints[2]!.offset, 1e-12 * 1500);
   near(

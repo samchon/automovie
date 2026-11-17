@@ -17,8 +17,10 @@ import type {
   IAutoMovieIntent,
   IAutoMovieMeasureSchedule,
   IAutoMovieResolveOutcome,
-  IAutoMovieResolveSchedule,
   IAutoMovieSchedule,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -83,7 +85,7 @@ export function test_composition_schedule(): void {
       0.1,
     ),
   );
-  const timing: IAutoMovieResolveSchedule.ILaws["timing"] = (
+  const timing: IAutoMovieScheduleLaws["timing"] = (
     intent: IAutoMovieIntent,
   ) =>
     intent.capability === "reach"
@@ -94,18 +96,18 @@ export function test_composition_schedule(): void {
   const schedule: IAutoMovieSchedule = resolveAutoMovieSchedule(composition, {
     timing,
     outcome: (
-      entry: IAutoMovieSchedule.IEntry,
-      context: IAutoMovieResolveSchedule.IContext,
+      entry: IAutoMovieScheduleEntry,
+      context: IAutoMovieScheduleContext,
     ) =>
       entry.intent.capability === "dodge"
         ? `after ${context.entries.length} entries`
         : undefined,
-    state: (entry: IAutoMovieSchedule.IEntry) => ({
+    state: (entry: IAutoMovieScheduleEntry) => ({
       last: entry.intent.capability,
     }),
   });
   const placed: string[] = schedule.entries.map(
-    (e: IAutoMovieSchedule.IEntry): string =>
+    (e: IAutoMovieScheduleEntry): string =>
       `${e.subject}.${e.intent.capability}@${e.start.toFixed(2)}-${e.end.toFixed(2)}`,
   );
   TestValidator.equals("placement", placed, [
@@ -240,7 +242,7 @@ export function test_composition_schedule(): void {
     checkAutoMovieLegality(schedule, [
       {
         id: "no-turn",
-        check: (e: IAutoMovieSchedule.IEntry) =>
+        check: (e: IAutoMovieScheduleEntry) =>
           e.intent.capability === "turn" ? "turned" : null,
       },
     ]);
@@ -250,13 +252,13 @@ export function test_composition_schedule(): void {
   const measure: IAutoMovieMeasureSchedule.IMeasure = measureAutoMovieSchedule(
     schedule,
     {
-      action: (e: IAutoMovieSchedule.IEntry) => e.intent.capability === "reach",
+      action: (e: IAutoMovieScheduleEntry) => e.intent.capability === "reach",
       combinationGap: 0.5,
-      displacement: (e: IAutoMovieSchedule.IEntry) =>
+      displacement: (e: IAutoMovieScheduleEntry) =>
         e.intent.capability === "dodge"
           ? { lateral: 0.3, linear: 0.1 }
           : { lateral: 0, linear: 0.2 },
-      idle: (e: IAutoMovieSchedule.IEntry) => e.intent.capability === "watch",
+      idle: (e: IAutoMovieScheduleEntry) => e.intent.capability === "watch",
     },
   );
   TestValidator.predicate(

@@ -7,6 +7,10 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -31,25 +35,28 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  */
 export function test_physical_whole_body_fit(): void {
   const { profile } = PhysicalModelFixtures.stickman();
-  const neutral: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((s: P.ISegment): [string, P.ITransform] => [
-      s.bone,
-      structuredClone(s.neutral),
-    ]),
+  const neutral: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (s: IAutoMoviePhysicalSegment): [string, IAutoMovieRigidTransform] => [
+        s.bone,
+        structuredClone(s.neutral),
+      ],
+    ),
   );
 
   // Rerooting on the left shank inverts its knee and hip only.
   const rerooted: P = rerootPhysicalProfile(profile, "leftLowerLeg");
   const changed: string[] = rerooted.joints
     .filter(
-      (joint: P.IJoint, k: number): boolean => joint !== profile.joints[k],
+      (joint: IAutoMoviePhysicalJoint, k: number): boolean =>
+        joint !== profile.joints[k],
     )
-    .map((joint: P.IJoint): string => joint.id);
-  const original: P.IJoint = profile.joints.find(
-    (joint: P.IJoint): boolean => joint.id === "leftUpperLeg",
+    .map((joint: IAutoMoviePhysicalJoint): string => joint.id);
+  const original: IAutoMoviePhysicalJoint = profile.joints.find(
+    (joint: IAutoMoviePhysicalJoint): boolean => joint.id === "leftUpperLeg",
   )!;
-  const hip: P.IJoint = rerooted.joints.find(
-    (joint: P.IJoint): boolean => joint.id === "leftUpperLeg",
+  const hip: IAutoMoviePhysicalJoint = rerooted.joints.find(
+    (joint: IAutoMoviePhysicalJoint): boolean => joint.id === "leftUpperLeg",
   )!;
   TestValidator.equals(
     "inverted path",
@@ -61,7 +68,7 @@ export function test_physical_whole_body_fit(): void {
     hip.parent === "leftUpperLeg" &&
       hip.child === "hips" &&
       hip.axes.every(
-        (axis: P.IAxis, k: number): boolean =>
+        (axis: IAutoMoviePhysicalJointAxis, k: number): boolean =>
           axis.minimum === -original.axes[k]!.maximum &&
           axis.maximum === -original.axes[k]!.minimum,
       ),
@@ -130,7 +137,7 @@ export function test_physical_whole_body_fit(): void {
     ["leftLowerLeg", "leftUpperLeg", "spine", "rightUpperLeg", "rightLowerLeg"],
     { localDirection: { x: 0, y: -1, z: 0 }, direction, weight: 0.02 },
   );
-  const shin = (targets: Record<string, P.ITransform>): number =>
+  const shin = (targets: Record<string, IAutoMovieRigidTransform>): number =>
     Vector3.dot(
       Quaternion.rotateVector(targets.rightLowerLeg!.rotation, {
         x: 0,
@@ -150,11 +157,11 @@ export function test_physical_whole_body_fit(): void {
   inspect(approached.targets);
 
   /** Anchors, ROM and the held contact, measured on the original tree. */
-  function inspect(targets: Record<string, P.ITransform>): void {
+  function inspect(targets: Record<string, IAutoMovieRigidTransform>): void {
     const failures: string[] = [];
     for (const joint of profile.joints) {
-      const parent: P.ITransform = targets[joint.parent]!;
-      const child: P.ITransform = targets[joint.child]!;
+      const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
+      const child: IAutoMovieRigidTransform = targets[joint.child]!;
       const a: IAutoMovieVector3 = Vector3.add(
         parent.position,
         Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
@@ -174,7 +181,7 @@ export function test_physical_whole_body_fit(): void {
       )
         failures.push(`${joint.id}: ROM`);
     }
-    const held: P.ITransform = targets.leftLowerLeg!;
+    const held: IAutoMovieRigidTransform = targets.leftLowerLeg!;
     const moved: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

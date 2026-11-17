@@ -5,7 +5,7 @@ import {
   AutoMovieViewOutline,
 } from "@automovie/engine";
 import type {
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewCurves,
   IAutoMovieViewLoft,
   IAutoMovieViewOutline,
@@ -202,7 +202,7 @@ export function test_construction_source_curves(): void {
   const part: IAutoMovieViewPart = {
     name: "source",
     axis: {
-      at: (s: number): IAutoMovieLoftFrame.IFrame => ({
+      at: (s: number): IAutoMovieLoftSectionFrame => ({
         origin: [s * s, s, s ** 3],
         u: [Math.cos(s), 0, Math.sin(s)],
         v: [-Math.sin(s), 0, Math.cos(s)],
@@ -314,7 +314,7 @@ export function test_construction_source_curves(): void {
     typeof AutoMovieViewCurves.at(
       source.curves[0]!,
       {
-        at: (): IAutoMovieLoftFrame.IFrame => ({
+        at: (): IAutoMovieLoftSectionFrame => ({
           origin: [NaN, 0, 0],
           u: [1, 0, 0],
           v: [0, 0, 1],
@@ -327,7 +327,7 @@ export function test_construction_source_curves(): void {
   const thrown: IAutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
     source.curves[0]!,
     {
-      at: (): IAutoMovieLoftFrame.IFrame => {
+      at: (): IAutoMovieLoftSectionFrame => {
         throw new Error("made-axis-failure");
       },
     },

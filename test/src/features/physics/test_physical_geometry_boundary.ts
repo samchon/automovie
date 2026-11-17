@@ -3,8 +3,9 @@ import {
   Quaternion,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalShape,
   IAutoMoviePreparePhysicalGeometry,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -28,15 +29,16 @@ import { nclose } from "../internal/nclose";
  */
 export async function test_physical_geometry_boundary(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
-  const sphere: P.IShape = PhysicalFixtures.sphere().segments[0]!.shapes[0]!;
+  const sphere: IAutoMoviePhysicalShape =
+    PhysicalFixtures.sphere().segments[0]!.shapes[0]!;
   const make: (
-    shape: P.IShape,
+    shape: IAutoMoviePhysicalShape,
     x: number,
-    rotation?: P.ITransform["rotation"],
+    rotation?: IAutoMovieRigidTransform["rotation"],
   ) => IAutoMoviePreparePhysicalGeometry.ICollider = (
-    shape: P.IShape,
+    shape: IAutoMoviePhysicalShape,
     x: number,
-    rotation: P.ITransform["rotation"] = Quaternion.identity(),
+    rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.identity(),
   ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
     body: x === 0 ? "first" : "second",
     bone: "root",
@@ -55,13 +57,13 @@ export async function test_physical_geometry_boundary(): Promise<void> {
         contact.impulse === null,
     );
   }
-  const shapes: P.IShape[] = [
+  const shapes: IAutoMoviePhysicalShape[] = [
     sphere,
     { ...sphere, kind: "capsule", radius: 0.1, halfLength: 0.2 },
     { ...sphere, kind: "box", halfExtents: { x: 0.1, y: 0.2, z: 0.3 } },
   ];
   for (const original of shapes) {
-    const shape: P.IShape = {
+    const shape: IAutoMoviePhysicalShape = {
       ...original,
       transform: {
         position: { x: 0, y: 0.3, z: 0.1 },

@@ -144,7 +144,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
 
   /** Whether a phrase's foot stands on its stance: only at the clock's two ends. */
   const grounded =
-    (clock: IAutoMovieMotionClock.IClock) =>
+    (clock: IAutoMovieMotionClock) =>
     (seconds: number): boolean =>
       seconds <= 0 || seconds >= clock.duration;
 

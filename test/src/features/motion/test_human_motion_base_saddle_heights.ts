@@ -125,7 +125,7 @@ export function test_human_motion_base_saddle_heights(): void {
       seat.yaw,
     );
     const [sitting, rising]: readonly (
-      | IAutoMovieMotionHumanSegment.ISegment
+      | IAutoMovieMotionHumanSegment
       | undefined
     )[] = performance.segments("a");
     if (sitting === undefined || rising === undefined) {

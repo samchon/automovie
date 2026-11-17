@@ -1,6 +1,9 @@
 import type {
   IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -40,13 +43,12 @@ export function fitPhysicalWholeBodyTarget(
   const pivot: string = `${input.support.bone}:pivot`;
   if (
     input.profile.segments.some(
-      (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === pivot,
+      (s: IAutoMoviePhysicalSegment): boolean => s.bone === pivot,
     )
   )
     throw new Error(`Physical pivot name ${pivot} is taken`);
-  const held: IAutoMoviePhysicalProfile.ITransform =
-    input.targets[input.support.bone]!;
-  const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = along(
+  const held: IAutoMovieRigidTransform = input.targets[input.support.bone]!;
+  const frame: IAutoMovieRigidTransform["rotation"] = along(
     input.support.normal,
   );
   const rerooted: IAutoMoviePhysicalProfile = rerootPhysicalProfile(
@@ -56,10 +58,10 @@ export function fitPhysicalWholeBodyTarget(
   const inverted: Set<string> = new Set(
     rerooted.joints
       .filter(
-        (joint: IAutoMoviePhysicalProfile.IJoint, k: number): boolean =>
+        (joint: IAutoMoviePhysicalJoint, k: number): boolean =>
           joint !== input.profile.joints[k],
       )
-      .map((joint: IAutoMoviePhysicalProfile.IJoint): string => joint.id),
+      .map((joint: IAutoMoviePhysicalJoint): string => joint.id),
   );
 
   // A virtual base hinged onto the support at its contact, about its normal.
@@ -117,17 +119,17 @@ export function fitPhysicalWholeBodyTarget(
   const moving: string[] = [
     input.support.bone,
     ...input.profile.joints
-      .filter((joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+      .filter((joint: IAutoMoviePhysicalJoint): boolean =>
         input.bones.includes(joint.child),
       )
-      .map((joint: IAutoMoviePhysicalProfile.IJoint): string =>
+      .map((joint: IAutoMoviePhysicalJoint): string =>
         inverted.has(joint.id) ? joint.parent : joint.child,
       ),
   ];
   const measure = (
-    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): number[] => {
-    const pose: IAutoMoviePhysicalProfile.ITransform = poses[input.goal.bone]!;
+    const pose: IAutoMovieRigidTransform = poses[input.goal.bone]!;
     const error: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(
         pose.position,
@@ -160,7 +162,7 @@ export function fitPhysicalWholeBodyTarget(
       tolerance: input.tolerance,
     });
   const rows: number[] = measure(solved.targets);
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+  const targets: Record<string, IAutoMovieRigidTransform> = {
     ...solved.targets,
   };
   delete targets[pivot];
@@ -175,7 +177,7 @@ export function fitPhysicalWholeBodyTarget(
 /** The rotation taking +x to a unit direction by the shortest arc. */
 function along(
   direction: IAutoMovieVector3,
-): IAutoMoviePhysicalProfile.ITransform["rotation"] {
+): IAutoMovieRigidTransform["rotation"] {
   const d: IAutoMovieVector3 = Vector3.normalize(direction);
   if (d.x < -1 + 1e-12) return { x: 0, y: 0, z: 1, w: 0 };
   const half: number = Math.sqrt((1 + d.x) / 2);

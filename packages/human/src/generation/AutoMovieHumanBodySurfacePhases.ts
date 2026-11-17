@@ -1,7 +1,8 @@
 import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
-  IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodySurfacePhases,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
@@ -27,11 +28,10 @@ export namespace AutoMovieHumanBodySurfacePhases {
     );
     const pinches: number[] = context.events
       .filter(
-        (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
-          e.parent === target.name,
+        (e: IAutoMovieHumanBranchEvent): boolean => e.parent === target.name,
       )
-      .flatMap((e: IAutoMovieHumanBodyCalibration.IEvent): number[] =>
-        e.splits.flatMap((s: IAutoMovieHumanBodyCalibration.ISplit): number[] =>
+      .flatMap((e: IAutoMovieHumanBranchEvent): number[] =>
+        e.splits.flatMap((s: IAutoMovieHumanBranchSplit): number[] =>
           s.arcs.flat(),
         ),
       )

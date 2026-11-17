@@ -4,7 +4,14 @@ import type { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruct
 import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 import type { IAutoMovieSurfaceNetworkBindings } from "./IAutoMovieSurfaceNetworkBindings";
 
-/** Compile-time network, sampling tier and optional motion/inspection choices for a reusable cage rig. */
+/**
+ * Compile-time network, sampling tier and optional motion/inspection choices for a reusable cage rig.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A rest metre network, sampling tier and optional bindings compile one topology reused across poses. Optional bindings require rest bones when nonempty; fit=false keeps samples as controls without changing ring pins or rest girth constraints.
+ * @evidence contracts/development/design.md#principled-representation A rest metre network, sampling tier and optional bindings compile one topology reused across poses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSurfaceNetwork owns registration, fitting and pose updates while importing the canonical network and bone contracts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional bindings require rest bones when nonempty; fit=false keeps samples as controls without changing ring pins or rest girth constraints.
+ */
 export namespace IAutoMovieRigSurfaceNetwork {
   /**
    * Compile a surface network at one tier into its rest cage and a per-pose update of the cage's control positions.

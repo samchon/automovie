@@ -9,7 +9,7 @@ import type { IAutoMovieMotionHumanFrame } from "../posture/IAutoMovieMotionHuma
  * @evidence contracts/development/common.md#meaningful-documentation riser: Each riser's height, metres; 0.17 when absent. tread: Each tread's depth, metres; 0.28 when absent. direction: Up the flight or down it; `up` when absent.
  * @evidence contracts/development/design.md#principled-representation riser: Each riser's height, metres; 0.17 when absent. tread: Each tread's depth, metres; 0.28 when absent. direction: Up the flight or down it; `up` when absent.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/stairsCases.ts (boxes, flight); terrain/climbStairsFlight.ts (climbStairsFlight.surface, flight); terrain/climbStairsFlight.ts (climbStairsFlight.flight, return); terrain/climbStairsFlight.ts (climbStairsFlight.flight, params); executable/cases/stairsCases.ts (stairsCases); terrain/climbStairs.ts (climbStairs.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFrame.IFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanClimbStairsFlight {
   /**
@@ -47,7 +47,7 @@ export namespace IAutoMovieMotionHumanClimbStairsFlight {
    */
   export interface IFlight {
     /** The frame: origin on the floor under the feet's middle, the heading. */
-    frame: IAutoMovieMotionHumanFrame.IFrame;
+    frame: IAutoMovieMotionHumanFrame;
 
     /** The first nosing's distance ahead in that frame, metres. */
     first: number;

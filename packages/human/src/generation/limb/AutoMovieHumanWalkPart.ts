@@ -4,7 +4,9 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanWalkPart,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
@@ -39,7 +41,7 @@ export namespace AutoMovieHumanWalkPart {
    */
   export function create(
     input: IAutoMovieHumanWalkPart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     const built: IAutoMovieHumanWalkPart.ISource | string = source(input);
     return typeof built === "string"
       ? {
@@ -128,10 +130,8 @@ export namespace AutoMovieHumanWalkPart {
 
     // Each site's station from its bone and share, then its edges in the
     // engine's chart.
-    const sites: IAutoMovieHumanSiteViewPart.ISite[] = input.sites.map(
-      (
-        s: IAutoMovieHumanWalkPart.ISite,
-      ): IAutoMovieHumanSiteViewPart.ISite => ({
+    const sites: IAutoMovieHumanSectionSite[] = input.sites.map(
+      (s: IAutoMovieHumanWalkPart.ISite): IAutoMovieHumanSectionSite => ({
         site: s.site,
         station: station(centres, runs, s.bone, s.share),
         edges: engine(s.edges),
@@ -248,7 +248,7 @@ export namespace AutoMovieHumanWalkPart {
   /** Carry derivatives of the same signed edges through the side-pair reflection; their normalized parameter is unchanged. */
   function engineJets(
     jets: NonNullable<IAutoMovieHumanWalkPart.ISite["jets"]>,
-  ): NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> {
+  ): NonNullable<IAutoMovieHumanSectionSite["jets"]> {
     const neg = (jet: (typeof jets)[number]): (typeof jets)[number] =>
       jet === undefined
         ? undefined
@@ -262,7 +262,7 @@ export namespace AutoMovieHumanWalkPart {
   /** Negating a side edge exchanges its scalar bounds as well as their signs. */
   function engineRanges(
     ranges: NonNullable<IAutoMovieHumanWalkPart.IInput["ranges"]>,
-  ): NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]> {
+  ): NonNullable<IAutoMovieHumanSectionSource["ranges"]> {
     const neg = (range: (typeof ranges)[number]): (typeof ranges)[number] =>
       range === undefined
         ? undefined
@@ -284,7 +284,7 @@ export namespace AutoMovieHumanWalkPart {
   function pole(
     input: IAutoMovieHumanWalkPart.IInput,
     top: number,
-  ): Pick<IAutoMovieHumanSiteViewPart.IInput, "pole"> {
+  ): Pick<IAutoMovieHumanSectionSource, "pole"> {
     if (input.base === true && input.tip !== undefined)
       return { pole: { end: "both", bottom: 0, top } };
     if (input.base === true) return { pole: { end: "bottom", station: 0 } };

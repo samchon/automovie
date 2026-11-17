@@ -8,10 +8,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
@@ -50,7 +50,7 @@ export function test_archetype_weapons_rack(): void {
   const stood = (
     slot: "slot2" | "slot3",
     end: IAutoMovieVector3,
-  ): IAutoMovieMotionHumanProp.IFrame => ({
+  ): IAutoMovieRigidTransform => ({
     position: Vector3.subtract(
       rack.affordance(slot).frame.translation,
       Quaternion.rotateVector(down, end),
@@ -92,7 +92,7 @@ export function test_archetype_weapons_rack(): void {
       );
       continue;
     }
-    const pick: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[1]!;
+    const pick: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
     const closed: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
@@ -103,7 +103,7 @@ export function test_archetype_weapons_rack(): void {
       local: IAutoMovieVector3,
       seconds: number,
     ): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(prop, seconds);
+      const frame: IAutoMovieRigidTransform = film.prop(prop, seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, local),

@@ -3,9 +3,9 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -51,7 +51,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   const pell: ReturnType<typeof createPell> = createPell();
   const complaints: string[] = [];
   const placed = (
-    frame: IAutoMovieMotionHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
@@ -134,13 +134,11 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
       .registered("lunge", at("right"), "lunge")
       .registered("lunge", at("close"), "short").node,
   });
-  const act = (anchor: string): IAutoMovieMotionHumanSegment.ISegment =>
+  const act = (anchor: string): IAutoMovieMotionHumanSegment =>
     film
       .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === anchor,
-      )!;
-  const decisive = (segment: IAutoMovieMotionHumanSegment.ISegment): number =>
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.id === anchor)!;
+  const decisive = (segment: IAutoMovieMotionHumanSegment): number =>
     segment.start + (segment.plan.contact ?? Number.NaN);
   const point = (seconds: number): IAutoMovieVector3 =>
     placed(
@@ -157,7 +155,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     HumanSignature.joint(reader, seconds, `${side}Toes`);
 
   // 1. A thrust from where they stand.
-  const first: IAutoMovieMotionHumanSegment.ISegment = act("first");
+  const first: IAutoMovieMotionHumanSegment = act("first");
   const missed: number = apart(point(decisive(first)), target("ahead"));
   if (!(missed <= 0.015))
     complaints.push(
@@ -208,7 +206,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     );
 
   // 4. A lunge.
-  const lunge: IAutoMovieMotionHumanSegment.ISegment = act("lunge");
+  const lunge: IAutoMovieMotionHumanSegment = act("lunge");
   const short: number = apart(point(decisive(lunge)), target("right"));
   if (!(short <= 0.015))
     complaints.push(
@@ -236,7 +234,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   // is shorter than a full one and lands with the arm as far out as the full
   // lunge's, the reach both are measured to, so the target stands as far from
   // the shoulder.
-  const shorter: IAutoMovieMotionHumanSegment.ISegment = act("short");
+  const shorter: IAutoMovieMotionHumanSegment = act("short");
   const landed: number = decisive(shorter);
   const close: number = apart(point(landed), target("close"));
   if (!(close <= 0.015))

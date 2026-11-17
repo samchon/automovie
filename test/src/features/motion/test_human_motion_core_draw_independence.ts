@@ -61,8 +61,8 @@ export function test_human_motion_core_draw_independence(): void {
     composition: { node: IAutoMovieMotionHumanChain["node"] },
     layers?: Record<string, readonly IAutoMovieMotionHumanLayer[]>,
   ): number[] => {
-    const wave: IAutoMovieMotionHumanSegment.ISegment | undefined =
-      new HumanPerformance({
+    const wave: IAutoMovieMotionHumanSegment | undefined = new HumanPerformance(
+      {
         seed,
         performers: subjects.map((subject: "a" | "b" | "c", index: number) => ({
           subject,
@@ -73,12 +73,12 @@ export function test_human_motion_core_draw_independence(): void {
         })),
         ...(layers === undefined ? {} : { layers }),
         composition: composition.node,
-      })
-        .segments("a")
-        .find(
-          (segment: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            segment.id === "w",
-        );
+      },
+    )
+      .segments("a")
+      .find(
+        (segment: IAutoMovieMotionHumanSegment): boolean => segment.id === "w",
+      );
     return wave === undefined
       ? []
       : [

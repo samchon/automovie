@@ -1,5 +1,9 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieRecoveryAtlasObservationState } from "./IAutoMovieRecoveryAtlasObservationState";
+import type { IAutoMovieRecoveryAtlasObservationInput } from "../observation/IAutoMovieRecoveryAtlasObservationInput";
+import type { IAutoMovieRecoveryChartInventory } from "./IAutoMovieRecoveryChartInventory";
+import type { IAutoMovieRecoveryEventRegion } from "./IAutoMovieRecoveryEventRegion";
+import type { IAutoMovieRecoveryPendingChartObservation } from "./IAutoMovieRecoveryPendingChartObservation";
+import type { IAutoMovieRecoverySourceComponent } from "./IAutoMovieRecoverySourceComponent";
 
 /**
  * Prepare an annular, natural-side or general disk chart without changing its declared correspondence.
@@ -24,11 +28,11 @@ export namespace IAutoMovieRecoveryAtlasObservationChart {
     /** Directed halfedge occurrences retained in actual source-cell traversal order. */
     occurrences: Map<
       string,
-      IAutoMovieRecoveryAtlasObservationState["Observed"]["occurrences"][number]
+      IAutoMovieRecoveryEventRegion.Result["occurrences"][number]
     >;
 
     /** Borrowed complete admitted observation request shared by this phase; the phase does not change its source selection. */
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
 
     /** Caller-assigned stable semantic identity retained in generated coefficient and observation records. */
     name: string;
@@ -46,7 +50,7 @@ export namespace IAutoMovieRecoveryAtlasObservationChart {
     slots: Map<string, number>;
 
     /** One observed source-cell component with independent topology qualification. */
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    component: IAutoMovieRecoverySourceComponent;
 
     /** Ordinal of the adjacent saved-plane interval in the complete observation sequence. */
     interval: number;
@@ -58,10 +62,10 @@ export namespace IAutoMovieRecoveryAtlasObservationChart {
     afterMm: number;
 
     /** Prepared chart jobs awaiting common boundary fitting; their outcome arrays are shared with the observation ledger. */
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
 
     /** Unfitted chart population measurements retained independently of later fitting success. */
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    inventory: IAutoMovieRecoveryChartInventory[];
 
     /** Caller-owned mutable diagnostic ledger entries; these are metadata and never interpreted as generated geometry. */
     outcomes: object[];

@@ -106,7 +106,7 @@ export function test_human_motion_base_saddle_cuts(): void {
       body,
       seat.yaw,
     );
-    const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
       performance.segments("a");
     const end: number = segments[segments.length - 1]!.end;
     const hips = (t: number): number =>

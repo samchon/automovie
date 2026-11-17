@@ -5,8 +5,12 @@ import {
   projectPhysicalTargets,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -35,13 +39,13 @@ export async function test_physical_compound_motor(): Promise<void> {
   const findings: string[] = [];
   for (const transverse of [0.35, 0.7]) {
     const base: P = PhysicalFixtures.sphere();
-    const parent: P.ISegment = {
+    const parent: IAutoMoviePhysicalSegment = {
       ...structuredClone(base.segments[0]!),
       bone: "base",
       mass: 10,
       inertia: { x: 0.1, y: 0.1, z: 0.1 },
     };
-    const child: P.ISegment = {
+    const child: IAutoMoviePhysicalSegment = {
       ...structuredClone(base.segments[0]!),
       bone: "lever",
       mass: 5,
@@ -61,7 +65,7 @@ export async function test_physical_compound_motor(): Promise<void> {
         },
       ],
     };
-    const joint: P.IJoint = {
+    const joint: IAutoMoviePhysicalJoint = {
       id: "universal",
       parent: "base",
       child: "lever",
@@ -74,7 +78,7 @@ export async function test_physical_compound_motor(): Promise<void> {
         rotation: Quaternion.identity(),
       },
       axes: (["x", "y", "z"] as const).map(
-        (axis: "x" | "y" | "z"): P.IAxis => ({
+        (axis: "x" | "y" | "z"): IAutoMoviePhysicalJointAxis => ({
           axis,
           minimum: axis === "x" ? -0.4 : -0.7,
           maximum: axis === "x" ? 2.4 : 0.7,
@@ -107,7 +111,7 @@ export async function test_physical_compound_motor(): Promise<void> {
     for (const [step, target] of body.targets.entries()) {
       target.strength = 1;
       const fraction: number = Math.min(1, step / 120 / SWEEP);
-      const q: P.ITransform["rotation"] = {
+      const q: IAutoMovieRigidTransform["rotation"] = {
         x: Math.tan(1.1 * Math.sin(fraction * Math.PI)),
         y: Math.tan(transverse / 2),
         z: Math.tan(0.25 * Math.sin(fraction * Math.PI * 2)),

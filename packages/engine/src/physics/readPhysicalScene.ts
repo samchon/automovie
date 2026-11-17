@@ -1,4 +1,4 @@
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type { IAutoMovieRigidTransform } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 
@@ -16,32 +16,25 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 export function readPhysicalScene(
   bound: Bound,
   previous?: Readonly<
-    Record<
-      string,
-      Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>
-    >
+    Record<string, Readonly<Record<string, IAutoMovieRigidTransform>>>
   >,
   body?: string,
-): Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>> {
+): Record<string, Record<string, IAutoMovieRigidTransform>> {
   let result: Record<
     string,
-    Record<string, IAutoMoviePhysicalProfile.ITransform>
-  > = (previous as Record<
-    string,
-    Record<string, IAutoMoviePhysicalProfile.ITransform>
-  >) ?? Object.create(null);
+    Record<string, IAutoMovieRigidTransform>
+  > = (previous as Record<string, Record<string, IAutoMovieRigidTransform>>) ??
+  Object.create(null);
   for (const [id, segments] of bound.segments) {
     if (body !== undefined && id !== body) continue;
-    let current: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    let current: Record<string, IAutoMovieRigidTransform> =
       result[id] ?? Object.create(null);
     let owned: boolean = previous === undefined || result[id] === undefined;
     for (const [bone, rigid] of segments) {
-      const position: IAutoMoviePhysicalProfile.ITransform["position"] =
+      const position: IAutoMovieRigidTransform["position"] =
         rigid.translation();
-      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-        rigid.rotation();
-      const before: IAutoMoviePhysicalProfile.ITransform | undefined =
-        current[bone];
+      const rotation: IAutoMovieRigidTransform["rotation"] = rigid.rotation();
+      const before: IAutoMovieRigidTransform | undefined = current[bone];
       if (
         before &&
         before.position.x === position.x &&

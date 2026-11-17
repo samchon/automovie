@@ -1,6 +1,13 @@
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
-/** Data and callback contracts shared by the ViewParallelAxis operations. */
+/**
+ * Data and callback contracts shared by the ViewParallelAxis operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IOrigin supplies three scalar world-mm coordinates as functions of the same physical-mm station.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ViewParallelAxis consumes the existing ViewPart outline contract for each axis component.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Three coordinates define an origin, not an independently fitted orientation; finite source coverage remains axis preparation admission.
+ * @evidence contracts/development/common.md#meaningful-documentation States world components and their shared station clock.
+ */
 export namespace IAutoMovieViewParallelAxis {
   /**
    * Three source coordinates of an origin in world millimetres.

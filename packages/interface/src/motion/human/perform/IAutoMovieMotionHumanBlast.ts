@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
+import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotionHumanScheduledInstant";
 
 /**
  * A blast: a point and an instant from which an impulse reaches every
@@ -18,7 +18,7 @@ import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLay
  * @evidence contracts/development/common.md#meaningful-documentation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
  * @evidence contracts/development/design.md#principled-representation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanBlast.ts (HumanBlast.impulse, blast); perform/HumanPerformanceState.ts (HumanPerformanceState).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanLayer.Instant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanBlast {
   /**
@@ -27,7 +27,7 @@ export namespace IAutoMovieMotionHumanBlast {
    * @evidence contracts/development/common.md#meaningful-documentation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
    * @evidence contracts/development/design.md#principled-representation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanBlast.ts (HumanBlast.impulse, blast); perform/HumanPerformanceState.ts (HumanPerformanceState).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanLayer.Instant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IBlast {
     /** Its id, unique among the blasts; the hit's `object`. */
@@ -37,7 +37,7 @@ export namespace IAutoMovieMotionHumanBlast {
     point: IAutoMovieVector3;
 
     /** Film second it bursts, or a named instant of an action or a cue track. */
-    at: IAutoMovieMotionHumanLayer.Instant;
+    at: AutoMovieMotionHumanScheduledInstant;
 
     /** How far it reaches, metres; positive. */
     radius: number;

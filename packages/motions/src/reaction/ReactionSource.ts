@@ -1,5 +1,6 @@
 import type {
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionTarget,
@@ -63,8 +64,9 @@ export namespace ReactionSource {
         posture,
         place,
       );
-    const other: IAutoMovieMotionHumanActionContext.IPerformer =
-      context.performer(from.subject);
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
+      from.subject,
+    );
     return {
       ...StrikingBody.region(other.body, other.bones(seconds), from.region),
       solid: true,

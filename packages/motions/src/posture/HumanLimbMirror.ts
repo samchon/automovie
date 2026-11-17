@@ -1,5 +1,7 @@
 import type {
-  IAutoMovieMotionHumanPosture,
+  AutoMovieHumanLimb,
+  IAutoMovieHumanEffectorPointLimit,
+  IAutoMovieHumanLimbGoal,
   IAutoMoviePose,
 } from "@automovie/interface";
 
@@ -41,9 +43,7 @@ export namespace HumanLimbMirror {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmMirror`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function goal(
-    goal: IAutoMovieMotionHumanPosture.IGoal,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  export function goal(goal: IAutoMovieHumanLimbGoal): IAutoMovieHumanLimbGoal {
     return {
       ...goal,
       point: HumanArmMirror.flip(goal.point),
@@ -59,8 +59,8 @@ export namespace HumanLimbMirror {
         : {
             limits: goal.limits.map(
               (
-                limit: IAutoMovieMotionHumanPosture.IPointLimit,
-              ): IAutoMovieMotionHumanPosture.IPointLimit => ({
+                limit: IAutoMovieHumanEffectorPointLimit,
+              ): IAutoMovieHumanEffectorPointLimit => ({
                 ...limit,
                 contact: HumanArmMirror.flip(limit.contact),
               }),
@@ -79,12 +79,10 @@ export namespace HumanLimbMirror {
   }
 
   /** The same limb on the other side. */
-  export function limb(
-    limb: IAutoMovieMotionHumanPosture.Limb,
-  ): IAutoMovieMotionHumanPosture.Limb {
+  export function limb(limb: AutoMovieHumanLimb): AutoMovieHumanLimb {
     return (
       limb.startsWith("left") ? `right${limb.slice(4)}` : `left${limb.slice(5)}`
-    ) as IAutoMovieMotionHumanPosture.Limb;
+    ) as AutoMovieHumanLimb;
   }
 
   /** The other side. */

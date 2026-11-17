@@ -122,7 +122,7 @@ export namespace floorSeat {
       right: at("rightUpperLeg"),
     };
     const thigh: number = body.measure.thigh;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: {
         x: (hips.left.x + hips.right.x) / 2,
         y: 0,

@@ -1,6 +1,8 @@
 import type {
   IAutoMoviePhysicalGravityTorques,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
@@ -23,7 +25,7 @@ import { Vector3 } from "../math/Vector3";
  */
 export function physicalGravityTorques(
   profile: IAutoMoviePhysicalProfile,
-  order: readonly IAutoMoviePhysicalProfile.IJoint[],
+  order: readonly IAutoMoviePhysicalJoint[],
   segments: ReadonlyMap<string, RigidBody>,
   gravity: IAutoMovieVector3,
 ): IAutoMoviePhysicalGravityTorques.IResult {
@@ -77,7 +79,7 @@ export function physicalGravityTorques(
     ancestor.mass += load.mass;
     ancestor.moment = Vector3.add(ancestor.moment, load.moment);
   }
-  const root: IAutoMoviePhysicalProfile.ISegment = profile.segments.find(
+  const root: IAutoMoviePhysicalSegment = profile.segments.find(
     (segment: (typeof profile.segments)[number]): boolean =>
       !profile.joints.some(
         (joint: (typeof profile.joints)[number]): boolean =>

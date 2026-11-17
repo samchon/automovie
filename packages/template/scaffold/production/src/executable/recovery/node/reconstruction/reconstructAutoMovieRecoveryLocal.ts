@@ -1,6 +1,6 @@
 import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
 import type {
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteStream64,
   IAutoMovieRecoveryLocalBinding,
   IAutoMovieRecoveryLocalResult,
@@ -321,8 +321,8 @@ export function reconstructAutoMovieRecoveryLocal(
       | undefined;
     let outputOperation: boolean = false;
     try {
-      const courses: IAutoMovieCurve64.Cubic[] = nodes.map(
-        (n: Node, i: number): IAutoMovieCurve64.Cubic =>
+      const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
+        (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
           normalizeRecoveryCourse(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,

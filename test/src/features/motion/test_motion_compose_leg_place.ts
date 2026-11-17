@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -91,7 +92,7 @@ export function test_motion_compose_leg_place(): void {
   };
 
   // 1. The goal and its knee hint.
-  const free: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanLeg.goal(
+  const free: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
     body,
     posture,
     "left",
@@ -127,8 +128,13 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 2. Planted against free.
-  const planted: IAutoMovieMotionHumanPosture.IGoal =
-    AutoMovieMotionHumanLeg.goal(body, posture, "left", stance, true);
+  const planted: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
+    body,
+    posture,
+    "left",
+    stance,
+    true,
+  );
   TestValidator.predicate(
     "a planted goal declares the toes' joint as its contact",
     planted.planted === true &&
@@ -176,7 +182,7 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 4. A planted foot.
-  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -197,8 +203,8 @@ export function test_motion_compose_leg_place(): void {
     close(plant.from, 0.25) &&
       close(plant.to, 0.375) &&
       [0.25, 0.3, 0.375].every((t: number): boolean => {
-        const g: IAutoMovieMotionHumanPosture.IGoal = plant.write(posture, t)
-          .limbs.leftLeg!;
+        const g: IAutoMovieHumanLimbGoal = plant.write(posture, t).limbs
+          .leftLeg!;
         return at(g.point, 0.1, 0.08, 0.4) && g.planted === true;
       }),
   );
@@ -213,7 +219,7 @@ export function test_motion_compose_leg_place(): void {
     ahead,
     0.05,
   );
-  const leg = (t: number): IAutoMovieMotionHumanPosture.IGoal =>
+  const leg = (t: number): IAutoMovieHumanLimbGoal =>
     step.write(posture, t).limbs.leftLeg!;
   TestValidator.predicate(
     "a step leaves free, peaks at its clearance half way and lands planted",

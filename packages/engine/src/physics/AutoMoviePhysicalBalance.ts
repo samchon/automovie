@@ -1,6 +1,7 @@
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalBalance,
+  IAutoMoviePhysicalSupportPatch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -107,7 +108,7 @@ export namespace AutoMoviePhysicalBalance {
       input.supports.reduce(
         (
           sum: IAutoMovieVector3,
-          support: IAutoMoviePhysicalBalance.ISupport,
+          support: IAutoMoviePhysicalSupportPatch,
         ): IAutoMovieVector3 => Vector3.add(sum, support.position),
         { x: 0, y: 0, z: 0 },
       ),
@@ -120,7 +121,7 @@ export namespace AutoMoviePhysicalBalance {
     };
     const denominator: number = direction.x ** 2 + direction.z ** 2;
     const candidates: {
-      support: IAutoMoviePhysicalBalance.ISupport;
+      support: IAutoMoviePhysicalSupportPatch;
       phase: number;
       distance: number;
       target: IAutoMovieVector3;
@@ -129,7 +130,7 @@ export namespace AutoMoviePhysicalBalance {
         (
           support: (typeof input.supports)[number],
         ): {
-          support: IAutoMoviePhysicalBalance.ISupport;
+          support: IAutoMoviePhysicalSupportPatch;
           phase: number;
           distance: number;
           target: IAutoMovieVector3;
@@ -164,13 +165,13 @@ export namespace AutoMoviePhysicalBalance {
       .sort(
         (
           a: {
-            support: IAutoMoviePhysicalBalance.ISupport;
+            support: IAutoMoviePhysicalSupportPatch;
             phase: number;
             distance: number;
             target: IAutoMovieVector3;
           },
           b: {
-            support: IAutoMoviePhysicalBalance.ISupport;
+            support: IAutoMoviePhysicalSupportPatch;
             phase: number;
             distance: number;
             target: IAutoMovieVector3;

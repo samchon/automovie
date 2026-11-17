@@ -1,7 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanStrikingRoll,
@@ -72,7 +73,7 @@ export namespace StrikingRoll {
     back: number,
     posture: IAutoMovieMotionHumanPosture,
   ): number {
-    const goal: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
+    const goal: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
       context,
       tool,
       frame,
@@ -424,7 +425,7 @@ export namespace StrikingRoll {
   /** The holding arm's shoulder joint on a posture, world metres. */
   const shoulder = (
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!

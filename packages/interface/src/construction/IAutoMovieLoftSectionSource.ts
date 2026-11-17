@@ -2,7 +2,14 @@ import type { IAutoMovieLoftSectionSourceBinding } from "./IAutoMovieLoftSection
 import type { IAutoMovieLoftSectionSourceFamily } from "./IAutoMovieLoftSectionSourceFamily";
 import type { IAutoMovieLoftViewSource } from "./IAutoMovieLoftViewSource";
 
-/** Data and callback contracts shared by the LoftSectionSource operations. */
+/**
+ * Data and callback contracts shared by the LoftSectionSource operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Source and endpoint discriminants distinguish original scalar fields from oriented complete endpoint families, each with independent compatibility-row bindings.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface LoftSectionSource owns these records for native chain readers and continuation field capture.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A present but malformed or stale source remains failure rather than falling back to legacy coefficients.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines source discriminants, immutable snapshots and explicit rebinding after edits.
+ */
 export namespace IAutoMovieLoftSectionSource {
   /**
    * Original scalar field and the compatibility rows published beside it.

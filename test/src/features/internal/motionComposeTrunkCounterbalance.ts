@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -105,9 +106,7 @@ export namespace motionComposeTrunkCounterbalance {
         y: p.y + up,
         z: p.z + (yaw === 0 ? forward : 0),
       });
-      const arm = (
-        side: "left" | "right",
-      ): IAutoMovieMotionHumanPosture.IGoal => {
+      const arm = (side: "left" | "right"): IAutoMovieHumanLimbGoal => {
         const shoulder: IAutoMovieVector3 = base.get(
           `${side}UpperArm`,
         )!.worldPosition;

@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanBodyStrip; runtime evaluation remains in Human. */
+/**
+ * Appendage/base endpoint jets and arclength derivatives used to bridge a skin strip. Runtime construction and admission remain with AutoMovieHumanBodyStrip in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes appendage/base endpoint jets and arclength derivatives used to bridge a skin strip; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Appendage/base endpoint jets and arclength derivatives used to bridge a skin strip. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanBodyStrip; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing BodyStrip contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanBodyStrip {
   /** Both edges of one column: points and outward arc-length derivatives.
    *
@@ -33,16 +40,13 @@ export namespace IAutoMovieHumanBodyStrip {
     l: number;
   }
 
-  /** Result of AutoMovieHumanBodyStrip.across. First and second derivatives of a chain along the chart direction
-  `(dt, ds)` (phase, station) at a chart point, by arc length: from its
-  jet where the chain carries one, otherwise from differences of its
-  points over about {@link H} mm.
+  /**
+   * First and second arclength derivatives across a chain at the requested chart point, in the chain's world frame. The first is dimensionless; the second has inverse-millimetre units. The owning operation uses the available chain jet or its documented finite-difference estimate.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation First and second derivatives of a chain along the chart direction `(dt, ds)` (phase, station) at a chart point, by arc length: from its jet where the chain carries one, otherwise from differences of its points over about {@link H} mm.
- * @evidence contracts/development/design.md#principled-representation First and second derivatives of a chain along the chart direction `(dt, ds)` (phase, station) at a chart point, by arc length: from its jet where the chain carries one, otherwise from differences of its points over about {@link H} mm. Ordered tuple slots are 0, 1; fixed arity preserves their correspondence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodyStrip.AcrossResult is the canonical exchange used by AutoMovieHumanBodyStrip.across.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanBodyStrip.across for first and second derivatives of a chain along the chart direction `(dt, ds)` (phase, station) at a chart point, by arc length: from its jet where the chain carries one, otherwise from differences of its points over about {@link H} mm.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation First and second arclength derivatives across a chain at the requested chart point, in the chain's world frame. The first is dimensionless; the second has inverse-millimetre units. The owning operation uses the available chain jet or its documented finite-difference estimate.
+   * @evidence contracts/development/design.md#principled-representation First and second arclength derivatives across a chain at the requested chart point, in the chain's world frame. The first is dimensionless; the second has inverse-millimetre units. The owning operation uses the available chain jet or its documented finite-difference estimate.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodyStrip.AcrossResult is the canonical exchange used by AutoMovieHumanBodyStrip.across.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanBodyStrip input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type AcrossResult = [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
 }

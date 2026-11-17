@@ -57,9 +57,7 @@ export function test_human_motion_base_manner_presets(): void {
       /** The rise. */
       up: number;
     }
-    const times = (
-      manner: IAutoMovieMotionManner.IManner | undefined,
-    ): ITimes => {
+    const times = (manner: IAutoMovieMotionManner | undefined): ITimes => {
       const performance: IAutoMovieMotionHumanPerformance =
         new HumanPerformance({
           seed: "manners",
@@ -80,9 +78,9 @@ export function test_human_motion_base_manner_presets(): void {
             })
             .rise(manner === undefined ? {} : { manner }).node,
         });
-      const sitting: IAutoMovieMotionHumanSegment.ISegment =
+      const sitting: IAutoMovieMotionHumanSegment =
         performance.segments("a")[0]!;
-      const rising: IAutoMovieMotionHumanSegment.ISegment =
+      const rising: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const down: number =
         sitting.plan.events.find(

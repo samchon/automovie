@@ -1,7 +1,9 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
@@ -120,7 +122,7 @@ export namespace climbLadder {
       context.params.ladder,
     );
     const spacing: number = ladder.spacing;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = ladder.frame;
+    const frame: IAutoMovieMotionHumanFrame = ladder.frame;
     const yaw: number = frame.yaw;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
@@ -130,8 +132,7 @@ export namespace climbLadder {
     const flat = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        standing.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(standing.yaw),
@@ -190,7 +191,7 @@ export namespace climbLadder {
 
     // The schedule: hands on, then four beats a rung.
     const beat: number = BEAT * modifiers.tempo;
-    const instants: IAutoMovieMotionClock.IInstant[] = [
+    const instants: IAutoMovieMotionClockInstant[] = [
       { name: "handsOn", seconds: beat },
     ];
     const moves: {
@@ -211,7 +212,7 @@ export namespace climbLadder {
         },
       );
     const duration: number = beat * (2 + count * 4);
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
       instants,
     );

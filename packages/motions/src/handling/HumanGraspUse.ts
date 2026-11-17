@@ -4,15 +4,16 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -105,7 +106,7 @@ export namespace HumanGraspUse {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition">
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     yaw: number,
   ): IAutoMovieVector3 {
     const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
@@ -145,9 +146,7 @@ export namespace HumanGraspUse {
     props: IAutoMovieMotionHumanGraspUse.IPresentedProps,
   ): IAutoMovieMotionHumanGrasp.IKey {
     const context: (typeof props)["context"] = props.context;
-    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(
-      props.prop,
-    );
+    const held: IAutoMovieMotionHumanPropReader = context.prop(props.prop);
     const contact = (id: string): IAutoMovieAffordance | undefined =>
       (held.prop.affordances ?? []).find(
         (affordance: IAutoMovieAffordance): boolean => affordance.id === id,

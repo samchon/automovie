@@ -2,11 +2,11 @@ import { AutoMovieSeamStation } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
-  IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanFootToeSpan,
   IAutoMovieHumanLimbFrame,
+  IAutoMovieHumanNailWindow,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanFootToeChain {
       );
     };
     const normal: Vec3 = G.scale(t.tangent, -1);
-    const frameAt = (s: number): IAutoMovieLoftFrame.IFrame =>
+    const frameAt = (s: number): IAutoMovieLoftSectionFrame =>
       AutoMovieHumanLimbFrame.frame(
         G.plus(t.head, G.scale(t.tangent, s)),
         normal,
@@ -112,7 +112,7 @@ export namespace AutoMovieHumanFootToeChain {
     t: IAutoMovieHumanFootToeSpan.IToe,
     name: string,
     sign: 1 | -1,
-  ): IAutoMovieHumanBodyCalibration.INail {
+  ): IAutoMovieHumanNailWindow {
     const lateral: Vec3 = G.unit(
       G.sub(t.lateral, G.scale(t.tangent, G.dot(t.lateral, t.tangent))),
     );

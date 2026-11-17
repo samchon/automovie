@@ -1,10 +1,19 @@
-import type { IAutoMovieLoftFrame } from "../../../construction/IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "../../../construction/IAutoMovieLoftSectionFrame";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieScalarJet2 } from "../../../geometry/AutoMovieScalarJet2";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanFootSource } from "./IAutoMovieHumanFootSource";
 
-/** Type contracts exchanged by AutoMovieHumanFootConnection; runtime evaluation remains in Human. */
+/**
+ * Original leg-to-foot section contacts, chart chords and explicitly nullable physical derivatives.
+ *
+ * The interface package owns these declarations; AutoMovieHumanFootConnection in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Original leg-to-foot section contacts, chart chords and explicitly nullable physical derivatives. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IAnkle, FrameJet, IChord declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IAnkle, FrameJet, IChord separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanFootConnection exchanges the named IAnkle, FrameJet, IChord contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanFootConnection {
   /** The real leg section and its sagittal contact points, not a global support box.
    *
@@ -20,7 +29,7 @@ export namespace IAutoMovieHumanFootConnection {
     /** Actual ankle source station. */
     station: number;
     /** Original oriented section frame. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
     /** Available original frame derivatives; not a foot-roof derivative. */
     frameJet: FrameJet | null;
     /** Rear and front points of the actual sagittal cut. */
@@ -57,7 +66,7 @@ export namespace IAutoMovieHumanFootConnection {
     /** Across coordinate in the parent's signed chart. */
     across: number;
     /** Original oriented frame. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
     /** Plantar and dorsal world heights. */
     bottom: number;
     /** Dorsal world height. */

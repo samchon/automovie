@@ -90,11 +90,10 @@ export function test_human_motion_gymnastics_box_vault(): void {
     }
 
     // 1. Placed under its name.
-    const vault: IAutoMovieMotionHumanSegment.ISegment | undefined = film
+    const vault: IAutoMovieMotionHumanSegment | undefined = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "boxVault",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "boxVault",
       );
     complaints.check(`${name}: placed as boxVault`, vault !== undefined);
     if (vault === undefined) continue;

@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanDigitCrease; runtime evaluation remains in Human. */
+/**
+ * Crease placement inputs and ordered joint-to-crease arclength tuples in millimetres. Runtime construction and admission remain with AutoMovieHumanDigitCrease in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes crease placement inputs and ordered joint-to-crease arclength tuples in millimetres; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Crease placement inputs and ordered joint-to-crease arclength tuples in millimetres. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanDigitCrease; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing DigitCrease contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanDigitCrease {
   /** A crease's fixed inputs.
    *
@@ -19,29 +26,23 @@ export namespace IAutoMovieHumanDigitCrease {
     radius: number;
   }
 
-  /** The joints argument of AutoMovieHumanDigitCrease.loci. The creases' arc lengths along a finger from its joints, by Bridgman's
-  rule.
-  @param joints Arc lengths of the finger's MCP, PIP and DIP along its line, mm.
-  @returns The four creases' arc lengths, distal first.
+  /**
+   * Readonly MCP, PIP and DIP arclengths along the finger from its root, in millimetres. The crease law consumes the three anatomical joints in that order.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The creases' arc lengths along a finger from its joints, by Bridgman's rule.
- * @evidence contracts/development/design.md#principled-representation The creases' arc lengths along a finger from its joints, by Bridgman's rule. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitCrease.LociJoints is the canonical exchange used by AutoMovieHumanDigitCrease.loci.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanDigitCrease.loci for the creases' arc lengths along a finger from its joints, by Bridgman's rule.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Readonly MCP, PIP and DIP arclengths along the finger from its root, in millimetres. The crease law consumes the three anatomical joints in that order.
+   * @evidence contracts/development/design.md#principled-representation Readonly MCP, PIP and DIP arclengths along the finger from its root, in millimetres. The crease law consumes the three anatomical joints in that order.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitCrease.LociJoints is the canonical exchange used by AutoMovieHumanDigitCrease.loci.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanDigitCrease input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type LociJoints = readonly [number, number, number];
 
-  /** Result of AutoMovieHumanDigitCrease.loci. The creases' arc lengths along a finger from its joints, by Bridgman's
-  rule.
-  @param joints Arc lengths of the finger's MCP, PIP and DIP along its line, mm.
-  @returns The four creases' arc lengths, distal first.
+  /**
+   * Four finger crease arclengths in millimetres, distal first, derived from the input joint stations by the documented Bridgman rule.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The creases' arc lengths along a finger from its joints, by Bridgman's rule.
- * @evidence contracts/development/design.md#principled-representation The creases' arc lengths along a finger from its joints, by Bridgman's rule. Ordered tuple slots are 0, 1, 2, 3; fixed arity preserves their correspondence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitCrease.LociResult is the canonical exchange used by AutoMovieHumanDigitCrease.loci.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanDigitCrease.loci for the creases' arc lengths along a finger from its joints, by Bridgman's rule.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Four finger crease arclengths in millimetres, distal first, derived from the input joint stations by the documented Bridgman rule.
+   * @evidence contracts/development/design.md#principled-representation Four finger crease arclengths in millimetres, distal first, derived from the input joint stations by the documented Bridgman rule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitCrease.LociResult is the canonical exchange used by AutoMovieHumanDigitCrease.loci.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanDigitCrease input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type LociResult = [number, number, number, number];
 }

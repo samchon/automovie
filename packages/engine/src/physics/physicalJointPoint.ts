@@ -1,5 +1,7 @@
 import type {
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -20,15 +22,14 @@ import { Vector3 } from "../math/Vector3";
 export function physicalJointPoint(
   profile: IAutoMoviePhysicalProfile,
   bone: string,
-  targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  targets: Readonly<Record<string, IAutoMovieRigidTransform>>,
 ): IAutoMovieVector3 {
-  const pose: IAutoMoviePhysicalProfile.ITransform | undefined = targets[bone];
+  const pose: IAutoMovieRigidTransform | undefined = targets[bone];
   if (!pose) throw new Error(`Physical joint point missing segment ${bone}`);
-  const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
-    profile.joints.find(
-      (candidate: (typeof profile.joints)[number]): boolean =>
-        candidate.child === bone,
-    );
+  const joint: IAutoMoviePhysicalJoint | undefined = profile.joints.find(
+    (candidate: (typeof profile.joints)[number]): boolean =>
+      candidate.child === bone,
+  );
   return joint
     ? Vector3.add(
         pose.position,

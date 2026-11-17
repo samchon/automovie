@@ -1,6 +1,7 @@
 import { tessellateAutoMovieCurveGrid64 } from "@automovie/engine";
 import type {
-  IAutoMovieCurve64,
+  AutoMovieCubicBezierControls3,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieReconstructRecovery,
   IAutoMovieRecoveryOpenContinuation,
   IAutoMovieRecoveryOpenReconstructionOperation,
@@ -131,12 +132,12 @@ export function reconstructRecoveryOpen(
   const openReports: ReturnType<IAutoMovieRecoveryOpenReconstructionOperation.Operation>["openReports"] =
     { runs: [], pairs, unsupportedGroups, generatedRuns: 0 };
   const normalized: (
-    curve: IAutoMovieCurve64.Cubic,
+    curve: IAutoMovieCubicBezierCurve64,
     reverse: boolean,
-  ) => IAutoMovieCurve64.Cubic = (
-    curve: IAutoMovieCurve64.Cubic,
+  ) => IAutoMovieCubicBezierCurve64 = (
+    curve: IAutoMovieCubicBezierCurve64,
     reverse: boolean,
-  ): IAutoMovieCurve64.Cubic => {
+  ): IAutoMovieCubicBezierCurve64 => {
     if (
       curve.closed ||
       curve.unit !== "mm" ||
@@ -165,11 +166,13 @@ export function reconstructRecoveryOpen(
         return value;
       },
     );
-    const spans: IAutoMovieCurve64.Span[] = reverse
+    const spans: AutoMovieCubicBezierControls3[] = reverse
       ? [...curve.spans]
           .reverse()
           .map(
-            (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+            (
+              span: AutoMovieCubicBezierControls3,
+            ): AutoMovieCubicBezierControls3 => [
               span[3],
               span[2],
               span[1],
@@ -221,8 +224,8 @@ export function reconstructRecoveryOpen(
       nonfiniteNormalSums: 0,
     };
     try {
-      const courses: IAutoMovieCurve64.Cubic[] = nodes.map(
-        (n: Node, i: number): IAutoMovieCurve64.Cubic =>
+      const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
+        (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
           normalized(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,

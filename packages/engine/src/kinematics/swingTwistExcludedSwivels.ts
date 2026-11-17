@@ -3,9 +3,10 @@ import {
   type IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  type IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   type IAutoMovieRestFrame,
-  type IAutoMovieSwingTwistRange,
+  type IAutoMovieSwingTwistLimit,
   type IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -80,13 +81,13 @@ export function swingTwistExcludedSwivels(props: {
   constraint: IAutoMovieJointConstraint | null;
 
   /** The frame the range reads the joint in (`scanJointRom`'s: the caller's rig's, or `swingTwistRange.of`'s). */
-  joint: IAutoMovieSwingTwistRange.IJoint;
+  joint: IAutoMovieJointRotationFrame;
 
   /** The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel. */
   rotation: (swivel: number) => IAutoMovieQuaternion;
 }): (low: number, high: number) => boolean {
   const constraint: IAutoMovieJointConstraint | null = props.constraint;
-  const gate: IAutoMovieJointConstraint.ISwingTwist | null | undefined =
+  const gate: IAutoMovieSwingTwistLimit | null | undefined =
     constraint?.swingTwist;
   if (
     constraint === null ||
@@ -179,7 +180,7 @@ const MARGIN: number = (ROM_TOLERANCE * Math.PI) / 180;
 function same(
   basis: IAutoMovieJointAxes,
   frame: IAutoMovieRestFrame | undefined,
-  joint: IAutoMovieSwingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): boolean {
   const own: IAutoMovieJointAxes = normalizeJointAxes(
     joint.axes,

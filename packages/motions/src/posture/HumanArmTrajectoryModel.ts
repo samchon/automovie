@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmGeometry,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -51,7 +51,7 @@ export namespace HumanArmTrajectoryModel {
     /** The hand's world rotation on the site; free when absent. */
     rotation?: IAutoMovieQuaternion;
     /** The effector's hard point-displacement limits, in the same local frame as contact. */
-    limits?: IAutoMovieMotionHumanPosture.IGoal["limits"];
+    limits?: IAutoMovieHumanLimbGoal["limits"];
     /** The radius of the region's disc about the point the contact may land in, metres. */
     disc: number;
     /**

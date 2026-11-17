@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanArmGuides,
   IAutoMovieHumanArmPiece,
   IAutoMovieHumanArmTube,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMoviePolarSector,
 } from "@automovie/interface";
 
@@ -49,9 +49,9 @@ export namespace AutoMovieHumanArmGuides {
     const xs: number[] = rows.map(
       (r: IAutoMovieHumanArmPiece.IRow): number => r.s,
     );
-    const splines: IAutoMovieNaturalSpline.ISpline[] = Array.from(
+    const splines: IAutoMovieNaturalCubicSpline[] = Array.from(
       { length: CHANNELS },
-      (_: unknown, k: number): IAutoMovieNaturalSpline.ISpline =>
+      (_: unknown, k: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           xs,
           rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.channels[k]!),
@@ -63,7 +63,7 @@ export namespace AutoMovieHumanArmGuides {
     return (s: number): IAutoMovieHumanArmTube.IShape => {
       const at: number = Math.min(hi, Math.max(lo, s));
       const v: number[] = splines.map(
-        (sp: IAutoMovieNaturalSpline.ISpline): number =>
+        (sp: IAutoMovieNaturalCubicSpline): number =>
           AutoMovieNaturalSpline.evaluate(sp, at),
       );
 

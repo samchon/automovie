@@ -166,7 +166,7 @@ export namespace athletics {
       front,
       p.sex ?? "male",
     );
-    const timed: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: CROUCH,
         attack: 0,
@@ -175,7 +175,7 @@ export namespace athletics {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,

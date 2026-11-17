@@ -2,7 +2,7 @@ import type {
   AutoMovieBernsteinGrid64,
   AutoMovieBernsteinPolynomial64,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteField64,
 } from "@automovie/interface";
 
@@ -46,7 +46,7 @@ export namespace AutoMovieLocalHermiteField64 {
    */
   export function prepare(
     stations: readonly number[],
-    courses: readonly IAutoMovieCurve64.Cubic[],
+    courses: readonly IAutoMovieCubicBezierCurve64[],
     interpolation: "quadratic" | "ruled" = "quadratic",
   ): IAutoMovieLocalHermiteField64.Prepared {
     if (interpolation !== "quadratic" && interpolation !== "ruled")
@@ -66,7 +66,7 @@ export namespace AutoMovieLocalHermiteField64 {
         "Increasing finite physical stations and corresponding courses required",
       );
     const knots: number[][] = courses.map(
-      (course: IAutoMovieCurve64.Cubic): number[] => {
+      (course: IAutoMovieCubicBezierCurve64): number[] => {
         assertAutoMovieCurve64(course);
         if (
           course.type !== "cubicBezier" ||

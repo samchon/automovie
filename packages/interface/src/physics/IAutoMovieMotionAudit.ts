@@ -1,10 +1,17 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieMeasurePhysicalMotionConstraint } from "./IAutoMovieMeasurePhysicalMotionConstraint";
 import type { IAutoMovieMotionGeometry } from "./IAutoMovieMotionGeometry";
+import type { IAutoMoviePhysicalFrame } from "./IAutoMoviePhysicalFrame";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
-import type { IAutoMoviePhysicsCache } from "./IAutoMoviePhysicsCache";
 
-/** Observed body descriptions, independent acceptance policies, callbacks and sampled motion failures. */
+/**
+ * Observed body descriptions, independent acceptance policies, callbacks and sampled motion failures.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation One body acceptance policy paired with exactly one collision and joint description. Independent speed, support, penetration and joint acceptance limits for one observed body.
+ * @evidence contracts/development/design.md#principled-representation The union requires either a physical profile or geometry-only description and excludes supplying both. Speed limits are m/s, angular limits radians and geometric tolerances metres; support windows use inclusive film seconds and world bone-origin points.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMotionAudit reads the selected description through motionAuditGeometry; frame body identity comes from the inherited policy id. AutoMovieMotionAudit reads these limits independently of the observed frame; absent speed entries are unbounded and absent constraints add no extra checks.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts admitPhysicalMotionAudit validates the selected representation before sampling; neither branch makes the audited poses a simulation result. Admission requires finite nonnegative tolerances and valid body-local references. Compression allowance is opt-in; inter-body overlap uses the smaller of the two policies' tolerances.
+ */
 export namespace IAutoMovieMotionAudit {
   /**
    * One body acceptance policy paired with exactly one collision and joint description.
@@ -159,7 +166,7 @@ export namespace IAutoMovieMotionAudit {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
      */
-    sample: (seconds: number) => IAutoMoviePhysicsCache.IFrame;
+    sample: (seconds: number) => IAutoMoviePhysicalFrame;
 
     /** Return true to exempt an inter-body bone pair from overlap checking at this film second. Body ids and bone ids identify shape owners; same-body pairs are skipped without this callback. Exceptions reject the run.
      *

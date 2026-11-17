@@ -90,7 +90,7 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
       composition: chain.node,
     });
   const instant = (
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     event: string,
   ): number =>
     segment.start +
@@ -152,7 +152,7 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
     upright: boolean,
     straight: boolean,
   ): void => {
-    const segment: IAutoMovieMotionHumanSegment.ISegment = performance
+    const segment: IAutoMovieMotionHumanSegment = performance
       .segments("a")
       .at(-1)!;
     const closed: number = instant(segment, "gripClosed");

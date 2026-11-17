@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 } from "../../index";
+import type { IAutoMovieCubicBezierCurve64 } from "../../geometry/curve/IAutoMovieCubicBezierCurve64";
 
 /**
  * A named replacement cubic and its separate numerical observation-fit estimate.
@@ -11,7 +11,7 @@ import type { IAutoMovieCurve64 } from "../../index";
 
 export interface IAutoMovieRecoveryCurveOverride {
   /** Finite continuous millimetre cubic retaining its original closure and phase. */
-  curve: IAutoMovieCurve64.Cubic;
+  curve: IAutoMovieCubicBezierCurve64;
 
   /** Nonnegative numerical PL-data upper estimate in millimetres. */
   dataUpperEstimateMm: number;

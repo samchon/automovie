@@ -1,9 +1,18 @@
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSectionSite } from "../limb/IAutoMovieHumanSectionSite";
 import type { IAutoMovieHumanFootConnection } from "./IAutoMovieHumanFootConnection";
 
-/** Type contracts exchanged by AutoMovieHumanFootPart; runtime evaluation remains in Human. */
+/**
+ * Fixed-floor foot inputs, independent site laws, optional dorsal source and original ankle contact.
+ *
+ * The interface package owns these declarations; AutoMovieHumanFootPart in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Fixed-floor foot inputs, independent site laws, optional dorsal source and original ankle contact. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IInput, ISiteLaw declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IInput, ISiteLaw separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanFootPart exchanges the named IInput, ISiteLaw contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanFootPart {
   /** What a foot is built from.
    *
@@ -53,9 +62,9 @@ export namespace IAutoMovieHumanFootPart {
 
       /** Bare host's independent regional across support maxima after the common group scale, calibration mm; not one cut or the whole group's extrema. */
       supports: {
-        /** Section phase of the lateral border, radians. */
+        /** Lateral support magnitude of the bare host after the common group scale, calibration millimetres. */
         lateral: number;
-        /** Section phase of the medial border, radians. */
+        /** Medial support magnitude of the bare host after the common group scale, calibration millimetres. */
         medial: number;
       };
 
@@ -95,7 +104,7 @@ export namespace IAutoMovieHumanFootPart {
     edges: [number, number, number, number];
 
     /** A tape solved on the box, or a sourced shoulder. */
-    fullness: IAutoMovieHumanSiteViewPart.ISite["fullness"];
+    fullness: IAutoMovieHumanSectionSite["fullness"];
 
     /** Optional plantar tangent/curvature in the whole source's normalized parameter; units are calibration mm. */
     plantarJet?: IAutoMovieViewPart.IKnot["jet"];

@@ -1,17 +1,20 @@
 import type {
   IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryAtlasObservationInput,
   IAutoMovieRecoveryAtlasObservationPublish,
-  IAutoMovieRecoveryAtlasObservationState,
   IAutoMovieRecoveryChartAssembly,
   IAutoMovieRecoveryChartBatch,
   IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryChartInventory,
+  IAutoMovieRecoveryPendingChartObservation,
   IAutoMovieRecoveryScalarIntervalsSelectionOperation,
 } from "@automovie/interface";
 
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 
-type Prepared = IAutoMovieRecoveryAtlasObservationState["Prepared"];
+type Prepared =
+  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
  * Fit the completely registered selected domain and publish its canonical assembly and coverage.
  *
@@ -49,8 +52,8 @@ export function RecoveryAtlasObservationPublish(
     unsupportedCount,
     observe,
   }: {
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    input: IAutoMovieRecoveryAtlasObservationInput;
+    pending: IAutoMovieRecoveryPendingChartObservation[];
     boundaryOwner: ReturnType<IAutoMovieRecoveryChartBoundary.Operation>;
     fittedCharts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0][number][];
     controls: IAutoMovieBicubicAtlasGeometry["controls"];
@@ -61,7 +64,7 @@ export function RecoveryAtlasObservationPublish(
     encounteredFaces: Set<number>;
     failedSelectedComponents: Set<string>;
     sourceNormals: number[][];
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    inventory: IAutoMovieRecoveryChartInventory[];
     order: readonly number[];
     selection: ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>;
     visitedIntervalIds: number[];
@@ -72,24 +75,21 @@ export function RecoveryAtlasObservationPublish(
     observe: ((record: object) => void) | undefined;
   } = context;
   // All selected chart families register their physical subarcs before any fit.
-  const pendingByName: Map<
-    string,
-    IAutoMovieRecoveryAtlasObservationState["Pending"]
-  > = new Map(
-    pending.map(
-      (
-        prepared: IAutoMovieRecoveryAtlasObservationState["Pending"],
-      ): [string, IAutoMovieRecoveryAtlasObservationState["Pending"]] => [
-        prepared.chart.name,
-        prepared,
-      ],
-    ),
-  );
+  const pendingByName: Map<string, IAutoMovieRecoveryPendingChartObservation> =
+    new Map(
+      pending.map(
+        (
+          prepared: IAutoMovieRecoveryPendingChartObservation,
+        ): [string, IAutoMovieRecoveryPendingChartObservation] => [
+          prepared.chart.name,
+          prepared,
+        ],
+      ),
+    );
   const batch: ReturnType<IAutoMovieRecoveryChartBatch.Operation> = B({
     charts: pending.map(
-      (
-        prepared: IAutoMovieRecoveryAtlasObservationState["Pending"],
-      ): Prepared => prepared.chart,
+      (prepared: IAutoMovieRecoveryPendingChartObservation): Prepared =>
+        prepared.chart,
     ),
     owner: boundaryOwner,
     fit: {
@@ -104,9 +104,8 @@ export function RecoveryAtlasObservationPublish(
     },
   });
   for (const result of batch) {
-    const prepared:
-      | IAutoMovieRecoveryAtlasObservationState["Pending"]
-      | undefined = pendingByName.get(result.name);
+    const prepared: IAutoMovieRecoveryPendingChartObservation | undefined =
+      pendingByName.get(result.name);
     if (!prepared)
       throw new Error("A common-network result lost its private source owner");
     if (!result.fit || !result.chart) {

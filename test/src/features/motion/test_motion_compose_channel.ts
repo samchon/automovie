@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanChannel } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -69,7 +72,7 @@ export function test_motion_compose_channel(): void {
     ],
   );
 
-  const goal = (x: number): IAutoMovieMotionHumanPosture.IGoal => ({
+  const goal = (x: number): IAutoMovieHumanLimbGoal => ({
     point: { x, y: 0, z: 0 },
     bend: { x, y: 1, z: 0 },
   });

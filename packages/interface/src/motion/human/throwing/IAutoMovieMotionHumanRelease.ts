@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * Letting go: a hand opens on what it holds, and the held prop leaves it.
@@ -24,7 +24,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation hand: The opening hand; `right` when absent. prop: The prop it lets go of; the one the hand holds at the entry when absent. speed: The launcher's speed along the line, metres per second.
  * @evidence contracts/development/design.md#principled-representation hand: The opening hand; `right` when absent. prop: The prop it lets go of; the one the hand holds at the entry when absent. speed: The launcher's speed along the line, metres per second.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.release, params); throwing/release.ts (release.plan, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRelease {
   /**
@@ -39,7 +39,7 @@ export namespace IAutoMovieMotionHumanRelease {
    */
   export interface IParams {
     /** The opening hand; `right` when absent. */
-    hand?: IAutoMovieMotionHumanHand.Side;
+    hand?: AutoMovieHumanSide;
 
     /** The prop it lets go of; the one the hand holds at the entry when absent. */
     prop?: string;

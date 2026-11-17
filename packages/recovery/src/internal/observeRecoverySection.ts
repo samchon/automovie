@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMoviePolylineFit,
   IAutoMovieRecoveryMeshSections,
   IAutoMovieRecoverySectionObservationOperation,
@@ -162,7 +162,10 @@ export function observeRecoverySection(
             curveName: fit.curve.name,
           };
         (
-          section.loops as { curve: IAutoMovieCurve64.Cubic; winding: 1 | -1 }[]
+          section.loops as {
+            curve: IAutoMovieCubicBezierCurve64;
+            winding: 1 | -1;
+          }[]
         ).push({
           curve: fit.curve,
           winding,

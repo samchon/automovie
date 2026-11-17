@@ -1,11 +1,12 @@
 import type {
   AutoMovieMotionHumanChannel,
+  AutoMovieMotionHumanScheduledInstant,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieResolveSchedule,
-  IAutoMovieSchedule,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -31,16 +32,16 @@ export namespace HumanPerformanceLayers {
    */
   export function instant(
     self: IAutoMovieMotionHumanPerformanceState,
-    at: IAutoMovieMotionHumanLayer.Instant,
+    at: AutoMovieMotionHumanScheduledInstant,
   ): number {
     if (typeof at === "number") return at;
     const placed = self.anchors.get(at.of);
     // A layer's instants are known once its window is placed; a layer later
     // in a person's list, or one that waits for an action, is not placed
     // yet when an earlier window asks for it.
-    const waiting: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
+    const waiting: readonly IAutoMovieScheduleCue[] | undefined =
       self.layered.get(at.of);
-    const track: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
+    const track: readonly IAutoMovieScheduleCue[] | undefined =
       self.cues[at.of] ??
       (waiting === undefined || waiting.length === 0 ? undefined : waiting);
     if (placed === undefined && track === undefined)
@@ -57,14 +58,12 @@ export namespace HumanPerformanceLayers {
               .filter(
                 ([, cues]: [
                   string,
-                  readonly IAutoMovieResolveSchedule.ICue[],
+                  readonly IAutoMovieScheduleCue[],
                 ]): boolean => cues.length !== 0,
               )
               .map(
-                ([name]: [
-                  string,
-                  readonly IAutoMovieResolveSchedule.ICue[],
-                ]): string => name,
+                ([name]: [string, readonly IAutoMovieScheduleCue[]]): string =>
+                  name,
               ),
           ],
         },
@@ -77,15 +76,15 @@ export namespace HumanPerformanceLayers {
             ? "name an action's anchor, a cue track or an anchored layer"
             : "name a layer given earlier in the list, or give that layer a window of film seconds and cue instants",
       });
-    const entry: IAutoMovieSchedule.IEntry | undefined =
+    const entry: IAutoMovieScheduleEntry | undefined =
       placed === undefined
         ? undefined
         : self.schedule.entries.find(
-            (e: IAutoMovieSchedule.IEntry): boolean => e.index === placed.entry,
+            (e: IAutoMovieScheduleEntry): boolean => e.index === placed.entry,
           );
     if (placed !== undefined && at.event === undefined)
       return (entry?.contact ?? placed.entryTime) + (at.offset ?? 0);
-    const events: readonly IAutoMovieResolveSchedule.ICue[] =
+    const events: readonly IAutoMovieScheduleCue[] =
       placed === undefined
         ? track!
         : [
@@ -102,8 +101,8 @@ export namespace HumanPerformanceLayers {
                   : (self.clipped.get(entry.index) ?? entry.end),
             },
           ];
-    const found: IAutoMovieResolveSchedule.ICue | undefined = events.filter(
-      (e: IAutoMovieResolveSchedule.ICue): boolean => e.name === at.event,
+    const found: IAutoMovieScheduleCue | undefined = events.filter(
+      (e: IAutoMovieScheduleCue): boolean => e.name === at.event,
     )[at.index ?? 0];
     if (found === undefined)
       throw new HumanRefusal({
@@ -115,7 +114,7 @@ export namespace HumanPerformanceLayers {
           kind: "alternatives",
           values: [
             ...new Set(
-              events.map((e: IAutoMovieResolveSchedule.ICue): string => e.name),
+              events.map((e: IAutoMovieScheduleCue): string => e.name),
             ),
           ],
         },
@@ -135,7 +134,7 @@ export namespace HumanPerformanceLayers {
     from: number,
     to: number,
     fade: number | undefined,
-  ): IAutoMovieResolveSchedule.ICue[] {
+  ): IAutoMovieScheduleCue[] {
     const ramp: number = Math.max(0, Math.min(fade ?? 0.3, (to - from) / 2));
     return [
       { name: "onset", seconds: from },

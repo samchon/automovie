@@ -2,7 +2,8 @@ import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
 import type {
   IAutoMovieMotionGeometry as Geometry,
   IAutoMovieMotionAudit,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
@@ -35,9 +36,9 @@ export async function test_physical_motion_geometry(): Promise<void> {
     joints: [],
     witnesses: ["observed-origin"],
   };
-  const state: (x: number) => IAutoMoviePhysicsCache.ISegment = (
+  const state: (x: number) => IAutoMoviePhysicalSegmentState = (
     x: number,
-  ): IAutoMoviePhysicsCache.ISegment => ({
+  ): IAutoMoviePhysicalSegmentState => ({
     position: { x, y: 1, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     velocity: { x: 0, y: 0, z: 0 },
@@ -71,7 +72,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
     end: 0,
     rate: 120,
     floor: 0,
-    sample: (): IAutoMoviePhysicsCache.IFrame => ({
+    sample: (): IAutoMoviePhysicalFrame => ({
       seconds: 0,
       bodies: {
         observed: {
@@ -168,7 +169,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
   await assert.rejects(
     Audit.run({
       ...input,
-      sample: (): IAutoMoviePhysicsCache.IFrame => ({
+      sample: (): IAutoMoviePhysicalFrame => ({
         seconds: 0,
         bodies: { observed: { first: state(1), second: state(2) } },
       }),
@@ -178,7 +179,7 @@ export async function test_physical_motion_geometry(): Promise<void> {
   await assert.rejects(
     Audit.run({
       ...input,
-      sample: (): IAutoMoviePhysicsCache.IFrame => ({
+      sample: (): IAutoMoviePhysicalFrame => ({
         seconds: 0,
         bodies: {
           observed: {

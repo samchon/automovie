@@ -1,8 +1,10 @@
 import type {
   IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePlanPhysicalFloorSupportTargets,
   IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalArticulationTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -58,8 +60,9 @@ export function planPhysicalFloorSupportTargets(
     )
   )
     throw new Error("Invalid floor-support fitting policy");
-  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
-    structuredClone(input.targets);
+  let targets: Record<string, IAutoMovieRigidTransform> = structuredClone(
+    input.targets,
+  );
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     input.pattern.limbs.map(
       (
@@ -146,15 +149,15 @@ export function planPhysicalFloorSupportTargets(
   function minimum(limb: IAutoMovieFootfallPattern["limbs"][number]): number {
     const heights: number[] = (limb.contacts ?? [limb.bone]).flatMap(
       (bone: string): number[] => {
-        const segment: IAutoMoviePhysicalProfile.ISegment | undefined =
+        const segment: IAutoMoviePhysicalSegment | undefined =
           input.profile.segments.find(
-            (candidate: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            (candidate: IAutoMoviePhysicalSegment): boolean =>
               candidate.bone === bone,
           );
         if (!segment || !targets[bone])
           throw new Error(`Missing support patch ${bone}`);
         return segment.shapes.map(
-          (shape: IAutoMoviePhysicalProfile.IShape): number =>
+          (shape: IAutoMoviePhysicalShape): number =>
             physicalShapeBounds(targets[bone]!, shape).min.y,
         );
       },

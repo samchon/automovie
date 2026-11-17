@@ -1,6 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanCrotchBinding; runtime evaluation remains in Human. */
+/**
+ * The point and spatial half-width of a crotch skin-binding release, in metres.
+ *
+ * The interface package owns these declarations; AutoMovieHumanCrotchBinding in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The point and spatial half-width of a crotch skin-binding release, in metres. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IRelease declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IRelease separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanCrotchBinding exchanges the named IRelease contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanCrotchBinding {
   /** Where the release lies.
    *

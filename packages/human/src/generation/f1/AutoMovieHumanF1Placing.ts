@@ -1,6 +1,6 @@
 import type {
   IAutoMovieHumanF1Placing,
-  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 /**
@@ -30,7 +30,7 @@ import type {
  */
 export namespace AutoMovieHumanF1Placing {
   /** The chain, parent first: each segment's origin in its parent's frame, mm, and its reference rotation `A_parent^T A_child` by rows. */
-  export const CHAIN: IAutoMovieHumanSegmentFrame.IJoint[] = [
+  export const CHAIN: IAutoMovieHumanSegmentJoint[] = [
     {
       name: "pelvis",
       parent: null,

@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieBernsteinCurvePiece64,
   IAutoMovieEvaluateBernstein64,
 } from "@automovie/interface";
 
@@ -20,7 +20,7 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Work arrays and returned vectors belong to this call; no coefficient, image or external handle is retained.
  */
 export function evaluateAutoMovieBernstein64(
-  piece: IAutoMovieCurve64.Piece,
+  piece: IAutoMovieBernsteinCurvePiece64,
   t: number,
 ): IAutoMovieEvaluateBernstein64.IResult {
   const finite: (x: number) => number = (x: number): number => {
@@ -69,7 +69,7 @@ export function evaluateAutoMovieBernstein64(
   );
   if (controls.length !== piece.degree + 1)
     throw new Error("Declared degree disagrees with complete coefficients");
-  const metadata: IAutoMovieCurve64.Piece & {
+  const metadata: IAutoMovieBernsteinCurvePiece64 & {
     parameterDomain?: readonly number[];
     qInterval?: readonly number[];
     controls?: readonly Readonly<AutoMovieVector3Tuple>[];

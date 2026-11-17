@@ -5,7 +5,7 @@ import type {
   IAutoMovieHumanDigitWalk,
   IAutoMovieHumanHandAttachment,
   IAutoMovieHumanHandParent,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieViewPart,
   IAutoMovieViewSection,
 } from "@automovie/interface";
@@ -38,7 +38,7 @@ interface Placement {
 export namespace AutoMovieHumanHandAttachment {
   /** Explicit legacy fixture/part adapter; production calls fromControls before publishing its arm. */
   export function prepare(
-    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+    definition: IAutoMovieHumanSourceDefinition,
   ): IAutoMovieHumanHandParent.IOutput {
     return AutoMovieHumanHandParent.prepare(definition);
   }

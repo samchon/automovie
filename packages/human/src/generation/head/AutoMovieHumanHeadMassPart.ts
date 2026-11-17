@@ -8,7 +8,7 @@ import type {
   IAutoMovieHumanHeadLandmarks,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadMassPart,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewCurves,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -347,7 +347,7 @@ export namespace AutoMovieHumanHeadMassPart {
     y: number,
   ): {
     section: IAutoMovieViewSection.ISection;
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
     extents: [number, number, number, number];
   } {
     const source: IAutoMovieViewCurves.IResult =

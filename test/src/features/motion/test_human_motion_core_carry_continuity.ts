@@ -1,8 +1,9 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -78,7 +79,7 @@ export function test_human_motion_core_carry_continuity(): void {
     { x: 0, y: 0, z: 0 },
     0,
   );
-  const side: IAutoMovieMotionHumanHand.Side = "right";
+  const side: AutoMovieHumanSide = "right";
   const bones = poseBones(body, resolveHumanPosture(body, quiet));
   const region = body.surfaces.regions.thighOuterRight;
   const surface = resolveAutoMovieHumanoidSurfaces.place(
@@ -106,7 +107,7 @@ export function test_human_motion_core_carry_continuity(): void {
     },
     normal: surface.normal,
   };
-  const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
+  const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArm.goal(
     body,
     side,
     AutoMovieMotionHumanTarget.hand(body, quiet, side, thigh, {
@@ -122,7 +123,7 @@ export function test_human_motion_core_carry_continuity(): void {
       resolveHumanPosture(body, quiet),
       side,
     ),
-    goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
+    goal: (): IAutoMovieHumanLimbGoal => goal,
     weight,
     span: span!,
   });

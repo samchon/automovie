@@ -1,4 +1,9 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 
 import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryConicApproximation";
 
@@ -40,13 +45,13 @@ import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryCon
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source callbacks and temporary arrays remain call-local; the returned coefficients contain no source samples, and no file, task or process is acquired.
  */
 export function approximateAutoMovieRecoveryConicsAhn(
-  curve: IAutoMovieConicApproximation.ICurve,
+  curve: IAutoMoviePlanarCurveSource,
   options: IAutoMovieConicApproximation.IOptions,
 ): IAutoMovieConicApproximation.IResult {
   const method: string =
     "Ahn 2001 triangle construction / sampled radial-minimax adaptation";
   const diagnostics: string[] = C.validate(curve, options);
-  const arcs: IAutoMovieConicApproximation.IArc[] = [];
+  const arcs: IAutoMovieRegisteredConicArc[] = [];
   let queries: number = 0;
   let unresolved: number = 0;
   const reasons: Map<string, number> = new Map();
@@ -65,7 +70,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       status === "refused"
         ? 0
         : arcs.reduce(
-            (maximum: number, arc: IAutoMovieConicApproximation.IArc): number =>
+            (maximum: number, arc: IAutoMovieRegisteredConicArc): number =>
               Math.max(maximum, arc.maximumSampleErrorMm),
             0,
           ),
@@ -82,13 +87,13 @@ export function approximateAutoMovieRecoveryConicsAhn(
     t: number,
     order?: 1 | 2 | 3,
     side?: "left" | "right",
-  ) => IAutoMovieConicApproximation.Point = (
+  ) => Readonly<AutoMovieVector2Tuple> = (
     t: number,
     order?: 1 | 2 | 3,
     side?: "left" | "right",
-  ): IAutoMovieConicApproximation.Point => {
+  ): Readonly<AutoMovieVector2Tuple> => {
     ++queries;
-    const p: IAutoMovieConicApproximation.Point =
+    const p: Readonly<AutoMovieVector2Tuple> =
       order === undefined
         ? curve.evaluate(t)
         : curve.derivative(t, order, side);
@@ -103,12 +108,12 @@ export function approximateAutoMovieRecoveryConicsAhn(
 
   /** Source-minus-origin vectors keep determinants translation invariant. */
   const minus: (
-    a: IAutoMovieConicApproximation.Point,
-    b: IAutoMovieConicApproximation.Point,
-  ) => IAutoMovieConicApproximation.Point = (
-    a: IAutoMovieConicApproximation.Point,
-    b: IAutoMovieConicApproximation.Point,
-  ): IAutoMovieConicApproximation.Point => [a[0] - b[0], a[1] - b[1]];
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
+  ) => Readonly<AutoMovieVector2Tuple> = (
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
+  ): Readonly<AutoMovieVector2Tuple> => [a[0] - b[0], a[1] - b[1]];
 
   /** A work item retains only source interval, subdivision depth and its cause. */
   interface Interval {
@@ -131,16 +136,16 @@ export function approximateAutoMovieRecoveryConicsAhn(
    */
   const fit: (
     interval: Interval,
-  ) => IAutoMovieConicApproximation.IArc | undefined = (
+  ) => IAutoMovieRegisteredConicArc | undefined = (
     interval: Interval,
-  ): IAutoMovieConicApproximation.IArc | undefined => {
-    const points: IAutoMovieConicApproximation.Point[] = [];
-    const first: IAutoMovieConicApproximation.Point = observe(
+  ): IAutoMovieRegisteredConicArc | undefined => {
+    const points: Readonly<AutoMovieVector2Tuple>[] = [];
+    const first: Readonly<AutoMovieVector2Tuple> = observe(
       interval.a,
       1,
       "right",
     );
-    const last: IAutoMovieConicApproximation.Point = observe(
+    const last: Readonly<AutoMovieVector2Tuple> = observe(
       interval.b,
       1,
       "left",
@@ -153,16 +158,16 @@ export function approximateAutoMovieRecoveryConicsAhn(
       const t: number = interval.a + (interval.b - interval.a) * (i / 32);
       points.push(observe(t));
       if (i % 4 === 0) {
-        const d1: IAutoMovieConicApproximation.Point =
+        const d1: Readonly<AutoMovieVector2Tuple> =
           i === 0 ? first : i === 32 ? last : observe(t, 1);
-        const d2: IAutoMovieConicApproximation.Point = observe(
+        const d2: Readonly<AutoMovieVector2Tuple> = observe(
           t,
           2,
           i === 0 ? "right" : i === 32 ? "left" : undefined,
         );
         const turn: number = C.cross(d1, d2);
         const endpoint: boolean = i === 0 || i === 32;
-        const jerk: IAutoMovieConicApproximation.Point | undefined = endpoint
+        const jerk: Readonly<AutoMovieVector2Tuple> | undefined = endpoint
           ? observe(t, 3, i === 0 ? "right" : "left")
           : undefined;
 
@@ -186,9 +191,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
         }
       }
     }
-    const p0: IAutoMovieConicApproximation.Point = points[0]!;
-    const p2: IAutoMovieConicApproximation.Point = points[32]!;
-    const chord: IAutoMovieConicApproximation.Point = minus(p2, p0);
+    const p0: Readonly<AutoMovieVector2Tuple> = points[0]!;
+    const p2: Readonly<AutoMovieVector2Tuple> = points[32]!;
+    const chord: Readonly<AutoMovieVector2Tuple> = minus(p2, p0);
     const chordSquared: number = chord[0] * chord[0] + chord[1] * chord[1];
     const length: number = Math.hypot(...chord);
     if (length === 0) return undefined;
@@ -208,8 +213,8 @@ export function approximateAutoMovieRecoveryConicsAhn(
     // budget ran out. The primitive's end tangents are the chord's: they
     // differ from the source's by its bend, which the tolerance bounds through
     // the samples' distance from the chord, not by an angle.
-    const straight: () => IAutoMovieConicApproximation.IArc | undefined = ():
-      | IAutoMovieConicApproximation.IArc
+    const straight: () => IAutoMovieRegisteredConicArc | undefined = ():
+      | IAutoMovieRegisteredConicArc
       | undefined => {
       if (
         first[0] * chord[0] + first[1] * chord[1] <= 0 ||
@@ -219,7 +224,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       let previous: number = -Infinity;
       let maximum: number = 0;
       for (const p of points) {
-        const offset: IAutoMovieConicApproximation.Point = minus(p, p0);
+        const offset: Readonly<AutoMovieVector2Tuple> = minus(p, p0);
         const along: number =
           (offset[0] * chord[0] + offset[1] * chord[1]) / chordSquared;
         maximum = Math.max(maximum, Math.abs(C.cross(offset, chord)) / length);
@@ -246,7 +251,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
     if (Math.abs(determinant) <= relativeRoundoff * firstNorm * lastNorm) {
       const scale: number = Math.max(
         length,
-        ...points.map((p: IAutoMovieConicApproximation.Point): number =>
+        ...points.map((p: Readonly<AutoMovieVector2Tuple>): number =>
           C.distance(p, p0),
         ),
       );
@@ -262,7 +267,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       let previous: number = -Infinity;
       let maximum: number = 0;
       for (const p of points) {
-        const offset: IAutoMovieConicApproximation.Point = minus(p, p0);
+        const offset: Readonly<AutoMovieVector2Tuple> = minus(p, p0);
         const along: number =
           (offset[0] * chord[0] + offset[1] * chord[1]) / chordSquared;
         maximum = Math.max(maximum, Math.abs(C.cross(offset, chord)) / length);
@@ -283,18 +288,18 @@ export function approximateAutoMovieRecoveryConicsAhn(
     const startScale: number = C.cross(chord, last) / determinant;
     const endScale: number = C.cross(chord, first) / determinant;
     if (startScale <= 0 || endScale >= 0) return straight();
-    const p1: IAutoMovieConicApproximation.Point = [
+    const p1: Readonly<AutoMovieVector2Tuple> = [
       p0[0] + startScale * first[0],
       p0[1] + startScale * first[1],
     ];
     if (!p1.every(Number.isFinite)) return straight();
-    const side: IAutoMovieConicApproximation.Point = minus(p1, p0);
+    const side: Readonly<AutoMovieVector2Tuple> = minus(p1, p0);
     const area: number = C.cross(side, chord);
     if (area === 0 || !Number.isFinite(area)) return straight();
     const samples: Radial[] = [];
     let previousU: number = 0;
     for (let i: number = 1; i < 32; ++i) {
-      const offset: IAutoMovieConicApproximation.Point = minus(points[i]!, p0);
+      const offset: Readonly<AutoMovieVector2Tuple> = minus(points[i]!, p0);
       const b1: number = C.cross(offset, chord) / area;
       const b2: number = C.cross(side, offset) / area;
       const b0: number = 1 - b1 - b2;
@@ -304,7 +309,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       const u: number = root2 / (root0 + root2);
       if (u <= previousU) return straight();
       previousU = u;
-      const base: IAutoMovieConicApproximation.Point = [
+      const base: Readonly<AutoMovieVector2Tuple> = [
         (b0 * p0[0] + b2 * p2[0]) / (b0 + b2),
         (b0 * p0[1] + b2 * p2[1]) / (b0 + b2),
       ];
@@ -379,7 +384,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
   try {
     while (pending.length !== 0) {
       const interval: Interval = pending.pop()!;
-      const arc: IAutoMovieConicApproximation.IArc | undefined = fit(interval);
+      const arc: IAutoMovieRegisteredConicArc | undefined = fit(interval);
       if (
         arc !== undefined &&
         arc.maximumSampleErrorMm <= options.toleranceMm

@@ -1,6 +1,13 @@
 import type { IAutoMovieHumanLegProfile } from "./IAutoMovieHumanLegProfile";
 
-/** Type contracts exchanged by AutoMovieHumanLegSectionRows; runtime evaluation remains in Human. */
+/**
+ * Angular guide rows and thigh/shank sector rows in their source normalization. Runtime construction and admission remain with AutoMovieHumanLegSectionRows in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes angular guide rows and thigh/shank sector rows in their source normalization; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Angular guide rows and thigh/shank sector rows in their source normalization. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegSectionRows; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegSectionRows contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLegSectionRows {
   /** A guide: its section angle (0 forward, increasing toward lateral on the left leg) and its rows.
    *

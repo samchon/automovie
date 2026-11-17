@@ -7,6 +7,7 @@ import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHuma
 import type { IAutoMovieMotionHumanAttribute } from "../ensemble/IAutoMovieMotionHumanAttribute";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
+import type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHumanScheduledInstant";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 
 /**
@@ -28,10 +29,10 @@ import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHuman
  * or an instant of an action or of a cue track, entered and left over a
  * fade so neither end steps.
  *
- * @evidence contracts/development/common.md#meaningful-documentation channels: The channels whose joints the layer writes: the head and the trunk for gaze, breath and an affect display, an arm for a mood that lets it hang. A layer scheduled in a window during which one of the person's actions holds a limb channel it names by a contact (a grip on that hand, a planted foot of that leg) is refused when the performance is built; the head and the trunk bear no contact window, so naming them refuses nothing. Absent for a layer that does not say what it writes.
- * @evidence contracts/development/design.md#principled-representation channels: The channels whose joints the layer writes: the head and the trunk for gaze, breath and an affect display, an arm for a mood that lets it hang. A layer scheduled in a window during which one of the person's actions holds a limb channel it names by a contact (a grip on that hand, a planted foot of that leg) is refused when the performance is built; the head and the trunk bear no contact window, so naming them refuses nothing. Absent for a layer that does not say what it writes.
+ * @evidence contracts/development/common.md#meaningful-documentation channels: The channels whose joints the layer writes: the head and the trunk for gaze, breath and an affect display, an arm for a mood that lets it hang. A layer scheduled in a window during which one of the person's actions holds a limb channel it names by a contact (a grip on that hand, a planted foot of that leg) is refused when the performance is built; the head and the trunk bear no contact window, so naming them refuses nothing. Absent for a layer that does not say what it writes. attributes: The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. events: Its events, in film seconds. contacts: Its contact windows, as shares of its own duration.
+ * @evidence contracts/development/design.md#principled-representation channels: The channels whose joints the layer writes: the head and the trunk for gaze, breath and an affect display, an arm for a mood that lets it hang. A layer scheduled in a window during which one of the person's actions holds a limb channel it names by a contact (a grip on that hand, a planted foot of that leg) is refused when the performance is built; the head and the trunk bear no contact window, so naming them refuses nothing. Absent for a layer that does not say what it writes. attributes: The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. events: Its events, in film seconds. contacts: Its contact windows, as shares of its own duration.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanAffect.ts (HumanAffect.layer, return); everyday/HumanBreath.ts (HumanBreath.layer, return); everyday/HumanGaze.ts (HumanGaze.layer, return); lexicon/HumanAirborneShape.ts (HumanAirborneShape.layer, return); lexicon/HumanCarriedLean.ts (HumanCarriedLean.layer, return); lexicon/HumanCarriedLean.ts (HumanCarriedLean.coupled, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanChannel, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieMotionHumanChannel, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanAttribute.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanLayer {
   /** Stable layer name, unique per performer; keys the layer's draws. */
@@ -55,6 +56,14 @@ export interface IAutoMovieMotionHumanLayer {
    * @param seconds Film seconds.
    * @param context The person and the performance's queries.
    * @returns The layered posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.apply: The posture with this layer's contribution added.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
    */
   apply(
     posture: IAutoMovieMotionHumanPosture,
@@ -66,44 +75,15 @@ export interface IAutoMovieMotionHumanLayer {
 /**
  * Contracts used by HumanAffect.layer, HumanBreath.layer, HumanGaze.layer, HumanAirborneShape.layer.
  *
- * @evidence contracts/development/common.md#meaningful-documentation attributes: The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. events: Its events, in film seconds. contacts: Its contact windows, as shares of its own duration.
- * @evidence contracts/development/design.md#principled-representation attributes: The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. events: Its events, in film seconds. contacts: Its contact windows, as shares of its own duration.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanAffect.ts (HumanAffect.layer, return); everyday/HumanBreath.ts (HumanBreath.layer, return); everyday/HumanGaze.ts (HumanGaze.layer, return); lexicon/HumanAirborneShape.ts (HumanAirborneShape.layer, return); lexicon/HumanCarriedLean.ts (HumanCarriedLean.layer, return); lexicon/HumanCarriedLean.ts (HumanCarriedLean.coupled, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSkill.ISkill, IAutoMovieMotionHumanAttribute.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanLayer {
-  /**
-   * A film second, or a named instant: an event of the action anchored `of`
-   * or of the cue track named `of` (`start` and `end` of an action are
-   * always there; an action's decisive instant, or else its start, when no
-   * event is named), the `index`-th of that name from 0, `offset` seconds
-   * later.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation of: Action or cue id supplying the reference event. event: Reference event name; omitted uses the referenced action's default event. index: Zero-based occurrence index of a repeated event; defaults to 0.
-   * @evidence contracts/development/design.md#principled-representation of: Action or cue id supplying the reference event. event: Reference event name; omitted uses the referenced action's default event. index: Zero-based occurrence index of a repeated event; defaults to 0.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformance.ts (HumanPerformance.instant, at); perform/HumanPerformanceLayers.ts (HumanPerformanceLayers.instant, at); perform/HumanPerformanceState.ts (HumanPerformanceState.early, at).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanPerformance.instant.
-   */
-  export type Instant =
-    | number
-    | {
-        /** Action or cue id supplying the reference event. */
-        of: string;
-        /** Reference event name; omitted uses the referenced action's default event. */
-        event?: string;
-        /** Zero-based occurrence index of a repeated event; defaults to 0. */
-        index?: number;
-        /** Signed seconds added to the reference instant; defaults to zero. */
-        offset?: number;
-      };
-
   /**
    * What a layer can read.
    *
    * @evidence contracts/development/common.md#meaningful-documentation attributes: The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral.
    * @evidence contracts/development/design.md#principled-representation attributes: The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.layer, context); everyday/HumanGaze.ts (HumanGaze.layer, context); lexicon/HumanAirborneShape.ts (HumanAirborneShape.layer, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSkill.ISkill, IAutoMovieMotionHumanAttribute.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanAttribute.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IContext {
     /** The person's subject id. */
@@ -113,7 +93,7 @@ export namespace IAutoMovieMotionHumanLayer {
     body: IAutoMovieMotionHumanBody;
 
     /** The person's skill. */
-    skill: IAutoMovieMotionHumanSkill.ISkill;
+    skill: IAutoMovieMotionHumanSkill;
 
     /** The person's group attributes (`IAutoMovieMotionHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. */
     attributes?: Readonly<
@@ -126,6 +106,14 @@ export namespace IAutoMovieMotionHumanLayer {
      * @param target The target.
      * @param seconds Film seconds.
      * @returns The aim.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.aim: A target's world point and outward normal at a film second.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
      */
     aim(
       target: IAutoMovieMotionTarget,
@@ -142,6 +130,14 @@ export namespace IAutoMovieMotionHumanLayer {
      * follow it: gaze ahead of a turn, breath after an effort.
      *
      * @returns The action, or undefined before the person's first.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.action: The action the person performs at the second applied, so a layer can follow it: gaze ahead of a turn, breath after an effort.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
      */
     action(): IAutoMovieMotionHumanLayer.IAction | undefined;
 
@@ -150,6 +146,14 @@ export namespace IAutoMovieMotionHumanLayer {
      *
      * @param channel The quantity drawn.
      * @returns The stream.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.random: The layer's draw stream for one channel.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
      */
     random(channel: string): IAutoMovieRandom;
   }
@@ -213,7 +217,7 @@ export namespace IAutoMovieMotionHumanLayer {
    * @evidence contracts/development/common.md#meaningful-documentation layer: The layer, or what builds it from the window's seconds. from: When it starts; the film's start when absent. to: When it ends; the film's end when absent.
    * @evidence contracts/development/design.md#principled-representation layer: The layer, or what builds it from the window's seconds. from: When it starts; the film's start when absent. to: When it ends; the film's end when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanPursuit.ts (HumanPursuit.sweeps, return); perform/HumanPerformanceLayers.ts (HumanPerformanceLayers.window, scheduled); perform/HumanPerformanceState.ts (HumanPerformanceState, layer).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanLayer.IWindow, IAutoMovieMotionHumanLayer.Instant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanLayer.IWindow, AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IScheduled {
     /** The layer, or what builds it from the window's seconds. */
@@ -224,10 +228,10 @@ export namespace IAutoMovieMotionHumanLayer {
         ) => IAutoMovieMotionHumanLayer);
 
     /** When it starts; the film's start when absent. */
-    from?: IAutoMovieMotionHumanLayer.Instant;
+    from?: AutoMovieMotionHumanScheduledInstant;
 
     /** When it ends; the film's end when absent. */
-    to?: IAutoMovieMotionHumanLayer.Instant;
+    to?: AutoMovieMotionHumanScheduledInstant;
 
     /** Seconds over which it comes in after `from` and goes out before `to`; 0.3 when absent. */
     fade?: number;

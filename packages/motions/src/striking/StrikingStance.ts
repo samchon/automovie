@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
@@ -141,7 +142,7 @@ export namespace StrikingStance {
     stance: IAutoMovieMotionHumanStrikingStance.IStance,
     centre: IAutoMovieVector3,
   ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> {
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: centre.x, y: 0, z: centre.z },
       yaw: stance.line,
     };
@@ -361,7 +362,7 @@ export namespace StrikingStance {
     side: "left" | "right",
     fist: IAutoMovieVector3,
     elbow: IAutoMovieVector3,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const along: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(fist, elbow),
     );

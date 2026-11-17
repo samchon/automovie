@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the SwivelArcs operations. */
+/**
+ * `a + b cos ψ + c sin ψ` of a swivel `ψ`. An interval of swivels, degrees, `from` up to `to`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its term. Each member states its end and unit.
+ * @evidence contracts/development/design.md#principled-representation The three coefficients of a sinusoid. The two ends of an arc.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three members. Two members.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts None optional. None optional.
+ */
 export namespace IAutoMovieSwivelArcs {
   /**
    * `a + b cos ψ + c sin ψ` of a swivel `ψ`.

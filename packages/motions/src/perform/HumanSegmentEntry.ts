@@ -6,9 +6,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
-  IAutoMovieSamplePoseVelocity,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -39,7 +39,7 @@ export namespace HumanSegmentEntry {
    */
   export function entry(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     blend?: number,
   ): IAutoMovieMotionHumanEntryState {
@@ -57,7 +57,7 @@ export namespace HumanSegmentEntry {
       previous !== undefined && blend !== undefined
         ? left(person, previous, seconds, blend)
         : shown(person, previous, seconds, step);
-    const state: IAutoMovieSamplePoseVelocity.IState = read.state;
+    const state: IAutoMoviePoseState = read.state;
     const posture: IAutoMovieMotionHumanPosture =
       previous === undefined
         ? person.initial
@@ -217,7 +217,7 @@ export namespace HumanSegmentEntry {
    * @returns The supports.
    */
   export function supports(
-    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
@@ -266,7 +266,7 @@ export namespace HumanSegmentEntry {
    */
   function shown(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    previous: IAutoMovieMotionHumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     step: number,
   ): HumanSegmentPose.IContinued {
@@ -282,7 +282,7 @@ export namespace HumanSegmentEntry {
       }
       return pose;
     };
-    const state: IAutoMovieSamplePoseVelocity.IState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = samplePoseVelocity(
       read,
       seconds,
       step,
@@ -308,7 +308,7 @@ export namespace HumanSegmentEntry {
    */
   function left(
     person: IAutoMovieMotionHumanSegment.IPerson,
-    previous: IAutoMovieMotionHumanSegment.ISegment,
+    previous: IAutoMovieMotionHumanSegment,
     seconds: number,
     blend: number,
   ): HumanSegmentPose.IContinued {

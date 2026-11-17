@@ -1,6 +1,6 @@
 import type {
   AutoMovieHumanSex as AutoMovieHumanSexType,
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanEyeSeat,
   IAutoMovieHumanHeadComposer,
   IAutoMovieHumanHeadInputs,
   IAutoMovieHumanHeadLane,
@@ -9,7 +9,7 @@ import type {
   IAutoMovieHumanHeadPrior,
   IAutoMovieHumanHermiteCurve,
   IAutoMovieHumanNeckSource,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -134,10 +134,8 @@ export namespace AutoMovieHumanHeadLane {
     const seat: number =
       AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
       face.eyeRecess * plan.scale;
-    const eyes: IAutoMovieHumanBodyCalibration.IEye[] = (
-      ["left", "right"] as const
-    ).map(
-      (side: "left" | "right"): IAutoMovieHumanBodyCalibration.IEye => ({
+    const eyes: IAutoMovieHumanEyeSeat[] = (["left", "right"] as const).map(
+      (side: "left" | "right"): IAutoMovieHumanEyeSeat => ({
         side,
         centre: [
           seat - face.marginForward * plan.scale,
@@ -236,7 +234,7 @@ export namespace AutoMovieHumanHeadLane {
       const part: IAutoMovieViewPart = placed.feature.part;
       return (upper ? part.front.positive : part.front.negative).knots.map(
         (k: IAutoMovieViewPart.IKnot): [number, number, number] => {
-          const frame: IAutoMovieLoftFrame.IFrame = part.axis.at(k.station);
+          const frame: IAutoMovieLoftSectionFrame = part.axis.at(k.station);
           return [
             frame.origin[0] + k.value * frame.u[0],
             frame.origin[1] + k.value * frame.u[1],

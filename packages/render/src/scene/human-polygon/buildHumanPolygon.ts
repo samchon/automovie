@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieHumanBindBone,
+  IAutoMovieHumanBonePlacement,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
@@ -51,8 +55,8 @@ export function buildHumanPolygon(
   } = {},
 ): AutoMovieHumanPolygon.IDrawing {
   createHumanPolygonPalette.validate(options.partColors);
-  const bones: Map<string, IAutoMovieHumanSkeleton.IBone> = new Map();
-  const placements: Map<string, IAutoMovieHumanSkeleton.IPlacement> = new Map();
+  const bones: Map<string, IAutoMovieHumanBindBone> = new Map();
+  const placements: Map<string, IAutoMovieHumanBonePlacement> = new Map();
   for (const bone of output.bones) {
     if (
       bones.has(bone.bone) ||
@@ -78,10 +82,10 @@ export function buildHumanPolygon(
    * Reuse equivalent work: Reads the map built once from the supplied rest bones.
    * Bound retention and release resources: Borrows map entries only for synchronous construction.
    */
-  const boneAt: (name: string) => IAutoMovieHumanSkeleton.IBone = (
+  const boneAt: (name: string) => IAutoMovieHumanBindBone = (
     name: string,
-  ): IAutoMovieHumanSkeleton.IBone => {
-    const bone: IAutoMovieHumanSkeleton.IBone | undefined = bones.get(name);
+  ): IAutoMovieHumanBindBone => {
+    const bone: IAutoMovieHumanBindBone | undefined = bones.get(name);
     if (bone === undefined)
       throw new Error(`Missing polygon skeleton bone: ${name}`);
     return bone;
@@ -99,7 +103,7 @@ export function buildHumanPolygon(
   const partMeshes: Map<string, THREE.Mesh> = new Map();
   const bindings: Map<string, readonly THREE.Object3D[]> = new Map();
   const required: string[] = output.bones.map(
-    (bone: IAutoMovieHumanSkeleton.IBone): string => bone.bone,
+    (bone: IAutoMovieHumanBindBone): string => bone.bone,
   );
 
   // Validate the complete original rig, including custom non-emitted joints,
@@ -149,20 +153,21 @@ export function buildHumanPolygon(
    * Bound retention and release resources: Newly emitted buffers transfer to the drawing inventory and registries until terminal disposal.
    */
   const add: (
-    bone: IAutoMovieHumanSkeleton.IBone,
+    bone: IAutoMovieHumanBindBone,
     rings: buildHumanPolygonModule.ISection[],
     axis: THREE.Vector3,
     breadth?: THREE.Vector3,
     topPole?: [number, number, number],
   ) => THREE.Group = (
-    bone: IAutoMovieHumanSkeleton.IBone,
+    bone: IAutoMovieHumanBindBone,
     rings: buildHumanPolygonModule.ISection[],
     axis: THREE.Vector3,
     breadth?: THREE.Vector3,
     topPole?: [number, number, number],
   ): THREE.Group => {
-    const placement: IAutoMovieHumanSkeleton.IPlacement | undefined =
-      placements.get(bone.bone);
+    const placement: IAutoMovieHumanBonePlacement | undefined = placements.get(
+      bone.bone,
+    );
     if (placement === undefined)
       throw new Error(`Missing polygon placement: ${bone.bone}`);
     const {

@@ -1,6 +1,6 @@
 import type {
   IAutoMovieMeasurePhysicalMotionConstraint,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalSegmentState,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,7 +22,7 @@ import { Vector3 } from "../math/Vector3";
  */
 export function measurePhysicalMotionConstraint(
   constraint: IAutoMovieMeasurePhysicalMotionConstraint.IConstraint,
-  states: Readonly<Record<string, IAutoMoviePhysicsCache.ISegment>>,
+  states: Readonly<Record<string, IAutoMoviePhysicalSegmentState>>,
   seconds: number,
 ): number {
   const point: (
@@ -30,11 +30,11 @@ export function measurePhysicalMotionConstraint(
   ) => IAutoMovieVector3 = (
     anchor: IAutoMovieMeasurePhysicalMotionConstraint.IAnchor,
   ): IAutoMovieVector3 => {
-    const frame: IAutoMoviePhysicsCache.ISegment | undefined =
+    const frame: IAutoMoviePhysicalSegmentState | undefined =
       states[anchor.bone];
     if (!frame) throw new Error(`Motion audit point missing: ${anchor.bone}`);
     if (anchor.blend) {
-      const other: IAutoMoviePhysicsCache.ISegment | undefined =
+      const other: IAutoMoviePhysicalSegmentState | undefined =
         states[anchor.blend.other];
       if (
         !other ||
@@ -52,7 +52,7 @@ export function measurePhysicalMotionConstraint(
       );
     }
     if (anchor.ray) {
-      const from: IAutoMoviePhysicsCache.ISegment | undefined =
+      const from: IAutoMoviePhysicalSegmentState | undefined =
         states[anchor.ray.from];
       if (
         !from ||

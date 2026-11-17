@@ -1,3 +1,4 @@
+export type { IAutoMovieHumanDigitCentreLine } from "./IAutoMovieHumanDigitCentreLine";
 export type { IAutoMovieHumanDigitCrease } from "./IAutoMovieHumanDigitCrease";
 export type { IAutoMovieHumanDigitJointRelief } from "./IAutoMovieHumanDigitJointRelief";
 export type { IAutoMovieHumanDigitProfile } from "./IAutoMovieHumanDigitProfile";

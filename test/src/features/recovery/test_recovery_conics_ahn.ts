@@ -1,4 +1,9 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,12 +39,12 @@ export function test_recovery_conics_ahn(): void {
 
   /** Independent Bernstein evaluation exercises the saved coefficient format. */
   const point: (
-    arc: IAutoMovieConicApproximation.IArc,
+    arc: IAutoMovieRegisteredConicArc,
     u: number,
-  ) => IAutoMovieConicApproximation.Point = (
-    arc: IAutoMovieConicApproximation.IArc,
+  ) => Readonly<AutoMovieVector2Tuple> = (
+    arc: IAutoMovieRegisteredConicArc,
     u: number,
-  ): IAutoMovieConicApproximation.Point => {
+  ): Readonly<AutoMovieVector2Tuple> => {
     const weights: readonly [number, number, number] = [
       (1 - u) ** 2,
       2 * arc.weight * u * (1 - u),
@@ -64,18 +69,18 @@ export function test_recovery_conics_ahn(): void {
     [1, 1],
     [12, 3],
   ] as const) {
-    const ellipse: IAutoMovieConicApproximation.ICurve = {
+    const ellipse: IAutoMoviePlanarCurveSource = {
       domain: [0, Math.PI / 2],
       breaks: [],
       closed: false,
-      evaluate: (t: number): IAutoMovieConicApproximation.Point => [
+      evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
         a * Math.cos(t),
         b * Math.sin(t),
       ],
       derivative: (
         t: number,
         order: 1 | 2 | 3 | 4 | 5,
-      ): IAutoMovieConicApproximation.Point => [
+      ): Readonly<AutoMovieVector2Tuple> => [
         a * Math.cos(t + (order * Math.PI) / 2),
         b * Math.sin(t + (order * Math.PI) / 2),
       ],
@@ -91,28 +96,28 @@ export function test_recovery_conics_ahn(): void {
       result.certified,
       false,
     );
-    const arc: IAutoMovieConicApproximation.IArc = result.arcs[0]!;
+    const arc: IAutoMovieRegisteredConicArc = result.arcs[0]!;
     TestValidator.predicate(
       "ellipse fullness",
       nclose(arc.weight, Math.SQRT1_2, 1e-11),
     );
     for (let i: number = 0; i <= 97; ++i) {
-      const q: IAutoMovieConicApproximation.Point = point(arc, i / 97);
+      const q: Readonly<AutoMovieVector2Tuple> = point(arc, i / 97);
       TestValidator.predicate(
         "ellipse analytic locus",
         nclose((q[0] / a) ** 2 + (q[1] / b) ** 2, 1, 1e-11),
       );
     }
   }
-  const parabola: IAutoMovieConicApproximation.ICurve = {
+  const parabola: IAutoMoviePlanarCurveSource = {
     domain: [-1, 1],
     breaks: [],
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point => [t, t * t],
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [t, t * t],
     derivative: (
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point =>
+    ): Readonly<AutoMovieVector2Tuple> =>
       order === 1 ? [1, 2 * t] : order === 2 ? [0, 2] : [0, 0],
   };
   const parabolic: IAutoMovieConicApproximation.IResult = approximate(
@@ -126,7 +131,7 @@ export function test_recovery_conics_ahn(): void {
     nclose(parabolic.arcs[0]!.weight, 1, 1e-12),
   );
   for (let i: number = 0; i <= 97; ++i) {
-    const q: IAutoMovieConicApproximation.Point = point(
+    const q: Readonly<AutoMovieVector2Tuple> = point(
       parabolic.arcs[0]!,
       i / 97,
     );
@@ -135,15 +140,15 @@ export function test_recovery_conics_ahn(): void {
       nclose(q[1], q[0] * q[0], 1e-11),
     );
   }
-  const line: IAutoMovieConicApproximation.ICurve = {
+  const line: IAutoMoviePlanarCurveSource = {
     domain: [0, 2],
     breaks: [],
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point => [t, 2 * t + 3],
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [t, 2 * t + 3],
     derivative: (
       _t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point => (order === 1 ? [1, 2] : [0, 0]),
+    ): Readonly<AutoMovieVector2Tuple> => (order === 1 ? [1, 2] : [0, 0]),
   };
   const linear: IAutoMovieConicApproximation.IResult = approximate(
     line,
@@ -161,7 +166,7 @@ export function test_recovery_conics_ahn(): void {
       domain: [0, 1],
       breaks: [],
       closed: false,
-      evaluate: (t: number): IAutoMovieConicApproximation.Point => {
+      evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {
         scratch[0] = 2 * t;
         scratch[1] = 3 * t;
         return scratch;
@@ -169,7 +174,7 @@ export function test_recovery_conics_ahn(): void {
       derivative: (
         _t: number,
         order: 1 | 2 | 3 | 4 | 5,
-      ): IAutoMovieConicApproximation.Point => (order === 1 ? [2, 3] : [0, 0]),
+      ): Readonly<AutoMovieVector2Tuple> => (order === 1 ? [2, 3] : [0, 0]),
     },
     options,
   );
@@ -189,14 +194,14 @@ export function test_recovery_conics_ahn(): void {
     {
       ...line,
       domain: [0, 1],
-      evaluate: (t: number): IAutoMovieConicApproximation.Point => [
+      evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
         1e6 + 2 * t,
         -1e6 + 3 * t,
       ],
       derivative: (
         _t: number,
         order: 1 | 2 | 3 | 4 | 5,
-      ): IAutoMovieConicApproximation.Point => (order === 1 ? [2, 3] : [0, 0]),
+      ): Readonly<AutoMovieVector2Tuple> => (order === 1 ? [2, 3] : [0, 0]),
     },
     options,
   );
@@ -216,17 +221,17 @@ export function test_recovery_conics_ahn(): void {
       nclose(translated.arcs[0]!.controls[2][1], -1e6 + 3, 0),
   );
   const leftSecondJets: string[] = [];
-  const corner: IAutoMovieConicApproximation.ICurve = {
+  const corner: IAutoMoviePlanarCurveSource = {
     domain: [-1, 1],
     breaks: [0],
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point =>
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> =>
       t <= 0 ? [t, t * t] : [t, -t],
     derivative: (
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
       side?: "left" | "right",
-    ): IAutoMovieConicApproximation.Point => {
+    ): Readonly<AutoMovieVector2Tuple> => {
       const left: boolean = t < 0 || (t === 0 && side === "left");
       if (t === 0 && order === 2) leftSecondJets.push(side ?? "none");
       return order === 1
@@ -256,15 +261,15 @@ export function test_recovery_conics_ahn(): void {
     "corner second-order incident jets",
     leftSecondJets.includes("left") && leftSecondJets.includes("right"),
   );
-  const cubic: IAutoMovieConicApproximation.ICurve = {
+  const cubic: IAutoMoviePlanarCurveSource = {
     domain: [-1, 1],
     breaks: [0],
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point => [t, t ** 3],
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [t, t ** 3],
     derivative: (
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point =>
+    ): Readonly<AutoMovieVector2Tuple> =>
       order === 1
         ? [1, 3 * t * t]
         : order === 2
@@ -282,7 +287,7 @@ export function test_recovery_conics_ahn(): void {
     "inflection separated",
     inflected.arcs.length >= 2 &&
       inflected.arcs.every(
-        (arc: IAutoMovieConicApproximation.IArc): boolean =>
+        (arc: IAutoMovieRegisteredConicArc): boolean =>
           arc.domain[1] <= 0 || arc.domain[0] >= 0,
       ),
   );
@@ -298,18 +303,18 @@ export function test_recovery_conics_ahn(): void {
    * rapid oscillation, so the 128-cell scan identifies the nearest basin.
    */
   const nearest: (
-    q: IAutoMovieConicApproximation.Point,
-    evaluate: (t: number) => IAutoMovieConicApproximation.Point,
+    q: Readonly<AutoMovieVector2Tuple>,
+    evaluate: (t: number) => Readonly<AutoMovieVector2Tuple>,
     a: number,
     b: number,
   ) => number = (
-    q: IAutoMovieConicApproximation.Point,
-    evaluate: (t: number) => IAutoMovieConicApproximation.Point,
+    q: Readonly<AutoMovieVector2Tuple>,
+    evaluate: (t: number) => Readonly<AutoMovieVector2Tuple>,
     a: number,
     b: number,
   ): number => {
     const separation: (t: number) => number = (t: number): number => {
-      const p: IAutoMovieConicApproximation.Point = evaluate(t);
+      const p: Readonly<AutoMovieVector2Tuple> = evaluate(t);
       return Math.hypot(q[0] - p[0], q[1] - p[1]);
     };
     let index: number = 0;
@@ -331,18 +336,18 @@ export function test_recovery_conics_ahn(): void {
     }
     return Math.min(best, separation((low + high) / 2));
   };
-  const convex: IAutoMovieConicApproximation.ICurve = {
+  const convex: IAutoMoviePlanarCurveSource = {
     domain: [0, 1],
     breaks: [],
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point => [
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
       t,
       t * t + 0.1 * t ** 3,
     ],
     derivative: (
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point =>
+    ): Readonly<AutoMovieVector2Tuple> =>
       order === 1
         ? [1, 2 * t + 0.3 * t * t]
         : order === 2
@@ -365,13 +370,13 @@ export function test_recovery_conics_ahn(): void {
     for (let i: number = 0; i <= 97; ++i) {
       const t: number =
         arc.domain[0] + ((arc.domain[1] - arc.domain[0]) * i) / 97;
-      const source: IAutoMovieConicApproximation.Point = convex.evaluate(t);
-      const conic: IAutoMovieConicApproximation.Point = point(arc, i / 97);
+      const source: Readonly<AutoMovieVector2Tuple> = convex.evaluate(t);
+      const conic: Readonly<AutoMovieVector2Tuple> = point(arc, i / 97);
       TestValidator.predicate(
         "held-out source to conic",
         nearest(
           source,
-          (u: number): IAutoMovieConicApproximation.Point => point(arc, u),
+          (u: number): Readonly<AutoMovieVector2Tuple> => point(arc, u),
           0,
           1,
         ) <= options.toleranceMm,
@@ -396,18 +401,18 @@ export function test_recovery_conics_ahn(): void {
   // tolerance of its chord, so it is converted, as the contract's collinear primitive, and the whole chart is covered.
   const c: number = 1,
     d: number = 1e-3;
-  const shallow: IAutoMovieConicApproximation.ICurve = {
+  const shallow: IAutoMoviePlanarCurveSource = {
     domain: [-0.5, 0.5],
     breaks: [-d, d],
     closed: false,
-    evaluate: (t: number): IAutoMovieConicApproximation.Point => [
+    evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
       1e6 + t,
       -1e6 + c * (t ** 4 / 12 - (d * d * t * t) / 2),
     ],
     derivative: (
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
-    ): IAutoMovieConicApproximation.Point =>
+    ): Readonly<AutoMovieVector2Tuple> =>
       order === 1
         ? [1, c * (t ** 3 / 3 - d * d * t)]
         : order === 2
@@ -436,7 +441,7 @@ export function test_recovery_conics_ahn(): void {
         "near-flat held-out source to primitive",
         nearest(
           shallow.evaluate(t),
-          (u: number): IAutoMovieConicApproximation.Point => point(arc, u),
+          (u: number): Readonly<AutoMovieVector2Tuple> => point(arc, u),
           0,
           1,
         ) <= options.toleranceMm,
@@ -448,8 +453,8 @@ export function test_recovery_conics_ahn(): void {
     "near-flat reaches final endpoint",
     nclose(reached, shallow.domain[1], 0),
   );
-  const middle: IAutoMovieConicApproximation.IArc | undefined = flat.arcs.find(
-    (arc: IAutoMovieConicApproximation.IArc): boolean => arc.domain[0] === -d,
+  const middle: IAutoMovieRegisteredConicArc | undefined = flat.arcs.find(
+    (arc: IAutoMovieRegisteredConicArc): boolean => arc.domain[0] === -d,
   );
   TestValidator.predicate(
     "near-flat middle is the collinear primitive",
@@ -460,7 +465,7 @@ export function test_recovery_conics_ahn(): void {
   const unshifted: IAutoMovieConicApproximation.IResult = approximate(
     {
       ...shallow,
-      evaluate: (t: number): IAutoMovieConicApproximation.Point => [
+      evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
         t,
         c * (t ** 4 / 12 - (d * d * t * t) / 2),
       ],
@@ -471,11 +476,11 @@ export function test_recovery_conics_ahn(): void {
     "curved stretch under a tighter tolerance is not a line",
     unshifted.arcs
       .filter(
-        (arc: IAutoMovieConicApproximation.IArc): boolean =>
+        (arc: IAutoMovieRegisteredConicArc): boolean =>
           arc.domain[0] >= -d && arc.domain[1] <= d,
       )
       .every(
-        (arc: IAutoMovieConicApproximation.IArc): boolean =>
+        (arc: IAutoMovieRegisteredConicArc): boolean =>
           arc.maximumSampleErrorMm <= 1e-14,
       ),
   );
@@ -518,7 +523,7 @@ export function test_recovery_conics_ahn(): void {
   const nonfinite: IAutoMovieConicApproximation.IResult = approximate(
     {
       ...convex,
-      evaluate: (_t: number): IAutoMovieConicApproximation.Point => [NaN, 0],
+      evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => [NaN, 0],
     },
     options,
   );
@@ -534,7 +539,7 @@ export function test_recovery_conics_ahn(): void {
       derivative: (
         _t: number,
         _order: 1 | 2 | 3 | 4 | 5,
-      ): IAutoMovieConicApproximation.Point => [Infinity, 0],
+      ): Readonly<AutoMovieVector2Tuple> => [Infinity, 0],
     },
     options,
   );
@@ -542,7 +547,7 @@ export function test_recovery_conics_ahn(): void {
   const throwing: IAutoMovieConicApproximation.IResult = approximate(
     {
       ...convex,
-      evaluate: (_t: number): IAutoMovieConicApproximation.Point => {
+      evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => {
         throw new Error("Source acquisition failed");
       },
     },

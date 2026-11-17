@@ -45,7 +45,7 @@ import type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwi
  * @evidence contracts/development/common.md#meaningful-documentation water: The water plane's world height, metres; the entry's chest height when absent. cycles: Cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation water: The water plane's world height, metres; the entry's chest height when absent. cycles: Cycles; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.swim, params); sport/swim.ts (swim.plan, context); sport/swim.ts (swim.plan); executable/cases/swimCases.ts (swimCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner, IAutoMovieMotionHumanSwimStroke.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanSwimStroke.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSwim {
   /**
@@ -71,7 +71,7 @@ export namespace IAutoMovieMotionHumanSwim {
     cycles?: number;
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

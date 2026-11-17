@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the MeasureModelCrossings operations. */
+/**
+ * Data and callback contracts shared by the MeasureModelCrossings operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The optional withinParts flag requests self-crossing observations in addition to model-part pairs. Omission disables self-pairs; a crossing report remains an observation rather than a model acceptance verdict.
+ * @evidence contracts/development/design.md#principled-representation The optional withinParts flag requests self-crossing observations in addition to model-part pairs.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieModelCrossings owns transformation into the common model frame and strict mesh crossing queries.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Omission disables self-pairs; a crossing report remains an observation rather than a model acceptance verdict.
+ */
 export namespace IAutoMovieMeasureModelCrossings {
   /**
    * Report every pair of a model's mesh parts whose surfaces cross, measured
@@ -32,6 +39,11 @@ export namespace IAutoMovieMeasureModelCrossings {
    * edge or corner without folding are touching. Throws, naming the part, on a
    * mesh part whose index buffer is malformed, and passes on the crossing
    * measure's own refusals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The optional withinParts flag requests self-crossing observations in addition to model-part pairs. Omission disables self-pairs; a crossing report remains an observation rather than a model acceptance verdict.
+   * @evidence contracts/development/design.md#principled-representation The optional withinParts flag requests self-crossing observations in addition to model-part pairs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieModelCrossings owns transformation into the common model frame and strict mesh crossing queries.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omission disables self-pairs; a crossing report remains an observation rather than a model acceptance verdict.
    */
   export type IOptions = {
     /** Also count each part against itself. */

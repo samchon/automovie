@@ -1,7 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePlanPhysicalRootSupportTargets,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,7 +22,7 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
  */
 export function planPhysicalRootSupportTargets(
   input: IAutoMoviePlanPhysicalRootSupportTargets.IInput,
-): Record<string, IAutoMoviePhysicalProfile.ITransform> {
+): Record<string, IAutoMovieRigidTransform> {
   const policy: NonNullable<
     IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
   > = input.body.supportTracking!;
@@ -34,7 +34,7 @@ export function planPhysicalRootSupportTargets(
       ),
   );
   if (!limbs.length || (policy.iterations ?? 24) === 0) return input.targets;
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+  const targets: Record<string, IAutoMovieRigidTransform> =
     rebasePhysicalTargets(input.targets, input.root.bone, input.root.pose);
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     limbs.map((limb: (typeof limbs)[number]): [string, IAutoMovieVector3] => [

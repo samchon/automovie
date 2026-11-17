@@ -1,9 +1,9 @@
 import { AutoMovieLoftChain, AutoMovieSplineCurve } from "@automovie/engine";
 import type {
-  IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodyRoots,
   IAutoMovieHumanLoftApertureConstruction,
   IAutoMovieHumanLoftMesh,
+  IAutoMovieHumanSurfaceAppendage,
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
@@ -177,7 +177,7 @@ export namespace AutoMovieHumanBodyRoots {
     base: IAutoMovieLoftChain,
     baseIndex: number,
     appendage: IAutoMovieLoftChain,
-    root: IAutoMovieHumanBodyCalibration.IAppendage,
+    root: IAutoMovieHumanSurfaceAppendage,
     ring: readonly number[],
     phases: readonly number[],
     hole: readonly number[],

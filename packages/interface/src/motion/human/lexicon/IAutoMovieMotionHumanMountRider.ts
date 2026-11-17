@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -7,7 +8,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * @evidence contracts/development/common.md#meaningful-documentation point: Grip contact point in world metres. radius: Grip radius in metres; defaults to zero for a surface contact.
  * @evidence contracts/development/design.md#principled-representation point: Grip contact point in world metres. radius: Grip radius in metres; defaults to zero for a surface contact.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanMountRider.ts (HumanMountRider.hold, grip); lexicon/HumanMountRider.ts (HumanMountRider.hold, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanPosture.IGoal, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanMountRider {
   /**
@@ -37,11 +38,11 @@ export namespace IAutoMovieMotionHumanMountRider {
    * @evidence contracts/development/common.md#meaningful-documentation arm: World-space arm goal fitting the wrist to the grip. fingers: Clinical-degree finger rotations blended from the open pose to the supplied closure.
    * @evidence contracts/development/design.md#principled-representation arm: World-space arm goal fitting the wrist to the grip. fingers: Clinical-degree finger rotations blended from the open pose to the supplied closure.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanMountRider.ts (HumanMountRider.hold, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture.IGoal, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IHoldResult = {
     /** World-space arm goal fitting the wrist to the grip. */
-    arm: IAutoMovieMotionHumanPosture.IGoal;
+    arm: IAutoMovieHumanLimbGoal;
     /** Clinical-degree finger rotations blended from the open pose to the supplied closure. */
     fingers: IAutoMovieMotionHumanPosture["joints"];
   };

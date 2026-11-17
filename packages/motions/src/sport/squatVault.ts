@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSquatVault,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
@@ -97,7 +98,7 @@ export namespace squatVault {
       prop: context.params.on,
       affordance: "surface",
     });
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+    const read: IAutoMovieMotionHumanPropReader = context.prop(
       context.params.on,
     );
     const rotation: IAutoMovieQuaternion = read.frame(context.start).rotation;

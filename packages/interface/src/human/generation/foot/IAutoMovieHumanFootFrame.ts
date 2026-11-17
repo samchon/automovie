@@ -1,6 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanFootFrame; runtime evaluation remains in Human. */
+/**
+ * Calibration-millimetre foot dimensions and the map from normalized foot coordinates into the left frame.
+ *
+ * The interface package owns these declarations; AutoMovieHumanFootFrame in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Calibration-millimetre foot dimensions and the map from normalized foot coordinates into the left frame. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IDimensions, IFrame declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IDimensions, IFrame separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanFootFrame exchanges the named IDimensions, IFrame contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanFootFrame {
   /** A foot's dimensions in calibration millimetres.
    *
@@ -42,7 +51,17 @@ export namespace IAutoMovieHumanFootFrame {
     /** Ankle ring height, mm. */
     ring: number;
 
-    /** World point of normalised foot coordinates `[a, u, y mm]`, left frame. */
+    /**
+     * World point of normalised foot coordinates `[a, u, y mm]`, left frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation World point of normalised foot coordinates `[a, u, y mm]`, left frame.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootFrame and the callback provider must satisfy the documented at contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootFrame and its callback provider own the cost of each at invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootFrame and the callback provider determine when the inputs to at describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootFrame and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootFrame.IFrame.at callable contract, without an implementation body. AutoMovieHumanFootFrame and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootFrame.IFrame.at declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootFrame and the callback provider.
+     */
     at: (a: number, u: number, y: number) => AutoMovieVector3Tuple;
 
     /** The foot's lateral direction, left frame. */

@@ -9,7 +9,7 @@ import type {
   IAutoMovieHumanLegWalk,
   IAutoMovieHumanLimbRest,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieLoftContract,
 } from "@automovie/interface";
 
@@ -89,8 +89,7 @@ export namespace AutoMovieHumanLegSources {
       bones: { hip, knee, ankle },
       law: legLaw,
       foot: (): IAutoMovieHumanBodyLane.ISide["foot"] => foot().foot,
-      definition: (): IAutoMovieHumanSiteViewPart.IDefinition =>
-        foot().definition(),
+      definition: (): IAutoMovieHumanSourceDefinition => foot().definition(),
       toes,
     };
   }

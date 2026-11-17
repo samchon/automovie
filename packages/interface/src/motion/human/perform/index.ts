@@ -1,7 +1,9 @@
+export type { AutoMovieHumanForceSite } from "./AutoMovieHumanForceSite";
 export type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 export type { IAutoMovieMotionHumanCue } from "./IAutoMovieMotionHumanCue";
 export type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 export type { IAutoMovieMotionHumanHitTrack } from "./IAutoMovieMotionHumanHitTrack";
+export type { IAutoMovieMotionHumanImpulse } from "./IAutoMovieMotionHumanImpulse";
 export type { IAutoMovieMotionHumanLoad } from "./IAutoMovieMotionHumanLoad";
 export type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
 export type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
@@ -17,4 +19,6 @@ export type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPro
 export type { IAutoMovieMotionHumanPropFrame } from "./IAutoMovieMotionHumanPropFrame";
 export type { IAutoMovieMotionHumanPropOutcome } from "./IAutoMovieMotionHumanPropOutcome";
 export type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
+export type { IAutoMovieMotionHumanSustainedForce } from "./IAutoMovieMotionHumanSustainedForce";
 export type { IAutoMovieMotionHumanWater } from "./IAutoMovieMotionHumanWater";
+export type { IAutoMovieMotionObstacleAperture } from "./IAutoMovieMotionObstacleAperture";

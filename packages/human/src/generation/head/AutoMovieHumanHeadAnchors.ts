@@ -1,5 +1,6 @@
 import type {
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanEyeSeat,
+  IAutoMovieHumanHeadAttachmentLandmarks,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanLoftAperture,
 } from "@automovie/interface";
@@ -48,8 +49,8 @@ export namespace AutoMovieHumanHeadAnchors {
    */
   export function of(
     plan: IAutoMovieHumanHeadLayout,
-    eyes: readonly IAutoMovieHumanBodyCalibration.IEye[],
-  ): IAutoMovieHumanBodyCalibration.IHeadLandmarks {
+    eyes: readonly IAutoMovieHumanEyeSeat[],
+  ): IAutoMovieHumanHeadAttachmentLandmarks {
     if (
       !(plan.scale > 0) ||
       !Number.isFinite(plan.scale) ||
@@ -101,9 +102,8 @@ export namespace AutoMovieHumanHeadAnchors {
       side: "left" | "right",
       sign: 1 | -1,
     ): [number, number, number] => {
-      const eye: IAutoMovieHumanBodyCalibration.IEye | undefined = eyes.find(
-        (item: IAutoMovieHumanBodyCalibration.IEye): boolean =>
-          item.side === side,
+      const eye: IAutoMovieHumanEyeSeat | undefined = eyes.find(
+        (item: IAutoMovieHumanEyeSeat): boolean => item.side === side,
       );
       if (eye === undefined)
         throw new Error(

@@ -1,9 +1,16 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieResolveMomentum } from "../pose/IAutoMovieResolveMomentum";
+import type { IAutoMoviePrincipalTensorFrame } from "../physics/IAutoMoviePrincipalTensorFrame";
 import type { IAutoMovieIntegrateMotionTrajectory } from "./IAutoMovieIntegrateMotionTrajectory";
 
-/** Root-frame mass histories and world-frame flight integration. integrateMotionTrajectory validates the time interval, step and tolerances; callers supply finite momentum, unit orientations and nonsingular positive principal moments. */
+/**
+ * Root-frame mass histories and world-frame flight integration. integrateMotionTrajectory validates the time interval, step and tolerances; callers supply finite momentum, unit orientations and nonsingular positive principal moments.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Shape inertia and relative momentum use the root frame while conserved momentum and returned orientation use the world frame. Time is seconds; the integrator admits interval, step and tolerances, and callers supply finite momentum, unit orientation and nonsingular positive principal moments.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts This namespace groups the IAutoMovieIntegrateAirborneRotation contracts used by packages/engine/src/motion/integrateAirborneRotation.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
+ * @evidence contracts/development/design.md#principled-representation Shape inertia and relative momentum use the root frame while conserved momentum and returned orientation use the world frame. Time is seconds; the integrator admits interval, step and tolerances, and callers supply finite momentum, unit orientation and nonsingular positive principal moments. The namespace groups these type contracts without implementing the operation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateAirborneRotation contract belongs to interface; packages/engine/src/motion/integrateAirborneRotation.ts and packages/engine/src/motion/solveAirborneTakeoff.ts use its nested records and callbacks. Runtime computation remains with those consumers.
+ */
 export namespace IAutoMovieIntegrateAirborneRotation {
   /**
    * What a flight is integrated from.
@@ -66,7 +73,7 @@ export namespace IAutoMovieIntegrateAirborneRotation {
    */
   export interface IInstant {
     /** The composite inertia about the centre of mass, as its principal frame, kg m². */
-    inertia: IAutoMovieResolveMomentum.IPrincipal;
+    inertia: IAutoMoviePrincipalTensorFrame;
 
     /** The angular momentum of the segments' motion relative to the root, about the centre of mass, kg m²/s. */
     relative: IAutoMovieVector3;
@@ -98,10 +105,27 @@ export namespace IAutoMovieIntegrateAirborneRotation {
      * at the ends outside the flight. Reads the retained trajectory without
      * calling the shape history; the caller must not mutate returned state.
      *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateAirborneRotation.IFlight.orientation: The root's world orientation at a second on the integration clock, held at the ends outside the flight. Reads the retained trajectory without calling the shape history; the caller must not mutate returned state.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
      */
     orientation: (seconds: number) => IAutoMovieQuaternion;
 
-    /** Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested. */
+    /**
+     * Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateAirborneRotation.IFlight.variations: Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
+     */
     variations: (seconds: number) => readonly IAutoMovieVector3[];
   }
 

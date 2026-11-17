@@ -7,7 +7,7 @@ import type { IAutoMovieShotPhysicsAdviceBase } from "./IAutoMovieShotPhysicsAdv
  *
  * A collision response from `suggestCollisionResponse` is advice, not an
  * imposed result: the engine never applies `proposal` by implication. Shot code or a host analysis pass supplies the
- * list through `IAutoMovieShotRuntime.advice`; the author may keep an item
+ * list through `IAutoMovieEngineShotRuntime.advice`; the author may keep an item
  * pending, accept it, replace it with a modified response, or reject it with a
  * rationale. `compileDefinedShot` refuses an inconsistent item and copies the
  * list onto the compiled result, so the decision stays visible beside the

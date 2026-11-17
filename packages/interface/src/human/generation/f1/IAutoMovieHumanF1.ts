@@ -4,7 +4,16 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 import type { IAutoMovieHumanConicLoft } from "../conic/IAutoMovieHumanConicLoft";
 import type { IAutoMovieHumanF1Placement } from "./IAutoMovieHumanF1Placement";
 
-/** Type contracts exchanged by AutoMovieHumanF1; runtime evaluation remains in Human. */
+/**
+ * Reference-family assembly, cutters and digit connection seams in the figure's registered frame.
+ *
+ * The interface package owns these declarations; AutoMovieHumanF1 in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Reference-family assembly, cutters and digit connection seams in the figure's registered frame. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IPiece, IMember, IDigit, IAssembly, IConstruction, IBody, Cutters, IRailMm, ValleyJoints, ValleyResult, IFanSeamsResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IPiece, IMember, IDigit, IAssembly, IConstruction, IBody, Cutters, IRailMm, ValleyJoints, ValleyResult, IFanSeamsResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanF1 exchanges the named IPiece, IMember, IDigit, IAssembly, IConstruction, IBody, Cutters, IRailMm, ValleyJoints, ValleyResult, IFanSeamsResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanF1 {
   /** One generated surface piece.
    *
@@ -127,13 +136,41 @@ export namespace IAutoMovieHumanF1 {
      * A station of a stored family carried to the pose, mm (`AutoMovieHumanConicPose.map`): `from` when `length` is absent, else the
      * length at the pose of the stretch `length` mm long that starts at `from`. A station constant read along a posed family (where a
      * face ends, where a band lands) goes through it; at the reference pose both are the numbers given.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation A station of a stored family carried to the pose, mm (`AutoMovieHumanConicPose.map`): `from` when `length` is absent, else the length at the pose of the stretch `length` mm long that starts at `from`. A station constant read along a posed family (where a face ends, where a band lands) goes through it; at the reference pose both are the numbers given.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanF1 and the callback provider must satisfy the documented station contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanF1 and its callback provider own the cost of each station invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanF1 and the callback provider determine when the inputs to station describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanF1.IAssembly.station callable contract, without an implementation body. AutoMovieHumanF1 and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanF1.IAssembly.station declares only the invocation boundary; decomposition belongs to AutoMovieHumanF1 and the callback provider.
      */
     station: (family: string, from: number, length?: number) => number;
 
-    /** A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame. */
+    /**
+     * A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanF1 and the callback provider must satisfy the documented point contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanF1 and its callback provider own the cost of each point invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanF1 and the callback provider determine when the inputs to point describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanF1.IAssembly.point callable contract, without an implementation body. AutoMovieHumanF1 and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanF1.IAssembly.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanF1 and the callback provider.
+     */
     point: (name: string) => [number, number, number];
 
-    /** A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame. */
+    /**
+     * A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanF1 and the callback provider must satisfy the documented direction contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanF1 and its callback provider own the cost of each direction invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanF1 and the callback provider determine when the inputs to direction describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanF1.IAssembly.direction callable contract, without an implementation body. AutoMovieHumanF1 and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanF1.IAssembly.direction declares only the invocation boundary; decomposition belongs to AutoMovieHumanF1 and the callback provider.
+     */
     direction: (name: string) => [number, number, number];
   }
 

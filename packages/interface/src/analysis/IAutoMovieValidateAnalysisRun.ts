@@ -1,6 +1,13 @@
 import type { IAutoMovieAnalysisRun } from "./IAutoMovieAnalysisRun";
 
-/** Data and callback contracts shared by the ValidateAnalysisRun operations. */
+/**
+ * Data and callback contracts shared by the ValidateAnalysisRun operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Validate one analysis run as evidence. Member documentation states the supplied records, units and absence meanings used by validateAutoMovieAnalysisRun.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The type is a semantic-validation input, not arbitrary JSON admission; malformed nested container shapes can still throw before a violation result exists.
+ * @evidence contracts/development/design.md#principled-representation run is a typed analysis record and optional revision requests a staleness check; validateAutoMovieAnalysisRun compares content and digest without repairing the run.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateAnalysisRun, used by validateAutoMovieAnalysisRun. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieValidateAnalysisRun {
   /**
    * Validate one analysis run as evidence.
@@ -20,6 +27,11 @@ export namespace IAutoMovieValidateAnalysisRun {
    * semantic: the run must already have the declared shape, because nested
    * fields such as `solver.id` are read without a guard, so a JSON value missing
    * one throws a `TypeError` instead of producing a violation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Validate one analysis run as evidence. Member documentation states the supplied records, units and absence meanings used by validateAutoMovieAnalysisRun.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type is a semantic-validation input, not arbitrary JSON admission; malformed nested container shapes can still throw before a violation result exists.
+   * @evidence contracts/development/design.md#principled-representation run is a typed analysis record and optional revision requests a staleness check; validateAutoMovieAnalysisRun compares content and digest without repairing the run.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateAnalysisRun.IProps, used by validateAutoMovieAnalysisRun. Its run, revision members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Run to check; it must already have the declared shape. */

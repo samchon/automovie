@@ -134,10 +134,8 @@ export function test_human_motion_recompose_travel(): void {
       yaw: 180,
       fixed: true,
     });
-  const weary: IAutoMovieMotionManner.IManner =
-    AutoMovieMotionManner.PRESETS.weary;
-  const brisk: IAutoMovieMotionManner.IManner =
-    AutoMovieMotionManner.PRESETS.brisk;
+  const weary: IAutoMovieMotionManner = AutoMovieMotionManner.PRESETS.weary;
+  const brisk: IAutoMovieMotionManner = AutoMovieMotionManner.PRESETS.brisk;
   const PARTNER: number = 3;
 
   for (const [index, name] of (["m-average", "f-small"] as const).entries()) {
@@ -225,15 +223,13 @@ export function test_human_motion_recompose_travel(): void {
       | "crawl"
       | "climbLadder";
     interface IAct {
-      chain: (
-        manner?: IAutoMovieMotionManner.IManner,
-      ) => IAutoMovieMotionHumanChain;
+      chain: (manner?: IAutoMovieMotionManner) => IAutoMovieMotionHumanChain;
       props: () => IAutoMovieMotionHumanProp[];
       duo: boolean;
     }
     const manner = (
-      m: IAutoMovieMotionManner.IManner | undefined,
-    ): { manner?: IAutoMovieMotionManner.IManner } =>
+      m: IAutoMovieMotionManner | undefined,
+    ): { manner?: IAutoMovieMotionManner } =>
       m === undefined ? {} : { manner: m };
     const ACTS: Record<Law, IAct> = {
       stand: {
@@ -306,7 +302,7 @@ export function test_human_motion_recompose_travel(): void {
     };
     const act = (
       law: Law,
-      m?: IAutoMovieMotionManner.IManner,
+      m?: IAutoMovieMotionManner,
       over?: (u: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
     ): IAutoMovieMotionHumanChain => {
       const chain: IAutoMovieMotionHumanChain = ACTS[law].chain(m);
@@ -315,7 +311,7 @@ export function test_human_motion_recompose_travel(): void {
     const play = (
       law: Law,
       label: string,
-      m?: IAutoMovieMotionManner.IManner,
+      m?: IAutoMovieMotionManner,
       over?: (u: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
       judged: boolean = true,
     ): IAutoMovieMotionHumanPerformance | undefined =>
@@ -474,7 +470,7 @@ export function test_human_motion_recompose_travel(): void {
     };
     const walked = (
       to: number,
-      m?: IAutoMovieMotionManner.IManner,
+      m?: IAutoMovieMotionManner,
       seed?: string,
     ): IAutoMovieMotionHumanPerformance | undefined =>
       attempt(

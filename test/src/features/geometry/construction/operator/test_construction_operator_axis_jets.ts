@@ -4,7 +4,7 @@ import {
   AutoMovieViewParallelAxis,
 } from "@automovie/engine";
 import type {
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewParallelAxis,
 } from "@automovie/interface";
@@ -94,7 +94,7 @@ export function test_construction_operator_axis_jets(): void {
           `${scale}/${rolled}/${share}`,
           failures,
         );
-        const value: IAutoMovieLoftFrame.IFrame = axis.at(station);
+        const value: IAutoMovieLoftSectionFrame = axis.at(station);
         for (const key of ["origin", "u", "v"] as const)
           if (
             value[key].some(

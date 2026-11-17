@@ -1,5 +1,6 @@
 import type {
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
@@ -7,7 +8,7 @@ import type {
 export namespace PhysicalFixtures {
   /** One one-kilogram sphere with analytic solid-sphere inertia. */
   export function sphere(radius: number = 0.1, compliance: number = 0): P {
-    const neutral: P.ITransform = {
+    const neutral: IAutoMovieRigidTransform = {
       position: { x: 0, y: 1, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
@@ -60,7 +61,7 @@ export namespace PhysicalFixtures {
     id: string,
     profile: P,
     duration: number,
-    pose?: P.ITransform,
+    pose?: IAutoMovieRigidTransform,
   ): IAutoMoviePhysicalSimulationInput.IBody {
     return {
       id,
@@ -74,7 +75,7 @@ export namespace PhysicalFixtures {
             profile.segments.map(
               (
                 segment: (typeof profile.segments)[number],
-              ): [string, P.ITransform] => [
+              ): [string, IAutoMovieRigidTransform] => [
                 segment.bone,
                 structuredClone(pose ?? segment.neutral),
               ],

@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanManipulate,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -34,10 +34,8 @@ import { manipulateReach } from "./manipulateReach";
 export function manipulateFingering(
   body: IAutoMovieMotionHumanBody,
   contacts: readonly IAutoMovieMotionHumanManipulate.IContactAt[],
-  sides: readonly IAutoMovieMotionHumanHand.Side[],
-  rotation: Readonly<
-    Record<IAutoMovieMotionHumanHand.Side, IAutoMovieQuaternion>
-  >,
+  sides: readonly AutoMovieHumanSide[],
+  rotation: Readonly<Record<AutoMovieHumanSide, IAutoMovieQuaternion>>,
 ): IAutoMovieMotionHumanManipulate.Finger[] {
   type Finger = IAutoMovieMotionHumanManipulate.Finger;
   const out: Finger[] = new Array<Finger>(contacts.length);

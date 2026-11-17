@@ -14,11 +14,6 @@ export type IAutoMoviePlantingSupport =
   | IAutoMoviePlantingSupport.IBoundary;
 /**
  * Building records that may carry a planting installation.
- *
- * @evidence contracts/development/design.md#principled-representation Each kind carries the stable identity of one environment surface, element or boundary.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Planting installation admission resolves these references in the existing environment collections.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A support citation does not compute contact placement or reposition the planting automatically.
- * @evidence contracts/development/common.md#meaningful-documentation Building records that may carry a planting installation. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMoviePlantingSupport {
   /**

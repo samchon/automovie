@@ -100,14 +100,34 @@ export namespace IAutoMovieMotionHumanPropOutcome {
     meeting: IAutoMovieMotionHumanPropOutcome.IMeeting;
     /** Finite nonnegative duration available after the original launch, seconds; legs validates it and returns no continuations when the first hit reaches or exceeds it. */
     horizon: number;
-    /** Synchronous sweep called for each subsequent projectile. base is seconds from the ORIGINAL launch, not scene time; returned hit.time is relative to this projectile's own zero. null means no further contact. leave excludes a passed collider; departing is only the resolved bounce's departure collider. The callback owns horizon clipping; legs checks finite nonnegative hit time and strict absolute progress. Borrowed inputs are call-stable; exceptions propagate and the callback is not retained. */
+    /**
+     * Synchronous sweep called for each subsequent projectile. base is seconds from the ORIGINAL launch, not scene time; returned hit.time is relative to this projectile's own zero. null means no further contact. leave excludes a passed collider; departing is only the resolved bounce's departure collider. The callback owns horizon clipping; legs checks finite nonnegative hit time and strict absolute progress. Borrowed inputs are call-stable; exceptions propagate and the callback is not retained.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropOutcome.ILegsProps.meet: Synchronous sweep called for each subsequent projectile. base is seconds from the ORIGINAL launch, not scene time; returned hit.time is relative to this projectile's own zero. null means no further contact. leave excludes a passed collider; departing is only the resolved bounce's departure collider. The callback owns horizon clipping; legs checks finite nonnegative hit time and strict absolute progress. Borrowed inputs are call-stable; exceptions propagate and the callback is not retained.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPropOutcome.ILegsProps.meet is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPropOutcome.ILegsProps.meet is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPropOutcome.ILegsProps.meet is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPropOutcome.ILegsProps.meet is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPropOutcome.ILegsProps.meet is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPropOutcome.ILegsProps.meet is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     */
     meet: (
       projectile: IAutoMovieProjectile,
       base: number,
       leave?: string,
       departing?: string,
     ) => IAutoMovieMotionHumanPropOutcome.IMeeting | null;
-    /** Synchronous contact-record producer for every observed continuation meeting. base is original-launch-relative seconds; combine it with meeting.hit.time for launch-relative contact time. The sweep owns end <= horizon. Inputs are borrowed for the call, exceptions propagate and the callback is not retained. */
+    /**
+     * Synchronous contact-record producer for every observed continuation meeting. base is original-launch-relative seconds; combine it with meeting.hit.time for launch-relative contact time. The sweep owns end <= horizon. Inputs are borrowed for the call, exceptions propagate and the callback is not retained.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropOutcome.ILegsProps.settle: Synchronous contact-record producer for every observed continuation meeting. base is original-launch-relative seconds; combine it with meeting.hit.time for launch-relative contact time. The sweep owns end <= horizon. Inputs are borrowed for the call, exceptions propagate and the callback is not retained.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPropOutcome.ILegsProps.settle is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPropOutcome.ILegsProps.settle is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPropOutcome.ILegsProps.settle is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPropOutcome.ILegsProps.settle is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPropOutcome.ILegsProps.settle is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPropOutcome.ILegsProps.settle is used through packages/motions/src/perform/HumanPropOutcome.ts.
+     */
     settle: (
       meeting: IAutoMovieMotionHumanPropOutcome.IMeeting,
       projectile: IAutoMovieProjectile,

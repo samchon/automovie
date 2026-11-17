@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
@@ -44,7 +45,7 @@ export function test_human_motion_prop_worn(): void {
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const offset: IAutoMovieMotionHumanProp.IFrame = {
+  const offset: IAutoMovieRigidTransform = {
     position: { x: -0.22, y: 0, z: 0.08 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
@@ -82,7 +83,7 @@ export function test_human_motion_prop_worn(): void {
     );
     return;
   }
-  const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+  const segments: readonly IAutoMovieMotionHumanSegment[] =
     performance.segments("a");
   const instant = (index: number, event: string): number =>
     segments[index]!.start +
@@ -94,14 +95,11 @@ export function test_human_motion_prop_worn(): void {
   const seat = (
     bone: "hips" | "rightHand",
     seconds: number,
-  ): IAutoMovieMotionHumanProp.IFrame => {
+  ): IAutoMovieRigidTransform => {
     const frame: IAutoMovieResolvedBone = performance
       .bones("a", seconds)
       .get(bone)!;
-    const prop: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-      "flask",
-      seconds,
-    );
+    const prop: IAutoMovieRigidTransform = performance.prop("flask", seconds);
     const inverse = Quaternion.inverse(frame.worldRotation);
     return {
       position: Quaternion.rotateVector(

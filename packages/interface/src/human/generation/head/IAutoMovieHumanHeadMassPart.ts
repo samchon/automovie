@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanHeadMassPart; runtime evaluation remains in Human. */
+/**
+ * A constructed sagittal cervical point expressed as forward position and height in millimetres.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHeadMassPart in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A constructed sagittal cervical point expressed as forward position and height in millimetres. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only CervicalResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation CervicalResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadMassPart exchanges the named CervicalResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHeadMassPart {
   /** Result of AutoMovieHumanHeadMassPart.cervical. Clinical C from Legan and Burstone 1980 pp745-746, Fig1 and Table1.
   Their constructed Gn' is Sn-Pg' intersected by the line from Me'

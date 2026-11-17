@@ -4,13 +4,21 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanBodyTree } from "../IAutoMovieHumanBodyTree";
 import type { IAutoMovieHumanMassPart } from "../limb/IAutoMovieHumanMassPart";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanNamedSource } from "../limb/IAutoMovieHumanNamedSource";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 import type { IAutoMovieHumanTrunkLegs } from "./IAutoMovieHumanTrunkLegs";
 import type { IAutoMovieHumanTrunkSectionFamily } from "./IAutoMovieHumanTrunkSectionFamily";
 import type { IAutoMovieHumanTrunkViewPart } from "./IAutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkBuild; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanTrunkBuild; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanTrunkBuild exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IInput, IMassLaw, IOutput, IWithHeadHead. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanTrunkBuild; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IInput, IMassLaw, IOutput, IWithHeadHead contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanTrunkBuild {
   /** What the build reads.
    *
@@ -22,7 +30,7 @@ export namespace IAutoMovieHumanTrunkBuild {
    */
   export interface IInput {
     /** Same original leg definitions consumed by production lofts, before either tape pass builds its parent contact. */
-    legs?: Record<"left" | "right", IAutoMovieHumanSiteViewPart.IDefinition>;
+    legs?: Record<"left" | "right", IAutoMovieHumanSourceDefinition>;
     /** Same regional factory publishes each trial/final leg against that exact parent; no independent hip estimate. */
     bindLeg?: IAutoMovieHumanTrunkLegs.IInput["bindLeg"];
     /** The base's views (`AutoMovieHumanTrunkViews.of`). */
@@ -95,7 +103,7 @@ export namespace IAutoMovieHumanTrunkBuild {
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 
     /** Actual builder results in production order, including both tape passes and failed admissions. */
-    sources: IAutoMovieHumanSiteViewPart.ISource[];
+    sources: IAutoMovieHumanNamedSource[];
   }
 
   /** The head argument of AutoMovieHumanTrunkBuild.withHead. Preserve the existing upper scalar support from the canonical head axis; the regular shared connection excludes that support's dome from the loft domain.

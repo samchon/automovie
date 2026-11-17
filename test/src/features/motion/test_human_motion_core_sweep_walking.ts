@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -59,7 +60,7 @@ export function test_human_motion_core_sweep_walking(): void {
     goal: (
       _: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture.IGoal => ({
+    ): IAutoMovieHumanLimbGoal => ({
       point: shift(wrist, seconds),
       bend: shift({ x: elbow.x - 0.1, y: elbow.y, z: elbow.z - 0.1 }, seconds),
       rotation: bones.get("rightHand")!.worldRotation,

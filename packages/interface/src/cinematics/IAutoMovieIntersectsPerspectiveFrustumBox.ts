@@ -18,6 +18,11 @@ export namespace IAutoMovieIntersectsPerspectiveFrustumBox {
    * Both bodies are convex, and two convex polyhedra meet exactly when an edge of one meets the other: every vertex of the intersection is a vertex of one body lying inside the other, or a crossing of one body's edge with the other's face, and each of those puts some edge of one body inside the other. So the twelve box edges are clipped against the frustum's six half-spaces, and the twelve frustum edges against the box's three slabs. Neither half alone is the answer: a box small enough to sit inside the frame is found only by the first, and a frustum that pierces a mass far wider than itself, a camera standing inside a crowd or above one, only by the second. Touching counts as meeting, and a malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
    *
    * This is what a required subject with a real extent is judged against in `realizeShotContract`. A segment through one point cannot answer for a mass: it reports a crowd absent whenever the frame holds its flank instead of its middle, and present whenever that one point is on screen no matter where the rest of the unit stands.
+   *
+   * @evidence contracts/development/design.md#principled-representation A shared perspective lens and camera pose meet finite ordered world-axis box corners in metres; zero-width axes and touching are supported.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface intersectsPerspectiveFrustumBox consumes the existing lens, camera and vector contracts without a native rendering object.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite geometry, valid lens and representable intermediates are caller premises; crop admission may throw and intersection does not certify visible pixels.
+   * @evidence contracts/development/common.md#meaningful-documentation States world metres, camera orientation, inclusive contact and crop failure.
    */
   export type IProps = IAutoMoviePerspectiveFrustumLens & {
     /** World placement in metres and nearly unit rotation; camera looks along local -Z. */

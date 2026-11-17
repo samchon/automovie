@@ -1,6 +1,6 @@
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieRigidTransform,
   IAutoMovieSolvePhysicalChainTarget,
 } from "@automovie/interface";
 
@@ -25,21 +25,20 @@ export function planPhysicalSupportTargets(
   input: IAutoMoviePlanPhysicalSupportTargets.IInput,
 ): IAutoMoviePlanPhysicalSupportTargets.IResult {
   const rootDrop: number = physicalSupportRootDrop(input);
-  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
-    Object.fromEntries(
-      Object.entries(input.targets).map(
-        ([bone, pose]: [string, IAutoMoviePhysicalProfile.ITransform]): [
-          string,
-          IAutoMoviePhysicalProfile.ITransform,
-        ] => [
-          bone,
-          {
-            position: { ...pose.position, y: pose.position.y - rootDrop },
-            rotation: { ...pose.rotation },
-          },
-        ],
-      ),
-    );
+  let targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    Object.entries(input.targets).map(
+      ([bone, pose]: [string, IAutoMovieRigidTransform]): [
+        string,
+        IAutoMovieRigidTransform,
+      ] => [
+        bone,
+        {
+          position: { ...pose.position, y: pose.position.y - rootDrop },
+          rotation: { ...pose.rotation },
+        },
+      ],
+    ),
+  );
   const residuals: Record<string, number> = {};
   for (const limb of input.pattern.limbs) {
     const result: IAutoMovieSolvePhysicalChainTarget.IResult =

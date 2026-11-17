@@ -1,9 +1,9 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
 
@@ -136,8 +136,10 @@ export namespace TakeCompute {
 
           // A prop is one entry: the frame it is carried, rests or moves in.
           ...props.map((subject: string): SceneTrack.IPlacement[] => {
-            const frame: IAutoMovieMotionHumanProp.IFrame =
-              built.performance.prop(subject, seconds);
+            const frame: IAutoMovieRigidTransform = built.performance.prop(
+              subject,
+              seconds,
+            );
             return [
               {
                 bone: PROP,
@@ -303,10 +305,10 @@ export namespace TakeCompute {
     composition: IPlaygroundComposition,
   ): IPlaygroundTimeline {
     const span: (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       overlay: boolean,
     ) => IPlaygroundTimeline.ISpan = (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       overlay: boolean,
     ): IPlaygroundTimeline.ISpan => ({
       name: segment.name,
@@ -333,12 +335,10 @@ export namespace TakeCompute {
 
     // `overlays` exists only on releases whose chain has `over`.
     const overlays:
-      | ((subject: string) => readonly IAutoMovieMotionHumanSegment.ISegment[])
+      | ((subject: string) => readonly IAutoMovieMotionHumanSegment[])
       | undefined = (
       performance as unknown as {
-        overlays?: (
-          subject: string,
-        ) => readonly IAutoMovieMotionHumanSegment.ISegment[];
+        overlays?: (subject: string) => readonly IAutoMovieMotionHumanSegment[];
       }
     ).overlays;
     return {
@@ -352,9 +352,8 @@ export namespace TakeCompute {
             ...performance
               .segments(performer.subject)
               .map(
-                (
-                  s: IAutoMovieMotionHumanSegment.ISegment,
-                ): IPlaygroundTimeline.ISpan => span(s, false),
+                (s: IAutoMovieMotionHumanSegment): IPlaygroundTimeline.ISpan =>
+                  span(s, false),
               ),
             ...(overlays === undefined
               ? []
@@ -362,7 +361,7 @@ export namespace TakeCompute {
                   .call(performance, performer.subject)
                   .map(
                     (
-                      s: IAutoMovieMotionHumanSegment.ISegment,
+                      s: IAutoMovieMotionHumanSegment,
                     ): IPlaygroundTimeline.ISpan => span(s, true),
                   )),
           ],

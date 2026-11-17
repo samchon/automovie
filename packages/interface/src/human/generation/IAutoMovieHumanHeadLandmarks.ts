@@ -1,19 +1,12 @@
 /**
  * Points of the midline and beside it, `[x, y]`, calibration millimetres.
  *
- * @evidence contracts/common.md#principled-implementation Shared named datums supply original head and regional sources; LS/LI chords remain independent of section bulk priors.
- * @evidence contracts/common.md#clear-and-simple-design One fixed landmark record replaces independently recomputed border locations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The record claims neither individual clinical peaks nor final realized skin positions.
- * @evidence contracts/common.md#meaningful-documentation Every field identifies its anatomical site and the tuple's calibration units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data interface evaluates no geometry.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The layout producer owns datum preparation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owning layout retains only fixed-size numeric tuples.
+ * The owning layout retains only fixed-size numeric tuples.
  *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Points of the midline and beside it, `[x, y]`, calibration millimetres.
- * @evidence contracts/development/design.md#principled-representation `glabella`: Glabella. `nasion`: Nasion. `pronasale`: Pronasale.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Also types AutoMovieHumanHeadVault.m, AutoMovieHumanHeadInnerParts.m.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `glabella`, `nasion`, `pronasale`, `subnasale`, `stomion`, `labraleSuperius`, `labraleInferius`, `pogonion`, `menton`, `gnathion`, `tragion`, `zygion`, `frontal`, `gonion`, `occiput`; callers supply the complete record.
+ * @evidence contracts/development/design.md#principled-representation Shared named datums supply original head and regional sources; LS/LI chords remain independent of section bulk priors. `glabella`: Glabella. `nasion`: Nasion. `pronasale`: Pronasale.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One fixed landmark record replaces independently recomputed border locations. Also types AutoMovieHumanHeadVault.m, AutoMovieHumanHeadInnerParts.m.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The record claims neither individual clinical peaks nor final realized skin positions. Required fields are `glabella`, `nasion`, `pronasale`, `subnasale`, `stomion`, `labraleSuperius`, `labraleInferius`, `pogonion`, `menton`, `gnathion`, `tragion`, `zygion`, `frontal`, `gonion`, `occiput`; callers supply the complete record.
+ * @evidence contracts/development/common.md#meaningful-documentation Every field identifies its anatomical site and the tuple's calibration units. Points of the midline and beside it, `[x, y]`, calibration millimetres.
  */
 export interface IAutoMovieHumanHeadLandmarks {
   /** Glabella. */

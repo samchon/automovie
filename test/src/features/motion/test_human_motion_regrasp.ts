@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -73,7 +74,7 @@ const point = (
   local: IAutoMovieVector3,
   seconds: number,
 ): IAutoMovieVector3 => {
-  const f: IAutoMovieMotionHumanProp.IFrame = p.prop("key", seconds);
+  const f: IAutoMovieRigidTransform = p.prop("key", seconds);
   return Vector3.add(f.position, Quaternion.rotateVector(f.rotation, local));
 };
 
@@ -132,7 +133,7 @@ export function test_human_motion_regrasp(): void {
       composition,
     });
   const span = (p: IAutoMovieMotionHumanPerformance): [number, number] => {
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a").at(-1)!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
     return [s.start, s.start + s.plan.duration];
   };
 

@@ -1,5 +1,6 @@
-import type { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass.js";
 import type { IAutoMovieSectionPlane } from "../../index.js";
+import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade.js";
+import type { IAutoMovieInspectionColorAssignment } from "./IAutoMovieInspectionColorAssignment.js";
 
 /**
  * What one inspection picture shows of a scene: which objects and marks, under which shade, which kinds of marks, which objects' travel, and where it is cut.
@@ -25,7 +26,7 @@ export interface IAutoMovieInspectionRequest {
   /**
    * How surfaces are coloured.
    */
-  shade: IAutoMovieInspectionRequest.Shade;
+  shade: AutoMovieInspectionShade;
 
   /**
    * Whether surfaces are drawn. False leaves the marks alone in the picture.
@@ -65,7 +66,7 @@ export interface IAutoMovieInspectionRequest {
   /**
    * Colours for one picture: each matched drawn object is shaded in its colour, under the `beauty` and `clay` shades only, and each matched mark kind is drawn in it instead of its default. A later entry wins over an earlier one.
    */
-  color: IAutoMovieInspectionRequest.IColor[];
+  color: IAutoMovieInspectionColorAssignment[];
 
   /**
    * Path patterns of the objects whose travel is drawn as a trail, sampled by `sampleAutoMovieInspectionTrails` and drawn by `markAutoMovieInspectionTrails` as the `trail` and `trail/now` kinds, which `marks` must also ask for. Empty samples none.
@@ -81,44 +82,4 @@ export interface IAutoMovieInspectionRequest {
    * Trail samples per second, positive: one tick per sample, on a grid through the drawn second.
    */
   ticks: number;
-}
-
-/**
- * Closed shading choices and per-picture color assignments used by request parsing and inspection drawing.
- *
- * @evidence contracts/development/design.md#principled-representation Closed shading choices and per-picture color assignments used by request parsing and inspection drawing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These members belong to IAutoMovieInspectionRequest and are consumed with its enclosing record, rather than a second top-level vocabulary.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Member discriminants and documented null/empty cases preserve the enclosing record's supported states.
- * @evidence contracts/development/common.md#meaningful-documentation Member comments state the relevant coordinate frames, units and outcome semantics.
- */
-export namespace IAutoMovieInspectionRequest {
-  /**
-   * A surface colouring: one of the guide passes, or one of the two inspection shades.
-   *
-   * `clay` replaces every material with one grey lit by the scene's lights, so form reads without colour. A scene without lights draws it black. `faces` draws each surface in one unlit colour by the side seen, so a flipped or open surface shows its back.
-   *
-   * Under `pose` the picture is the skeleton of the whole scene: a bone is not a drawn object and has no path, so `parts` and `hide` do not narrow it.
-   *
-   * @evidence contracts/development/design.md#principled-representation The guide passes keep the names the interface gives them, and the two shades that exist only for inspection extend that union instead of renaming any of it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One union serves the page and the command; the guide pass list stays owned by the interface.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ordinary render is the `beauty` member of the same union, not an absent value with a second meaning.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each inspection shade replaces, what lights it and what it reveals, and that the pose pass is not narrowed by a selection.
-   */
-  export type Shade = AutoMovieGuidePass | "clay" | "faces";
-
-  /**
-   * One colour assignment of a request: a pattern and the colour what it matches takes.
-   *
-   * @evidence contracts/development/design.md#principled-representation A pattern under the path grammar and an sRGB hex integer; the pattern is matched against object paths and mark kinds alike, because the request names both by one grammar.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `applyAutoMovieInspection` and written by the request formatter.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member says whether the pattern means an object or a kind; a pattern that matches neither is refused where the request is applied.
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member is and how the pattern is matched.
-   */
-  export interface IColor {
-    /** Path pattern of the objects or mark kinds to colour. */
-    pattern: string;
-
-    /** The colour, sRGB hex. */
-    color: number;
-  }
 }

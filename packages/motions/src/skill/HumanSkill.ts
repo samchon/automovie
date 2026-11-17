@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieProficiency,
   IAutoMovieRandom,
+  IAutoMovieReactionTimeDistribution,
 } from "@automovie/interface";
 
 /**
@@ -69,7 +70,7 @@ export namespace HumanSkill {
   export function resolve(
     proficiency: IAutoMovieProficiency,
     seed: string,
-  ): IAutoMovieMotionHumanSkill.ISkill {
+  ): IAutoMovieMotionHumanSkill {
     const p: number =
       "level" in proficiency ? LEVELS[proficiency.level] : proficiency.p;
     if (!(p >= 0 && p <= 1)) throw new Error("A proficiency lies in [0, 1]");
@@ -93,7 +94,7 @@ export namespace HumanSkill {
    * @returns `lerp(novice, elite, smoothstep(axis))`.
    */
   export function quantity(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     axis: IAutoMovieProficiency.Axis,
     novice: number,
     elite: number,
@@ -114,7 +115,7 @@ export namespace HumanSkill {
    * @returns The stream.
    */
   export function stream(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     subject: string,
     action: string,
     instance: number,
@@ -142,7 +143,7 @@ export namespace HumanSkill {
    * @returns The stream.
    */
   export function series(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     subject: string,
     action: string,
     channel: string,
@@ -179,7 +180,7 @@ export namespace HumanSkill {
    * @returns Seconds, unfloored.
    */
   export function reaction(
-    law: IAutoMovieMotionHumanSkill.IReactionLaw,
+    law: IAutoMovieReactionTimeDistribution,
     random: IAutoMovieRandom,
     index: number = 0,
   ): number {
@@ -199,7 +200,7 @@ export namespace HumanSkill {
    * @returns The standard deviation of the endpoint, metres.
    */
   export function scatter(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     distance: number,
     seconds: number,
   ): number {
@@ -213,7 +214,7 @@ export namespace HumanSkill {
    * @param skill The skill.
    * @returns The factor on a family's sway amplitude.
    */
-  export function sway(skill: IAutoMovieMotionHumanSkill.ISkill): number {
+  export function sway(skill: IAutoMovieMotionHumanSkill): number {
     return quantity(skill, "balance", 1.6, 1);
   }
 
@@ -228,7 +229,7 @@ export namespace HumanSkill {
    * @returns The realised duration.
    */
   export function jitter(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     seconds: number,
   ): number {

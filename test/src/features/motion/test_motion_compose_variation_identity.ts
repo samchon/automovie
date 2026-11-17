@@ -36,7 +36,7 @@ import { MOTION_VARIATION_BODIES } from "../internal/MOTION_VARIATION_BODIES";
  * @evidence contracts/development/common.md#meaningful-documentation States the throwing series and lists the 4 scenarios.
  */
 export function test_motion_compose_variation_identity(): void {
-  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+  const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: 0.25 },
     "film",
   );

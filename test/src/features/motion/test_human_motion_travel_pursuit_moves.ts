@@ -126,8 +126,7 @@ export function test_human_motion_travel_pursuit_moves(): void {
         ).node,
       { at: { x: 0, y: 0, z: 2 }, yaw: 0 },
     );
-    const follow: IAutoMovieMotionHumanSegment.ISegment =
-      turning.segments("a")[1]!;
+    const follow: IAutoMovieMotionHumanSegment = turning.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = reading(turning);
     const led: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       turning,
@@ -194,10 +193,9 @@ export function test_human_motion_travel_pursuit_moves(): void {
         standing,
       );
     };
-    const whole: IAutoMovieMotionHumanSegment.ISegment =
-      chase(false).segments("a")[1]!;
+    const whole: IAutoMovieMotionHumanSegment = chase(false).segments("a")[1]!;
     const broken: IAutoMovieMotionHumanPerformance = chase(true);
-    const cut: IAutoMovieMotionHumanSegment.ISegment = broken.segments("a")[1]!;
+    const cut: IAutoMovieMotionHumanSegment = broken.segments("a")[1]!;
     if (!(cut.end < whole.end - 1 / 24))
       complaints.push(
         `a chase cut by proximity ends at ${cut.end.toFixed(2)} s and the uncut one at ${whole.end.toFixed(2)} s, earlier expected`,

@@ -1,11 +1,15 @@
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieHumanBindBone,
+  IAutoMovieHumanBonePlacement,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 
 /** Synthetic rest joints for portable polygon rendering tests; the polygon reads the skeleton alone. */
 export function createHumanPolygonFixture(): Pick<
   IAutoMovieHumanSkeleton.IOutput,
   "bones" | "posed"
 > {
-  const bones: IAutoMovieHumanSkeleton.IBone[] = [];
+  const bones: IAutoMovieHumanBindBone[] = [];
   const add: (
     bone: string,
     parent: string | null,
@@ -62,9 +66,7 @@ export function createHumanPolygonFixture(): Pick<
   return {
     bones,
     posed: bones.map(
-      (
-        bone: IAutoMovieHumanSkeleton.IBone,
-      ): IAutoMovieHumanSkeleton.IPlacement => ({
+      (bone: IAutoMovieHumanBindBone): IAutoMovieHumanBonePlacement => ({
         bone: bone.bone,
         position: [...bone.position],
         rotation: [0, 0, 0, 1],

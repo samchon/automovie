@@ -5,7 +5,8 @@ import {
 import type {
   IAutoMovieMeasurePhysicalMotionConstraint,
   IAutoMovieMotionGeometry,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,16 +27,16 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A hand witness extends 65 mm along its actual forearm ray.).
  */
 export async function test_physical_motion_constraints(): Promise<void> {
-  const state: (x: number, y: number) => IAutoMoviePhysicsCache.ISegment = (
+  const state: (x: number, y: number) => IAutoMoviePhysicalSegmentState = (
     x: number,
     y: number,
-  ): IAutoMoviePhysicsCache.ISegment => ({
+  ): IAutoMoviePhysicalSegmentState => ({
     position: { x, y, z: 0 },
     rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
     velocity: { x: 0, y: 0, z: 0 },
     angularVelocity: { x: 0, y: 0, z: 0 },
   });
-  const states: Record<string, IAutoMoviePhysicsCache.ISegment> = {
+  const states: Record<string, IAutoMoviePhysicalSegmentState> = {
     root: state(0, 1),
     hand: state(1, 1),
     pivot: state(0, 0),
@@ -141,7 +142,7 @@ export async function test_physical_motion_constraints(): Promise<void> {
     end: 0,
     rate: 120,
     floor: -1,
-    sample: (): IAutoMoviePhysicsCache.IFrame => ({
+    sample: (): IAutoMoviePhysicalFrame => ({
       seconds: 0,
       bodies: { rig: states },
     }),

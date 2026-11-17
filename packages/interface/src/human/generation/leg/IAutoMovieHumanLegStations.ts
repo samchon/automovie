@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanLegStations; runtime evaluation remains in Human. */
+/**
+ * Bone heights, bend windows and layer-spacing constraints along the leg's millimetre station clock.
+ *
+ * The interface package owns these declarations; AutoMovieHumanLegStations in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Bone heights, bend windows and layer-spacing constraints along the leg's millimetre station clock. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IBones, Segment, IBend, IInput, RangeChannel declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IBones, Segment, IBend, IInput, RangeChannel separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanLegStations exchanges the named IBones, Segment, IBend, IInput, RangeChannel contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanLegStations {
   /** The bones a landmark height is read on.
    *

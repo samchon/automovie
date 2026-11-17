@@ -4,7 +4,16 @@ import type { IAutoMovieSolidBody } from "../../construction/IAutoMovieSolidBody
 import type { IAutoMovieViewPart } from "../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanMassSource } from "./limb/IAutoMovieHumanMassSource";
 
-/** Type contracts exchanged by AutoMovieHumanBodyTree; runtime evaluation remains in Human. */
+/**
+ * Fold declarations, trace limits and published construction subtrees, with named original-source records.
+ *
+ * The interface package owns these declarations; AutoMovieHumanBodyTree in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Fold declarations, trace limits and published construction subtrees, with named original-source records. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IFold, ILimits, IOutput, ContextRecords declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IFold, ILimits, IOutput, ContextRecords separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanBodyTree exchanges the named IFold, ILimits, IOutput, ContextRecords contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanBodyTree {
   /** One fold's join onto the subtree built so far, calibration mm.
    *

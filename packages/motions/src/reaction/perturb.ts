@@ -16,6 +16,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanImpulse,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPerturb,
   IAutoMovieMotionHumanPosture,
@@ -124,17 +125,16 @@ export namespace perturb {
     const w0: number = resolveAutoMovieCenterOfMass.frequency(length);
 
     // The impulses within one pendulum time constant before the start.
-    const impulses: IAutoMovieMotionHumanForce.IImpulse[] = (
+    const impulses: IAutoMovieMotionHumanImpulse[] = (
       context.forces?.(-1 / w0, 0) ?? []
     ).filter(
-      (
-        f: IAutoMovieMotionHumanForce.IForce,
-      ): f is IAutoMovieMotionHumanForce.IImpulse => f.kind === "impulse",
+      (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanImpulse =>
+        f.kind === "impulse",
     );
     const impulse: IAutoMovieVector3 = impulses.reduce(
       (
         sum: IAutoMovieVector3,
-        f: IAutoMovieMotionHumanForce.IImpulse,
+        f: IAutoMovieMotionHumanImpulse,
       ): IAutoMovieVector3 => Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
@@ -305,10 +305,9 @@ export namespace perturb {
 
     // Settled to within e^-4 (under 2 %) of the peak's own scale by 6 / ω0.
     const duration: number = 6 / w0;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      duration,
-      [{ name: "peak", seconds: 1 / w0 }],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+      { name: "peak", seconds: 1 / w0 },
+    ]);
     const local: IAutoMovieVector3 = HumanFrame.local(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       push,

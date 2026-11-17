@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+} from "@automovie/interface";
 
 /**
  * Relationship fitting must own a real contiguous path with at least one articulated joint.
@@ -26,17 +30,17 @@ export function isPhysicalActuatorChain(
       (bone: string, index: number): boolean =>
         typeof bone === "string" &&
         profile.segments.some(
-          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          (segment: IAutoMoviePhysicalSegment): boolean =>
             segment.bone === bone,
         ) &&
         (index === 0 ||
           profile.joints.some(
-            (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+            (joint: IAutoMoviePhysicalJoint): boolean =>
               joint.parent === chain[index - 1] && joint.child === bone,
           )),
     ) &&
     profile.joints.some(
-      (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+      (joint: IAutoMoviePhysicalJoint): boolean =>
         chain.includes(joint.child) && joint.axes.length > 0,
     )
   );

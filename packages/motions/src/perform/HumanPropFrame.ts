@@ -1,8 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFrame,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 /**
@@ -25,9 +25,9 @@ export namespace HumanPropFrame {
    * @returns The world frame.
    */
   export function compose(
-    parent: IAutoMovieMotionHumanProp.IFrame,
-    local: IAutoMovieMotionHumanProp.IFrame,
-  ): IAutoMovieMotionHumanProp.IFrame {
+    parent: IAutoMovieRigidTransform,
+    local: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
     return {
       position: Vector3.add(
         parent.position,
@@ -47,9 +47,9 @@ export namespace HumanPropFrame {
    * @returns The frame in the parent's frame.
    */
   export function relative(
-    parent: IAutoMovieMotionHumanProp.IFrame,
-    world: IAutoMovieMotionHumanProp.IFrame,
-  ): IAutoMovieMotionHumanProp.IFrame {
+    parent: IAutoMovieRigidTransform,
+    world: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(parent.rotation);
     return {
       position: Quaternion.rotateVector(
@@ -76,9 +76,9 @@ export namespace HumanPropFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function parent(
-    world: IAutoMovieMotionHumanProp.IFrame,
-    local: IAutoMovieMotionHumanProp.IFrame,
-  ): IAutoMovieMotionHumanProp.IFrame {
+    world: IAutoMovieRigidTransform,
+    local: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(world.rotation, Quaternion.inverse(local.rotation)),
     );
@@ -99,7 +99,7 @@ export namespace HumanPropFrame {
    */
   export function bone(
     bone: IAutoMovieMotionHumanPropFrame.IBoneBone,
-  ): IAutoMovieMotionHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     return { position: bone.worldPosition, rotation: bone.worldRotation };
   }
 }

@@ -5,7 +5,7 @@ import {
 import type {
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadPrior,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -65,8 +65,10 @@ export namespace AutoMovieHumanHeadNosePart {
     const face: IAutoMovieHumanHeadPrior.IFace =
       AutoMovieHumanHeadPrior.PRIOR.face;
     const knots: readonly number[] = face.profileKnots;
-    const dorsum: IAutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(knots, face.dorsum);
+    const dorsum: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      knots,
+      face.dorsum,
+    );
     const span: number = plan.nasion - plan.tip;
     const height: (v: number) => number = (v: number): number =>
       plan.tip + v * span;

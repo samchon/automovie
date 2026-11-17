@@ -1,7 +1,14 @@
 import type { IAutoMovieMesh } from "../../model/IAutoMovieMesh";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 
-/** Data and callback contracts shared by the CurveGrid64 operations. */
+/**
+ * Data and callback contracts shared by the CurveGrid64 operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Millimetre cubic courses share normalized phase while station coordinates retain their declared chart; generated mesh positions are metres. Correspondence and topology domains are caller declarations; coefficientwise interpolation does not establish injectivity or approximation qualification.
+ * @evidence contracts/development/design.md#principled-representation Millimetre cubic courses share normalized phase while station coordinates retain their declared chart; generated mesh positions are metres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The curve-grid generator owns admission and consumes Input to publish Result geometry, construction and observed counts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Correspondence and topology domains are caller declarations; coefficientwise interpolation does not establish injectivity or approximation qualification.
+ */
 export namespace IAutoMovieCurveGrid64 {
   /**
    * Corresponding open cubic courses with a common normalized parameter and increasing station coordinates. The caller supplies correspondence; interpolation cannot establish it.
@@ -22,7 +29,7 @@ export namespace IAutoMovieCurveGrid64 {
     stations: readonly number[];
 
     /** Open cubic courses in mm, phaseUnit normalized, each covering exactly [0,1]. */
-    courses: readonly IAutoMovieCurve64.Cubic[];
+    courses: readonly IAutoMovieCubicBezierCurve64[];
 
     /** Complete station period; omission leaves the station dimension open. */
     period?: number;

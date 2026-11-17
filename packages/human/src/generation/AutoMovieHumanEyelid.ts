@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanEyeSeat,
   IAutoMovieHumanEyelid,
   IAutoMovieHumanLoftAperture,
 } from "@automovie/interface";
@@ -79,7 +79,7 @@ export namespace AutoMovieHumanEyelid {
    */
   export function create(
     aperture: IAutoMovieHumanLoftAperture,
-    eye: IAutoMovieHumanBodyCalibration.IEye,
+    eye: IAutoMovieHumanEyeSeat,
   ): IAutoMovieHumanEyelid.ILid {
     const globe: IAutoMovieHumanEyelid.IGlobe = seat(aperture, eye);
     const n: number = SAMPLES;
@@ -230,7 +230,7 @@ export namespace AutoMovieHumanEyelid {
    */
   export function seat(
     aperture: IAutoMovieHumanLoftAperture,
-    eye: IAutoMovieHumanBodyCalibration.IEye,
+    eye: IAutoMovieHumanEyeSeat,
   ): IAutoMovieHumanEyelid.IGlobe {
     const forward: AutoMovieVector3Tuple = normalize(aperture.forward);
     const up: AutoMovieVector3Tuple = normalize(

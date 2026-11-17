@@ -1,4 +1,6 @@
 import type {
+  AutoMovieInspectionShade,
+  IAutoMovieInspectionColorAssignment,
   IAutoMovieInspectionRequest,
   IAutoMovieSectionPlane,
 } from "@automovie/interface";
@@ -13,7 +15,7 @@ const REACH: number = 1;
 const TICKS: number = 5;
 
 /** Every shade, keyed so the compiler refuses a list that misses one. */
-const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
+const SHADES: Record<AutoMovieInspectionShade, true> = {
   beauty: true,
   depth: true,
   mask: true,
@@ -70,7 +72,7 @@ export function parseAutoMovieInspectionRequest(
   return {
     parts: list(read("parts")),
     hide: list(read("hide")),
-    shade: shade as IAutoMovieInspectionRequest.Shade,
+    shade: shade as AutoMovieInspectionShade,
     surface: flag("surface", read("surface"), true),
     marks: list(read("marks")),
     sliver: positive("sliver", read("sliver")),
@@ -96,8 +98,8 @@ function list(text: string | null | undefined): string[] {
 /** The `pattern=rrggbb` pairs of a comma-separated text. */
 function colors(
   text: string | null | undefined,
-): IAutoMovieInspectionRequest.IColor[] {
-  return list(text).map((item: string): IAutoMovieInspectionRequest.IColor => {
+): IAutoMovieInspectionColorAssignment[] {
+  return list(text).map((item: string): IAutoMovieInspectionColorAssignment => {
     const pair: RegExpExecArray | null = /^(.+)=([0-9a-fA-F]{6})$/u.exec(item);
     if (pair === null)
       throw new Error(`Inspection color "${item}" is not pattern=rrggbb`);

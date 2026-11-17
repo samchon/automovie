@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanHand,
@@ -79,7 +80,7 @@ export namespace operateInsert {
   export function tool(
     context: IAutoMovieMotionHumanActionContext,
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeld.of(context, side, mechanism.prop, {
       tip: mechanism.tip ?? "tip",
@@ -106,7 +107,7 @@ export namespace operateInsert {
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
   ): IAutoMovieMotionHumanArmTarget.ITarget {
-    const side: IAutoMovieMotionHumanHand.Side = tool.side;
+    const side: AutoMovieHumanSide = tool.side;
     const inward: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(socket.normal),
       -1,

@@ -1,10 +1,12 @@
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
 import type {
   AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieCompactCurveApproximation,
-  IAutoMovieConicApproximation,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMoviePiecewisePlanarCurveSource,
 } from "@automovie/interface";
 
 /** Physical cubic adapters and coefficient-based error admission for the whole ruled experiment. */
@@ -13,7 +15,7 @@ export namespace RuledCompactCurve {
   export type Prepared =
     | {
         accepted: true;
-        source: IAutoMovieCompactCurveApproximation.ICurve;
+        source: IAutoMoviePiecewisePlanarCurveSource;
         planeMm: number;
         period: number;
       }
@@ -33,7 +35,7 @@ export namespace RuledCompactCurve {
   }
 
   /** Preserve the original physical phase and exact one-sided cubic jets; open arcs never acquire a closing seam. */
-  export function prepare(curve: IAutoMovieCurve64.Cubic): Prepared {
+  export function prepare(curve: IAutoMovieCubicBezierCurve64): Prepared {
     const prefix: number[] = [0];
     const jets: AutoMovieBernsteinPolynomial64[][] = [];
     const plane: number | undefined = curve.spans[0]?.[0][1];
@@ -73,7 +75,7 @@ export namespace RuledCompactCurve {
     const tangent = (
       span: number,
       end: boolean,
-    ): IAutoMovieConicApproximation.Point | null => {
+    ): Readonly<AutoMovieVector2Tuple> | null => {
       for (let order: number = 1; order <= 3; ++order) {
         const p: AutoMovieVector3Tuple = end
           ? jets[span]![order]!.at(-1)!
@@ -93,8 +95,8 @@ export namespace RuledCompactCurve {
       const b: Readonly<AutoMovieVector3Tuple> = curve.spans[next]![0];
       if (a.some((value: number, axis: number): boolean => value !== b[axis]))
         return { accepted: false, reason: "original-position-gap" };
-      const left: IAutoMovieConicApproximation.Point | null = tangent(i, true);
-      const right: IAutoMovieConicApproximation.Point | null = tangent(
+      const left: Readonly<AutoMovieVector2Tuple> | null = tangent(i, true);
+      const right: Readonly<AutoMovieVector2Tuple> | null = tangent(
         next,
         false,
       );
@@ -115,7 +117,7 @@ export namespace RuledCompactCurve {
       t: number,
       order: 0 | 1 | 2 | 3 | 4 | 5,
       side?: "left" | "right",
-    ): IAutoMovieConicApproximation.Point => {
+    ): Readonly<AutoMovieVector2Tuple> => {
       if (order > 3) return [0, 0];
       let lo: number = 0;
       let hi: number = curve.spans.length - 1;
@@ -143,25 +145,24 @@ export namespace RuledCompactCurve {
         knots: prefix.slice(1, -1),
         breaks,
         closed: curve.closed,
-        evaluate: (t: number): IAutoMovieConicApproximation.Point =>
-          query(t, 0),
+        evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => query(t, 0),
         derivative: (
           t: number,
           order: 1 | 2 | 3 | 4 | 5,
           side?: "left" | "right",
-        ): IAutoMovieConicApproximation.Point => query(t, order, side),
+        ): Readonly<AutoMovieVector2Tuple> => query(t, order, side),
       },
     };
   }
 
   /** Materialize true degree-three output while proving every new phase prefix, including the original total, is exactly representable. */
   export function materialize(
-    original: IAutoMovieCurve64.Cubic,
+    original: IAutoMovieCubicBezierCurve64,
     prepared: Prepared & { accepted: true },
     result: IAutoMovieCompactCurveApproximation.IResult,
-  ): IAutoMovieCurve64.Cubic | null {
+  ): IAutoMovieCubicBezierCurve64 | null {
     if (result.status !== "complete") return null;
-    const spans: IAutoMovieCurve64.Span[] = [];
+    const spans: AutoMovieCubicBezierControls3[] = [];
     const widths: number[] = [];
     let prefix: number = 0;
     for (const piece of result.pieces) {
@@ -195,12 +196,12 @@ export namespace RuledCompactCurve {
    * interior extrema. Binary64 operations are not outward-rounded certificates.
    */
   export function bound(
-    original: IAutoMovieCurve64.Cubic,
-    candidate: IAutoMovieCurve64.Cubic,
+    original: IAutoMovieCubicBezierCurve64,
+    candidate: IAutoMovieCubicBezierCurve64,
     toleranceMm: number,
     alive: () => boolean,
   ): Bound {
-    const prefixes = (curve: IAutoMovieCurve64.Cubic): number[] => {
+    const prefixes = (curve: IAutoMovieCubicBezierCurve64): number[] => {
       const values: number[] = [0];
       for (const width of curve.phaseIntervals)
         values.push(values.at(-1)! + width);

@@ -1,4 +1,11 @@
-/** Type contracts exchanged by AutoMovieHumanApertureSpan; runtime evaluation remains in Human. */
+/**
+ * Aperture rim points and per-chain trim loops in station-millimetre and phase-radian charts. Runtime construction and admission remain with AutoMovieHumanApertureSpan in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes aperture rim points and per-chain trim loops in station-millimetre and phase-radian charts; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Aperture rim points and per-chain trim loops in station-millimetre and phase-radian charts. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanApertureSpan; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing ApertureSpan contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanApertureSpan {
   /** A rim point on its chain, with its chart on the neighbour where it lies on their shared ring.
    *

@@ -60,8 +60,7 @@ export function test_human_motion_hand_verdicts_photograph(): void {
   const complaints: string[] = [];
 
   // 1. The hands at the camera's two sides.
-  const placed: IAutoMovieMotionHumanSegment.ISegment =
-    performance.segments("a")[1]!;
+  const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
   const instant = (event: string): number =>
     placed.start +
     (placed.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *

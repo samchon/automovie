@@ -1,6 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieMeshCriticalPoints,
   IAutoMovieMeshPlaneCut,
   IAutoMoviePlaneFrameConstruction,
@@ -187,7 +187,7 @@ export namespace AutoMovieRecoveryOpenContinuation {
           row.defects.push(support);
           continue;
         }
-        const curve: IAutoMovieCurve64.Cubic =
+        const curve: IAutoMovieCubicBezierCurve64 =
           bundle.reports[i]!.open[ordinal]!.curve;
         const first: Readonly<AutoMovieVector3Tuple> = curve.spans[0]![0],
           last: Readonly<AutoMovieVector3Tuple> = curve.spans.at(-1)![3];

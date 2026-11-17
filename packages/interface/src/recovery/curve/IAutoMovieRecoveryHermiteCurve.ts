@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieCurve64,
-  IAutoMovieRecoveryHermiteSpan,
-} from "../../index";
+import type { IAutoMovieCubicBezierCurve64 } from "../../geometry/curve/IAutoMovieCubicBezierCurve64";
+import type { IAutoMovieRecoveryHermiteSpan } from "../../index";
 
 /** Piecewise cubic Hermite coefficients retaining original identity and phase widths.
  *
@@ -11,7 +9,7 @@ import type {
  * @evidence contracts/development/common.md#meaningful-documentation States coefficient units and inherited identity and phase metadata.
  */
 export interface IAutoMovieRecoveryHermiteCurve extends Omit<
-  IAutoMovieCurve64.Cubic,
+  IAutoMovieCubicBezierCurve64,
   "type" | "spans"
 > {
   /** Selects endpoint values and derivatives rather than Bernstein handles. */

@@ -1,6 +1,9 @@
 import { Quaternion, Transform, clampPose } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -183,15 +186,13 @@ export namespace resolveHumanPosture {
     );
     // Two arms with goals, neither riding the other, are one coupled problem
     // (`HumanLimbPair`), fitted when the first of them is reached.
-    const arms: Record<
-      "left" | "right",
-      IAutoMovieMotionHumanPosture.IGoal | undefined
-    > = {
-      left: limbs.leftArm,
-      right: limbs.rightArm,
-    };
+    const arms: Record<"left" | "right", IAutoMovieHumanLimbGoal | undefined> =
+      {
+        left: limbs.leftArm,
+        right: limbs.rightArm,
+      };
     const riding = (
-      goal: IAutoMovieMotionHumanPosture.IGoal | undefined,
+      goal: IAutoMovieHumanLimbGoal | undefined,
       other: "left" | "right",
     ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
     const paired: boolean =
@@ -200,7 +201,7 @@ export namespace resolveHumanPosture {
       !riding(arms.left, "right") &&
       !riding(arms.right, "left");
     for (const limb of resolveHumanPosture.order(limbs)) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = limbs[limb];
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
       if (goal === undefined) continue;
       if (paired && (limb === "leftArm" || limb === "rightArm")) {
         if (placed.length === 0) {
@@ -224,13 +225,13 @@ export namespace resolveHumanPosture {
       }
       // The other arm's goal, while that arm is still to be fitted: where its
       // wrist will be, for the room the clearance keeps it.
-      const other: IAutoMovieMotionHumanPosture.Limb | undefined =
+      const other: AutoMovieHumanLimb | undefined =
         limb === "leftArm"
           ? "rightArm"
           : limb === "rightArm"
             ? "leftArm"
             : undefined;
-      const coming: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      const coming: IAutoMovieHumanLimbGoal | undefined =
         other === undefined ||
         placed.includes(other === "leftArm" ? "left" : "right")
           ? undefined
@@ -364,8 +365,8 @@ export namespace resolveHumanPosture {
   export function limb(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     near?: IAutoMovieSwivelNear,
   ): IAutoMoviePose {
     return limbSeeded(body, pose, limb, goal, near).pose;
@@ -384,8 +385,8 @@ export namespace resolveHumanPosture {
   export function limbSeeded(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     near?: IAutoMovieSwivelNear,
   ): IAutoMovieSeededChainFit {
     return HumanLimbFit.fit(
@@ -411,8 +412,8 @@ export namespace resolveHumanPosture {
    */
   export function reference(
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-  ): IAutoMovieMotionHumanPosture.IReference {
+    limb: AutoMovieHumanLimb,
+  ): IAutoMovieHumanLimbReference {
     const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
     const read = (
       bone: AutoMovieHumanoidBone,
@@ -428,7 +429,7 @@ export namespace resolveHumanPosture {
   /** The order to fit a posture's limbs in ({@link orderHumanLimbs}). */
   export function order(
     limbs: IAutoMovieMotionHumanPosture["limbs"],
-  ): IAutoMovieMotionHumanPosture.Limb[] {
+  ): AutoMovieHumanLimb[] {
     return orderHumanLimbs(limbs);
   }
 
@@ -451,9 +452,9 @@ export namespace resolveHumanPosture {
   export function world(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
     return HumanLimbFit.world(body, pose, limb, goal);
   }
 }

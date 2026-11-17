@@ -1,3 +1,10 @@
+export type { AutoMovieHumanDigit } from "./AutoMovieHumanDigit";
+export type { AutoMovieHumanLimb } from "./AutoMovieHumanLimb";
+export type { IAutoMovieHumanDigitGoal } from "./IAutoMovieHumanDigitGoal";
+export type { IAutoMovieHumanEffectorPointLimit } from "./IAutoMovieHumanEffectorPointLimit";
+export type { IAutoMovieHumanLimbGoal } from "./IAutoMovieHumanLimbGoal";
+export type { IAutoMovieHumanLimbReference } from "./IAutoMovieHumanLimbReference";
+export type { IAutoMovieHumanPostureRotation } from "./IAutoMovieHumanPostureRotation";
 export type { IAutoMovieMotionHumanArmClearance } from "./IAutoMovieMotionHumanArmClearance";
 export type { IAutoMovieMotionHumanArmGeometry } from "./IAutoMovieMotionHumanArmGeometry";
 export type { IAutoMovieMotionHumanArmJacobian } from "./IAutoMovieMotionHumanArmJacobian";

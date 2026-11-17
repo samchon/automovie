@@ -113,7 +113,7 @@ export namespace AutoMovieMotionHumanJoints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function pulse(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     peak: IAutoMovieMotionHumanJoints.Angles,

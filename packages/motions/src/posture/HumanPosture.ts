@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  AutoMovieHumanDigit,
+  AutoMovieHumanLimb,
+} from "@automovie/interface";
 
 /**
  * Companion types of {@link HumanPosture}.
@@ -15,7 +18,7 @@ export namespace HumanPosture {
     "rightArm",
     "leftLeg",
     "rightLeg",
-  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanPosture.Limb>[];
+  ] as const satisfies readonly NonNullable<AutoMovieHumanLimb>[];
 
   /** The digits of {@link Digit}, as data, the left hand's first, each thumb to little finger. */
   export const DIGITS = [
@@ -29,5 +32,5 @@ export namespace HumanPosture {
     "rightMiddle",
     "rightRing",
     "rightLittle",
-  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanPosture.Digit>[];
+  ] as const satisfies readonly NonNullable<AutoMovieHumanDigit>[];
 }

@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieRecoveryOpenArcIncidence,
   IAutoMovieRecoveryOpenSlabGraph,
+  IAutoMovieRecoverySlabConnectivityGroup,
   IAutoMovieRecoverySlabGraph,
 } from "@automovie/interface";
 
@@ -12,7 +14,7 @@ type Query = IAutoMovieRecoveryOpenSlabGraph.Query;
 /** Local saved-arc continuation result. */
 type Result = IAutoMovieRecoveryOpenSlabGraph.Result;
 /** One private saved-arc support. */
-type Arc = IAutoMovieRecoveryOpenSlabGraph.Arc;
+type Arc = IAutoMovieRecoveryOpenArcIncidence;
 
 /**
  * Prepare ordinary open-slab observations without exposing original mesh addresses.
@@ -344,7 +346,7 @@ export function prepareRecoveryOpenSlabGraph(
       );
       return found.size === 1 ? found.values().next().value : undefined;
     };
-    const groups: IAutoMovieRecoverySlabGraph.Group[] = sheet({
+    const groups: IAutoMovieRecoverySlabConnectivityGroup[] = sheet({
       beforeMm: input.beforeMm,
       afterMm: input.afterMm,
       before: input.before.map((arc: Arc): ReadonlySet<number> => arc.faces),

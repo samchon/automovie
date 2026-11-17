@@ -1,6 +1,7 @@
 import type {
   IAutoMovieMeshCriticalPoints,
   IAutoMovieRecoveryCriticalBracketsPreparationOperation,
+  IAutoMovieRecoverySlabConnectivityGroup,
   IAutoMovieRecoverySlabGraph,
   IAutoMovieRecoverySourceTerminal,
   IAutoMovieRecoverySourceTerminalsObservationOperation,
@@ -82,7 +83,7 @@ export function observeRecoverySourceTerminals(
         vertices.push(vertex);
         probes.push(faces);
       }
-    const groups: IAutoMovieRecoverySlabGraph.Group[] = graph({
+    const groups: IAutoMovieRecoverySlabConnectivityGroup[] = graph({
       beforeMm: seed.coordinateMm,
       afterMm: upper,
       before: [seed.faces],
@@ -90,15 +91,15 @@ export function observeRecoverySourceTerminals(
       defects: [],
       probes,
     });
-    const incident: IAutoMovieRecoverySlabGraph.Group[] = groups.filter(
-      (group: IAutoMovieRecoverySlabGraph.Group): boolean =>
+    const incident: IAutoMovieRecoverySlabConnectivityGroup[] = groups.filter(
+      (group: IAutoMovieRecoverySlabConnectivityGroup): boolean =>
         group.before.includes(0),
     );
     if (incident.length !== 1 || !incident[0]!.supported) {
       record.diagnostics.push(
         "Seed has no unique supported clipped distal source component",
         ...incident.flatMap(
-          (group: IAutoMovieRecoverySlabGraph.Group): string[] =>
+          (group: IAutoMovieRecoverySlabConnectivityGroup): string[] =>
             group.reason ? [group.reason] : [],
         ),
       );

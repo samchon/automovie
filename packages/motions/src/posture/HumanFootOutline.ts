@@ -8,8 +8,9 @@ import {
 import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -126,8 +127,8 @@ const ROUND: readonly IAutoMovieVector3[] = Array.from(
  * a capsule's two end spheres.
  */
 function shapePoints(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
 ): IAutoMovieVector3[] {
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(
     pose.rotation,

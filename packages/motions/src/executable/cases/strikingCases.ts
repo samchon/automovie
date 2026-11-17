@@ -103,7 +103,7 @@ interface IThrown {
   other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
 
   /** The strike's segment. */
-  segment: IAutoMovieMotionHumanSegment.ISegment;
+  segment: IAutoMovieMotionHumanSegment;
 }
 
 /**

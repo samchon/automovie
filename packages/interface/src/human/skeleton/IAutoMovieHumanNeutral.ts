@@ -4,7 +4,16 @@ import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
 import type { IAutoMovieHumanJointCentres } from "./IAutoMovieHumanJointCentres";
 import type { IAutoMovieHumanSkeletonMath } from "./IAutoMovieHumanSkeletonMath";
 
-/** Type contracts exchanged by AutoMovieHumanNeutral; runtime evaluation remains in Human. */
+/**
+ * Bind-derived neutral joint placements, world turns and clinical segment frames.
+ *
+ * The interface package owns these declarations; AutoMovieHumanNeutral in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Bind-derived neutral joint placements, world turns and clinical segment frames. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IOutput, IFrame, ISource, OfSource declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IOutput, IFrame, ISource, OfSource separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNeutral exchanges the named IOutput, IFrame, ISource, OfSource contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanNeutral {
   /** A body's neutral.
    *

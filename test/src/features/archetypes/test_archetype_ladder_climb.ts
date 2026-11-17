@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -81,8 +81,7 @@ export function test_archetype_ladder_climb(): void {
     }
 
     // 2. The ladder stays where it was placed.
-    const placed: IAutoMovieMotionHumanProp.IFrame =
-      HumanObject.frame(placement);
+    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
     let moved: number = 0;
     for (let s: number = 0; s <= film.duration; s += 0.1)
       moved = Math.max(

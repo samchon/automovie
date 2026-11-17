@@ -151,7 +151,7 @@ export namespace dive {
       y: (feet.left.ankle.y + feet.right.ankle.y) / 2,
       z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
     };
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw: entry.yaw,
     };

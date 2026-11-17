@@ -89,11 +89,9 @@ export function test_human_motion_gymnastics_supported(): void {
         body,
         0,
       );
-      const wheel: IAutoMovieMotionHumanSegment.ISegment = film
+      const wheel: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
-        )!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const at = (share: number): number =>
         wheel.start + share * wheel.plan.duration;
       const joint = (

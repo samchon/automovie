@@ -1,6 +1,6 @@
 import type {
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieStationHermite,
 } from "@automovie/interface";
 
@@ -183,7 +183,7 @@ export namespace AutoMovieStationHermite {
   export function frameEnd(
     layer: IAutoMovieLoftChain.ILayer,
   ): IAutoMovieStationHermite.IEnd {
-    const flat = (f: IAutoMovieLoftFrame.IFrame): number[] => [
+    const flat = (f: IAutoMovieLoftSectionFrame): number[] => [
       ...f.origin,
       ...f.u,
       ...f.v,
@@ -208,7 +208,7 @@ export namespace AutoMovieStationHermite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This one record conversion owns no coordinated or cached work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh tuples; no reference to the input component array survives.
    */
-  export function unflat(x: readonly number[]): IAutoMovieLoftFrame.IFrame {
+  export function unflat(x: readonly number[]): IAutoMovieLoftSectionFrame {
     return {
       origin: [x[0]!, x[1]!, x[2]!],
       u: [x[3]!, x[4]!, x[5]!],

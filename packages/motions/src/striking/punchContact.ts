@@ -8,6 +8,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPunch,
   IAutoMovieMotionHumanStrikingAim,
@@ -189,8 +190,9 @@ export namespace punchContact {
     const at: IAutoMovieMotionTarget = p.at;
     const aim = (seconds: number): IAutoMovieVector3 => {
       if (tangent !== undefined && at.kind === "person") {
-        const other: IAutoMovieMotionHumanActionContext.IPerformer =
-          context.performer(at.subject);
+        const other: IAutoMovieMotionHumanPerformerReader = context.performer(
+          at.subject,
+        );
         return StrikingBody.region(
           other.body,
           other.bones(seconds),

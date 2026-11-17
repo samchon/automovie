@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
+  IAutoMovieReactionTimeDistribution,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -191,7 +192,7 @@ export namespace look {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reaction(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     cue: "seen" | "signal",
   ): number {
@@ -220,9 +221,9 @@ export namespace look {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reactionLaw(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     cue: "seen" | "signal",
-  ): IAutoMovieMotionHumanLook.IReactionLawResult {
+  ): IAutoMovieReactionTimeDistribution {
     return {
       mu:
         HumanSkill.quantity(skill, "reaction", 0.26, 0.22) -

@@ -6,9 +6,11 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -48,7 +50,8 @@ export async function test_physical_point_bounds(): Promise<void> {
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     PhysicalFixtures.input([body, other], 1 / 120);
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
-  const targets: Record<string, P.ITransform> = body.targets[0]!.segments;
+  const targets: Record<string, IAutoMovieRigidTransform> =
+    body.targets[0]!.segments;
   const bound: Bound = PhysicalPointFixtures.bound();
   const before: string = JSON.stringify({ targets, bound });
   const fit: (
@@ -77,8 +80,8 @@ export async function test_physical_point_bounds(): Promise<void> {
       floor: -10,
     });
   const shared: ReturnType<typeof plan> = fit(bound);
-  const turn: (poses: Record<string, P.ITransform>) => number = (
-    poses: Record<string, P.ITransform>,
+  const turn: (poses: Record<string, IAutoMovieRigidTransform>) => number = (
+    poses: Record<string, IAutoMovieRigidTransform>,
   ): number =>
     Math.atan2(
       poses.source!.position.y - poses.carrier!.position.y,
@@ -209,7 +212,7 @@ export async function test_physical_point_bounds(): Promise<void> {
   for (const segment of dense.profile.segments)
     segment.shapes = Array.from(
       { length: 250 },
-      (_: unknown, index: number): P.IShape => ({
+      (_: unknown, index: number): IAutoMoviePhysicalShape => ({
         ...structuredClone(segment.shapes[0]!),
         id: `surface-${index}`,
       }),

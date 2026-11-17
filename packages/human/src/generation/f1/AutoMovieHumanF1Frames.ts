@@ -3,6 +3,7 @@ import type {
   IAutoMovieHumanF1Frames,
   IAutoMovieHumanF1Placement,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
@@ -125,14 +126,14 @@ export namespace AutoMovieHumanF1Frames {
       name: string,
       parent: string | null,
       rule: string,
-      frame: IAutoMovieHumanSegmentFrame.IFrame,
-    ): IAutoMovieHumanSegmentFrame.IFrame => {
+      frame: IAutoMovieHumanSegmentFrame,
+    ): IAutoMovieHumanSegmentFrame => {
       out.push({ name, parent, rule, frame });
       return frame;
     };
 
     // The trunk's three frames: ISB's pelvis needs the iliac spines and its thorax the xiphoid, T8 and C7, none of which the skin shows.
-    const pelvis: IAutoMovieHumanSegmentFrame.IFrame = add(
+    const pelvis: IAutoMovieHumanSegmentFrame = add(
       "pelvis",
       null,
       "Origin the hip centres' midpoint (de Leva's MIDH; ISB's own origin, the hip centre of one side, lies half the hip-centre separation along Z). Axes parallel to the figure's frame: ISB (Wu et al. 2002 2.3.1) sets them from the ASIS and PSIS, which the skin does not show, so the standing pelvic tilt is not measured.",
@@ -145,7 +146,7 @@ export namespace AutoMovieHumanF1Frames {
         ],
       }),
     );
-    const thorax: IAutoMovieHumanSegmentFrame.IFrame = add(
+    const thorax: IAutoMovieHumanSegmentFrame = add(
       "thorax",
       "pelvis",
       "Origin IJ (Wu et al. 2005 2.3.1). Axes parallel to the pelvis's: ISB's Y runs from the PX/T8 midpoint to the IJ/C7 midpoint, and the skin shows neither PX, T8 nor C7 (C7's reading was refused at -6.3 SD of ANSUR II cervicale height, below IJ), so the thoracic inclination is not measured.",
@@ -210,7 +211,7 @@ export namespace AutoMovieHumanF1Frames {
         L.epicondyleMedial,
       ),
     );
-    const hand: IAutoMovieHumanSegmentFrame.IFrame = add(
+    const hand: IAutoMovieHumanSegmentFrame = add(
       "hand",
       "forearm",
       "Wu et al. 2005 4.3.4, third metacarpal: Y from its head (`middle1`) to its base (`metacarpalBase`), proximal. Its sagittal plane is not palpable, so Z is the radial direction across the knuckles, from the fifth metacarpal head (`pinky1`) to the second (`index1`), made square to Y; X = Y x Z, volar. Origin the wrist centre (`hand`); ISB's origin is a translation inside the segment.",
@@ -233,7 +234,7 @@ export namespace AutoMovieHumanF1Frames {
         ["proximal", "middle", "distal"] as const
       ).entries()) {
         const name: string = finger + "." + bone;
-        const frame: IAutoMovieHumanSegmentFrame.IFrame = add(
+        const frame: IAutoMovieHumanSegmentFrame = add(
           name,
           parent,
           "Wu et al. 2005 4.3.5: origin the proximal joint (" +
@@ -260,7 +261,7 @@ export namespace AutoMovieHumanF1Frames {
       ["metacarpal", "proximal", "distal"] as const
     ).entries()) {
       const name: string = "thumb." + bone;
-      const frame: IAutoMovieHumanSegmentFrame.IFrame = add(
+      const frame: IAutoMovieHumanSegmentFrame = add(
         name,
         thumbParent,
         "Origin the proximal joint (thumb" +
@@ -295,7 +296,7 @@ export namespace AutoMovieHumanF1Frames {
         F.sub(L.femoralEpicondyleLateral, L.femoralEpicondyleMedial),
       ),
     );
-    const foot: IAutoMovieHumanSegmentFrame.IFrame = add(
+    const foot: IAutoMovieHumanSegmentFrame = add(
       "foot",
       "tibia",
       "Wu et al. 2002 3.4 sets the calcaneus frame equal to the tibia's at neutral; from the foot's own landmarks: origin the ankle centre (`foot`); Y the floor's normal (the sole stands flat on the floor in the reference); X from pternion to the second toe's MTP joint (`indextoe1`) made square to Y; Z = X x Y.",
@@ -313,7 +314,7 @@ export namespace AutoMovieHumanF1Frames {
       let y: AutoMovieVector3Tuple = foot.axes[1];
       for (const [k, bone] of (["proximal", "distal"] as const).entries()) {
         const name: string = toe + "." + bone;
-        const frame: IAutoMovieHumanSegmentFrame.IFrame = add(
+        const frame: IAutoMovieHumanSegmentFrame = add(
           name,
           parent,
           "Origin the proximal joint (" +
@@ -335,14 +336,14 @@ export namespace AutoMovieHumanF1Frames {
   }
 
   /** The chain of reference rotations, parent-first: the stored chain, which the rules of `segments` return within rounding. */
-  export function joints(): IAutoMovieHumanSegmentFrame.IJoint[] {
+  export function joints(): IAutoMovieHumanSegmentJoint[] {
     return AutoMovieHumanF1Placing.CHAIN;
   }
 
   /** The frames for a pose given as one rotation per joint by segment name; a joint the pose leaves undefined keeps its reference rotation. */
   export function world(
     pose: IAutoMovieHumanF1Placement.IPose,
-  ): Map<string, IAutoMovieHumanSegmentFrame.IFrame> {
+  ): Map<string, IAutoMovieHumanSegmentFrame> {
     return F.world(joints(), pose);
   }
 }

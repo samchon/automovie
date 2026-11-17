@@ -1,8 +1,9 @@
 import type {
   IAutoMovieClosestSegmentPoints,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -64,8 +65,8 @@ import { physicalHullSegment } from "./physicalHullSegment";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
 export function physicalShapeNearest(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper?: readonly [number, number],

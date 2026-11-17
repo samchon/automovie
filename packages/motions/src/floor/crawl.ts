@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -165,7 +166,7 @@ export namespace crawl {
         stand.plan({ ...context, params: { seconds: 1 } }).posture(0),
     );
     const yaw: number = standing.yaw;
-    const measured: IAutoMovieMotionHumanFrame.IFrame = {
+    const measured: IAutoMovieMotionHumanFrame = {
       origin: { ...standing.root, y: 0 },
       yaw,
     };
@@ -378,7 +379,7 @@ export namespace crawl {
     const handsDown: number = down?.hands ?? DOWN;
 
     // The clock: getting down, the cycles, a settle.
-    const instants: IAutoMovieMotionClock.IInstant[] = [
+    const instants: IAutoMovieMotionClockInstant[] = [
       { name: "down", seconds: downAt },
     ];
     const lift = (limb: IAutoMovieMotionHumanCrawl.Limb, k: number): number =>
@@ -390,7 +391,7 @@ export namespace crawl {
           { name: `${limb}Touchdown${k}`, seconds: lift(limb, k) + swing },
         );
     const duration: number = downAt + cycles * period + 0.3;
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
       instants,
     );

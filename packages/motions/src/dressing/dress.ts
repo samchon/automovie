@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -15,6 +16,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionManner,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -116,7 +118,7 @@ export namespace dress {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     item: IAutoMovieMotionHumanDress.Item,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanDress.IPlaceResult {
     const outward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -187,7 +189,7 @@ export namespace dress {
     const body: IAutoMovieMotionHumanBody = context.body;
     const item: IAutoMovieMotionHumanDress.Item = context.params.item;
     const subject: string = context.params.prop;
-    const holder: IAutoMovieMotionHumanHand.Side =
+    const holder: AutoMovieHumanSide =
       context.params.hand ??
       (context.entry.holds.left === subject &&
       context.entry.holds.right !== subject
@@ -216,7 +218,7 @@ export namespace dress {
       0.6 * (body.measure.upperArm + body.measure.forearm),
       0.03,
     );
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: AutoMovieMotionHumanTiming.PAUSES.beat,
@@ -231,7 +233,7 @@ export namespace dress {
       posture: IAutoMovieMotionHumanPosture,
       degrees: number,
     ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
-      const worn: IAutoMovieMotionHumanProp.IFrame = HumanWorn.frame(
+      const worn: IAutoMovieRigidTransform = HumanWorn.frame(
         body,
         posture,
         wearable,
@@ -375,7 +377,7 @@ export namespace dress {
           };
         },
       });
-    const arm = (side: IAutoMovieMotionHumanHand.Side) => {
+    const arm = (side: AutoMovieHumanSide) => {
       const surface: IAutoMovieMotionHumanHand.Surface =
         item === "hat" ? "palm" : "indexTip";
       return AutoMovieMotionHumanArm.stroke({

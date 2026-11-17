@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMovieSamplePhysicalRecoverySupport,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,17 +16,15 @@ import type {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalRecoverySupport(
-  state: IAutoMovieAdvancePhysicalBalance.IState | undefined,
+  state: IAutoMoviePhysicalRecoveryState | undefined,
   bone: string,
   seconds: number,
 ): IAutoMovieSamplePhysicalRecoverySupport.IResult {
-  const landings: NonNullable<
-    IAutoMovieAdvancePhysicalBalance.IState["landings"]
-  > =
+  const landings: NonNullable<IAutoMoviePhysicalRecoveryState["landings"]> =
     state?.landings?.filter(
       (
         landing: NonNullable<
-          IAutoMovieAdvancePhysicalBalance.IState["landings"]
+          IAutoMoviePhysicalRecoveryState["landings"]
         >[number],
       ): boolean => landing.seconds <= seconds,
     ) ?? [];
@@ -44,7 +42,7 @@ export function samplePhysicalRecoverySupport(
     state?.handoffs?.some(
       (
         handoff: NonNullable<
-          IAutoMovieAdvancePhysicalBalance.IState["handoffs"]
+          IAutoMoviePhysicalRecoveryState["handoffs"]
         >[number],
       ): boolean =>
         handoff.bone === bone &&

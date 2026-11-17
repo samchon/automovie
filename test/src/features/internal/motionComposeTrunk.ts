@@ -327,15 +327,14 @@ export namespace motionComposeTrunk {
   const DEG: number = 180 / Math.PI;
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
-  export const CLOCK: IAutoMovieMotionClock.IClock =
-    AutoMovieMotionClock.phrase({
-      prepare: 0.25,
-      wait: 0.125,
-      attack: 0.25,
-      follow: 0.25,
-      hold: 0.125,
-      retract: 0.25,
-    });
+  export const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    prepare: 0.25,
+    wait: 0.125,
+    attack: 0.25,
+    follow: 0.25,
+    hold: 0.125,
+    retract: 0.25,
+  });
 
   /** The phrases' rise. */
   export const RISE: readonly ["start", "ready"] = ["start", "ready"];

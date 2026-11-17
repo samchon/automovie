@@ -3,7 +3,14 @@ import type { IAutoMovieSurfaceRegistry } from "./IAutoMovieSurfaceRegistry";
 import type { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
 import type { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 
-/** Geometry samplers and registry shared while laying out one tier's patch controls. */
+/**
+ * Geometry samplers and registry shared while laying out one tier's patch controls.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Patch counts and identity keys bind ordered metre samples into one mutable network registry. Shared identity comes from declared keys, not coordinate proximity; failed registration can leave partial state that the construction owner discards.
+ * @evidence contracts/development/design.md#principled-representation Patch counts and identity keys bind ordered metre samples into one mutable network registry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface planAutoMovieSurfaceRigPatches uses the owning rig's count, sample, loop and sweep resolvers during tier construction.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shared identity comes from declared keys, not coordinate proximity; failed registration can leave partial state that the construction owner discards.
+ */
 export namespace IAutoMoviePlanSurfaceRigPatches {
   /**
    * Lay out the sweep, transition, Coons and bridge blocks of a surface rig, preserving vertex registration order and cell reaches. Bridge sweep probes bind once after registry cell resolution and before sealing, so their normals and axial derivatives use the same geometric field as their loop positions, before control pins.
@@ -18,18 +25,68 @@ export namespace IAutoMoviePlanSurfaceRigPatches {
     network: IAutoMovieSurfaceNetwork;
     /** Mutable invocation-local vertex/face registry. Planning adds samples, interior writers and deferred bridge-probe callbacks; the owning network later resolves those callbacks during finalization. Planning errors can leave earlier registrations in place, so discard a failed construction. */
     registry: IAutoMovieSurfaceRegistry;
-    /** Resolve an existing named sweep to the same compiled rig used by the network; unknown names throw in the supplied resolver. */
+    /**
+     * Resolve an existing named sweep to the same compiled rig used by the network; unknown names throw in the supplied resolver.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States resolution of the existing network's shared rig and unknown-name failure.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own the numerical method under the documented units and input premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services decide whether calls share coefficients, identities or mutable state.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own references retained by the supplied callable.
+     */
     sweepRig: (name: string) => IAutoMovieSweepRig;
-    /** Select and admit the current tier's safe positive integer count from a count record. what provides diagnostic context; exceptions propagate. */
+    /**
+     * Select and admit the current tier's safe positive integer count from a count record. what provides diagnostic context; exceptions propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States current-tier positive safe-integer count admission and diagnostic context with propagated errors.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own the numerical method under the documented units and input premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services decide whether calls share coefficients, identities or mutable state.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own references retained by the supplied callable.
+     */
     count: (counts: IAutoMovieSurfaceNetwork.ICounts, what: string) => number;
-    /** Construct a stable sweep-point identity from name and u/v, using the same clamped-u and wrapped-turn quantization as all registry users. Numeric proximity does not supply identity. */
+    /**
+     * Construct a stable sweep-point identity from name and u/v, using the same clamped-u and wrapped-turn quantization as all registry users. Numeric proximity does not supply identity.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States named sweep identity with clamped normalized u and wrapped turns, using the registry's common quantization rather than positional welding.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own the numerical method under the documented units and input premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services decide whether calls share coefficients, identities or mutable state.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own references retained by the supplied callable.
+     */
     sweepKey: (name: string, u: number, v: number) => string;
-    /** Sample an edge in its declared order, retaining shared sweep/curve identities and local footprint reaches. what identifies admission failures; callback exceptions propagate. */
+    /**
+     * Sample an edge in its declared order, retaining shared sweep/curve identities and local footprint reaches. what identifies admission failures; callback exceptions propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States declared edge order, shared primitive identities, local cell reaches and propagated admission failures.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own the numerical method under the documented units and input premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services decide whether calls share coefficients, identities or mutable state.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own references retained by the supplied callable.
+     */
     sample: (
       edge: IAutoMovieSurfaceNetwork.IEdge,
       what: string,
     ) => IAutoMovieSurfaceSample[];
-    /** Sample an ordered closed edge loop with matching endpoints and compatible counts. Return its unique cyclic samples; topology inconsistencies throw before patch emission. */
+    /**
+     * Sample an ordered closed edge loop with matching endpoints and compatible counts. Return its unique cyclic samples; topology inconsistencies throw before patch emission.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States closed-loop endpoint/count compatibility, unique cyclic samples and topology failure before patch emission.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own the numerical method under the documented units and input premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own executable decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services decide whether calls share coefficients, identities or mutable state.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; planAutoMovieSurfaceRigPatches and the owning network's sampling/identity services own references retained by the supplied callable.
+     */
     loop: (
       edges: IAutoMovieSurfaceNetwork.IEdge[],
       what: string,

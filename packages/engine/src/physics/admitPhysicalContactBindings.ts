@@ -1,8 +1,13 @@
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalContactBinding,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalPointBound,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
@@ -44,36 +49,35 @@ export function admitPhysicalContactBindings(
         (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
           candidate.id === binding.target?.body,
       );
-    const source: IAutoMoviePhysicalProfile.IShape | undefined =
-      body.profile.segments
-        .find(
-          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-            segment.bone === binding.source?.bone,
-        )
-        ?.shapes.find(
-          (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
-            shape.id === binding.source.shape,
-        );
-    const target: IAutoMoviePhysicalProfile.IShape | undefined =
+    const source: IAutoMoviePhysicalShape | undefined = body.profile.segments
+      .find(
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === binding.source?.bone,
+      )
+      ?.shapes.find(
+        (shape: IAutoMoviePhysicalShape): boolean =>
+          shape.id === binding.source.shape,
+      );
+    const target: IAutoMoviePhysicalShape | undefined =
       receiver?.profile.segments
         .find(
-          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          (segment: IAutoMoviePhysicalSegment): boolean =>
             segment.bone === binding.target.bone,
         )
         ?.shapes.find(
-          (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+          (shape: IAutoMoviePhysicalShape): boolean =>
             shape.id === binding.target.shape,
         );
     const allowance: (
       profile: IAutoMoviePhysicalProfile,
-      shape: IAutoMoviePhysicalProfile.IShape | undefined,
+      shape: IAutoMoviePhysicalShape | undefined,
     ) => number = (
       profile: IAutoMoviePhysicalProfile,
-      shape: IAutoMoviePhysicalProfile.IShape | undefined,
+      shape: IAutoMoviePhysicalShape | undefined,
     ): number => {
-      const material: IAutoMoviePhysicalProfile.IMaterial | undefined =
+      const material: IAutoMoviePhysicalMaterial | undefined =
         profile.materials.find(
-          (item: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+          (item: IAutoMoviePhysicalMaterial): boolean =>
             item.id === shape?.material,
         );
       return material && material.compliance > 0
@@ -141,7 +145,7 @@ export function admitPhysicalContactBindings(
     );
   admitPhysicalPointBounds(profiles, body.id, pointBounds ?? [], ids);
   const shapes: string[] = body.profile.segments.flatMap(
-    (segment: IAutoMoviePhysicalProfile.ISegment): string[] =>
+    (segment: IAutoMoviePhysicalSegment): string[] =>
       segment.shapes.map((): string => segment.bone),
   );
   const self: number = body.selfAvoidance
@@ -214,7 +218,7 @@ export function admitPhysicalContactBindings(
   const bones: Set<string> = new Set(
     body.selfAvoidance
       ? body.profile.joints.map(
-          (joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child,
+          (joint: IAutoMoviePhysicalJoint): string => joint.child,
         )
       : [
           ...(bindings ?? [])
@@ -232,14 +236,12 @@ export function admitPhysicalContactBindings(
         ],
   );
   const coordinates: number = body.profile.joints
-    .filter((joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
-      bones.has(joint.child),
-    )
+    .filter((joint: IAutoMoviePhysicalJoint): boolean => bones.has(joint.child))
     .reduce(
-      (sum: number, joint: IAutoMoviePhysicalProfile.IJoint): number =>
+      (sum: number, joint: IAutoMoviePhysicalJoint): number =>
         sum +
         joint.axes.filter(
-          (axis: IAutoMoviePhysicalProfile.IAxis): boolean =>
+          (axis: IAutoMoviePhysicalJointAxis): boolean =>
             axis.maximum > axis.minimum,
         ).length,
       0,

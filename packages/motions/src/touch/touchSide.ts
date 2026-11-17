@@ -1,13 +1,14 @@
 import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointConstraint,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionHumanTouchEffector,
@@ -58,7 +59,7 @@ export namespace touchSide {
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-  ): IAutoMovieMotionHumanHand.Side {
+  ): AutoMovieHumanSide {
     const p: IAutoMovieMotionHumanTouch.IParams = context.params;
     if (p.side !== undefined) return p.side;
     if (p.prop !== undefined)
@@ -72,13 +73,12 @@ export namespace touchSide {
       body,
       context.entry.pose,
     );
-    const other = (
-      side: IAutoMovieMotionHumanHand.Side,
-    ): IAutoMovieMotionHumanHand.Side => (side === "right" ? "left" : "right");
+    const other = (side: AutoMovieHumanSide): AutoMovieHumanSide =>
+      side === "right" ? "left" : "right";
 
     // The strain of one hand laid on one region, as the plan lays it.
     const strain = (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
       target: IAutoMovieMotionTarget,
     ): number => {
       if (target.kind === "self") {
@@ -103,17 +103,16 @@ export namespace touchSide {
         effector,
         placed,
       )(side, target);
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        AutoMovieMotionHumanTouchLaid.rest(
-          body,
-          entry,
-          side,
-          effector,
-          placed(target, false)(entry, 0),
-          laid.tangent,
-          AutoMovieMotionHumanBend.hang(body, entry, side),
-          "arm",
-        );
+      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+        body,
+        entry,
+        side,
+        effector,
+        placed(target, false)(entry, 0),
+        laid.tangent,
+        AutoMovieMotionHumanBend.hang(body, entry, side),
+        "arm",
+      );
       const solve: IAutoMovieMotionHumanBend.ISolve = {
         body,
         posture: entry,
@@ -126,7 +125,7 @@ export namespace touchSide {
         AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
       );
     };
-    const cost = (side: IAutoMovieMotionHumanHand.Side): number =>
+    const cost = (side: AutoMovieHumanSide): number =>
       strain(side, p.target) +
       (p.other === undefined ? 0 : strain(other(side), p.other));
     const left: number = cost("left");
@@ -157,7 +156,7 @@ export namespace touchSide {
    */
   function resolution(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     strain: number,
   ): number {
     if (!Number.isFinite(strain)) return Infinity;

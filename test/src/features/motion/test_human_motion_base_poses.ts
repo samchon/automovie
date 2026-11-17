@@ -100,7 +100,7 @@ export function test_human_motion_base_poses(): void {
         );
         continue;
       }
-      const segment: IAutoMovieMotionHumanSegment.ISegment =
+      const segment: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,

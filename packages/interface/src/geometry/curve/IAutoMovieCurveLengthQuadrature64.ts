@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the CurveLengthQuadrature64 operations. */
+/**
+ * Data and callback contracts shared by the CurveLengthQuadrature64 operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Coarse and fine quadrature sums are millimetres, accompanied by separate derivative, contribution and mapped-node observations. Separate arithmetic flags retain failures even when a sum is finite; coarse/fine agreement is not a certified error bound.
+ * @evidence contracts/development/design.md#principled-representation Coarse and fine quadrature sums are millimetres, accompanied by separate derivative, contribution and mapped-node observations.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieCurveLengthQuadrature64.measure serves the strict source-length and legacy cubic-length policy owners.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Separate arithmetic flags retain failures even when a sum is finite; coarse/fine agreement is not a certified error bound.
+ */
 export namespace IAutoMovieCurveLengthQuadrature64 {
   /**
    * Observe two bounded composite rules without choosing the public policy.
@@ -8,6 +15,11 @@ export namespace IAutoMovieCurveLengthQuadrature64 {
    * the legacy cubic owner keeps its original interior-only finite-final test.
    * Callback exceptions propagate, while arithmetic observations accompany the
    * actual computed coarse/fine sums. Their difference is not an error bound.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Coarse and fine quadrature sums are millimetres, accompanied by separate derivative, contribution and mapped-node observations. Separate arithmetic flags retain failures even when a sum is finite; coarse/fine agreement is not a certified error bound.
+   * @evidence contracts/development/design.md#principled-representation Coarse and fine quadrature sums are millimetres, accompanied by separate derivative, contribution and mapped-node observations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieCurveLengthQuadrature64.measure serves the strict source-length and legacy cubic-length policy owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Separate arithmetic flags retain failures even when a sum is finite; coarse/fine agreement is not a certified error bound.
    */
   export type IMeasureResult = {
     /** K-panel computed sum, mm. */

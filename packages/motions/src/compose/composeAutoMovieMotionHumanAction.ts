@@ -5,6 +5,8 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -106,12 +108,12 @@ export function composeAutoMovieMotionHumanAction(
       ): readonly IAutoMovieMotionHumanContactWindow[] => p.contacts ?? [],
     ),
   ];
-  const weapons: IAutoMovieMotionHumanActionPlan.IWeapon[] = [
+  const weapons: IAutoMovieMotionWeaponPath[] = [
     ...(props.base.weapons ?? []),
     ...primitives.flatMap(
       (
         p: IAutoMovieMotionHumanPrimitive,
-      ): readonly IAutoMovieMotionHumanActionPlan.IWeapon[] => p.weapons ?? [],
+      ): readonly IAutoMovieMotionWeaponPath[] => p.weapons ?? [],
     ),
   ];
   const base: IAutoMovieMotionHumanActionPlan = props.base;
@@ -139,9 +141,8 @@ export function composeAutoMovieMotionHumanAction(
     ...(base.stop === undefined
       ? {}
       : {
-          stop: (
-            events: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
-          ): void => base.stop!(events),
+          stop: (events: readonly IAutoMovieMotionWeaponContact[]): void =>
+            base.stop!(events),
         }),
     posture: (seconds: number): IAutoMovieMotionHumanPosture =>
       so(primitives.length)(seconds),

@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalPrincipalAxes,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -31,7 +31,7 @@ import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBas
  */
 export function physicalPrincipalAxes(
   tensor: number[][],
-): IAutoMoviePhysicalPrincipalAxes.IResult {
+): IAutoMoviePrincipalTensorFrame {
   // Jacobi's stopping criterion must compare dimensionless entries rather
   // than mixing a fixed unit-one floor with moments measured in kg m².
   const scale: number = Math.max(

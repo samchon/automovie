@@ -188,7 +188,7 @@ export namespace walkSteps {
             along$(D),
           )
         : unwrap(input.face ?? faced$(path.at(D)), yaw0);
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: S,
       yaw: heading,
     };

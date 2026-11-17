@@ -52,6 +52,14 @@ export namespace IAutoMovieMotionHumanSignature {
      * @param subject The person.
      * @param seconds Film seconds.
      * @returns Resolved bones by rig bone.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSignature.IMotion.bones: A person's displayed world bones at a film second.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSignature.IMotion.bones is used through packages/motions/src/audit/HumanSignature.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSignature.IMotion.bones is used through packages/motions/src/audit/HumanSignature.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSignature.IMotion.bones is used through packages/motions/src/audit/HumanSignature.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSignature.IMotion.bones is used through packages/motions/src/audit/HumanSignature.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSignature.IMotion.bones is used through packages/motions/src/audit/HumanSignature.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSignature.IMotion.bones is used through packages/motions/src/audit/HumanSignature.ts.
      */
     bones(
       subject: string,

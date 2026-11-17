@@ -4,8 +4,10 @@ import {
   bindPhysicalWorld,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
@@ -39,13 +41,17 @@ const PENETRATION: number = 0.002;
  */
 export async function test_physical_floor_frequency(): Promise<void> {
   const mass: number = 0.6;
-  const extent: P.ITransform["position"] = { x: 0.08, y: 0.04, z: 0.05 };
+  const extent: IAutoMovieRigidTransform["position"] = {
+    x: 0.08,
+    y: 0.04,
+    z: 0.05,
+  };
   const profile: P = PhysicalFixtures.sphere();
   profile.id = "analytic-loaded-pad";
   profile.mass = mass;
   profile.centerOfMass.y = extent.y;
   profile.provenance = "Uniform 0.6 kg box with analytic solid inertia.";
-  const segment: P.ISegment = profile.segments[0]!;
+  const segment: IAutoMoviePhysicalSegment = profile.segments[0]!;
   segment.mass = mass;
   segment.neutral.position.y = extent.y;
   segment.inertia = {

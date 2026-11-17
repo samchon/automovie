@@ -1,5 +1,9 @@
 import { AutoMovieMeshExtract as M } from "@automovie/engine";
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
+import type {
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMillimeterMesh,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -92,7 +96,7 @@ export namespace PartConicInput {
       }
       remap.push(index);
     }
-    const mesh: IAutoMovieMeshExtract.IMesh = {
+    const mesh: IAutoMovieMillimeterMesh = {
       positions,
       indices: body.geometry.mesh.indices.map(
         (index: number): number => remap[index]!,
@@ -200,7 +204,7 @@ export namespace PartConicInput {
             heldout: true,
           });
       }
-      const cuts: IAutoMovieMeshExtract.ISection[] = M.outline(
+      const cuts: IAutoMovieMeshSectionCut[] = M.outline(
         mesh,
         { origin, axes: [n, u, v] },
         sites.map((site): number => site.s),
@@ -209,9 +213,9 @@ export namespace PartConicInput {
         0,
       );
       const rows: T.Row[] = cuts.map(
-        (cut: IAutoMovieMeshExtract.ISection, i: number): T.Row => {
-          const loops: IAutoMovieMeshExtract.ILoop[] = cut.loops.filter(
-            (loop: IAutoMovieMeshExtract.ILoop): boolean =>
+        (cut: IAutoMovieMeshSectionCut, i: number): T.Row => {
+          const loops: IAutoMovieMeshSectionChain[] = cut.loops.filter(
+            (loop: IAutoMovieMeshSectionChain): boolean =>
               loop.closed && contains(loop.points),
           );
           if (loops.length !== 1)

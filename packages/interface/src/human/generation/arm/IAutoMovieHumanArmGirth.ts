@@ -1,25 +1,29 @@
-/** Type contracts exchanged by AutoMovieHumanArmGirth; runtime evaluation remains in Human. */
-export namespace IAutoMovieHumanArmGirth {
-  /** Result of AutoMovieHumanArmGirth.knots. The spans' knots in walk order, a shared boundary knot once.
-  @param pieces The spans, proximal to distal.
-   *
+/**
+ * Ordered walk-station and girth pairs in millimetres, with held end values. Runtime construction and admission remain with AutoMovieHumanArmGirth in Human.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The spans' knots in walk order, a shared boundary knot once.
- * @evidence contracts/development/design.md#principled-representation The spans' knots in walk order, a shared boundary knot once.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanArmGirth.KnotsResult is the canonical exchange used by AutoMovieHumanArmGirth.knots.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanArmGirth.knots for the spans' knots in walk order, a shared boundary knot once.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes ordered walk-station and girth pairs in millimetres, with held end values; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Ordered walk-station and girth pairs in millimetres, with held end values. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanArmGirth; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing ArmGirth contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
+export namespace IAutoMovieHumanArmGirth {
+  /**
+   * Ordered [walk station, girth] pairs in millimetres. A shared span boundary appears once.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Ordered [walk station, girth] pairs in millimetres. A shared span boundary appears once.
+   * @evidence contracts/development/design.md#principled-representation Ordered [walk station, girth] pairs in millimetres. A shared span boundary appears once.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanArmGirth.KnotsResult is the canonical exchange used by AutoMovieHumanArmGirth.knots.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanArmGirth input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type KnotsResult = [number, number][];
 
-  /** The list argument of AutoMovieHumanArmGirth.at. The girth at a walk length, held past the first and last knots.
-  @param list The knots from {@link knots}.
-  @param s Walk length, mm.
+  /**
+   * Borrowed [walk station, girth] knots in increasing station order, both in millimetres. The reader holds the first and last girths outside the knot interval.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The girth at a walk length, held past the first and last knots.
- * @evidence contracts/development/design.md#principled-representation The girth at a walk length, held past the first and last knots. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanArmGirth.AtList is the canonical exchange used by AutoMovieHumanArmGirth.at.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanArmGirth.at for the girth at a walk length, held past the first and last knots.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Borrowed [walk station, girth] knots in increasing station order, both in millimetres. The reader holds the first and last girths outside the knot interval.
+   * @evidence contracts/development/design.md#principled-representation Borrowed [walk station, girth] knots in increasing station order, both in millimetres. The reader holds the first and last girths outside the knot interval.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanArmGirth.AtList is the canonical exchange used by AutoMovieHumanArmGirth.at.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanArmGirth input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type AtList = readonly [number, number][];
 }

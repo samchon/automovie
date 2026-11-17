@@ -2,10 +2,15 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryAnnularChartPreparation,
   IAutoMovieRecoveryAtlasObservationChart,
-  IAutoMovieRecoveryAtlasObservationState,
+  IAutoMovieRecoveryAtlasObservationInput,
+  IAutoMovieRecoveryChartBatch,
   IAutoMovieRecoveryChartBoundaryChordsRefinementOperation,
+  IAutoMovieRecoveryChartInventory,
   IAutoMovieRecoveryDiskChart,
+  IAutoMovieRecoveryEventRegion,
   IAutoMovieRecoveryMultiBoundaryChart,
+  IAutoMovieRecoveryPendingChartObservation,
+  IAutoMovieRecoverySourceComponent,
 } from "@automovie/interface";
 
 import { RecoveryAnnularChart } from "./RecoveryAnnularChart";
@@ -14,7 +19,8 @@ import { RecoveryMultiBoundaryChart } from "./RecoveryMultiBoundaryChart";
 import { refineRecoveryChartBoundaryChords } from "./refineRecoveryChartBoundaryChords";
 
 type Run = { side: "before" | "after" | "physical"; nodes: string[] };
-type Prepared = IAutoMovieRecoveryAtlasObservationState["Prepared"];
+type Prepared =
+  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
  * Prepare an annular, natural-side or general disk chart without changing its declared correspondence.
  *
@@ -35,20 +41,20 @@ export function RecoveryAtlasObservationChart(
   }: {
     occurrences: Map<
       string,
-      IAutoMovieRecoveryAtlasObservationState["Observed"]["occurrences"][number]
+      IAutoMovieRecoveryEventRegion.Result["occurrences"][number]
     >;
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
     name: string;
     positions: Readonly<AutoMovieVector3Tuple>[];
     triangles: [number, number, number][];
     vertexIds: string[];
     slots: Map<string, number>;
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    component: IAutoMovieRecoverySourceComponent;
     interval: number;
     beforeMm: number;
     afterMm: number;
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
+    inventory: IAutoMovieRecoveryChartInventory[];
     outcomes: object[];
     annular: boolean;
     generalDisk: boolean;
@@ -73,20 +79,20 @@ export function RecoveryAtlasObservationChart(
   }: {
     occurrences: Map<
       string,
-      IAutoMovieRecoveryAtlasObservationState["Observed"]["occurrences"][number]
+      IAutoMovieRecoveryEventRegion.Result["occurrences"][number]
     >;
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
     name: string;
     positions: Readonly<AutoMovieVector3Tuple>[];
     triangles: [number, number, number][];
     vertexIds: string[];
     slots: Map<string, number>;
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    component: IAutoMovieRecoverySourceComponent;
     interval: number;
     beforeMm: number;
     afterMm: number;
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
+    inventory: IAutoMovieRecoveryChartInventory[];
     outcomes: object[];
     annular: boolean;
     generalDisk: boolean;

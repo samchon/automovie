@@ -1,11 +1,17 @@
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
+import type {
+  IAutoMovieMeshExtract,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMeshSectionFrame,
+  IAutoMovieMillimeterMesh,
+} from "@automovie/interface";
 
 /**
  * A made 40 mm cube centred on the origin: eight vertices at +-20 mm, each
  * face split into two triangles along a diagonal.
  */
-function cube(): IAutoMovieMeshExtract.IMesh {
+function cube(): IAutoMovieMillimeterMesh {
   const positions: number[] = [];
   for (let i: number = 0; i < 8; ++i)
     positions.push(i & 1 ? 20 : -20, i & 2 ? 20 : -20, i & 4 ? 20 : -20);
@@ -30,7 +36,7 @@ function cube(): IAutoMovieMeshExtract.IMesh {
  */
 function cylinder(
   options: { gap?: [number, number]; spike?: number } = {},
-): IAutoMovieMeshExtract.IMesh {
+): IAutoMovieMillimeterMesh {
   const n: number = 64;
   const positions: number[] = [];
   for (let r: number = 0; r <= 10; ++r)
@@ -78,7 +84,7 @@ export function test_geometry_extract_outline(): void {
   const failures: string[] = [];
   const near = (v: number, w: number, tol: number): boolean =>
     Math.abs(v - w) <= tol;
-  const frame: IAutoMovieMeshExtract.IFrame = {
+  const frame: IAutoMovieMeshSectionFrame = {
     origin: [0, 0, 0],
     axes: [
       [1, 0, 0],
@@ -96,7 +102,7 @@ export function test_geometry_extract_outline(): void {
     !square.loops[0]!.closed
   )
     failures.push(
-      `the cube's cut is not one closed loop: ${JSON.stringify(square?.loops.map((l: IAutoMovieMeshExtract.ILoop): [number, boolean] => [l.points.length, l.closed]))}`,
+      `the cube's cut is not one closed loop: ${JSON.stringify(square?.loops.map((l: IAutoMovieMeshSectionChain): [number, boolean] => [l.points.length, l.closed]))}`,
     );
   else {
     const points: [number, number][] = square.loops[0]!.points;
@@ -127,7 +133,7 @@ export function test_geometry_extract_outline(): void {
     }
     if (!near(Math.abs(area), 1600, 1e-6))
       failures.push(`the cube's loop encloses ${area} mm^2`);
-    const e: NonNullable<IAutoMovieMeshExtract.ISection["extremes"]> =
+    const e: NonNullable<IAutoMovieMeshSectionCut["extremes"]> =
       square.extremes;
     for (const name of ["+a", "-a", "+b", "-b"] as const)
       if (!near(e[name].reach, 20, 1e-9))
@@ -144,7 +150,7 @@ export function test_geometry_extract_outline(): void {
   if (section === undefined || section.extremes === null)
     failures.push("the plane through the cylinder reads no section");
   else {
-    const e: NonNullable<IAutoMovieMeshExtract.ISection["extremes"]> =
+    const e: NonNullable<IAutoMovieMeshSectionCut["extremes"]> =
       section.extremes;
     // Axis 1's in-plane axes: a = axes[2] (Z), b = axes[0] (X).
     if (
@@ -180,7 +186,7 @@ export function test_geometry_extract_outline(): void {
       )
     )
       failures.push(
-        `the cylinder's cut loops ${JSON.stringify(section.loops.map((l: IAutoMovieMeshExtract.ILoop): [number, boolean] => [l.points.length, l.closed]))}`,
+        `the cylinder's cut loops ${JSON.stringify(section.loops.map((l: IAutoMovieMeshSectionChain): [number, boolean] => [l.points.length, l.closed]))}`,
       );
     if (section.flags.length !== 0)
       failures.push(`a sound section is flagged: ${section.flags.join("; ")}`);
@@ -195,25 +201,23 @@ export function test_geometry_extract_outline(): void {
 
   // 3. Flags.
   const mid: number[] = [5, 15, 25, 35, 45, 55, 65, 75, 85, 95];
-  const flagged = (sections: IAutoMovieMeshExtract.ISection[]): number[] =>
+  const flagged = (sections: IAutoMovieMeshSectionCut[]): number[] =>
     sections
-      .filter(
-        (s: IAutoMovieMeshExtract.ISection): boolean => s.flags.length !== 0,
-      )
-      .map((s: IAutoMovieMeshExtract.ISection): number => s.station);
+      .filter((s: IAutoMovieMeshSectionCut): boolean => s.flags.length !== 0)
+      .map((s: IAutoMovieMeshSectionCut): number => s.station);
   const sound: number[] = flagged(
     X.outline(cylinder(), frame, [...mid, 20, 30, 40], 1),
   );
   if (sound.length !== 0)
     failures.push(`a sound cylinder flags stations ${sound.join(", ")}`);
-  const gap: IAutoMovieMeshExtract.ISection[] = X.outline(
+  const gap: IAutoMovieMeshSectionCut[] = X.outline(
     cylinder({ gap: [2, 10] }),
     frame,
     mid,
     1,
   );
-  const holed: IAutoMovieMeshExtract.ISection | undefined = gap.find(
-    (s: IAutoMovieMeshExtract.ISection): boolean => s.station === 25,
+  const holed: IAutoMovieMeshSectionCut | undefined = gap.find(
+    (s: IAutoMovieMeshSectionCut): boolean => s.station === 25,
   );
   if (
     holed === undefined ||
@@ -221,16 +225,16 @@ export function test_geometry_extract_outline(): void {
     flagged(gap).some((s: number): boolean => s !== 25)
   )
     failures.push(
-      `a gap between y = 20 and 30 flags ${JSON.stringify(gap.map((s: IAutoMovieMeshExtract.ISection): [number, string[]] => [s.station, s.flags]).filter((e: [number, string[]]): boolean => e[1].length !== 0))}`,
+      `a gap between y = 20 and 30 flags ${JSON.stringify(gap.map((s: IAutoMovieMeshSectionCut): [number, string[]] => [s.station, s.flags]).filter((e: [number, string[]]): boolean => e[1].length !== 0))}`,
     );
   if (
     holed !== undefined &&
     !(holed.loops.length === 1 && !holed.loops[0]!.closed)
   )
     failures.push(
-      `the gapped cut's loops ${JSON.stringify(holed.loops.map((l: IAutoMovieMeshExtract.ILoop): [number, boolean] => [l.points.length, l.closed]))}`,
+      `the gapped cut's loops ${JSON.stringify(holed.loops.map((l: IAutoMovieMeshSectionChain): [number, boolean] => [l.points.length, l.closed]))}`,
     );
-  const spike: IAutoMovieMeshExtract.ISection[] = X.outline(
+  const spike: IAutoMovieMeshSectionCut[] = X.outline(
     cylinder({ spike: 5 }),
     frame,
     mid,
@@ -239,7 +243,7 @@ export function test_geometry_extract_outline(): void {
   for (const station of [45, 55])
     if (
       !spike.some(
-        (s: IAutoMovieMeshExtract.ISection): boolean =>
+        (s: IAutoMovieMeshSectionCut): boolean =>
           s.station === station &&
           s.flags.some((f: string): boolean => f.startsWith("jump +b")),
       )
@@ -280,7 +284,7 @@ export function test_geometry_extract_outline(): void {
     ring?.flags.filter((f: string): boolean => f.startsWith("bridged")) ?? [];
   if (ring === undefined || ring.outer.length !== 1 || !ring.outer[0]!.closed)
     failures.push(
-      `the slit ring's outer boundaries ${JSON.stringify(ring?.outer.map((l: IAutoMovieMeshExtract.ILoop): number => l.points.length))}`,
+      `the slit ring's outer boundaries ${JSON.stringify(ring?.outer.map((l: IAutoMovieMeshSectionChain): number => l.points.length))}`,
     );
   else if (
     !ring.outer[0]!.points.every(
@@ -315,7 +319,7 @@ export function test_geometry_extract_outline(): void {
     !narrow.flags.some((f: string): boolean => f.startsWith("unclosed: 1"))
   )
     failures.push(
-      `a 5 mm bridge over the 11.7 mm slit gives ${JSON.stringify(narrow?.outer.map((l: IAutoMovieMeshExtract.ILoop): number => l.points.length))}, flags ${narrow?.flags.join("; ")}`,
+      `a 5 mm bridge over the 11.7 mm slit gives ${JSON.stringify(narrow?.outer.map((l: IAutoMovieMeshSectionChain): number => l.points.length))}, flags ${narrow?.flags.join("; ")}`,
     );
   if (failures.length !== 0)
     throw new Error(

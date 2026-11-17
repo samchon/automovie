@@ -1,9 +1,9 @@
 import { Vector3, simulateSoftBodyWithBoundaries } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanPerformanceSoft,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSustainedForce,
   IAutoMovieSoftAnchor,
   IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
@@ -182,8 +182,8 @@ export namespace HumanPerformanceSoft {
    */
   export function sustained(
     state: IAutoMovieMotionHumanPerformanceState,
-  ): IAutoMovieMotionHumanForce.ISustained[] {
-    const out: IAutoMovieMotionHumanForce.ISustained[] = [];
+  ): IAutoMovieMotionHumanSustainedForce[] {
+    const out: IAutoMovieMotionHumanSustainedForce[] = [];
     for (const prop of state.props.values()) {
       if (prop.soft === undefined) continue;
       // A hand the domain itself anchors to bears the prop over the whole

@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * A held object moved within or with the hand that holds it, without being
@@ -39,7 +39,7 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * @evidence contracts/development/common.md#meaningful-documentation angle: A twist's turn, degrees, counter-clockwise looking down the axis.
  * @evidence contracts/development/design.md#principled-representation angle: A twist's turn, degrees, counter-clockwise looking down the axis.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/regrasp.ts (regrasp.plan, context); handling/regrasp.ts (regrasp.inHand, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRegrasp {
   /**
@@ -50,7 +50,7 @@ export namespace IAutoMovieMotionHumanRegrasp {
    * @evidence contracts/development/common.md#meaningful-documentation angle: A twist's turn, degrees, counter-clockwise looking down the axis.
    * @evidence contracts/development/design.md#principled-representation angle: A twist's turn, degrees, counter-clockwise looking down the axis.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/regrasp.ts (regrasp.plan, context); handling/regrasp.ts (regrasp.inHand, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Side identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** What is done with the held object. */
@@ -60,7 +60,7 @@ export namespace IAutoMovieMotionHumanRegrasp {
     prop: string;
 
     /** The hand that holds it. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** A twist's axis, or a roll's object: an affordance whose translation lies on the axis and whose `+X` is its direction; a roll reads its `radius`. */
     axis?: string;

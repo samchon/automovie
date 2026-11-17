@@ -1,7 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewOutline,
@@ -50,7 +50,7 @@ export function rollAutoMovieViewAxis(
   const target: AutoMovieVector3Tuple = up.map(
     (value: number): number => value / scale,
   ) as AutoMovieVector3Tuple;
-  const end: IAutoMovieLoftFrame.IFrame = base.at(to);
+  const end: IAutoMovieLoftSectionFrame = base.at(to);
   if (
     end.u.length !== 3 ||
     end.v.length !== 3 ||
@@ -94,10 +94,10 @@ export function rollAutoMovieViewAxis(
     return `material roll ${source.contract}: ${source.detail}`;
 
   /** Preserve the base origin/normal plane while reading the prepared rotation at a finite station. */
-  const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
+  const at: (station: number) => IAutoMovieLoftSectionFrame = (
     station: number,
-  ): IAutoMovieLoftFrame.IFrame => {
-    const frame: IAutoMovieLoftFrame.IFrame = base.at(station);
+  ): IAutoMovieLoftSectionFrame => {
+    const frame: IAutoMovieLoftSectionFrame = base.at(station);
     if (station <= from) return frame;
     const rotation: number | string =
       station >= to ? angle : AutoMovieViewOutline.value(source, station);
@@ -152,7 +152,7 @@ export function rollAutoMovieViewAxis(
               station <= from ? 0 : station >= to ? angle : reading.value;
             const c: number = Math.cos(rotation);
             const s: number = Math.sin(rotation);
-            const value: IAutoMovieLoftFrame.IFrame =
+            const value: IAutoMovieLoftSectionFrame =
               station <= from
                 ? frame.value
                 : {
@@ -166,12 +166,12 @@ export function rollAutoMovieViewAxis(
                         c * component - s * frame.value.u[k]!,
                     ) as AutoMovieVector3Tuple,
                   };
-            const first: IAutoMovieLoftFrame.IFrame = {
+            const first: IAutoMovieLoftSectionFrame = {
               origin: [...frame.first.origin],
               u: [0, 0, 0],
               v: [0, 0, 0],
             };
-            const second: IAutoMovieLoftFrame.IFrame = {
+            const second: IAutoMovieLoftSectionFrame = {
               origin: [...frame.second.origin],
               u: [0, 0, 0],
               v: [0, 0, 0],

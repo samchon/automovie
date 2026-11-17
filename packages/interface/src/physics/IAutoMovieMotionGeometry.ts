@@ -1,4 +1,5 @@
-import type { IAutoMoviePhysicalProfile as P } from "./IAutoMoviePhysicalProfile";
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
+import type { IAutoMoviePhysicalShape } from "./IAutoMoviePhysicalShape";
 
 /**
  * Collision carriers and observed frames for geometric motion audits.
@@ -14,15 +15,15 @@ export interface IAutoMovieMotionGeometry {
   /** Nonempty uniquely named collision carriers; independent carriers are allowed. */
   segments: {
     /** Unique observed bone frame. */ bone: string;
-    /** Finite solid envelopes in that frame. */ shapes: P.IShape[];
+    /** Finite solid envelopes in that frame. */ shapes: IAutoMoviePhysicalShape[];
   }[];
   /** Only actual declared joints are audited; disconnected geometry needs no invented joints. */
   joints: {
     /** Unique joint identity. */ id: string;
     /** Declared parent collision carrier. */ parent: string;
     /** Distinct declared child collision carrier. */ child: string;
-    /** Joint frame in the parent carrier. */ parentFrame: P.ITransform;
-    /** Matching joint frame in the child carrier. */ childFrame: P.ITransform;
+    /** Joint frame in the parent carrier. */ parentFrame: IAutoMovieRigidTransform;
+    /** Matching joint frame in the child carrier. */ childFrame: IAutoMovieRigidTransform;
     /** Distinct free angular coordinates; omitted coordinates are locked. */ axes: {
       /** Joint-local angular axis. */ axis: "x" | "y" | "z";
       /** Inclusive lower radians, at least -pi. */ minimum: number;

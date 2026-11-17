@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+} from "@automovie/interface";
 
 /**
  * The same articulated tree held from another segment: every joint on the
@@ -28,29 +33,28 @@ export function rerootPhysicalProfile(
   profile: IAutoMoviePhysicalProfile,
   root: string,
 ): IAutoMoviePhysicalProfile {
-  const parentOf: Map<string, IAutoMoviePhysicalProfile.IJoint> = new Map(
+  const parentOf: Map<string, IAutoMoviePhysicalJoint> = new Map(
     profile.joints.map(
-      (
-        joint: IAutoMoviePhysicalProfile.IJoint,
-      ): [string, IAutoMoviePhysicalProfile.IJoint] => [joint.child, joint],
+      (joint: IAutoMoviePhysicalJoint): [string, IAutoMoviePhysicalJoint] => [
+        joint.child,
+        joint,
+      ],
     ),
   );
   if (
     !profile.segments.some(
-      (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === root,
+      (s: IAutoMoviePhysicalSegment): boolean => s.bone === root,
     )
   )
     throw new Error(`Unknown physical reroot segment ${root}`);
-  const inverted: Set<IAutoMoviePhysicalProfile.IJoint> = new Set();
+  const inverted: Set<IAutoMoviePhysicalJoint> = new Set();
   for (let bone: string = root; parentOf.has(bone); ) {
-    const joint: IAutoMoviePhysicalProfile.IJoint = parentOf.get(bone)!;
+    const joint: IAutoMoviePhysicalJoint = parentOf.get(bone)!;
     inverted.add(joint);
     bone = joint.parent;
   }
-  const joints: IAutoMoviePhysicalProfile.IJoint[] = profile.joints.map(
-    (
-      joint: IAutoMoviePhysicalProfile.IJoint,
-    ): IAutoMoviePhysicalProfile.IJoint =>
+  const joints: IAutoMoviePhysicalJoint[] = profile.joints.map(
+    (joint: IAutoMoviePhysicalJoint): IAutoMoviePhysicalJoint =>
       inverted.has(joint)
         ? {
             ...joint,
@@ -60,8 +64,8 @@ export function rerootPhysicalProfile(
             childFrame: joint.parentFrame,
             axes: joint.axes.map(
               (
-                axis: IAutoMoviePhysicalProfile.IAxis,
-              ): IAutoMoviePhysicalProfile.IAxis => ({
+                axis: IAutoMoviePhysicalJointAxis,
+              ): IAutoMoviePhysicalJointAxis => ({
                 ...axis,
                 minimum: -axis.maximum,
                 maximum: -axis.minimum,

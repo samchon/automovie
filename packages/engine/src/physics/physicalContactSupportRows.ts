@@ -2,6 +2,9 @@ import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactSupportRows,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -12,7 +15,7 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /** Borrowed world transforms for one candidate. */
-type Poses = Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
+type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /**
  * Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation.
@@ -34,15 +37,15 @@ export function physicalContactSupportRows(
   const floors: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
     profile.segments.flatMap(
       (
-        segment: IAutoMoviePhysicalProfile.ISegment,
+        segment: IAutoMoviePhysicalSegment,
       ): IAutoMovieLinearizePhysicalTargetRows.IRows[] =>
         segment.shapes.map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
+            shape: IAutoMoviePhysicalShape,
           ): IAutoMovieLinearizePhysicalTargetRows.IRows => {
             const minimum: (poses: Poses) => number =
               memoizePhysicalTransformValue(
-                (poses: Poses): IAutoMoviePhysicalProfile.ITransform[] => [
+                (poses: Poses): IAutoMovieRigidTransform[] => [
                   poses[segment.bone]!,
                 ],
                 (poses: Poses): number =>
@@ -78,7 +81,7 @@ export function physicalContactSupportRows(
           support.patch;
         if (
           !profile.segments.some(
-            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            (segment: IAutoMoviePhysicalSegment): boolean =>
               segment.bone === support.bone,
           ) ||
           !finite(support.point) ||
@@ -92,7 +95,7 @@ export function physicalContactSupportRows(
               patch.contacts.some(
                 (bone: string): boolean =>
                   !profile.segments.some(
-                    (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+                    (segment: IAutoMoviePhysicalSegment): boolean =>
                       segment.bone === bone && segment.shapes.length > 0,
                   ),
               ) ||
@@ -111,27 +114,25 @@ export function physicalContactSupportRows(
         )
           throw new Error("Invalid physical contact support patch");
         for (const bone of patch?.contacts ?? []) names.add(bone);
-        const carriers: IAutoMoviePhysicalProfile.ISegment[] =
-          profile.segments.filter(
-            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-              patch?.contacts.includes(segment.bone) ?? false,
-          );
+        const carriers: IAutoMoviePhysicalSegment[] = profile.segments.filter(
+          (segment: IAutoMoviePhysicalSegment): boolean =>
+            patch?.contacts.includes(segment.bone) ?? false,
+        );
         const minimum: (poses: Poses) => number = (poses: Poses): number =>
           Math.min(
             ...carriers.flatMap(
-              (segment: IAutoMoviePhysicalProfile.ISegment): number[] =>
+              (segment: IAutoMoviePhysicalSegment): number[] =>
                 segment.shapes.map(
-                  (shape: IAutoMoviePhysicalProfile.IShape): number =>
+                  (shape: IAutoMoviePhysicalShape): number =>
                     physicalShapeBounds(poses[segment.bone]!, shape).min.y,
                 ),
             ),
           );
         const measure: (poses: Poses) => number[] =
           memoizePhysicalTransformValue(
-            (poses: Poses): IAutoMoviePhysicalProfile.ITransform[] =>
+            (poses: Poses): IAutoMovieRigidTransform[] =>
               [...names].map(
-                (bone: string): IAutoMoviePhysicalProfile.ITransform =>
-                  poses[bone]!,
+                (bone: string): IAutoMovieRigidTransform => poses[bone]!,
               ),
             (poses: Poses): number[] => {
               const difference: IAutoMovieVector3 = Vector3.subtract(

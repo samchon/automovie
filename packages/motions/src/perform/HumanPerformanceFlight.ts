@@ -9,11 +9,13 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanPostureRotation,
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
+  IAutoMovieMotionHumanFlightTurns,
   IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -110,10 +112,10 @@ export namespace HumanPerformanceFlight {
   function flight(
     self: IAutoMovieMotionHumanPerformanceState,
     person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
   ): void {
     const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
-    const declared: IAutoMovieMotionHumanActionPlan.IFlight = plan.flight!;
+    const declared: IAutoMovieMotionHumanFlight = plan.flight!;
     const subject: string = person.performer.subject;
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     const model: IAutoMovieResolveCenterOfMass.IModel =
@@ -185,8 +187,7 @@ export namespace HumanPerformanceFlight {
     if (declared.momentum.kind === "momentum")
       momentum = declared.momentum.momentum;
     else {
-      const turns: IAutoMovieMotionHumanActionPlan.IFlightTurns =
-        declared.momentum;
+      const turns: IAutoMovieMotionHumanFlightTurns = declared.momentum;
       const maximum: number = turns.maximum ?? ceiling(t0);
       const solved: IAutoMovieSolveAirborneTakeoff.ISolution =
         solveAirborneTakeoff({
@@ -250,9 +251,7 @@ export namespace HumanPerformanceFlight {
           };
         },
       );
-    const rotation = (
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture.IRotation => {
+    const rotation = (seconds: number): IAutoMovieHumanPostureRotation => {
       const t: number = Math.max(t0, Math.min(t1, segment.start + seconds));
       const i: number = Math.min(knots - 2, Math.floor((t - t0) / step));
       const a: number = times[i]!;

@@ -1,8 +1,8 @@
 import { AutoMovieGravity, projectileAt } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -64,7 +64,7 @@ export namespace throwObjectLaunch {
     prop: string | undefined,
     attitude: IAutoMovieProjectile.Attitude | undefined,
     launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,
-  ): IAutoMovieMotionHumanActionPlan.ILaunch[] {
+  ): IAutoMovieMotionPropLaunch[] {
     return prop === undefined
       ? []
       : [

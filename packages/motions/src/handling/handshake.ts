@@ -1,5 +1,7 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
@@ -133,15 +135,14 @@ export namespace handshake {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const pumps: number = context.params.pumps ?? 2;
     HumanBound.whole("pumps", pumps);
     const body: IAutoMovieMotionHumanBody = context.body;
     const partner: IAutoMovieMotionHumanBody = context.performer(
       context.params.partner,
     ).body;
-    const limb: IAutoMovieMotionHumanPosture.Limb =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
 
     // The meeting point from both acting shoulders at the start, read from
     // the one record both partners share (`handshakeMeeting`).
@@ -375,7 +376,7 @@ export namespace handshake {
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side = "right",
+    side: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanHandshake.IStance {
     const posture: IAutoMovieMotionHumanPosture = stand.posture(
       body,
@@ -417,7 +418,7 @@ export namespace handshake {
   export function gap(
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side = "right",
+    side: AutoMovieHumanSide = "right",
   ): number {
     const sa: IAutoMovieMotionHumanHandshake.IStance = stance(a, side);
     const sb: IAutoMovieMotionHumanHandshake.IStance = stance(b, side);
@@ -474,7 +475,7 @@ export namespace handshake {
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     shoulder: IAutoMovieVector3,
   ): IAutoMovieResolveMutualGoal.ISide {
     const upper: number = body.measure.upperArm;

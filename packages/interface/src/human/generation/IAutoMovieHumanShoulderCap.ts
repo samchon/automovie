@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanShoulderCap; runtime evaluation remains in Human. */
+/**
+ * The outer upper-arm edge at glenohumeral height, with its girth-derived radius.
+ *
+ * The interface package owns these declarations; AutoMovieHumanShoulderCap in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The outer upper-arm edge at glenohumeral height, with its girth-derived radius. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IEdge declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IEdge separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanShoulderCap exchanges the named IEdge contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanShoulderCap {
   /** The arm's outer edge at the glenohumeral centre's height.
    *

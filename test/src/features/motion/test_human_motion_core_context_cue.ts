@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanStand,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -44,12 +44,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_context_cue(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const written: readonly IAutoMovieResolveSchedule.ICue[] = [
+  const written: readonly IAutoMovieScheduleCue[] = [
     { name: "doorSlam", seconds: 0.8 },
     { name: "thunder", seconds: 1.7 },
   ];
-  const read = (track: string): readonly IAutoMovieResolveSchedule.ICue[] => {
-    let seen: readonly IAutoMovieResolveSchedule.ICue[] = [];
+  const read = (track: string): readonly IAutoMovieScheduleCue[] => {
+    let seen: readonly IAutoMovieScheduleCue[] = [];
     const listen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
       {
         ...stand,
@@ -83,10 +83,8 @@ export function test_human_motion_core_context_cue(): void {
     });
     return seen;
   };
-  const plain = (
-    cues: readonly IAutoMovieResolveSchedule.ICue[],
-  ): [string, number][] =>
-    cues.map((cue: IAutoMovieResolveSchedule.ICue): [string, number] => [
+  const plain = (cues: readonly IAutoMovieScheduleCue[]): [string, number][] =>
+    cues.map((cue: IAutoMovieScheduleCue): [string, number] => [
       cue.name,
       Number(cue.seconds.toFixed(9)),
     ]);

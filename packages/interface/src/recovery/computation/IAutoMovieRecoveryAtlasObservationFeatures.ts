@@ -1,5 +1,9 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieRecoveryAtlasObservationState } from "./IAutoMovieRecoveryAtlasObservationState";
+import type { IAutoMovieRecoveryAtlasObservationInput } from "../observation/IAutoMovieRecoveryAtlasObservationInput";
+import type { IAutoMovieRecoveryChartInventory } from "./IAutoMovieRecoveryChartInventory";
+import type { IAutoMovieRecoveryPendingChartObservation } from "./IAutoMovieRecoveryPendingChartObservation";
+import type { IAutoMovieRecoverySourceComponent } from "./IAutoMovieRecoverySourceComponent";
+import type { IAutoMovieRecoverySourceCrease } from "./IAutoMovieRecoverySourceCrease";
 
 /**
  * Register feature-prepared charts and their original shared outcome records.
@@ -22,7 +26,7 @@ export namespace IAutoMovieRecoveryAtlasObservationFeatures {
 
   export type Operation = (context: {
     /** Borrowed complete admitted observation request shared by this phase; the phase does not change its source selection. */
-    input: IAutoMovieRecoveryAtlasObservationState["Input"];
+    input: IAutoMovieRecoveryAtlasObservationInput;
 
     /** Caller-assigned stable semantic identity retained in generated coefficient and observation records. */
     name: string;
@@ -40,7 +44,7 @@ export namespace IAutoMovieRecoveryAtlasObservationFeatures {
     slots: Map<string, number>;
 
     /** One observed source-cell component with independent topology qualification. */
-    component: IAutoMovieRecoveryAtlasObservationState["Component"];
+    component: IAutoMovieRecoverySourceComponent;
 
     /** Ordinal of the adjacent saved-plane interval in the complete observation sequence. */
     interval: number;
@@ -52,10 +56,10 @@ export namespace IAutoMovieRecoveryAtlasObservationFeatures {
     afterMm: number;
 
     /** Prepared chart jobs awaiting common boundary fitting; their outcome arrays are shared with the observation ledger. */
-    pending: IAutoMovieRecoveryAtlasObservationState["Pending"][];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
 
     /** Unfitted chart population measurements retained independently of later fitting success. */
-    inventory: IAutoMovieRecoveryAtlasObservationState["Inventory"][];
+    inventory: IAutoMovieRecoveryChartInventory[];
 
     /** Caller-owned mutable diagnostic ledger entries; these are metadata and never interpreted as generated geometry. */
     outcomes: object[];
@@ -64,7 +68,7 @@ export namespace IAutoMovieRecoveryAtlasObservationFeatures {
     triangleSourceFaces: number[];
 
     /** Original source crease edges admitted by the declared angular policy, retaining both incident face owners. */
-    featureEdges: IAutoMovieRecoveryAtlasObservationState["Feature"][];
+    featureEdges: IAutoMovieRecoverySourceCrease[];
 
     /** Stable identities of selected source components that failed observation or chart preparation. */
     failedSelectedComponents: Set<string>;

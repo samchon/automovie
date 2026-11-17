@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -121,11 +122,11 @@ export function test_human_motion_compose_arm_follow(): void {
         goal: (
           _: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IAutoMovieMotionHumanPosture.IGoal => ({
+        ): IAutoMovieHumanLimbGoal => ({
           point: goal(seconds),
           bend,
         }),
-        perceived: (): IAutoMovieMotionHumanPosture.IGoal => ({
+        perceived: (): IAutoMovieHumanLimbGoal => ({
           point: still,
           bend,
         }),

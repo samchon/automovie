@@ -1,11 +1,12 @@
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieIntent } from "../../composition/IAutoMovieIntent";
-import type { IAutoMovieResolveSchedule } from "../../composition/IAutoMovieResolveSchedule";
 import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
+import type { IAutoMovieScheduleCue } from "../../composition/IAutoMovieScheduleCue";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
@@ -24,10 +25,10 @@ import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegmen
  * work by responsibility (placing, contacts, layers, the schedule, aiming and
  * reading), can share them; the public helper signatures expose this shared state contract transitively, while HumanPerformance remains the normal author-facing entry point.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the record holds, who reads it, why its members are public and that it is not exported.
- * @evidence contracts/development/design.md#principled-representation One record of the resolved performance, built in one place and read by functions that take it, in place of one class of two thousand lines.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members are the ones the performance kept privately before the split (#3399); none was added.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader keeps a copy of a member; the caches live here and are settled here.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the record holds, who reads it, why its members are public and that it is not exported. bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
+ * @evidence contracts/development/design.md#principled-representation One record of the resolved performance, built in one place and read by functions that take it, in place of one class of two thousand lines. bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members are the ones the performance kept privately before the split (#3399); none was added. Runtime boundary references: perform/HumanHitTrack.ts (HumanHitTrack.instants, self); perform/HumanHitTrack.ts (HumanHitTrack.provisional, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.reader, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.find, self); perform/HumanPerformanceAim.ts (HumanPerformanceAim.aim, self); perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.contacts, self).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader keeps a copy of a member; the caches live here and are settled here. Shares the canonical IAutoMovieMotionHumanPerformance.IInput, AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanSegment, IAutoMovieMotionWeaponPath identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanPerformanceState {
   /** The resolved schedule. */
@@ -48,7 +49,7 @@ export interface IAutoMovieMotionHumanPerformanceState {
   /** The placed actions that carry an anchor, by the anchor, with their performer. */
   readonly anchors: Map<
     string,
-    IAutoMovieMotionHumanSegment.ISegment & {
+    IAutoMovieMotionHumanSegment & {
       /** Scene subject id of the performer owning the anchored action, or of the performer that first computed the cached meeting. */
       subject: string;
     }
@@ -67,7 +68,7 @@ export interface IAutoMovieMotionHumanPerformanceState {
       /** Scene subject id of the performer owning the anchored action, or of the performer that first computed the cached meeting. */
       subject: string;
       /** Resolved mutual-action meeting shared by the two performers. */
-      meeting: IAutoMovieMotionMeeting.IMeeting;
+      meeting: IAutoMovieMotionMeeting;
     }
   >;
 
@@ -78,21 +79,19 @@ export interface IAutoMovieMotionHumanPerformanceState {
   readonly riding: Set<number>;
 
   /** What stands in the performers' way. */
-  readonly obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[];
+  readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
 
   /** The forces on the performers (`IAutoMovieMotionHumanPerformance.IInput.forces`). */
-  readonly forces: readonly IAutoMovieMotionHumanForce.IForce[];
+  readonly forces: readonly IAutoMovieMotionHumanForce[];
 
   /** The cue tracks, by name. */
-  readonly cues: Readonly<
-    Record<string, readonly IAutoMovieResolveSchedule.ICue[]>
-  >;
+  readonly cues: Readonly<Record<string, readonly IAutoMovieScheduleCue[]>>;
 
   /** Where an action aligned into its performer's previous one ended that one, by the previous one's schedule entry. */
   readonly clipped: Map<number, number>;
 
   /** The instants of every anchored layer, by its anchor: those known before the schedule from the start, the others once it is placed. */
-  readonly layered: Map<string, readonly IAutoMovieResolveSchedule.ICue[]>;
+  readonly layered: Map<string, readonly IAutoMovieScheduleCue[]>;
 
   /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
   readonly intended: Map<string, IAutoMovieIntent[]>;
@@ -110,10 +109,6 @@ export interface IAutoMovieMotionHumanPerformanceState {
 /**
  * Companion types of {@link HumanPerformanceState}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
- * @evidence contracts/development/design.md#principled-representation bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanHitTrack.ts (HumanHitTrack.instants, self); perform/HumanHitTrack.ts (HumanHitTrack.provisional, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.reader, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.find, self); perform/HumanPerformanceAim.ts (HumanPerformanceAim.aim, self); perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.contacts, self).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPerformance.IInput, AutoMovieHumanoidBone, IAutoMovieMotionHumanProp.IFrame, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanSegment.ISegment, IAutoMovieMotionHumanActionPlan.IWeapon identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPerformanceState {
   /**
@@ -141,7 +136,7 @@ export namespace IAutoMovieMotionHumanPerformanceState {
    * @evidence contracts/development/common.md#meaningful-documentation bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
    * @evidence contracts/development/design.md#principled-representation bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformanceHold.ts (HumanPerformanceHold.prop.since, g); perform/HumanPerformanceHold.ts (HumanPerformanceHold.prop.carrier, w); perform/HumanPerformanceHold.ts (HumanPerformanceHold.prop.seat, w); perform/HumanPerformanceHold.ts (HumanPerformanceHold.prop.seat.earlier, g); perform/HumanPerformanceHold.ts (HumanPerformanceHold.prop.moved, w); perform/HumanPerformanceHold.ts (HumanPerformanceHold.prop.hold, w).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieMotionHumanProp.IFrame, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IGrip {
     /** The person who holds or wears it. */
@@ -168,7 +163,7 @@ export namespace IAutoMovieMotionHumanPerformanceState {
     to: number;
 
     /** The prop's frame in the hand's or the bone's frame, kept from the span's start. */
-    offset?: IAutoMovieMotionHumanProp.IFrame;
+    offset?: IAutoMovieRigidTransform;
 
     /** The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset. */
     inHand?: IAutoMovieMotionHumanContactWindow["inHand"];
@@ -180,17 +175,17 @@ export namespace IAutoMovieMotionHumanPerformanceState {
    * @evidence contracts/development/common.md#meaningful-documentation subject: The striker. segment: The striker's action that carries the weapon. weapon: The weapon.
    * @evidence contracts/development/design.md#principled-representation subject: The striker. segment: The striker's action that carries the weapon. weapon: The weapon.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformanceHits.ts (HumanPerformanceHits.melee, strike); perform/HumanPerformanceState.ts (HumanPerformanceState).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSegment.ISegment, IAutoMovieMotionHumanActionPlan.IWeapon identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSegment, IAutoMovieMotionWeaponPath identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IStrike {
     /** The striker. */
     subject: string;
 
     /** The striker's action that carries the weapon. */
-    segment: IAutoMovieMotionHumanSegment.ISegment;
+    segment: IAutoMovieMotionHumanSegment;
 
     /** The weapon. */
-    weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
+    weapon: IAutoMovieMotionWeaponPath;
 
     /** The person struck. */
     against: string;

@@ -1,6 +1,13 @@
 import type { IAutoMovieHumanSeamKnot } from "../../lofting/IAutoMovieHumanSeamKnot";
 
-/** Type contracts exchanged by AutoMovieHumanDigitSector; runtime evaluation remains in Human. */
+/**
+ * Section guide jets and the resulting absolute-phase evaluator, with radian derivatives. Runtime construction and admission remain with AutoMovieHumanDigitSector in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes section guide jets and the resulting absolute-phase evaluator, with radian derivatives; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Section guide jets and the resulting absolute-phase evaluator, with radian derivatives. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanDigitSector; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing DigitSector contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanDigitSector {
   /** A guide's jet at a section's phase, in the section's `[across, palmar]` plane.
    *
@@ -24,18 +31,13 @@ export namespace IAutoMovieHumanDigitSector {
     speed: number;
   }
 
-  /** Result of AutoMovieHumanDigitSector.of. The sector's jet at a phase.
-  @param from The guide at the sector's start.
-  @param to The guide at its end.
-  @param span Phase between the two guides, radians.
-  @param start Absolute phase of the start guide.
-  @returns A function of absolute phase giving `[p, p', p'']` per radian.
+  /**
+   * Evaluate a section-sector jet at absolute phase t in radians. The result carries position and first/second phase derivatives in the section's [across, palmar] chart.
    *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The sector's jet at a phase.
- * @evidence contracts/development/design.md#principled-representation The sector's jet at a phase. The callable takes t and returns IAutoMovieHumanSeamKnot.Jet.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitSector.OfResult is the canonical exchange used by AutoMovieHumanDigitSector.of.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanDigitSector.of for the sector's jet at a phase.
- */
+   * @evidence contracts/development/common.md#meaningful-documentation Evaluate a section-sector jet at absolute phase t in radians. The result carries position and first/second phase derivatives in the section's [across, palmar] chart.
+   * @evidence contracts/development/design.md#principled-representation Evaluate a section-sector jet at absolute phase t in radians. The result carries position and first/second phase derivatives in the section's [across, palmar] chart.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanDigitSector.OfResult is the canonical exchange used by AutoMovieHumanDigitSector.of.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias retains the existing AutoMovieHumanDigitSector input/result boundary and its documented ordering, units and absence states; it introduces no fixture-specific branch or widened escape type.
+   */
   export type OfResult = (t: number) => IAutoMovieHumanSeamKnot.Jet;
 }

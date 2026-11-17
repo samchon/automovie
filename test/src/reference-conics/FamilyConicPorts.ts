@@ -6,11 +6,11 @@ import {
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
-  IAutoMovieConstructionPort,
+  IAutoMovieConstructionPortLoop,
   IAutoMovieConstructionRealization,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -71,7 +71,7 @@ namespace FamilyConicPorts {
     // A world point on the limb's chart: the station of its foot on the course, found by stepping along the tangent, and its phase about it.
     const chart = (p: number[]): [number, number] => {
       let s: number = limb.tips![1]!.from;
-      let frame: IAutoMovieLoftFrame.IFrame = host.axis.at(s);
+      let frame: IAutoMovieLoftSectionFrame = host.axis.at(s);
       for (let k: number = 0; k < 20; ++k) {
         const t: number[] = [
           frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
@@ -97,7 +97,7 @@ namespace FamilyConicPorts {
         ),
       ];
     };
-    const loops: Record<string, IAutoMovieConstructionPort.ILoop> = {};
+    const loops: Record<string, IAutoMovieConstructionPortLoop> = {};
     for (const name of digits) {
       const digit: IAutoMovieHumanConicLoft.IFamily = member(name).family;
       const free: number = digit.knots[0]!;
@@ -148,7 +148,7 @@ namespace FamilyConicPorts {
               ]!,
           ),
         ) / 2;
-      const loop: IAutoMovieConstructionPort.ILoop = {
+      const loop: IAutoMovieConstructionPortLoop = {
         centre: [
           (Math.min(...stations) + Math.max(...stations)) / 2000,
           middle + (Math.min(...turned) + Math.max(...turned)) / 2,

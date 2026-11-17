@@ -1,9 +1,12 @@
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalHandoff,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSupportWrench,
   IAutoMoviePhysicalTargetInterval,
-  IAutoMoviePhysicsCache,
   IAutoMoviePreparePhysicalGeometry,
   IAutoMovieSamplePhysicalAuthoredTargets,
   IAutoMovieSolvePhysicalCompliantContacts,
@@ -50,8 +53,8 @@ export interface IAutoMoviePhysicalBinding {
     string,
     Record<string, IAutoMoviePhysicalHandoff>
   >;
-  /** Actual native ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicsCache.IOwnership[];
-  /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicsCache.ISupportWrench[];
+  /** Actual native ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
+  /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
   /** Explicit root-withdrawal quality policies currently applied during protective joint effort. */ reflexQuality: Set<string>;
   /** At most one transient set of recovery motor goals per body and cached interval. */ planned: Map<
     string,
@@ -71,15 +74,15 @@ export interface IAutoMoviePhysicalBinding {
   >;
   /** Joint postorder for linear-work downstream gravity moments. */ gravityOrder: Map<
     string,
-    IAutoMoviePhysicalProfile.IJoint[]
+    IAutoMoviePhysicalJoint[]
   >;
   /** Stable parent-before-child order for coherent authored reconstruction. */ order: Map<
     string,
-    IAutoMoviePhysicalProfile.ISegment[]
+    IAutoMoviePhysicalSegment[]
   >;
   /** Immutable profile parent joints, indexed once per binding. */ jointByChild: Map<
     string,
-    Map<string, IAutoMoviePhysicalProfile.IJoint>
+    Map<string, IAutoMoviePhysicalJoint>
   >;
   /** Exact descendant lists compiled once for related-branch coordinate updates. */ descendants: Map<
     string,

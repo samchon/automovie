@@ -81,7 +81,7 @@ export function test_human_motion_floor_fall(): void {
         );
         continue;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const at = (event: string): number =>
         placed.start +

@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTouchSite,
   IAutoMovieMotionTarget,
@@ -58,7 +58,7 @@ export namespace touchRegion {
       "aim" | "body" | "prop" | "series" | "start"
     >,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     target: IAutoMovieMotionTarget,
     site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): (

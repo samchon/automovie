@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkFeatureFrame; runtime evaluation remains in Human. */
+/**
+ * The wall origin and orthogonal outward/up/lateral frame used by a trunk relief. Runtime construction and admission remain with AutoMovieHumanTrunkFeatureFrame in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the wall origin and orthogonal outward/up/lateral frame used by a trunk relief; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation The wall origin and orthogonal outward/up/lateral frame used by a trunk relief. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanTrunkFeatureFrame; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing TrunkFeatureFrame contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanTrunkFeatureFrame {
   /** A feature's frame.
    *

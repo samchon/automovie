@@ -2,9 +2,10 @@ import type {
   IAutoMovieHumanArmFrame,
   IAutoMovieHumanArmHandControls,
   IAutoMovieHumanArmWalk,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
   IAutoMovieHumanSiteControls,
   IAutoMovieHumanSiteRegionControls,
-  IAutoMovieHumanSiteViewPart,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSiteRegionControls } from "../limb/AutoMovieHumanSiteRegionControls";
@@ -15,10 +16,9 @@ export namespace AutoMovieHumanArmHandControls {
   export function create(
     frame: IAutoMovieHumanArmFrame.IOutput,
   ): IAutoMovieHumanArmHandControls.IOutput {
-    const wrist: IAutoMovieHumanSiteViewPart.ISite | undefined =
+    const wrist: IAutoMovieHumanSectionSite | undefined =
       frame.source.input.sites.find(
-        (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
-          site.site === "wrist",
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "wrist",
       );
     if (wrist === undefined)
       throw new Error("The hand chart needs its named wrist");
@@ -28,7 +28,7 @@ export namespace AutoMovieHumanArmHandControls {
       hand: region(shared.local, wrist.station),
       connect: shared.connect,
       prepare(
-        input: IAutoMovieHumanSiteViewPart.IInput,
+        input: IAutoMovieHumanSectionSource,
       ): IAutoMovieHumanArmWalk.IPrepared {
         return region(shared.prepare(input), wrist.station);
       },

@@ -114,7 +114,7 @@ export namespace sprintStartSet {
   } {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
       yaw: entry.yaw,
     };
@@ -430,7 +430,7 @@ interface IStance {
 function block(
   body: IAutoMovieMotionHumanBody,
   entry: IAutoMovieMotionHumanPosture,
-  frame: IAutoMovieMotionHumanFrame.IFrame,
+  frame: IAutoMovieMotionHumanFrame,
   side: "left" | "right",
   behind: number,
   face: number,

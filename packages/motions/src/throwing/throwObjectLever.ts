@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanThrowObjectLever,
   IAutoMovieProjectile,
   IAutoMovieQuaternion,
@@ -90,7 +90,7 @@ export namespace throwObjectLever {
       IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "prop" | "subject"
     >;
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
     shoulder: IAutoMovieVector3;
     release: IAutoMovieVector3;
     held: IAutoMovieQuaternion;
@@ -182,7 +182,7 @@ export namespace throwObjectLever {
       IAutoMovieMotionHumanActionContext,
       "body" | "entry" | "prop" | "subject"
     >,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     prop: string,
     lever: ILever,
     target: IAutoMovieVector3,

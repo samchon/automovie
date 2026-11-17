@@ -1,7 +1,8 @@
 import type {
   IAutoMovieContactReceipt,
+  IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalPlayback,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalSupportWrench,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -61,10 +62,10 @@ export function admitPhysicalPlaybackMetadata(
       (3 * header.duration * header.rate + 1) * header.segments.length
   )
     throw new Error("Malformed physical playback ownership budget");
-  const owners: Map<string, IAutoMoviePhysicsCache.IOwnership> = new Map();
+  const owners: Map<string, IAutoMoviePhysicalOwnershipEvent> = new Map();
   for (const entry of header.ownership) {
     const key: string = JSON.stringify([entry?.body, entry?.bone]);
-    const previous: IAutoMoviePhysicsCache.IOwnership | undefined =
+    const previous: IAutoMoviePhysicalOwnershipEvent | undefined =
       owners.get(key);
     if (
       !entry ||
@@ -103,7 +104,7 @@ export function admitPhysicalPlaybackMetadata(
       entry.pointCount < 0 ||
       entry.pointCount > 1024 ||
       ![entry.requested, entry.allocated, entry.residual].every(
-        (wrench: IAutoMoviePhysicsCache.ISupportWrench["requested"]): boolean =>
+        (wrench: IAutoMoviePhysicalSupportWrench["requested"]): boolean =>
           !!wrench && point(wrench.force) && point(wrench.torque),
       )
     )

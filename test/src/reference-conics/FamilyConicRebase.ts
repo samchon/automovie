@@ -7,10 +7,12 @@ import {
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
 import type {
+  AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
   IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -50,7 +52,7 @@ namespace FamilyConicRebase {
 
   /** The stored tables as the package module holds them. */
   interface ITables {
-    chain: IAutoMovieHumanSegmentFrame.IJoint[];
+    chain: IAutoMovieHumanSegmentJoint[];
     points: Record<string, IPlaced>;
     directions: Record<string, IPlaced>;
     courses: Record<string, string[]>;
@@ -510,7 +512,7 @@ namespace FamilyConicRebase {
     }
 
     // The chain: the rules applied to the present landmarks; the stored one is kept while the rules still return it within rounding.
-    const ruled: IAutoMovieHumanSegmentFrame.IJoint[] = F.chain(
+    const ruled: IAutoMovieHumanSegmentJoint[] = F.chain(
       AutoMovieHumanF1Frames.segments(
         laid(AutoMovieHumanF1Joints),
         laid(AutoMovieHumanF1Landmarks),
@@ -520,7 +522,7 @@ namespace FamilyConicRebase {
       before !== null &&
       before.chain.length === ruled.length &&
       ruled.every(
-        (joint: IAutoMovieHumanSegmentFrame.IJoint, i: number): boolean =>
+        (joint: IAutoMovieHumanSegmentJoint, i: number): boolean =>
           before.chain[i]!.name === joint.name &&
           before.chain[i]!.parent === joint.parent &&
           far(before.chain[i]!.offset, joint.offset) <= KEEP_MM &&
@@ -533,18 +535,16 @@ namespace FamilyConicRebase {
         if (x !== 0 && Math.abs(x) < limit) ++zeroed;
         return Math.abs(x) < limit ? 0 : x;
       });
-    const chain: IAutoMovieHumanSegmentFrame.IJoint[] = (
+    const chain: IAutoMovieHumanSegmentJoint[] = (
       kept ? before!.chain : ruled
     ).map(
-      (
-        joint: IAutoMovieHumanSegmentFrame.IJoint,
-      ): IAutoMovieHumanSegmentFrame.IJoint => ({
+      (joint: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => ({
         name: joint.name,
         parent: joint.parent,
         offset: zero(joint.offset, ZERO.point) as V3,
         rotation: joint.rotation.map(
           (row: V3): V3 => zero(row, ZERO.direction) as V3,
-        ) as IAutoMovieHumanSegmentFrame.M3,
+        ) as AutoMovieMatrix3Tuple,
       }),
     );
     for (const [i, joint] of chain.entries())
@@ -555,13 +555,12 @@ namespace FamilyConicRebase {
         throw new Error(
           "the chain's " + joint.name + " leaves its rule beyond rounding",
         );
-    const frames: Map<string, IAutoMovieHumanSegmentFrame.IFrame> = F.world(
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = F.world(
       chain,
       (): undefined => undefined,
     );
-    const frame = (name: string): IAutoMovieHumanSegmentFrame.IFrame => {
-      const found: IAutoMovieHumanSegmentFrame.IFrame | undefined =
-        frames.get(name);
+    const frame = (name: string): IAutoMovieHumanSegmentFrame => {
+      const found: IAutoMovieHumanSegmentFrame | undefined = frames.get(name);
       if (found === undefined)
         throw new Error("the tree has no segment " + name);
       return found;
@@ -584,7 +583,7 @@ namespace FamilyConicRebase {
       previous: IPlaced | undefined,
       note?: string,
     ): IPlaced => {
-      const f: IAutoMovieHumanSegmentFrame.IFrame = frame(segment);
+      const f: IAutoMovieHumanSegmentFrame = frame(segment);
       const back = (q: V3): V3 =>
         kind === "point" ? F.toWorld(f, q) : F.toWorldDirection(f, q);
       const carried: boolean =
@@ -746,7 +745,7 @@ namespace FamilyConicRebase {
       "  /** The chain, parent first: each segment's origin in its parent's frame, mm, and its reference rotation `A_parent^T A_child` by rows. */",
       "  export const CHAIN: AutoMovieHumanSegmentFrame.IJoint[] = [",
       ...chain.map(
-        (joint: IAutoMovieHumanSegmentFrame.IJoint, i: number): string =>
+        (joint: IAutoMovieHumanSegmentJoint, i: number): string =>
           "    " + row(joint) + (i + 1 < chain.length ? "," : ""),
       ),
       "  ];",

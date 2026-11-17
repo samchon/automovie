@@ -1,22 +1,30 @@
 import type { IAutoMovieConstructionView } from "../../../construction/IAutoMovieConstructionView";
-import type { IAutoMovieLoftFrame } from "../../../construction/IAutoMovieLoftFrame";
+import type { IAutoMovieLoftSectionFrame } from "../../../construction/IAutoMovieLoftSectionFrame";
 import type { IAutoMovieLoftSectionPhase } from "../../../construction/IAutoMovieLoftSectionPhase";
 import type { IAutoMovieLoftViewRead } from "../../../construction/IAutoMovieLoftViewRead";
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
-/** Type contracts exchanged by AutoMovieHumanHeadEarPlate; runtime evaluation remains in Human. */
+/**
+ * An original auricle plate, its named stations and whole-section readers with explicit missing derivatives.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHeadEarPlate in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation An original auricle plate, its named stations and whole-section readers with explicit missing derivatives. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only ISection, IOutput declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation ISection, IOutput separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadEarPlate exchanges the named ISection, IOutput contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHeadEarPlate {
   /**
    * A whole original plate section, including a distinct true-zero point.
-   * @evidence contracts/common.md#principled-implementation Keeps the native family, actual plane, signed source values and available physical scalar2 together.
-   * @evidence contracts/common.md#clear-and-simple-design One section record serves guide and relief consumers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A true-zero source has no invented regular phase field or physical derivative.
-   * @evidence contracts/common.md#meaningful-documentation Values use calibration mm; phase and physical station2 availability are separate.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The section reader owns preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed-size readings and its native closure.
-   *
+   * Keeps the native family, actual plane, signed source values and available physical scalar2 together.
+   * One section record serves guide and relief consumers.
+   * A true-zero source has no invented regular phase field or physical derivative.
+   * Values use calibration mm; phase and physical station2 availability are separate.
+   * Data performs no work.
+   * The section reader owns preparation.
+   * The caller owns fixed-size readings and its native closure.
    *
    * @evidence contracts/development/common.md#meaningful-documentation A whole original plate section, including a distinct true-zero point.
    * @evidence contracts/development/design.md#principled-representation `frame`: Exact actual source plane. `inputs`: Four actual signed-support magnitudes and effective quarter fullness values. `jets`: Actual physical scalar2, when finite.
@@ -25,7 +33,7 @@ export namespace IAutoMovieHumanHeadEarPlate {
    */
   export interface ISection {
     /** Exact actual source plane. */
-    frame: IAutoMovieLoftFrame.IFrame;
+    frame: IAutoMovieLoftSectionFrame;
     /** Four actual signed-support magnitudes and effective quarter fullness values. */
     inputs: IAutoMovieLoftViewRead.IValues;
     /** Actual physical scalar2, when finite. */
@@ -38,14 +46,13 @@ export namespace IAutoMovieHumanHeadEarPlate {
 
   /**
    * Source plate with separate named measurement stations, calibration mm.
-   * @evidence contracts/common.md#principled-implementation Named measurement stations and all relief readers retain the identical complete original section source and actual frame.
-   * @evidence contracts/common.md#clear-and-simple-design One plate exposes its full source and actual guide points to every relief consumer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Opposite guides are read from the actual signed native field, never reflected from one positive outline.
-   * @evidence contracts/common.md#meaningful-documentation Fields identify calibration units, named anatomical stations and whole-section availability.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work; the factory owns admission and readers.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every course borrows the same admitted source instead of reconstructing the plate.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The composition owns its actual part, declaration and prepared original field.
-   *
+   * Named measurement stations and all relief readers retain the identical complete original section source and actual frame.
+   * One plate exposes its full source and actual guide points to every relief consumer.
+   * Opposite guides are read from the actual signed native field, never reflected from one positive outline.
+   * Fields identify calibration units, named anatomical stations and whole-section availability.
+   * Data performs no work; the factory owns admission and readers.
+   * Every course borrows the same admitted source instead of reconstructing the plate.
+   * The composition owns its actual part, declaration and prepared original field.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Source plate with separate named measurement stations, calibration mm.
    * @evidence contracts/development/design.md#principled-representation `part`: Original auricle view. `view`: The identical metre declaration used by the raw part, all courses and production tree. `source`: Complete admitted original scalar family retained by all relief consumers.
@@ -73,9 +80,29 @@ export namespace IAutoMovieHumanHeadEarPlate {
     posterior: number;
     /** Tragal rim measurement height. */
     tragion: number;
-    /** Actual attachment/posterior original guide point. */
+    /**
+     * Actual attachment/posterior original guide point.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Actual attachment/posterior original guide point.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadEarPlate and the callback provider must satisfy the documented point contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadEarPlate and its callback provider own the cost of each point invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadEarPlate and the callback provider determine when the inputs to point describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadEarPlate and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadEarPlate.IOutput.point callable contract, without an implementation body. AutoMovieHumanHeadEarPlate and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadEarPlate.IOutput.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadEarPlate and the callback provider.
+     */
     point(station: number, posterior: boolean): [number, number, number];
-    /** Whole original source section and all available local derivatives. */
+    /**
+     * Whole original source section and all available local derivatives.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Whole original source section and all available local derivatives.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadEarPlate and the callback provider must satisfy the documented section contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadEarPlate and its callback provider own the cost of each section invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadEarPlate and the callback provider determine when the inputs to section describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadEarPlate and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadEarPlate.IOutput.section callable contract, without an implementation body. AutoMovieHumanHeadEarPlate and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadEarPlate.IOutput.section declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadEarPlate and the callback provider.
+     */
     section(station: number): ISection;
   }
 }

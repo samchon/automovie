@@ -1,7 +1,9 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -146,8 +148,7 @@ export namespace climbStairs {
     const flat = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal =
-        standing.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(yaw),
@@ -238,7 +239,7 @@ export namespace climbStairs {
 
     // The clock: a step period per swing, the swing at its end, and a settle.
     const period: number = (60 / CADENCE) * Math.sqrt(m.hipHeight / 0.93);
-    const instants: IAutoMovieMotionClock.IInstant[] = [];
+    const instants: IAutoMovieMotionClockInstant[] = [];
     steps.forEach((_, j: number): void => {
       instants.push(
         { name: `toeOff${j + 1}`, seconds: (j + 1 - SWING) * period },
@@ -246,7 +247,7 @@ export namespace climbStairs {
       );
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.of((steps.length + 0.3) * period, instants),
       modifiers,
       { holds: [] },

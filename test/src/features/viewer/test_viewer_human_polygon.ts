@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieHumanBindBone,
+  IAutoMovieHumanBonePlacement,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanCartoonFace,
@@ -54,8 +58,8 @@ export function test_viewer_human_polygon(): void {
   const headPositions: THREE.BufferAttribute = head.geometry.getAttribute(
     "position",
   ) as THREE.BufferAttribute;
-  const headJoint: IAutoMovieHumanSkeleton.IBone = input.bones.find(
-    (bone: IAutoMovieHumanSkeleton.IBone): boolean => bone.bone === "head",
+  const headJoint: IAutoMovieHumanBindBone = input.bones.find(
+    (bone: IAutoMovieHumanBindBone): boolean => bone.bone === "head",
   )!;
   const headTip: [number, number, number] = headJoint.tip!;
   let highest: number = -Infinity;
@@ -97,10 +101,10 @@ export function test_viewer_human_polygon(): void {
   ancestor.position.set(1, 0, 0);
   ancestor.quaternion.set(0, Math.SQRT1_2, 0, Math.SQRT1_2);
   ancestor.add(drawing.object);
-  const changed: IAutoMovieHumanSkeleton.IPlacement[] = input.posed.map(
+  const changed: IAutoMovieHumanBonePlacement[] = input.posed.map(
     (
-      placement: IAutoMovieHumanSkeleton.IPlacement,
-    ): IAutoMovieHumanSkeleton.IPlacement => ({
+      placement: IAutoMovieHumanBonePlacement,
+    ): IAutoMovieHumanBonePlacement => ({
       ...placement,
       position:
         placement.bone === "leftLowerArm"
@@ -160,24 +164,24 @@ export function test_viewer_human_polygon(): void {
       ...object.matrixWorld.elements,
     ],
   );
-  const invalid: IAutoMovieHumanSkeleton.IPlacement[][] = [
+  const invalid: IAutoMovieHumanBonePlacement[][] = [
     changed.filter(
-      (placement: IAutoMovieHumanSkeleton.IPlacement): boolean =>
+      (placement: IAutoMovieHumanBonePlacement): boolean =>
         placement.bone !== "leftMidfoot",
     ),
     [...changed, changed[0]!],
     changed.map(
       (
-        placement: IAutoMovieHumanSkeleton.IPlacement,
-      ): IAutoMovieHumanSkeleton.IPlacement =>
+        placement: IAutoMovieHumanBonePlacement,
+      ): IAutoMovieHumanBonePlacement =>
         placement.bone === "leftMidfoot"
           ? { ...placement, position: [NaN, 0, 0] }
           : placement,
     ),
     changed.map(
       (
-        placement: IAutoMovieHumanSkeleton.IPlacement,
-      ): IAutoMovieHumanSkeleton.IPlacement =>
+        placement: IAutoMovieHumanBonePlacement,
+      ): IAutoMovieHumanBonePlacement =>
         placement.bone === "leftMidfoot"
           ? { ...placement, rotation: [0, 0, 0, 2] }
           : placement,
@@ -185,10 +189,10 @@ export function test_viewer_human_polygon(): void {
   ];
   for (const [index, posed] of invalid.entries()) {
     // An early valid write would visibly change hips before a late refusal.
-    const attempted: IAutoMovieHumanSkeleton.IPlacement[] = posed.map(
+    const attempted: IAutoMovieHumanBonePlacement[] = posed.map(
       (
-        placement: IAutoMovieHumanSkeleton.IPlacement,
-      ): IAutoMovieHumanSkeleton.IPlacement =>
+        placement: IAutoMovieHumanBonePlacement,
+      ): IAutoMovieHumanBonePlacement =>
         placement.bone === "hips"
           ? { ...placement, position: [9, 9, 9] }
           : placement,

@@ -78,7 +78,7 @@ export interface IAutoMovieRealizeShotContractProps {
    * not folded into its placement.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The source-stage pass has rigs only through the runtime's `skeleton` lookup, so the grade borrows that lookup instead of requiring models that do not exist yet; a compiled model's own skeleton still takes precedence.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A plain function of the node id, the same signature `IAutoMovieShotRuntime.skeleton` has, so `compileDefinedShot` passes the runtime's lookup through unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A plain function of the node id, the same signature `IAutoMovieEngineShotRuntime.skeleton` has, so `compileDefinedShot` passes the runtime's lookup through unchanged.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grade substitutes no rig for a `null` answer; a predicate that needs one fails.
    * @evidence contracts/development/common.md#meaningful-documentation States when it is consulted, its precedence below compiled models, and the effect of a `null` answer on predicates and placement.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A caller-supplied lookup whose cost is the caller's; the grade calls it at most once per rig read.

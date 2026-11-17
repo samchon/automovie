@@ -1,4 +1,11 @@
-/** Data and callback contracts shared by the SolidMeshConstraints operations. */
+/**
+ * Data and callback contracts shared by the SolidMeshConstraints operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation Segments reference original vertex IDs and integer phase lifts; subdivided edges retain every inducing source-segment index.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface SolidMeshConstraints and SolidMeshPlan share one native-cover edge representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Integer turns and valid provenance indices remain planner premises because number does not enforce integrality or range.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines endpoint orientation, periodic lifts and subdivision provenance.
+ */
 export namespace IAutoMovieSolidMeshConstraints {
   /**
    * An existing straight native-chart segment and its periodic lift.

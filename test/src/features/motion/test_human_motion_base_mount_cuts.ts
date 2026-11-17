@@ -110,7 +110,7 @@ export function test_human_motion_base_mount_cuts(): void {
         }
         const reader: IAutoMovieMotionHumanSignature.IReader =
           HumanSignature.of(performance, "a", body, seat.yaw);
-        const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+        const segments: readonly IAutoMovieMotionHumanSegment[] =
           performance.segments("a");
         const end: number = segments[segments.length - 1]!.end;
         const hips = (t: number): number =>

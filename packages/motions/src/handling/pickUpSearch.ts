@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -73,7 +74,7 @@ export namespace pickUpSearch {
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     lift: number,
     authored: IAutoMovieMotionHumanGrasp.ITarget,
     stance: pickUpPosture.IStance,

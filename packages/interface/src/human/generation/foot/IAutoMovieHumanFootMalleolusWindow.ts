@@ -1,7 +1,14 @@
 import type { IAutoMovieHumanFootBody } from "./IAutoMovieHumanFootBody";
 import type { IAutoMovieHumanFootFrame } from "./IAutoMovieHumanFootFrame";
 
-/** Type contracts exchanged by AutoMovieHumanFootMalleolusWindow; runtime evaluation remains in Human. */
+/**
+ * Type contracts exchanged by AutoMovieHumanFootMalleolusWindow; runtime evaluation remains in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanFootMalleolusWindow exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
+ * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IInput, IPlace. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanFootMalleolusWindow; Human retains the computation and source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IInput, IPlace contracts and adds no alternate implementation, optional mode or runtime state.
+ */
 export namespace IAutoMovieHumanFootMalleolusWindow {
   /** What a window's place reads.
    *

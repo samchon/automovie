@@ -84,7 +84,7 @@ export function test_human_motion_base_armrests(): void {
 
     // The hands a segment declares bearing over a span of its shares.
     const hands = (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       from: number,
       to: number,
     ): string[] =>
@@ -99,7 +99,7 @@ export function test_human_motion_base_armrests(): void {
         .map((c: IAutoMovieMotionHumanContactWindow): string => c.part)
         .sort((x: string, y: string): number => x.localeCompare(y));
     const event = (
-      segment: IAutoMovieMotionHumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       named: string,
     ): number =>
       segment.plan.events.find(
@@ -107,7 +107,7 @@ export function test_human_motion_base_armrests(): void {
       )?.share ?? 1;
     try {
       // 4. No armrest, no hand support.
-      const plain: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const plain: readonly IAutoMovieMotionHumanSegment[] =
         perform(bare).segments("a");
       for (const [what, segment] of [
         ["sitting down", plain[0]!],
@@ -125,7 +125,7 @@ export function test_human_motion_base_armrests(): void {
         ...bare,
         armrests,
       });
-      const [down, up]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const [down, up]: readonly IAutoMovieMotionHumanSegment[] =
         performance.segments("a");
       const off: number = event(up!, "seatOff");
       for (const [what, declared] of [

@@ -1,5 +1,6 @@
 import { createDrinkware } from "@automovie/archetypes";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDrinkingArm,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -180,15 +181,14 @@ export namespace motionHandToFaceDrink {
       "a",
       at,
     );
-    const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
       s.film.performance.segments("a");
     const entered: IAutoMovieMotionHumanPosture = s.film.performance.posture(
       "a",
       segments[segments.length - 1]!.start,
     );
     const mouth: IAutoMovieVector3 = M.region(s, "a", s.body, "mouth", at);
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-      posture.limbs.rightArm;
+    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightArm;
     const v = (p: IAutoMovieVector3 | undefined): string =>
       p === undefined
         ? "none"

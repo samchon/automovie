@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanLegAnkleSeam; runtime evaluation remains in Human. */
+/**
+ * Canonical section-plane rings and centres used to compare the ankle boundary with its leg law.
+ *
+ * The interface package owns these declarations; AutoMovieHumanLegAnkleSeam in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Canonical section-plane rings and centres used to compare the ankle boundary with its leg law. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only ResidualRing, ResidualCentre, LiftRing, LiftCentre declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation ResidualRing, ResidualCentre, LiftRing, LiftCentre separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanLegAnkleSeam exchanges the named ResidualRing, ResidualCentre, LiftRing, LiftCentre contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanLegAnkleSeam {
   /** The ring argument of AutoMovieHumanLegAnkleSeam.residual. The ring's radius about a centre at each leg phase, less the leg law's own
   radius there: the ring's difference from the law.

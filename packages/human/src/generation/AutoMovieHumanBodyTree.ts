@@ -7,7 +7,8 @@ import type {
   IAutoMovieConstructionSplit,
   IAutoMovieHumanBodyTree,
   IAutoMovieHumanMassSource,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanNamedSource,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
   IAutoMovieViewPart,
@@ -99,12 +100,12 @@ export namespace AutoMovieHumanBodyTree {
    */
   export function massFold(
     fold: IAutoMovieHumanBodyTree.IFold,
-    sources: readonly IAutoMovieHumanSiteViewPart.ISource[],
+    sources: readonly IAutoMovieHumanNamedSource[],
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
   ): IAutoMovieHumanBodyTree.IFold | null {
-    const source: IAutoMovieHumanSiteViewPart.IResult | undefined = sources
+    const source: IAutoMovieHumanSourceRealization | undefined = sources
       .filter(
-        (source: IAutoMovieHumanSiteViewPart.ISource): boolean =>
+        (source: IAutoMovieHumanNamedSource): boolean =>
           source.name === fold.partFace,
       )
       .at(-1)?.result;

@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPosture,
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanReach,
   IAutoMovieMotionManner,
 } from "@automovie/interface";
@@ -59,14 +59,8 @@ export function test_human_motion_core_closed_unions(): void {
       IAutoMovieMotionManner.Preset,
       keyof typeof AutoMovieMotionManner.PRESETS
     >,
-    true satisfies Same<
-      IAutoMovieMotionHumanHand.Side,
-      IAutoMovieMotionHumanHand.Side
-    >,
-    true satisfies Same<
-      IAutoMovieMotionHumanPosture.Limb,
-      IAutoMovieMotionHumanReach.Limb
-    >,
+    true satisfies Same<AutoMovieHumanSide, AutoMovieHumanSide>,
+    true satisfies Same<AutoMovieHumanLimb, IAutoMovieMotionHumanReach.Limb>,
   ];
 
   // 2. At run time.

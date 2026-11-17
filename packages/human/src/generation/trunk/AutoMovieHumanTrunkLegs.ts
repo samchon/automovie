@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanTrunkLegs,
   IAutoMovieHumanTrunkSectionFamily,
   IAutoMovieHumanTrunkTape,
@@ -15,7 +15,7 @@ export namespace AutoMovieHumanTrunkLegs {
   /** Bind both legs to the actual parent object; the regional factory owns retention and the unchanged measured distal spans. */
   export function pair(
     input: IAutoMovieHumanTrunkLegs.IInput,
-    parent: IAutoMovieHumanSiteViewPart.IDefinition,
+    parent: IAutoMovieHumanSourceDefinition,
   ): IAutoMovieHumanTrunkLegs.IInput["legs"] {
     if (input.bindLeg === undefined) return input.legs;
     const station: number | undefined = input.views.sites.find(
@@ -39,7 +39,7 @@ export namespace AutoMovieHumanTrunkLegs {
     shoulder: number,
     sections: ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane>,
   ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]> {
-    const parent: IAutoMovieHumanSiteViewPart.IDefinition =
+    const parent: IAutoMovieHumanSourceDefinition =
       AutoMovieHumanTrunkViewPart.define(
         {
           ...input.views,
@@ -58,8 +58,7 @@ export namespace AutoMovieHumanTrunkLegs {
       (
         side: "left" | "right",
       ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]>[number] => {
-        const leg: IAutoMovieHumanSiteViewPart.IDefinition | undefined =
-          legs?.[side];
+        const leg: IAutoMovieHumanSourceDefinition | undefined = legs?.[side];
         return AutoMovieHumanTrunkTape.parent(
           leg?.part?.name ?? `leg.${side}`,
           leg?.part === undefined || leg.part === null

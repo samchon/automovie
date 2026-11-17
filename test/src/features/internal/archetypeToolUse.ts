@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanToolWork,
   IAutoMovieMotionTarget,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -126,17 +127,13 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
       );
       continue;
     }
-    const act: IAutoMovieMotionHumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.name === "useTool",
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "useTool",
       )!;
     const face = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-        "tool",
-        seconds,
-      );
+      const frame: IAutoMovieRigidTransform = film.prop("tool", seconds);
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(

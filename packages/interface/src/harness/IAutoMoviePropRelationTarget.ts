@@ -17,11 +17,6 @@ export type IAutoMoviePropRelationTarget =
   | IAutoMoviePropRelationTarget.IPropAffordance;
 /**
  * The stable-reference alternatives accepted by a prop placement relation.
- *
- * @evidence contracts/development/design.md#principled-representation Each kind cites the owning environment or prop and the exact subordinate record identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Placement admission and anchor resolution dispatch the same target union without copying building or affordance geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A space has no fabricated anchor and an absent referenced target is not replaced by a guessed one.
- * @evidence contracts/development/common.md#meaningful-documentation The stable-reference alternatives accepted by a prop placement relation. Member documentation specifies their units, references and absence behavior.
  */
 export namespace IAutoMoviePropRelationTarget {
   /**

@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanArmPrior,
   IAutoMovieHumanHandStar,
   IAutoMovieHumanHandStarField,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
@@ -29,7 +29,7 @@ export namespace AutoMovieHumanHandStar {
       stations: field.stations,
       splines: Array.from(
         { length: count },
-        (_: unknown, k: number): IAutoMovieNaturalSpline.ISpline =>
+        (_: unknown, k: number): IAutoMovieNaturalCubicSpline =>
           AutoMovieNaturalSpline.create(
             field.stations,
             field.series.map((row: readonly number[]): number => row[k]!),
@@ -49,7 +49,7 @@ export namespace AutoMovieHumanHandStar {
       Math.max(field.stations[0]!, a),
     );
     const v: number[] = field.splines.map(
-      (s: IAutoMovieNaturalSpline.ISpline): number =>
+      (s: IAutoMovieNaturalCubicSpline): number =>
         AutoMovieNaturalSpline.evaluate(s, held),
     );
     let r: number = v[4]!;

@@ -1,5 +1,6 @@
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
+import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysicalShape";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 
 /**
@@ -20,7 +21,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  * @evidence contracts/development/common.md#meaningful-documentation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. distance: Metres, negative inside. point: The point on the collider surface, world metres.
  * @evidence contracts/development/design.md#principled-representation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. distance: Metres, negative inside. point: The point on the collider surface, world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.relative, a); actions/walkLegBinding.ts (walkLegBinding.relative, b); actions/walkLegBinding.ts (walkLegBinding.inside, shape); actions/walkLegBinding.ts (walkLegBinding.planar, shape); actions/walkLegClearance.ts (walkLegClearance.placed, return); actions/walkLegClearance.ts (walkLegClearance.reading.segmentsOf, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMoviePhysicalProfile.ITransform, IAutoMoviePhysicalProfile.IShape, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMoviePhysicalShape, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanColliders {
   /**
@@ -29,17 +30,17 @@ export namespace IAutoMovieMotionHumanColliders {
    * @evidence contracts/development/common.md#meaningful-documentation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint.
    * @evidence contracts/development/design.md#principled-representation pose: The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegBinding.ts (walkLegBinding.relative, a); actions/walkLegBinding.ts (walkLegBinding.relative, b); actions/walkLegBinding.ts (walkLegBinding.inside, shape); actions/walkLegBinding.ts (walkLegBinding.planar, shape); actions/walkLegClearance.ts (walkLegClearance.placed, return); actions/walkLegClearance.ts (walkLegClearance.reading.segmentsOf, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMoviePhysicalProfile.ITransform, IAutoMoviePhysicalProfile.IShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMoviePhysicalShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlaced {
     /** The rig bone that carries the segment. */
     bone: AutoMovieHumanoidBone;
 
     /** The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. */
-    pose: IAutoMoviePhysicalProfile.ITransform;
+    pose: IAutoMovieRigidTransform;
 
     /** The segment's shapes, each placed by `pose` composed with its own transform. */
-    shapes: readonly IAutoMoviePhysicalProfile.IShape[];
+    shapes: readonly IAutoMoviePhysicalShape[];
   }
 
   /**

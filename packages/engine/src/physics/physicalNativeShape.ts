@@ -1,5 +1,5 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import RAPIER from "@dimforge/rapier3d-compat";
@@ -18,7 +18,7 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalNativeShape(
-  shape: IAutoMoviePhysicalProfile.IShape,
+  shape: IAutoMoviePhysicalShape,
 ): RAPIER.Shape {
   if (
     shape.kind === "sphere" ||

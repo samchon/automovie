@@ -1,6 +1,13 @@
 import type { IAutoMovieResolvedBone } from "../../pose/IAutoMovieResolvedBone";
 
-/** Rest and posed transforms used to construct rigid bone-motion queries. */
+/**
+ * Rest and posed transforms used to construct rigid bone-motion queries.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Rest and posed bone identities refer to metre origins and dimensionless rotations in the same model frame. Matching identities are checked when requested; duplicate identities use the last record, and retained transforms must remain stable.
+ * @evidence contracts/development/design.md#principled-representation Rest and posed bone identities refer to metre origins and dimensionless rotations in the same model frame.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieBoneMotion retains the resolved records to provide rigid motion to sweep and network posing.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Matching identities are checked when requested; duplicate identities use the last record, and retained transforms must remain stable.
+ */
 export namespace IAutoMovieCreateBoneMotion {
   /**
    * Build each bone's rigid motion from rest to pose, the transform a point or

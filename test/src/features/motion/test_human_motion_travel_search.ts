@@ -81,7 +81,7 @@ export function test_human_motion_travel_search(): void {
     body,
     0,
   );
-  const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+  const segments: readonly IAutoMovieMotionHumanSegment[] =
     performance.segments("a");
   if (segments.length !== 1 + 2 * places.length)
     complaints.push(
@@ -107,7 +107,7 @@ export function test_human_motion_travel_search(): void {
   const left = (seconds: number): number =>
     ((heading("head", seconds) - heading("hips", seconds) + 540) % 360) - 180;
   places.forEach((place: IAutoMovieVector3, index: number): void => {
-    const stop: IAutoMovieMotionHumanSegment.ISegment | undefined =
+    const stop: IAutoMovieMotionHumanSegment | undefined =
       segments[2 + 2 * index];
     if (stop === undefined) return;
     const middle: number = (stop.entryTime + stop.end) / 2;

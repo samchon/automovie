@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanStand,
+  IAutoMovieMotionObstacleAperture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -55,7 +56,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_obstacles(): void {
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const north: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.wall(
+  const north: IAutoMovieMotionHumanObstacle = HumanObstacle.wall(
     "north",
     at(-2, 2),
     at(2, 2),
@@ -71,22 +72,18 @@ export function test_human_motion_core_obstacles(): void {
       },
     ],
   );
-  const far: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.wall(
+  const far: IAutoMovieMotionHumanObstacle = HumanObstacle.wall(
     "far",
     at(-2, 3),
     at(2, 3),
     0.2,
     2.5,
   );
-  const beam: IAutoMovieMotionHumanObstacle.IObstacle = {
+  const beam: IAutoMovieMotionHumanObstacle = {
     ...HumanObstacle.wall("beam", at(-2, -1), at(2, -1), 0.2, 1.8),
     bottom: 1.6,
   };
-  const scene: readonly IAutoMovieMotionHumanObstacle.IObstacle[] = [
-    north,
-    far,
-    beam,
-  ];
+  const scene: readonly IAutoMovieMotionHumanObstacle[] = [north, far, beam];
   const body: IAutoMovieMotionHumanObstacle.INeed = {
     breadth: 0.45,
     height: 1.75,
@@ -148,7 +145,7 @@ export function test_human_motion_core_obstacles(): void {
   );
 
   // 7. An object's own opening.
-  const opening: IAutoMovieMotionHumanObstacle.IAperture | undefined =
+  const opening: IAutoMovieMotionObstacleAperture | undefined =
     HumanObstacle.apertures(
       {
         affordances: [
@@ -197,7 +194,7 @@ export function test_human_motion_core_obstacles(): void {
         seen = context
           .obstacles()
           .map(
-            (obstacle: IAutoMovieMotionHumanObstacle.IObstacle): string =>
+            (obstacle: IAutoMovieMotionHumanObstacle): string =>
               obstacle.subject,
           );
         return stand.plan(context);

@@ -107,7 +107,7 @@ export namespace HumanPrehension {
    * @returns Seconds; positive.
    */
   export function duration(
-    skill: IAutoMovieMotionHumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     distance: number,
     width: number,

@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanLegBones; runtime evaluation remains in Human. */
+/**
+ * Canonical-left leg joint centres, segment lengths and stature/ankle placement inputs. Runtime construction and admission remain with AutoMovieHumanLegBones in Human.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes canonical-left leg joint centres, segment lengths and stature/ankle placement inputs; nested declarations retain their units, frames, optional states and callback contracts.
+ * @evidence contracts/development/design.md#principled-representation Canonical-left leg joint centres, segment lengths and stature/ankle placement inputs. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanLegBones; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing LegBones contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+ */
 export namespace IAutoMovieHumanLegBones {
   /** The three joint centres of the left leg and the bones' lengths.
    *

@@ -103,10 +103,10 @@ export function test_human_motion_firearm_tracking(): void {
           }),
       ).node,
     });
-    const held: IAutoMovieMotionHumanSegment.ISegment | undefined = film
+    const held: IAutoMovieMotionHumanSegment | undefined = film
       .segments("a")
       .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+        (s: IAutoMovieMotionHumanSegment): boolean =>
           s.name === "presentFirearm",
       );
     if (held === undefined || seconds < held.start || seconds > held.end)

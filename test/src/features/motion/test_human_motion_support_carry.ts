@@ -1,7 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanSupportCarry } from "@automovie/motions";
@@ -30,11 +31,11 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios.
  */
 export function test_human_motion_support_carry(): void {
-  const moving = (t: number): IAutoMovieMotionHumanProp.IFrame => ({
+  const moving = (t: number): IAutoMovieRigidTransform => ({
     position: { x: 0, y: 0, z: 2 * t },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10 * t),
   });
-  const still = (): IAutoMovieMotionHumanProp.IFrame => ({
+  const still = (): IAutoMovieRigidTransform => ({
     position: { x: 1, y: 0, z: 1 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   });
@@ -129,8 +130,8 @@ export function test_human_motion_support_carry(): void {
   );
   TestValidator.equals("joint angles stay", carried.joints, posture.joints);
   for (const limb of ["rightArm", "rightLeg"] as const) {
-    const before: IAutoMovieMotionHumanPosture.IGoal = posture.limbs[limb]!;
-    const after: IAutoMovieMotionHumanPosture.IGoal = carried.limbs[limb]!;
+    const before: IAutoMovieHumanLimbGoal = posture.limbs[limb]!;
+    const after: IAutoMovieHumanLimbGoal = carried.limbs[limb]!;
     TestValidator.equals(
       `${limb}'s contact stays joint-local`,
       after.contact,

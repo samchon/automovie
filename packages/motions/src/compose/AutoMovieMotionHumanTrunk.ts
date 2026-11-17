@@ -1,9 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTrunk,
@@ -56,7 +57,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function turn(
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     degrees: number,
@@ -86,16 +87,13 @@ export namespace AutoMovieMotionHumanTrunk {
   export function footing(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-  ): Record<
-    IAutoMovieMotionHumanHand.Side,
-    IAutoMovieMotionHumanFoot.IPlacement
-  > {
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, posture),
     );
     const at = (
-      side: IAutoMovieMotionHumanHand.Side,
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: bones.get(`${side}Foot`)!.worldPosition,
       rotation: bones.get(`${side}Foot`)!.worldRotation,
@@ -127,12 +125,9 @@ export namespace AutoMovieMotionHumanTrunk {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     feet: Readonly<
-      Record<
-        IAutoMovieMotionHumanHand.Side,
-        IAutoMovieMotionHumanFoot.IPlacement
-      >
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
     >,
-    legs: readonly IAutoMovieMotionHumanHand.Side[],
+    legs: readonly AutoMovieHumanSide[],
   ): IAutoMovieMotionHumanPosture {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of legs)
@@ -187,10 +182,8 @@ export namespace AutoMovieMotionHumanTrunk {
         hips,
       ),
     );
-    const left: IAutoMovieMotionHumanPosture.IGoal | undefined =
-      posture.limbs.leftLeg;
-    const right: IAutoMovieMotionHumanPosture.IGoal | undefined =
-      posture.limbs.rightLeg;
+    const left: IAutoMovieHumanLimbGoal | undefined = posture.limbs.leftLeg;
+    const right: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightLeg;
     const tilt = HumanTrunk.incline(
       posture.joints,
       inclination,
@@ -243,12 +236,9 @@ export namespace AutoMovieMotionHumanTrunk {
   ): IAutoMovieMotionHumanPrimitive {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
-    const legs: readonly IAutoMovieMotionHumanHand.Side[] = props.legs ?? [
-      "left",
-      "right",
-    ];
+    const legs: readonly AutoMovieHumanSide[] = props.legs ?? ["left", "right"];
     const feet: Record<
-      IAutoMovieMotionHumanHand.Side,
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = footing(props.body, props.standing);
 
@@ -281,8 +271,7 @@ export namespace AutoMovieMotionHumanTrunk {
         "root",
         "trunk",
         ...legs.map(
-          (side: IAutoMovieMotionHumanHand.Side): "leftLeg" | "rightLeg" =>
-            `${side}Leg`,
+          (side: AutoMovieHumanSide): "leftLeg" | "rightLeg" => `${side}Leg`,
         ),
       ],
       from: props.clock.at(props.rise[0]),
@@ -325,7 +314,7 @@ export namespace AutoMovieMotionHumanTrunk {
    */
   export function counterbalance(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     extended: IAutoMovieMotionHumanPosture,

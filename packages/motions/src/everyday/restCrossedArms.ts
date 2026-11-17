@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRest,
   IAutoMovieQuaternion,
@@ -42,8 +42,8 @@ import { HumanTrunk } from "./HumanTrunk";
 export function restCrossedArms(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-): Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal> {
-  const frame: IAutoMovieMotionHumanFrame.IFrame = {
+): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> {
+  const frame: IAutoMovieMotionHumanFrame = {
     origin: posture.root,
     yaw: posture.yaw,
   };
@@ -51,7 +51,7 @@ export function restCrossedArms(
     HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, local);
   const bones = poseBones(body, resolveHumanPosture(body, posture));
   const length = (
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     from: "UpperArm" | "LowerArm",
     to: "LowerArm" | "Hand",
   ): number =>
@@ -61,14 +61,14 @@ export function restCrossedArms(
         body.rest.get(`${side}${from}`)!,
       ),
     );
-  const shoulder = (side: IAutoMovieMotionHumanHand.Side): IAutoMovieVector3 =>
+  const shoulder = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
     HumanFrame.local(frame, bones.get(`${side}UpperArm`)!.worldPosition);
   const sternum: IAutoMovieVector3 = HumanFrame.local(
     frame,
     HumanTrunk.region(body, posture, "sternum").point,
   );
   const elbowAt = (
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     inward: number,
   ): IAutoMovieVector3 => {
     const s: IAutoMovieVector3 = shoulder(side);
@@ -94,11 +94,10 @@ export function restCrossedArms(
     });
   };
   const goal = (
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     inward: number,
   ): { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } => {
-    const other: IAutoMovieMotionHumanHand.Side =
-      side === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const from: IAutoMovieVector3 = HumanFrame.point(frame, shoulder(other));
     const axis: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(elbowAt(other, inward), from),

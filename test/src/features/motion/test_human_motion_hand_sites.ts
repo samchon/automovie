@@ -96,7 +96,7 @@ export function test_human_motion_hand_sites(): void {
             .registered("comfort", params)
             .with(HumanChain.subject("b").stand({ seconds: 5 })).node,
         });
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const instant = (event: string): number =>
         placed.start +

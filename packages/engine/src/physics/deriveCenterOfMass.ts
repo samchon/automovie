@@ -1,6 +1,6 @@
 import {
   IAutoMovieModel,
-  type IAutoMoviePhysicalProfile,
+  type IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -42,7 +42,7 @@ export const deriveCenterOfMass: (
 ): IAutoMovieVector3 | null => {
   let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const bones: Map<string, IAutoMoviePhysicalProfile.ITransform> =
+  const bones: Map<string, IAutoMovieRigidTransform> =
     physicalModelRestTransforms(model);
   for (const part of model.parts) {
     if (part.geometry.type !== "primitive") continue;

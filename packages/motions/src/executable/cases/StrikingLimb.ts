@@ -97,7 +97,7 @@ export namespace StrikingLimb {
   export function end(
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     until: number,
   ): End {
     const declared: End | undefined = StrikingRecord.of(segment.plan)?.limb;

@@ -1,6 +1,7 @@
 import { physicalHullFaces, physicalHullNearest } from "@automovie/engine";
 import { AutoMovieHumanCanonicalSolids } from "@automovie/human";
 import type {
+  IAutoMovieHumanBindBone,
   IAutoMovieHumanCanonicalSolids,
   IAutoMovieHumanSkeleton,
   IAutoMovieVector3,
@@ -50,7 +51,7 @@ export function test_human_canonical_solids_surface(): void {
       new Map(
         input.bones.map(
           (
-            bone: IAutoMovieHumanSkeleton.IBone,
+            bone: IAutoMovieHumanBindBone,
           ): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
             bone.bone,
             {

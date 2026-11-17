@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieCaptureSubject,
+  IAutoMovieInspectionDrawable,
   IAutoMovieMark,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -30,7 +30,7 @@ export function measureAutoMovieInspectionPaths(props: {
 
   /** Whether a path is measured. */
   choose: (path: string) => boolean;
-}): IAutoMovieCaptureSubject.IDrawable[] {
+}): IAutoMovieInspectionDrawable[] {
   const boxes: Map<string, THREE.Box3> = new Map<string, THREE.Box3>();
   const box: (path: string) => THREE.Box3 = (path: string): THREE.Box3 => {
     let found: THREE.Box3 | undefined = boxes.get(path);

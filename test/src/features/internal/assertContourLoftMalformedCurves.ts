@@ -1,7 +1,8 @@
 import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   IAutoMovieContourLoft64,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,16 +24,19 @@ export function assertContourLoftMalformedCurves(
   admissionSections: IAutoMovieContourLoft64.ISection[],
   complete: IAutoMovieContourLoft64.IInterval[],
 ): void {
-  const originalCurve: IAutoMovieCurve64.Cubic =
+  const originalCurve: IAutoMovieCubicBezierCurve64 =
     admissionSections[0].loops[1].curve;
 
   /** Replace only caller-owned first-point data; untouched spans remain the same mathematical fixture. */
-  const firstPointCurve: (point: O.V) => IAutoMovieCurve64.Cubic = (
+  const firstPointCurve: (point: O.V) => IAutoMovieCubicBezierCurve64 = (
     point: O.V,
-  ): IAutoMovieCurve64.Cubic => ({
+  ): IAutoMovieCubicBezierCurve64 => ({
     ...originalCurve,
     spans: originalCurve.spans.map(
-      (span: IAutoMovieCurve64.Span, i: number): IAutoMovieCurve64.Span =>
+      (
+        span: AutoMovieCubicBezierControls3,
+        i: number,
+      ): AutoMovieCubicBezierControls3 =>
         i === 0 ? [point, span[1], span[2], span[3]] : span,
     ),
   });
@@ -55,19 +59,19 @@ export function assertContourLoftMalformedCurves(
 
   sparseStorage[2] = -1;
 
-  const missingPhases: IAutoMovieCurve64.Cubic = { ...originalCurve };
+  const missingPhases: IAutoMovieCubicBezierCurve64 = { ...originalCurve };
 
   const missingMetadata: { phaseIntervals?: readonly number[] } = missingPhases;
 
   delete missingMetadata.phaseIntervals;
 
-  const invalidPhases: IAutoMovieCurve64.Cubic = { ...originalCurve };
+  const invalidPhases: IAutoMovieCubicBezierCurve64 = { ...originalCurve };
 
   const invalidMetadata: { phaseIntervals: unknown } = invalidPhases;
 
   invalidMetadata.phaseIntervals = {};
 
-  const wrongUnit: IAutoMovieCurve64.Cubic = { ...originalCurve };
+  const wrongUnit: IAutoMovieCubicBezierCurve64 = { ...originalCurve };
 
   const unitMetadata: { unit: string } = wrongUnit;
 
@@ -75,7 +79,7 @@ export function assertContourLoftMalformedCurves(
 
   const invalidCurves: {
     name: string;
-    curve: IAutoMovieCurve64.Cubic;
+    curve: IAutoMovieCubicBezierCurve64;
     diagnosticPoints: number;
   }[] = [
     {

@@ -1,7 +1,8 @@
 import type {
   IAutoMoviePhysicalHullFaces,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeSurfaceAnchor,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -21,16 +22,18 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalShapeSurfaceAnchor(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   normal: IAutoMovieVector3,
 ): IAutoMoviePhysicalShapeSurfaceAnchor.IResult {
   const world: IAutoMovieVector3 = Quaternion.rotateVector(
     pose.rotation,
     Vector3.normalize(normal),
   );
-  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(pose.rotation, shape.transform.rotation);
+  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    pose.rotation,
+    shape.transform.rotation,
+  );
   const direction: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(rotation),
     world,

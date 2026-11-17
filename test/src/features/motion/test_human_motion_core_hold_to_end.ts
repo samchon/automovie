@@ -1,6 +1,7 @@
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -42,12 +43,12 @@ export function test_human_motion_core_hold_to_end(): void {
     { x: 0, y: 0, z: 0 },
     0,
   );
-  const side: IAutoMovieMotionHumanHand.Side = "right";
+  const side: AutoMovieHumanSide = "right";
   const place = {
     point: { x: -0.2, y: 0.95, z: 0.4 },
     normal: { x: 0, y: 1, z: 0 },
   };
-  const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanArm.goal(
+  const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArm.goal(
     body,
     side,
     AutoMovieMotionHumanTarget.hand(body, quiet, side, place, {
@@ -64,7 +65,7 @@ export function test_human_motion_core_hold_to_end(): void {
       resolveHumanPosture(body, quiet),
       side,
     ),
-    goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
+    goal: (): IAutoMovieHumanLimbGoal => goal,
     weight: (seconds: number): number => Math.min(1, seconds / span.ready),
     span,
   });

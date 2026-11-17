@@ -1,6 +1,13 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
-/** Data and callback contracts shared by the SolidFoot operations. */
+/**
+ * Data and callback contracts shared by the SolidFoot operations.
+ *
+ * @evidence contracts/development/design.md#principled-representation IFoot reports a locally admitted stationary chart point and its world-mm point/distance from the query target.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface SolidFoot supplies this result to trim and intersection readers without another point representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A local stationary solution is not a global nearest-point guarantee, and finite/regular admission belongs to the solver.
+ * @evidence contracts/development/common.md#meaningful-documentation Separates chart coordinates from world-mm separation.
+ */
 export namespace IAutoMovieSolidFoot {
   /**
    * A locally accepted stationary foot and its world separation from the target.

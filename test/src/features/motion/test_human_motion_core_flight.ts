@@ -114,7 +114,7 @@ export function test_human_motion_core_flight(): void {
       ...(tucked ? { layers: { a: [tuck] } } : {}),
     });
   const span = (p: IAutoMovieMotionHumanPerformance): [number, number] => {
-    const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+    const s: IAutoMovieMotionHumanSegment = p.segments("a")[1]!;
     const at = (n: string): number =>
       s.start +
       s.plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === n)!

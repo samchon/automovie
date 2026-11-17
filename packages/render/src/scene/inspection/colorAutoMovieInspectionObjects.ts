@@ -1,4 +1,7 @@
-import type { IAutoMovieInspectionRequest } from "@automovie/interface";
+import type {
+  AutoMovieInspectionShade,
+  IAutoMovieInspectionColorAssignment,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import {
@@ -29,10 +32,10 @@ export function colorAutoMovieInspectionObjects(props: {
   meshes: readonly { path: string; mesh: THREE.Mesh }[];
 
   /** The shade the picture is drawn in. */
-  shade: IAutoMovieInspectionRequest.Shade;
+  shade: AutoMovieInspectionShade;
 
   /** The request's colours. */
-  color: readonly IAutoMovieInspectionRequest.IColor[];
+  color: readonly IAutoMovieInspectionColorAssignment[];
 }): () => void {
   const swaps: {
     mesh: THREE.Mesh;

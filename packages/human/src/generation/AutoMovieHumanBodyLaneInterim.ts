@@ -5,7 +5,7 @@ import type {
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanLegWalk,
   IAutoMovieHumanLimbSources,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanTrunkLaws,
   IAutoMovieHumanTrunkSolution,
   IAutoMovieHumanTrunkViewLaws,
@@ -118,7 +118,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
         get foot(): IAutoMovieHumanBodyLane.ISide["foot"] {
           return input.sources.leg(name).foot();
         },
-        get footDefinition(): IAutoMovieHumanSiteViewPart.IDefinition {
+        get footDefinition(): IAutoMovieHumanSourceDefinition {
           return input.sources.leg(name).definition();
         },
         get fingers(): IAutoMovieHumanBodyLane.IDigit[] {
@@ -155,7 +155,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
         },
         bindLeg(
           side: "left" | "right",
-          parent: IAutoMovieHumanSiteViewPart.IDefinition,
+          parent: IAutoMovieHumanSourceDefinition,
           station: number,
         ): IAutoMovieHumanLegWalk.IDefinition {
           return sides[side].leg.bind(parent, station);

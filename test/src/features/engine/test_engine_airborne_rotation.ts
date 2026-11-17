@@ -12,9 +12,9 @@ import type {
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolveMomentum,
   IAutoMovieResolvedBone,
   IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
@@ -229,7 +229,7 @@ export function test_engine_airborne_rotation(): void {
   const layoutShape: Bones = layout();
 
   // 1. Rigid, momentum along each principal axis: constant rate L / I.
-  const principal: IAutoMovieResolveMomentum.IPrincipal =
+  const principal: IAutoMoviePrincipalTensorFrame =
     resolveAutoMovieMomentum.principal(
       resolveAutoMovieMomentum.inertia(model, rest),
     );

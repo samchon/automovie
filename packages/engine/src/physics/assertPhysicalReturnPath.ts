@@ -1,8 +1,11 @@
 import type {
   IAutoMoviePhysicalHandoff,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalMaterial,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
@@ -42,19 +45,19 @@ export function assertPhysicalReturnPath(
   const seconds: number = tick / nativeRate;
   const poses: Record<
     string,
-    Record<string, IAutoMoviePhysicalProfile.ITransform>
+    Record<string, IAutoMovieRigidTransform>
   > = Object.fromEntries(
     [...bound.segments].map(
       ([id, segments]: [string, Map<string, RigidBody>]): [
         string,
-        Record<string, IAutoMoviePhysicalProfile.ITransform>,
+        Record<string, IAutoMovieRigidTransform>,
       ] => [
         id,
         Object.fromEntries(
           [...segments].map(
             ([bone, rigid]: [string, RigidBody]): [
               string,
-              IAutoMoviePhysicalProfile.ITransform,
+              IAutoMovieRigidTransform,
             ] => [
               bone,
               {
@@ -80,11 +83,11 @@ export function assertPhysicalReturnPath(
       ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
         body.profile.segments.flatMap(
           (
-            segment: IAutoMoviePhysicalProfile.ISegment,
+            segment: IAutoMoviePhysicalSegment,
           ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
             segment.shapes.map(
               (
-                shape: IAutoMoviePhysicalProfile.IShape,
+                shape: IAutoMoviePhysicalShape,
               ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
                 body: body.id,
                 bone: segment.bone,
@@ -117,10 +120,8 @@ export function assertPhysicalReturnPath(
           ),
         );
         const fade: number = 2 * fraction ** 3 - 3 * fraction ** 2 + 1;
-        const parent: IAutoMoviePhysicalProfile.ITransform =
-          poses[body.id]![joint.parent]!;
-        const child: IAutoMoviePhysicalProfile.ITransform =
-          poses[body.id]![joint.child]!;
+        const parent: IAutoMovieRigidTransform = poses[body.id]![joint.parent]!;
+        const child: IAutoMovieRigidTransform = poses[body.id]![joint.child]!;
         const distance: number = Vector3.length(
           Vector3.subtract(
             physicalSupportPoint(parent, joint.parentFrame.position),
@@ -152,7 +153,7 @@ export function assertPhysicalReturnPath(
           throw new Error(
             `Physical return violates joint anchor envelope: ${body.id}/${joint.id} at ${seconds}: ${distance} m`,
           );
-        const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        const relative: IAutoMovieRigidTransform["rotation"] =
           Quaternion.multiply(
             Quaternion.inverse(
               Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
@@ -192,9 +193,9 @@ export function assertPhysicalReturnPath(
           input.contactTolerance! +
           body.handoffLimits!.maximumLinearError *
             (2 * fraction ** 3 - 3 * fraction ** 2 + 1);
-        const material: IAutoMoviePhysicalProfile.IMaterial =
+        const material: IAutoMoviePhysicalMaterial =
           body.profile.materials.find(
-            (candidate: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+            (candidate: IAutoMoviePhysicalMaterial): boolean =>
               candidate.id === source.shape.material,
           )!;
         const clearance: number =
@@ -221,11 +222,11 @@ export function assertPhysicalReturnPath(
             )!;
           const compression: number =
             (body.profile.materials.find(
-              (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+              (material: IAutoMoviePhysicalMaterial): boolean =>
                 material.id === source.shape.material,
             )?.maximumCompression ?? 0) +
             (other.profile.materials.find(
-              (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+              (material: IAutoMoviePhysicalMaterial): boolean =>
                 material.id === receiver.shape.material,
             )?.maximumCompression ?? 0);
           const contact: ReturnType<

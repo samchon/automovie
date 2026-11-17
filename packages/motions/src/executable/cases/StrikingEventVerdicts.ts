@@ -25,7 +25,7 @@ export namespace StrikingEventVerdicts {
    */
   export function defence(
     id: string,
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
   ): IMotionCaptureCase.IVerdict {
     const name: string = `${id} ${segment.id} defence`;
     const read: number | undefined = StrikingVerdicts.at(segment, "read");

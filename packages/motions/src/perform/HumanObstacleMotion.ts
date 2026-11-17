@@ -2,7 +2,8 @@ import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanProp,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -41,7 +42,7 @@ export namespace HumanObstacleMotion {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function footprint(
-    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
     seconds: number,
   ): readonly IAutoMovieVector3[] {
     if (obstacle.motion === undefined) return obstacle.footprint;
@@ -76,9 +77,9 @@ export namespace HumanObstacleMotion {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+    obstacle: IAutoMovieMotionHumanObstacle,
     seconds: number,
-  ): IAutoMovieMotionHumanObstacle.IObstacle {
+  ): IAutoMovieMotionHumanObstacle {
     if (obstacle.motion === undefined) return obstacle;
     return {
       subject: obstacle.subject,
@@ -111,18 +112,16 @@ export namespace HumanObstacleMotion {
    */
   export function prop(
     prop: IAutoMovieMotionHumanProp,
-  ): IAutoMovieMotionHumanObstacle.IObstacle {
+  ): IAutoMovieMotionHumanObstacle {
     const motion: IAutoMovieMotionHumanProp["motion"] = prop.motion;
     if (motion === undefined)
       throw new Error(
         `The prop ${prop.subject} has no motion: a still prop is an obstacle by HumanObstacle.object`,
       );
-    const still: IAutoMovieMotionHumanObstacle.IObstacle = HumanObstacle.object(
+    const still: IAutoMovieMotionHumanObstacle = HumanObstacle.object(
       prop.subject,
       {
-        shapes: (): IAutoMoviePhysicalProfile.IShape[] => [
-          ...(prop.shapes ?? []),
-        ],
+        shapes: (): IAutoMoviePhysicalShape[] => [...(prop.shapes ?? [])],
       },
       { at: { x: 0, y: 0, z: 0 }, yaw: 0 },
     );
@@ -131,10 +130,7 @@ export namespace HumanObstacleMotion {
       motion: (
         seconds: number,
       ): { position: IAutoMovieVector3; yaw: number } => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = motion.call(
-          prop,
-          seconds,
-        );
+        const frame: IAutoMovieRigidTransform = motion.call(prop, seconds);
         const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
           frame.rotation,
           { x: 0, y: 0, z: 1 },

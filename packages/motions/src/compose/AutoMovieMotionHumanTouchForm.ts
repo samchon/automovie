@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanTouchForm,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -162,12 +162,12 @@ export namespace AutoMovieMotionHumanTouchForm {
     normal: IAutoMovieVector3,
     yaw: number,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
       yaw,
     };

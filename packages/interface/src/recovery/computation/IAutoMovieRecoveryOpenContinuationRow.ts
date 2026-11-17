@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryOpenSlabGraph } from "../../index";
+import type { IAutoMovieRecoveryOpenArcIncidence } from "./IAutoMovieRecoveryOpenArcIncidence";
 
 /** Transient source support for one saved open-section row.
  *
@@ -9,7 +9,7 @@ import type { IAutoMovieRecoveryOpenSlabGraph } from "../../index";
  */
 export interface IAutoMovieRecoveryOpenContinuationRow {
   /** Observed open arcs with private source support. */
-  arcs: IAutoMovieRecoveryOpenSlabGraph.Arc[];
+  arcs: IAutoMovieRecoveryOpenArcIncidence[];
 
   /** Saved coefficient ordinal corresponding to each observed arc. */
   ordinals: number[];

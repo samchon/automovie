@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import {
   HumanChain,
@@ -58,8 +58,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_sync_cues(): void {
   const FRAME: number = 1 / 24;
   const cues: {
-    dialogue: IAutoMovieResolveSchedule.ICue[];
-    music: IAutoMovieResolveSchedule.ICue[];
+    dialogue: IAutoMovieScheduleCue[];
+    music: IAutoMovieScheduleCue[];
   } = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
     music: HumanCue.beats({ bpm: 96, count: 16 }),
@@ -82,7 +82,7 @@ export function test_human_motion_sync_cues(): void {
       composition: composition.node,
     });
   const instant = (
-    segment: IAutoMovieMotionHumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     event: string,
   ): number =>
     segment.start +
@@ -108,12 +108,12 @@ export function test_human_motion_sync_cues(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
     // 1. The stroke meets the accent, and the stand gives way where needed.
-    const waved: readonly IAutoMovieMotionHumanSegment.ISegment[] = perform(
+    const waved: readonly IAutoMovieMotionHumanSegment[] = perform(
       { a: body },
       waving(0),
     ).segments("a");
-    const stood: IAutoMovieMotionHumanSegment.ISegment | undefined = waved[0];
-    const wave: IAutoMovieMotionHumanSegment.ISegment | undefined = waved[1];
+    const stood: IAutoMovieMotionHumanSegment | undefined = waved[0];
+    const wave: IAutoMovieMotionHumanSegment | undefined = waved[1];
     const met: number = instant(wave!, "strokeStart");
     if (!(Math.abs(met - 2.0) <= FRAME))
       complaints.push(
@@ -129,7 +129,7 @@ export function test_human_motion_sync_cues(): void {
       );
 
     // 2. Moving the cue moves the action and nothing else.
-    const later: IAutoMovieMotionHumanSegment.ISegment = perform(
+    const later: IAutoMovieMotionHumanSegment = perform(
       { a: body },
       waving(1),
     ).segments("a")[1]!;
@@ -146,7 +146,7 @@ export function test_human_motion_sync_cues(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
 
   // 3. A cut on a beat.
-  const cut: IAutoMovieMotionHumanSegment.ISegment = perform(
+  const cut: IAutoMovieMotionHumanSegment = perform(
     { a: body },
     HumanChain.subject("a")
       .stand({ seconds: 5 })
@@ -190,17 +190,14 @@ export function test_human_motion_sync_cues(): void {
     other: IAutoMovieMotionHumanPerformance,
   ): boolean =>
     ["a", "b"].every((subject: string): boolean => {
-      const here: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const here: readonly IAutoMovieMotionHumanSegment[] =
         one.segments(subject);
-      const there: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      const there: readonly IAutoMovieMotionHumanSegment[] =
         other.segments(subject);
       return (
         here.length === there.length &&
         here.every(
-          (
-            segment: IAutoMovieMotionHumanSegment.ISegment,
-            index: number,
-          ): boolean =>
+          (segment: IAutoMovieMotionHumanSegment, index: number): boolean =>
             segment.name === there[index]!.name &&
             Math.abs(segment.entryTime - there[index]!.entryTime) <= 1e-9 &&
             Math.abs(segment.end - there[index]!.end) <= 1e-9,
@@ -268,10 +265,10 @@ export function test_human_motion_sync_cues(): void {
     );
 
   // 7. The tracks.
-  const beats: IAutoMovieResolveSchedule.ICue[] = cues.music.filter(
+  const beats: IAutoMovieScheduleCue[] = cues.music.filter(
     (c): boolean => c.name === "beat",
   );
-  const downs: IAutoMovieResolveSchedule.ICue[] = cues.music.filter(
+  const downs: IAutoMovieScheduleCue[] = cues.music.filter(
     (c): boolean => c.name === "downbeat",
   );
   if (

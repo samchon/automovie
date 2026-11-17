@@ -1,4 +1,13 @@
-/** Type contracts exchanged by AutoMovieHumanHeadArcs; runtime evaluation remains in Human. */
+/**
+ * Six named head measurement courses, each expressed as a millimetre arc length.
+ *
+ * The interface package owns these declarations; AutoMovieHumanHeadArcs in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Six named head measurement courses, each expressed as a millimetre arc length. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IArcs declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IArcs separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadArcs exchanges the named IArcs contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanHeadArcs {
   /** The six arcs, mm.
    *

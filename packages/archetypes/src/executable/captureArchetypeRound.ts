@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieCaptureCellRecord,
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
@@ -170,15 +171,15 @@ export async function captureArchetypeRound(manifest: string): Promise<void> {
           failures: record.rows
             .filter(
               (
-                row: IAutoMovieCaptureRecord.Row,
+                row: IAutoMovieCaptureCellRecord,
               ): row is Extract<
-                IAutoMovieCaptureRecord.Row,
+                IAutoMovieCaptureCellRecord,
                 { state: "failed" }
               > => row.state === "failed",
             )
             .map(
               (
-                row: Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }>,
+                row: Extract<IAutoMovieCaptureCellRecord, { state: "failed" }>,
               ): string => row.cause,
             ),
         });

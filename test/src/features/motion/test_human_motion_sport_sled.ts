@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSignature,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -120,10 +121,7 @@ export function test_human_motion_sport_sled(): void {
       seconds <= placed.end;
       seconds += 0.25
     ) {
-      const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-        "sled",
-        seconds,
-      );
+      const frame: IAutoMovieRigidTransform = performance.prop("sled", seconds);
       for (const side of ["left", "right"] as const) {
         const handle: IAutoMovieVector3 = Vector3.add(
           frame.position,
@@ -184,10 +182,7 @@ export function test_human_motion_sport_sled(): void {
       complaints.push(
         `${name}: the trunk leans only ${upright.toFixed(1)} degrees from vertical, at least 15 expected`,
       );
-    const end: IAutoMovieMotionHumanProp.IFrame = performance.prop(
-      "sled",
-      placed.end,
-    );
+    const end: IAutoMovieRigidTransform = performance.prop("sled", placed.end);
     if (!(end.position.z - 0.55 >= 2))
       complaints.push(
         `${name}: the sled moves ${mm(end.position.z - 0.55)} mm forward, at least 2000 mm expected`,

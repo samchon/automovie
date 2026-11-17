@@ -10,8 +10,8 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanHand, HumanVerdicts } from "@automovie/motions";
@@ -101,9 +101,7 @@ export function test_human_motion_recompose_upper_phrase(): void {
           params,
           held.includes(row.name),
         );
-        const s: IAutoMovieMotionHumanSegment.ISegment = p
-          .segments("a")
-          .at(-1)!;
+        const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
         if (s.name !== row.name) {
           complaints.push(`${name} ${row.name}: placed as ${s.name}`);
           continue;
@@ -227,7 +225,7 @@ export function test_human_motion_recompose_upper_phrase(): void {
               mouth,
               p.bones("a", t).get(mouth.bone)!,
             ).point;
-          const f: IAutoMovieMotionHumanProp.IFrame = p.prop("stick", t);
+          const f: IAutoMovieRigidTransform = p.prop("stick", t);
           const tip: IAutoMovieVector3 = Vector3.add(
             f.position,
             Quaternion.rotateVector(f.rotation, end),

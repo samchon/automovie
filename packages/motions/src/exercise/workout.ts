@@ -3,6 +3,7 @@ import type {
   AutoMovieMotionHumanActionKey,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -159,7 +160,7 @@ export namespace workout {
       step.held === true && p.hold !== undefined ? p.hold : step.hold;
 
     // The spans: down from standing, the repetitions, up again.
-    const phases: IAutoMovieMotionClock.IPhase[] = [];
+    const phases: IAutoMovieMotionClockPhase[] = [];
     const spans: ISpan[] = [];
     const held: string[] = [];
     const span = (
@@ -192,7 +193,7 @@ export namespace workout {
     if (!stay) span("release", kind.enter, last, stood);
     const left: IAutoMovieMotionHumanExerciseKey.IKey = stay ? last : stood;
     span("relax", 0, left, left);
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
       { holds: held },

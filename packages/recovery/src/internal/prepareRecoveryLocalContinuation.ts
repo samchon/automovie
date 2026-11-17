@@ -1,6 +1,8 @@
 import type {
   IAutoMovieRecoveryLocalContinuationPreparationOperation,
+  IAutoMovieRecoveryOpenArcAddress,
   IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenContinuationEdge,
 } from "@automovie/interface";
 
 /**
@@ -19,19 +21,12 @@ export function prepareRecoveryLocalContinuation(
   graph: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[1],
   analytic: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[2],
 ): ReturnType<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation> {
-  const key: (
-    n: IAutoMovieRecoveryLocalContinuationPreparationOperation.Node,
-  ) => string = (
-    n: IAutoMovieRecoveryLocalContinuationPreparationOperation.Node,
+  const key: (n: IAutoMovieRecoveryOpenArcAddress) => string = (
+    n: IAutoMovieRecoveryOpenArcAddress,
   ): string => `${n.section}:${n.arc}`;
-  const outgoing: Map<
-      string,
-      IAutoMovieRecoveryLocalContinuationPreparationOperation.Edge
-    > = new Map(),
-    incoming: Map<
-      string,
-      IAutoMovieRecoveryLocalContinuationPreparationOperation.Edge
-    > = new Map();
+  const outgoing: Map<string, IAutoMovieRecoveryOpenContinuationEdge> =
+      new Map(),
+    incoming: Map<string, IAutoMovieRecoveryOpenContinuationEdge> = new Map();
   let pairs: number = 0,
     unsupportedGroups: number = 0,
     unsupportedGroupsWithOpenArcs: number = 0;
@@ -75,13 +70,12 @@ export function prepareRecoveryLocalContinuation(
       if (typeof pair.reverseAfter !== "boolean")
         throw new Error("Endpoint reversal must be explicit");
       if (analytic.openPairs.has(`${i}:${pairOrdinal}`)) continue;
-      const edge: IAutoMovieRecoveryLocalContinuationPreparationOperation.Edge =
-        {
-          before: { section: i, arc: pair.before },
-          after: { section: i + 1, arc: pair.after },
-          reverse: pair.reverseAfter,
-          pairOrdinal,
-        };
+      const edge: IAutoMovieRecoveryOpenContinuationEdge = {
+        before: { section: i, arc: pair.before },
+        after: { section: i + 1, arc: pair.after },
+        reverse: pair.reverseAfter,
+        pairOrdinal,
+      };
       if (outgoing.has(key(edge.before)) || incoming.has(key(edge.after)))
         throw new Error(
           "Ordinary open continuation has multiple incident strips",

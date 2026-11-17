@@ -1,22 +1,31 @@
 import type { IAutoMovieViewParallelAxis } from "../../../construction/IAutoMovieViewParallelAxis";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanDigitWalk } from "../limb/IAutoMovieHumanDigitWalk";
-import type { IAutoMovieHumanSiteViewPart } from "../limb/IAutoMovieHumanSiteViewPart";
+import type { IAutoMovieHumanSectionSource } from "../limb/IAutoMovieHumanSectionSource";
+import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 import type { IAutoMovieHumanToeVertical } from "./IAutoMovieHumanToeVertical";
 
-/** Type contracts exchanged by AutoMovieHumanToePart; runtime evaluation remains in Human. */
+/**
+ * Foot-axis toe originals and shared millimetre coordinate sources, with optional parent-derived vertical laws.
+ *
+ * The interface package owns these declarations; AutoMovieHumanToePart in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Foot-axis toe originals and shared millimetre coordinate sources, with optional parent-derived vertical laws. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IInput, ISource, IDefinition declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IInput, ISource, IDefinition separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanToePart exchanges the named IInput, ISource, IDefinition contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanToePart {
   /**
    * The toe's original point course and foot-axis section laws, calibration mm.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps generating centres and apex separate from the fixed directions that own their measured across/depth chart.
-   * @evidence contracts/common.md#clear-and-simple-design Point course, one foot direction and site laws are the complete source input.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No point is labeled as an observed MTP/PIP/DIP or recovered from a loft.
-   * @evidence contracts/common.md#meaningful-documentation Members state units, station meaning and the distal apex's separate ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The input type declares no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The source builder owns preparation and sharing.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The generating caller owns the points and laws during the synchronous build.
-   *
+   * Keeps generating centres and apex separate from the fixed directions that own their measured across/depth chart.
+   * Point course, one foot direction and site laws are the complete source input.
+   * No point is labeled as an observed MTP/PIP/DIP or recovered from a loft.
+   * Members state units, station meaning and the distal apex's separate ownership.
+   * The input type declares no algorithm.
+   * The source builder owns preparation and sharing.
+   * The generating caller owns the points and laws during the synchronous build.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The toe's original point course and foot-axis section laws, calibration mm.
    * @evidence contracts/development/design.md#principled-representation `name`: Anatomical source name, toe.left.1 through toe.right.5. `centres`: Named generating points on the plan-affine hidden-start-to-apex course and the declared height source; not measured joints. `apex`: Declared generated skin apex; no further pulp reach is added.
@@ -46,7 +55,7 @@ export namespace IAutoMovieHumanToePart {
     law: IAutoMovieHumanDigitWalk.IInput["law"];
 
     /** Optional closed scalar source bounds in that same up/across chart. */
-    ranges: IAutoMovieHumanSiteViewPart.IInput["ranges"];
+    ranges: IAutoMovieHumanSectionSource["ranges"];
 
     /** Section control count and ring phase count. */
     order: number;
@@ -63,7 +72,7 @@ export namespace IAutoMovieHumanToePart {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanToePart.source. Also types AutoMovieHumanToePart.declaration.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `origin`; callers supply the complete record.
    */
-  export interface ISource extends IAutoMovieHumanSiteViewPart.IInput {
+  export interface ISource extends IAutoMovieHumanSectionSource {
     /** Original coordinate curves; the same mm clock owns this origin and the signed radial curves. */
     origin: IAutoMovieViewParallelAxis.IOrigin;
   }
@@ -76,7 +85,7 @@ export namespace IAutoMovieHumanToePart {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanToePart.define.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts `origin`: Present on success; absent on an input/axis failure.
    */
-  export interface IDefinition extends IAutoMovieHumanSiteViewPart.IDefinition {
+  export interface IDefinition extends IAutoMovieHumanSourceDefinition {
     /** Present on success; absent on an input/axis failure. */
     origin?: IAutoMovieViewParallelAxis.IOrigin;
   }

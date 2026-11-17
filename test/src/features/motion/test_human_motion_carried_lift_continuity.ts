@@ -89,7 +89,7 @@ export function test_human_motion_carried_lift_continuity(): void {
         );
         continue;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("b")[0]!;
       const spans: [number, number][] = [
         [placed.start, placed.start + lift],

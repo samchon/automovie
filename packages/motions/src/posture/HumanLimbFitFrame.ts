@@ -1,8 +1,8 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLimbFitFrame,
-  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -41,7 +41,7 @@ export namespace HumanLimbFitFrame {
    */
   export function of(
     pose: IAutoMoviePose,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    goal: IAutoMovieHumanLimbGoal,
   ): IAutoMovieMotionHumanLimbFitFrame.IFrame | null {
     if (
       pose.root === null ||
@@ -113,8 +113,8 @@ export namespace HumanLimbFitFrame {
    */
   export function goal(
     frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
     return {
       ...goal,
       point: point(frame, goal.point),

@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTarget } from "./IAutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanTouchUpright } from "./IAutoMovieMotionHumanTouchUpright";
@@ -18,7 +19,7 @@ import type { IAutoMovieMotionHumanTouchUpright } from "./IAutoMovieMotionHumanT
  * @evidence contracts/development/common.md#meaningful-documentation lean: How far the vessel's axis leans from where the grasp holds it toward the region, degrees. bend: The elbow's hint, world metres.
  * @evidence contracts/development/design.md#principled-representation lean: How far the vessel's axis leans from where the grasp holds it toward the region, degrees. bend: The elbow's hint, world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.drinking, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.admitted, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.held, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.held.found.later, phase); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.trial, after); compose/AutoMovieMotionHumanTouchDrink.ts (AutoMovieMotionHumanTouchDrink.drinking, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture.IGoal, IAutoMovieVector3, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget.IPlace identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieHumanLimbGoal, IAutoMovieVector3, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget.IPlace identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanTouchDrink {
   /**
@@ -35,7 +36,7 @@ export namespace IAutoMovieMotionHumanTouchDrink {
     lean: number;
 
     /** The wrist's goal at that lean: its point, its rotation, the elbow's hint and the vessel's point as the contact, world. */
-    goal: IAutoMovieMotionHumanPosture.IGoal;
+    goal: IAutoMovieHumanLimbGoal;
   }
 
   /**

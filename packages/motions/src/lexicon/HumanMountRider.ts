@@ -5,13 +5,14 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -70,10 +71,10 @@ export namespace HumanMountRider {
   export function ankled(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    goal: IAutoMovieHumanLimbGoal,
     hip: IAutoMovieVector3,
     level: IAutoMovieQuaternion,
-  ): IAutoMovieMotionHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const reach: number =
       (body.measure.thigh + body.measure.shank) *
       Math.cos((KNEE * Math.PI) / 360);
@@ -91,7 +92,7 @@ export namespace HumanMountRider {
       y: 0,
       z: 0,
     });
-    const turnedBy = (degrees: number): IAutoMovieMotionHumanPosture.IGoal => {
+    const turnedBy = (degrees: number): IAutoMovieHumanLimbGoal => {
       const pitched: IAutoMovieQuaternion = Quaternion.multiply(
         Quaternion.fromAxisAngle(across, degrees),
         rotation,
@@ -269,10 +270,10 @@ export namespace HumanMountRider {
     side: "left" | "right",
     posture: IAutoMovieMotionHumanPosture,
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
-    shapes: readonly IAutoMoviePhysicalProfile.IShape[],
-    frame: IAutoMovieMotionHumanProp.IFrame,
+    shapes: readonly IAutoMoviePhysicalShape[],
+    frame: IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanPosture["joints"] {
-    const arm: IAutoMovieMotionHumanPosture.IGoal = hold(
+    const arm: IAutoMovieHumanLimbGoal = hold(
       body,
       side,
       posture,
@@ -282,15 +283,11 @@ export namespace HumanMountRider {
     ).arm;
 
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
-    const near = (shape: IAutoMoviePhysicalProfile.IShape): number =>
+    const near = (shape: IAutoMoviePhysicalShape): number =>
       physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
-    const handle: IAutoMoviePhysicalProfile.IShape | undefined = [
-      ...shapes,
-    ].sort(
-      (
-        a: IAutoMoviePhysicalProfile.IShape,
-        b: IAutoMoviePhysicalProfile.IShape,
-      ): number => near(a) - near(b),
+    const handle: IAutoMoviePhysicalShape | undefined = [...shapes].sort(
+      (a: IAutoMoviePhysicalShape, b: IAutoMoviePhysicalShape): number =>
+        near(a) - near(b),
     )[0];
     if (handle === undefined) return {};
     return HumanGrip.close(

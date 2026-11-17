@@ -115,7 +115,7 @@ export namespace baseball {
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: 0.8,
         attack: 0.3,

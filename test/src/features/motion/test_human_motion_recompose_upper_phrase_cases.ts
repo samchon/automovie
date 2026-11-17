@@ -97,9 +97,7 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
           held.includes(row.name),
           "left",
         );
-        const s: IAutoMovieMotionHumanSegment.ISegment = p
-          .segments("a")
-          .at(-1)!;
+        const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
         if (s.name !== row.name) {
           complaints.push(`${name} left ${row.name}: placed as ${s.name}`);
           continue;

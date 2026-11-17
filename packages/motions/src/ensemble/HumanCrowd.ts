@@ -71,7 +71,7 @@ export namespace HumanCrowd {
       "gait" | "latency" | "flight"
     >,
   ): IAutoMovieMotionHumanCrowd.IDesired {
-    const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+    const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
       m.proficiency,
       ensemble.input.seed,
     );
@@ -186,9 +186,7 @@ export namespace HumanCrowd {
     const obstacles: IAutoMovieCrowdAgent.IObstacle[] = (
       request.obstacles ?? []
     ).map(
-      (
-        o: IAutoMovieMotionHumanObstacle.IObstacle,
-      ): IAutoMovieCrowdAgent.IObstacle => ({
+      (o: IAutoMovieMotionHumanObstacle): IAutoMovieCrowdAgent.IObstacle => ({
         footprint: o.footprint,
         ...(o.motion === undefined ? {} : { motion: o.motion }),
       }),

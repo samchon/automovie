@@ -1,4 +1,6 @@
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
+import type { IAutoMoviePlanarHermiteKnot } from "./IAutoMoviePlanarHermiteKnot";
+import type { IAutoMovieScalarHermiteKnot } from "./IAutoMovieScalarHermiteKnot";
 
 /**
  * Mesh slicing and Hermite reduction records used to author construction profiles.
@@ -11,42 +13,6 @@ import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
  * @evidence contracts/development/common.md#meaningful-documentation Mesh slicing and Hermite reduction records used to author construction profiles. Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
  */
 export namespace IAutoMovieMeshExtract {
-  /**
-   * A triangle mesh in millimetres: flat xyz positions, three indices per triangle.
-   *
-   * @evidence contracts/development/design.md#principled-representation The indexed triangle list every mesh producer here emits.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two flat arrays, borrowed, so a loader's typed arrays pass without copying.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no admission; indices in range are a producer premise.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the unit and the array layout.
-   */
-  export interface IMesh {
-    /** Flat positions, three numbers per vertex, millimetres. */
-    positions: ArrayLike<number>;
-
-    /** Flat triangle indices, three per triangle. */
-    indices: ArrayLike<number>;
-  }
-
-  /**
-   * An orthonormal frame: origin and three unit axes.
-   *
-   * @evidence contracts/development/design.md#principled-representation Sections are cut normal to one axis; the next two axes in cyclic order span the section plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface An origin and an axis triple, the whole of a rigid frame.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Orthonormality is a producer premise and is not re-checked.
-   * @evidence contracts/development/common.md#meaningful-documentation States the in-plane axis convention at outline.
-   */
-  export interface IFrame {
-    /**
-     * Section-frame origin in the input mesh's coordinate frame, millimetres.
-     */
-    origin: AutoMovieVector3Tuple;
-
-    /**
-     * Three orthonormal unit directions expressed in the mesh frame; outline assumes rather than validates orthonormality.
-     */
-    axes: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple];
-  }
-
   /**
    * One extreme point of a section along an in-plane direction.
    *
@@ -63,159 +29,6 @@ export namespace IAutoMovieMeshExtract {
 
     /** Its reach along the direction from the station's axis point, millimetres. */
     reach: number;
-  }
-
-  /**
-   * One chained piece of a section: the crossings of consecutive triangles in order.
-   *
-   * @evidence contracts/development/design.md#principled-representation Crossings are chained through the mesh edges they lie on, which two adjacent triangles share on a manifold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface In-plane coordinates ready for reduceLoop, with a closed flag.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An open chain stays open; no gap is bridged.
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinates' axes and origin.
-   */
-  export interface ILoop {
-    /**
-     * The chain's points as `[a, b]` millimetres about the station's axis
-     * point, `a` and `b` the section's in-plane axes (see {@link ISection.extremes});
-     * coincident consecutive crossings are merged, a closed loop's last point
-     * is not repeated.
-     */
-    points: [number, number][];
-
-    /** Whether the chain closes on itself; an open chain is a hole, gap or broken slice. */
-    closed: boolean;
-  }
-
-  /**
-   * The section at one station.
-   *
-   * Section arrays transfer to the caller, but extrema may share point tuples and outer boundaries may reuse loop points. Flags also include bridged gap lengths and chains still unclosed after bridging; an empty cut has empty arrays, null extremes and no flags.
-   *
-   * @evidence contracts/development/design.md#principled-representation Holds the exact cut's crossing count, chained loops, eight extremes and flags.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record per station, in station order.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Flags report artifacts; nothing is excluded on the caller's behalf.
-   * @evidence contracts/development/common.md#meaningful-documentation States the direction names and every flag.
-   */
-  export interface ISection {
-    /** The station along the frame axis, millimetres from the origin. */
-    station: number;
-
-    /** Intersection points found (zero when the plane misses the mesh). */
-    count: number;
-
-    /** The cut's chained pieces, closed loops and open chains alike, each oriented by the triangles' winding. */
-    loops: IAutoMovieMeshExtract.ILoop[];
-
-    /**
-     * The cut's outer boundaries, largest enclosed area first: the closed
-     * pieces after open chains were joined end to end across gaps up to the
-     * bridge (each bridged gap flagged), less every piece enclosed by another
-     * (eyes, teeth, a mouth bag). Disjoint bodies (two legs) give one each; a
-     * reference with holes and slits still gives its outer contour here.
-     */
-    outer: IAutoMovieMeshExtract.ILoop[];
-
-    /**
-     * Extremes along `+a`, `-a`, `+b`, `-b` (a and b the two in-plane frame
-     * axes after the station axis in cyclic order: for axis 1 they are axes 2
-     * and 0), and the quarter diagonals `(+a+b)`, `(+a-b)`, `(-a+b)`, `(-a-b)`
-     * over the square root of two; null when the plane misses.
-     */
-    extremes: Record<
-      "+a" | "-a" | "+b" | "-b" | "+a+b" | "+a-b" | "-a+b" | "-a-b",
-      IAutoMovieMeshExtract.IExtreme
-    > | null;
-
-    /**
-     * Why this sample cannot be trusted as it stands, empty when sound: "open"
-     * when the cut leaves dangling crossings (a hole, a gap or a broken slice
-     * of the mesh; the flag names the dangling crossings and broken chains),
-     * "jump <direction>" when an extreme leaves the mean of its two
-     * neighbouring stations' by more than the tolerance (a spike or saw
-     * tooth). A flagged sample is to be checked in the viewer or excluded.
-     */
-    flags: string[];
-  }
-
-  /**
-   * One knot of a reduced run: station, value and slope.
-   *
-   * @evidence contracts/development/design.md#principled-representation A cubic Hermite knot; consecutive knots define one span through hermite.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dense index beside the knot's data lets a caller trace it to its sample and flags.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The value is the dense sample's own; the slope is fitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States which members are measured and which fitted.
-   */
-  export interface IKnot {
-    /** Index of the dense point it sits on, in the caller's array (excluded samples counted). */
-    index: number;
-
-    /**
-     * Station in the input run's station unit (millimetres for section measurements); retained in original order.
-     */
-    s: number;
-
-    /**
-     * Original dense scalar value in the input value unit; knot removal changes slopes, not this sample.
-     */
-    value: number;
-
-    /** Slope d value / d station, fitted to the dense samples of its two spans; zero at a prominent extremum. */
-    slope: number;
-  }
-
-  /**
-   * One knot of a reduced loop: point, tangent and chord parameter.
-   *
-   * @evidence contracts/development/design.md#principled-representation A planar cubic Hermite knot on the dense loop's chord-length parameter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dense index and parameter beside the point and tangent.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the dense sample's own; the tangent is fitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the parameter and which members are fitted.
-   */
-  export interface ILoopKnot {
-    /** Index of the dense point it sits on, in the caller's array (excluded samples counted). */
-    index: number;
-
-    /**
-     * Cumulative chord length in the loop's length unit, millimetres for extracted sections; excluded samples do not contribute.
-     */
-    t: number;
-
-    /**
-     * Copied dense [a,b] sample in the loop's plane and length unit, millimetres for extracted sections.
-     */
-    point: [number, number];
-
-    /** Tangent d point / d t, fitted to the dense samples of its two spans; its axis component is zero at an axis extreme. */
-    tangent: [number, number];
-  }
-
-  /**
-   * One station's reduced closed loop, as `AutoMovieMeshExtract.reduceLoop` returns it, at
-   * its station: the input of `AutoMovieMeshExtract.profileCurve`.
-   *
-   * profileCurve borrows this record during preparation and copies coordinates into its closure. At least two stations in increasing order are required; finite coordinates and consistent positive loop periods remain caller obligations.
-   *
-   * @evidence contracts/development/design.md#principled-representation Pairs a periodic Hermite knot loop with the station of the plane it lies in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The reduceLoop result is taken as it is, so a modeler's corrected knots pass in the same shape.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no admission; profileCurve checks the station order and knot count.
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinates the points are in.
-   */
-  export interface IStationLoop {
-    /** The station, millimetres along the frame axis. */
-    station: number;
-
-    /** The loop's knots (points in the section's `[a, b]` millimetres about the station's axis point) and its chord length. */
-    loop: {
-      /**
-       * Periodic Hermite knots in section [a,b] millimetres; profileCurve requires at least three, normalizes winding and copies their coordinates.
-       */
-      knots: readonly IAutoMovieMeshExtract.ILoopKnot[];
-
-      /**
-       * Positive finite period in millimetres, including the closing chord; consistent increasing knot parameters are caller premises, not separately admitted by profileCurve.
-       */
-      length: number;
-    };
   }
 
   /**
@@ -250,7 +63,7 @@ export namespace IAutoMovieMeshExtract {
     /**
      * New mutable knots in retained input order, with at least both endpoints; index still addresses the original dense array including excluded samples.
      */
-    knots: IAutoMovieMeshExtract.IKnot[];
+    knots: IAutoMovieScalarHermiteKnot[];
 
     /**
      * Largest absolute scalar residual at retained dense stations, in the input value unit; excluded samples and between-sample extrema are not measured.
@@ -281,7 +94,7 @@ export namespace IAutoMovieMeshExtract {
     /**
      * New mutable periodic Hermite knots in input loop order, at least four; point and tangent tuples are copied and the closing point is not repeated.
      */
-    knots: IAutoMovieMeshExtract.ILoopKnot[];
+    knots: IAutoMoviePlanarHermiteKnot[];
 
     /**
      * Sum of the retained dense loop's chord lengths including closure, in its coordinate unit; this is the Hermite period, not fitted-curve arc length.

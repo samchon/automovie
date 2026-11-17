@@ -1,5 +1,6 @@
 import {
   type IAutoMovieHingedArmSwivel,
+  type IAutoMovieHingedChainGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -72,7 +73,7 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function branches(
-    chain: IAutoMovieHingedArmSwivel.IChain,
+    chain: IAutoMovieHingedChainGeometry,
   ): IAutoMovieHingedArmSwivel.IStop[] | null {
     const root: IAutoMovieVector3 = chain.upper.worldPosition;
     if (
@@ -165,7 +166,7 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the branch's mid rotation, line and aim in the returned function only.
    */
   export function pose(
-    chain: IAutoMovieHingedArmSwivel.IChain,
+    chain: IAutoMovieHingedChainGeometry,
     theta: number,
   ): IAutoMovieHingedArmSwivel.IPoseResult {
     const { lower, line, aim } = aimed(chain, theta);
@@ -193,7 +194,7 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(
-    chain: IAutoMovieHingedArmSwivel.IChain,
+    chain: IAutoMovieHingedChainGeometry,
     upper: IAutoMovieQuaternion,
     theta: number,
   ): number {
@@ -213,7 +214,7 @@ export namespace hingedArmSwivel {
 
   /** The mid rotation, the root-to-effector line in the root's frame and the aim at a hinge angle. */
   function aimed(
-    chain: IAutoMovieHingedArmSwivel.IChain,
+    chain: IAutoMovieHingedChainGeometry,
     theta: number,
   ): {
     lower: IAutoMovieQuaternion;

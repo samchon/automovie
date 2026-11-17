@@ -6,10 +6,11 @@ import {
   resolveAutoMovieZone,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
   IAutoMovieResolveFraming,
   IAutoMovieResolveRelationalGoal,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,15 +31,19 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  */
 export function test_composition_relations(): void {
   const { profile } = PhysicalModelFixtures.stickman();
-  const neutral = (offset: IAutoMovieVector3): Record<string, P.ITransform> =>
+  const neutral = (
+    offset: IAutoMovieVector3,
+  ): Record<string, IAutoMovieRigidTransform> =>
     Object.fromEntries(
-      profile.segments.map((s: P.ISegment): [string, P.ITransform] => [
-        s.bone,
-        {
-          position: Vector3.add(s.neutral.position, offset),
-          rotation: { ...s.neutral.rotation },
-        },
-      ]),
+      profile.segments.map(
+        (s: IAutoMoviePhysicalSegment): [string, IAutoMovieRigidTransform] => [
+          s.bone,
+          {
+            position: Vector3.add(s.neutral.position, offset),
+            rotation: { ...s.neutral.rotation },
+          },
+        ],
+      ),
     );
   const body = (
     offset: (seconds: number) => IAutoMovieVector3,
@@ -88,7 +93,7 @@ export function test_composition_relations(): void {
   const hand = (
     result: IAutoMovieResolveRelationalGoal.IResult,
   ): IAutoMovieVector3 => {
-    const pose: P.ITransform = result.targets.rightHand!;
+    const pose: IAutoMovieRigidTransform = result.targets.rightHand!;
     return Vector3.add(
       pose.position,
       Quaternion.rotateVector(pose.rotation, { x: -0.05, y: 0, z: 0 }),

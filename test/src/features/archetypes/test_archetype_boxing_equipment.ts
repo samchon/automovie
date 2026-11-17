@@ -7,7 +7,8 @@ import {
 import { physicalShapeSegmentDistance } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -144,7 +145,7 @@ export function test_archetype_boxing_equipment(): void {
   const bag: ReturnType<typeof createHeavyBag> = createHeavyBag({}, 4);
   if (archetypeExtent(bag, "y").high > 1e-9)
     findings.push("a part of the bag stands above its hook");
-  const origin: IAutoMoviePhysicalProfile.ITransform = {
+  const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
@@ -156,7 +157,7 @@ export function test_archetype_boxing_equipment(): void {
     return bag
       .shapes()
       .some(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+        (shape: IAutoMoviePhysicalShape): boolean =>
           physicalShapeSegmentDistance(origin, shape, at, at) <= 1e-9,
       );
   };

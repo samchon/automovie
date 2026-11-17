@@ -60,7 +60,7 @@ export function test_motion_compose_manner(): void {
     float: (index: number): number => (index === 0 ? 0.75 : 0.25),
   } as unknown as IAutoMovieRandom;
   const resolve = (
-    manner: IAutoMovieMotionManner.IManner,
+    manner: IAutoMovieMotionManner,
   ): IAutoMovieMotionManner.IModifiers =>
     AutoMovieMotionManner.resolve(manner, random);
   const free = AutoMovieMotionClock.phrase({
@@ -105,7 +105,7 @@ export function test_motion_compose_manner(): void {
   );
 
   // 3. The clock.
-  const instants = (clock: IAutoMovieMotionClock.IClock): number[] => [
+  const instants = (clock: IAutoMovieMotionClock): number[] => [
     ...AutoMovieMotionClock.PHRASE.map((name: string): number =>
       clock.at(name),
     ),

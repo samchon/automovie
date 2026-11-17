@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanHand,
@@ -110,7 +111,7 @@ export namespace gestureStroke {
    */
   export function hand(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     u: number,
     cycles: number,
     input: IAutoMovieMotionHumanGestureStroke.IInput,
@@ -119,7 +120,7 @@ export namespace gestureStroke {
     const m = body.measure;
     const sign: number = side === "left" ? 1 : -1;
     const L: number = m.upperArm + m.forearm;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: input.base.root,
       yaw: input.base.yaw,
     };

@@ -2,8 +2,12 @@ import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieDerivePhysicalProfile,
   IAutoMovieModel,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -38,7 +42,7 @@ export function derivePhysicalProfile(
 ): IAutoMoviePhysicalProfile {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const transforms: Map<string, IAutoMoviePhysicalProfile.ITransform> =
+  const transforms: Map<string, IAutoMovieRigidTransform> =
     physicalModelRestTransforms(model);
   const parents: Map<string, string | null> = new Map();
   if (model.skeleton) {
@@ -51,9 +55,9 @@ export function derivePhysicalProfile(
   const root: string = [...parents].find(
     ([, parent]: [string, string | null]): boolean => parent === null,
   )![0];
-  const segments: IAutoMoviePhysicalProfile.ISegment[] = [];
+  const segments: IAutoMoviePhysicalSegment[] = [];
   for (const [bone, neutral] of transforms) {
-    const override: IAutoMoviePhysicalProfile.ISegment | undefined =
+    const override: IAutoMoviePhysicalSegment | undefined =
       options.overrides?.[bone];
     if (override) {
       if (override.bone !== bone)
@@ -70,7 +74,7 @@ export function derivePhysicalProfile(
       center: IAutoMovieVector3;
       extent: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
-      shape: IAutoMoviePhysicalProfile.IShape;
+      shape: IAutoMoviePhysicalShape;
     }[] = [];
     for (const part of parts) {
       if (part.geometry.type !== "primitive")
@@ -140,7 +144,7 @@ export function derivePhysicalProfile(
                       : shape.height / 2) * scale.y,
               z: radius * scale.z,
             };
-      const collider: IAutoMoviePhysicalProfile.IShape =
+      const collider: IAutoMoviePhysicalShape =
         shape.type === "sphere" && scale.x === scale.y && scale.y === scale.z
           ? {
               id: part.id,
@@ -208,13 +212,13 @@ export function derivePhysicalProfile(
       neutral,
       ...aggregate,
       shapes: values.map(
-        (value: (typeof values)[number]): IAutoMoviePhysicalProfile.IShape =>
+        (value: (typeof values)[number]): IAutoMoviePhysicalShape =>
           value.shape,
       ),
     });
   }
   const mass: number = segments.reduce(
-    (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number =>
+    (sum: number, segment: IAutoMoviePhysicalSegment): number =>
       sum + segment.mass,
     0,
   );
@@ -222,7 +226,7 @@ export function derivePhysicalProfile(
     segments.reduce(
       (
         sum: IAutoMovieVector3,
-        segment: IAutoMoviePhysicalProfile.ISegment,
+        segment: IAutoMoviePhysicalSegment,
       ): IAutoMovieVector3 =>
         Vector3.add(
           sum,
@@ -257,7 +261,7 @@ export function derivePhysicalProfile(
     throw new Error(
       "A model profile needs explicit joints or explicit actuator assumptions for its rig",
     );
-  const joints: IAutoMoviePhysicalProfile.IJoint[] =
+  const joints: IAutoMoviePhysicalJoint[] =
     options.joints ??
     (model.skeleton
       ? derivePhysicalModelJoints(model, segments, options.actuator!)

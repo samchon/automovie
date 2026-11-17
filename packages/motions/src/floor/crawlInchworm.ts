@@ -115,7 +115,7 @@ export namespace crawlInchworm {
       (): IAutoMovieMotionHumanPosture =>
         stand.plan({ ...context, params: { seconds: 1 } }).posture(0),
     );
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...standing.root, y: 0 },
       yaw: standing.yaw,
     };

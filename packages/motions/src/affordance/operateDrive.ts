@@ -4,12 +4,14 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionPropDrive,
   IAutoMovieMotionTarget,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -95,9 +97,7 @@ export namespace operateDrive {
     kind: Exclude<IAutoMovieMotionHumanOperate.Mechanism["kind"], "insert">,
   ): IAutoMovieMotionHumanOperateDrive.IPart | undefined {
     if (at.kind !== "prop") return undefined;
-    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(
-      at.subject,
-    );
+    const held: IAutoMovieMotionHumanPropReader = context.prop(at.subject);
     const articulate = held.prop.articulate;
     if (articulate === undefined) return undefined;
     const contact: IAutoMovieAffordance | undefined = (
@@ -147,7 +147,7 @@ export namespace operateDrive {
           (AffordanceArticulation.leader(byId, id) ?? id) !== degree,
       ),
     );
-    const frame: IAutoMovieMotionHumanProp.IFrame = held.frame(context.start);
+    const frame: IAutoMovieRigidTransform = held.frame(context.start);
 
     // A hinge's own line, read off the prop posed where the stroke starts.
     const hinge: IAutoMovieAffordance | undefined = (
@@ -201,7 +201,7 @@ export namespace operateDrive {
           last.seconds === seconds
         )
           return last.place;
-        const shown: IAutoMovieMotionHumanProp.IFrame =
+        const shown: IAutoMovieRigidTransform =
           seconds === undefined ? frame : held.frame(seconds);
         const posed: IAutoMovieMotionHumanProp.IPosed = articulate({
           ...other,
@@ -309,8 +309,8 @@ export namespace operateDrive {
    */
   export function drive(
     part: IAutoMovieMotionHumanOperateDrive.IPart,
-    clock: IAutoMovieMotionClock.IClock,
-  ): IAutoMovieMotionHumanActionPlan.IDrive {
+    clock: IAutoMovieMotionClock,
+  ): IAutoMovieMotionPropDrive {
     return {
       prop: part.prop,
       articulation: part.articulation,

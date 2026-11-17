@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "../../model/IAutoMovieMesh";
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 
 /**
  * Oriented cubic section curves and explicit contour incidence in one physical chart.
@@ -78,7 +78,7 @@ export namespace IAutoMovieContourLoft64 {
     /** Curves with source-independent orientation labels; negative winding denotes a cavity boundary. */
     loops: readonly {
       /** Complete generating cubic curve in the common section chart, millimetres; ownership is independent of source mesh addresses. */
-      curve: IAutoMovieCurve64.Cubic;
+      curve: IAutoMovieCubicBezierCurve64;
       /** Positive outer-boundary or negative cavity orientation in the section's declared cutting-plane frame. */
       winding: 1 | -1;
     }[];

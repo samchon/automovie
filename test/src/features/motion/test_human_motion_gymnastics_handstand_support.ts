@@ -67,8 +67,7 @@ export function test_human_motion_gymnastics_handstand_support(): void {
       );
       continue;
     }
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
 
     // The lowest collider point of the hands and of the feet, metres.
     const lowest = (seconds: number): { hands: number; feet: number } => {

@@ -40,6 +40,14 @@ export namespace IAutoMovieMotionHumanAuditRange {
      * @param subject The person.
      * @param seconds Film seconds, within the motion.
      * @returns The pose, joints in clinical degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditRange.IPosed.pose: A person's displayed pose.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditRange.IPosed.pose is used through packages/motions/src/audit/AutoMovieMotionHumanAuditRange.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditRange.IPosed.pose is used through packages/motions/src/audit/AutoMovieMotionHumanAuditRange.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditRange.IPosed.pose is used through packages/motions/src/audit/AutoMovieMotionHumanAuditRange.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditRange.IPosed.pose is used through packages/motions/src/audit/AutoMovieMotionHumanAuditRange.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditRange.IPosed.pose is used through packages/motions/src/audit/AutoMovieMotionHumanAuditRange.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditRange.IPosed.pose is used through packages/motions/src/audit/AutoMovieMotionHumanAuditRange.ts.
      */
     pose(subject: string, seconds: number): IAutoMoviePose;
   }

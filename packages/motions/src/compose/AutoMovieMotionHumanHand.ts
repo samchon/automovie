@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanHand,
@@ -40,7 +41,7 @@ export namespace AutoMovieMotionHumanHand {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fingers(
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     shape: IAutoMovieMotionHumanHand.Shape,
     curl: number,
     weight: number,
@@ -123,8 +124,8 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function form(
-    clock: IAutoMovieMotionClock.IClock,
-    side: IAutoMovieMotionHumanHand.Side,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     rise: readonly [string, string],
     fall: readonly [string, string],
     asked: IAutoMovieMotionHumanHand.Shape,

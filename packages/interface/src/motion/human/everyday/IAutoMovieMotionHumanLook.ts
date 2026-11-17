@@ -61,21 +61,4 @@ export namespace IAutoMovieMotionHumanLook {
      */
     seconds?: number;
   }
-
-  /**
-   * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s to 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the `reaction` axis (provisional), mu 40 ms lower for an acoustic cue (Welford 1980). Result returned by look.reactionLaw. The parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation mu: Gaussian reaction-delay mean, seconds. sigma: Gaussian reaction-delay standard deviation, seconds. tau: Exponential tail mean, seconds; added to the Gaussian delay for the ex-Gaussian reaction law.
-   * @evidence contracts/development/design.md#principled-representation mu: Gaussian reaction-delay mean, seconds. sigma: Gaussian reaction-delay standard deviation, seconds. tau: Exponential tail mean, seconds; added to the Gaussian delay for the ex-Gaussian reaction law.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/look.ts (look.reactionLaw, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in look.reactionLaw.
-   */
-  export type IReactionLawResult = {
-    /** Gaussian reaction-delay mean, seconds. */
-    mu: number;
-    /** Gaussian reaction-delay standard deviation, seconds. */
-    sigma: number;
-    /** Exponential tail mean, seconds; added to the Gaussian delay for the ex-Gaussian reaction law. */
-    tau: number;
-  };
 }

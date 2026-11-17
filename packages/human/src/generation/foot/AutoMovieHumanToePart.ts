@@ -3,7 +3,9 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionParallelAxis,
   IAutoMovieHumanDigitWalk,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
   IAutoMovieHumanToePart,
   IAutoMovieLoftContract,
   IAutoMovieViewAxis,
@@ -44,7 +46,7 @@ export namespace AutoMovieHumanToePart {
    */
   export function create(
     input: IAutoMovieHumanToePart.IInput,
-  ): IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -64,9 +66,9 @@ export namespace AutoMovieHumanToePart {
   ): IAutoMovieHumanToePart.IDefinition {
     const declaration:
       | IAutoMovieHumanToePart.ISource
-      | IAutoMovieHumanSiteViewPart.IResult = source(input);
+      | IAutoMovieHumanSourceRealization = source(input);
     if ("diagnostics" in declaration) return declaration;
-    const prepared: IAutoMovieHumanSiteViewPart.IDefinition =
+    const prepared: IAutoMovieHumanSourceDefinition =
       AutoMovieHumanSiteViewPart.define(declaration);
     if (prepared.part === null) return prepared;
     const axis: IAutoMovieViewAxis.IAxis | string =
@@ -143,7 +145,7 @@ export namespace AutoMovieHumanToePart {
    */
   export function source(
     input: IAutoMovieHumanToePart.IInput,
-  ): IAutoMovieHumanToePart.ISource | IAutoMovieHumanSiteViewPart.IResult {
+  ): IAutoMovieHumanToePart.ISource | IAutoMovieHumanSourceRealization {
     const points: AutoMovieVector3Tuple[] = [...input.centres, input.apex];
     const first: AutoMovieVector3Tuple = points[0]!;
     const projected: number[] = points.map(
@@ -257,7 +259,7 @@ export namespace AutoMovieHumanToePart {
     const site = (
       name: string,
       station: number,
-    ): IAutoMovieHumanSiteViewPart.ISite => {
+    ): IAutoMovieHumanSectionSite => {
       const law: IAutoMovieHumanDigitWalk.ISiteLaw = input.law(name);
       const vertical: [number, number, number, number] | undefined =
         input.vertical?.at(station);
@@ -276,7 +278,7 @@ export namespace AutoMovieHumanToePart {
           : { jets: law.jets }),
       };
     };
-    const sites: IAutoMovieHumanSiteViewPart.ISite[] = [];
+    const sites: IAutoMovieHumanSectionSite[] = [];
     for (let index: number = 0; index + 1 < input.centres.length; index++) {
       sites.push(
         site(`shaft ${index}`, (stations[index]! + stations[index + 1]!) / 2),

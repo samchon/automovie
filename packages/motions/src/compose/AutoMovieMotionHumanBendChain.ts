@@ -8,10 +8,10 @@ import {
   skeletonJointAxes,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanHand,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -75,7 +75,7 @@ export namespace AutoMovieMotionHumanBendChain {
   export function of(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanBend.ISolve["posture"],
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): IChain | null {
     const axes: ReturnType<typeof skeletonJointAxes> = skeletonJointAxes(
       body.skeleton,

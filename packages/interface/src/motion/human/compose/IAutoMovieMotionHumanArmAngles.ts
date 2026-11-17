@@ -11,7 +11,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  * inverse kinematics: the goal carries the surface as its contact, so where
  * the arm cannot turn the hand as asked the resolver re-aims the wrist until
  * the surface stays on its point and the rotation gives way
- * (`IAutoMovieMotionHumanPosture.IGoal.contact`).
+ * (`IAutoMovieHumanLimbGoal.contact`).
  *
  * Between its origin and its target the surface moves on a straight path,
  * or one that bows to the arm's own side when the movement states a

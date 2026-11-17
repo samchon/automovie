@@ -1,6 +1,15 @@
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 
-/** Type contracts exchanged by AutoMovieHumanTrunkReliefNet; runtime evaluation remains in Human. */
+/**
+ * A trunk-chart base surface and bounded station/phase footprints for local reliefs.
+ *
+ * The interface package owns these declarations; AutoMovieHumanTrunkReliefNet in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A trunk-chart base surface and bounded station/phase footprints for local reliefs. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only Base, IWindow declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation Base, IWindow separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanTrunkReliefNet exchanges the named Base, IWindow contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanTrunkReliefNet {
   /**
    * The chart's base surface: the body point at a station and a phase, with

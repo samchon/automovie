@@ -1,6 +1,14 @@
+import type { IAutoMovieLoftSectionFrame } from "../../construction/IAutoMovieLoftSectionFrame";
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 
-/** Data and callback contracts shared by the MeshCourse operations. */
+/**
+ * Data and callback contracts shared by the MeshCourse operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Course section planes and loop readings use millimetres, radians and dimensionless conic shoulder ratios; normals are world unit vectors. Nullable loops, readings and shoulder measurements preserve missing intersections; structural types cannot enforce all correlated-null or orthogonality premises.
+ * @evidence contracts/development/design.md#principled-representation Course section planes and loop readings use millimetres, radians and dimensionless conic shoulder ratios; normals are world unit vectors.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMeshCourse extracts and measures sections for course inspection using the canonical tuple contract.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Nullable loops, readings and shoulder measurements preserve missing intersections; structural types cannot enforce all correlated-null or orthogonality premises.
+ */
 export namespace IAutoMovieMeshCourse {
   /**
    * One station's section plane: origin on the course, chart axes `u` and
@@ -9,21 +17,12 @@ export namespace IAutoMovieMeshCourse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the units, the orthonormal premise and the normal's orientation.
    * @evidence contracts/development/design.md#principled-representation A course plane is a station with an origin and two chart axes; the normal is derived, so it cannot disagree with them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exactly what a cut and its chart readings consume; the loft's own frame type stays with the loft.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A course cut extends the shared loft section frame with its station label; the same millimetre origin and u/v convention serve both producers.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Orthonormality remains a producer premise, not re-checked; the station is only a label for ordering and interpolation, not assumed to be arclength.
    */
-  export interface IPlane {
+  export interface IPlane extends IAutoMovieLoftSectionFrame {
     /** Station along the course, millimetres (a label; not assumed to be arclength). */
     station: number;
-
-    /** The course point, millimetres. */
-    origin: AutoMovieVector3Tuple;
-
-    /** The chart's first axis, unit. */
-    u: AutoMovieVector3Tuple;
-
-    /** The chart's second axis, unit and square to `u`. */
-    v: AutoMovieVector3Tuple;
   }
 
   /**

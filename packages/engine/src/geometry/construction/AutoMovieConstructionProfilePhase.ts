@@ -1,8 +1,9 @@
 import type {
   IAutoMovieConstructionProfile,
   IAutoMovieConstructionProfilePhase,
+  IAutoMovieConstructionProfilePiece,
   IAutoMovieConstructionProfileSource,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
@@ -12,7 +13,7 @@ type Chart = {
   /** Actual physical station interval, kernel millimetres. */
   domain: [number, number];
   /** Exact original clock interval and direction. */
-  piece: IAutoMovieConstructionProfile.IPiece;
+  piece: IAutoMovieConstructionProfilePiece;
   /** Borrowed immutable generating function owner. */
   curve: IAutoMovieConstructionProfileSource.ICurve;
 };
@@ -74,7 +75,7 @@ export namespace AutoMovieConstructionProfilePhase {
         coordinate > 1
       )
         fail("Original phase query is outside its actual piece chart.");
-      const original: IAutoMovieConstructionProfile.IPiece = chart!.piece;
+      const original: IAutoMovieConstructionProfilePiece = chart!.piece;
       const factor: number =
         original.direction * (original.clock[1] - original.clock[0]);
       const clock: number =
@@ -88,7 +89,7 @@ export namespace AutoMovieConstructionProfilePhase {
       pair(local!.p);
       pair(local!.t);
       if (local!.tt !== null) pair(local!.tt);
-      const frame: IAutoMovieLoftFrame.IFrame = source.plane.axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = source.plane.axis.at(station);
       for (const value of [frame.origin, frame.u, frame.v])
         if (
           !Array.isArray(value) ||

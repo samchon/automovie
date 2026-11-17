@@ -1,7 +1,7 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRest,
   IAutoMovieVector3,
@@ -36,12 +36,11 @@ import { handGoals } from "./handGoals";
 export function restElbowSupport(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-  side: IAutoMovieMotionHumanHand.Side,
+  side: AutoMovieHumanSide,
   chin: IAutoMovieMotionHumanRest.IGoal,
   elbow: IAutoMovieVector3,
 ): IAutoMovieMotionHumanRest.IGoal {
-  const other: IAutoMovieMotionHumanHand.Side =
-    side === "left" ? "right" : "left";
+  const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
   const solved: IAutoMovieMotionHumanPosture = handGoals(
     body,
     {

@@ -1,6 +1,7 @@
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeBounds,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -20,15 +21,17 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 8 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalShapeBounds(
-  pose: IAutoMoviePhysicalProfile.ITransform,
-  shape: IAutoMoviePhysicalProfile.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
 ): IAutoMoviePhysicalShapeBounds.IResult {
   const center: IAutoMovieVector3 = Vector3.add(
     pose.position,
     Quaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
-    Quaternion.multiply(pose.rotation, shape.transform.rotation);
+  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+    pose.rotation,
+    shape.transform.rotation,
+  );
   let extent: IAutoMovieVector3;
   if (shape.kind === "sphere")
     extent = { x: shape.radius, y: shape.radius, z: shape.radius };

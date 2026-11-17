@@ -55,7 +55,7 @@ export function test_human_motion_habit_puffs(): void {
           ],
           composition: HumanChain.subject("a").registered("smoke", {}).node,
         });
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[0]!;
       const at = (event: string): number =>
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??

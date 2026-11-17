@@ -49,7 +49,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motion_compose_moves(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
-  const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(1, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
     { name: "rise", seconds: 0.2 },
     { name: "peak", seconds: 0.4 },
     { name: "fall", seconds: 0.6 },

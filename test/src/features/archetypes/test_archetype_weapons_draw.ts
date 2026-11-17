@@ -9,10 +9,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -123,11 +123,11 @@ export function test_archetype_weapons_draw(): void {
         draw.opening.y - draw.rest.y + Math.abs(draw.tip.y - draw.seat.y);
       // The carrier's origin below its worn opening; the weapon turned point
       // down with its seat on the carrier's rest.
-      const carrier: IAutoMovieMotionHumanProp.IFrame = {
+      const carrier: IAutoMovieRigidTransform = {
         position: Vector3.subtract(draw.at, draw.opening),
         rotation: Quaternion.identity(),
       };
-      const weapon: IAutoMovieMotionHumanProp.IFrame = {
+      const weapon: IAutoMovieRigidTransform = {
         position: Vector3.subtract(
           Vector3.add(carrier.position, draw.rest),
           Quaternion.rotateVector(down, draw.seat),
@@ -183,7 +183,7 @@ export function test_archetype_weapons_draw(): void {
       const shoulder: IAutoMovieVector3 = still
         .bones("a", 0)
         .get("rightUpperArm")!.worldPosition;
-      const carried: IAutoMovieMotionHumanProp.IFrame = still.prop("weapon", 0);
+      const carried: IAutoMovieRigidTransform = still.prop("weapon", 0);
       const grip: IAutoMovieVector3 = Vector3.add(
         carried.position,
         Quaternion.rotateVector(
@@ -214,8 +214,7 @@ export function test_archetype_weapons_draw(): void {
         complaints.push(
           `${name} ${draw.label}: its lifted grip is ${mm(above)} mm above the standing shoulder, beyond the arm and the grip socket's ${mm(arm + socket)} mm, yet the draw planned`,
         );
-      const pick: IAutoMovieMotionHumanSegment.ISegment =
-        film.segments("a")[1]!;
+      const pick: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
       const event = (instant: string): number =>
         pick.start +
         (pick.plan.events.find((e): boolean => e.name === instant)?.share ??
@@ -262,7 +261,7 @@ export function test_archetype_weapons_draw(): void {
         prop: string,
         local: IAutoMovieVector3,
       ): IAutoMovieVector3 => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(prop, after);
+        const frame: IAutoMovieRigidTransform = film.prop(prop, after);
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, local),

@@ -7,11 +7,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolveMomentum,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -145,7 +145,7 @@ export function test_engine_body_momentum(): void {
           Quaternion.fromAxisAngle(axis, (sign * rate * dt * 90) / Math.PI),
           ZERO,
         );
-      const m: IAutoMovieResolveMomentum.IMomentum = resolveAutoMovieMomentum(
+      const m: IAutoMovieBodyMomentum = resolveAutoMovieMomentum(
         model,
         half(-1),
         half(1),
@@ -218,13 +218,12 @@ export function test_engine_body_momentum(): void {
 
       // 5. A uniform translation: p = m v and no angular momentum.
       const v: IAutoMovieVector3 = { x: 0.4, y: -0.3, z: 1.2 };
-      const glide: IAutoMovieResolveMomentum.IMomentum =
-        resolveAutoMovieMomentum(
-          model,
-          bones,
-          moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
-          0.01,
-        );
+      const glide: IAutoMovieBodyMomentum = resolveAutoMovieMomentum(
+        model,
+        bones,
+        moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
+        0.01,
+      );
       const p: IAutoMovieVector3 = Vector3.scale(v, body.profile.mass);
       if (
         !(

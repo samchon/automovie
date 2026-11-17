@@ -1,8 +1,8 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
@@ -45,7 +45,7 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * @evidence contracts/development/common.md#meaningful-documentation side: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation side: The hand; `right` when absent. strategy: How the body lowers; `auto` when absent. hold: Seconds the hand stays at the target; 0.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.bend, params); everyday/bend.ts (bend.plan, context); compose/AutoMovieMotionHumanBend.ts (AutoMovieMotionHumanBend.arm, preset); compose/AutoMovieMotionHumanResolve.ts (AutoMovieMotionHumanResolve.bend, preset).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanBend {
   /**
@@ -64,7 +64,7 @@ export namespace IAutoMovieMotionHumanBend {
     toward: IAutoMovieMotionTarget;
 
     /** The hand; `right` when absent. */
-    side?: IAutoMovieMotionHumanHand.Side;
+    side?: AutoMovieHumanSide;
 
     /** How the body lowers; `auto` when absent. */
     strategy?: IAutoMovieMotionHumanBend.Strategy;
@@ -142,7 +142,7 @@ export namespace IAutoMovieMotionHumanBend {
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>;
 
     /** The arm. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
 
     /** The wrist's place, world metres. */
     point: IAutoMovieVector3;

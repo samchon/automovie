@@ -41,7 +41,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * @evidence contracts/development/common.md#meaningful-documentation bpm: Beats per minute; `BPM` when absent. Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. beats: How many beats; 8 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. lock: A cue track to lock the beats to (#3340, #3378): beat `k` falls on the track's `k`-th instant named `event` (`beat` when absent) at or after the action's start, and the tempo is the mean interval of those instants, so `bpm` is not read. The track is the performance's input, never audio. Unlocked, the beats follow `bpm` from one period after the start.
  * @evidence contracts/development/design.md#principled-representation bpm: Beats per minute; `BPM` when absent. Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. beats: How many beats; 8 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. lock: A cue track to lock the beats to (#3340, #3378): beat `k` falls on the track's `k`-th instant named `event` (`beat` when absent) at or after the action's start, and the tempo is the mean interval of those instants, so `bpm` is not read. The track is the performance's input, never audio. Unlocked, the beats follow `bpm` from one period after the start.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.dance, params); exercise/dance.ts (dance.plan, context); exercise/dance.ts (dance.plan); executable/cases/danceCases.ts (danceCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner.IManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanDance {
   /**
@@ -86,7 +86,7 @@ export namespace IAutoMovieMotionHumanDance {
     side?: "left" | "right";
 
     /** How it is performed. */
-    manner?: IAutoMovieMotionManner.IManner;
+    manner?: IAutoMovieMotionManner;
   }
 
   /**

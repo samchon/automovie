@@ -1,7 +1,7 @@
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalHullMass,
-  IAutoMoviePhysicalPrincipalAxes,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -87,7 +87,7 @@ export function physicalHullMass(
           (row === column ? trace : 0) - value,
       ),
   );
-  const principal: IAutoMoviePhysicalPrincipalAxes.IResult =
+  const principal: IAutoMoviePrincipalTensorFrame =
     physicalPrincipalAxes(tensor);
   return {
     volume,

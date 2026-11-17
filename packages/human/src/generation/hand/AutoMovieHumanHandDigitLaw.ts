@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanArmPrior,
   IAutoMovieHumanHandDigit,
   IAutoMovieHumanHandDigitLaw,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
@@ -88,8 +88,8 @@ export namespace AutoMovieHumanHandDigitLaw {
     const lengths: number[] = [0];
     for (let i: number = 1; i < points.length; i++)
       lengths.push(lengths[i - 1]! + norm(sub(points[i]!, points[i - 1]!)));
-    const line: IAutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
-      (c: number): IAutoMovieNaturalSpline.ISpline =>
+    const line: IAutoMovieNaturalCubicSpline[] = [0, 1, 2].map(
+      (c: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           lengths,
           points.map((p: AutoMovieVector3Tuple): number => p[c]!),

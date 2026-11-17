@@ -2,7 +2,14 @@ import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
-/** Data and callback contracts shared by the MaterializeCompiledInstanceSet operations. */
+/**
+ * Data and callback contracts shared by the MaterializeCompiledInstanceSet operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Compile one world instance set into its compact runtime without expanding it. Member documentation states the supplied records, units and absence meanings used by materializeCompiledInstanceSet.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No expanded population or parallel route schema is introduced; slot regeneration checks route/variation failures, while supplied radii remain unverified host estimates.
+ * @evidence contracts/development/design.md#principled-representation instanceSet supplies placement/variation laws and world supplies routes; optional models and metre-valued projection radii support compact runtime materialization.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieMaterializeCompiledInstanceSet, used by materializeCompiledInstanceSet. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieMaterializeCompiledInstanceSet {
   /**
    * Compile one world instance set into its compact runtime without expanding it.
@@ -21,6 +28,11 @@ export namespace IAutoMovieMaterializeCompiledInstanceSet {
    * can regenerate. Member radii are supplied host estimates that this kernel does not verify against geometry; missing estimates use the base then 0.5m. The digest is SHA-256 over canonical JSON v2 computed without a
    * Node built-in, equal to the Node builder's digest of the same canonical
    * bytes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Compile one world instance set into its compact runtime without expanding it. Member documentation states the supplied records, units and absence meanings used by materializeCompiledInstanceSet.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No expanded population or parallel route schema is introduced; slot regeneration checks route/variation failures, while supplied radii remain unverified host estimates.
+   * @evidence contracts/development/design.md#principled-representation instanceSet supplies placement/variation laws and world supplies routes; optional models and metre-valued projection radii support compact runtime materialization.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieMaterializeCompiledInstanceSet.IProps, used by materializeCompiledInstanceSet. Its instanceSet, world, models, projectionRadii members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Instance set design to compile. */

@@ -1,6 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieSwingTwistRange } from "../../../pose/IAutoMovieSwingTwistRange";
+import type { IAutoMovieJointRotationFrame } from "../../../pose/IAutoMovieJointRotationFrame";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieJointAxes } from "../../../skeleton/IAutoMovieJointAxes";
@@ -19,7 +19,7 @@ import type { IAutoMovieMotionHumanColliders } from "./IAutoMovieMotionHumanColl
  * @evidence contracts/development/common.md#meaningful-documentation constraint: Each joint's range; the elbow's and the wrist's may be absent. tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it.
  * @evidence contracts/development/design.md#principled-representation constraint: Each joint's range; the elbow's and the wrist's may be absent. tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmDifferential.ts (HumanArmDifferential.step, setup); posture/HumanArmFrame.ts (HumanArmFrame.of, setup); posture/HumanArmFrame.ts (HumanArmFrame.built, setup); posture/HumanArmGeometry.ts (HumanArmGeometry.prepare, return); posture/HumanArmGeometry.ts (HumanArmGeometry.rotation, setup); posture/HumanArmGeometry.ts (HumanArmGeometry.clamped, setup).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieSwingTwistRange.IJoint identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointRotationFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanArmGeometry {
   /**
@@ -28,7 +28,7 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    * @evidence contracts/development/common.md#meaningful-documentation constraint: Each joint's range; the elbow's and the wrist's may be absent.
    * @evidence contracts/development/design.md#principled-representation constraint: Each joint's range; the elbow's and the wrist's may be absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmDifferential.ts (HumanArmDifferential.step, setup); posture/HumanArmFrame.ts (HumanArmFrame.of, setup); posture/HumanArmFrame.ts (HumanArmFrame.built, setup); posture/HumanArmGeometry.ts (HumanArmGeometry.prepare, return); posture/HumanArmGeometry.ts (HumanArmGeometry.rotation, setup); posture/HumanArmGeometry.ts (HumanArmGeometry.clamped, setup).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieSwingTwistRange.IJoint identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointRotationFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISetup {
     /** The body. */
@@ -52,7 +52,7 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       hand: IAutoMovieJointConstraint | null;
     };
     /** The shoulder's swing-twist frame. */
-    joint: IAutoMovieSwingTwistRange.IJoint;
+    joint: IAutoMovieJointRotationFrame;
     /** The skeleton's joint axes. */
     axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
     /** Each bone's rest transform from its parent. */

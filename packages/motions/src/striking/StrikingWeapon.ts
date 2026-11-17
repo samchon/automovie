@@ -1,9 +1,10 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -140,7 +141,7 @@ export namespace StrikingWeapon {
     ids: readonly string[];
 
     /** The limb that carries them. */
-    limb: IAutoMovieMotionHumanActionPlan.IWeapon["limb"];
+    limb: IAutoMovieMotionWeaponPath["limb"];
 
     /**
      * One radius per capsule, metres: one number for a capsule of one
@@ -172,13 +173,11 @@ export namespace StrikingWeapon {
    * @returns One weapon per id.
    * @throws {Error} When the radii do not match the ids.
    */
-  export function capsules(
-    chain: IChain,
-  ): IAutoMovieMotionHumanActionPlan.IWeapon[] {
+  export function capsules(chain: IChain): IAutoMovieMotionWeaponPath[] {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
     return chain.ids.map(
-      (id: string, i: number): IAutoMovieMotionHumanActionPlan.IWeapon => ({
+      (id: string, i: number): IAutoMovieMotionWeaponPath => ({
         id,
         limb: chain.limb,
         ...radius(chain.radii[i]!),
@@ -249,7 +248,7 @@ export namespace StrikingWeapon {
   /** A capsule's radius members as a weapon carries them. */
   function radius(
     radii: number | readonly [number, number],
-  ): Pick<IAutoMovieMotionHumanActionPlan.IWeapon, "radius" | "tailRadius"> {
+  ): Pick<IAutoMovieMotionWeaponPath, "radius" | "tailRadius"> {
     return typeof radii === "number"
       ? { radius: radii }
       : { radius: radii[0], tailRadius: radii[1] };
@@ -262,9 +261,9 @@ export namespace StrikingWeapon {
    * @returns The earliest, or null when the weapons met nothing.
    */
   export function first(
-    events: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
-  ): IAutoMovieMotionHumanActionPlan.IContactEvent | null {
-    let best: IAutoMovieMotionHumanActionPlan.IContactEvent | null = null;
+    events: readonly IAutoMovieMotionWeaponContact[],
+  ): IAutoMovieMotionWeaponContact | null {
+    let best: IAutoMovieMotionWeaponContact | null = null;
     for (const e of events)
       if (best === null || e.seconds < best.seconds) best = e;
     return best;

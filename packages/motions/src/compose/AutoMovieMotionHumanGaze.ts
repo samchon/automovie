@@ -91,7 +91,7 @@ export namespace AutoMovieMotionHumanGaze {
    */
   export function glance(
     body: IAutoMovieMotionHumanBody,
-    clock: IAutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     target: IAutoMovieMotionHumanGaze.Frame,

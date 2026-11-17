@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -127,7 +128,7 @@ export function test_human_motion_social_arm_wrestle(): void {
         for (const pin of [angle, angle + 5])
           try {
             const pinned: IAutoMovieMotionHumanPerformance = build(pin);
-            const placed: IAutoMovieMotionHumanSegment.ISegment =
+            const placed: IAutoMovieMotionHumanSegment =
               pinned.segments("b")[1]!;
             const seconds: number =
               placed.start +
@@ -158,8 +159,7 @@ export function test_human_motion_social_arm_wrestle(): void {
     b: HumanSignature.of(performance, "b", bodies.b, 0),
   };
   const instant = (who: "a" | "b", event: string): number => {
-    const placed: IAutoMovieMotionHumanSegment.ISegment =
-      performance.segments(who)[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments(who)[1]!;
     return (
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -257,10 +257,10 @@ function dump(posture: IAutoMovieMotionHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [
+          ([limb, goal]: [string, IAutoMovieHumanLimbGoal | undefined]): [
             string,
-            IAutoMovieMotionHumanPosture.IGoal | undefined,
-          ]): [string, object | undefined] => [
+            object | undefined,
+          ] => [
             limb,
             goal === undefined ? goal : { ...goal, clear: undefined },
           ],

@@ -65,9 +65,9 @@ export function test_human_motion_hand_kneeling_rows(): void {
             .registered("kneelSit", {})
             .registered("handOnHeart", {}).node,
         });
-      const settled: IAutoMovieMotionHumanSegment.ISegment =
+      const settled: IAutoMovieMotionHumanSegment =
         performance.segments("a")[0]!;
-      const placed: IAutoMovieMotionHumanSegment.ISegment =
+      const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[1]!;
       const instant = (event: string): number =>
         placed.start +

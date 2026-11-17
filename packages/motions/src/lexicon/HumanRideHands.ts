@@ -3,8 +3,9 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -39,13 +40,13 @@ export namespace HumanRideHands {
      * followed as they move, as a rower leans to the catch the oar's handle
      * comes to (`HumanMountReach.reach`).
      */
-    lean: (film: number, frame: IAutoMovieMotionHumanProp.IFrame) => number;
+    lean: (film: number, frame: IAutoMovieRigidTransform) => number;
 
     /** What a hand holds, where the support has it at a film second in its frame then. */
     gripAt: (
       id: string,
       film: number,
-      frame: IAutoMovieMotionHumanProp.IFrame,
+      frame: IAutoMovieRigidTransform,
     ) => Parameters<typeof HumanMountRider.hold>[3];
 
     /** Each holding hand's fingers, closed on the support's colliders. */
@@ -78,9 +79,9 @@ export namespace HumanRideHands {
       hands?: Partial<Record<"left" | "right", string>>;
     }>,
     on: string,
-    support: IAutoMovieMotionHumanActionContext.IProp,
+    support: IAutoMovieMotionHumanPropReader,
     seated: IAutoMovieMotionHumanPosture,
-    origin: IAutoMovieMotionHumanProp.IFrame,
+    origin: IAutoMovieRigidTransform,
   ): IHands {
     const grips: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
     for (const side of ["left", "right"] as const) {
@@ -119,7 +120,7 @@ export namespace HumanRideHands {
     const gripAt = (
       id: string,
       film: number,
-      frame: IAutoMovieMotionHumanProp.IFrame,
+      frame: IAutoMovieRigidTransform,
     ): Parameters<typeof HumanMountRider.hold>[3] => {
       const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
         support.prop.points[id]!;
@@ -158,10 +159,7 @@ export namespace HumanRideHands {
     };
 
     // The lean at a film second: what the hands hold then, carried back into the frame the rider sat down in, where the circles of `reach` were read.
-    const lean = (
-      film: number,
-      frame: IAutoMovieMotionHumanProp.IFrame,
-    ): number => {
+    const lean = (film: number, frame: IAutoMovieRigidTransform): number => {
       const back: IAutoMovieQuaternion = Quaternion.multiply(
         origin.rotation,
         Quaternion.inverse(frame.rotation),

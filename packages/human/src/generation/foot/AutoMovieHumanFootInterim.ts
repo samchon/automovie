@@ -11,7 +11,7 @@ import type {
   IAutoMovieHumanFootToeSources,
   IAutoMovieHumanLegWalk,
   IAutoMovieHumanSiteControls,
-  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSourceDefinition,
   IAutoMovieHumanToePart,
   IAutoMovieLoftContract,
 } from "@automovie/interface";
@@ -192,13 +192,13 @@ export namespace AutoMovieHumanFootInterim {
       scale,
     );
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-    let retained: IAutoMovieHumanSiteViewPart.IDefinition | undefined;
+    let retained: IAutoMovieHumanSourceDefinition | undefined;
     return {
       foot,
       controls,
       toes: AutoMovieHumanFootToeSources.create(foot, controls),
       diagnostics,
-      definition(): IAutoMovieHumanSiteViewPart.IDefinition {
+      definition(): IAutoMovieHumanSourceDefinition {
         retained ??= AutoMovieHumanSiteViewPart.fromControls(controls);
         return retained;
       },

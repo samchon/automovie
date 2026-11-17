@@ -1,7 +1,8 @@
 import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
 import type {
   IAutoMovieMotionAudit,
-  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -49,7 +50,7 @@ export async function test_physical_compression_audit(): Promise<void> {
       rate: 120,
       floor: 0,
       allowed: (): boolean => false,
-      sample: (): IAutoMoviePhysicsCache.IFrame => ({
+      sample: (): IAutoMoviePhysicalFrame => ({
         seconds: 0,
         bodies: {
           ball: {
@@ -180,14 +181,14 @@ export async function test_physical_compression_audit(): Promise<void> {
       rate: 120,
       floor: -10,
       allowed: (): boolean => false,
-      sample: (): IAutoMoviePhysicsCache.IFrame => ({
+      sample: (): IAutoMoviePhysicalFrame => ({
         seconds: 0,
         bodies: Object.fromEntries(
           bodies.map(
             (
               body: IAutoMovieMotionAudit.IBody,
               index: number,
-            ): [string, Record<string, IAutoMoviePhysicsCache.ISegment>] => [
+            ): [string, Record<string, IAutoMoviePhysicalSegmentState>] => [
               body.id,
               {
                 root: {

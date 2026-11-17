@@ -1,6 +1,15 @@
 import type { IAutoMovieHumanLegAxis } from "./IAutoMovieHumanLegAxis";
 
-/** Type contracts exchanged by AutoMovieHumanLegCentreLine; runtime evaluation remains in Human. */
+/**
+ * Neighbouring ring centroids and forward mass offsets used to place the leg's section chart origins.
+ *
+ * The interface package owns these declarations; AutoMovieHumanLegCentreLine in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Neighbouring ring centroids and forward mass offsets used to place the leg's section chart origins. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IAnchor, IInput, OfResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IAnchor, IInput, OfResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanLegCentreLine exchanges the named IAnchor, IInput, OfResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanLegCentreLine {
   /** A centroid the line passes through.
    *
@@ -47,7 +56,7 @@ export namespace IAutoMovieHumanLegCentreLine {
     mass: readonly {
       /** Bone-relative station of this centre-line control, in the containing line's declared coordinate. */
       at: number;
-      /** Lateral displacement of the centre line at this station, millimetres. */
+      /** Forward displacement along the section frame's u axis at this station, millimetres. */
       offset: number;
     }[];
   }

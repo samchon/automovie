@@ -1,5 +1,6 @@
 import type {
-  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
   IAutoMovieHumanConstructionPath,
   IAutoMovieHumanLoftMesh,
   IAutoMovieHumanSurfaceContext,
@@ -35,7 +36,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
    */
   export function contact(
     context: IAutoMovieHumanSurfaceContext,
-    event: IAutoMovieHumanBodyCalibration.IEvent,
+    event: IAutoMovieHumanBranchEvent,
   ): void {
     const parent: IAutoMovieLoftChain = chain(context, event.parent);
     const parentEnd: "bottom" | "top" =
@@ -56,7 +57,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
     });
 
     const children: { name: string; arcs: number[][] }[] = event.splits.map(
-      (split: IAutoMovieHumanBodyCalibration.ISplit) => ({
+      (split: IAutoMovieHumanBranchSplit) => ({
         name: split.child,
         arcs: split.arcs.map((arc: [number, number]): number[] =>
           arcVertices(ring, phases, arc),

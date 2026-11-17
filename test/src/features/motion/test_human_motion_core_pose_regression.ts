@@ -7,7 +7,8 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -116,14 +117,11 @@ function tolerance(body: IAutoMovieMotionHumanBody, bone: string): number {
       ? ["Metacarpal", "Proximal", "Distal"]
       : ["Proximal", "Intermediate", "Distal"]
   ).map((part: string): string => `${side}${digit[2]}${part}`);
-  const capsule: IAutoMoviePhysicalProfile.IShape | undefined =
-    body.profile.segments
-      .find(
-        (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === chain[2],
-      )
-      ?.shapes.find(
-        (s: IAutoMoviePhysicalProfile.IShape): boolean => s.kind === "capsule",
-      );
+  const capsule: IAutoMoviePhysicalShape | undefined = body.profile.segments
+    .find((s: IAutoMoviePhysicalSegment): boolean => s.bone === chain[2])
+    ?.shapes.find(
+      (s: IAutoMoviePhysicalShape): boolean => s.kind === "capsule",
+    );
 
   // The distal phalanx reaches its tip at its capsule's far end.
   const tip: number =

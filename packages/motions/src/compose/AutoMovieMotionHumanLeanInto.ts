@@ -182,7 +182,7 @@ export namespace AutoMovieMotionHumanLeanInto {
       pitch,
       tip,
       primitive: (
-        clock: IAutoMovieMotionClock.IClock,
+        clock: IAutoMovieMotionClock,
       ): IAutoMovieMotionHumanPrimitive => ({
         channels: ["root", "trunk"],
         from: 0,

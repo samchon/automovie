@@ -1,7 +1,9 @@
 import type {
   IAutoMovieIntent,
+  IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
-  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleCue,
   IAutoMovieScheduleCut,
   IAutoMovieScheduleError,
   IAutoMovieScheduleWalk,
@@ -47,9 +49,9 @@ export namespace AutoMovieScheduleCut {
   export function of(
     walk: IAutoMovieScheduleWalk.IWalk,
     intent: IAutoMovieIntent,
-    timing: IAutoMovieResolveSchedule.ITiming,
+    timing: IAutoMovieIntentTiming,
     start: number,
-    context: IAutoMovieResolveSchedule.IContext,
+    context: IAutoMovieScheduleContext,
   ): IAutoMovieScheduleCut.ICut | undefined {
     const until: IAutoMovieIntent["until"] = intent.until;
     if (until === undefined) return undefined;
@@ -74,7 +76,7 @@ export namespace AutoMovieScheduleCut {
       );
       if (share !== undefined) cut = { share };
     } else if ("of" in until) {
-      const events: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
+      const events: readonly IAutoMovieScheduleCue[] | undefined =
         AutoMovieScheduleWalk.instants(walk, until.of);
       if (events === undefined)
         throw new AutoMovieScheduleError(

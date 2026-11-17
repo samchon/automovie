@@ -11,6 +11,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -135,7 +136,7 @@ export namespace HumanPerformanceAim {
         if (moving !== undefined) return moving;
         // A prop the performer carries is read on the performer's own body,
         // as their own region is (`HumanPerformanceRead.prop`).
-        const at: IAutoMovieMotionHumanProp.IFrame = HumanPerformanceRead.prop(
+        const at: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
           self,
           target.subject,
           seconds,

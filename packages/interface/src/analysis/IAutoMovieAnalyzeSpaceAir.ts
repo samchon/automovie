@@ -1,6 +1,13 @@
 import type { IAutoMovieSpaceAirRequest } from "./IAutoMovieSpaceAirRequest";
 
-/** Data and callback contracts shared by the AnalyzeSpaceAir operations. */
+/**
+ * Data and callback contracts shared by the AnalyzeSpaceAir operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Solve one space for ventilation, and refuse to pretend it solved the air. Member documentation states the supplied records, units and absence meanings used by analyzeAutoMovieSpaceAir.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No velocity-field or stagnation surrogate is added to the zone request; these remain unsupported, and zero-flow steady concentration is an explicit gap.
+ * @evidence contracts/development/design.md#principled-representation request supplies the canonical zone volume, flow and occupancy quantities; analyzeAutoMovieSpaceAir validates them before reporting zone-average rates and concentration.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieAnalyzeSpaceAir, used by analyzeAutoMovieSpaceAir. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieAnalyzeSpaceAir {
   /**
    * Solve one space for ventilation, and refuse to pretend it solved the air.
@@ -26,6 +33,11 @@ export namespace IAutoMovieAnalyzeSpaceAir {
    * returned run is always `solved` and carries no spatial samples.
    *
    * Finite admitted inputs can still overflow or underflow intermediate arithmetic; a nonfinite metric throws through the shared builder instead of becoming a fabricated measurement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Solve one space for ventilation, and refuse to pretend it solved the air. Member documentation states the supplied records, units and absence meanings used by analyzeAutoMovieSpaceAir.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No velocity-field or stagnation surrogate is added to the zone request; these remain unsupported, and zero-flow steady concentration is an explicit gap.
+   * @evidence contracts/development/design.md#principled-representation request supplies the canonical zone volume, flow and occupancy quantities; analyzeAutoMovieSpaceAir validates them before reporting zone-average rates and concentration.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieAnalyzeSpaceAir.IProps, used by analyzeAutoMovieSpaceAir. Its request members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Study to solve; validated in full before any arithmetic. */

@@ -1,6 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanAirborneShape,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
@@ -116,7 +118,7 @@ export namespace HumanAirborneShape {
     const legs: boolean = Object.keys(joints).some((b: string): boolean =>
       b.endsWith("Leg"),
     );
-    const claimed: readonly IAutoMovieMotionHumanPosture.Limb[] = legs
+    const claimed: readonly AutoMovieHumanLimb[] = legs
       ? ["leftLeg", "rightLeg"]
       : ["leftArm", "rightArm"];
     return {
@@ -136,8 +138,8 @@ export namespace HumanAirborneShape {
           joints: { ...posture.joints, ...joints },
           limbs,
         };
-        const held: IAutoMovieMotionHumanPosture.Limb[] = claimed.filter(
-          (limb: IAutoMovieMotionHumanPosture.Limb): boolean =>
+        const held: AutoMovieHumanLimb[] = claimed.filter(
+          (limb: AutoMovieHumanLimb): boolean =>
             posture.limbs[limb] !== undefined,
         );
         if (held.length === 0) return shaped;
@@ -164,7 +166,7 @@ export namespace HumanAirborneShape {
             at(middle),
             Vector3.add(top, Vector3.scale(axis, along)),
           );
-          const goal: IAutoMovieMotionHumanPosture.IGoal = posture.limbs[limb]!;
+          const goal: IAutoMovieHumanLimbGoal = posture.limbs[limb]!;
           limbs[limb] = {
             ...goal,
             point: at(end),
@@ -183,7 +185,7 @@ export namespace HumanAirborneShape {
   /** Each limb's upper, middle and end joints' bones. */
   const CHAIN: Readonly<
     Record<
-      IAutoMovieMotionHumanPosture.Limb,
+      AutoMovieHumanLimb,
       readonly [
         AutoMovieHumanoidBone,
         AutoMovieHumanoidBone,

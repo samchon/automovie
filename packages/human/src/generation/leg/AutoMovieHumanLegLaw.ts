@@ -7,7 +7,7 @@ import type {
   IAutoMovieHumanLegLaw,
   IAutoMovieHumanLegPrior,
   IAutoMovieHumanPolarSection,
-  IAutoMovieNaturalSpline,
+  IAutoMovieNaturalCubicSpline,
 } from "@automovie/interface";
 
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
@@ -106,15 +106,13 @@ export namespace AutoMovieHumanLegLaw {
       throw new Error("A leg needs a positive length and positive tapes");
 
     // The prior's channels.
-    const spline = (
-      values: readonly number[],
-    ): IAutoMovieNaturalSpline.ISpline =>
+    const spline = (values: readonly number[]): IAutoMovieNaturalCubicSpline =>
       AutoMovieNaturalSpline.create(prior.stations, values);
-    const shape: IAutoMovieNaturalSpline.ISpline[] = prior.shape[0]!.map(
-      (_: number, k: number): IAutoMovieNaturalSpline.ISpline =>
+    const shape: IAutoMovieNaturalCubicSpline[] = prior.shape[0]!.map(
+      (_: number, k: number): IAutoMovieNaturalCubicSpline =>
         spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
     );
-    const profile: IAutoMovieNaturalSpline.ISpline = spline(prior.profile);
+    const profile: IAutoMovieNaturalCubicSpline = spline(prior.profile);
 
     // Radius keys: the ankle ring's own radius, then each tape against the
     // hull of the section it wraps.
@@ -219,7 +217,7 @@ export namespace AutoMovieHumanLegLaw {
   }
 
   /** The axis's lateral curves, one per term of the prior's line. */
-  export function axisCurves(): IAutoMovieNaturalSpline.ISpline[] {
+  export function axisCurves(): IAutoMovieNaturalCubicSpline[] {
     const prior: IAutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
     return [
       prior.lateral.offset,
@@ -227,14 +225,14 @@ export namespace AutoMovieHumanLegLaw {
       prior.lateral.hip,
       prior.lateral.sex,
     ].map(
-      (values: readonly number[]): IAutoMovieNaturalSpline.ISpline =>
+      (values: readonly number[]): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(prior.stations, values),
     );
   }
 
   /** The axis's place off the midline at fraction u, calibration mm. */
   export function lateral(
-    axis: IAutoMovieNaturalSpline.ISpline[],
+    axis: IAutoMovieNaturalCubicSpline[],
     u: number,
     length: number,
     inputs: IAutoMovieHumanLegConstruction.IInputs,
@@ -260,12 +258,11 @@ export namespace AutoMovieHumanLegLaw {
 
   /** Radii of the area-normalized prior shape at uniform phases. */
   export function unit(
-    shape: IAutoMovieNaturalSpline.ISpline[],
+    shape: IAutoMovieNaturalCubicSpline[],
     u: number,
   ): number[] {
-    const f: number[] = shape.map(
-      (s: IAutoMovieNaturalSpline.ISpline): number =>
-        AutoMovieNaturalSpline.evaluate(s, u),
+    const f: number[] = shape.map((s: IAutoMovieNaturalCubicSpline): number =>
+      AutoMovieNaturalSpline.evaluate(s, u),
     );
     const raw: number[] = AutoMovieHumanLegSampling.PHASES.map(
       (t: number): number => {
@@ -287,7 +284,7 @@ export namespace AutoMovieHumanLegLaw {
     family: IAutoMovieHumanLegLaw.IFamily,
     u: number,
   ): IAutoMovieHumanLegLaw.IBare {
-    const value = (s: IAutoMovieNaturalSpline.ISpline): number =>
+    const value = (s: IAutoMovieNaturalCubicSpline): number =>
       AutoMovieNaturalSpline.evaluate(s, u);
     const L: number = family.length;
     const radii: number[] = unit(family.shape, u);

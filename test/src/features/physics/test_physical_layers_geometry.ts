@@ -4,8 +4,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAuditPhysicalOutcomes,
+  IAutoMoviePhysicalShape,
   IAutoMoviePreparePhysicalGeometry,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export async function test_physical_layers_geometry(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
-  const sphere: P.IShape = {
+  const sphere: IAutoMoviePhysicalShape = {
     kind: "sphere",
     id: "surface",
     radius: 0.1,

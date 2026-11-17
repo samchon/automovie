@@ -2,6 +2,7 @@ import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieAffordanceKind } from "./AutoMovieAffordanceKind";
 import type { AutoMovieGripKind } from "./AutoMovieGripKind";
+import type { IAutoMovieAffordanceCoupling } from "./IAutoMovieAffordanceCoupling";
 
 /**
  * A semantic contact point an object declares in its **own model-local frame**, where another body may rest, grab, plug, or hang, independent of any bone.
@@ -103,48 +104,5 @@ export interface IAutoMovieAffordance {
   /**
    * Another articulation of the same model whose travel sets this one's, for the articulation kinds: a car's road wheels steer as its steering wheel turns, a bow's limbs bend as its string is drawn. This articulation's travel is `ratio` times the leader's, or the piecewise-linear function of the leader's travel that `table` lists. A state names the leader, or a follower whose coupling explicitly permits `reversible` driving. Absent, the articulation is set on its own.
    */
-  follows?: IAutoMovieAffordance.Follows;
-}
-
-/**
- * Companion types of {@link IAutoMovieAffordance}.
- */
-export namespace IAutoMovieAffordance {
-  /**
-   * How a follower's travel is set from its leader's: by a ratio, or by a table of the leader's travel against the follower's.
-   *
-   * `id` names another articulation of the same model. Each follows chain and each rides chain is acyclic, checked separately: travels are resolved before spatial transforms, so a screw's rotation can drive the slider its handle rides. A `ratio` is any finite number, negative for a follower that turns against its leader; every travel it gives over the leader's range lies in the follower's own range. A `table` lists `[leader, follower]` pairs, each in the travel unit of its articulation's kind, the leader's travels strictly increasing from the least of its range to the greatest, and every follower's travel inside the follower's range; between pairs the follower's travel is interpolated linearly. A table need not be monotone: a pistol's hammer falls as its slide returns. With `reversible: true`, a state may instead name this follower: the ratio must be nonzero, or the table's outputs strictly monotone, so its leader travel is unique. A state names only one input per coupled degree of freedom; redundant or conflicting inputs are refused. Engine admission enforces the coupling rules.
-   *
-   * @evidence contracts/development/design.md#principled-representation A one-input map between two articulations' travels, as a linear coupling or a sampled function; the alternatives are the union's two members, each forbidding the other's field, so a record cannot carry both or neither. The id's resolution, the absence of cycles and the ranges are left to engine admission.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the archetypes' articulation pose, which resolves a follower after its leader, and admitted by the engine's affordance articulation validation; the issue's car wheels and bow limbs are its first consumers (#3475).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers and tuples, no wrapper; the two forms are separate members marking the other's field `never`, not two optional fields that could combine.
-   * @evidence contracts/development/common.md#meaningful-documentation States the id, both forms, units and interpolation, separate dependency graphs, optional reversible input and its uniqueness and duplicate-input rules, and admission ownership.
-   */
-  export type Follows =
-    | {
-        /** The leader's affordance id. */
-        id: string;
-
-        /** The follower's travel over the leader's, in the units of the two kinds. */
-        ratio: number;
-
-        /** A ratio is not a table. */
-        table?: never;
-
-        /** Permits the state to name this follower and derive its leader by division; requires a nonzero ratio. Absent or false, only the leader can be driven. */
-        reversible?: boolean;
-      }
-    | {
-        /** The leader's affordance id. */
-        id: string;
-
-        /** `[leader, follower]` travel pairs, the leader's strictly increasing over its whole range. */
-        table: [number, number][];
-
-        /** A table is not a ratio. */
-        ratio?: never;
-
-        /** Permits the state to name this follower and invert the table; requires strictly increasing or strictly decreasing outputs. Absent or false, only the leader can be driven. */
-        reversible?: boolean;
-      };
+  follows?: IAutoMovieAffordanceCoupling;
 }

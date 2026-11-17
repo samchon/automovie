@@ -1,5 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieRecoveryBoundaryCut,
   IAutoMovieRecoveryChartBoundaryNetwork,
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
@@ -70,7 +71,7 @@ export function RecoveryChartBoundaryNetworkRegistry(
     string,
     {
       endpoints: [string, string];
-      values: Map<number, IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut>;
+      values: Map<number, IAutoMovieRecoveryBoundaryCut>;
     }
   > = new Map();
   const insertionKeys: Map<string, { base: string; fraction: number }> =
@@ -126,10 +127,8 @@ export function RecoveryChartBoundaryNetworkRegistry(
         .get(cut.key)!
         .push([cut.pointMm[0], cut.pointMm[1], cut.pointMm[2]]);
       if (!cuts.has(base)) cuts.set(base, { endpoints, values: new Map() });
-      const values: Map<
-        number,
-        IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut
-      > = cuts.get(base)!.values;
+      const values: Map<number, IAutoMovieRecoveryBoundaryCut> =
+        cuts.get(base)!.values;
       if (!values.has(fraction))
         values.set(fraction, {
           key: cut.key,
@@ -137,8 +136,7 @@ export function RecoveryChartBoundaryNetworkRegistry(
           point: [cut.pointMm[0], cut.pointMm[1], cut.pointMm[2]],
           aliases: new Set(),
         });
-      const entry: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut =
-        values.get(fraction)!;
+      const entry: IAutoMovieRecoveryBoundaryCut = values.get(fraction)!;
       entry.aliases.add(cut.key);
       if (cut.key < entry.key) entry.key = cut.key;
     }
@@ -228,17 +226,14 @@ export function RecoveryChartBoundaryNetworkRegistry(
   }
   let maximumPointChange: number = 0;
   const aliases: Map<string, string> = new Map();
-  const orderedCuts: Map<
-    string,
-    IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut[]
-  > = new Map();
+  const orderedCuts: Map<string, IAutoMovieRecoveryBoundaryCut[]> = new Map();
   for (const [base, authority] of cuts)
     orderedCuts.set(
       base,
       [...authority.values.values()].sort(
         (
-          a: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut,
-          b: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut,
+          a: IAutoMovieRecoveryBoundaryCut,
+          b: IAutoMovieRecoveryBoundaryCut,
         ): number => a.fraction - b.fraction,
       ),
     );

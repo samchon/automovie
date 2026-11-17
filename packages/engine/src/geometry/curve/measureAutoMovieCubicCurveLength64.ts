@@ -1,6 +1,7 @@
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
+  IAutoMovieCubicBezierCurve64,
   IAutoMovieCurveLengthMeasurement64,
   IAutoMovieCurveLengthQuadrature64,
 } from "@automovie/interface";
@@ -24,7 +25,7 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary descriptors borrow controls only during the call; the two-scalar result retains no input and the shared owner retains only fixed quadrature constants.
  */
 export function measureAutoMovieCubicCurveLength64(
-  curve: IAutoMovieCurve64.Cubic,
+  curve: IAutoMovieCubicBezierCurve64,
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
   assertAutoMovieCurve64(curve);
@@ -38,7 +39,7 @@ export function measureAutoMovieCubicCurveLength64(
     AutoMovieCurveLengthQuadrature64.measure(
       curve.spans.map(
         (
-          p: IAutoMovieCurve64.Span,
+          p: AutoMovieCubicBezierControls3,
         ): [
           readonly {
             /** Original finite closed parameter interval, admitted by the caller. */

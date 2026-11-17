@@ -3,8 +3,8 @@ import {
   AutoMovieCurveMath64 as V,
 } from "@automovie/engine";
 import type {
+  AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieCurve64,
   IAutoMovieRecoveryEventCurveArc,
   IAutoMovieRecoveryEventCurveCoefficients,
   IAutoMovieRecoveryEventCurvePiece,
@@ -38,7 +38,7 @@ export namespace AutoMovieRecoveryEventCurve {
   export function controls(
     piece: IAutoMovieRecoveryEventCurvePiece,
     nativeEndpoints: boolean = false,
-  ): IAutoMovieCurve64.Span {
+  ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
@@ -55,7 +55,7 @@ export namespace AutoMovieRecoveryEventCurve {
    */
   export function fullparentControls(
     source: IAutoMovieRecoveryEventCurveSource,
-  ): IAutoMovieCurve64.Span {
+  ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveParent(source);
   }
 
@@ -120,7 +120,7 @@ export namespace AutoMovieRecoveryEventCurve {
       closed: curve.closed,
       pieces: curve.spans.map(
         (
-          net: IAutoMovieCurve64.Span,
+          net: AutoMovieCubicBezierControls3,
           i: number,
         ): IAutoMovieRecoveryEventCurvePiece => ({
           width: curve.phaseIntervals[i]!,

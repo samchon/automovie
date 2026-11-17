@@ -1,16 +1,8 @@
-import type { AutoMovieVector3Tuple } from "@automovie/interface";
-
-type Row = { a: number; b: number; face: number };
-type Topology = {
-  edges: Map<string, Row[]>;
-  vertexEdges: string[][];
-  incident: number[][];
-  components: number[][];
-  faceComponent: Int32Array;
-  cycles: number[][];
-  areas: number[];
-  normals: Readonly<AutoMovieVector3Tuple>[];
-};
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDirectedEdgeIncidence,
+  IAutoMovieRecoveryObservedMeshTopology,
+} from "@automovie/interface";
 
 /**
  * Create the feature-cut topology observer with its original failure and edge-key policy.
@@ -29,15 +21,16 @@ export function RecoveryFeatureChartCutsTopology(
 ): (
   vertices: readonly Readonly<AutoMovieVector3Tuple>[],
   triangles: readonly (readonly [number, number, number])[],
-) => Topology {
+) => IAutoMovieRecoveryObservedMeshTopology {
   const analyze: (
     vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
-  ) => Topology = (
+  ) => IAutoMovieRecoveryObservedMeshTopology = (
     vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
-  ): Topology => {
-    const edges: Map<string, Row[]> = new Map(),
+  ): IAutoMovieRecoveryObservedMeshTopology => {
+    const edges: Map<string, IAutoMovieRecoveryDirectedEdgeIncidence[]> =
+        new Map(),
       incident: number[][] = Array.from(vertices, (): number[] => []),
       vertexEdges: string[][] = Array.from(vertices, (): string[] => []);
     const links: Map<number, Set<number>>[] = Array.from(
@@ -87,7 +80,8 @@ export function RecoveryFeatureChartCutsTopology(
             to: number = t[(k + 1) % 3]!,
             other: number = t[(k + 2) % 3]!,
             key: string = edge(from, to),
-            rows: Row[] = edges.get(key) ?? [];
+            rows: IAutoMovieRecoveryDirectedEdgeIncidence[] =
+              edges.get(key) ?? [];
           incident[from]!.push(face);
           rows.push({ a: from, b: to, face });
           edges.set(key, rows);
@@ -107,7 +101,7 @@ export function RecoveryFeatureChartCutsTopology(
     const next: Map<number, number> = new Map(),
       incoming: Set<number> = new Set();
     for (const [key, rows] of edges) {
-      const row: Row = rows[0]!;
+      const row: IAutoMovieRecoveryDirectedEdgeIncidence = rows[0]!;
       vertexEdges[row.a]!.push(key);
       vertexEdges[row.b]!.push(key);
       const p: Readonly<AutoMovieVector3Tuple> = vertices[row.a]!,

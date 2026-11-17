@@ -1,7 +1,8 @@
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLimbFitFrame,
-  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
@@ -104,8 +105,8 @@ export namespace HumanLimbFitMemory {
   export function remembered(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IAutoMovieMotionHumanPosture.Limb,
-    goal: IAutoMovieMotionHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
@@ -133,7 +134,7 @@ export namespace HumanLimbFitMemory {
       HumanLimbFitFrame.of(pose, goal);
     const own: IAutoMoviePose =
       frame === null ? pose : HumanLimbFitFrame.pose(frame, pose);
-    const aim: IAutoMovieMotionHumanPosture.IGoal =
+    const aim: IAutoMovieHumanLimbGoal =
       frame === null ? goal : HumanLimbFitFrame.goal(frame, goal);
     const away: IAutoMovieVector3 | undefined =
       frame === null || rival === undefined

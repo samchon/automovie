@@ -123,7 +123,7 @@ export function test_human_motion_emblem_thumbs(): void {
               .stand({ seconds: 0.3 })
               .registered(row, {}).node,
           });
-        const placed: IAutoMovieMotionHumanSegment.ISegment =
+        const placed: IAutoMovieMotionHumanSegment =
           performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +

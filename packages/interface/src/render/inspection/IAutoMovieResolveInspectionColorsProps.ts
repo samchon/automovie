@@ -1,5 +1,5 @@
 import type { IAutoMovieMark } from "../../index.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import type { IAutoMovieInspectionColorAssignment } from "./IAutoMovieInspectionColorAssignment";
 
 /**
  * Mark-kind defaults, occupied colors and ordered recoloring rules. resolveAutoMovieInspectionColors rejects conflicting label/default-color declarations for one kind and rejects final color collisions with another kind or reserved use. Later matching recolor entries win; returned styles are fresh mutable records.
@@ -22,5 +22,5 @@ export interface IAutoMovieResolveInspectionColorsProps {
   }[];
 
   /** Colours the request gives kinds for this picture, later entries winning. */
-  recolor: readonly IAutoMovieInspectionRequest.IColor[];
+  recolor: readonly IAutoMovieInspectionColorAssignment[];
 }

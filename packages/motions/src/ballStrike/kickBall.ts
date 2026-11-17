@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -184,7 +185,7 @@ export namespace kickBall {
       rotation: hit.rotation,
     };
 
-    const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: 0.35,
         attack: 0.1,
@@ -197,8 +198,7 @@ export namespace kickBall {
     );
     const duration: number = clock.duration;
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const stance: IAutoMovieMotionHumanPosture.IGoal =
-      standing.limbs[`${side}Leg`]!;
+    const stance: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
     // The body stands under the kick, its sway signed in the kicking side's
     // frame, so a left kick mirrors a right one (`stand.plan`).
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(

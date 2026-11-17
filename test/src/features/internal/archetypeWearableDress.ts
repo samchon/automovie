@@ -8,9 +8,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -110,21 +110,17 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
         );
         continue;
       }
-      const act: IAutoMovieMotionHumanSegment.ISegment = film
+      const act: IAutoMovieMotionHumanSegment = film
         .segments("a")
         .find(
-          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-            s.name === "dress",
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "dress",
         )!;
       const stroke: number =
         act.start +
         act.plan.events.find((e): boolean => e.name === "stroke")!.share *
           act.plan.duration;
       const socket = (seconds: number): IAutoMovieVector3 => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
-          "item",
-          seconds,
-        );
+        const frame: IAutoMovieRigidTransform = film.prop("item", seconds);
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, wear),

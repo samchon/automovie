@@ -1,6 +1,7 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionClock } from "../compose/IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
 import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
@@ -16,7 +17,7 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  * @evidence contracts/development/common.md#meaningful-documentation context: Borrowed action body, entry and subject/prop resolvers for the assisting hand. clock: Action-relative clock shared with the primary hand's use. goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
  * @evidence contracts/development/design.md#principled-representation context: Borrowed action body, entry and subject/prop resolvers for the assisting hand. clock: Action-relative clock shared with the primary hand's use. goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHeldUse.ts (HumanHeldUse.kept, kept); handling/HumanHeldUse.ts (HumanHeldUse.key, grasp); handling/HumanHeldUse.ts (HumanHeldUse.second, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGraspUse.IUse, IAutoMovieMotionHumanActionContext, IAutoMovieMotionClock.IClock, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanGrasp.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanGraspUse.IUse, IAutoMovieMotionHumanActionContext, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanGrasp.IKey identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHeldUse {
   /**
@@ -63,7 +64,7 @@ export namespace IAutoMovieMotionHumanHeldUse {
    * @evidence contracts/development/common.md#meaningful-documentation context: Borrowed action body, entry and subject/prop resolvers for the assisting hand. clock: Action-relative clock shared with the primary hand's use. goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
    * @evidence contracts/development/design.md#principled-representation context: Borrowed action body, entry and subject/prop resolvers for the assisting hand. clock: Action-relative clock shared with the primary hand's use. goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanHeldUse.ts (HumanHeldUse.second, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanActionContext, IAutoMovieMotionClock.IClock, IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanGrasp.IKey, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanActionContext, IAutoMovieMotionClock, AutoMovieHumanSide, IAutoMovieMotionHumanGrasp.IKey, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ISecondProps = {
     /** Borrowed action body, entry and subject/prop resolvers for the assisting hand. */
@@ -72,21 +73,41 @@ export namespace IAutoMovieMotionHumanHeldUse {
       "body" | "entry" | "prop" | "start" | "subject"
     >;
     /** Action-relative clock shared with the primary hand's use. */
-    clock: IAutoMovieMotionClock.IClock;
+    clock: IAutoMovieMotionClock;
     /** Primary holding-hand side; the planned assisting hand is the opposite side. */
-    side: IAutoMovieMotionHumanHand.Side;
+    side: AutoMovieHumanSide;
     /** Scene subject id of the prop held by the primary hand. */
     prop: string;
     /** Affordance id grasped by the assisting hand. */
     handle: string;
     /** Primary hand's solved use key; its wrist places the tool while the assisting hand's grasp is chosen. */
     key: IAutoMovieMotionHumanGrasp.IKey;
-    /** Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation. */
+    /**
+     * Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHeldUse.ISecondProps.goal: Retained synchronous callback for the PRIMARY hand's goal at a displayed posture and action-relative second. This goal places the tool and thus the assisting handle; exceptions propagate during evaluation.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHeldUse.ISecondProps.goal is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHeldUse.ISecondProps.goal is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHeldUse.ISecondProps.goal is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHeldUse.ISecondProps.goal is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHeldUse.ISecondProps.goal is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHeldUse.ISecondProps.goal is used through packages/motions/src/handling/HumanHeldUse.ts.
+     */
     goal: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ) => IAutoMovieMotionHumanPosture.IGoal;
-    /** Retained synchronous blend-weight callback in action-relative seconds; returns the assisting hand's dimensionless contribution. */
+    ) => IAutoMovieHumanLimbGoal;
+    /**
+     * Retained synchronous blend-weight callback in action-relative seconds; returns the assisting hand's dimensionless contribution.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanHeldUse.ISecondProps.weight: Retained synchronous blend-weight callback in action-relative seconds; returns the assisting hand's dimensionless contribution.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHeldUse.ISecondProps.weight is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHeldUse.ISecondProps.weight is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHeldUse.ISecondProps.weight is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHeldUse.ISecondProps.weight is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHeldUse.ISecondProps.weight is used through packages/motions/src/handling/HumanHeldUse.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHeldUse.ISecondProps.weight is used through packages/motions/src/handling/HumanHeldUse.ts.
+     */
     weight: (seconds: number) => number;
   };
 }

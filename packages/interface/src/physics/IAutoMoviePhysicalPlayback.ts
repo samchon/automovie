@@ -1,6 +1,8 @@
-import type { IAutoMovieAdvancePhysicalBalance } from "./IAutoMovieAdvancePhysicalBalance";
 import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
-import type { IAutoMoviePhysicsCache } from "./IAutoMoviePhysicsCache";
+import type { IAutoMoviePhysicalFrame } from "./IAutoMoviePhysicalFrame";
+import type { IAutoMoviePhysicalOwnershipEvent } from "./IAutoMoviePhysicalOwnershipEvent";
+import type { IAutoMoviePhysicalRecoveryState } from "./IAutoMoviePhysicalRecoveryState";
+import type { IAutoMoviePhysicalSupportWrench } from "./IAutoMoviePhysicalSupportWrench";
 
 /**
  * Solver-free random-access playback of an admitted complete physical performance.
@@ -26,15 +28,13 @@ export interface IAutoMoviePhysicalPlayback {
   readonly contacts: readonly IAutoMovieContactReceipt[];
 
   /** Borrowed recursively frozen recovery requests, accepted landings and failures keyed by scene body. */
-  readonly recovery: Readonly<
-    Record<string, IAutoMovieAdvancePhysicalBalance.IState>
-  >;
+  readonly recovery: Readonly<Record<string, IAutoMoviePhysicalRecoveryState>>;
 
   /** Borrowed frozen native authority transitions, retaining substep event times independently of cache rounding. */
-  readonly ownership: readonly IAutoMoviePhysicsCache.IOwnership[];
+  readonly ownership: readonly IAutoMoviePhysicalOwnershipEvent[];
 
   /** Borrowed frozen requested/allocated support predictions before motor caps and integration; these do not measure achieved floor load. */
-  readonly supportWrenches: readonly IAutoMoviePhysicsCache.ISupportWrench[];
+  readonly supportWrenches: readonly IAutoMoviePhysicalSupportWrench[];
 
   /** Return the latest actual ownership event for body/bone at or before finite local seconds in [0,duration]. Throws for invalid time or no preceding event; does not reconstruct ownership from authored policy.
    *
@@ -50,7 +50,7 @@ export interface IAutoMoviePhysicalPlayback {
     body: string,
     bone: string,
     seconds: number,
-  ): IAutoMoviePhysicsCache.IOwnership["kind"];
+  ): IAutoMoviePhysicalOwnershipEvent["kind"];
 
   /** Sample finite local seconds in [0,duration] in any order. Linearly interpolate positions and velocities and shortest-arc interpolate rotations between stored frames. Returns a detached mutable frame; out-of-domain time throws.
    *
@@ -62,7 +62,7 @@ export interface IAutoMoviePhysicalPlayback {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
    */
-  at(seconds: number): IAutoMoviePhysicsCache.IFrame;
+  at(seconds: number): IAutoMoviePhysicalFrame;
 }
 
 /** Binary archive metadata retained by a solver-free physical playback reader. */
@@ -100,12 +100,12 @@ export namespace IAutoMoviePhysicalPlayback {
     contacts: IAutoMovieContactReceipt[];
 
     /** Actual recovery controller outcome. */
-    recovery: Record<string, IAutoMovieAdvancePhysicalBalance.IState>;
+    recovery: Record<string, IAutoMoviePhysicalRecoveryState>;
 
     /** Actual native authority, preserved independently of rounded cache frame time. */
-    ownership: IAutoMoviePhysicsCache.IOwnership[];
+    ownership: IAutoMoviePhysicalOwnershipEvent[];
 
     /** Virtual support predictions, not achieved native contact force. */
-    supportWrenches: IAutoMoviePhysicsCache.ISupportWrench[];
+    supportWrenches: IAutoMoviePhysicalSupportWrench[];
   }
 }

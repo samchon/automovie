@@ -163,7 +163,7 @@ export function test_human_motion_layer_windows(): void {
     },
   ]);
   const cue: number = sighing.instant({ of: "bye", event: "strokeEnd" });
-  const wave: IAutoMovieMotionHumanSegment.ISegment = sighing.segments("b")[1]!;
+  const wave: IAutoMovieMotionHumanSegment = sighing.segments("b")[1]!;
   const stroke: number =
     wave.start +
     wave.plan.events.find((e): boolean => e.name === "strokeEnd")!.share *

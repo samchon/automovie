@@ -1,6 +1,7 @@
 import type {
   IAutoMovieConstructionNativeProfile,
   IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileGuide,
   IAutoMovieConstructionProfileSource,
   IAutoMovieLoftSectionJet,
   IAutoMovieLoftSectionPhase,
@@ -93,7 +94,7 @@ export function AutoMovieConstructionNativeProfile(
       },
     ],
     guides: [0, 1, 2, 3].map(
-      (q: number): IAutoMovieConstructionProfile.IGuide => ({
+      (q: number): IAutoMovieConstructionProfileGuide => ({
         id: `${part.name}.guide.${q}`,
         piece: curveId,
         clock: (q * Math.PI) / 2,

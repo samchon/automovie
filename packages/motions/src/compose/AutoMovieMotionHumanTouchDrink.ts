@@ -1,8 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDrinkingArm,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouchDrink,
@@ -79,7 +80,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
   export function drinking(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
@@ -144,7 +145,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
   export function admitted(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
@@ -196,24 +197,23 @@ export namespace AutoMovieMotionHumanTouchDrink {
   export function held(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
   ): IAutoMovieMotionHumanTouchDrink.IHeld {
-    const laid: IAutoMovieMotionHumanPosture.IGoal =
-      AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        posture,
-        side,
-        effector,
-        place,
-        "up",
-        hint,
-        "upright",
-      );
+    const laid: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+      body,
+      posture,
+      side,
+      effector,
+      place,
+      "up",
+      hint,
+      "upright",
+    );
     const contact: IAutoMovieVector3 = laid.contact ?? { x: 0, y: 0, z: 0 };
     const at: IAutoMovieVector3 = Vector3.add(
       laid.point,
@@ -233,7 +233,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
             rotation,
           ),
         );
-        const goal: IAutoMovieMotionHumanPosture.IGoal = {
+        const goal: IAutoMovieHumanLimbGoal = {
           ...laid,
           rotation: turned,
           point: Vector3.subtract(at, Quaternion.rotateVector(turned, contact)),
@@ -243,7 +243,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
         const later = (
           phase: IAutoMovieMotionHumanTouchDrink.IAfter,
         ): IAutoMovieMotionHumanDrinkingArm.IArm => {
-          const there: IAutoMovieMotionHumanPosture.IGoal =
+          const there: IAutoMovieHumanLimbGoal =
             AutoMovieMotionHumanTouchLaid.rest(
               body,
               phase.posture,
@@ -338,7 +338,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
   function trial(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
@@ -370,7 +370,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       on: IAutoMovieMotionHumanPosture,
       at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
       bend: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanPosture.IGoal =>
+    ): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanTouchLaid.rest(
         body,
         on,
@@ -398,7 +398,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       facing: IAutoMovieVector3,
       on: IAutoMovieMotionHumanPosture = posture,
       at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place,
-    ): IAutoMovieMotionHumanPosture.IGoal => laid(facing, on, at, bend(facing));
+    ): IAutoMovieHumanLimbGoal => laid(facing, on, at, bend(facing));
     let best: IAutoMovieVector3 | undefined;
     let tilt: number = Infinity;
     for (const facing of AutoMovieMotionHumanTouchUpright.facings(

@@ -3,7 +3,14 @@ import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPie
 import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 
-/** Data and callback contracts shared by the ValidatePropPlacementGeometry operations. */
+/**
+ * Data and callback contracts shared by the ValidatePropPlacementGeometry operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Judge every volume the sound part of a prop registry claims: keep-out clearances, pairwise occupancy, support contact, space containment, opening fit and passage intrusion. Member documentation states the supplied records, units and absence meanings used by validatePropPlacementGeometry.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Precomputed forged/unique/located facts keep ambiguous props out of geometric checks; nullable joins remain explicit instead of guessed scene objects.
+ * @evidence contracts/development/design.md#principled-representation entries carries registry indexes, unique staged joins and prior admission facts; environments resolves unique building ids and out is the caller-owned violation sink.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidatePropPlacementGeometry, used by validatePropPlacementGeometry. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+ */
 export namespace IAutoMovieValidatePropPlacementGeometry {
   /**
    * Judge every volume the sound part of a prop registry claims: keep-out clearances, pairwise occupancy, support contact, space containment, opening fit and passage intrusion.
@@ -11,6 +18,11 @@ export namespace IAutoMovieValidatePropPlacementGeometry {
    * "Sound" is deliberately narrow: a prop is measured only when it forged, when its node is declared once, when exactly one staged piece places it, and when any footprint it declares is a real volume. Measuring an ambiguous, unforged or degenerate prop would report a second failure caused by the first, and the author would correct the wrong line. Sound props without a `placement` are still measured as occupants others must clear and as hosts others rest on, but claim nothing themselves.
    *
    * Pairwise overlap is checked only when both staged props declare `placement`, and is refused unless one declares contact through a prop affordance. A prop is judged against the environment it occupies, or, when it names no space, the one building all its building relations cite; relations spanning two buildings name no single place and are not measured. An opening is fitted through the rest-pose world box of the element filling it, and a passage the prop fills is not reported as one it blocks. Violations go to `out` in prop declaration order within each check.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Judge every volume the sound part of a prop registry claims: keep-out clearances, pairwise occupancy, support contact, space containment, opening fit and passage intrusion. Member documentation states the supplied records, units and absence meanings used by validatePropPlacementGeometry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Precomputed forged/unique/located facts keep ambiguous props out of geometric checks; nullable joins remain explicit instead of guessed scene objects.
+   * @evidence contracts/development/design.md#principled-representation entries carries registry indexes, unique staged joins and prior admission facts; environments resolves unique building ids and out is the caller-owned violation sink.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidatePropPlacementGeometry.IProps, used by validatePropPlacementGeometry. Its entries, environments, out members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Every registry entry in declaration order, with what the registry gate resolved for it. */

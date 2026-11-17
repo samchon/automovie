@@ -1,6 +1,13 @@
 import type { IAutoMovieWallOpening } from "./IAutoMovieWallOpening";
 
-/** Data and callback contracts shared by the BuildWall operations. */
+/**
+ * Data and callback contracts shared by the BuildWall operations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Metre width, height and depth define a centred local XY wall with Z thickness; openings use bottom-left wall coordinates. Positive finite sizes, unique opening IDs and supported nonoverlapping openings remain runtime admission requirements.
+ * @evidence contracts/development/design.md#principled-representation Metre width, height and depth define a centred local XY wall with Z thickness; openings use bottom-left wall coordinates.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface buildAutoMovieWall consumes the size and opening declarations before constructing its cell lattice.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive finite sizes, unique opening IDs and supported nonoverlapping openings remain runtime admission requirements.
+ */
 export namespace IAutoMovieBuildWall {
   /**
    * Build a rectangular wall in local XY, depth along Z, with rectangular door and window openings cut through it.
@@ -10,6 +17,11 @@ export namespace IAutoMovieBuildWall {
    * Every cell corner is a lattice coordinate minus one half-extent, so the face two adjacent cells share reads the same pair of doubles from both sides and welds exactly. The result is centred on the wall and spans `-depth / 2` to `+depth / 2`; it carries flat per-face normals and no texture coordinates, because which cell a point belongs to depends on the opening list, and an atlas laid on that lattice would shift whenever an opening moves. `extrudeAutoMovieRegion`, with the panel as its outer ring and the openings as holes, is the atlas-bearing form that also cuts arbitrary outlines.
    *
    * All openings are admitted before the lattice is built, so a refusal never leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an opening with a blank or repeated id, a non-finite origin, a nonpositive size, or a rectangle outside the wall; two overlapping openings; openings meeting only at a corner, which would pinch the wall to a line that needs a general boolean this kernel does not have; and openings that remove the whole wall. Opening records are only read.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Metre width, height and depth define a centred local XY wall with Z thickness; openings use bottom-left wall coordinates. Positive finite sizes, unique opening IDs and supported nonoverlapping openings remain runtime admission requirements.
+   * @evidence contracts/development/design.md#principled-representation Metre width, height and depth define a centred local XY wall with Z thickness; openings use bottom-left wall coordinates.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface buildAutoMovieWall consumes the size and opening declarations before constructing its cell lattice.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive finite sizes, unique opening IDs and supported nonoverlapping openings remain runtime admission requirements.
    */
   export type IProps = {
     /** Wall width along X, in metres. */

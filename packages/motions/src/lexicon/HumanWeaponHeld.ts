@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingBlade,
   IAutoMovieMotionHumanStrikingHeld,
@@ -39,7 +39,7 @@ export namespace HumanWeaponHeld {
   /** The hand a weapon action holds the weapon in: the right when the parameters name none. */
   export const hand = (
     p: IAutoMovieMotionHumanWeaponPresent.IWield,
-  ): IAutoMovieMotionHumanHand.Side => p.hand ?? "right";
+  ): AutoMovieHumanSide => p.hand ?? "right";
 
   /** How the hand holds the weapon at an action's start, by the points it is read at (`StrikingHeld.of`). */
   export const held =
@@ -80,7 +80,7 @@ export namespace HumanWeaponHeld {
     ) => IAutoMovieMotionHumanStrikingHeld.ITool,
   ): IAutoMovieMotionHumanWeaponHeld.ISetup => {
     const p: IAutoMovieMotionHumanWeaponPresent.IWield = context.params;
-    const side: IAutoMovieMotionHumanHand.Side = hand(p);
+    const side: AutoMovieHumanSide = hand(p);
     const found = (id: string): IAutoMovieAffordance | undefined =>
       p.gun === undefined
         ? undefined
@@ -179,8 +179,7 @@ export namespace HumanWeaponHeld {
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanStrikingBlade.ISupport | null => {
     if (s.support === null || !s.long) return s.support;
-    const other: IAutoMovieMotionHumanHand.Side =
-      s.tool.side === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = s.tool.side === "left" ? "right" : "left";
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
       context.body,
       posture,
@@ -242,9 +241,8 @@ export namespace HumanWeaponHeld {
     aim?: IAutoMovieMotionHumanSupportAim.IAim,
   ): IAutoMovieMotionHumanActionPlan => {
     if (context.carrier === undefined) return plan;
-    const side: IAutoMovieMotionHumanHand.Side = s.tool.side;
-    const other: IAutoMovieMotionHumanHand.Side =
-      side === "left" ? "right" : "left";
+    const side: AutoMovieHumanSide = s.tool.side;
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     return HumanSupportCarry.plan(
       context,
       plan,

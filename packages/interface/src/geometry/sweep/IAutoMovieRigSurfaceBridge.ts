@@ -1,7 +1,14 @@
 import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 import type { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
 
-/** Matched loop samples and target slots for a pose-updated Hermite bridge. */
+/**
+ * Matched loop samples and target slots for a pose-updated Hermite bridge.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Corresponding metre loops and dimensionless tension define reserved Hermite bridge controls in a live packed buffer. Loop cardinality and tension are admitted by planning; degenerate directions or crossing columns remain possible and are not hidden by the contract.
+ * @evidence contracts/development/design.md#principled-representation Corresponding metre loops and dimensionless tension define reserved Hermite bridge controls in a live packed buffer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSurfaceBridge consumes the shared samples and probes supplied by network patch planning.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Loop cardinality and tension are admitted by planning; degenerate directions or crossing columns remain possible and are not hidden by the contract.
+ */
 export namespace IAutoMovieRigSurfaceBridge {
   /**
    * Compile a bridge patch's interior for per-pose evaluation, returning the

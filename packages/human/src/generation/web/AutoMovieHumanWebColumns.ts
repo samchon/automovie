@@ -10,7 +10,7 @@ import type {
   IAutoMovieHumanWebCrests,
   IAutoMovieHumanWebInput,
   IAutoMovieLoftChain,
-  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
@@ -107,7 +107,7 @@ export namespace AutoMovieHumanWebColumns {
         );
         const childJet = (t: number): IAutoMovieArcLengthJet =>
           leaving(onChild(t), inChild(t), deepChild(t), 1);
-        const f: IAutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
+        const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(
           child,
           sc,
         );

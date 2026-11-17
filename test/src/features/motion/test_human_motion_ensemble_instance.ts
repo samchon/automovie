@@ -123,7 +123,7 @@ export function test_human_motion_ensemble_instance(): void {
         (f: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
           f.detail === "full" && f.slot?.block === m.slot?.block,
       )!;
-    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments(
+    const segment: IAutoMovieMotionHumanSegment = performance.segments(
       m.subject,
     )[0]!;
     const shift: number = (segment.params as { shift: number }).shift;
@@ -194,7 +194,7 @@ export function test_human_motion_ensemble_instance(): void {
     (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
       m.detail === "instanced",
   )) {
-    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments(
+    const segment: IAutoMovieMotionHumanSegment = performance.segments(
       m.subject,
     )[0]!;
     const params: { of: string; shift: number } = segment.params as {

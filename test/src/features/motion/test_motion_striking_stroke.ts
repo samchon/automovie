@@ -2,7 +2,7 @@ import { Quaternion, Vector3, superposeMinimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingContact,
   IAutoMovieMotionHumanStrikingStroke,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { StrikingContact, StrikingStroke } from "@automovie/motions";
@@ -156,11 +156,11 @@ export function test_motion_striking_stroke(): void {
 
   // Every collider rides one segment frame, lifted and turned so the shape's
   // own transform and the segment's pose both take part.
-  const pose: IAutoMoviePhysicalProfile.ITransform = {
+  const pose: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
-  const still: IAutoMoviePhysicalProfile.ITransform = {
+  const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };

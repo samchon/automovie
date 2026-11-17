@@ -8,7 +8,8 @@ import {
 import type {
   IAutoMovieBodyMeasure,
   IAutoMoviePhysicalHullFaces,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -172,21 +173,21 @@ export namespace armourActual {
     point: IAutoMovieVector3,
     prefix?: string,
   ): number {
-    const pose: IAutoMoviePhysicalProfile.ITransform = {
+    const pose: IAutoMovieRigidTransform = {
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
-    const shapes: IAutoMoviePhysicalProfile.IShape[] = piece
+    const shapes: IAutoMoviePhysicalShape[] = piece
       .shapes()
       .filter(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+        (shape: IAutoMoviePhysicalShape): boolean =>
           prefix === undefined || shape.id.startsWith(prefix),
       );
     if (shapes.length === 0)
       throw new Error("Armour has no actual wall colliders");
     return Math.min(
       ...shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): number =>
+        (shape: IAutoMoviePhysicalShape): number =>
           physicalShapeNearest(pose, shape, point, point).distance,
       ),
     );

@@ -11,7 +11,7 @@ import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
   IAutoMovieLoftCoefficientSource,
-  IAutoMovieLoftJet,
+  IAutoMovieLoftSurfaceJet,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -318,7 +318,11 @@ function consumer(
       continue;
     }
     const radius: [number, number, number] = oracle(station, scale, mode);
-    const jet: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, station, 0);
+    const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+      chain,
+      station,
+      0,
+    );
     const vectors: number[][] = [
       AutoMovieLoftChain.point(chain, station, 0),
       jet.p,

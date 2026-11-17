@@ -1,7 +1,7 @@
-import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCaptureResolution } from "../capture/IAutoMovieCaptureResolution.js";
 import type { IAutoMovieInspectionCamera } from "../inspection/IAutoMovieInspectionCamera.js";
 import type { IAutoMovieInspectionLegendEntry } from "../inspection/IAutoMovieInspectionLegendEntry.js";
+import type { IAutoMovieRasterLabel } from "../picture/IAutoMovieRasterLabel";
 
 /**
  * What a draw page returns for one `IAutoMovieDrawCall`: the picture as base64 RGBA rows from the top, the labels to stamp, the legend of the marks drawn, the camera the view resolved to, and the paths each pattern resolved to.
@@ -24,7 +24,7 @@ export interface IAutoMovieDrawResult {
   height: number;
 
   /** Labels the inspection placed, each with the pixel of its box's top-left corner. */
-  labels: IAutoMovieCaptureDrawing.ILabel[];
+  labels: IAutoMovieRasterLabel[];
 
   /** One entry per colour of the marks in the picture with its count, then the surface colours of the faces shade, as the applied inspection lists them. */
   legend: IAutoMovieInspectionLegendEntry[];

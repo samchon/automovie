@@ -1,6 +1,15 @@
 import type { IAutoMovieHumanDigitSection } from "../IAutoMovieHumanDigitSection";
 
-/** Type contracts exchanged by AutoMovieHumanDigitProfile; runtime evaluation remains in Human. */
+/**
+ * Digit section evaluators, joint windows and nail dimensions along a millimetre centre-line clock.
+ *
+ * The interface package owns these declarations; AutoMovieHumanDigitProfile in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Digit section evaluators, joint windows and nail dimensions along a millimetre centre-line clock. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IInput, IWindow, SpanRoot, SpanStations, SpanResult, INailResult, OfResult declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IInput, IWindow, SpanRoot, SpanStations, SpanResult, INailResult, OfResult separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanDigitProfile exchanges the named IInput, IWindow, SpanRoot, SpanStations, SpanResult, INailResult, OfResult contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
 export namespace IAutoMovieHumanDigitProfile {
   /** The digit's base section and its loci along the line, mm.
    *
@@ -11,7 +20,17 @@ export namespace IAutoMovieHumanDigitProfile {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `base`, `root`, `joints`, `length`, `cap`, `softness`, `thumb`; callers supply the complete record.
    */
   export interface IInput {
-    /** The digit's own section at an arc length along the line: half width, palmar and dorsal depths. */
+    /**
+     * The digit's own section at an arc length along the line: half width, palmar and dorsal depths.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The digit's own section at an arc length along the line: half width, palmar and dorsal depths.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanDigitProfile and the callback provider must satisfy the documented base contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanDigitProfile and its callback provider own the cost of each base invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanDigitProfile and the callback provider determine when the inputs to base describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanDigitProfile and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanDigitProfile.IInput.base callable contract, without an implementation body. AutoMovieHumanDigitProfile and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanDigitProfile.IInput.base declares only the invocation boundary; decomposition belongs to AutoMovieHumanDigitProfile and the callback provider.
+     */
     base: (s: number) => [number, number, number];
 
     /** Arc length of the digit's root, where its own sections start. */

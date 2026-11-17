@@ -1,10 +1,12 @@
 import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
+  IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
-  IAutoMovieResolveSchedule,
-  IAutoMovieSchedule,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleCue,
   IAutoMovieScheduleCut,
+  IAutoMovieScheduleEntry,
   IAutoMovieScheduleError,
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
@@ -47,14 +49,11 @@ export namespace AutoMovieSchedulePlace {
     intent: IAutoMovieIntent,
     start: number,
   ): number {
-    const context: IAutoMovieResolveSchedule.IContext = {
+    const context: IAutoMovieScheduleContext = {
       start,
       entries: walk.entries,
     };
-    const timing: IAutoMovieResolveSchedule.ITiming = walk.laws.timing(
-      intent,
-      context,
-    );
+    const timing: IAutoMovieIntentTiming = walk.laws.timing(intent, context);
     const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
       {
         subject: intent.subject,
@@ -84,7 +83,7 @@ export namespace AutoMovieSchedulePlace {
     );
     const length: number =
       cut === undefined ? timing.duration : cut.share * timing.duration;
-    const draft: IAutoMovieSchedule.IEntry = {
+    const draft: IAutoMovieScheduleEntry = {
       index: walk.entries.length,
       subject: intent.subject,
       intent,
@@ -157,7 +156,7 @@ export namespace AutoMovieSchedulePlace {
     start: number,
     place: (part: IAutoMovieComposition, from: number) => number,
   ): number {
-    const events: readonly IAutoMovieResolveSchedule.ICue[] | undefined =
+    const events: readonly IAutoMovieScheduleCue[] | undefined =
       AutoMovieScheduleWalk.instants(walk, node.anchor);
     const first: IAutoMovieIntent | undefined = AutoMovieScheduleWalk.leading(
       node.part,
@@ -209,9 +208,7 @@ export namespace AutoMovieSchedulePlace {
               value: "",
               alternatives: [
                 ...new Set(
-                  events.map(
-                    (e: IAutoMovieResolveSchedule.ICue): string => e.name,
-                  ),
+                  events.map((e: IAutoMovieScheduleCue): string => e.name),
                 ),
               ],
             },

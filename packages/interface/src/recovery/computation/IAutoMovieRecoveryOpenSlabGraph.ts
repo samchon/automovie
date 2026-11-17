@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryOpenArcIncidence } from "./IAutoMovieRecoveryOpenArcIncidence";
+
 /**
  * Observe ordinary open-arc transport without exporting source addresses.
  *
@@ -8,33 +10,6 @@
  */
 
 export namespace IAutoMovieRecoveryOpenSlabGraph {
-  /** One saved open curve's private observation support.
-   * @evidence contracts/development/design.md#principled-representation Face support and two canonical edge or vertex addresses refer to the actual ordered cut endpoints.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the producer supplies source support; the returned result contains no such addresses.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Endpoints are source identities rather than coordinate matches.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents canonical endpoint order and private address lifetime.
-   */
-  export interface Arc {
-    /** Supporting original source faces, discarded before publication. */
-    faces: ReadonlySet<number>;
-
-    /** Start/end in saved curve order; equal a/b denotes a canonical vertex. */
-    ends: readonly [
-      {
-        /** Original first endpoint index of this source edge, in the paired source vertex array. */
-        a: number;
-        /** Original second endpoint index of this source edge, in the paired source vertex array. */
-        b: number;
-      },
-      {
-        /** Original first endpoint index of this source edge, in the paired source vertex array. */
-        a: number;
-        /** Original second endpoint index of this source edge, in the paired source vertex array. */
-        b: number;
-      },
-    ];
-  }
-
   /** Source-independent ordinary pairs and explicit local omissions.
    * @evidence contracts/development/design.md#principled-representation Each admitted pair has two distinct before-to-after boundary paths in one regular sheet component.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Local ordinals and a reversal flag suffice for the curve consumer; reasons retain unsupported groups.
@@ -100,10 +75,10 @@ export namespace IAutoMovieRecoveryOpenSlabGraph {
     afterMm: number;
 
     /** Real saved open arcs on the lower cut, in publication order. */
-    before: readonly IAutoMovieRecoveryOpenSlabGraph.Arc[];
+    before: readonly IAutoMovieRecoveryOpenArcIncidence[];
 
     /** Real saved open arcs on the upper cut, in publication order. */
-    after: readonly IAutoMovieRecoveryOpenSlabGraph.Arc[];
+    after: readonly IAutoMovieRecoveryOpenArcIncidence[];
 
     /** Closed/isolated/unrepresented supports and every critical-event face in this slab. */
     defects: readonly ReadonlySet<number>[];

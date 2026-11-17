@@ -18,6 +18,14 @@ export interface IAutoMovieCompileSweepFeatureOutput {
    * @param length Spine polygon length in metres, scaling longitudinal differences
    * @param guided Synchronous pre-feature unscaled radius evaluator taking u and radians and returning metres; called for absolute-radius features, never retained, and exceptions propagate
    * @returns Offset feature value, or absolute feature radius minus guided radius at the selected course point, multiplied by the compact band falloff
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States normalized u, radian angle, metre query scales, local-search limits and the synchronous nonretained guided-radius callback with propagated errors.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; compileAutoMovieSweepFeature's compiled course and displacement closures own the numerical method under the documented units and input premises.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; compileAutoMovieSweepFeature's compiled course and displacement closures own executable decomposition.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by compileAutoMovieSweepFeature's compiled course and displacement closures.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; compileAutoMovieSweepFeature's compiled course and displacement closures own its evaluation cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; compileAutoMovieSweepFeature's compiled course and displacement closures decide whether calls share coefficients, identities or mutable state.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; compileAutoMovieSweepFeature's compiled course and displacement closures own references retained by the supplied callable.
    */
   displacement: (
     u: number,
@@ -27,7 +35,17 @@ export interface IAutoMovieCompileSweepFeatureOutput {
     guided: (u: number, angle: number) => number,
   ) => number;
 
-  /** Domain point at a clamped share of the centripetal knot span; v is in unwrapped turns and a collapsed course is constant. */
+  /**
+   * Domain point at a clamped share of the centripetal knot span; v is in unwrapped turns and a collapsed course is constant.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States clamped knot-span share, unwrapped output turns, possible u overshoot and constant collapsed courses.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; compileAutoMovieSweepFeature's compiled course and displacement closures own the numerical method under the documented units and input premises.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; compileAutoMovieSweepFeature's compiled course and displacement closures own executable decomposition.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by compileAutoMovieSweepFeature's compiled course and displacement closures.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; compileAutoMovieSweepFeature's compiled course and displacement closures own its evaluation cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; compileAutoMovieSweepFeature's compiled course and displacement closures decide whether calls share coefficients, identities or mutable state.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; compileAutoMovieSweepFeature's compiled course and displacement closures own references retained by the supplied callable.
+   */
   point: (t: number) => {
     /** Spine coordinate on the fitted course. The query share is clamped, but the cubic course itself can overshoot its authored u values. */
     u: number;

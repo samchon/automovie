@@ -1,4 +1,7 @@
-import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 
 /**
  * Shared self-contact exclusions for native filtering, goal fitting and audit. Same owners, direct joint neighbours and declared overlapping pivot regions cannot collide with themselves.
@@ -19,7 +22,7 @@ export function isPhysicalProfilePairExcluded(
   return (
     a === b ||
     profile.joints.some(
-      (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+      (joint: IAutoMoviePhysicalJoint): boolean =>
         (joint.parent === a && joint.child === b) ||
         (joint.parent === b && joint.child === a),
     ) ||

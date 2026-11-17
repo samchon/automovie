@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieMotionHumanVariation,
@@ -64,7 +64,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     record: IAutoMovieMotionHumanTarget.IDefault,
     travel?: IAutoMovieMotionHumanVariationPlace.ITravel,
   ): IAutoMovieMotionHumanTarget.IDefault {

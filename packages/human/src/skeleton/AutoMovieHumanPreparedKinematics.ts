@@ -1,11 +1,13 @@
 import type {
   AutoMovieQuaternionTuple,
   AutoMovieVector3Tuple,
+  IAutoMovieHumanBonePlacement,
   IAutoMovieHumanJointCentres,
   IAutoMovieHumanNeutral,
   IAutoMovieHumanPose,
+  IAutoMovieHumanPoseClamp,
+  IAutoMovieHumanPoseProjection,
   IAutoMovieHumanPreparedKinematics,
-  IAutoMovieHumanSkeleton,
   IAutoMovieHumanSkeletonMath,
 } from "@automovie/interface";
 
@@ -118,9 +120,9 @@ export namespace AutoMovieHumanPreparedKinematics {
         input: IAutoMovieHumanPose,
         clamp: boolean,
         selection?: IAutoMovieHumanPreparedKinematics.ISelection,
-      ): IAutoMovieHumanSkeleton.IProjection => {
+      ): IAutoMovieHumanPoseProjection => {
         const rig: Map<string, Record<string, number>> = new Map();
-        const clamped: IAutoMovieHumanSkeleton.IClamp[] = [];
+        const clamped: IAutoMovieHumanPoseClamp[] = [];
         for (const { row, path, bone, parts, sign } of channels) {
           const requested: number | undefined = read(input, parts);
           if (requested === undefined) continue;
@@ -195,7 +197,7 @@ export namespace AutoMovieHumanPreparedKinematics {
           rig.get("leftUpperLeg")?.flexion ?? 0,
           rig.get("rightUpperLeg")?.flexion ?? 0,
         );
-        const posed: IAutoMovieHumanSkeleton.IPlacement[] = [];
+        const posed: IAutoMovieHumanBonePlacement[] = [];
         for (const index of selection?.work ?? all) {
           const compiled: IBone = bones[index]!;
           const j: IAutoMovieHumanJointCentres.IJoint = compiled.joint;
@@ -298,7 +300,7 @@ export namespace AutoMovieHumanPreparedKinematics {
               back: returned,
             };
           }
-          const parent: IAutoMovieHumanSkeleton.IPlacement | undefined =
+          const parent: IAutoMovieHumanBonePlacement | undefined =
             compiled.parent === undefined
               ? undefined
               : worlds[compiled.parent]!.placement;
@@ -313,7 +315,7 @@ export namespace AutoMovieHumanPreparedKinematics {
               compiled.offset[1],
               compiled.offset[2] + lateral * mmScale,
             ];
-            const placement: IAutoMovieHumanSkeleton.IPlacement =
+            const placement: IAutoMovieHumanBonePlacement =
               parent === undefined
                 ? {
                     bone: j.bone,
@@ -433,10 +435,10 @@ interface IWorld {
   local: AutoMovieQuaternionTuple;
 
   /** Private immutable parent placement identity. */
-  parent: IAutoMovieHumanSkeleton.IPlacement | undefined;
+  parent: IAutoMovieHumanBonePlacement | undefined;
 
   /** Private world position and neutral-relative rotation. */
-  placement: IAutoMovieHumanSkeleton.IPlacement;
+  placement: IAutoMovieHumanBonePlacement;
 
   /** Same placement rotation composed with the fixed bind-to-neutral turn. */
   bound: AutoMovieQuaternionTuple;

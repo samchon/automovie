@@ -6,6 +6,7 @@ import type {
   IAutoMovieHumanoidSurfaceRegions,
   IAutoMovieHumanoidSurfaces,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
@@ -150,8 +151,7 @@ export function resolveAutoMovieHumanoidSurfaces(
     const ankle: IAutoMovieVector3 = at(bone("Foot")).worldPosition;
     const toes: IAutoMovieVector3 = at(bone("Toes")).worldPosition;
     const jointed: boolean = profile.segments.some(
-      (x: IAutoMoviePhysicalProfile.ISegment): boolean =>
-        x.bone === bone("Toes"),
+      (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone("Toes"),
     );
     const front = jointed ? bounds(bone("Toes")) : foot;
     const sole = (z: number): IAutoMovieVector3 => ({

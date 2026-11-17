@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieVector3,
@@ -48,7 +48,7 @@ export namespace handToFaceSheet {
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     posture: IAutoMovieMotionHumanPosture,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
   ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     const bones = HumanTrunk.resolve(context.body, posture);
     const eyes: IAutoMovieVector3 = Vector3.scale(

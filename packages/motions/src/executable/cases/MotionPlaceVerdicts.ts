@@ -1,7 +1,7 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieVector3,
@@ -50,7 +50,7 @@ export namespace MotionPlaceVerdicts {
     name: string,
     body: IAutoMovieMotionHumanBody,
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
-    side: IAutoMovieMotionHumanHand.Side,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     expected: IAutoMovieMotionHumanTargetGrid.IGrid,
   ): IMotionCaptureCase.IVerdict {
@@ -60,7 +60,7 @@ export namespace MotionPlaceVerdicts {
       side,
       point,
     );
-    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };

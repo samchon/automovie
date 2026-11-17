@@ -2,7 +2,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -234,7 +234,7 @@ export namespace curlChainUntilContact {
 }
 
 /** Refuse a shape whose dimensions cannot give a distance. */
-function validate(shape: IAutoMoviePhysicalProfile.IShape): void {
+function validate(shape: IAutoMoviePhysicalShape): void {
   let ok: boolean;
   if (shape.kind === "sphere") ok = shape.radius > 0;
   else if (shape.kind === "capsule")

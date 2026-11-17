@@ -1,6 +1,7 @@
 import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupportAim,
   IAutoMovieMotionHumanSupportCarry,
@@ -124,8 +125,7 @@ export namespace HumanSupportAim {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(raised, yawed);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const limb of ["leftArm", "rightArm"] as const) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
-        posture.limbs[limb];
+      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
       if (goal === undefined || goal.on !== undefined) continue;
       limbs[limb] = {
         ...goal,

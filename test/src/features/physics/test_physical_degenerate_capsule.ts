@@ -3,6 +3,7 @@ import {
   preparePhysicalGeometry,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
   IAutoMoviePhysicalProfile as P,
@@ -29,7 +30,7 @@ export async function test_physical_degenerate_capsule(): Promise<void> {
     sphere.segments[0]!.neutral.position.x = x;
     sphere.centerOfMass.x = x;
     const capsule: P = structuredClone(sphere);
-    const surface: P.IShape = capsule.segments[0]!.shapes[0]!;
+    const surface: IAutoMoviePhysicalShape = capsule.segments[0]!.shapes[0]!;
     if (surface.kind !== "sphere")
       throw new Error("Analytic primitive fixture changed");
     capsule.segments[0]!.shapes[0] = {
