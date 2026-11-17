@@ -15,6 +15,7 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
@@ -193,6 +194,13 @@ export interface IAutoMoviePerformShotProps {
    * light. Omitted, the shot carries no such field.
    */
   lightMotions?: readonly IAutoMovieClip[];
+
+  /**
+   * Practical lights bound to staged prop emitters. Compiled from the final
+   * object clips, using the corresponding prop model in models, and appended
+   * to lightMotions. Omit when no practical source follows a prop.
+   */
+  practicalLights?: readonly IAutoMoviePracticalLightBinding[];
 
   /**
    * Clips the source authored over non-performing scene nodes, such as a

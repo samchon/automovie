@@ -45,6 +45,8 @@ export type { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPred
 export type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
 export type { IAutoMovieCompileLaunch } from "./IAutoMovieCompileLaunch";
 export type { IAutoMovieCompilePerformShotLaunches } from "./IAutoMovieCompilePerformShotLaunches";
+export type { IAutoMovieCompilePracticalLightMotion } from "./IAutoMovieCompilePracticalLightMotion";
+export type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 export type { IAutoMovieComputeModelRestExtent } from "./IAutoMovieComputeModelRestExtent";
 export type { IAutoMovieComputeModelRestExtentY } from "./IAutoMovieComputeModelRestExtentY";
 export type { IAutoMovieCoupleObjects } from "./IAutoMovieCoupleObjects";

@@ -43,6 +43,7 @@ import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
+import { compilePerformShotPracticalLights } from "./compilePerformShotPracticalLights";
 import { coupleObjects } from "./coupleObjects";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";
@@ -74,7 +75,8 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
  * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
  * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
- * 6. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
+ * 6. Practical lights bind staged emitters to the final object clips and share light channel admission with authored clips.
+ * 7. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
  *
  * A shot with no frame action is locked off on the scene's first camera. Positional targets resolve against every staged placement, cameras included, so an actor may look down the lens, but a camera performs only frame. Only a camera subject may name a formation. The assembled artifact is checked independently and a failure throws as a compilation defect. This does not prove every possible authored failure was located earlier: typed outer containers, generated event-id collisions, mutable callbacks and downstream arithmetic remain distinct exception boundaries.
  *
@@ -294,7 +296,12 @@ export function performShot(
   if (out.items.length > 0) return failure();
   objectMotions.push(...authored);
 
-  // 6. Cameras.
+  // 6. Bind practical lights to the completed object clips.
+  const resolvedLightMotions: IAutoMovieClip[] | undefined =
+    compilePerformShotPracticalLights(props, objectMotions, lightMotions, out);
+  if (out.items.length > 0) return failure();
+
+  // 7. Cameras.
   const liveCamera: string = cameras.liveCamera!;
   const camera: Pick<
     IAutoMovieShot,
@@ -337,7 +344,9 @@ export function performShot(
       }),
     ),
     objectMotions,
-    ...(lightMotions === undefined ? {} : { lightMotions }),
+    ...(resolvedLightMotions === undefined
+      ? {}
+      : { lightMotions: resolvedLightMotions }),
     events: [...events].sort(
       (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
         a.time - b.time ||

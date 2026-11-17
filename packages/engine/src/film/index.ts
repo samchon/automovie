@@ -22,6 +22,7 @@ export * from "./compileDefinedShot";
 export * from "./compileLaunch";
 export * from "./compilePerformShotCameras";
 export * from "./compilePerformShotLaunches";
+export * from "./compilePracticalLightMotion";
 export * from "./computeModelRestExtent";
 export * from "./computeModelRestExtentY";
 export * from "./computeRestHeight";

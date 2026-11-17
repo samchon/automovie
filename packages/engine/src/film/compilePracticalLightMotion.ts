@@ -1,0 +1,195 @@
+import type {
+  AutoMovieLightProperty,
+  IAutoMovieClip,
+  IAutoMovieCompilePracticalLightMotion,
+  IAutoMovieNodeChannel,
+  IAutoMovieQuaternion,
+  IAutoMovieSampledChannel,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { aimRotation } from "../kinematics/aimRotation";
+import { Quaternion } from "../math/Quaternion";
+import { channelKey } from "../resolve/channelKey";
+import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
+import { formatLightPointer } from "../resolve/formatLightPointer";
+import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { placeTransformedPoint } from "./placeTransformedPoint";
+
+/** Model-local forward axis of an emitter's contact frame. */
+const EMITTER_FORWARD: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The spotlight model projects along its local negative Z. */
+const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
+
+/**
+ * Bake the position, aim and optional switching of a practical light from a prop's existing motion. Darius Khondji describes using the actors' flashlights as visible sources in [American Cinematographer's account of Seven](https://theasc.com/article/seven-cinematography-khondji-fincher/).
+ *
+ * Place the emitter at each requested instant using the same shot-local object-motion sampler as baked prop placement. Translation, rotation and scale inherit the staged prop values until their respective channels begin. Emit linear position and spot rotation tracks for resolveShotLighting. Alignment is exact at the bake samples and interpolated between samples. Intensity switches at exact interval boundaries independently of frame spacing. A moving prop requires explicit sample times. performShot calls this compiler after collecting coupling and authored object clips, then passes the serializable result through the existing shot light-motion path.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Sample canonical per-channel prop authority once per key, apply affine emitter placement, aim a spot's negative Z along the scaled emitter direction, and express switching as half-open STEP keys.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The placement helper supplies affine position, the aim helper supplies shortest arcs, and canonical pointer properties and formatting supply the clip addresses.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts There is no independent authored light path or retiming. Piecewise interpolation only reproduces the exact prop attachment at requested samples, and unsupported light kinds and invalid times throw.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the source practice, staged-channel fallbacks, exact sample and switch semantics, shot clock, and the render path.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sorting S distinct pose times costs O(S log S). One track-address scan selects clips containing this prop. Each pose sample uses the shared clip sampler on that subset, including validation and key searches, then adds fixed-size arithmetic and key arrays.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The relevant clip subset and fixed emitter basis are built once, and all emitted placement channels share one prop sample per time.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar arrays and clip metadata escape. Input records and temporary channel maps are not retained, and no render resources are allocated.
+ */
+export function compilePracticalLightMotion(
+  input: IAutoMovieCompilePracticalLightMotion,
+): IAutoMovieClip {
+  const { id, duration, light, prop, emitter, objectMotions, on }: typeof input =
+    input;
+  if (id.length === 0 || light.id.length === 0)
+    throw new Error("practical light and clip ids must be nonempty");
+  if (light.type !== "point" && light.type !== "spot")
+    throw new Error("a practical light must be a point or spot");
+  if (!Number.isFinite(duration) || duration <= 0)
+    throw new Error("practical light duration must be finite and positive");
+  if (!Number.isFinite(light.intensity) || light.intensity < 0)
+    throw new Error("practical light intensity must be finite and nonnegative");
+  if (on !== undefined && !(0 <= on[0] && on[0] < on[1] && on[1] <= duration))
+    throw new Error(
+      "practical light interval must satisfy 0 <= start < end <= duration",
+    );
+
+  const propClips: IAutoMovieClip[] = (objectMotions ?? []).filter(
+    (clip: IAutoMovieClip): boolean =>
+      clip.tracks.some(
+        (track: IAutoMovieTrack): boolean =>
+          track.channel.kind === "node" &&
+          track.channel.node === prop.id &&
+          track.channel.path !== "weights",
+      ),
+  );
+  if (propClips.length > 0 && !input.sampleTimes?.length)
+    throw new Error("practical light sample times are required for a moving prop");
+
+  const times: number[] = [
+    ...new Set([0, duration, ...(input.sampleTimes ?? []), ...(on ?? [])]),
+  ];
+  if (times.some((time: number): boolean => !(0 <= time && time <= duration)))
+    throw new Error("practical light sample times must lie in [0, duration]");
+  times.sort((a: number, b: number): number => a - b);
+
+  // Preserve emitter roll while adapting spot forward. Positive scale can tilt the beam.
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    emitter.frame.rotation,
+    EMITTER_FORWARD,
+  );
+  const emitterRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    emitter.frame.rotation,
+    aimRotation(SPOT_FORWARD, EMITTER_FORWARD),
+  );
+  const positions: number[] = [];
+  const rotations: number[] = [];
+  for (const time of times) {
+    const world: IAutoMovieTransform = practicalPropWorld(
+      prop,
+      propClips,
+      time,
+    );
+    const position: IAutoMovieVector3 = placeTransformedPoint(
+      world,
+      emitter.frame.translation,
+    );
+    positions.push(position.x, position.y, position.z);
+    if (light.type === "spot") {
+      const scaled: IAutoMovieVector3 = {
+        x: forward.x * world.scale.x,
+        y: forward.y * world.scale.y,
+        z: forward.z * world.scale.z,
+      };
+      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          world.rotation,
+          Quaternion.multiply(aimRotation(forward, scaled), emitterRotation),
+        ),
+      );
+      rotations.push(rotation.x, rotation.y, rotation.z, rotation.w);
+    }
+  }
+
+  if (
+    positions.some((value: number): boolean => !Number.isFinite(value)) ||
+    rotations.some((value: number): boolean => !Number.isFinite(value))
+  )
+    throw new Error("practical light placement produced non-finite keys");
+
+  const tracks: IAutoMovieTrack[] = [
+    practicalTrack(light.id, "position", times, positions, "linear"),
+  ];
+  if (light.type === "spot")
+    tracks.push(
+      practicalTrack(light.id, "rotation", times, rotations, "linear"),
+    );
+  if (on !== undefined) {
+    const [start, end]: typeof on = on;
+    tracks.push(
+      practicalTrack(
+        light.id,
+        "intensity",
+        start === 0 ? [0, end] : [0, start, end],
+        start === 0 ? [light.intensity, 0] : [0, light.intensity, 0],
+        "step",
+      ),
+    );
+  }
+  return { id, name: null, duration, loop: false, tracks };
+}
+
+/** Overlay the canonical started object channels independently on staged TRS. */
+function practicalPropWorld(
+  prop: IAutoMovieCompilePracticalLightMotion["prop"],
+  clips: readonly IAutoMovieClip[],
+  time: number,
+): IAutoMovieTransform {
+  if (clips.length === 0) return prop.transform;
+  const sampled: Map<string, IAutoMovieSampledChannel> = sampleClipSequence(
+    clips,
+    time,
+  );
+  const read: (path: IAutoMovieNodeChannel["path"]) => number[] | undefined = (
+    path: IAutoMovieNodeChannel["path"],
+  ): number[] | undefined =>
+    sampled.get(channelKey({ kind: "node", node: prop.id, path }))?.value;
+  const translation: number[] | undefined = read("translation");
+  const rotation: number[] | undefined = read("rotation");
+  const scale: number[] | undefined = read("scale");
+  return {
+    translation:
+      translation === undefined
+        ? prop.transform.translation
+        : { x: translation[0]!, y: translation[1]!, z: translation[2]! },
+    rotation:
+      rotation === undefined
+        ? prop.transform.rotation
+        : { x: rotation[0]!, y: rotation[1]!, z: rotation[2]!, w: rotation[3]! },
+    scale:
+      scale === undefined
+        ? prop.transform.scale
+        : { x: scale[0]!, y: scale[1]!, z: scale[2]! },
+  };
+}
+
+/** Build a standard pointer track using the same property widths as admission. */
+function practicalTrack(
+  light: string,
+  property: AutoMovieLightProperty,
+  times: readonly number[],
+  values: number[],
+  interpolation: IAutoMovieTrack["interpolation"],
+): IAutoMovieTrack {
+  return {
+    channel: {
+      kind: "pointer",
+      pointer: formatLightPointer(light, property),
+      valueType: LIGHT_CHANNEL_PROPERTIES[property].valueType,
+    },
+    times: [...times],
+    values,
+    interpolation,
+  };
+}

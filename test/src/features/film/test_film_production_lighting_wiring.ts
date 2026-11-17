@@ -1,7 +1,9 @@
+import { createTorch } from "@automovie/archetypes";
 import {
   compileDefinedShot,
   defineShot,
   inheritProductionLighting,
+  resolveShotLighting,
 } from "@automovie/engine";
 import {
   IAutoMovieBlocking,
@@ -224,11 +226,29 @@ const dim: () => IAutoMovieClip = (): IAutoMovieClip => ({
 
 const compileWith: (
   lightMotions?: IAutoMovieClip[],
+  withPractical?: boolean,
 ) => IAutoMovieCompiledDefinedShot = (
   lightMotions?: IAutoMovieClip[],
+  withPractical: boolean = false,
 ): IAutoMovieCompiledDefinedShot => {
   const program: IAutoMovieShotProgram & { lightMotions?: IAutoMovieClip[] } =
     shotProgram(lightMotions);
+  const torch: ReturnType<typeof createTorch> = createTorch({}, "wiring");
+  if (withPractical) {
+    program.stage.set = [
+      {
+        node: "placed-torch",
+        model: torch.id,
+        position: { x: 20, y: 1, z: 0 },
+      },
+    ];
+    program.stage.lights.push({
+      node: "torch-fill",
+      type: "point",
+      position: { x: 20, y: 1, z: 0 },
+      intensity: 5,
+    });
+  }
   return compileDefinedShot({
     shot: defineShot("SB-LIGHT", {
       scene: "scene-duel",
@@ -259,6 +279,20 @@ const compileWith: (
       frameFormat: { width: 1920, height: 1080 },
       // Pass the authored optional field through the real engine runtime seam.
       lightMotions: program.lightMotions,
+      ...(withPractical
+        ? {
+            models: [torch],
+            practicalLights: [
+              {
+                id: "torch-lens",
+                light: "torch-fill",
+                prop: "placed-torch",
+                emitter: "lens",
+                on: [0.5, 1.5],
+              },
+            ],
+          }
+        : {}),
     },
   });
 };
@@ -270,12 +304,13 @@ const compileWith: (
  * 1. Resolve two explicitly assembled story contexts and preserve practical intensity.
  * 2. Preserve staged light identity/order/count when production lighting is absent.
  * 3. Compile authored and omitted shot lightMotions, checking clip identity and pointer kind.
+ * 4. Resolve the runtime-bound practical through the registered shot, including its exact switch boundaries.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
- * @evidence contracts/development/testing.md#independent-expectations A source intensity ramp 3 to 1 gives 2 at half span within canonical nclose; authored pins and light ids determine expectations. The test constructs buildContext itself and does not prove production-builder context assembly. Compilation checks clip id/count and pointer kind, without independently checking its pointer text, values or rendered light animation.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains two story moments, unchanged practical light, omitted production lighting and authored/absent shot light clips. Context assembly is test-owned; this unit exercises the portable Engine seams.
+ * @evidence contracts/development/testing.md#independent-expectations A source intensity ramp 3 to 1 gives 2 at half span within canonical nclose; authored pins and light ids determine expectations. The test constructs buildContext itself and does not prove production-builder context assembly. Compilation checks ordinary clip id/count and pointer kind. The added practical uses the authored five-candela intensity and exact half-open interval as its reference.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains two story moments, unchanged practical light, omitted production lighting and authored/absent shot light clips. Also exercises the public registered shot runtime binding with a stationary emitter. Context assembly is test-owned; this unit exercises the portable Engine seams.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_production_lighting_wiring unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Resolve two explicitly assembled story contexts and preserve practical intensity.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Resolve two explicitly assembled story contexts and preserve practical intensity.).
  */
 export function test_film_production_lighting_wiring(): void {
   const design: IAutoMovieProductionDesign =
@@ -368,5 +403,24 @@ export function test_film_production_lighting_wiring(): void {
       "a program stating none compiles": true,
       "and carries no light field": true,
     },
+  );
+
+  const bound: IAutoMovieCompiledDefinedShot = compileWith([dim()], true);
+  if (!bound.success) throw new Error(JSON.stringify(bound.diagnostics));
+  const boundAt: (seconds: number) => number = (seconds: number): number =>
+    intensityOf(
+      resolveShotLighting({
+        lights: bound.source.scene.lights,
+        clips: bound.source.shot.lightMotions ?? [],
+        seconds,
+      }),
+      "torch-fill",
+    );
+  TestValidator.predicate(
+    "the registered shot combines its manual light clip and switched practical",
+    bound.source.shot.lightMotions?.length === 2 &&
+      nclose(boundAt(0.499999), 0) &&
+      nclose(boundAt(0.5), 5) &&
+      nclose(boundAt(1.5), 0),
   );
 }
