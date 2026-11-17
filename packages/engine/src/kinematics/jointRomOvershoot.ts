@@ -2,6 +2,7 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
@@ -64,14 +65,16 @@ export namespace jointRomOvershoot {
    * canonical humanoid frame fallback when no rig is supplied and owns all
    * finite, interval, cone and swing-twist rules. Preparation adds no tolerance,
    * alternative frame or candidate-answer cache; each actual score is scanned.
+   * The optional rotation is the one the angles were read from on the range's
+   * own frame (`scanJointRom.prepare`).
    */
   export function prepare(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
     rig?: swingTwistRange.IJoint,
-  ): (joint: IAutoMovieJointPose) => number {
+  ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
     return constraint === null
-      ? (_joint: IAutoMovieJointPose): number => 0
+      ? (_joint: IAutoMovieJointPose, _rotation?: IAutoMovieQuaternion): number => 0
       : scanJointRom.prepare(bone, constraint, rig);
   }
 }

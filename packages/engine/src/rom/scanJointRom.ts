@@ -86,6 +86,7 @@ function scan(
   rig: swingTwistRange.IJoint | undefined,
   score: boolean,
   compose?: (joint: IAutoMovieJointPose) => IAutoMovieQuaternion,
+  rotation?: IAutoMovieQuaternion,
 ): number {
   let total: number = 0;
 
@@ -113,10 +114,13 @@ function scan(
       !Number.isFinite(joint.twist ?? 0)
     )
       return total;
+    // The rotation the angles were read from, when the caller has it on
+    // the range's own frame, is what composing them gives back.
     const reading: swingTwistRange.IReading = swingTwistRange.read(
-      compose === undefined
-        ? jointToQuaternion(joint, range.axes, range.frame)
-        : compose(joint),
+      rotation ??
+        (compose === undefined
+          ? jointToQuaternion(joint, range.axes, range.frame)
+          : compose(joint)),
       range,
     );
     const reach: number = swingTwistRange.radius(
@@ -257,12 +261,18 @@ export namespace scanJointRom {
    * Canonical fallback, ordered additions and tolerances remain unchanged.
    * Exact unchanged bone/constraint/axes/frame inputs justify that preparation;
    * each candidate still owns its fresh outer product and actual reading.
+   *
+   * A caller that read the joint's angles off a rotation, on a basis and
+   * rest frame that are the range's own (`readsSwingTwistFrame`), passes
+   * that rotation: a gated joint's range then reads it instead of the
+   * rotation its angles compose back to, the same rotation up to the
+   * rounding of the round trip, and composes nothing.
    */
   export function prepare(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint,
     rig?: swingTwistRange.IJoint,
-  ): (joint: IAutoMovieJointPose) => number {
+  ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
     const source: swingTwistRange.IJoint | undefined =
       constraint.swingTwist === undefined || constraint.swingTwist === null
         ? undefined
@@ -289,7 +299,7 @@ export namespace scanJointRom {
             }
             return composer(joint);
           };
-    return (joint: IAutoMovieJointPose): number =>
-      scan(joint, constraint, undefined, range, true, compose);
+    return (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion): number =>
+      scan(joint, constraint, undefined, range, true, compose, rotation);
   }
 }

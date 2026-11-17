@@ -269,8 +269,8 @@ export namespace prepareChainFit {
 
   /** Lazy immutable-rig preparation; loaders are the existing pure hinge functions, not target scores or user callbacks. */
   export interface IRig {
-    /** Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame. */
-    overshoot(bone: AutoMovieHumanoidBone): (joint: IAutoMovieJointPose) => number;
+    /** Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame; the optional rotation is the one the angles were read from on that frame (`scanJointRom.prepare`). */
+    overshoot(bone: AutoMovieHumanoidBone): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number;
     /** Actual skeleton record; an absent bone is remembered too. */
     bone(bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined;
 

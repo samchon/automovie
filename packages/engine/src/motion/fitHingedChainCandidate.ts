@@ -22,6 +22,7 @@ import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { readsSwingTwistFrame } from "../kinematics/readsSwingTwistFrame";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -127,7 +128,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the swivel nearest the pole that the wrist's box and the forearm's twist range admit) is legal and met (measured with the box alone: 9 of 119 hand fits of test_human_motion_core_overlay_hold; with the twist range, unmeasured; a rotation no swivel meets goes to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). A fit with no hint side keeps its exact-zero first-candidate certificate and, with a requested rotation, is bounded by the miss as well; a strain fit with a requested rotation scores only the swivels whose miss shares the least legal error's bucket (both unmeasured). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. A root gated by swing and twist whose angles are decomposed on its range's own basis and rest frame (`readsSwingTwistFrame`) has its range read on the candidate rotation itself, which its angles compose back to up to the round trip's rounding, so no candidate recomposes its root. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
 export function fitHingedChainCandidate(
@@ -259,9 +260,20 @@ export function fitHingedChainCandidate(
 
   // The gate reads canonical scoring frames when no rig is supplied. Their
   // axes, clinical frame and constraint are fixed for every swivel here.
-  const upperOvershoot: (joint: IAutoMovieJointPose) => number =
+  const upperOvershoot: (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number =
     rig?.overshoot(props.chain.upper) ??
     jointRomOvershoot.prepare(props.chain.upper, prepared.upperDomain.constraint);
+
+  // A root gated by swing and twist reads its range on the candidate's own
+  // rotation where the angles are decomposed on the range's own basis and
+  // rest frame (`readsSwingTwistFrame`), so the scan composes nothing back.
+  const upperConstraint: IAutoMovieJointConstraint | null = prepared.upperDomain.constraint;
+  const upperRange: swingTwistRange.IJoint | undefined =
+    upperConstraint === null || upperConstraint.swingTwist === undefined || upperConstraint.swingTwist === null
+      ? undefined
+      : swingTwistRange.of(props.chain.upper);
+  const upperRotated: boolean = upperRange !== undefined &&
+    readsSwingTwistFrame(upperBasis, props.restFrames?.[props.chain.upper], upperRange);
   const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
     rig?.overshoot(props.chain.lower) ??
     jointRomOvershoot.prepare(props.chain.lower, prepared.lowerDomain.constraint);
@@ -353,7 +365,7 @@ export function fitHingedChainCandidate(
           twist: u.twist ?? 0,
         }) + known.effort : 0,
       overshoot:
-        upperOvershoot(u) +
+        upperOvershoot(u, upperRotated ? upper : undefined) +
         known.overshoot +
         blocked,
       turned:

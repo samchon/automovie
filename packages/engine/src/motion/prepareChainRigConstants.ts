@@ -65,7 +65,7 @@ export function prepareChainRigConstants(
   > = new Map();
   const scores: Map<
     AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose) => number
+    (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number
   > = new Map();
   let project: ReturnType<typeof prepareJointRotationProjection> | undefined;
   let restInverse: IAutoMovieQuaternion | undefined;
@@ -154,8 +154,8 @@ export function prepareChainRigConstants(
     },
     overshoot: (
       bone: AutoMovieHumanoidBone,
-    ): ((joint: IAutoMovieJointPose) => number) => {
-      let score: ((joint: IAutoMovieJointPose) => number) | undefined =
+    ): ((joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number) => {
+      let score: ((joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number) | undefined =
         scores.get(bone);
       if (score === undefined) {
         score = jointRomOvershoot.prepare(bone, rig.domain(bone).constraint);
