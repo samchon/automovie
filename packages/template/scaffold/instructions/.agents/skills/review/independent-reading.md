@@ -24,7 +24,7 @@ A recipient's loss stays a finding even when upstream knowledge explains it, and
 
 Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, the parents and the requirements, looking for contradictions; matching quotations do not replace this comparison. Do not recompute fiction's own quantities, as [factual basis](../story/planning/requirements.md#factual-basis) sets.
 
-Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in a separate context before reading author defenses. Apply the contract's decision rule to named failures and the [retention test](../story/answers.md#grounds-for-retaining-a-candidate) to other candidates; intent or a function label cannot overturn the locked judgment.
+Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it as that section sets, and weigh each candidate by the [retention test](../story/answers.md#grounds-for-retaining-a-candidate).
 
 ## Expression
 
