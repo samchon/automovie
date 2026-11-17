@@ -54,6 +54,7 @@ export * from "./resolveAutoMovieHumanoidSurfaces";
 export * from "./resolveLookAt";
 export * from "./resolvePose";
 export * from "./skeletonJointAxes";
+export * from "./solveResolvedRate";
 export * from "./solveTwoBoneIK";
 export * from "./swingTwistBasis";
 export * from "./swingTwistRange";
