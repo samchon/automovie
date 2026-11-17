@@ -29,9 +29,11 @@ open.affordance("pull").frame; // the lever's grip on the open leaf
 open.site("aperture", 0.5, 0); // the middle of the threshold
 ```
 
-The same parameters and seed always give the same model. Without a seed every dimension takes the middle of its band. A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
+With the source revision, dependencies and runtime fixed, the same parameters and seed give the same model. Without a seed, free band draws use their midpoints and an omitted model name selects the first eligible model. Fixed and derived dimensions follow the producer's documented rules. Upgrades may intentionally correct model selection, geometry, physical properties or contacts, changing later output.
 
-An archetype serialises as a plain model. Its accessors (`affordance`, `site`, `articulate`, `travel`, `span`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
+A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
+
+An archetype serialises as a plain model. Retain that serialised data when the model data produced by an earlier revision must be preserved. Its accessors (`affordance`, `site`, `articulate`, `travel`, `span`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
 
 ## Entry points
 
