@@ -367,6 +367,7 @@ export namespace HumanArmGeometry {
    *
    * @param setup The arm.
    * @param c The coordinates.
+   * @param turned The shoulder's rotation at these coordinates (`shoulder`) when the caller already holds it; computed when absent.
    * @returns The triples.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the coordinate input and returned clinical triples; the namespace documents their units and coordinate order.
@@ -380,10 +381,11 @@ export namespace HumanArmGeometry {
   export function arm(
     setup: ISetup,
     c: readonly number[],
+    turned: IAutoMovieQuaternion = shoulder(setup, c),
   ): HumanArmClearance.IArm {
     const read: { flexion: number; abduction: number; twist: number } =
       decomposeJointRotationOnBasis(
-        shoulder(setup, c),
+        turned,
         setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
         HUMANOID_REST_FRAME[setup.bones.upper],
         {
