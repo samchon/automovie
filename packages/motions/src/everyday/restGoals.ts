@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapeSpan } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -7,9 +7,12 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import type { rest } from "./rest";
 import { restClasped } from "./restClasped";
@@ -26,7 +29,9 @@ import { restElbowSupport } from "./restElbowSupport";
  * that holds one hand lays a hand surface on a named region with the palm
  * facing into it; the places that hold the hands together are
  * `restClasped`'s and `restCrossedArms`'s, and the hand under the other
- * elbow is `restElbowSupport`'s.
+ * elbow is `restElbowSupport`'s. Both hands at the chin put the chin on
+ * both fists, each beside the midline by its own closed depth on the palm
+ * side, read from the hand's and fingers' colliders.
  *
  * @param body The body.
  * @param posture The standing posture.
@@ -174,13 +179,19 @@ export function restGoals(
         break;
       }
       case "chinRest": {
+        // The chin on both fists when both hands rest it: each fist beside
+        // the midline by its own depth on the palm side, so the two fists,
+        // palms in, meet at the midline, where one place would put both
+        // fists into each other.
         const chin: HumanTrunk.ISurface = region(side);
         out[side] = lay(
           side,
           place,
           "fist",
           "fist",
-          chin.point,
+          places.left === "chinRest" && places.right === "chinRest"
+            ? Vector3.addScaled(chin.point, dir(1, 0, 0), sign * fistDepth(body, posture, side))
+            : chin.point,
           dir(0, 1, 0),
           dir(-sign, 0, 0),
         );
@@ -202,6 +213,41 @@ export function restGoals(
     );
   }
   return out;
+}
+
+/**
+ * How far a fist reaches on its palm side past its own fist surface: the
+ * highest point of the hand's and the fingers' colliders along the palm's
+ * normal, the hand closed in the fist, less the fist surface's own.
+ */
+function fistDepth(
+  body: IHumanBody,
+  posture: IHumanPosture,
+  side: HumanHand.Side,
+): number {
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+    [...HumanColliders.bones(body)].filter(
+      (bone: AutoMovieHumanoidBone): boolean =>
+        bone === `${side}Hand` ||
+        (bone.startsWith(side) && /(Thumb|Index|Middle|Ring|Little)/.test(bone)),
+    ),
+  );
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture(body, {
+      ...posture,
+      joints: { ...posture.joints, ...HumanHand.shape(side, "fist") },
+    }),
+    undefined,
+    new Set([...requested, ...HumanHand.frameBones(body, side, "fist")]),
+  );
+  const normal: IAutoMovieVector3 = HumanHand.frame(body, bones, side, "palm").normal;
+  let high: number = -Infinity;
+  for (const segment of HumanColliders.placed(body, bones))
+    if (requested.has(segment.bone))
+      for (const shape of segment.shapes)
+        high = Math.max(high, physicalShapeSpan(segment.pose, shape, normal)[1]);
+  return high - Vector3.dot(HumanHand.frame(body, bones, side, "fist", "fist").point, normal);
 }
 
 /**
