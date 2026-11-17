@@ -326,21 +326,25 @@ export class Archetype<
   }
 
   /**
-   * This archetype with its rest parts replaced, keeping its identity, affordances, materials, dimensions and mass properties: how a rig that is not an articulation, such as an animal's skeleton, poses it.
+   * This archetype with its rest parts replaced, keeping its identity, materials, dimensions and mass properties: how an animal's skeleton poses it. A rig may also supply its explicitly moved contact frames; absent those, affordances retain their previous rest positions.
    *
    * @param parts The parts in the new pose, in the model's space; the same ids as this archetype's.
+   * @param affordances Explicitly posed contacts, or the original rest contacts when omitted.
    * @returns A new archetype at rest in that pose; this one is unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what is replaced and who calls it.
-   * @evidence contracts/development/implementation.md#principled-implementation A copy of the rest record with the part list swapped; the affordances stay where the rest model has them, and mass properties stay the rest pose's, as `body` documents.
+   * @evidence contracts/development/implementation.md#principled-implementation A copy of the rest record swaps the part list and any supplied posed contact list; omitted contacts preserve the existing rest positions. Mass properties stay the rest pose's, as body documents.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller owns the pose's correctness; ids are not re-checked here because `validateModel` admits the result like any model.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the constructor's pass.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Materials and mass properties are shared with the new archetype.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new archetype holds its own rest record; nothing else is retained.
    */
-  public reposed(parts: IAutoMovieModelPart[]): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>({ ...this.#rest, parts });
+  public reposed(
+    parts: IAutoMovieModelPart[],
+    affordances: IAutoMovieAffordance[] = this.#rest.affordances,
+  ): Archetype<Id, Dimension> {
+    return new Archetype<Id, Dimension>({ ...this.#rest, parts, affordances });
   }
 
   /**

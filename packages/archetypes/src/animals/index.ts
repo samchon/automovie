@@ -4,6 +4,7 @@ export * from "./DogBody";
 export * from "./DogGait";
 export * from "./QuadrupedAnimal";
 export * from "./QuadrupedBody";
+export * from "./QuadrupedSkeleton";
 export * from "./QuadrupedChange";
 export * from "./QuadrupedGait";
 export * from "./createDonkey";

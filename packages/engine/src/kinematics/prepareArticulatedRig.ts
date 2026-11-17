@@ -1,0 +1,226 @@
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieArticulatedRig,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import type { IArticulatedRigReader } from "./IArticulatedRigReader";
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
+import { normalizeJointAxes } from "./normalizeJointAxes";
+
+/** The three local degree coordinates, independent of a humanoid bone name. */
+type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
+
+/** One admitted owned joint in parent-first order. */
+interface IPrepared<Bone extends string> {
+  /** Semantic bone identity. */
+  bone: Bone;
+  /** Parent identity or sole root. */
+  parent: Bone | null;
+  /** Owned normalized neutral transform. */
+  rest: IAutoMovieTransform;
+  /** Owned normalized basis. */
+  axes: IAutoMovieJointAxes;
+  /** Explicit copied boxes or unknown limits. */
+  limits: IAutoMovieArticulatedRig<Bone>["bones"][number]["limits"];
+}
+
+/**
+ * Prepare generic rigid FK without a species or humanoid-bone branch.
+ *
+ * @param rig A connected rigid tree with explicit axes and declared degree boxes.
+ * @returns An independent prepared reader; later mutation of rig data cannot rewrite it.
+ * @throws {Error} For malformed graph, transform, basis or limits, or when a read names an absent bone or violates a declared box.
+ * @evidence contracts/development/common.md#meaningful-documentation States the tree and rigid-transform domains, snapshot ownership, independent output and refusal conditions.
+ * @evidence contracts/development/implementation.md#principled-implementation Parent-first FK composes parent rotation with neutral rotation and the existing basis-defined joint quaternion, and rotates the neutral translation through the parent. Breadth-first graph admission proves one connected acyclic tree before reads.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot/admit nodes, order the tree once, then perform one rigid composition per bone per read using shared quaternion and basis owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No animal name, humanoid default ROM, dummy finger mapping, stale completed pose, clamped joint or ignored scale selects an answer. Unit scale is an explicit rigid-link premise, and unknown limits are not invented.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and reads are O(B+J) for B bones and J named input joints, with O(B) owned metadata/output. Parent lookup is by Map and no pairwise traversal or per-read graph reconstruction occurs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Graph order, admitted neutral frames, normalized axes and explicit boxes are prepared once from copied values; each read computes its actual current rotations and fresh world frames.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains O(B) independent scalar records for its own lifetime. Each returned Map owns fresh transforms, retains no query map and acquires no process, global cache or external handle.
+ */
+export function prepareArticulatedRig<Bone extends string>(
+  rig: IAutoMovieArticulatedRig<Bone>,
+): IArticulatedRigReader<Bone> {
+  if (
+    typeof rig.id !== "string" ||
+    rig.id.length === 0 ||
+    rig.bones.length === 0
+  )
+    throw new RangeError("An articulated rig needs an id and bones");
+  const nodes: Map<Bone, IPrepared<Bone>> = new Map();
+  const children: Map<Bone | null, Bone[]> = new Map();
+  for (const raw of rig.bones) {
+    const bone: Bone = raw.bone;
+    const parent: Bone | null = raw.parent;
+    if (
+      typeof bone !== "string" ||
+      bone.length === 0 ||
+      nodes.has(bone) ||
+      (parent !== null && (typeof parent !== "string" || parent.length === 0))
+    )
+      throw new RangeError(
+        "Articulated bone names must be unique nonempty strings",
+      );
+    const rest: IAutoMovieTransform = rigid(raw.rest);
+    const axes: IAutoMovieJointAxes = normalizeJointAxes(
+      {
+        flexion: { ...raw.axes.flexion },
+        abduction: { ...raw.axes.abduction },
+        twist: { ...raw.axes.twist },
+        ...(raw.axes.twistPlacement === undefined
+          ? {}
+          : { twistPlacement: raw.axes.twistPlacement }),
+      },
+      `${rig.id}/${bone}.axes`,
+    );
+    const declared: IPrepared<Bone>["limits"] = raw.limits;
+    const limits: IPrepared<Bone>["limits"] =
+      declared === null
+        ? null
+        : {
+            flexion: range(declared.flexion),
+            abduction: range(declared.abduction),
+            twist: range(declared.twist),
+          };
+    nodes.set(bone, { bone, parent, rest, axes, limits });
+    const siblings: Bone[] = children.get(parent) ?? [];
+    siblings.push(bone);
+    children.set(parent, siblings);
+  }
+  const roots: readonly Bone[] = children.get(null) ?? [];
+  if (roots.length !== 1)
+    throw new RangeError("An articulated rig needs one root");
+  for (const node of nodes.values())
+    if (node.parent !== null && !nodes.has(node.parent))
+      throw new RangeError(`Missing articulated parent ${node.parent}`);
+  const queue: Bone[] = [roots[0]!];
+  const ordered: IPrepared<Bone>[] = [];
+  for (let i: number = 0; i < queue.length; i++) {
+    const bone: Bone = queue[i]!;
+    ordered.push(nodes.get(bone)!);
+    for (const child of children.get(bone) ?? []) queue.push(child);
+  }
+  if (ordered.length !== nodes.size)
+    throw new RangeError("An articulated rig must be connected and acyclic");
+  return {
+    bones: Object.freeze(
+      ordered.map((node: IPrepared<Bone>): Bone => node.bone),
+    ),
+    read: (
+      joints: ReadonlyMap<Bone, Rotation> = new Map(),
+      root?: IAutoMovieTransform,
+    ): ReadonlyMap<Bone, IAutoMovieTransform> => {
+      for (const bone of joints.keys())
+        if (!nodes.has(bone))
+          throw new RangeError(`Unknown articulated bone ${bone}`);
+      const world: Map<Bone, IAutoMovieTransform> = new Map();
+      const origin: IAutoMovieTransform =
+        root === undefined
+          ? {
+              translation: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 },
+            }
+          : rigid(root);
+      for (const node of ordered) {
+        const raw: Rotation | undefined = joints.get(node.bone);
+        const angles: Rotation =
+          raw === undefined
+            ? { flexion: null, abduction: null, twist: null }
+            : {
+                flexion: raw.flexion,
+                abduction: raw.abduction,
+                twist: raw.twist,
+              };
+        for (const axis of ["flexion", "abduction", "twist"] as const) {
+          const observed: number | null = angles[axis];
+          const value: number = observed === null ? 0 : observed;
+          const allowed: IAutoMovieAngleRange | null | undefined =
+            node.limits?.[axis];
+          if (
+            !Number.isFinite(value) ||
+            (node.limits !== null &&
+              (allowed === null
+                ? value !== 0
+                : value < allowed!.min || value > allowed!.max))
+          )
+            throw new RangeError(
+              `Articulated ${node.bone}.${axis} violates its declared range`,
+            );
+        }
+        const parent: IAutoMovieTransform =
+          node.parent === null ? origin : world.get(node.parent)!;
+        const local: IAutoMovieQuaternion = Quaternion.multiply(
+          node.rest.rotation,
+          jointToQuaternionOnBasis(angles, node.axes),
+        );
+        world.set(node.bone, {
+          translation: Vector3.add(
+            parent.translation,
+            Quaternion.rotateVector(parent.rotation, node.rest.translation),
+          ),
+          rotation: Quaternion.multiply(parent.rotation, local),
+          scale: { x: 1, y: 1, z: 1 },
+        });
+      }
+      return world;
+    },
+  };
+}
+
+/** Copy a finite rigid transform, refusing scale that this link model cannot carry. */
+function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
+  const point: IAutoMovieTransform["translation"] = raw.translation;
+  const turn: IAutoMovieQuaternion = raw.rotation;
+  const translation: IAutoMovieTransform["translation"] = {
+    x: point.x,
+    y: point.y,
+    z: point.z,
+  };
+  const rotation: IAutoMovieQuaternion = {
+    x: turn.x,
+    y: turn.y,
+    z: turn.z,
+    w: turn.w,
+  };
+  for (const axis of ["x", "y", "z"] as const)
+    if (!Number.isFinite(translation[axis]) || raw.scale[axis] !== 1)
+      throw new RangeError(
+        "Articulated transforms need finite position and unit scale",
+      );
+  if (
+    ![rotation.x, rotation.y, rotation.z, rotation.w].every(Number.isFinite) ||
+    Math.max(
+      Math.abs(rotation.x),
+      Math.abs(rotation.y),
+      Math.abs(rotation.z),
+      Math.abs(rotation.w),
+    ) === 0
+  )
+    throw new RangeError(
+      "Articulated rotations need a finite nonzero quaternion",
+    );
+  return {
+    translation,
+    rotation: Quaternion.normalize(rotation),
+    scale: { x: 1, y: 1, z: 1 },
+  };
+}
+
+/** Copy an explicit finite ordered degree interval, keeping null as an immobile axis. */
+function range(raw: IAutoMovieAngleRange | null): IAutoMovieAngleRange | null {
+  if (raw === null) return null;
+  const min: number = raw.min;
+  const max: number = raw.max;
+  if (!(Number.isFinite(min) && Number.isFinite(max) && min <= max))
+    throw new RangeError(
+      "Articulated limits need finite ordered degree endpoints",
+    );
+  return { min, max };
+}
