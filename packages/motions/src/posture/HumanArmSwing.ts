@@ -95,6 +95,7 @@ export namespace HumanArmSwing {
    * @param sides The arms to keep clear.
    * @param source Optional exact FK source borrowed only from this synchronous same-body operation.
    * @param projection Optional genuine same-body ROM projector for the complete current pose and initial stance fit.
+   * @param resolved The cold resolve of this very posture, when its caller already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly); absent, the posture is resolved here.
    * @returns The posture with the arms' upper arm joints let out.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which arms, against what allowance and what is written back.
@@ -111,9 +112,11 @@ export namespace HumanArmSwing {
     sides: readonly ("left" | "right")[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    resolved?: IAutoMoviePose,
   ): IHumanPosture {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-    let pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, undefined, projection).pose;
+    let pose: IAutoMoviePose = resolved ??
+      resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, undefined, projection).pose;
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     for (const side of sides) {
       if (posture.limbs[`${side}Arm`] !== undefined) continue;

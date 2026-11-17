@@ -197,6 +197,52 @@ export namespace resolveHumanPosture {
     return prepareHumanPostureBase(body, posture, base);
   }
 
+  /** A posture's direct part, assembled (`resolveHumanPostureSource.IAssembled`): the authored posture, its root and clamped direct joints as a pose before any limb fit, and its own goals turned. */
+  export type IAssembled = resolveHumanPostureSource.IAssembled;
+
+  /**
+   * The first half of a resolve, held as a value: the posture's root, heading
+   * and direct joints clamped to the rig's range, before any limb is fitted.
+   * A cold resolve of the posture is `fit` of this assembly; a caller that
+   * resolves one direct posture under several sets of limb goals assembles
+   * once and fits each set.
+   *
+   * @param body The performer's body.
+   * @param posture The posture; it is read now and kept by reference for the goals' turning and the digits, so it stays unchanged while the assembly is used.
+   * @returns The assembly.
+   *
+   * The assembly does not depend on limb goals, costs one O(B) assembly and
+   * projection, and is the caller's; nothing is retained here.
+   */
+  export function assemble(body: IHumanBody, posture: IHumanPosture): IAssembled {
+    return resolveHumanPostureSource.assemble(body, posture);
+  }
+
+  /**
+   * The second half of a resolve on an assembly: limb goals fitted in the
+   * resolver's order and the assembled posture's digits after them.
+   *
+   * @param body The performer's body.
+   * @param assembled The assembly (`assemble`), left unchanged.
+   * @param limbs Goals to fit in place of the assembled posture's own, authored like them (world goals are turned here by the posture's whole-body rotation); absent, the posture's own.
+   * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this same synchronous evaluation.
+   * @returns The pose and each fitted limb's seed and value, as `seeded` gives them for the posture with those goals; untouched records are the assembly's own, which callers treat as immutable.
+   *
+   * The same ordered refit and digit fit the cold resolve runs after its own
+   * assembly, so `fit(body, assemble(body, posture))` is that resolve. Each
+   * call pays its fits alone, and no fitted answer is kept between calls.
+   */
+  export function fit(
+    body: IHumanBody,
+    assembled: IAssembled,
+    limbs?: IHumanPosture["limbs"],
+    near: INear = {},
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): ISeeded {
+    return resolveHumanPostureSource.fit(body, assembled, limbs, near, resolution);
+  }
+
   /**
    * Translate an issued source's original raw demands to a new root. An
    * eligible exact candidate carries private evidence for seeded; changed

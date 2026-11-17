@@ -222,6 +222,7 @@ export namespace HumanBalance {
    * @param posture The actual posture with every limb and digit goal retained.
    * @param resolution Optional exact FK workspace or lazy supplier borrowed from the same synchronous body operation.
    * @param projection Optional genuine same-body ROM projector borrowed only from that synchronous operation; unissued functions keep ordinary admission.
+   * @param resolved The cold resolve of this very posture when its caller already holds it, read in place of solving the posture here.
    * @returns The whole-body centre, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States actual complete posture solving, classic mass-model ownership and world-metre output, with support geometry outside this request.
@@ -237,11 +238,12 @@ export namespace HumanBalance {
     posture: IHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    resolved?: ReturnType<typeof resolveHumanPosture>,
   ): IAutoMovieVector3 {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     return resolveAutoMovieCenterOfMass.place(
       body.massModel,
-      poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose, read(), HumanColliders.bones(body)),
+      poseBones(body, resolved ?? resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose, read(), HumanColliders.bones(body)),
     );
   }
 
