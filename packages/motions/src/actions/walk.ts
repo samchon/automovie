@@ -339,11 +339,22 @@ export namespace walk {
       );
     }
     // Settle every reached endpoint for the current swing observation.
+    // A swing joins the stance it left and the stance it lands in, each
+    // settled at the swing's own two ends: constants of the step, so each is
+    // settled once for the plan, as its descent and its flight are, rather
+    // than again at every second the swing is read.
+    const ends: Map<string, walkFoot.IEnd> = new Map();
     const end: (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => walkFoot.IEnd = (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): walkFoot.IEnd => {
-      return settle(t, {
-        left: steps.foot("left", t),
-        right: steps.foot("right", t),
-      }, undefined, undefined, resolution).feet[side];
+      const key: string = `${side}:${t}`;
+      let known: walkFoot.IEnd | undefined = ends.get(key);
+      if (known === undefined) {
+        known = settle(t, {
+          left: steps.foot("left", t),
+          right: steps.foot("right", t),
+        }, undefined, undefined, resolution).feet[side];
+        ends.set(key, known);
+      }
+      return known;
     };
     const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end);
     const ranged: Partial<Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>> = {};
