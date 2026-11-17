@@ -40,7 +40,7 @@ Write as a person writing for this document's reader. These habits mark text as 
 
 ## Structure
 
-The reader may be looking at the raw source in an editor, so every limit below is measured on the source line, links included.
+The reader may be looking at the raw source in an editor, so every limit below is measured on the source line. A link counts by its text, not its address, because the address says nothing the reader must take in.
 
 ### Headings
 

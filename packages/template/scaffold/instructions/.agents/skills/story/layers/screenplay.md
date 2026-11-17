@@ -10,7 +10,7 @@ Each film's screenplay is a folder with one file per scene, the unit code compos
 
 ## Realization
 
-On the long route, extract concise notes of the required identities, decisions, states, chronology, space and audience knowledge from the completed treatments and scripts. Draft in an [isolated context](../correction/inspection.md#isolated-context) from those notes, the requirements and fixed quotations, then compare the draft against the actual parents. The decided event order holds while the realization is composed afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
+On the long route, extract concise notes of the required identities, decisions, states, chronology, space and audience knowledge from the completed treatments and scripts. Draft in a [separate context](../workflow/routes.md#separate-contexts) from those notes, the requirements and fixed quotations, then compare the draft against the actual parents. The decided event order holds while the realization is composed afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
 
 On the short route, decide the events and their realization here from the instructions: from the first encounter with the promised experience through consequences, setup and payoff to the ending, and whether the audience learns each danger or secret before, with or after the people it concerns. Cite the [brief](brief.md) for the people, places and recurring props it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
 

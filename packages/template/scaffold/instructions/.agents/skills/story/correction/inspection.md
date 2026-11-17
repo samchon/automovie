@@ -2,13 +2,9 @@
 
 On the long route, the author's inspection, the author's repair of evidence gaps and the independent review of each pass use this method. The selected contracts own the failure conditions and exceptions; the classification table only records their application.
 
-## Isolated context
-
-Launch the author's model through an available subagent or separate-session tool, within its authorization, with no inherited conversation or working memory, passing only the job and input file paths. Calling the current context fresh does not isolate it; without a tool or authorization, report the task as unperformed.
-
 ## Independent classification
 
-Give the classifier the current body and needed neighbors, the selected contracts and the actual parents, and nothing of the author's explanations, evidence or earlier verdicts.
+Give the classifier, a [separate context](../workflow/routes.md#separate-contexts), the current body and needed neighbors, the selected contracts and the actual parents, and nothing of the author's explanations, evidence or earlier verdicts.
 
 Classify every sentence of scripts against every named failure of their selected contracts, and every sentence of the screenplay against the named failures of the production's own `docs/contracts/language` or `docs/contracts/work` contracts, where those name any. An ambiguous candidate is decided in context by the recipient loss; ambiguity alone is not yes.
 

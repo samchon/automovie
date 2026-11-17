@@ -34,4 +34,4 @@ A row takes only its study's values. A law follows the pages this skill's router
 
 ## Sending it upstream
 
-Share a row or a law other productions would need as a [shared module](../../development/source-layout.md#shared-modules) of the workspace, tell the user, and keep the registered one in the production until the package ships it. Tell the user of an action registration cannot express.
+Share a row or a law other productions would need as a [shared module](../../development/modules.md#shared-modules) of the workspace, tell the user, and keep the registered one in the production until the package ships it. Tell the user of an action registration cannot express.

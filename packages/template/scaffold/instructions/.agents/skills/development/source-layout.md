@@ -16,7 +16,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | `src/laws/<discipline>/` | Registered rows and laws, when a film needs one |
 | `src/interactions/<discipline>/` | A relation several scenes share, when a film has one |
 | `src/consequences/` | Commissioned effects and sound cues |
-| `src/*.ts` | The page entries, the subjects module and the film selector |
+| `src/*.ts` | The page entries, `subjects.ts` listing what capture draws, and the film selector |
 | `src/executable/` | The Node commands the README documents |
 | `src/integrations/<provider>/` | Code for an adopted provider or local tool |
 | `test/features/<source path>/` | Unit tests of the source at the same path |
@@ -76,20 +76,6 @@ The sound description goes in the video-diffusion prompt under [audio](../audio/
 
 A generated film carries its look in the video prompts' shared description, a direct 3D film in the materials of the entities' detail options and the film's grade.
 
-## How the parts work together
-
-An entity is constructed from its settings or brief facts and composes small fragments. Its methods are capabilities: each says what the subject does and to whom, never a pose, a coordinate or a time.
-
-A person's capability returns the installed motion vocabulary's own composition of the action, built from the cast member's prepared body, the proficiency the cast record gives and the targets the scene passes. The entity adds no motion of its own.
-
-A scene joins capabilities through the operators of the installed motion vocabulary and engine, and states each outcome the screenplay decided. The vocabulary aligns the participants and times their contacts, so a scene writes no alignment, timing rule or outcome rule.
-
-The whole composition resolves once per film into a frozen schedule, and every film second is a pure function of that schedule. Each film has one seed from which every seeded stream derives, the motion vocabulary's included, so reseeding a film reseeds every performer together. A film that continues another starts from that film's final state snapshots.
-
-A film only composes, as the [composition only](../contracts/development/composition.md#composition-only) item requires. The catalog and the screenplay films call the same capabilities with the same kind of parameters, so a case accepted in the catalog plays the same way in the film.
-
-The object shell over a functional core is the production's own style; installed packages keep theirs.
-
 ## Dependencies and files
 
 Imports point down the chain: host and commands to films, films to scenes, scenes to consequences, interactions and entities, and each of those to laws and installed packages. Tests may import any source folder. An import against that direction, or into a folder outside the source table, is a layout defect.
@@ -103,18 +89,6 @@ Each file exports one declaration named as the file and stays under 500 lines; s
 Work starts at the document it realizes: a new subject from its settings or brief record, then its entity folder and tests, and a new scene from its screenplay scene file, then its composition folder and its place in the film.
 
 A new action starts from the installed motion vocabulary. It starts from its research and a registered row or law only when motion's vocabulary extension finds the vocabulary lacks it.
-
-## Modules
-
-### One module
-
-Each subject or action has one definition. Another version of it, such as a taller fighter or a tired walk, is the same module with other parameters or another seed, so a repair reaches every version together. When a version needs something the module cannot express, give the module that parameter.
-
-### Shared modules
-
-A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a copied variant at workspace scale. A single production has no workspace packages and keeps its modules in `src`.
-
-The shared module takes what differed between the productions as constructor input or parameters instead of citing one production's records, and keeps its unit tests with it. Each production's entity or scene still cites its own settings or brief facts and passes them in.
 
 ## Execution and runtime setup
 

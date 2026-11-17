@@ -20,7 +20,7 @@ Hosted models screen prompts and inputs for violence, weapons, blood, real peopl
 
 Generate the number of takes per request that project context records, and choose among them before rewriting a prompt, because takes of one request differ. Where the model offers a draft tier or several outputs per job, choose among cheap drafts, then make the final from the chosen draft by the model's documented path.
 
-Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets, and compare them with the hint's stills at matched times under [comparison](../visual-debugging/comparison.md): first the contacts and outcomes its beats decide, then identity, positions, camera and motion. Choose for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. Leave the take's sound and continuous motion to the user, as the production principles set under what you can observe.
+Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets, and compare them with the hint's stills at matched times under [comparison](../visual-debugging/comparison.md): first the contacts and outcomes its beats decide, then identity, positions, camera and motion. Choose for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. Leave the take's sound and continuous motion to the user.
 
 Repair a take by its cause:
 

@@ -28,7 +28,7 @@ A screenplay-only commission skips this step. For a commission with a film, buil
 
 Accept one representative exchange [before widening](../../motion/judgment.md#before-widening) to the rest of the film.
 
-Judge the film within what the entry file says you can observe, and repair each cause where it lies, in the screenplay, the brief or the code, until the film reads as intended.
+Judge the film on captured stills, and repair each cause where it lies, in the screenplay, the brief or the code, until the film reads as intended.
 
 ### 5. Evidence
 
