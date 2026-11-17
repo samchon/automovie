@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { PRIMITIVE_RADIAL_SEGMENTS, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { QuadrupedBody } from "./QuadrupedBody";
@@ -12,6 +12,8 @@ import type { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
  * to the neck cylinder or trunk capsule's cylindrical course. These coarse
  * line contacts establish a geometric support path, not compliant padding,
  * a pressure distribution, restraint or a rated dynamic load capacity.
+ * Pack contacts use the shared radial primitive profile's actual vertices,
+ * so the analytic circles and their displayed polygonal courses both meet.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines neutral model metres, actual tangent rail/body boundaries, connected frame links and the explicit line-contact rather than physiological or load-rating claim.
  * @evidence contracts/development/design.md#principled-representation Existing authored beam/rail radii size actual additional support cylinders; the body's existing axes/radii determine their bearing locations and the already planned frame supplies their other endpoints.
@@ -80,7 +82,7 @@ export namespace QuadrupedEquipmentBearing {
   }
 
   /**
-   * Seat one longitudinal rail on the upper flank and join both frame ends.
+   * Seat one longitudinal rail on the closed upper flank and join both frame ends.
    *
    * @param plan The current atomic equipment preflight.
    * @param rig Actual trunk capsule's centre height and radius, metres.
@@ -88,11 +90,11 @@ export namespace QuadrupedEquipmentBearing {
    * @param side The existing side identity used by the frame's real parts.
    * @param rail The corresponding existing upper frame rail's midpoint.
    * @param color Display color without a material-physics inference.
-   * @evidence contracts/development/common.md#meaningful-documentation States the actual upper-flank line contact, positive axial overlap, existing authored rail radius, two radial end connections and unchanged free-frame placement.
-   * @evidence contracts/development/implementation.md#principled-implementation Project the actual upper frame rail radially onto the circle at trunkRadius+railRadius. Since its height exceeds the trunk axis, the bearing normal has positive Y. The admitted pack length lies within the actual trunk's cylindrical interval. Radial end links occupy the exterior tangent half-space and join the existing frame without changing pad or bridge clearances.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Derive one outward radial direction from the real body and rail, record its parallel tangent bearing and connect corresponding axial endpoints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The actual frame determines the contact direction; no fitted angle, species offset, invisible lining, body intrusion or fixture clearance change supplies contact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant vector arithmetic and three actual rods per side; existing additional-sphere checks remain O(S) with no geometry search or solver.
+   * @evidence contracts/development/common.md#meaningful-documentation States actual flank line contact with nonnegative-Y normal, positive axial overlap, authored rail radius, two end connections and unchanged free-frame placement; side contact is geometric connection without a gravity or friction claim.
+   * @evidence contracts/development/implementation.md#principled-implementation Select the closest closed-upper-flank vertex of the engine's shared radial primitive profile whose tangent half-space contains the actual frame rail with its radius. The body and bearing have the same +Z axis placement and opposite vertices of that same even profile, so both analytic circles and displayed polygonal courses touch. The side vertex remains feasible because the admitted frame X distance is barrel+clearance+thickness/2 and thickness/2 is at least railRadius. Positive axial overlap and exterior connecting cylinders retain the original body and frame boundaries.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Select one feasible common-profile normal from the actual body and rail, record its parallel tangent bearing and connect corresponding axial endpoints. The closed upper quadrant includes the side station, preserving narrow positive pads and zero clearance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the existing public primitive angular profile without changing its resolution, reading back a mesh, shifting inside the analytic collider, selecting a species/fixture angle or relaxing a contact tolerance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A bounded quarter-profile scan and three actual rods per side; existing additional-sphere checks remain O(S), without model regeneration, iterative fitting or a collision solver.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both sides use the same projection and authored dimensions; real primitive admission and emission stay with the common plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Three independent scalar rod records enter the call-local plan; no caller rig, completed geometry, cache or external handle is retained.
    */
@@ -110,10 +112,14 @@ export namespace QuadrupedEquipmentBearing {
       z: 0,
     };
     const outward: IAutoMovieVector3 = Vector3.subtract(rail, centre);
-    const distance: number = Vector3.length(outward);
+    const normal: IAutoMovieVector3 = packNormal(
+      plan,
+      outward,
+      rig.barrel + pack.railRadius,
+    );
     const at: IAutoMovieVector3 = Vector3.add(
       centre,
-      Vector3.scale(outward, (rig.barrel + pack.railRadius) / distance),
+      Vector3.scale(normal, rig.barrel + pack.railRadius),
     );
     plan.rod(
       `pack-${side}-bearing`,
@@ -133,6 +139,47 @@ export namespace QuadrupedEquipmentBearing {
         color,
         pack.clearance,
       );
+  }
+
+  /**
+   * Choose the nearest shared closed-upper-flank vertex that admits a straight link.
+   * The common +Z placement maps the primitive's radial XZ plane onto model XY;
+   * both ends of the contact use opposite vertices of its same even profile.
+   * A link centre must stay at least the sum of radii above the body's tangent
+   * plane, because its whole circular section must stay outside that plane.
+   */
+  function packNormal(
+    plan: QuadrupedEquipmentPlan,
+    frame: IAutoMovieVector3,
+    separation: number,
+  ): IAutoMovieVector3 {
+    let selected: IAutoMovieVector3 | undefined;
+    let best: number = -Infinity;
+    for (
+      let station: number = 0;
+      station <= PRIMITIVE_RADIAL_SEGMENTS / 4;
+      station++
+    ) {
+      const angle: number = (2 * Math.PI * station) / PRIMITIVE_RADIAL_SEGMENTS;
+      const normal: IAutoMovieVector3 = {
+        x: Math.sign(frame.x) * Math.cos(angle),
+        y: Math.sin(angle),
+        z: 0,
+      };
+      const projection: number = Vector3.dot(normal, frame);
+      if (projection >= separation && projection > best) {
+        selected = normal;
+        best = projection;
+      }
+    }
+    if (selected === undefined)
+      plan.refuse(
+        "pack.bearing",
+        { frame, separation },
+        "no shared closed-upper-flank primitive profile vertex can connect to the frame without crossing the body's tangent plane",
+        "supply finite frame dimensions with lateral distance at least the body and bearing radii combined",
+      );
+    return selected;
   }
 
   /** Coincident axes already join; every positive connecting span is a real rod. */

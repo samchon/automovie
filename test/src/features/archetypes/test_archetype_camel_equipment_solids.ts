@@ -22,6 +22,7 @@ import { nclose } from "../internal/nclose";
  *    box/cylinder stays outside the actual hump by the requested clearance,
  *    raised horizontal bridges remain connected to both side rails, and actual
  *    tangent body bearings retain positive axial spans and frame connections.
+ *    Actual tessellated sections also touch without a gap or penetration.
  * 2. The canonical pooled capture's authored dimensions remain admissible.
  *    Its input formula is independently reconstructed from Diop2020 TableII
  *    pooled girth 1.978 m, neck girth .656 m and body length 1.471 m, with
@@ -36,7 +37,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States canonical input provenance, every real primitive observation, tangent body-bearing spans and connected support, additional-body ownership and finite-cylinder distinguishing boundaries; no visual or load-capacity verdict is implied.
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual public camel producers and equipment preparation/emission, inspects actual primitive transforms, body-bearing tangency and frame endpoints, and genuine builder isolation, and requires structured geometry refusals.
- * @evidence contracts/development/testing.md#independent-expectations The oracle transforms the actual sphere centre into each emitted cylinder/box's local frame and applies their elementary solid distance definitions. It imports no source table, production fit routine or saved geometry. Actual body-local circular sections supply tangent distances and positive axial overlap, while actual endpoints supply frame joins. Canonical authoring inputs use independent published literals and declared construction ratios.
+ * @evidence contracts/development/testing.md#independent-expectations The oracle transforms the actual sphere centre into each emitted cylinder/box's local frame and applies their elementary solid distance definitions. It imports no source table, production fit routine or saved geometry. Actual body-local circular sections supply tangent distances and positive axial overlap. Separating axes of sections cut from actual tessellated triangles require zero signed gap independently of the producer; actual endpoints supply frame joins. Canonical authoring inputs use independent published literals and declared construction ratios.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers pooled/five morphotypes, canonical/custom packs, additional sphere collision, source-independent ox consumption, connected raised bridges, tangent bearings across all six cohorts and an admitted flat cap versus a refused nearer cap. Existing cohort units own seed/mass/sex policies.
  * @evidence contracts/development/testing.md#execution-ownership One portable synchronous discoverable scenario owns a bounded model collection and genuine in-memory builders, starts no process/compiler/renderer and replaces no method or geometry.
  */
