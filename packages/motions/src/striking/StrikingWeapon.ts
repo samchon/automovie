@@ -205,6 +205,15 @@ export namespace StrikingWeapon {
     to: number;
 
     /**
+     * The record the ends are read on: the law's geometry as built. A law
+     * builds its geometry again when the performance settles or commits a
+     * stop, and the ends of a second on the new one may differ (a stopped
+     * stroke, a partner shown otherwise), so ends posed at a second are kept
+     * only while this is the same record.
+     */
+    on: () => object;
+
+    /**
      * The capsules' axis ends at a film second, one more than the capsules:
      * capsule `i` runs from end `i` to end `i + 1`.
      *
@@ -241,17 +250,22 @@ export namespace StrikingWeapon {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
 
-    // The chain's ends are its action's free course posed at a second: a
-    // pure function of the second for the plan's life, whatever stops are
-    // installed (a stop freezes what is shown, not the free course). The
+    // The chain's ends are its action's course posed at a second: a pure
+    // function of the second on one built geometry (`IChain.on`). The
     // contact scans of a limb's capsules, the provisional hit track and the
     // settled resolution all read the same seconds, so each second is posed
-    // once for this plan's weapons and released with them.
+    // once for a geometry and forgotten when the law builds another.
     const posed: Map<number, readonly IAutoMovieVector3[]> = new Map();
+    let on: object | undefined;
     const free: IChain["ends"] = chain.ends;
     const shared: IChain = {
       ...chain,
       ends: (seconds: number): readonly IAutoMovieVector3[] => {
+        const now: object = chain.on();
+        if (now !== on) {
+          posed.clear();
+          on = now;
+        }
         let ends: readonly IAutoMovieVector3[] | undefined = posed.get(seconds);
         if (ends === undefined) {
           ends = free(seconds);

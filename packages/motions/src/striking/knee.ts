@@ -310,6 +310,7 @@ export namespace knee {
           side,
           seconds,
         ),
+      on: (): object => geometry(),
     };
 
     // The contact the performance committed, and the stopped leg's ride on
@@ -349,6 +350,10 @@ export namespace knee {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
+
+              // The geometry is built on the stop it was given: a stop
+              // committed now makes it another, whoever settles after.
+              built = undefined;
             },
           }
         : {}),
