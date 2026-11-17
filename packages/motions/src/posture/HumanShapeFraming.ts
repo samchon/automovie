@@ -81,7 +81,7 @@ export namespace HumanShapeFraming {
         lead: 0,
         ...(shape.kind === "hull"
           ? {
-              faces: planes(physicalHullFaces(shape.points).faces),
+              faces: planes(shape.points),
               origin: Vector3.add(
                 pose.position,
                 Quaternion.rotateVector(
@@ -100,8 +100,17 @@ export namespace HumanShapeFraming {
     return found;
   }
 
-  /** A hull's face planes packed four numbers each, the normal then the offset. */
-  function planes(faces: physicalHullFaces.IHull["faces"]): Float64Array {
+  /**
+   * A hull's face planes packed four numbers each, the normal then the
+   * offset, in the hull's own frame: the same for every posed frame of the
+   * same hull, so packed once per hull's points and shared by every framing
+   * of it (a fit frames a fresh pose's colliders, the planes do not move
+   * with it).
+   */
+  function planes(points: readonly IAutoMovieVector3[]): Float64Array {
+    const known: Float64Array | undefined = PLANES.get(points);
+    if (known !== undefined) return known;
+    const faces: physicalHullFaces.IHull["faces"] = physicalHullFaces(points).faces;
     const packed: Float64Array = new Float64Array(4 * faces.length);
     faces.forEach((face: physicalHullFaces.IFace, index: number): void => {
       packed[4 * index] = face.normal.x;
@@ -109,6 +118,7 @@ export namespace HumanShapeFraming {
       packed[4 * index + 2] = face.normal.z;
       packed[4 * index + 3] = face.offset;
     });
+    PLANES.set(points, packed);
     return packed;
   }
 
@@ -226,6 +236,9 @@ export namespace HumanShapeFraming {
 
 /** Fixed centre of a sphere, capsule or box in its own local frame; only read by fresh vector operations. */
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/** Each hull's packed face planes in its own frame, by its points, kept while the points live (`planes`). */
+const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> = new WeakMap();
 
 /** Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept while the frame lives. */
 const FRAMED: WeakMap<
