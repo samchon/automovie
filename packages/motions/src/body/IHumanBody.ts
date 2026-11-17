@@ -14,6 +14,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { humanLimbReads } from "../posture/humanLimbReads";
+
 /**
  * A performer's body as motion laws read it: the canonical VRM rig and its
  * physical profile, with the measure, the anatomical surfaces, the rig's
@@ -60,6 +62,12 @@ export interface IHumanBody {
 
   /** The joints whose range clamp gives a record it issued back bit for bit and that no writer of a resolved posture sets outside a clamp (`humanSettledJoints`), read once from the rig: a plain displayed pose keeps their records through its final clamp. */
   settled: ReadonlySet<AutoMovieHumanoidBone>;
+
+  /** What each limb's fit reads of a pose (`humanLimbReads`), read once from the rig: per limb and per whether the other arm is placed, the bones its reduced pose keeps and the bound demand of its source read, for a goal attached to no bone. */
+  reads: humanLimbReads.IReads;
+
+  /** The rig's bound demand of every bone a collider rides (`HumanColliders.bones`), made on its first read: a whole-body reader of the colliders or the mass (`HumanBalance.centre`) reads a pose through it. */
+  colliderBones: prepareSkeletonPoseResolution.IBoneDemand;
 
   /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: resolveAutoMovieCenterOfMass.IModel;

@@ -243,7 +243,7 @@ export namespace HumanBalance {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     return resolveAutoMovieCenterOfMass.place(
       body.massModel,
-      poseBones(body, resolved ?? resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose, read(), HumanColliders.bones(body)),
+      body.colliderBones.map(resolved ?? resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose, read()),
     );
   }
 
