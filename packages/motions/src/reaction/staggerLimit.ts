@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
+import { staggerCapture } from "./staggerCapture";
 import { staggerRecover } from "./staggerRecover";
 
 /**
@@ -54,7 +55,19 @@ export namespace staggerLimit {
     // limit does not depend on the refused speed that asked for it: index
     // 0 (no push) is caught, and the first index at or over `above` is not.
     const R: number = staggerBounds.RESOLUTION;
-    const top: number = Math.ceil(above / R - 1e-9);
+
+    // Koolen's `STEPS`-step capture distance bounds the bracket: a push's
+    // extrapolated centre of mass lies at least v / omega0 less the centre's
+    // distance from its nearer ankle from that ankle, so no push over
+    // omega0 (d_STEPS + that distance) is caught (`staggerCapture`).
+    const still: StaggerPendulum = new StaggerPendulum(body, entry, push, 0, fixed);
+    const near: number = Math.min(
+      ...(["left", "right"] as const).map((side: "left" | "right"): number =>
+        Math.hypot(fixed.centre.x - fixed.entered[side].ankle.x, fixed.centre.z - fixed.entered[side].ankle.z),
+      ),
+    );
+    const screened: number = fixed.w * (staggerCapture(still).distance(staggerBounds.STEPS) + near);
+    const top: number = Math.ceil(Math.min(above, screened) / R - 1e-9) + (screened < above ? 1 : 0);
     const probe: (catches: (speed: number) => boolean) => (k: number) => boolean = (
       catches: (speed: number) => boolean,
     ): ((k: number) => boolean) => {

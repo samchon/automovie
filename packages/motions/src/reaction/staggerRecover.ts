@@ -9,6 +9,7 @@ import type { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerAdmission } from "./staggerAdmission";
 import { staggerBounds } from "./staggerBounds";
+import { staggerCapture } from "./staggerCapture";
 import { staggerClose } from "./staggerClose";
 import { staggerStep } from "./staggerStep";
 
@@ -218,6 +219,12 @@ export namespace staggerRecover {
     );
     const { entered, root, forward, across }: StaggerPendulum = pendulum;
 
+    // Koolen's N-step capture distance screens the push: one farther than
+    // `STEPS` steps reach is a fall, and no order shorter than the fewest
+    // steps that reach it is tried (`staggerCapture`).
+    const fewest: number = staggerCapture(pendulum).fewest;
+    if (fewest > STEPS) return null;
+
     // The order of the feet is chosen with the steps: every order of up to
     // `STEPS` steps is tried, the fewest steps first and, among as many, the
     // order that alternates from the preferred foot first, and the first that
@@ -276,6 +283,7 @@ export namespace staggerRecover {
       : undefined;
     const taken: Map<string, IPrefix> = new Map();
     for (const order of orders) {
+      if (order.length < fewest) continue;
       pendulum.reset();
       let caught: boolean = false;
       for (let k: number = 0; k < order.length; k++) {
