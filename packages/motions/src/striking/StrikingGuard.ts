@@ -10,8 +10,8 @@ import { StrikingStance } from "./StrikingStance";
 
 /**
  * Place the fighting guard's two glove goals on the current trunk: both at
- * the ear's height outside their own ear, the rear glove just ahead of the
- * face and the lead glove a forearm ahead, less its shoulder's withdrawal
+ * their ear's height the same short distance ahead of their jaw, the rear
+ * glove outside its ear and the lead glove before its own shoulder
  * (`StrikingStance` gives the sources).
  *
  * @param body The unchanged canonical body.
@@ -23,7 +23,7 @@ import { StrikingStance } from "./StrikingStance";
  * @returns The two actual world-metre glove goals.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States current-body ownership, lead/rear placement, metre units and exact borrowed-frame/reader premises.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the jaws, the ears and the face's forward on the current trunk, puts each fist at its ear's height a radius outside that ear, the rear one the near distance ahead and the lead one a forearm ahead less its shoulder's withdrawal, and bends each elbow toward a point below and ahead of its shoulder; StrikingStance.glove turns each into a wrist goal.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads the jaws, the ears and the face's forward on the current trunk, puts each fist at its ear's height the near distance ahead of its jaw, the rear one a radius outside its ear and the lead one before its shoulder joint, and bends each elbow toward a point below and ahead of its shoulder; StrikingStance.glove turns each into a wrist goal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded trunk read feeds both sides' goals; the stance facade keeps the public entry while this owner holds guard placement and its exact FK prerequisites.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coached coefficient and vector operation is unchanged. Demand selects the actual region-carrying bones plus both shoulders, while authored joint/clamp admission and output freshness remain with their owners.
  * @evidence contracts/development/implementation.md#efficient-algorithms Without supplied frames, FK admits all joints but returns only the six region owners and two shoulders plus their ancestry. One supplied operation reader shares equal scalar prerequisites with lowering/other reads; two side computations remain constant work. The face requests its normal only, and the jaws and the ears their points and normals; unused direction/position rotations and wrappers are omitted by their canonical owner, with speedup unmeasured.
@@ -56,35 +56,39 @@ export function StrikingGuard(
 
     // The guard of a striker who faces kicks as well as punches: the rear
     // hand "as if holding a phone to your ear and then pushed forward just in
-    // front of your face", the front hand "at the same height but pushed a
-    // little further forward" (the boxing and MMA guard), the arms
-    // "projected out further" with "nearly vertical forearms" in the Muay
-    // Thai guard. Both gloves stand at the ear's height a fist's half width
-    // outside their own ear, so the lane between them is open down the line
-    // and the elbows hang above the ribs; the rear one
-    // `near` ahead of its jaw and the lead one a forearm ahead, less what its
-    // shoulder is drawn back by a turning trunk. The resting arms do not
-    // close the ribs: a body kick is answered by dropping the elbow to the
-    // raised knee, an action (`defend`), not a posture.
+    // front of your face", the front hand "at the same height" before its
+    // own shoulder (the boxing and MMA guard; the Muay Thai guard's arms
+    // "projected out further" with "nearly vertical forearms"). Both fists
+    // stand at their ear's height, the same short distance ahead of their
+    // jaw: the rear one a fist's half width outside its ear, the lead one
+    // before its own shoulder joint. The resting arms do not close the ribs:
+    // a body kick is answered by dropping the elbow to the raised knee, an
+    // action (`defend`), not a posture.
     //
-    // Measured at the staged punch range: with the lead glove half a radius
-    // inside its jaw on a head that rode the stance turn, the partner's lead
-    // wrist stood 17 mm from the axis of a jab's forearm; with the rear
-    // glove at the jaw's own height, a jab's fist met the partner's rear
-    // middle finger 13 mm before the face; with both gloves drawn in to
-    // `near` and the elbows under them, every staged body kick was stopped
-    // on a forearm, the elbows at the height of the ribs.
-    const withdrawn: number = Math.max(0, 0.5 * Vector3.dot(
-      Vector3.subtract(bones.get(`${side === "left" ? "right" : "left"}UpperArm`)!.worldPosition, shoulder), forward,
-    ));
+    // Each place answers a measured line of the staged scenes on the average
+    // man (two equal guards, 0.99 m apart for a punch, 0.83 m for a kick):
+    // - a jab runs down the line at the face's height, so each glove stands
+    //   0.06 m or more beside it (0.12 m here);
+    // - a rear straight runs from the rear glove to the face and passes the
+    //   other's lead glove where the line is 0.11 m from the head's centre
+    //   line: a lead glove a fist's half width outside its ear stood 0.029 m
+    //   from that line and stopped the fist; before its shoulder it stands
+    //   0.06 m outside it;
+    // - a round kick's shin arrives at the flank between 1.09 and 1.25 m, so
+    //   the elbows hang above it only under ear-high fists: under chin-high
+    //   ones they stood at 1.14 to 1.17 m and stopped every staged kick;
+    // - neither glove is carried beyond `near`, or the two guards stand
+    //   inside each other at the kick's range.
     const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
     const ear: IAutoMovieVector3 = StrikingBody.region(
       body, bones, side === "left" ? "earLeft" : "earRight",
     ).point;
-    const beside: number = Math.max(0, Vector3.dot(Vector3.subtract(ear, jaw.point), outward));
+    const beside: number = lead
+      ? Vector3.dot(Vector3.subtract(shoulder, jaw.point), outward)
+      : Math.max(0, Vector3.dot(Vector3.subtract(ear, jaw.point), outward)) + m.forearmRadius;
     const fistAt: IAutoMovieVector3 = Vector3.add(
-      Vector3.add({ ...jaw.point, y: ear.y }, Vector3.scale(outward, beside + m.forearmRadius)),
-      Vector3.scale(forward, lead ? Math.max(near, m.forearm - withdrawn) : near),
+      Vector3.add({ ...jaw.point, y: ear.y }, Vector3.scale(outward, beside)),
+      Vector3.scale(forward, near),
     );
     const sag: IAutoMovieVector3 = { ...fistAt, y: fistAt.y - (drop[side] ?? 0) };
     const bend: IAutoMovieVector3 = Vector3.add(shoulder,

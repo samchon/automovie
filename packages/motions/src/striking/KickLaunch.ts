@@ -96,13 +96,17 @@ export namespace KickLaunch {
     /** Whether the kick is a feint. */
     feint: boolean;
 
-    /** Solve a contact for a goal on this launch's line, with a decided step (metres), a lean tried first (degrees) and the pelvis drive a decided step goes with (metres) when given. */
+    /** Solve a contact for a goal on this launch's line, with a decided step (metres), a lean tried first (degrees), the pelvis drive a decided step goes with (metres) and a chamber flexion in place of the skill's (degrees) when given. */
     contact: (
       goal: IAutoMovieVector3,
       decided: number | undefined,
       prefer?: number,
       driven?: number,
+      chamber?: number,
     ) => IPlanned;
+
+    /** The chamber's knee flexion when the launch's clearing decided it, degrees (`KickClear`); the skill's own when absent. */
+    chamber?: number;
 
     /** The launch's own contact, which decides the step. */
     launched: IPlanned;
@@ -272,6 +276,7 @@ export namespace KickLaunch {
       decided: number | undefined,
       prefer?: number,
       driven?: number,
+      chamber?: number,
     ): IPlanned => {
       const found: KickContact.IContact = KickContact.choose(
         props,
@@ -282,6 +287,7 @@ export namespace KickLaunch {
       );
       const fit: KickChain.IFit = found.fit;
       const folded: number =
+        chamber ??
         fit.flexion + (KickForm.CHAMBER_FLEXION - fit.flexion) * amplitude;
       const key: KickChamber.IKey = KickChamber.fold(
         body,

@@ -25,7 +25,9 @@ import type { kick } from "./kick";
  * before the leg has opened; the performance's contact resolution then
  * stops the leg there, far from the planned contact. A kicker who sees the
  * partner that near makes room first: the support foot steps back and the
- * kick is thrown from there. So the launch's plan is swept as the
+ * kick is thrown from there; before that, where it stands, it folds the
+ * knee to the full chamber (`KickForm.CHAMBER_FLEXION`) instead of the
+ * share of it its skill would show. So the launch's plan is swept as the
  * performance will sweep it (the leg's three capsules of `StrikingWeapon`,
  * at `HumanPerformanceContacts.STEP`, from the launch to a step before the
  * contact) against the partner as perceived at the launch, and while the
@@ -155,20 +157,43 @@ export namespace KickClear {
     };
     if (!early(launch.launched)) return launch;
 
+    // A kicker too close for the chamber its skill would show folds the
+    // knee to the full chamber first, heel to the thigh, where it stands:
+    // the foot then waits on its own side of the partner. Measured on the
+    // staged lead round kick, 0.74 m between the hips: folded 79 degrees the
+    // foot hung on the partner's hips, 8 ms after the chamber key.
+    const tight: number = KickForm.CHAMBER_FLEXION;
+    const folded: KickLaunch.IPlanned = launch.contact(
+      launch.planned,
+      launch.launched.carriage.step,
+      launch.launched.carriage.lean,
+      launch.launched.carriage.drive,
+      tight,
+    );
+    if (!early(folded))
+      return { ...launch, chamber: tight, launched: folded };
+
     // The support foot steps back by the thigh's girth, the widest of the
     // leg, while the way is not clear, no further than a backward step goes.
     const stride: number = 2 * body.measure.thighRadius;
     const furthest: number = -KickForm.STEP_BACK_SHARE * body.measure.stature;
-    let planned: KickLaunch.IPlanned = launch.launched;
+    let planned: KickLaunch.IPlanned = folded;
     for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
       const back: number = planned.carriage.step - stride;
       if (back < furthest) break;
-      planned = launch.contact(launch.planned, back, undefined, planned.carriage.drive);
+      planned = launch.contact(
+        launch.planned,
+        back,
+        undefined,
+        planned.carriage.drive,
+        tight,
+      );
 
       // A step back that puts the target out of the leg's reach clears the
       // way by missing it, which is no answer.
       if (planned.fit.status === "short") break;
-      if (!early(planned)) return { ...launch, launched: planned };
+      if (!early(planned))
+        return { ...launch, chamber: tight, launched: planned };
     }
     return launch;
   }
