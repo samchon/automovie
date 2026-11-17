@@ -14,6 +14,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanLegChain } from "../posture/HumanLegChain";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
@@ -29,7 +30,9 @@ import type { staggerRecover } from "./staggerRecover";
  * hip-to-ankle distance within the thigh and shank, its knee's flexion
  * inside the rig's knee range (by the cosine law on the measured thigh and
  * shank), and its thigh no further behind the hip than the hip's extension
- * allows (`walkLeg.trailing` against `walkReach.EXTENSION`). Where the feet
+ * allows (`walkLeg.trailing` against `walkReach.EXTENSION`); a foot touching
+ * down must also end its swing inside the swing's own leg ranges
+ * (`walkReach.swing`, to `staggerBounds.SETTLED`). Where the feet
  * cross, the two planted legs, each posed by the posture's own leg fit,
  * must keep within the tangle audit's give of each other
  * (`walkLegClearance.excess`, `walkLegClearance.BOUND`).
@@ -127,6 +130,18 @@ export function staggerAdmission(
       if (180 - (inner * 180) / Math.PI > knee(side)) return false;
       if (walkLeg.trailing(body, hip, ankle, ground.yaw) > walkReach.EXTENSION)
         return false;
+
+      // A foot touching down here ends its swing where the swing's own leg
+      // ranges hold it (`walkReach.swing`), or the displayed swing, held
+      // short of it, would snap onto it at the touch-down.
+      if (walk.steps.some((step: staggerRecover.IStep): boolean => step.side === side && Math.abs(step.land - t) < 1e-9)) {
+        const foot: walkFoot.IEnd = ground.feet[side];
+        const swung: walkFoot.IEnd = walkReach.swing(body, side, ground, {
+          placement: { ankle: foot.ankle, rotation: foot.rotation },
+          toes: foot.toes,
+        });
+        if (Vector3.distance(swung.ankle, foot.ankle) > staggerBounds.SETTLED) return false;
+      }
     }
 
     // Crossed feet: the two planted legs as the posture's fit poses them,

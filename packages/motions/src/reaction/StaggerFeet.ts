@@ -112,7 +112,7 @@ export class StaggerFeet {
    * @param seconds Seconds since the push.
    * @param feet The scheduled feet at that second.
    * @param resolution Optional exact FK source borrowed by the same synchronous settlement.
-   * @param root The upright root before lowering (`staggerLean`); read at the second when absent.
+   * @param at The lean's reading at the second (`staggerLean`): the upright root before lowering and the reaction's share, over which the lowering comes in from the entry's height; read when absent.
    * @returns The settled pelvis, feet and contacts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the time, the root's course, the hips read upright and the settling.
@@ -127,12 +127,12 @@ export class StaggerFeet {
     seconds: number,
     feet: Record<"left" | "right", walkFoot.IScheduled>,
     resolution?: Parameters<typeof walkReach.ground>[7],
-    root: IAutoMovieVector3 = this.lean(seconds).root,
+    at: ReturnType<StaggerFeet["lean"]> = this.lean(seconds),
   ): walkReach.IGround {
     const entry: IHumanPosture = this.posture;
-    return walkReach.ground(
+    const ground: walkReach.IGround = walkReach.ground(
       this.body,
-      root,
+      at.root,
       entry.yaw,
       entry.joints.hips ?? [0, 0, 0],
       feet,
@@ -140,6 +140,20 @@ export class StaggerFeet {
       undefined,
       resolution,
     );
+
+    // The lowering comes in with the reaction from the entry's own height,
+    // so the first pose is the entry's: the entry's legs already reach.
+    const lift: number = (at.root.y - ground.root.y) * (1 - at.ease);
+    return lift === 0
+      ? ground
+      : {
+          ...ground,
+          root: { ...ground.root, y: ground.root.y + lift },
+          hips: {
+            left: { ...ground.hips.left, y: ground.hips.left.y + lift },
+            right: { ...ground.hips.right, y: ground.hips.right.y + lift },
+          },
+        };
   }
 
   /** The standing feet, each at the placement its latest landed step supplied.
@@ -212,8 +226,9 @@ export class StaggerFeet {
   } {
     const feet: Record<"left" | "right", walkFoot.IScheduled> =
       this.scheduled(seconds);
-    const { trunk, root }: ReturnType<StaggerFeet["lean"]> = this.lean(seconds);
-    const settled: walkReach.IGround = this.settle(seconds, feet, resolution, root);
+    const at: ReturnType<StaggerFeet["lean"]> = this.lean(seconds);
+    const trunk: { pitch: number; roll: number } = at.trunk;
+    const settled: walkReach.IGround = this.settle(seconds, feet, resolution, at);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
     };

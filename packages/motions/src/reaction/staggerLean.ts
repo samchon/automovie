@@ -37,7 +37,7 @@ import { staggerBounds } from "./staggerBounds";
  * @param entry The posture the push meets.
  * @param walk The centre of mass's travel, the extrapolated centre of mass on the floor and the entry's centre of mass, world metres, at seconds since the action's start.
  * @param bend The centre of mass's shift per sine of the trunk's pitch and roll, metres.
- * @returns The trunk's tilt, degrees, and the upright root before any lowering, world metres, at a second.
+ * @returns The trunk's tilt, degrees, the upright root before any lowering, world metres, and the reaction's eased share from the entry (0 until the measured reaction, 1 once the weight shift is done), at a second.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the trunk's law, its provisional status, its direction, bound and onset, and the root's compensation, with sources.
  * @evidence contracts/development/implementation.md#principled-implementation The hip strategy's counter-rotation against the extrapolated centre of mass's lead, read in closed form from Hof's pendulum; the root's compensation is the measured linear mass shift per sine of tilt.
@@ -59,6 +59,7 @@ export function staggerLean(
 ): (seconds: number) => {
   trunk: { pitch: number; roll: number };
   root: IAutoMovieVector3;
+  ease: number;
 } {
   const forward: IAutoMovieVector3 = HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
@@ -70,7 +71,7 @@ export function staggerLean(
   const rise: number = AutoMovieMotionHumanTiming.seconds(staggerBounds.TRANSFER);
   const rolling: number = Vector3.dot(bend.roll, across) < 0 ? -1 : 1;
   const root: IAutoMovieVector3 = entry.posture.root;
-  return (seconds: number): { trunk: { pitch: number; roll: number }; root: IAutoMovieVector3 } => {
+  return (seconds: number): { trunk: { pitch: number; roll: number }; root: IAutoMovieVector3; ease: number } => {
     const travel: IAutoMovieVector3 = walk.course(seconds);
     const xi: IAutoMovieVector3 = walk.extrapolated(seconds);
 
@@ -100,6 +101,7 @@ export function staggerLean(
     const r: number = Math.sin((trunk.roll * Math.PI) / 180);
     return {
       trunk,
+      ease,
       root: {
         x: root.x + travel.x - bend.pitch.x * p - bend.roll.x * r,
         y: root.y,
