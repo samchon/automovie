@@ -27,9 +27,31 @@ export namespace QuadrupedRideClock {
     start: number;
     /** Actual course end, film seconds. */
     end: number;
-    /** Read clock context at the closest actual course boundary; spatial queries use the original plan. */
+    /**
+     * Read timing context at a film second, holding the nearest course boundary.
+     * Spatial placement still reads the original plan at its original second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines film seconds, actual cue-aware boundaries and the separation from unmodified spatial sampling.
+     * @evidence contracts/development/implementation.md#principled-implementation The prepared reader bounds only its time argument to start/end and delegates state construction to the admitted course plan.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar time bound precedes one existing plan-state read.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No distance, path, requested speed or source state is edited to create the boundary context.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant scalar work to the existing plan sampler's input-dependent cost.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Every phase, support and nod clock reads the same prepared temporal domain and existing plan.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains the already owned plan and two scalar bounds; returned states are not cached and no external resource is acquired.
+     */
     at: (seconds: number) => ArchetypeCourse.IState;
-    /** Read a committed stride/stance clock; undeclared gaps and speed-kind handover gaps still refuse. */
+    /**
+     * Read an already committed gait's clock at a film second.
+     * Unsupported gaps and speed-availability handover gaps remain refusals.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes committed-clock continuation from strict requested-speed admission and names its film-second input and declared gait output.
+     * @evidence contracts/development/implementation.md#principled-implementation Read boundary-aware course context, retain raw timing in range, and hold an endpoint only for the declared zero-speed bridge or an adjacent supported legacy handover.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The prepared reader finds the selected range, evaluates the two permitted continuation reasons and delegates interpolation or refusal to strict timing.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Authored speed edges and undeclared domain gaps cannot acquire continuation; no tolerance, scene exception or source-table mutation supplies missing measurements.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Reads one plan state, searches G gait ids, conditionally scans C boundary distances, inspects one adjacent range and delegates the selected R-row interpolation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the prepared ranges/boundaries, the shared temporal reader and the existing table interpolation rather than rebuilding a plan or gait.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the prepared plan/table references and bounded G/C context; timings are fresh results with no growing cache, frame history or external handle.
+     */
     timing: (
       gait: QuadrupedGait.Gait,
       seconds: number,
