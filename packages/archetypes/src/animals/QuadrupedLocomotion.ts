@@ -45,7 +45,7 @@ export namespace QuadrupedLocomotion {
   export interface IClock {
     /** Authored speed, metres per second; rows must increase strictly. */
     speed: number;
-    /** Authored complete stride period, seconds. */
+    /** Authored complete stride period, seconds, with a finite representable reciprocal frequency. */
     stride: number;
     /** Authored fore-foot ground-contact duration, seconds, below stride. */
     foreStance: number;
@@ -181,7 +181,7 @@ export namespace QuadrupedLocomotion {
    * @throws {ArchetypeRefusal} For malformed tables, unordered speeds, invalid contact/phase data or an absent transition rule.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the admitted numeric domains, complete-table requirement and snapshot ownership at the ride boundary.
-   * @evidence contracts/development/implementation.md#principled-implementation Validates finite positive clock values, strictly increasing row and gait endpoint speeds, 0≤phase<1 with leftFore zero, positive stances below period and each transition's declared rule, then copies every consumed nested value.
+   * @evidence contracts/development/implementation.md#principled-implementation Validates finite positive clock values and representable reciprocal frequency, strictly increasing row and gait endpoint speeds, 0≤phase<1 with leftFore zero, positive stances below period and each transition's declared rule, then copies every consumed nested value.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Table header, closed gait order, per-gait pose/rows/phases and transition admission, then one result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects invalid values rather than clamping, inventing periods or mutating the source species; snapshotting needs no registry or monkeypatch.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear time and retained space in row count plus gait count; four limb phases and bounded pose fields add constant work per gait.
@@ -205,11 +205,15 @@ export namespace QuadrupedLocomotion {
     let previous: QuadrupedGait.IGait | undefined;
     for (let index: number = 0; index < table.order.length; index++) {
       const kind: QuadrupedGait.Gait = table.order[index]!;
-      if (!Object.keys(QuadrupedGait.BEATS).includes(kind) || order.includes(kind))
+      if (
+        !Object.keys(QuadrupedGait.BEATS).includes(kind) ||
+        order.includes(kind)
+      )
         refuse("table.order", table.order, "use distinct supported gait names");
       const source: QuadrupedGait.IGait | undefined = table.gaits[kind];
       const axis: string = `table.gaits.${kind}`;
-      if (source === undefined) refuse(axis, source, "supply every ordered gait");
+      if (source === undefined)
+        refuse(axis, source, "supply every ordered gait");
       object(source, axis);
       object(source.phases, `${axis}.phases`);
       object(source.nod, `${axis}.nod`);
@@ -221,7 +225,10 @@ export namespace QuadrupedLocomotion {
       );
       const phases: Record<QuadrupedBody.Limb, number> = { ...source.phases };
       for (const limb of [
-        "leftFore", "rightFore", "leftHind", "rightHind",
+        "leftFore",
+        "rightFore",
+        "leftHind",
+        "rightHind",
       ] as const) {
         unit(phases[limb], `${axis}.phases.${limb}`);
         if (phases[limb] === 1)
@@ -269,7 +276,11 @@ export namespace QuadrupedLocomotion {
         (key: string): boolean => !order.includes(key as QuadrupedGait.Gait),
       )
     )
-      refuse("table.gaits", table.gaits, "list exactly the gaits present in order");
+      refuse(
+        "table.gaits",
+        table.gaits,
+        "list exactly the gaits present in order",
+      );
     return {
       order,
       gaits,
@@ -320,38 +331,45 @@ export namespace QuadrupedLocomotion {
     if (!Array.isArray(rows) || rows.length === 0)
       refuse(axis, rows, "supply a nonempty speed-ordered row table");
     let previous: number = 0;
-    return Array.from(rows, (
-      row: QuadrupedGait.IRow,
-      index: number,
-    ): QuadrupedGait.IRow => {
-      const at: string = `${axis}[${index}]`;
-      object(row, at);
-      positive(row.speed, `${at}.speed`);
-      positive(row.stride, `${at}.stride`);
-      positive(row.stance, `${at}.stance`);
-      nonnegative(row.deviation, `${at}.deviation`);
-      if (row.speed <= previous)
-        refuse(`${at}.speed`, row.speed, "increase row speeds strictly");
-      if (row.stance >= row.stride || row.deviation >= row.stride)
-        refuse(at, row, "keep stance and stride spread below the positive period");
-      if (row.hindStance !== undefined) {
-        positive(row.hindStance, `${at}.hindStance`);
-        if (row.hindStance >= row.stride)
+    return Array.from(
+      rows,
+      (row: QuadrupedGait.IRow, index: number): QuadrupedGait.IRow => {
+        const at: string = `${axis}[${index}]`;
+        object(row, at);
+        positive(row.speed, `${at}.speed`);
+        positive(row.stride, `${at}.stride`);
+        positive(1 / row.stride, `${at}.frequency`);
+        positive(row.stance, `${at}.stance`);
+        nonnegative(row.deviation, `${at}.deviation`);
+        if (row.speed <= previous)
+          refuse(`${at}.speed`, row.speed, "increase row speeds strictly");
+        if (row.stance >= row.stride || row.deviation >= row.stride)
           refuse(
-            `${at}.hindStance`,
-            row.hindStance,
-            "leave a positive hind swing below the stride period",
+            at,
+            row,
+            "keep stance and stride spread below the positive period",
           );
-      }
-      previous = row.speed;
-      return {
-        speed: row.speed,
-        stride: row.stride,
-        deviation: row.deviation,
-        stance: row.stance,
-        ...(row.hindStance === undefined ? {} : { hindStance: row.hindStance }),
-      };
-    });
+        if (row.hindStance !== undefined) {
+          positive(row.hindStance, `${at}.hindStance`);
+          if (row.hindStance >= row.stride)
+            refuse(
+              `${at}.hindStance`,
+              row.hindStance,
+              "leave a positive hind swing below the stride period",
+            );
+        }
+        previous = row.speed;
+        return {
+          speed: row.speed,
+          stride: row.stride,
+          deviation: row.deviation,
+          stance: row.stance,
+          ...(row.hindStance === undefined
+            ? {}
+            : { hindStance: row.hindStance }),
+        };
+      },
+    );
   }
 
   /** Admit ordered gait ranges and copy the existing owner's closed change-rule vocabulary. */
@@ -363,12 +381,17 @@ export namespace QuadrupedLocomotion {
   ): QuadrupedChange.Rule | undefined {
     if (previous === undefined) {
       if (rule !== undefined)
-        refuse(`${axis}.change`, rule, "omit a change rule on the slowest gait");
+        refuse(
+          `${axis}.change`,
+          rule,
+          "omit a change rule on the slowest gait",
+        );
       return undefined;
     }
     if (
       rows[0]!.speed <= previous.rows[0]!.speed ||
-      rows[rows.length - 1]!.speed <= previous.rows[previous.rows.length - 1]!.speed
+      rows[rows.length - 1]!.speed <=
+        previous.rows[previous.rows.length - 1]!.speed
     )
       refuse(
         `${axis}.rows`,
@@ -390,10 +413,16 @@ export namespace QuadrupedLocomotion {
       positive(rule.speed, `${axis}.change.speed`);
       positive(rule.mass, `${axis}.change.mass`);
       if (!Number.isFinite(rule.exponent))
-        refuse(`${axis}.change.exponent`, rule.exponent, "use a finite mass exponent");
+        refuse(
+          `${axis}.change.exponent`,
+          rule.exponent,
+          "use a finite mass exponent",
+        );
       return {
-        kind: "mass", speed: rule.speed,
-        mass: rule.mass, exponent: rule.exponent,
+        kind: "mass",
+        speed: rule.speed,
+        mass: rule.mass,
+        exponent: rule.exponent,
       };
     }
     if (rule.kind !== "overlap")
@@ -413,7 +442,7 @@ export namespace QuadrupedLocomotion {
       refuse(axis, value, "supply the declared record");
   }
 
-  /** A finite positive SI time, speed or reference length. */
+  /** A finite positive SI time, reciprocal frequency, speed or reference length. */
   function positive(value: number, axis: string): void {
     if (!Number.isFinite(value) || value <= 0)
       refuse(axis, value, "supply a finite positive value");

@@ -37,7 +37,7 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  * Catavitello et al. 2015, PLOS ONE 10:e0133936. The gallop's complete phase
  * construction is Choi's desired transverse robot reference, not measured
  * canine phases: swap its right-lead sides and rebase the new left fore to 0.
- * The authored switching speeds 0.9/2.69 are table availability boundaries,
+ * The inclusive authored switching speeds 2.69/4.34 are the faster tables' first available points,
  * not measured preferred transitions. Canter remains unavailable. Borrowed
  * horse fold/clearance/bob remain explicit construction proxies for every gait.
  *
@@ -79,17 +79,33 @@ export namespace DogGait {
       },
       trot: {
         ...HorseGait.TABLE.gaits.trot!,
-        change: { kind: "speed", speed: 0.9 },
+        change: { kind: "speed", speed: 2.69 },
         nod: { range: 0, timing: "bob" },
         phases: { leftFore: 0, rightFore: 0.5, leftHind: 0.5, rightHind: 0 },
-        rows: [{ speed: 2.69, stride: 0.57, deviation: 0, stance: 0.23, hindStance: 0.21 }],
+        rows: [
+          {
+            speed: 2.69,
+            stride: 0.57,
+            deviation: 0,
+            stance: 0.23,
+            hindStance: 0.21,
+          },
+        ],
       },
       gallop: {
         ...HorseGait.TABLE.gaits.gallop!,
-        change: { kind: "speed", speed: 2.69 },
+        change: { kind: "speed", speed: 4.34 },
         nod: { range: 0, timing: "lead" },
         phases: { leftFore: 0, rightFore: 0.8, leftHind: 0.6, rightHind: 0.3 },
-        rows: [{ speed: 4.34, stride: 0.45, deviation: 0, stance: 0.14, hindStance: 0.16 }],
+        rows: [
+          {
+            speed: 4.34,
+            stride: 0.45,
+            deviation: 0,
+            stance: 0.14,
+            hindStance: 0.16,
+          },
+        ],
       },
     },
 

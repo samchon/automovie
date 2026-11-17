@@ -1,4 +1,9 @@
-import { HorseGait, QuadrupedGait, createHorse, createQuadruped } from "@automovie/archetypes";
+import {
+  HorseGait,
+  QuadrupedGait,
+  createHorse,
+  createQuadruped,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -22,32 +27,91 @@ import { nclose } from "../internal/nclose";
 export function test_archetype_animal_gait_data(): void {
   const findings: string[] = [];
   const point: createQuadruped.ISpecies = {
-    archetype: "authored-point", stance: { fore: [0, 0, 0, 0], hind: [0, 0, 0, 0] }, nodding: [],
+    archetype: "authored-point",
+    stance: { fore: [0, 0, 0, 0], hind: [0, 0, 0, 0] },
+    nodding: [],
     table: {
-      reference: 1, scaling: "absolute", hysteresis: 0, follow: { fore: 0, hind: 0 }, order: ["pace"],
-      gaits: { pace: {
-        rows: [{ speed: 2.5, stride: 0.6, deviation: 0, stance: 0.3, hindStance: 0.24 }],
-        phases: { leftFore: 0, leftHind: 0, rightFore: 0.5, rightHind: 0.5 },
-        bob: 0, nod: { range: 0, timing: "support" }, fold: { fore: 0, hind: 0 }, lift: { fore: 0, hind: 0 },
-      } },
+      reference: 1,
+      scaling: "absolute",
+      hysteresis: 0,
+      follow: { fore: 0, hind: 0 },
+      order: ["pace"],
+      gaits: {
+        pace: {
+          rows: [
+            {
+              speed: 2.5,
+              stride: 0.6,
+              deviation: 0,
+              stance: 0.3,
+              hindStance: 0.24,
+            },
+          ],
+          phases: { leftFore: 0, leftHind: 0, rightFore: 0.5, rightHind: 0.5 },
+          bob: 0,
+          nod: { range: 0, timing: "support" },
+          fold: { fore: 0, hind: 0 },
+          lift: { fore: 0, hind: 0 },
+        },
+      },
     },
   };
-  const value: QuadrupedGait.ITiming = QuadrupedGait.timing(point, "pace", 2.5, 1, 1);
-  if (!nclose(value.stride, 0.6, 1e-15) || !nclose(value.duty, 0.5, 1e-15)
-    || !nclose(value.hindDuty!, 0.4, 1e-15) || value.deviation !== 0)
-    findings.push("a single actual speed did not retain its finite cycle and distinct duties");
+  const value: QuadrupedGait.ITiming = QuadrupedGait.timing(
+    point,
+    "pace",
+    2.5,
+    1,
+    1,
+  );
+  if (
+    !nclose(value.stride, 0.6, 1e-15) ||
+    !nclose(value.duty, 0.5, 1e-15) ||
+    !nclose(value.hindDuty!, 0.4, 1e-15) ||
+    value.deviation !== 0
+  )
+    findings.push(
+      "a single actual speed did not retain its finite cycle and distinct duties",
+    );
   for (const speed of [2.5 - 1e-8, 2.5 + 1e-8]) {
-    try { QuadrupedGait.timing(point, "pace", speed); findings.push("an unobserved point speed was invented"); } catch {}
+    try {
+      QuadrupedGait.timing(point, "pace", speed);
+      findings.push("an unobserved point speed was invented");
+    } catch {}
   }
-  for (const [limb, phase] of [["leftFore", 0], ["leftHind", 0], ["rightFore", 0.5], ["rightHind", 0.5]] as const)
-    if (QuadrupedGait.phase(point, { gait: "pace", lead: "left" }, limb) !== phase)
+  for (const [limb, phase] of [
+    ["leftFore", 0],
+    ["leftHind", 0],
+    ["rightFore", 0.5],
+    ["rightHind", 0.5],
+  ] as const)
+    if (
+      QuadrupedGait.phase(point, { gait: "pace", lead: "left" }, limb) !== phase
+    )
       findings.push(`${limb} did not retain its lateral pace phase`);
-  const horse: createQuadruped.ISpecies = createQuadruped.species(createHorse({}, 1));
-  try { QuadrupedGait.of(horse, "pace"); findings.push("an unmeasured horse pace was fabricated"); } catch {}
+  const horse: createQuadruped.ISpecies = createQuadruped.species(
+    createHorse({}, 1),
+  );
+  try {
+    QuadrupedGait.of(horse, "pace");
+    findings.push("an unmeasured horse pace was fabricated");
+  } catch {}
   if (JSON.stringify(HorseGait.GAITS) !== '["walk","trot","canter","gallop"]')
     findings.push("the existing equine gait sequence changed");
-  const middle: QuadrupedGait.ITiming = QuadrupedGait.timing(horse, "walk", 1.25, 0, HorseGait.REFERENCE);
-  if (!nclose(middle.stride, 1.0125, 1e-15) || !nclose(middle.duty, 0.6365 / 1.0125, 1e-15))
+  const middle: QuadrupedGait.ITiming = QuadrupedGait.timing(
+    horse,
+    "walk",
+    1.25,
+    0,
+    HorseGait.REFERENCE,
+  );
+  if (
+    !nclose(middle.stride, 1.0125, 1e-15) ||
+    !nclose(middle.duty, 0.6365 / 1.0125, 1e-15)
+  )
     findings.push("the existing distinct-row interpolation changed");
-  TestValidator.equals("point measurements and species gait vocabulary", findings, []);
+  TestValidator.equals(
+    "point measurements and species gait vocabulary",
+    findings,
+    [],
+  );
 }

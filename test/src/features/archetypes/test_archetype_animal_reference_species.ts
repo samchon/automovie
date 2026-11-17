@@ -118,7 +118,9 @@ export function test_archetype_animal_reference_species(): void {
     "rightHindCannon",
     "rightHindPastern",
   ];
-  const expectedBones: string = [...bones].sort().join("|");
+  const expectedBones: string = [...bones]
+    .sort((left: string, right: string): number => left.localeCompare(right))
+    .join("|");
   const findings: string[] = [];
   const began: number = Date.now();
   for (const reference of references)
@@ -200,7 +202,7 @@ export function test_archetype_animal_reference_species(): void {
       if (
         rig.bones
           .map((bone: (typeof rig.bones)[number]): string => bone.bone)
-          .sort()
+          .sort((left: string, right: string): number => left.localeCompare(right))
           .join("|") !== expectedBones ||
         bones.some(
           (bone: QuadrupedBody.Bone): boolean =>

@@ -101,7 +101,7 @@ export function test_archetype_animal_equipment(): void {
     if (
       animal.affordances
         .map((contact: IAutoMovieAffordance): string => contact.id)
-        .sort()
+        .sort((left: string, right: string): number => left.localeCompare(right))
         .join("|") !== expected
     )
       findings.push(
