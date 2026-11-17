@@ -11,10 +11,12 @@ import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { hingedArmSpan } from "../kinematics/hingedArmSpan";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
+import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
@@ -62,6 +64,11 @@ export function prepareChainRigConstants(
   const clamps: Map<
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => IAutoMovieJointPose
+  > = new Map();
+  // Each bone's record composer, by the rest frame record it was prepared on.
+  const composers: Map<
+    AutoMovieHumanoidBone,
+    { frame: IAutoMovieRestFrame | undefined; compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> }
   > = new Map();
   const scores: Map<
     AutoMovieHumanoidBone,
@@ -120,6 +127,21 @@ export function prepareChainRigConstants(
     },
     basis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
       return readBasis(props.jointAxes?.[bone] ?? DEFAULT_JOINT_AXES, path);
+    },
+    composer: (
+      bone: AutoMovieHumanoidBone,
+      frame: IAutoMovieRestFrame | undefined,
+    ): ReturnType<typeof jointToQuaternionOnBasis.prepare> => {
+      let known: { frame: IAutoMovieRestFrame | undefined; compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> } | undefined =
+        composers.get(bone);
+      if (known === undefined || known.frame !== frame) {
+        known = {
+          frame,
+          compose: jointToQuaternionOnBasis.prepare(rig.jointBasis(bone, "jointToQuaternion axes"), frame),
+        };
+        composers.set(bone, known);
+      }
+      return known.compose;
     },
     jointBasis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
       const axes: IAutoMovieJointAxes | undefined = props.jointAxes?.[bone];
@@ -228,6 +250,7 @@ export namespace prepareChainRigConstants {
       | "domain"
       | "basis"
       | "jointBasis"
+      | "composer"
       | "clamp"
       | "overshoot"
       | "effectorProjection"

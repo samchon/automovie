@@ -17,6 +17,7 @@ import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPose
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
+import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import { prepareChainFitRig } from "./prepareChainFitRig";
@@ -282,6 +283,9 @@ export namespace prepareChainFit {
 
     /** Direct clinical conversion's undefined-only default; runtime null must still fail even after a lenient default read. */
     jointBasis(bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes;
+
+    /** A bone's prepared record composer on its `jointBasis` and the given rest frame (`jointToQuaternionOnBasis.prepare`), kept while the frame record is the same: the chain's records of every read of a fit composed by one composer a bone. */
+    composer(bone: AutoMovieHumanoidBone, frame: IAutoMovieRestFrame | undefined): ReturnType<typeof jointToQuaternionOnBasis.prepare>;
 
     /** Resolve the actual rig clamp once, while every candidate is still clamped. */
     clamp(
