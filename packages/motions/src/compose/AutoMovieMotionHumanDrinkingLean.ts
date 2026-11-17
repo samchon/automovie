@@ -98,8 +98,9 @@ export namespace AutoMovieMotionHumanDrinkingLean {
    * holds one axis whatever lean is asked, so the miss falls a degree for
    * each degree of lean and is zero at the coarse lean plus the miss
    * (measured on a held glass: 54.7, 38.9, 25.0 and 10.2 degrees off at
-   * leans of 15, 30, 45 and 60, so 69.7, 68.9, 70.0 and 70.2). The grid's
-   * leans within a step of that one are then tried at once, least first: the
+   * leans of 15, 30, 45 and 60, so 69.7, 68.9, 70.0 and 70.2). Once two
+   * coarse leans in a row place that zero within a step of each other, the
+   * grid's leans within a step of it are tried at once, least first: the
    * window an arm is admitted in is two steps wide and may hold no coarse
    * lean, and past it the miss grows again, so the coarse walk alone steps
    * over it.
@@ -111,8 +112,8 @@ export namespace AutoMovieMotionHumanDrinkingLean {
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the assumption, the closed form with its measurement and each argument.
    * @evidence contracts/development/implementation.md#principled-implementation The miss of a hand at a joint's end is linear in the lean with slope minus one, so its zero is read from one attempt; the grid's leans about it are attempted, never assumed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse loop with the closed-form window on a miss and the fine bracket on an admission.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every returned lean was attempted and admitted; the miss is unsigned, so a hand whose axis lies below the asked lean gives a window ahead that admits nothing, at the cost of at most three attempts.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most seven coarse attempts, three in a miss's window and two fine ones; a held glass admitted near 70 degrees is found after the first coarse lean whose arm drinks, where the walk tried every coarse lean and found none.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every returned lean was attempted and admitted; the zero is read only where two coarse leans in a row agree on it, so a miss that does not fall with the lean (an unsigned miss of a hand below the asked lean rises with it) opens no window.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most seven coarse attempts, three in each agreed window and two fine ones; a held glass admitted near 70 degrees is found after the second coarse lean whose arm drinks, where the walk tried every coarse lean and found none; a hand no lean admits costs the coarse attempts alone.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work No lean is attempted twice within one walk; nothing is kept beyond it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The set of tried leans, at most nineteen numbers, ends with the call.
    */
@@ -125,13 +126,26 @@ export namespace AutoMovieMotionHumanDrinkingLean {
       tried.add(lean);
       return attempt(lean);
     };
+    let before: number | undefined;
     for (let coarse: number = 0; coarse <= MOST + 1e-9; coarse += COARSE) {
       if (tried.has(coarse)) continue;
       const found: T | undefined = once(coarse);
       if (found === undefined) {
         const miss: number | undefined = off();
-        if (miss === undefined || !(miss > STEP)) continue;
+        if (miss === undefined || !(miss > STEP)) {
+          before = undefined;
+          continue;
+        }
+
+        // The zero is trusted only when two coarse leans in a row place it
+        // within a step of each other: that is what a miss falling a degree
+        // a degree of lean gives, and a hand that misses for another reason
+        // costs no attempt beyond the coarse ones.
         const exact: number = coarse + miss;
+        const agreed: boolean =
+          before !== undefined && Math.abs(exact - before) <= STEP;
+        before = exact;
+        if (!agreed) continue;
         for (
           let fine: number = Math.ceil((exact - STEP) / STEP - 1e-9) * STEP;
           fine <= Math.min(MOST, exact + STEP) + 1e-9;
