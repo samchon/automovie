@@ -277,31 +277,45 @@ export namespace HumanArmTrajectory {
   }
 
   /**
-   * A course the caller laid without optimisation, admitted when it meets
-   * what a solved trajectory must meet: the arms at the problem's own
-   * waypoints, their first and their returned last waypoint the problem's
-   * rest and back, read by the model's own evaluation (`M.evaluate`: every
-   * site, range, clearance, crossing and speed bound), and admitted only when
-   * its worst violation is within `M.TOLERANCE`, the test `solve` refuses by.
-   * Waypoints a frame apart are the finest `solve` refines to
-   * (`HumanArmRefine`), so a course on the frame grid is read where a solved
-   * trajectory would be.
+   * A course laid without optimisation, admitted when it meets what a solved
+   * trajectory must meet. The caller gives each arm on the hold, where its
+   * goal's fit puts it; the reach and the return are laid here, in the
+   * model's own coordinates (`G.encode`: the upper arm on its swing-twist
+   * chart, so no clinical alias turns a continuous arm into a jump): every
+   * arm of the group blended on one share from its rest to its arm at the
+   * hold's first waypoint, and from the hold's last to its return. The
+   * share is timed along the arc of the fastest bounded probe
+   * (`T.SPEED`: elbow, wrist, fingertips) of any arm, by a trapezoid of
+   * speed whose plateau is `PACE` of the audit's bound and whose two ramps
+   * take the share of the span the arc leaves, `1 - L / (v T)`, no more than
+   * half (the triangle): the smoothest profile of that family the span
+   * allows under the bound (the time-scaling of a fixed path, Hollerbach
+   * 1984). A span too short for the arc at the plateau is laid at constant
+   * speed and refused on `speed` by the reading below.
+   *
+   * The course is read by the model's own evaluation (`M.evaluate`: every
+   * site, range, clearance, crossing and speed bound) at the problem's own
+   * waypoints, its first and its returned last waypoint the problem's rest
+   * and back, and admitted only when its worst violation is within
+   * `M.TOLERANCE`, the test `solve` refuses by. Waypoints a frame apart are
+   * the finest `solve` refines to (`HumanArmRefine`), so a course on the
+   * frame grid is read where a solved trajectory would be.
    *
    * @param problem The problem on the course's waypoints.
-   * @param arms Each arm's clinical triples at each waypoint, in the problem's order.
+   * @param held Each arm's clinical triples at each waypoint of the hold, in the problem's order; a waypoint of the reach or the return is not read.
    * @returns Each arm's trajectory through the course, read as `solve`'s are, whether it is admitted, and the model term that refuses it (`M.IEvaluation.worst.term`; empty when admitted); a course not admitted is `solve`'s seed.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
-   * @evidence contracts/development/implementation.md#principled-implementation The same context, coordinates, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, one encoding per waypoint, one evaluation, then the shared playback factory.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the caller gives, how the transports are laid and timed, what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
+   * @evidence contracts/development/implementation.md#principled-implementation A joint-space blend in the optimiser's own coordinates, time-scaled along the fastest probe's arc under the speed bound, read by the same context, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, the hold's encoding, two transports, one evaluation, then the shared playback factory.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One context build and one evaluation over N waypoints, the work of a single optimiser iterate, with no convexification or quadratic programme.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's evaluation and `solve`'s playback, so both paths are read alike.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The context lives until return; the readers keep only setups, times and coordinates, as `solve`'s do.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's placement and evaluation and `solve`'s playback, so both paths are read alike.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The context and the arc's samples live until return; the readers keep only setups, times and coordinates, as `solve`'s do.
    */
   export function admitted(
     problem: IProblem,
-    arms: readonly (readonly HumanArmClearance.IArm[])[],
+    held: readonly (readonly (HumanArmClearance.IArm | undefined)[])[],
   ): { trajectories: Trajectory[]; admitted: boolean; refused: string } {
     // Read in the mirror image when the first arm is the left, as `solve`
     // reads it, so a course and its mirror are admitted alike to the bit;
@@ -312,16 +326,75 @@ export namespace HumanArmTrajectory {
       read.arms.map((arm: IArm): "left" | "right" => arm.side),
     )(read);
     const n: number = context.n;
-    const x: number[][][] = arms.map(
-      (course: readonly HumanArmClearance.IArm[], a: number): number[][] =>
-        course.map((arm: HumanArmClearance.IArm, k: number): number[] =>
+    const times: readonly number[] = context.times;
+    const hold: number[] = [];
+    for (let k: number = 0; k < n; ++k)
+      if (held.every((arm: readonly (HumanArmClearance.IArm | undefined)[]): boolean => arm[k] !== undefined))
+        hold.push(k);
+    const first: number = hold.length === 0 ? n - 1 : hold[0]!;
+    const last: number = hold.length === 0 ? n - 1 : hold[hold.length - 1]!;
+    const x: number[][][] = held.map(
+      (course: readonly (HumanArmClearance.IArm | undefined)[], a: number): number[][] =>
+        course.map((arm: HumanArmClearance.IArm | undefined, k: number): number[] =>
           k === 0
             ? [...context.rest[a]!]
             : k === n - 1 && !context.open
               ? [...context.back[a]!]
-              : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
+              : arm === undefined || k < first || k > last
+                ? []
+                : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
         ),
     );
+    const mix = (p: readonly number[], q: readonly number[], w: number): number[] =>
+      p.map((v: number, d: number): number => v + (q[d]! - v) * w);
+
+    // One transport between two waypoints already laid: the arcs are read
+    // on the base of its first waypoint, the arms' own travel.
+    const lay = (from: number, to: number): void => {
+      if (to - from < 2) return;
+      const ends: [readonly number[], readonly number[]][] = x.map(
+        (arm: number[][]): [readonly number[], readonly number[]] => [arm[from]!, arm[to]!],
+      );
+      const placed = (share: number): G.IPlaced[] =>
+        ends.map(([p, q]: [readonly number[], readonly number[]], a: number): G.IPlaced =>
+          G.placed(context.setups[a]!, context.frames[a]![from]!, mix(p, q, share)));
+      const along: number[] = [0];
+      let before: G.IPlaced[] = placed(0);
+      for (let s: number = 1; s <= ARC; ++s) {
+        const now: G.IPlaced[] = placed(s / ARC);
+        let step: number = 0;
+        now.forEach((arm: G.IPlaced, a: number): void => {
+          for (const p of T.SPEED)
+            step = Math.max(step, Vector3.length(
+              Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0])));
+        });
+        along.push(along[s - 1]! + step);
+        before = now;
+      }
+      const arc: number = along[ARC]!;
+      const seconds: number = times[to]! - times[from]!;
+      const ramp: number = Math.max(0, Math.min(0.5, 1 - arc / (PACE * M.SPEED_LIMIT * seconds)));
+      const run = (w: number): number =>
+        ramp < 1e-9
+          ? w
+          : w < ramp
+            ? (w * w) / (2 * ramp * (1 - ramp))
+            : w > 1 - ramp
+              ? 1 - ((1 - w) * (1 - w)) / (2 * ramp * (1 - ramp))
+              : (w - ramp / 2) / (1 - ramp);
+      for (let k: number = from + 1; k < to; ++k) {
+        const reached: number = arc * run((times[k]! - times[from]!) / seconds);
+        let s: number = 1;
+        while (s < ARC && along[s]! < reached) ++s;
+        const span: number = along[s]! - along[s - 1]!;
+        const share: number = (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
+        x.forEach((arm: number[][], a: number): void => {
+          arm[k] = M.ranged(context, a, mix(ends[a]![0], ends[a]![1], share));
+        });
+      }
+    };
+    lay(0, first);
+    lay(last, n - 1);
     const worst: M.IEvaluation["worst"] = M.evaluate(context, x).worst;
     return {
       trajectories: problem.arms.map(
@@ -498,3 +571,9 @@ const MIRRORED: WeakMap<G.IBase, G.IBase> = new WeakMap();
 /** Each site's mirror image, kept while the site is held. */
 const SITES: WeakMap<HumanArmTrajectory.ISite, HumanArmTrajectory.ISite> =
   new WeakMap();
+
+/** The share of the audit's bound a laid transport's plateau runs at: the margin its sampled arc and its waypoints' chords leave (provisional). */
+const PACE: number = 0.97;
+
+/** The samples a laid transport's arc is read on (provisional: under a degree of any joint's travel apiece on a daily reach). */
+const ARC: number = 48;
