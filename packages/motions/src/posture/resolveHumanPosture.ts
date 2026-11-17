@@ -13,6 +13,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
+import { deriveHumanPosture } from "./deriveHumanPosture";
 import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import type { IHumanPosture } from "./IHumanPosture";
 import { lowerHumanPosture } from "./lowerHumanPosture";
@@ -200,38 +201,33 @@ export namespace resolveHumanPosture {
   /** A posture's direct part, assembled (`resolveHumanPostureSource.IAssembled`): the authored posture, its root and clamped direct joints as a pose before any limb fit, and its own goals turned. */
   export type IAssembled = resolveHumanPostureSource.IAssembled;
 
-  /**
-   * The first half of a resolve, held as a value: the posture's root, heading
-   * and direct joints clamped to the rig's range, before any limb is fitted.
-   * A cold resolve of the posture is `fit` of this assembly; a caller that
-   * resolves one direct posture under several sets of limb goals assembles
-   * once and fits each set.
-   *
-   * @param body The performer's body.
-   * @param posture The posture; it is read now and kept by reference for the goals' turning and the digits, so it stays unchanged while the assembly is used.
-   * @returns The assembly.
-   *
-   * The assembly does not depend on limb goals, costs one O(B) assembly and
-   * projection, and is the caller's; nothing is retained here.
-   */
+  /** The first half of a resolve, held as a value: the posture's root, heading and direct joints clamped to the rig's range, before any limb is fitted; a cold resolve of the posture is `fit` of it. The posture is kept by reference for the goals' turning and the digits, so it stays unchanged while the assembly is used. */
   export function assemble(body: IHumanBody, posture: IHumanPosture): IAssembled {
     return resolveHumanPostureSource.assemble(body, posture);
   }
 
   /**
+   * The assembly of `posture` built from another posture's assembly of the
+   * same body (`deriveHumanPosture`): value for value the pose `assemble`
+   * gives it, sharing every record whose bone's angles are exactly the same
+   * and clamping only the others again.
+   */
+  export function derive(body: IHumanBody, assembled: IAssembled, posture: IHumanPosture): IAssembled {
+    return deriveHumanPosture(body, assembled, posture);
+  }
+
+  /**
    * The second half of a resolve on an assembly: limb goals fitted in the
-   * resolver's order and the assembled posture's digits after them.
+   * resolver's order and the assembled posture's digits after them, so
+   * `fit(body, assemble(body, posture))` is the cold resolve of the posture.
    *
    * @param body The performer's body.
-   * @param assembled The assembly (`assemble`), left unchanged.
+   * @param assembled The assembly (`assemble`, `derive`), left unchanged.
    * @param limbs Goals to fit in place of the assembled posture's own, authored like them (world goals are turned here by the posture's whole-body rotation); absent, the posture's own.
    * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
    * @param resolution Optional exact reader or lazy supplier borrowed from this same synchronous evaluation.
-   * @returns The pose and each fitted limb's seed and value, as `seeded` gives them for the posture with those goals; untouched records are the assembly's own, which callers treat as immutable.
-   *
-   * The same ordered refit and digit fit the cold resolve runs after its own
-   * assembly, so `fit(body, assemble(body, posture))` is that resolve. Each
-   * call pays its fits alone, and no fitted answer is kept between calls.
+   * @param solved A completed cold fit of another assembly of this body: a cold fit of this assembly's own goals is taken from it when every limb's fit reads exactly what it read there (`deriveHumanPosture.inherited`), and solved as ever otherwise.
+   * @returns The pose and each fitted limb's seed and value; untouched records are the assembly's own, which callers treat as immutable.
    */
   export function fit(
     body: IHumanBody,
@@ -239,8 +235,9 @@ export namespace resolveHumanPosture {
     limbs?: IHumanPosture["limbs"],
     near: INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    solved?: deriveHumanPosture.ISolved,
   ): ISeeded {
-    return resolveHumanPostureSource.fit(body, assembled, limbs, near, resolution);
+    return resolveHumanPostureSource.fit(body, assembled, limbs, near, resolution, solved);
   }
 
   /**

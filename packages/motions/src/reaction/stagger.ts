@@ -20,8 +20,6 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanBalance } from "../everyday/HumanBalance";
-import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -33,6 +31,7 @@ import { staggerContacts } from "./staggerContacts";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
+import { staggerResolved } from "./staggerResolved";
 import { staggerShift } from "./staggerShift";
 
 /**
@@ -446,10 +445,11 @@ export namespace stagger {
         lent = undefined;
       }
     };
+    const resolved: staggerResolved.IReader = staggerResolved(body);
     const needs: Record<"left" | "right", number>[] = samples.map(
       (seconds: number, i: number): Record<"left" | "right", number> =>
         lend(i, (): Record<"left" | "right", number> =>
-          HumanArmSwing.carriage(body, [seconds], composed.posture, ["left", "right"]),
+          resolved.carriage(i, composed.posture(seconds)),
         ),
     );
     const envelope: (side: "left" | "right") => number[] = (side: "left" | "right"): number[] =>
@@ -474,7 +474,7 @@ export namespace stagger {
     const residuals = (): IAutoMovieVector3[] =>
       samples.map((seconds: number, i: number): IAutoMovieVector3 => {
         const shown: IAutoMovieVector3 = lend(i, (): IAutoMovieVector3 =>
-          HumanBalance.centre(body, composed.posture(seconds)),
+          resolved.centre(i, composed.posture(seconds)),
         );
         const travel: IAutoMovieVector3 = recovery.course(seconds);
         return {

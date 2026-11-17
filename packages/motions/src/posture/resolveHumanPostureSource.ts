@@ -4,6 +4,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "./HumanDigitFit";
 import type { IHumanPosture } from "./IHumanPosture";
 import { assembleHumanPosture } from "./assembleHumanPosture";
+import { deriveHumanPosture } from "./deriveHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
@@ -21,7 +22,7 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One numerical composition serves both entrypoints; only the existing independent versus owned refit and final issuing boundary differ. Member facts: assemble: One delegation to assembleHumanPosture, keeping the posture beside its result. fit: The second half every entry runs, with the constructed refit. continued: Shares solve with ordinary owned and independent source entrypoints; no separate numerical solver or raw ownership flag is added. owned: Selects the existing owned refit in the same solve composition; the public independent entry selects the independent refit and clones at its boundary.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new solver, numerical flag, target, seed policy, tolerance or eligibility guess is introduced; the actual source constructor chooses its ownership entry. Member facts: assemble: Every direct joint is still clamped; nothing fitted is stored. fit: Every goal is solved from its own inputs on the shared records, which the refit never writes; no fitted answer is kept between calls. continued: Does not change public cold/near selection, source admission, contact policy, target, ROM or tolerance. owned: No supplied base, public ownership switch, private cached result, fixture-specific path or changed numerical rule is accepted.
  * @evidence contracts/development/implementation.md#efficient-algorithms Performs the existing B-bone assembly and demanded fitting once, followed by one complete independent clone for borrowed public input. The owned constructor avoids independent per-limb issuing and the redundant final graph clone; runtime gains are unmeasured. Member facts: assemble: One O(B) assembly and projection. fit: The fits and digits of one call, with no assembly; speedup is unmeasured. continued: Selects prepared current hinged correction before generic cold setup where supported; all actual physical/continuity checks remain and gains are unmeasured. owned: Removes duplicate independent whole-result and per-chain copying inside the actual private constructor while retaining one assembly and all required fitting/admission; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both paths share the same assembly, fitting and digit owners. Owned data comes from actual fresh assembly and private constructor snapshots, never reader identity alone, while raw public inputs retain their prior issuing policy. Member facts: assemble: The caller holds the assembly as a value and passes it to each fit. fit: Fits of one direct posture share its assembly because the assembly does not depend on limb goals. continued: Actual private source construction establishes ownership while exact current values and explicit algorithm policy govern memo equivalence. owned: Reuses original projection, selected goals, limb memory and digit owners. The producer's private snapshot proves source nonaliasing; native reader admission is separate and supplies no numerical proof.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both paths share the same assembly, fitting and digit owners. Owned data comes from actual fresh assembly and private constructor snapshots, never reader identity alone, while raw public inputs retain their prior issuing policy. Member facts: assemble: The caller holds the assembly as a value and passes it to each fit. fit: Fits of one direct posture share its assembly because the assembly does not depend on limb goals. A completed cold fit handed in is taken for another assembly only when both have the same leg goals value for value, the same root, and the very same record objects at every index each leg's fit reads (its chain, toes and their ancestors), since a limb fit is a function of exactly those; the taken pose is the completed one with the records the assemblies differ in replaced, which the ordinary fit would build record for record. continued: Actual private source construction establishes ownership while exact current values and explicit algorithm policy govern memo equivalence. owned: Reuses original projection, selected goals, limb memory and digit owners. The producer's private snapshot proves source nonaliasing; native reader admission is separate and supplies no numerical proof.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary pose and synchronous reader end with the call; independent outputs own their records and no source, callback, result history or handle is retained here. Member facts: assemble: Retains nothing; the caller owns the assembly. fit: Retains nothing; results share the assembly's untouched records. continued: Transfers owned current records to the preparation; the source, reader and callback never enter result history. owned: Transfers owned pose/seed/value records to its synchronous owner, without retaining the source, borrowed reader, outputs or query history.
  */
 export function resolveHumanPostureSource(
@@ -62,6 +63,9 @@ export namespace resolveHumanPostureSource {
 
     /** The posture's own limb goals, world goals turned by its whole-body rotation. */
     limbs: IHumanPosture["limbs"];
+
+    /** The pose whose joints stood in for unset bones, when the assembly was made on one. */
+    base?: IAutoMoviePose;
   }
 
   /**
@@ -85,7 +89,7 @@ export namespace resolveHumanPostureSource {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAssembled {
     const assembled: ReturnType<typeof assembleHumanPosture> = assembleHumanPosture(body, posture, base, projection);
-    return { posture, pose: assembled.pose, limbs: assembled.limbs };
+    return { posture, pose: assembled.pose, limbs: assembled.limbs, ...(base === undefined ? {} : { base }) };
   }
 
   /**
@@ -102,6 +106,10 @@ export namespace resolveHumanPostureSource {
    * The same ordered refit and digit fit as `owned`, so fitting the posture's
    * own goals on its assembly is the owned resolve of that posture. Each call
    * pays its fits only; the assembly's records are shared, never written.
+   * With `solved`, a completed cold fit of another assembly, a cold fit of
+   * this assembly's own goals is taken from it when every limb's fit reads
+   * exactly what it read there (`deriveHumanPosture.inherited`), and solved
+   * as ever otherwise.
    */
   export function fit(
     body: IHumanBody,
@@ -109,7 +117,12 @@ export namespace resolveHumanPostureSource {
     limbs?: IHumanPosture["limbs"],
     near: resolveHumanPosture.INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    solved?: deriveHumanPosture.ISolved,
   ): resolveHumanPosture.ISeeded {
+    if (solved !== undefined && limbs === undefined && Object.keys(near).length === 0) {
+      const taken: resolveHumanPosture.ISeeded | undefined = deriveHumanPosture.inherited(body, assembled, solved);
+      if (taken !== undefined) return taken;
+    }
     return fitted(
       body,
       limbs === undefined ? assembled
