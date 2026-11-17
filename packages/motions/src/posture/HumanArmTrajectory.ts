@@ -10,8 +10,10 @@ import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
+import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
@@ -119,33 +121,57 @@ export namespace HumanArmTrajectory {
   export type Trajectory = (seconds: number) => HumanArmClearance.IArm;
 
   /**
-   * A laid course as `admitted` read it, and what that reading built, which
-   * a following `solve` of the same problem reads instead of building it
-   * again.
+   * A laid course as `admitted` read it (`HumanArmTrajectoryLaid.IAdmitted`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, when the course is kept and what the reading's context is for.
-   * @evidence contracts/development/design.md#principled-representation The course's readers, its verdict with the refusing term, and the frame grid's context the verdict was read on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmPlanned reads the verdict and the readers, ArmCourse the refusing term, and `solve` the reading.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The context is the model's own record, handed on whole; no part of it is restated.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the owner of the record and its role between `admitted` and `solve`.
+   * @evidence contracts/development/design.md#principled-representation The owner's record unchanged: the course's readers, its verdict and its reading.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias, so ArmPlanned and ArmCourse keep one namespace for the course and the solve.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is restated or adapted.
    */
-  export interface IAdmitted {
-    /** Each arm's trajectory through the course, in the problem's order. */
+  export type IAdmitted = HumanArmTrajectoryLaid.IAdmitted;
+
+  /**
+   * A course laid without optimisation and read by the model
+   * (`HumanArmTrajectoryLaid.admitted`, which states how it is laid, timed
+   * and admitted). The alias transforms no input and adds no state.
+   */
+  export const admitted: typeof HumanArmTrajectoryLaid.admitted =
+    HumanArmTrajectoryLaid.admitted;
+
+  /**
+   * A solved trajectory as plan data: what a later solve of the same action
+   * (a replan at another start or over a longer span) starts from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning, frame and what the record is for.
+   * @evidence contracts/development/design.md#principled-representation The knots' seconds, each arm's coordinates at each knot in the frame the problem was solved in (its mirror image for a left-first problem), and the penalty reached, the three things a penalty method's continuation needs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `solve` and taken back by `solve`; a holder passes it on unread.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict is carried: a state is only a start, admitted anew by the solve that takes it.
+   */
+  export interface IState {
+    /** The knots' seconds, ascending. */
+    times: readonly number[];
+
+    /** Each arm's coordinates at each knot, in the solved problem's own order and mirror image. */
+    x: readonly (readonly (readonly number[])[])[];
+
+    /** The penalty the solution was reached at. */
+    penalty: number;
+  }
+
+  /**
+   * What `solve` gives: the arms' readers and the state they were read from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two members and their order.
+   * @evidence contracts/development/design.md#principled-representation The playback readers beside the solution they play, one per arm in the problem's order.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmPlanned reads both: the readers for the carry, the state for a replan.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The state is the solution itself, not a summary of it.
+   */
+  export interface ISolved {
+    /** Each arm's trajectory, in the problem's order. */
     trajectories: Trajectory[];
 
-    /** Whether the model admits the course. */
-    admitted: boolean;
-
-    /** The model term that refuses the course (`M.IEvaluation.worst.term`); empty when admitted. */
-    refused: string;
-
-    /** The reading: the context builder bound to the problem's body and arms (`HumanArmTrajectoryContext.prepare`) and the context of the course's waypoints, in the mirror image `solve` reads the problem in. */
-    read: {
-      /** The context builder. */
-      of: ReturnType<typeof HumanArmTrajectoryContext.prepare>;
-
-      /** The context at the course's waypoints, the frame grid of the span. */
-      context: M.IContext;
-    };
+    /** The solution, for a later solve of the same action to start from. */
+    state: IState;
   }
 
   /**
@@ -164,7 +190,8 @@ export namespace HumanArmTrajectory {
    * @param read The problem on given waypoints' seconds.
    * @param times The first knots' seconds, ascending, each taken to the frame grid's nearest instant: knots are grid instants, so a stretch refined to the end is bounded at the very instants it is admitted at, and the admission there is the knots' own evaluation.
    * @param course A laid course the model refused (`admitted`), read at the knots as the seed, its reading's context the frame grid; the sampling planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when absent, and after the course when it leads to no admitted trajectory.
-   * @returns Each arm's trajectory, in the problem's order.
+   * @param warm An earlier solution of this action on this span's seconds (`ISolved.state`, retimed by the caller where the span changed): tried first as it stands and returned where the model admits it at its knots and on the frame grid, the optimiser's start at its penalty where not, and dropped for the course and the planner's seed where that ends unadmitted. Any state is safe to give: nothing of it is trusted.
+   * @returns Each arm's trajectory, in the problem's order, and the solution.
    * @throws {HumanRefusal} When no trajectory meets the constraints at its knots and on the frame grid.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the seeds, the three refinements, the admission, ordered action seconds, the mirror solve and the refusal; playback borrows the final setup/time/coordinate data through a separate factory.
@@ -179,25 +206,29 @@ export namespace HumanArmTrajectory {
     read: (times: readonly number[]) => IProblem,
     times: readonly number[],
     course?: IAdmitted,
-  ): Trajectory[] {
+    warm?: IState,
+  ): ISolved {
     // The frame grid over the span, the instants the played trajectory is
     // admitted at: the course's own where one was read. The knots are
     // instants of that grid, the nearest to the caller's, so a stretch
     // refined to the end is bounded at exactly the instants it is read at.
     const grid: readonly number[] =
       course?.read.context.times ?? uniform(times[0]!, times[times.length - 1]!);
-    const snapped: number[] = [0];
-    let near: number = 0;
-    for (const t of times) {
-      while (
-        near + 1 < grid.length &&
-        Math.abs(grid[near + 1]! - t) <= Math.abs(grid[near]! - t)
-      )
-        ++near;
-      if (near > snapped[snapped.length - 1]!) snapped.push(near);
-    }
-    if (snapped[snapped.length - 1] !== grid.length - 1)
-      snapped.push(grid.length - 1);
+    const snap = (of: readonly number[]): number[] => {
+      const out: number[] = [0];
+      let near: number = 0;
+      for (const t of of) {
+        while (
+          near + 1 < grid.length &&
+          Math.abs(grid[near + 1]! - t) <= Math.abs(grid[near]! - t)
+        )
+          ++near;
+        if (near > out[out.length - 1]!) out.push(near);
+      }
+      if (out[out.length - 1] !== grid.length - 1) out.push(grid.length - 1);
+      return out;
+    };
+    const snapped: number[] = snap(times);
     let knots: number[] = snapped;
     const seconds = (of: readonly number[]): number[] =>
       of.map((g: number): number => grid[g]!);
@@ -236,8 +267,9 @@ export namespace HumanArmTrajectory {
       penalty: number;
       played: Admission.IReading;
     };
-    const optimised: (from: number[][][]) => Solved = (
+    const optimised: (from: number[][][], penalty?: number) => Solved = (
       from: number[][][],
+      penalty?: number,
     ): Solved => {
       let seed: number[][][] = from;
       for (
@@ -247,7 +279,7 @@ export namespace HumanArmTrajectory {
       )
         seed = refine(seed, split);
       let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
-        HumanArmOptimiser.optimise(context, seed);
+        HumanArmOptimiser.optimise(context, seed, penalty);
       let played: Admission.IReading = Admission.read(context, fine, solved.x);
       for (;;) {
         const split: Set<number> = new Set(Admission.unbounded(knots, played));
@@ -277,29 +309,66 @@ export namespace HumanArmTrajectory {
     // planner's seed on the first knots, TrajOpt's multiple
     // initialisations (Schulman et al. 2013, section VI).
     const initial: IProblem = problem;
-    const laid: number[][][] | undefined =
-      course === undefined ? undefined : coursed(context, course.trajectories);
 
-    // A hold no configuration meets has no trajectory: it is refused by its
-    // own still problem before the whole trajectory's penalties are spent
-    // on it (`HumanArmSeed.held`), and the configuration found is the
-    // planner seed's hold where that seed follows.
-    const hold: number[][] | undefined =
-      laid === undefined ? undefined : HumanArmSeed.held(problem, context, laid);
-    let solved: Solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
-    if (course !== undefined && !met(solved)) {
-      knots = snapped;
-      problem = initial;
+    // An earlier plan's solution of this action is tried first: on its own
+    // knots as it stands, returned where the model admits it at them and on
+    // the frame grid, and continued from at its penalty where not.
+    let solved: Solved | undefined;
+    if (warm !== undefined && warm.x.length === initial.arms.length) {
+      knots = snap(warm.times);
+      problem = reading(seconds(knots));
       context = contextOf(problem, fine);
-      solved = optimised(HumanArmSeed.seed(problem, context, hold));
+      const c: M.IContext = context;
+      const seed: number[][][] = warm.x.map(
+        (arm: readonly (readonly number[])[], a: number): number[][] =>
+          knots.map((g: number, k: number): number[] =>
+            k === 0
+              ? [...c.rest[a]!]
+              : k === c.n - 1 && !c.open
+                ? [...c.back[a]!]
+                : M.ranged(c, a, HumanArmRefine.hermite(warm.times, arm, grid[g]!)),
+          ),
+      );
+      const kept: Solved = {
+        x: seed,
+        evaluation: M.evaluate(c, seed),
+        penalty: warm.penalty,
+        played: Admission.read(c, fine, seed),
+      };
+      solved = met(kept) ? kept : optimised(seed, warm.penalty);
+      if (!met(solved)) {
+        solved = undefined;
+        knots = snapped;
+        problem = initial;
+        context = contextOf(problem, fine);
+      }
     }
+    if (solved === undefined) {
+      const laid: number[][][] | undefined =
+        course === undefined ? undefined : coursed(context, course.trajectories);
+
+      // A hold no configuration meets has no trajectory: it is refused by
+      // its own still problem before the whole trajectory's penalties are
+      // spent on it (`HumanArmSeed.held`), and the configuration found is
+      // the planner seed's hold where that seed follows.
+      const hold: number[][] | undefined =
+        laid === undefined ? undefined : HumanArmSeed.held(problem, context, laid);
+      solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
+      if (course !== undefined && !met(solved)) {
+        knots = snapped;
+        problem = initial;
+        context = contextOf(problem, fine);
+        solved = optimised(HumanArmSeed.seed(problem, context, hold));
+      }
+    }
+    const last: Solved = solved;
     const n: number = context.n;
     const at: readonly number[] = context.times;
-    if (!met(solved)) {
+    if (!met(last)) {
       const worst: M.IEvaluation["worst"] =
-        solved.evaluation.worst.value > M.TOLERANCE
-          ? solved.evaluation.worst
-          : solved.played.evaluation.worst;
+        last.evaluation.worst.value > M.TOLERANCE
+          ? last.evaluation.worst
+          : last.played.evaluation.worst;
       throw new HumanRefusal({
         kind: "reach",
         axis: worst.axis,
@@ -316,8 +385,8 @@ export namespace HumanArmTrajectory {
                 minimum:
                   (at[n - 1]! - at[0]!) *
                   Math.max(
-                    slower(context, solved.x),
-                    slower(fine, solved.played.x),
+                    slower(context, last.x),
+                    slower(fine, last.played.x),
                   ),
                 maximum: null,
                 unit: "s",
@@ -331,143 +400,12 @@ export namespace HumanArmTrajectory {
       });
     }
     const setups: G.ISetup[] = context.setups;
-    return problem.arms.map(
-      (_: IArm, a: number): Trajectory => trajectory(setups, at, solved.x, a),
-    );
-  }
-
-  /**
-   * A course laid without optimisation, admitted when it meets what a solved
-   * trajectory must meet. The caller gives each arm on the hold, where its
-   * goal's fit puts it; the reach and the return are laid here, in the
-   * model's own coordinates (`G.encode`: the upper arm on its swing-twist
-   * chart, so no clinical alias turns a continuous arm into a jump): every
-   * arm of the group blended on one share from its rest to its arm at the
-   * hold's first waypoint, and from the hold's last to its return. The
-   * share is timed along the arc of the fastest bounded probe
-   * (`T.SPEED`: elbow, wrist, fingertips) of any arm, by a trapezoid of
-   * speed whose plateau is `PACE` of the audit's bound and whose two ramps
-   * take the share of the span the arc leaves, `1 - L / (v T)`, no more than
-   * half (the triangle): the smoothest profile of that family the span
-   * allows under the bound (the time-scaling of a fixed path, Hollerbach
-   * 1984). A span too short for the arc at the plateau is laid at constant
-   * speed and refused on `speed` by the reading below.
-   *
-   * The course is read by the model's own evaluation (`M.evaluate`: every
-   * site, range, clearance, crossing and speed bound) at the problem's own
-   * waypoints, its first and its returned last waypoint the problem's rest
-   * and back, and admitted only when its worst violation is within
-   * `M.TOLERANCE`, the test `solve` refuses by. The caller gives waypoints
-   * no more than a frame apart, so the course is read on the frame grid a
-   * solved trajectory is admitted on.
-   *
-   * @param problem The problem on the course's waypoints.
-   * @param held Each arm's clinical triples at each waypoint of the hold, in the problem's order; a waypoint of the reach or the return is not read.
-   * @returns The course's readers, its admission with the refusing term, and its reading; a course not admitted is `solve`'s seed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the caller gives, how the transports are laid and timed, what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
-   * @evidence contracts/development/implementation.md#principled-implementation A joint-space blend in the optimiser's own coordinates, time-scaled along the fastest probe's arc under the speed bound, read by the same context, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, the hold's encoding, two transports, one evaluation, then the shared playback factory.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's placement and evaluation and `solve`'s playback, so both paths are read alike; the builder and the context are returned for `solve` to read the same grid on.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arc's samples live until return; the readers keep only setups, times and coordinates, as `solve`'s do, and the reading's context lives while the caller holds the result.
-   */
-  export function admitted(
-    problem: IProblem,
-    held: readonly (readonly (HumanArmClearance.IArm | undefined)[])[],
-  ): IAdmitted {
-    // Read in the mirror image when the first arm is the left, as `solve`
-    // reads it, so a course and its mirror are admitted alike to the bit;
-    // clinical triples read the same on either side.
-    const read: IProblem = Mirror.leftFirst(problem)
-      ? Mirror.mirrored(problem)
-      : problem;
-    const of: ReturnType<typeof HumanArmTrajectoryContext.prepare> =
-      HumanArmTrajectoryContext.prepare(
-        read.body,
-        read.arms.map((arm: IArm): "left" | "right" => arm.side),
-      );
-    const context: M.IContext = of(read);
-    const n: number = context.n;
-    const times: readonly number[] = context.times;
-    const hold: number[] = [];
-    for (let k: number = 0; k < n; ++k)
-      if (held.every((arm: readonly (HumanArmClearance.IArm | undefined)[]): boolean => arm[k] !== undefined))
-        hold.push(k);
-    const first: number = hold.length === 0 ? n - 1 : hold[0]!;
-    const last: number = hold.length === 0 ? n - 1 : hold[hold.length - 1]!;
-    const x: number[][][] = held.map(
-      (course: readonly (HumanArmClearance.IArm | undefined)[], a: number): number[][] =>
-        course.map((arm: HumanArmClearance.IArm | undefined, k: number): number[] =>
-          k === 0
-            ? [...context.rest[a]!]
-            : k === n - 1 && !context.open
-              ? [...context.back[a]!]
-              : arm === undefined || k < first || k > last
-                ? []
-                : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
-        ),
-    );
-    const mix = (p: readonly number[], q: readonly number[], w: number): number[] =>
-      p.map((v: number, d: number): number => v + (q[d]! - v) * w);
-
-    // One transport between two waypoints already laid: the arcs are read
-    // on the base of its first waypoint, the arms' own travel.
-    const lay = (from: number, to: number): void => {
-      if (to - from < 2) return;
-      const ends: [readonly number[], readonly number[]][] = x.map(
-        (arm: number[][]): [readonly number[], readonly number[]] => [arm[from]!, arm[to]!],
-      );
-      const placed = (share: number): G.IPlaced[] =>
-        ends.map(([p, q]: [readonly number[], readonly number[]], a: number): G.IPlaced =>
-          G.placed(context.setups[a]!, context.frames[a]![from]!, mix(p, q, share)));
-      const along: number[] = [0];
-      let before: G.IPlaced[] = placed(0);
-      for (let s: number = 1; s <= ARC; ++s) {
-        const now: G.IPlaced[] = placed(s / ARC);
-        let step: number = 0;
-        now.forEach((arm: G.IPlaced, a: number): void => {
-          for (const p of T.SPEED)
-            step = Math.max(step, Vector3.length(
-              Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0])));
-        });
-        along.push(along[s - 1]! + step);
-        before = now;
-      }
-      const arc: number = along[ARC]!;
-      const seconds: number = times[to]! - times[from]!;
-      const ramp: number = Math.max(0, Math.min(0.5, 1 - arc / (PACE * M.SPEED_LIMIT * seconds)));
-      const run = (w: number): number =>
-        ramp < 1e-9
-          ? w
-          : w < ramp
-            ? (w * w) / (2 * ramp * (1 - ramp))
-            : w > 1 - ramp
-              ? 1 - ((1 - w) * (1 - w)) / (2 * ramp * (1 - ramp))
-              : (w - ramp / 2) / (1 - ramp);
-      for (let k: number = from + 1; k < to; ++k) {
-        const reached: number = arc * run((times[k]! - times[from]!) / seconds);
-        let s: number = 1;
-        while (s < ARC && along[s]! < reached) ++s;
-        const span: number = along[s]! - along[s - 1]!;
-        const share: number = (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
-        x.forEach((arm: number[][], a: number): void => {
-          arm[k] = M.ranged(context, a, mix(ends[a]![0], ends[a]![1], share));
-        });
-      }
-    };
-    lay(0, first);
-    lay(last, n - 1);
-    const worst: M.IEvaluation["worst"] = M.evaluate(context, x).worst;
     return {
       trajectories: problem.arms.map(
         (_: IArm, a: number): Trajectory =>
-          trajectory(context.setups, context.times, x, a),
+          HumanArmTrajectoryPlayback(setups, at, last.x, a),
       ),
-      admitted: worst.value <= M.TOLERANCE,
-      refused: worst.value <= M.TOLERANCE ? "" : worst.term,
-      read: { of, context },
+      state: { times: [...at], x: last.x, penalty: last.penalty },
     };
   }
 
@@ -525,17 +463,6 @@ function coursed(
   );
 }
 
-/** Own only the original playback inputs, without the solve builder's problem/read/context environment. */
-function trajectory(
-  setups: readonly G.ISetup[],
-  times: readonly number[],
-  coordinates: readonly (readonly (readonly number[])[])[],
-  arm: number,
-): HumanArmTrajectory.Trajectory {
-  return (seconds: number): HumanArmClearance.IArm =>
-    G.arm(setups[arm]!, HumanArmRefine.hermite(times, coordinates[arm]!, seconds));
-}
-
 /** A span's instants a frame apart, its two ends among them: the frame grid where no course gives its own. */
 function uniform(start: number, end: number): number[] {
   const grid: number[] = [start];
@@ -547,9 +474,3 @@ function uniform(start: number, end: number): number[] {
 
 /** The frame grid's step, seconds, where no course gives its own grid. */
 const STEP: number = 1 / 30;
-
-/** The share of the audit's bound a laid transport's plateau runs at: the margin its sampled arc and its waypoints' chords leave (provisional). */
-const PACE: number = 0.97;
-
-/** The samples a laid transport's arc is read on (provisional: under a degree of any joint's travel apiece on a daily reach). */
-const ARC: number = 48;

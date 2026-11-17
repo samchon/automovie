@@ -118,10 +118,32 @@ export namespace AutoMovieMotionHumanArmCourse {
     // the branch and the arms the one before chose, so the elbow never
     // changes its side between two frames; the reach and the return are the
     // reader's to lay between the rest and these.
+    //
+    // A still hold is fitted once: where every hold instant has the very
+    // base pose and the very sites of the first, read on the problem's own
+    // records value by value, the arms that meet them at the first instant
+    // meet them at each, and are held. The admission below still reads
+    // every instant, so the comparison decides only what is fitted.
+    const problem: HumanArmTrajectory.IProblem = props.problem(times);
+    const held: number[] = [];
+    times.forEach((t: number, k: number): void => {
+      if (holding(t)) held.push(k);
+    });
+    const still: boolean = held.every(
+      (k: number): boolean =>
+        same(problem.bases[k]!.pose, problem.bases[held[0]!]!.pose) &&
+        problem.arms.every((arm: HumanArmTrajectory.IArm): boolean =>
+          same(arm.sites[k], arm.sites[held[0]!]),
+        ),
+    );
     let near: resolveHumanPosture.INear = {};
     let before: HumanArmClearance.IArm[] | undefined;
-    for (const t of times) {
-      if (!holding(t)) continue;
+    for (const k of held) {
+      const t: number = times[k]!;
+      if (still && before !== undefined) {
+        course.set(t, before);
+        continue;
+      }
       const solved: ReturnType<typeof fit> = fit(t,
         arms.map((_: IProps["arms"][number], a: number): IHumanPosture.IGoal => props.aimed(a, t)), near, before);
       course.set(t, solved.arms);
@@ -129,7 +151,7 @@ export namespace AutoMovieMotionHumanArmCourse {
       before = solved.arms;
     }
     const read: ReturnType<typeof HumanArmTrajectory.admitted> = HumanArmTrajectory.admitted(
-      props.problem(times),
+      problem,
       arms.map((_: IProps["arms"][number], a: number): (HumanArmClearance.IArm | undefined)[] =>
         times.map((t: number): HumanArmClearance.IArm | undefined => course.get(t)?.[a]),
       ),
@@ -140,6 +162,38 @@ export namespace AutoMovieMotionHumanArmCourse {
     if (!read.admitted && term !== undefined) HumanLimbFitFrame.work(props.body, term);
     return read;
   }
+}
+
+/**
+ * Whether two plain records hold the same values, member by member: numbers
+ * and other primitives by `Object.is`, arrays by length and order, records
+ * by their own keys; anything else by identity.
+ */
+function same(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null)
+    return false;
+  if (Array.isArray(a) || Array.isArray(b))
+    return (
+      Array.isArray(a) &&
+      Array.isArray(b) &&
+      a.length === b.length &&
+      a.every((v: unknown, i: number): boolean => same(v, b[i]))
+    );
+  if (
+    Object.getPrototypeOf(a) !== Object.prototype ||
+    Object.getPrototypeOf(b) !== Object.prototype
+  )
+    return false;
+  const left: [string, unknown][] = Object.entries(a);
+  const right: Map<string, unknown> = new Map(Object.entries(b));
+  return (
+    left.length === right.size &&
+    left.every(
+      ([key, value]: [string, unknown]): boolean =>
+        right.has(key) && same(value, right.get(key)),
+    )
+  );
 }
 
 /** The frame grid, seconds: the finest the optimiser's waypoints are spaced (`HumanArmTrajectory`). */

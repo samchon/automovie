@@ -294,6 +294,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             span!,
             group.carries,
             before,
+            group,
           )
         : new Map(
             group.carries.flatMap(
@@ -305,6 +306,7 @@ export namespace AutoMovieMotionHumanArmCarry {
                   member.span === undefined ? span! : member.span,
                   [member],
                   before,
+                  group,
                 ),
               ],
             ),
