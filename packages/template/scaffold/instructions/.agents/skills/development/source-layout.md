@@ -56,7 +56,7 @@ These three folders answer the [behaviors contract](../contracts/development/beh
 
 The page entries in `src/*.ts` are the inspector's and the draw page's, and the film interfaces sit beside them. `src/executable/` also holds the tooling its commands run. Node-only tooling the installed command-line tool does not run, such as the physics and recovery commands, is not published, so the production owns the scaffold-supplied copy there and keeps it in step with the scaffold.
 
-`src/integrations/<provider>/` realizes the generation requests in `docs/prompts/` for a provider the production adopts, such as a video-generation service. It runs from a command, never from a film or scene, which draw only the kept files.
+`src/integrations/<provider>/` realizes the generation requests in `docs/prompts/` for a provider the production adopts, such as a video-generation service. No film or scene calls it, because generation stays outside deterministic playback.
 
 The runtime `README.md` and `.env.example` hold nonsecret setup, commands, environment-variable names and example configuration, and the ignored local `.env` the secret values. Audio and video never go in `public/`; they belong in [media records](../production/media-records.md).
 

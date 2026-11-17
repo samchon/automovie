@@ -18,7 +18,7 @@ On either route, write only what the adopted representation and frame can show, 
 
 A polygon man without a drawn face shows attention by the turn of its head and torso, and feeling by its posture, tempo and distance from others, named by the distance bands the installed motion vocabulary performs, not by a number.
 
-A fact the representation cannot carry reaches the film as entity work's [what stays out](../../development/entities.md#what-stays-out) sets.
+A fact the representation cannot carry reaches a generated film through canon references and the generation prompt, and a [direct 3D film](../../video/direct-film.md) through a detail option that shows it.
 
 ## Beats
 

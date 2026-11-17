@@ -19,7 +19,7 @@ Keep 3D models simple and motion detailed:
 - Motion is composed from the actions of `@automovie/motions`.
 - The screenplay decides every outcome, and code realizes it.
 
-Performance is animated, not simulated. Physics is computed as films and games compute it: only at the moment, on the part and to the degree a response needs.
+Performance is composed, not simulated. Physics is computed as films and games compute it: only at the moment, on the part and to the degree a scene needs.
 
 ## Attitude
 
