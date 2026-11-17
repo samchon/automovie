@@ -1,4 +1,9 @@
-import { Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -177,7 +182,7 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over the context, the target and the clock.
    */
   export function others(
-    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start" | "body">,
     target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: IAutoMovieMotionClock,
   ): (
@@ -229,22 +234,44 @@ export namespace touchHold {
       clear: IAutoMovieMotionHumanColliders.IPlaced[];
       rests: IAutoMovieMotionHumanColliders.IPlaced[];
     } => {
+      const bones: ReturnType<typeof partner.bones> = partner.bones(
+        context.start +
+          seconds -
+          (seconds > ready && seconds < relax
+            ? StrikingTarget.LOOK
+            : HumanPerception.REACTION),
+        requested,
+      );
       const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
-        HumanColliders.placed(
-          partner.body,
-          partner.bones(
-            context.start +
-              seconds -
-              (seconds > ready && seconds < relax
-                ? StrikingTarget.LOOK
-                : HumanPerception.REACTION),
-            requested,
-          ),
-        );
+        HumanColliders.placed(partner.body, bones);
+      // A jointed segment is the hand's only where the hand can reach it
+      // from the region: some shape of it within a hand's length of the
+      // region's point; farther, it is only in the arm's way.
+      const carrier: IAutoMovieResolvedBone | undefined =
+        bone === undefined ? undefined : bones.get(bone);
+      const at: IAutoMovieVector3 | undefined =
+        carrier === undefined
+          ? undefined
+          : Vector3.add(
+              carrier.worldPosition,
+              Quaternion.rotateVector(
+                carrier.worldRotation,
+                partner.body.surfaces.regions[target.region]!.point,
+              ),
+            );
+      const reached: (segment: IAutoMovieMotionHumanColliders.IPlaced) => boolean = (
+        segment: IAutoMovieMotionHumanColliders.IPlaced,
+      ): boolean =>
+        segment.bone === bone ||
+        (at !== undefined &&
+          segment.shapes.some(
+            (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]): boolean =>
+              physicalShapeSegmentDistance(segment.pose, shape, at, at) <= context.body.measure.hand,
+          ));
       const clear: IAutoMovieMotionHumanColliders.IPlaced[] = [];
       const rests: IAutoMovieMotionHumanColliders.IPlaced[] = [];
       for (const segment of placed)
-        (lying.has(segment.bone) ? rests : clear).push(segment);
+        (lying.has(segment.bone) && reached(segment) ? rests : clear).push(segment);
       return { clear, rests };
     };
   }
@@ -271,7 +298,7 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the two readers.
    */
   export function perceived(
-    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start" | "body">,
     target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: IAutoMovieMotionClock,
     perceived: IAutoMovieMotionHumanTouch.ITouch["region"],
