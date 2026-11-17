@@ -32,12 +32,14 @@ export namespace KickRedirect {
    * @param context The redirecting kick's context, starting at the cut.
    * @param source The kick it continues.
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
+   * @param solved The redirecting plan's solved contacts (`KickSolved`), read back while its launch, the source's line and the source's step read the same.
    * @returns The geometry, on the source's clock.
    */
   export function build(
     context: IHumanActionContext<kick.IParams>,
     source: IKickGeometry.ISource,
     fixed: number | null | undefined,
+    solved?: Parameters<typeof KickGeometry.build>[5],
   ): IKickGeometry {
     const body: IHumanBody = context.body;
     const timing: IKickGeometry.ITiming = source.timing;
@@ -54,6 +56,7 @@ export namespace KickRedirect {
       t0,
       fixed,
       { line: old.line, step: old.carriage.step },
+      solved,
     );
     const cut: number = context.start - t0;
     const span: number = Math.max(1e-3, timing.impact - cut);

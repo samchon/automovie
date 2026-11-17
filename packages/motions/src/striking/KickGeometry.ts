@@ -26,6 +26,7 @@ import { KickContact } from "./KickContact";
 import { KickFacing } from "./KickFacing";
 import { KickForm } from "./KickForm";
 import { KickPlans } from "./KickPlans";
+import { KickSolved } from "./KickSolved";
 import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingQuality } from "./StrikingQuality";
@@ -64,6 +65,7 @@ export namespace KickGeometry {
    * @param t0 Film second of the kick's time zero.
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
    * @param kept What a redirect keeps of its source; a fresh kick reads its own line and steps up when short.
+   * @param solved The plan's solved contacts, read back and added to while the launch reads the same (`KickSolved`); every contact is solved anew when absent.
    * @returns The geometry.
    * @throws {HumanRefusal} When a round kick is aimed at a person's surface that faces away from the shin's travel (the flank opposite the kicking leg of a partner who faces the kicker), with the mirrored region as the feasible value.
    *
@@ -81,6 +83,7 @@ export namespace KickGeometry {
     t0: number,
     fixed: number | null | undefined,
     kept?: IKickGeometry.IKept,
+    solved?: KickSolved.ISolved<KickPlans.IPlan & { fit: KickChain.IFit }>,
   ): IKickGeometry {
     const p: kick.IParams = context.params;
     const body: IHumanBody = context.body;
@@ -209,7 +212,7 @@ export namespace KickGeometry {
     // path. A feint ends on the chamber, and a kick that lands opens the knee
     // from it onto the fitted contact leg, arriving with its share of the
     // opening's peak speed.
-    const plan = (
+    const contact = (
       goal: IAutoMovieVector3,
       decided: number | undefined,
       prefer?: number,
@@ -258,6 +261,20 @@ export namespace KickGeometry {
         }),
       };
     };
+
+    // A contact already solved for the same goal, step and lean under this
+    // launch is read back: the geometry is rebuilt at every settle, and its
+    // contacts do not change with what settled (`KickSolved`).
+    if (solved !== undefined)
+      KickSolved.under(solved, first, kept?.line, kept?.step);
+    const plan = (
+      goal: IAutoMovieVector3,
+      decided: number | undefined,
+      prefer?: number,
+    ): IPlanned =>
+      KickSolved.plan(solved, goal, decided, prefer, (): IPlanned =>
+        contact(goal, decided, prefer),
+      );
 
     // The launch's plan decides the step; every correction of the aim is a
     // plan of its own on that step, trying the lean it corrects first. A

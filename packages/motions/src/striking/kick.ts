@@ -15,6 +15,7 @@ import type { IKickGeometry } from "./IKickGeometry";
 import { KickForm } from "./KickForm";
 import { KickGeometry } from "./KickGeometry";
 import { KickRedirect } from "./KickRedirect";
+import { KickSolved } from "./KickSolved";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
@@ -219,6 +220,11 @@ export namespace kick {
     };
     let built: IKickGeometry | undefined;
     let building: boolean = false;
+
+    // The contacts this plan has solved, kept across the rebuilds of its
+    // geometry while its launch reads the same (`KickSolved`).
+    const solved: NonNullable<Parameters<typeof KickGeometry.build>[5]> =
+      KickSolved.create();
     const geometry = (): IKickGeometry => {
       if (built !== undefined) return built;
       if (building)
@@ -229,8 +235,8 @@ export namespace kick {
       try {
         built =
           source === undefined
-            ? KickGeometry.build(context, timing, t0, fixed)
-            : KickRedirect.build(context, source, fixed);
+            ? KickGeometry.build(context, timing, t0, fixed, undefined, solved)
+            : KickRedirect.build(context, source, fixed, solved);
       } finally {
         building = false;
       }
