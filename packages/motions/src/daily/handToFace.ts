@@ -353,7 +353,57 @@ export namespace handToFace {
       );
       far = Math.max(far, Vector3.length(Vector3.subtract(at, from)));
     }
-    const transport: number = AutoMovieMotionHumanTiming.transport(far);
+    // How each hand lies at the face, its elbow's hint and its reference.
+    const arms: handToFaceArm.IArm[] = hands.map(
+      ([side, name]: (typeof hands)[number]): handToFaceArm.IArm =>
+        handToFaceArm.of({
+          body,
+          atFace,
+          turned,
+          side,
+          effector: effector(side),
+          place: region(side, name),
+          tangent: row.tangent,
+          upright: row.upright === true,
+          own: side === first ? kept : null,
+          // Read after `effector`, whose held vessel's search sets it.
+          ...(side === first && drunk !== undefined ? { drink: drunk } : {}),
+        }),
+    );
+
+    // The transport lasts at least as long as each arm needs to keep within
+    // the audit's travel bound on the way to its place at the face
+    // (`AutoMovieMotionHumanArmPlanned.reaching`): the default time reads
+    // the hand's straight distance alone, and an arm whose fingertips sweep
+    // an arc half again as long was asked to pass the bound whatever path
+    // it took.
+    let reach: number = 0;
+    hands.forEach(([side]: (typeof hands)[number], i: number): void => {
+      const laid: handToFaceArm.IArm = arms[i]!;
+      reach = Math.max(
+        reach,
+        AutoMovieMotionHumanArmPlanned.reaching(
+          body,
+          atFace,
+          side,
+          AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          AutoMovieMotionHumanArm.angles(
+            resolveHumanPosture.seeded(body, {
+              ...atFace,
+              limbs: {
+                ...atFace.limbs,
+                [`${side}Arm`]: { ...laid.goal, reference: laid.reference },
+              },
+            }).pose,
+            side,
+          ),
+        ),
+      );
+    });
+    const transport: number = Math.max(
+      AutoMovieMotionHumanTiming.transport(far),
+      reach,
+    );
     const repetition: number = AutoMovieMotionHumanTouchForm.period(
       body,
       row.kind,
@@ -387,22 +437,9 @@ export namespace handToFace {
     // Two hands are planned as one trajectory.
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
       hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
-    for (const [side, name] of hands) {
+    for (const [index, [side, name]] of hands.entries()) {
       const own: HumanGrasp.IKey | null = side === first ? kept : null;
-      // How the hand lies at the face, its elbow's hint and its reference.
-      const arm: handToFaceArm.IArm = handToFaceArm.of({
-        body,
-        atFace,
-        turned,
-        side,
-        effector: effector(side),
-        place: region(side, name),
-        tangent: row.tangent,
-        upright: row.upright === true,
-        own,
-        // Read after `effector`, whose held vessel's search sets it.
-        ...(side === first && drunk !== undefined ? { drink: drunk } : {}),
-      });
+      const arm: handToFaceArm.IArm = arms[index]!;
       const { lay, bend, lean, facing } = arm;
       const stroke: AutoMovieMotionHumanTouch.ITouch = {
         body,

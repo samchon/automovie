@@ -35,6 +35,9 @@ export namespace handToFaceArm {
     /** The arm laid at the face, which every second's fit is held to. */
     reference: NonNullable<AutoMovieMotionHumanTouch.ITouch["reference"]>;
 
+    /** The goal that lays the hand at the face, the one the reference solves: the action's reach is timed to it. */
+    goal: IHumanPosture.IGoal;
+
     /** A vessel's lean toward the lips, degrees; absent for no vessel. */
     lean?: number;
 
@@ -156,6 +159,23 @@ export namespace handToFaceArm {
         "natural",
         vessel?.lean,
       );
+    const goal: IHumanPosture.IGoal =
+      tipped === undefined
+        ? AutoMovieMotionHumanTouchLaid.rest(
+            body,
+            atFace,
+            side,
+            effector,
+            place(atFace, 0),
+            tangent,
+            bend,
+            lay,
+            facing,
+            undefined,
+            undefined,
+            vessel?.lean,
+          )
+        : tipped.goal;
     const reference: IArm["reference"] =
       tipped === undefined
         ? AutoMovieMotionHumanTouchLaid.laid(
@@ -182,6 +202,7 @@ export namespace handToFaceArm {
       lay,
       bend,
       reference,
+      goal,
       ...(lean === undefined ? {} : { lean }),
       ...(facing === undefined ? {} : { facing }),
     };
