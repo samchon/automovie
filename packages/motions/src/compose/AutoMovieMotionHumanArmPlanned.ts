@@ -6,6 +6,7 @@ import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import type { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -289,9 +290,16 @@ export namespace AutoMovieMotionHumanArmPlanned {
       if (found === undefined) {
         const p: IHumanPosture = at(t).posture;
         const c: IPlanned = carries[a]!;
-        found = AutoMovieMotionHumanArmAngles.angles(resolveHumanPosture.seeded(body,
-          { ...p, limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } },
-          undefined, undefined, resolution, undefined, projection).pose, c.side);
+        // One planned arm stands alone on the base already resolved without
+        // it: the rest of the body is that base's, so only the arm is fitted
+        // (the limbs fit in order and nothing reads an arm fitted last).
+        // Two planned arms keep the posture solve, which pairs them.
+        found = AutoMovieMotionHumanArmAngles.angles(carries.length === 1
+          ? HumanLimbFit.fit(body, at(t).pose, `${c.side}Arm`, aimed(a, t), ["left", "right"],
+              undefined, undefined, resolution).pose
+          : resolveHumanPosture.seeded(body,
+              { ...p, limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } },
+              undefined, undefined, resolution, undefined, projection).pose, c.side);
         fits[a]!.set(t, found);
       }
       return found;
