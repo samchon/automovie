@@ -12,31 +12,44 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { ArmourForm } from "./ArmourForm";
+import { ArmourProfile } from "./ArmourProfile";
 import { armourBone } from "./armourBone";
 
 /** The plate thickness read. */
 const PLATE: string =
-  'Alan Williams, "What can scientific analysis tell us about the effectiveness of medieval arms and armour?", p. 172: "Breastplate thickness between 1.5 and 3 mm corresponds of course to an armour of comfortable weight. The limbs would have been protected with thinner armour." (https://wratislavia.antiqua.uwr.edu.pl/)';
+  "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
 
 /** The helmet padding read. */
 const PAD: string =
-  'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
+  'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
 
 /**
  * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
  *
- * A piece is fitted to a body when the author gives the body's measure (`IAutoMovieBodyMeasure`, as the motion laws read the polygon man's): its inside follows the body part it covers, its plate the drawn thickness beyond it, a helmet's padding between the head and the plate. Without a measure it is the read piece as its museum record measures it, a box of its height, width and depth. Either way its mass is its record's. It is built centred on the body part it covers, `+Y` up the segment, and `wear` is that centre, which a worn prop rides on its bone (`createArmour.bone`); a limb piece is the same on either side, and `bone` names the side's bone. A brimmed helmet carries its brim as wide as its record's depth. A plate piece carries a provisional glance angle (`GLANCE`, as `contact.glance`); a mail shirt carries none. Performance flight and melee outcomes do not consume that angle yet.
+ * Actual closed wall cells leave face, neck, arm, hem and limb cavities open.
+ * Museum H/W/D and total mass remain the selected record's; fitted body
+ * boundaries retain their exact measure, plate and provisional helmet pad.
+ * Fitted mail places its wall outside the body's breadth/depth. Its wall is
+ * the recorded mass's equivalent volume under the existing structural-steel
+ * density, not a measurement of wire, weave or historical alloy. A gauntlet's
+ * forearm radius sizes its cuff; its rigid mitten/thumb regions are coarse
+ * authored envelopes, not a measured hand. The selected armet23232 retains
+ * its missing visor and arm-defense35850 excludes its separate elbow reinforce.
+ * Coarse opening fractions distinguish the kinds without claiming calibrated
+ * artifact profiles. Each piece stays on one bone, +Y up, +Z front; wear is
+ * its origin. Brim depth and plate metadata retain their existing contracts.
  *
  * @param params The kind, the read piece, the body's measure, and any dimension the author fixes.
  * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
  * @returns The piece.
- * @throws {ArchetypeRefusal} For an unsupported piece or dimension, a missing or invalid body measure used by this kind, or a cuirass whose shoulders are not above its waist.
+ * @throws {ArchetypeRefusal} For an unsupported piece/dimension, invalid used body measures, inverted cuirass heights or a mail mass/coverage that cannot contain a positive wall and cavity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
- * @evidence contracts/development/implementation.md#principled-implementation Fitted, each piece's inside is its body part's measure (the head's radius, the chest's breadth and depth between waist and shoulders, a limb's radius over its length) with plate and helmet padding outside it; unfitted, the museum box. Only measures that kind actually uses must be finite and positive, and a cuirass's shoulders must stand above its waist. The mass is the read piece's whole.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the piece, draw the thickness and padding, then one branch per kind's shape, and the `wear` contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each piece is one rigid solid on one bone: lames, a mail shirt's drape and a closed helmet's visor are not drawn, so an open and a closed helmet differ only in their records; a mail shirt is drawn on the body's surface, its rings' thickness unread. A plate piece's body carries the provisional glance angle `GLANCE`; the share of a hit passed to the body is no figure here, since a projectile that stops in the plate hands the wearer its whole momentum, which the hit's outcome computes (#3479), as Krenn, Kalaus and Hall's breastplate stopped a 907 J ball with only a bruise behind it.
- * @evidence contracts/development/implementation.md#efficient-algorithms One or two parts.
+ * @evidence contracts/development/implementation.md#principled-implementation Preserve whole record draws and existing minimal measure admission, resolve one shared actual-wall profile, then build each closed convex wall cell through the same core geometry/mass/collider owner. Helmet padding and limb/torso cavities follow exact body boundaries; mail derives an explicitly equivalent wall from fixed coverage volume and existing steel density.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the existing record/bands, admit only used body dimensions, prepare the profile, emit its actual cells and retain the original wear/contact metadata.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounding-box fallback, filled body proxy, hidden collision/mass solid or invented historical wall/hand dimensions. Missing and associated components retain their record scope. Coarse authored geometry and equivalent mail material do not establish specimen shape, drape, protection or a universal glance outcome.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Bounded O(N squared) helmet cells or O(N) limb cells and constant torso panels, followed by shared core per-cell hull and mass work; no iterative model fitting.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -57,9 +70,10 @@ export function createArmour(
     params.kind,
     createArmour.KINDS,
   );
-  const model: {
-    figures: Readonly<Partial<Record<createArmour.Dimension, number>>>;
-  } = draw.model<createArmour.Model>(
+  const model: ArchetypeDrawSession.IModel<
+    createArmour.Model,
+    createArmour.Dimension
+  > = draw.model<createArmour.Model>(
     "model",
     params.model,
     createArmour.MODELS[kind],
@@ -84,48 +98,41 @@ export function createArmour(
   };
   const m: Partial<IAutoMovieBodyMeasure> | undefined = params.measure;
   if (m !== undefined) admitMeasure(kind, m);
-  const t: number = d.thickness ?? 0;
-
-  if (m === undefined)
-    // The read piece as its record measures it.
-    builder.box("piece", v(d.width!, d.height!, d.depth!), v(0, 0, 0), steel);
-  else if (
-    kind === "openHelmet" ||
-    kind === "closedHelmet" ||
-    kind === "brimmedHelmet"
-  ) {
-    const r: number = m.headRadius! + d.pad! + t;
-    builder.ball("piece", r, v(0, 0, 0), steel);
-    if (kind === "brimmedHelmet")
-      builder.rod("brim", d.depth! / 2, v(0, 0, 0), v(0, t, 0), steel);
-  } else if (kind === "cuirass" || kind === "mail") {
-    const height: number =
-      kind === "mail" ? d.height! : m.shoulderHeight! - m.waistHeight!;
-    builder.box(
-      "piece",
-      v(m.chestBreadth! + 2 * t, height, m.chestDepth! + 2 * t),
-      v(0, 0, 0),
-      kind === "mail" ? { color: "#6f757b", surface: "steel" } : steel,
-    );
-  } else {
-    const radius: number =
-      kind === "greave" ? m.shankRadius! : m.forearmRadius!;
-    const length: number =
-      kind === "greave" ? m.shank! : kind === "vambrace" ? m.forearm! : m.hand!;
-    builder.rod(
-      "piece",
-      radius + t,
-      v(0, -length / 2, 0),
-      v(0, length / 2, 0),
-      steel,
-    );
+  const profile: ArmourProfile.IProfile = ArmourProfile.create(
+    kind,
+    model.name!,
+    d,
+    m,
+  );
+  let cells: readonly ArmourProfile.ICell[];
+  try {
+    cells = ArmourForm(profile);
+  } catch (error) {
+    if (!(error instanceof RangeError)) throw error;
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "armour",
+      axis: "measure",
+      value: params.measure,
+      feasible: null,
+      reason: error.message,
+      fix: "supply fitting dimensions compatible with the selected piece's actual positive wall and cavity",
+    });
   }
+  for (const cell of cells)
+    builder.convex(cell.id, cell.prepared ?? cell.points, v(0, 0, 0), {
+      ...(kind === "mail"
+        ? { color: "#6f757b", surface: "steel" as const }
+        : steel),
+      ...(cell.rotation === undefined ? {} : { rotation: cell.rotation }),
+    });
   builder.affordance({
     id: "wear",
     kind: "socket",
     frame: ArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
+
   // Plate publishes provisional glance metadata; current flight/melee outcomes do not consume it. Mail declares none.
   return builder.build(d.mass!, {
     rests: "steel",
@@ -139,7 +146,7 @@ export function createArmour(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, dimension, record and band states what it is and its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read pieces, each record whole; the thickness and padding as cited bands; a body's measure as the interface's own record, so the producer fits any body the motion laws read.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The piece, its `wear` place and the bone it rides (#3500).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No piece is sized by a guess: unfitted it is its record's box, fitted its body's measure; a helmet's padding is a modern pad's and the plate's glance angle a quoted test's, both marked provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Literal museum envelopes/mass and body fitting boundaries remain independent; authored coarse openings and steel-equivalent mail are not asserted as measured artifact geometry. Helmet padding and plate glance retain their explicit provisional sources.
  */
 export namespace createArmour {
   /** The kinds of piece. */
@@ -322,7 +329,7 @@ export namespace createArmour {
     /** Which read piece; picked from the seed when absent. */
     model?: Model;
 
-    /** The body to fit, metres: each field this kind uses must be present, finite and positive, with shoulders above waist for a cuirass. Unused fields may be omitted; absent measure leaves the piece as its museum-record box. */
+    /** The body to fit, metres: required fields are finite and positive, shoulders above waist for a cuirass. Unused fields may be omitted; absent measure retains the literal museum envelope. Mail's inner body boundary is exact; its equivalent wall lies outside it. A gauntlet's forearm radius fits its cuff, not an unmeasured palm. */
     measure?: Partial<IAutoMovieBodyMeasure>;
 
     /** The model's id, unique in a scene; `armour` when absent. */

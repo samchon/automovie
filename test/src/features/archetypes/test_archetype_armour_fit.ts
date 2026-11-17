@@ -1,53 +1,38 @@
 import { createArmour } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieBodyMeasure,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ARMOUR_RECORDS } from "../internal/ARMOUR_RECORDS";
+import { armourActual } from "../internal/armourActual";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Each piece of armour fits every body of the sweep around the part it covers, and is its museum record unfitted.
+ * Actual armour walls retain every canonical body fit and literal museum record.
  *
  * Scenarios:
- * 1. Every kind, fitted to each of the 14 bodies of the sweep (their `measure`), encloses its body part with a clearance inside its fit band: a helmet's ball is the head's radius plus the padding plus a plate of 1.5 to 3 mm (Williams); a cuirass's box is the chest's breadth and depth plus a plate on each side, from the waist to the shoulders; a mail shirt's is the chest's breadth and depth over its record's length; a gauntlet's, a vambrace's and a greave's bar is the hand's, the forearm's or the shank's length around the forearm's or the shank's radius plus a plate.
- * 2. Every read piece of every kind, unfitted, is its Metropolitan Museum record's box and mass (`ARMOUR_RECORDS`, written from the museum's records), and passes `validateModel`; the producer reads exactly the museum's pieces, in that order.
- * 3. Each kind rides its bone: a helmet the head, a cuirass and mail the chest, a gauntlet a hand, a vambrace a lower arm and a greave a lower leg, on the side given.
+ * 1. Eight kinds fit all fourteen canonical bodies: actual helmet/limb planes
+ *    retain their exact inner body/pad boundary and1.5–3mm normal plate gauge;
+ *    torso inner breadth/depth and its covered height retain their definitions.
+ * 2. All nineteen unfitted records retain their independently written H/W/D,
+ *    total mass, original model order and model admission on actual geometry.
+ * 3. The unchanged bone mapping handles both sides of every limb piece.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Fits every kind to real bodies and reads the produced part's own shape against each body's measure, and every record unfitted; a piece sized by a guess, a plate outside its band, or a piece on the wrong bone is caught.
- * @evidence contracts/development/testing.md#independent-expectations The clearances are the cited bands, written here, and the records' figures the museum's, written in `ARMOUR_RECORDS`, not read from the producer; the body's measure is the prepared polygon man's.
- * @evidence contracts/development/testing.md#distinguishing-cases Eight kinds on fourteen bodies, every read piece, both sides of a limb piece.
- * @evidence contracts/development/testing.md#execution-ownership Prepares the fourteen polygon men of the sweep and builds the pieces in memory; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * Filled primitive-type assertions become actual wall-plane measurements.
+ * Polygon corners are not a curved primitive's radius. Mail's positive wall
+ * lies outside its exact body boundary; a gauntlet's forearm radius fits its
+ * cuff, rather than an unmeasured palm/thumb.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names all original body, record and binding scenarios and the actual-wall representation migration without weakening numerical expectations.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public construction, engine admission and independent actual mesh/hull observations over all original bodies/records; catches wrong padding, normal gauge, torso cavity, length, record envelope/mass/order or bones.
+ * @evidence contracts/development/testing.md#independent-expectations Existing1.5/3mm plate and0.75inch pad remain literal; ARMOUR_RECORDS remains the independent museum table and canonical prepared body measures remain the fit inputs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Eight kinds on fourteen bodies, all nineteen records, hollow form families, both limb sides and explicit mail/hand fitting sites.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory production and numerical observations; no renderer or external host.
  */
 export function test_archetype_armour_fit(): void {
   const findings: string[] = [];
   const PLATE: readonly [number, number] = [0.0015, 0.003];
-  const PAD: number = 0.75 * 0.0254;
   const EPSILON: number = 1e-9;
-  const shape: (
-    piece: ReturnType<typeof createArmour>,
-  ) => AutoMoviePrimitiveShape = (
-    piece: ReturnType<typeof createArmour>,
-  ): AutoMoviePrimitiveShape => {
-    const part: IAutoMovieModelPart = piece.parts.find(
-      (p: IAutoMovieModelPart): boolean => p.id === "piece",
-    )!;
-    if (part.geometry.type !== "primitive")
-      throw new Error("an armour piece is not a primitive");
-    return part.geometry.shape;
-  };
-  const inside: (value: number, low: number, high: number) => boolean = (
-    value: number,
-    low: number,
-    high: number,
-  ): boolean => value >= low - EPSILON && value <= high + EPSILON;
-
-  // 1. Fitted to every body.
   for (const name of motionHumanBody.SWEEP) {
     const m: IAutoMovieBodyMeasure = motionHumanBody(name).measure;
     for (const kind of createArmour.KINDS) {
@@ -55,89 +40,92 @@ export function test_archetype_armour_fit(): void {
         kind,
         measure: m,
       });
-      const s: AutoMoviePrimitiveShape = shape(piece);
-      const label: string = `${kind} on ${name}`;
+      const gauge: number = armourActual.plate(kind, piece, m);
+      const label: string = kind + " on " + name;
       if (
-        kind === "openHelmet" ||
-        kind === "closedHelmet" ||
-        kind === "brimmedHelmet"
-      ) {
-        if (
-          s.type !== "sphere" ||
-          !inside(s.radius - m.headRadius, PAD + PLATE[0], PAD + PLATE[1])
-        )
-          findings.push(
-            `${label}: ${JSON.stringify(s)} round a head of ${m.headRadius} m`,
-          );
-      } else if (kind === "cuirass" || kind === "mail") {
-        const plate: readonly [number, number] =
-          kind === "mail" ? [0, 0] : PLATE;
+        kind !== "mail" &&
+        !(gauge >= PLATE[0] - EPSILON && gauge <= PLATE[1] + EPSILON)
+      )
+        findings.push(label + ": actual normal plate gauge " + gauge);
+      if (kind === "cuirass" || kind === "mail") {
+        const side: ReturnType<typeof armourActual.bounds> =
+          armourActual.bounds(piece, "side-1");
+        const front: ReturnType<typeof armourActual.bounds> =
+          armourActual.bounds(piece, "front-body");
+        const actual: ReturnType<typeof armourActual.bounds> =
+          armourActual.bounds(piece);
         const height: number =
           kind === "mail"
             ? piece.dimensions.height!
             : m.shoulderHeight - m.waistHeight;
         if (
-          s.type !== "box" ||
-          !inside(s.width - m.chestBreadth, 2 * plate[0], 2 * plate[1]) ||
-          !inside(s.depth - m.chestDepth, 2 * plate[0], 2 * plate[1]) ||
-          !(Math.abs(s.height - height) <= EPSILON)
+          !(
+            Math.abs(2 * side.low.x - m.chestBreadth) <= EPSILON &&
+            Math.abs(2 * front.low.z - m.chestDepth) <= EPSILON &&
+            Math.abs(actual.high.y - actual.low.y - height) <= EPSILON
+          )
         )
           findings.push(
-            `${label}: ${JSON.stringify(s)} round a chest ${m.chestBreadth} by ${m.chestDepth} m`,
+            label +
+              ": actual torso inner boundary or length differs from its body",
           );
-      } else {
-        const radius: number =
-          kind === "greave" ? m.shankRadius : m.forearmRadius;
+      } else if (!kind.endsWith("Helmet")) {
+        const actual: ReturnType<typeof armourActual.bounds> =
+          armourActual.bounds(piece);
         const length: number =
           kind === "greave"
             ? m.shank
             : kind === "vambrace"
               ? m.forearm
               : m.hand;
-        if (
-          s.type !== "cylinder" ||
-          !inside(s.radius - radius, PLATE[0], PLATE[1]) ||
-          !(Math.abs(s.height - length) <= EPSILON)
-        )
+        if (!(Math.abs(actual.high.y - actual.low.y - length) <= EPSILON))
           findings.push(
-            `${label}: ${JSON.stringify(s)} round a limb of ${radius} m over ${length} m`,
+            label +
+              ": actual length " +
+              (actual.high.y - actual.low.y) +
+              ", body " +
+              length,
           );
       }
     }
   }
-
-  // 2. Every read piece unfitted: the museum's record's box and mass, and no piece the museum's list lacks.
   for (const kind of createArmour.KINDS) {
     const records: Readonly<
       Record<string, readonly [number, number, number, number]>
     > = ARMOUR_RECORDS[kind]!;
     const produced: string[] = Object.keys(createArmour.MODELS[kind]);
     if (JSON.stringify(produced) !== JSON.stringify(Object.keys(records)))
-      findings.push(`${kind}: reads ${produced.join(", ")}`);
-    for (const [model, [h, w, dp, g]] of Object.entries(records)) {
+      findings.push(kind + ": reads " + produced.join(", "));
+    for (const [model, [height, width, depth, grams]] of Object.entries(
+      records,
+    )) {
       const piece: ReturnType<typeof createArmour> = createArmour({
         kind,
         model: model as createArmour.Model,
       });
-      const s: AutoMoviePrimitiveShape = shape(piece);
+      const actual: ReturnType<typeof armourActual.bounds> =
+        armourActual.bounds(piece);
       if (!validateModel({ model: piece }).success)
-        findings.push(`${kind} ${model}: not admitted`);
+        findings.push(kind + " " + model + ": not admitted");
       if (
-        s.type !== "box" ||
         !(
-          Math.abs(s.height - h / 100) <= EPSILON &&
-          Math.abs(s.width - w / 100) <= EPSILON &&
-          Math.abs(s.depth - dp / 100) <= EPSILON &&
-          Math.abs(piece.body.mass - g / 1000) <= EPSILON
+          Math.abs(actual.high.y - actual.low.y - height / 100) <= EPSILON &&
+          Math.abs(actual.high.x - actual.low.x - width / 100) <= EPSILON &&
+          Math.abs(actual.high.z - actual.low.z - depth / 100) <= EPSILON &&
+          Math.abs(piece.body.mass - grams / 1000) <= EPSILON
         )
       )
         findings.push(
-          `${kind} ${model}: ${JSON.stringify(s)}, ${piece.body.mass} kg`,
+          kind +
+            " " +
+            model +
+            ": actual envelope " +
+            JSON.stringify(actual) +
+            ", mass " +
+            piece.body.mass,
         );
     }
   }
-
-  // 3. The bones.
   const bones: Readonly<Record<createArmour.Kind, readonly [string, string]>> =
     {
       openHelmet: ["head", "head"],
@@ -154,11 +142,9 @@ export function test_archetype_armour_fit(): void {
       createArmour.bone(kind, "left") !== bones[kind][0] ||
       createArmour.bone(kind, "right") !== bones[kind][1]
     )
-      findings.push(
-        `${kind} rides ${createArmour.bone(kind, "left")} and ${createArmour.bone(kind, "right")}`,
-      );
+      findings.push(kind + " has the wrong wear bone");
   TestValidator.equals(
-    "armour fits every body and is its record unfitted",
+    "actual armour retains every source fit and record",
     findings,
     [],
   );
