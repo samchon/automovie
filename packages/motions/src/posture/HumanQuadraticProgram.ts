@@ -1,4 +1,5 @@
 import { HumanQuadraticInterior } from "./HumanQuadraticInterior";
+import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticModel } from "./HumanQuadraticModel";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticValue } from "./HumanQuadraticValue";
@@ -8,8 +9,8 @@ import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
  * A convex quadratic program with banded curvature and sparse rows, solved
  * by OSQP (Stellato, Banjac, Goulart, Bemporad and Boyd 2020, "OSQP: an
  * operator splitting solver for quadratic programs", Math Program Comput
- * 12:637): minimise `½ xᵀPx + qᵀx` over rows `l <= a·x <= u`, each row hard
- * (projected onto its interval) or soft (an exact l1 penalty `weight ×` its
+ * 12:637): minimise `쩍 x巢Px + q巢x` over rows `l <= a쨌x <= u`, each row hard
+ * (projected onto its interval) or soft (an exact l1 penalty `weight 횞` its
  * distance from the interval, whose proximal step is a soft threshold toward
  * it), the form of the convex subproblem of TrajOpt's sequential convex
  * optimisation (Schulman et al. 2014, IJRR 33:1251).
@@ -31,8 +32,8 @@ import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
  *   kept when its residuals are no larger.
  *
  * The curvature and the rows only couple variables within `band` of each
- * other, so every linear system is the banded reduced form `P + σI + Aᵀ
- * diag(ρ) A` (the paper's indirect form), factored by a banded Cholesky
+ * other, so every linear system is the banded reduced form `P + ?I + A巢
+ * diag(?) A` (the paper's indirect form), factored by a banded Cholesky
  * factorisation (`HumanQuadraticBand`). A warm start carries the iterates of
  * a solve of the same rows with other bounds. `HumanQuadraticPreparation`
  * shares complete numeric preparation only after exact P, q and ordered
@@ -59,7 +60,7 @@ export namespace HumanQuadraticProgram {
   export const TOLERANCE: number = 1e-3;
 
   /**
-   * One ordered row `l <= Σ coef·x[index] <= u`, in its own consistent
+   * One ordered row `l <= 誇 coef쨌x[index] <= u`, in its own consistent
    * linear units. A soft weight has objective units per row unit.
    *
    * @evidence contracts/development/design.md#principled-representation Models a closed linear interval or its nonnegative l1 penalty; parallel indices and coefficients preserve duplicates, and solve validates lengths, finite values, indices and bound order.
@@ -229,23 +230,27 @@ export namespace HumanQuadraticProgram {
    * grow with that conditioning.
    *
    * @param problem The problem; its numeric storage remains unchanged during this synchronous solve.
+   * @param session The caller's session of solves of one optimisation (`HumanQuadraticInteriorSession.ISession`): its first solve's scales serve the later ones, a solve of the same rows starts from the one before, and the solver's scratch is kept between them; absent, the solve is alone and cold.
    * @returns The unscaled iterates with status `solved`, to the interior method's own accuracy; undefined when it did not converge, and the caller solves by `solve` or a prepared model.
    * @throws {RangeError} For malformed or nonfinite input or noninvertible scaling, as `solve` throws.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the primal-dual predictor-corrector iteration documented with its derivation at `HumanQuadraticInterior`, on the same admitted and equilibrated data as `solve`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation; the method, its parameters and its failure cases have one owner.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the primal-dual predictor-corrector iteration documented with its derivation at `HumanQuadraticInterior`, on the same admitted and equilibrated data as `solve`, or on the session's scales.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation; the method, its parameters, its session and its failure cases have one owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A solve that misses its accuracy returns nothing instead of an approximate iterate; no row or penalty differs from `solve`'s reading of the problem.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(n w^2) an iteration for n variables and band w, a bounded number of iterations; no speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the numeric preparation of `solve` for exactly equal data; nothing else is kept.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All scratch is released on return; the returned arrays are the caller's.
-   * @evidence contracts/development/common.md#meaningful-documentation States when to use it, the absent result's meaning and the failure cases.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the numeric preparation of `solve` for exactly equal data, and with a session its scales, scratch and last point as `HumanQuadraticInterior` states.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is released on return; a session keeps what `HumanQuadraticInteriorSession.ISession` states until its caller drops it; the returned arrays are the caller's.
+   * @evidence contracts/development/common.md#meaningful-documentation States when to use it, the session, the absent result's meaning and the failure cases.
    */
-  export function interior(problem: IProblem): IState | undefined {
-    return HumanQuadraticInterior(problem);
+  export function interior(
+    problem: IProblem,
+    session?: HumanQuadraticInteriorSession.ISession,
+  ): IState | undefined {
+    return HumanQuadraticInterior(problem, session);
   }
 
   /**
-   * The value of `½ xᵀPx + qᵀx` plus each soft row's penalty: a trust
+   * The value of `쩍 x巢Px + q巢x` plus each soft row's penalty: a trust
    * region's model of the merit.
    *
    * @param problem The problem.

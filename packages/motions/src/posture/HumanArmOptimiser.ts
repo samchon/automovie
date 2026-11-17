@@ -2,6 +2,7 @@ import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
+import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
 
@@ -44,7 +45,7 @@ export namespace HumanArmOptimiser {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and an interior solve that misses its accuracy proposes no step rather than an inaccurate one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; nothing of a subproblem's solve is kept past it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales and the solver's scratch serve them all, and the models of one linearisation, which share its rows, start from the last one solved, a start that decides no answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
    */
   export function optimise(
@@ -68,6 +69,13 @@ export namespace HumanArmOptimiser {
     // The objective's exact quadratic terms, the same at every iterate.
     const smooth: HumanArmTrajectorySmooth.ISmooth =
       HumanArmTrajectorySmooth.of(read);
+
+    // Every subproblem of this solve is one session of the interior-point
+    // solve (`HumanQuadraticInteriorSession`): the first subproblem's
+    // equilibration scales the rest, the scratch is kept, and the models of
+    // one linearisation (a smaller region, a reprice, the violation alone),
+    // which share its rows, each start from the one solved before.
+    const session: HumanQuadraticInteriorSession.ISession = {};
     const problem: SCO.IProblem<number[][][], M.IEvaluation> = {
       evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(read, spread(x)),
       feasible: (evaluation: M.IEvaluation): boolean =>
@@ -79,6 +87,9 @@ export namespace HumanArmOptimiser {
         radius: number,
         objective: boolean,
       ): SCO.IModel<number[][][]> => {
+        // A new linearisation has other rows: no earlier point starts it.
+        session.point = undefined;
+
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
         const built: QP.IProblem = HumanArmTrajectoryConvex.convexify(
@@ -135,7 +146,7 @@ export namespace HumanArmOptimiser {
           // ends short of its accuracy proposes no step, which the loop
           // reads as no decrease and answers by shrinking the region.
           const solved: Float64Array =
-            QP.interior(trusted)?.x ?? new Float64Array(trusted.n);
+            QP.interior(trusted, session)?.x ?? new Float64Array(trusted.n);
           let length: number = 0;
           for (let i: number = 0; i < solved.length; ++i)
             length = Math.max(length, Math.abs(solved[i]!));

@@ -1,5 +1,6 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
+import { HumanQuadraticInteriorSession as Session } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 import { HumanQuadraticRow } from "./HumanQuadraticRow";
@@ -79,7 +80,17 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * holds no variable and excludes zero, the solve returns nothing and the
  * caller solves by OSQP, so a failure here costs time and never an answer.
  *
+ * With a session (`HumanQuadraticInteriorSession.ISession`, one caller's
+ * solves of one optimisation's subproblems), the session's first solve's
+ * variable and cost scales scale every later solve
+ * (`HumanQuadraticPreparation.scaled`'s `fixed`, one pass in place of ten),
+ * the scratch is kept for programs of the same sizes, and a program of the
+ * same rows as the last converged one starts from its point shifted into
+ * the interior (`HumanQuadraticInteriorSession.warm`); a warm solve that
+ * ends short of `ACCURACY` is solved again cold.
+ *
  * @param problem The program; its storage is unchanged during this synchronous solve.
+ * @param session The caller's session; absent, the solve is alone, equilibrated by the ten passes and started cold.
  * @returns The unscaled variables, each row's value (a hard row's within its interval) and multiplier, with status `solved`; undefined when the method did not converge.
  * @throws {RangeError} For malformed or nonfinite input or noninvertible scaling, as `HumanQuadraticProgram.solve` throws.
  *
@@ -88,13 +99,18 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and equilibration stay with `HumanQuadraticPreparation`, the banded assembly, factor and substitution with the OSQP solve's owners; this file owns the iteration alone.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No row, bound or penalty is dropped or relaxed: a zero-weight soft end, which costs nothing, and an empty row, which holds no variable, are the only ends left out, and a hard empty row that excludes zero fails the solve. `ITERATIONS`, `BOUNDARY`, `REGULAR` and `ACCURACY` are named parameters with their origins stated; a solve that misses its accuracy returns nothing rather than an approximate answer.
  * @evidence contracts/development/implementation.md#efficient-algorithms An iteration costs O(n w^2 + n w + Z + m) for Z stored row coefficients and m rows, at most `ITERATIONS` of them, independent of the curvature's conditioning; storage is O(n w + n + m). No speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One factor serves an iteration's two solves; the equilibration is shared with every solve of the same numeric data through `HumanQuadraticPreparation.scaled`. Nothing is kept between solves.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; the returned arrays are fresh.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One factor serves an iteration's two solves; the equilibration is shared with every solve of the same numeric data through `HumanQuadraticPreparation.scaled`, and within a session its variable and cost scales, its scratch and its last converged point as a start: any positive diagonal scaling leaves the program's minimiser, and a start decides no answer since a warm solve short of its accuracy is solved again cold.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; a session holds one scaling, one scratch set of its sizes and one point until its caller drops it; the returned arrays are fresh.
  */
 export function HumanQuadraticInterior(
   problem: Q.IProblem,
+  session?: Session.ISession,
 ): Q.IState | undefined {
-  const s: B.IScaled = Preparation.scaled(problem);
+  // A session's later solves are scaled by its first one's variable and
+  // cost scales (`HumanQuadraticPreparation.IScaling`).
+  const s: B.IScaled = Preparation.scaled(problem, session?.scaling);
+  if (session !== undefined && session.scaling === undefined)
+    session.scaling = { d: Float64Array.from(s.d), c: s.c };
   const { n, m, start, cols, vals, lo, hi, weight }: B.IScaled = s;
 
   // The ends: 2r is row r's upper end, 2r + 1 its lower. An end is live
@@ -133,25 +149,33 @@ export function HumanQuadraticInterior(
     }
   }
 
-  // The start: the origin, every slack at least a unit, every product at
-  // most a unit, so the iterates begin away from every bound in the
-  // equilibrated units.
   const x: Float64Array = new Float64Array(n);
   const t: Float64Array = new Float64Array(ends);
   const lambda: Float64Array = new Float64Array(ends);
   const e: Float64Array = new Float64Array(ends);
   const nu: Float64Array = new Float64Array(ends);
-  for (let j: number = 0; j < ends; ++j) {
-    if (live[j] === 0 || free[j] === 1) continue;
-    t[j] = Math.max(bound[j]!, 1);
-    if (soft[j] === 0) lambda[j] = 1 / t[j]!;
-    else {
-      const w: number = weight[j >> 1]!;
-      lambda[j] = Math.min(1 / t[j]!, w / 2);
-      nu[j] = w - lambda[j]!;
-      e[j] = 1 / Math.max(nu[j]!, 1);
+
+  // The cold start: the origin, every slack at least a unit, every product
+  // at most a unit, so the iterates begin away from every bound in the
+  // equilibrated units.
+  const cold = (): void => {
+    x.fill(0);
+    t.fill(0);
+    lambda.fill(0);
+    e.fill(0);
+    nu.fill(0);
+    for (let j: number = 0; j < ends; ++j) {
+      if (live[j] === 0 || free[j] === 1) continue;
+      t[j] = Math.max(bound[j]!, 1);
+      if (soft[j] === 0) lambda[j] = 1 / t[j]!;
+      else {
+        const w: number = weight[j >> 1]!;
+        lambda[j] = Math.min(1 / t[j]!, w / 2);
+        nu[j] = w - lambda[j]!;
+        e[j] = 1 / Math.max(nu[j]!, 1);
+      }
     }
-  }
+  };
   const value: Float64Array = new Float64Array(m);
   const along: Float64Array = new Float64Array(m);
   const primal: Float64Array = new Float64Array(ends);
@@ -167,11 +191,15 @@ export function HumanQuadraticInterior(
   const dual: Float64Array = new Float64Array(n);
   const rhs: Float64Array = new Float64Array(n);
   const dx: Float64Array = new Float64Array(n);
-  const work: Workspace.IWork = Workspace.of(
-    new Float64Array(n),
-    new Float64Array(n),
-    new Float64Array(m),
-  );
+  // A session keeps the scratch for programs of its sizes; the system band
+  // is reset from the curvature at every iteration (`Workspace.system`).
+  let work: Workspace.IWork;
+  if (session?.work !== undefined && session.work.n === n && session.work.m === m)
+    work = session.work.work;
+  else {
+    work = Workspace.of(new Float64Array(n), new Float64Array(n), new Float64Array(m));
+    if (session !== undefined) session.work = { n, m, work };
+  }
 
   /** Each row's product with a vector of the variables. */
   const products: (of: Float64Array, into: Float64Array) => void = (
@@ -258,169 +286,162 @@ export function HumanQuadraticInterior(
     }
     return step;
   };
-  let fair: Q.IState | undefined;
 
-  // The last step's size against the iterate's, largest components. The
-  // residuals alone do not bound the iterate's error where the curvature is
-  // badly conditioned (a second-difference chain's least curvature is its
-  // length to the minus fourth: a residual of 1e-8 left a twenty-variable
-  // chain 1.6e-6 off its minimiser), so the solve ends only once a Newton
-  // step no longer moves the iterate by more than the accuracy, or once the
-  // residuals have held through a further Newton step (which, on a
-  // quadratic program whose active ends are found, lands on the minimiser
-  // to the factor's accuracy; a degenerate end can keep a step from
-  // vanishing, and must not keep the solve from ending).
-  let moved: number = Infinity;
-  let held: number = 0;
-  for (let it: number = 0; it < ITERATIONS; ++it) {
-    // The residuals of the unregularised conditions at the iterate.
-    products(x, value);
-    Workspace.curvature(s, x, dual);
-    let curved: number = 0;
-    for (let i: number = 0; i < n; ++i) {
-      curved = Math.max(curved, Math.abs(dual[i]!));
-      dual[i] = dual[i]! + s.q[i]!;
-    }
-    const pulled: Float64Array = work.transpose;
-    pulled.fill(0);
-    let gap: number = 0;
-    let missed: number = 0;
-    let reached: number = 0;
-    for (let r: number = 0; r < m; ++r) {
-      reached = Math.max(reached, Math.abs(value[r]!));
-      let multiplier: number = 0;
-      for (let side: number = 0; side < 2; ++side) {
-        const j: number = 2 * r + side;
-        if (live[j] === 0) continue;
-        const c: number = side === 0 ? value[r]! : -value[r]!;
-        multiplier += side === 0 ? lambda[j]! : -lambda[j]!;
-        if (free[j] === 1) {
-          primal[j] = c - bound[j]!;
+  // One solve from the iterate the arrays hold, cold or warm: the state it
+  // ends with, and whether it met `ACCURACY` (a converged solve, whose point
+  // a session keeps for the next program of the same rows).
+  const run = (): { state: Q.IState | undefined; converged: boolean } => {
+    let fair: Q.IState | undefined;
+
+    // The last step's size against the iterate's, largest components. The
+    // residuals alone do not bound the iterate's error where the curvature is
+    // badly conditioned (a second-difference chain's least curvature is its
+    // length to the minus fourth: a residual of 1e-8 left a twenty-variable
+    // chain 1.6e-6 off its minimiser), so the solve ends only once a Newton
+    // step no longer moves the iterate by more than the accuracy, or once the
+    // residuals have held through a further Newton step (which, on a
+    // quadratic program whose active ends are found, lands on the minimiser
+    // to the factor's accuracy; a degenerate end can keep a step from
+    // vanishing, and must not keep the solve from ending).
+    let moved: number = Infinity;
+    let held: number = 0;
+    for (let it: number = 0; it < ITERATIONS; ++it) {
+      // The residuals of the unregularised conditions at the iterate.
+      products(x, value);
+      Workspace.curvature(s, x, dual);
+      let curved: number = 0;
+      for (let i: number = 0; i < n; ++i) {
+        curved = Math.max(curved, Math.abs(dual[i]!));
+        dual[i] = dual[i]! + s.q[i]!;
+      }
+      const pulled: Float64Array = work.transpose;
+      pulled.fill(0);
+      let gap: number = 0;
+      let missed: number = 0;
+      let reached: number = 0;
+      for (let r: number = 0; r < m; ++r) {
+        reached = Math.max(reached, Math.abs(value[r]!));
+        let multiplier: number = 0;
+        for (let side: number = 0; side < 2; ++side) {
+          const j: number = 2 * r + side;
+          if (live[j] === 0) continue;
+          const c: number = side === 0 ? value[r]! : -value[r]!;
+          multiplier += side === 0 ? lambda[j]! : -lambda[j]!;
+          if (free[j] === 1) {
+            primal[j] = c - bound[j]!;
+            missed = Math.max(missed, Math.abs(primal[j]!));
+            stiff[j] = 1 / EQUAL;
+            continue;
+          }
+          primal[j] = c - e[j]! + t[j]! - bound[j]!;
           missed = Math.max(missed, Math.abs(primal[j]!));
-          stiff[j] = 1 / EQUAL;
-          continue;
+          gap += lambda[j]! * t[j]!;
+          if (soft[j] === 1) {
+            excess[j] = weight[r]! - lambda[j]! - nu[j]!;
+            missed = Math.max(missed, Math.abs(excess[j]!));
+            gap += nu[j]! * e[j]!;
+          }
+          stiff[j] =
+            1 / (t[j]! / lambda[j]! + (soft[j] === 1 ? e[j]! / nu[j]! : 0));
         }
-        primal[j] = c - e[j]! + t[j]! - bound[j]!;
-        missed = Math.max(missed, Math.abs(primal[j]!));
-        gap += lambda[j]! * t[j]!;
-        if (soft[j] === 1) {
-          excess[j] = weight[r]! - lambda[j]! - nu[j]!;
-          missed = Math.max(missed, Math.abs(excess[j]!));
-          gap += nu[j]! * e[j]!;
-        }
-        stiff[j] =
-          1 / (t[j]! / lambda[j]! + (soft[j] === 1 ? e[j]! / nu[j]! : 0));
+        if (multiplier === 0) continue;
+        const end: number = start[r + 1]!;
+        for (let a: number = start[r]!; a < end; ++a)
+          pulled[cols[a]!] = pulled[cols[a]!]! + vals[a]! * multiplier;
       }
-      if (multiplier === 0) continue;
-      const end: number = start[r + 1]!;
-      for (let a: number = start[r]!; a < end; ++a)
-        pulled[cols[a]!] = pulled[cols[a]!]! + vals[a]! * multiplier;
-    }
-    let stationary: number = 0;
-    let drawn: number = 0;
-    for (let i: number = 0; i < n; ++i) {
-      drawn = Math.max(drawn, Math.abs(pulled[i]!));
-      dual[i] = dual[i]! + pulled[i]!;
-      stationary = Math.max(stationary, Math.abs(dual[i]!));
-    }
-    const mu: number = pairs === 0 ? 0 : gap / pairs;
-    if (
-      !Number.isFinite(stationary) ||
-      !Number.isFinite(missed) ||
-      !Number.isFinite(mu)
-    )
-      return undefined;
-    const within: (accuracy: number) => boolean = (accuracy: number): boolean =>
-      stationary <= accuracy * Math.max(1, curved, drawn, s.qNorm) &&
-      missed <= accuracy * Math.max(1, reached) &&
-      mu <= accuracy;
-    if (within(ACCURACY)) {
-      if (moved <= ACCURACY || ++held >= 2) return unscaled(s, x, value, lambda);
-    } else held = 0;
+      let stationary: number = 0;
+      let drawn: number = 0;
+      for (let i: number = 0; i < n; ++i) {
+        drawn = Math.max(drawn, Math.abs(pulled[i]!));
+        dual[i] = dual[i]! + pulled[i]!;
+        stationary = Math.max(stationary, Math.abs(dual[i]!));
+      }
+      const mu: number = pairs === 0 ? 0 : gap / pairs;
+      if (
+        !Number.isFinite(stationary) ||
+        !Number.isFinite(missed) ||
+        !Number.isFinite(mu)
+      )
+        return { state: undefined, converged: false };
+      const within: (accuracy: number) => boolean = (accuracy: number): boolean =>
+        stationary <= accuracy * Math.max(1, curved, drawn, s.qNorm) &&
+        missed <= accuracy * Math.max(1, reached) &&
+        mu <= accuracy;
+      if (within(ACCURACY)) {
+        if (moved <= ACCURACY || ++held >= 2) {
+          if (session !== undefined) session.point = Session.save(s, x, t, lambda, e, nu);
+          return { state: Session.unscaled(s, x, value, lambda), converged: true };
+        }
+      } else held = 0;
 
-    // An iterate within the accepted accuracy is kept, should the solve
-    // end short of the accuracy it aims at.
-    fair = within(ACCEPTED) ? unscaled(s, x, value, lambda) : undefined;
+      // An iterate within the accepted accuracy is kept, should the solve
+      // end short of the accuracy it aims at.
+      fair = within(ACCEPTED) ? Session.unscaled(s, x, value, lambda) : undefined;
 
-    // The reduced matrix, factored once for the predictor and the corrector.
-    const matrices: Workspace.IFactor = Workspace.system(s, REGULAR, work);
-    for (let r: number = 0; r < m; ++r) {
-      const both: number = stiff[2 * r]! + stiff[2 * r + 1]!;
-      if (both > 0) HumanQuadraticRow(s, matrices.system, r, both);
-    }
-    const factor: Workspace.IFactor = HumanQuadraticCholesky(matrices);
+      // The reduced matrix, factored once for the predictor and the corrector.
+      const matrices: Workspace.IFactor = Workspace.system(s, REGULAR, work);
+      for (let r: number = 0; r < m; ++r) {
+        const both: number = stiff[2 * r]! + stiff[2 * r + 1]!;
+        if (both > 0) HumanQuadraticRow(s, matrices.system, r, both);
+      }
+      const factor: Workspace.IFactor = HumanQuadraticCholesky(matrices);
 
-    // The predictor, and the centring its longest step asks for.
-    direction(factor, 0, false);
-    let centring: number = 0;
-    if (pairs !== 0 && mu > 0) {
-      const affine: number = Math.min(1, longest());
-      let left: number = 0;
+      // The predictor, and the centring its longest step asks for.
+      direction(factor, 0, false);
+      let centring: number = 0;
+      if (pairs !== 0 && mu > 0) {
+        const affine: number = Math.min(1, longest());
+        let left: number = 0;
+        for (let j: number = 0; j < ends; ++j) {
+          if (live[j] === 0 || free[j] === 1) continue;
+          left +=
+            (lambda[j]! + affine * dLambda[j]!) * (t[j]! + affine * dT[j]!);
+          secondT[j] = dLambda[j]! * dT[j]!;
+          if (soft[j] === 0) continue;
+          left += (nu[j]! + affine * dNu[j]!) * (e[j]! + affine * dE[j]!);
+          secondE[j] = dNu[j]! * dE[j]!;
+        }
+        centring = (left / pairs / mu) ** 3;
+        direction(factor, centring * mu, true);
+      }
+
+      // One step for every variable, short of the boundary.
+      const step: number = Math.min(1, BOUNDARY * longest());
+      if (!(step > LEAST)) return { state: fair, converged: false };
+      let far: number = 0;
+      let size: number = 1;
+      for (let i: number = 0; i < n; ++i) {
+        far = Math.max(far, Math.abs(dx[i]!));
+        x[i] = x[i]! + step * dx[i]!;
+        size = Math.max(size, Math.abs(x[i]!));
+      }
+      moved = (step * far) / size;
       for (let j: number = 0; j < ends; ++j) {
-        if (live[j] === 0 || free[j] === 1) continue;
-        left +=
-          (lambda[j]! + affine * dLambda[j]!) * (t[j]! + affine * dT[j]!);
-        secondT[j] = dLambda[j]! * dT[j]!;
+        if (live[j] === 0) continue;
+        lambda[j] = lambda[j]! + step * dLambda[j]!;
+        if (free[j] === 1) continue;
+        t[j] = t[j]! + step * dT[j]!;
         if (soft[j] === 0) continue;
-        left += (nu[j]! + affine * dNu[j]!) * (e[j]! + affine * dE[j]!);
-        secondE[j] = dNu[j]! * dE[j]!;
+        e[j] = e[j]! + step * dE[j]!;
+        nu[j] = nu[j]! + step * dNu[j]!;
       }
-      centring = (left / pairs / mu) ** 3;
-      direction(factor, centring * mu, true);
     }
-
-    // One step for every variable, short of the boundary.
-    const step: number = Math.min(1, BOUNDARY * longest());
-    if (!(step > LEAST)) return fair;
-    let far: number = 0;
-    let size: number = 1;
-    for (let i: number = 0; i < n; ++i) {
-      far = Math.max(far, Math.abs(dx[i]!));
-      x[i] = x[i]! + step * dx[i]!;
-      size = Math.max(size, Math.abs(x[i]!));
-    }
-    moved = (step * far) / size;
-    for (let j: number = 0; j < ends; ++j) {
-      if (live[j] === 0) continue;
-      lambda[j] = lambda[j]! + step * dLambda[j]!;
-      if (free[j] === 1) continue;
-      t[j] = t[j]! + step * dT[j]!;
-      if (soft[j] === 0) continue;
-      e[j] = e[j]! + step * dE[j]!;
-      nu[j] = nu[j]! + step * dNu[j]!;
-    }
-  }
-  return fair;
-}
-
-/**
- * The converged iterate in the problem's own units: `x = D x`, each row's
- * value `E^-1 (a.x)`, a hard row's held within its interval, and its
- * multiplier `E (lambda_upper - lambda_lower) / c`, the sign the OSQP
- * solve's multipliers have.
- */
-function unscaled(
-  s: B.IScaled,
-  x: Float64Array,
-  value: Float64Array,
-  lambda: Float64Array,
-): Q.IState {
-  const out: Q.IState = {
-    x: new Float64Array(s.n),
-    z: new Float64Array(s.m),
-    y: new Float64Array(s.m),
-    status: "solved",
+    return { state: fair, converged: false };
   };
-  for (let i: number = 0; i < s.n; ++i) out.x[i] = s.d[i]! * x[i]!;
-  for (let r: number = 0; r < s.m; ++r) {
-    const held: number =
-      s.weight[r]! < 0
-        ? Math.min(s.hi[r]!, Math.max(s.lo[r]!, value[r]!))
-        : value[r]!;
-    out.z[r] = held / s.e[r]!;
-    out.y[r] = (s.e[r]! * (lambda[2 * r]! - lambda[2 * r + 1]!)) / s.c;
+
+  // A session's program of the same rows as its last converged one starts
+  // from that point (`HumanQuadraticInteriorSession.warm`); a warm solve that
+  // ends short of `ACCURACY` is solved again cold, so every answer is a
+  // converged solve's or the cold solve's.
+  if (
+    session?.point !== undefined &&
+    Session.warm(s, session.point, live, soft, free, bound, x, t, lambda, e, nu, value)
+  ) {
+    const warmed: { state: Q.IState | undefined; converged: boolean } = run();
+    if (warmed.converged) return warmed.state;
   }
-  return out;
+  cold();
+  return run().state;
 }
 
 /** Iterations at most, a guard behind the residual test: this solver's value, provisional and unsourced (a predictor-corrector iteration count does not grow with the conditioning that slows a first-order method, so a solve that needs more is treated as failed and left to OSQP). */
