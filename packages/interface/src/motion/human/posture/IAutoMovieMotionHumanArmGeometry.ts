@@ -104,8 +104,8 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    * must keep the borrowed input geometry and returned arrays stable during reuse.
    * surface, owners, segments and corners have equal lengths and correspond by index.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion.
-   * @evidence contracts/development/design.md#principled-representation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion.
+   * @evidence contracts/development/common.md#meaningful-documentation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. resting: The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision.
+   * @evidence contracts/development/design.md#principled-representation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. resting: The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmDifferential.ts (HumanArmDifferential.step, frame); posture/HumanArmFrame.ts (HumanArmFrame.of, return); posture/HumanArmFrame.ts (HumanArmFrame.built, return); posture/HumanArmFrame.ts (HumanArmFrame.built.near, c); posture/HumanArmGeometry.ts (HumanArmGeometry.placed, at); posture/HumanArmJacobian.ts (HumanArmJacobian.columns, at).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion, IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieMotionHumanArmGeometry.IShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -142,6 +142,9 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     corners: number[];
     /** Own-body part pairs that share a joint or are the same part. */
     related: boolean[][];
+
+    /** The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision. */
+    resting: ReadonlySet<number>;
     /** Actual arm colliders in their carrying arm segment's local frame. */
     colliders: {
       /** The segment carrying this collider. */

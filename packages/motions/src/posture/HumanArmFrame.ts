@@ -52,14 +52,19 @@ export namespace HumanArmFrame {
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     base: G.IBase,
     alone: boolean,
-    prepared?: ReturnType<typeof preparePoseResolution> | (() => ReturnType<typeof preparePoseResolution>),
+    prepared?:
+      | ReturnType<typeof preparePoseResolution>
+      | (() => ReturnType<typeof preparePoseResolution>),
   ): IAutoMovieMotionHumanArmGeometry.IFrame {
-    let kept: Map<string, IAutoMovieMotionHumanArmGeometry.IFrame> | undefined = FRAMES.get(base);
+    let kept: Map<string, IAutoMovieMotionHumanArmGeometry.IFrame> | undefined =
+      FRAMES.get(base);
     if (kept === undefined) FRAMES.set(base, (kept = new Map()));
     const key: string = `${setup.bones.upper}|${alone}`;
-    let frame: IAutoMovieMotionHumanArmGeometry.IFrame | undefined = kept.get(key);
+    let frame: IAutoMovieMotionHumanArmGeometry.IFrame | undefined =
+      kept.get(key);
     if (frame === undefined) {
-      const reader: ReturnType<typeof preparePoseResolution> | undefined = typeof prepared === "function" ? prepared() : prepared;
+      const reader: ReturnType<typeof preparePoseResolution> | undefined =
+        typeof prepared === "function" ? prepared() : prepared;
       kept.set(key, (frame = built(setup, base, alone, reader)));
     }
     return frame;
@@ -96,15 +101,29 @@ export namespace HumanArmFrame {
     // Frame part indices keep the audit's own parts first, then each placed
     // external segment once. External parts share no own-body reference or
     // joint exclusions, even when their bone names match the body's.
-    const others: IAutoMovieMotionHumanColliders.IPlaced[] = [...new Set(base.others)];
-    const parts: ReadonlyMap<IAutoMovieMotionHumanColliders.IPlaced, number> = new Map(
-      others.map(
-        (
-          segment: IAutoMovieMotionHumanColliders.IPlaced,
-          i: number,
-        ): readonly [IAutoMovieMotionHumanColliders.IPlaced, number] =>
-          [segment, model.parts.length + i] as const,
-      ),
+    const others: IAutoMovieMotionHumanColliders.IPlaced[] = [
+      ...new Set(base.others),
+    ];
+    const parts: ReadonlyMap<IAutoMovieMotionHumanColliders.IPlaced, number> =
+      new Map(
+        others.map(
+          (
+            segment: IAutoMovieMotionHumanColliders.IPlaced,
+            i: number,
+          ): readonly [IAutoMovieMotionHumanColliders.IPlaced, number] =>
+            [segment, model.parts.length + i] as const,
+        ),
+      );
+    const resting: ReadonlySet<number> = new Set(
+      (base.rests ?? [])
+        .map(
+          (
+            segment: IAutoMovieMotionHumanColliders.IPlaced,
+          ): number | undefined => parts.get(segment),
+        )
+        .filter(
+          (part: number | undefined): part is number => part !== undefined,
+        ),
     );
     const own: Map<AutoMovieHumanoidBone, number> = new Map();
     model.parts.forEach(
@@ -116,10 +135,8 @@ export namespace HumanArmFrame {
       },
     );
     const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
-    const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      resolved,
-    );
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, resolved);
     for (const segment of [
       ...HumanArmClearance.obstacles(
         body,
@@ -156,79 +173,81 @@ export namespace HumanArmFrame {
     const inverses: Partial<
       Record<"upper" | "lower" | "hand", IAutoMovieQuaternion>
     > = { hand: unturn };
-    placed.forEach((segment: IAutoMovieMotionHumanColliders.IPlaced, i: number): void => {
-      const owner: "upper" | "lower" | "hand" | null =
-        segment.bone === bones.upper
-          ? "upper"
-          : segment.bone === bones.lower
-            ? "lower"
-            : AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
-                bones.hand
-              ? "hand"
-              : null;
-      if (owner === null) {
-        // The body's corners, the other arm's left out where it is solved too.
-        const arm: boolean =
-          segment.bone === `${other}UpperArm` ||
-          segment.bone === `${other}LowerArm` ||
-          AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
-            `${other}Hand`;
-        if (!alone && arm) return;
+    placed.forEach(
+      (segment: IAutoMovieMotionHumanColliders.IPlaced, i: number): void => {
+        const owner: "upper" | "lower" | "hand" | null =
+          segment.bone === bones.upper
+            ? "upper"
+            : segment.bone === bones.lower
+              ? "lower"
+              : AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
+                  bones.hand
+                ? "hand"
+                : null;
+        if (owner === null) {
+          // The body's corners, the other arm's left out where it is solved too.
+          const arm: boolean =
+            segment.bone === `${other}UpperArm` ||
+            segment.bone === `${other}LowerArm` ||
+            AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
+              `${other}Hand`;
+          if (!alone && arm) return;
+          const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
+            model.parts[i]!;
+          for (let corner: number = 0; corner < part.surface; corner++) {
+            const probe: IAutoMovieVector3 = part.probes[corner]!;
+            corners.push({
+              point: Vector3.add(
+                segment.pose.position,
+                Quaternion.rotateVector(segment.pose.rotation, probe),
+              ),
+              part: i,
+              corner,
+              bone: segment.bone,
+            });
+          }
+          return;
+        }
+        const by: IAutoMovieResolvedBone = frames[owner];
+        const inverse: IAutoMovieQuaternion =
+          inverses[owner] ?? Quaternion.inverse(by.worldRotation);
+        inverses[owner] = inverse;
+        colliders.push({
+          owner,
+          bone: segment.bone,
+          part: i,
+          pose: {
+            ...segment.pose,
+            position: Quaternion.rotateVector(
+              inverse,
+              Vector3.subtract(segment.pose.position, by.worldPosition),
+            ),
+            rotation: Quaternion.multiply(inverse, segment.pose.rotation),
+          },
+          shapes: segment.shapes,
+        });
         const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
           model.parts[i]!;
         for (let corner: number = 0; corner < part.surface; corner++) {
           const probe: IAutoMovieVector3 = part.probes[corner]!;
-          corners.push({
-            point: Vector3.add(
-              segment.pose.position,
-              Quaternion.rotateVector(segment.pose.rotation, probe),
-            ),
-            part: i,
-            corner,
-            bone: segment.bone,
-          });
-        }
-        return;
-      }
-      const by: IAutoMovieResolvedBone = frames[owner];
-      const inverse: IAutoMovieQuaternion =
-        inverses[owner] ?? Quaternion.inverse(by.worldRotation);
-      inverses[owner] = inverse;
-      colliders.push({
-        owner,
-        bone: segment.bone,
-        part: i,
-        pose: {
-          ...segment.pose,
-          position: Quaternion.rotateVector(
+          segments.push(i);
+          indices.push(corner);
+          owners.push(owner);
+          const point: IAutoMovieVector3 = Quaternion.rotateVector(
             inverse,
-            Vector3.subtract(segment.pose.position, by.worldPosition),
-          ),
-          rotation: Quaternion.multiply(inverse, segment.pose.rotation),
-        },
-        shapes: segment.shapes,
-      });
-      const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
-        model.parts[i]!;
-      for (let corner: number = 0; corner < part.surface; corner++) {
-        const probe: IAutoMovieVector3 = part.probes[corner]!;
-        segments.push(i);
-        indices.push(corner);
-        owners.push(owner);
-        const point: IAutoMovieVector3 = Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(
-            Vector3.add(
-              segment.pose.position,
-              Quaternion.rotateVector(segment.pose.rotation, probe),
+            Vector3.subtract(
+              Vector3.add(
+                segment.pose.position,
+                Quaternion.rotateVector(segment.pose.rotation, probe),
+              ),
+              by.worldPosition,
             ),
-            by.worldPosition,
-          ),
-        );
-        surface.push(point);
-        byOwner[owner].push(point);
-      }
-    });
+          );
+          surface.push(point);
+          byOwner[owner].push(point);
+        }
+      },
+    );
     for (const segment of others) {
       let corner: number = 0;
       for (const shape of segment.shapes)
@@ -272,9 +291,11 @@ export namespace HumanArmFrame {
       length +
       Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
       NEAR;
-    const near: IAutoMovieMotionHumanArmGeometry.IFrame["body"] = corners.filter(
-      (c: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number]): boolean => Vector3.distance(c.point, shoulder) < around,
-    );
+    const near: IAutoMovieMotionHumanArmGeometry.IFrame["body"] =
+      corners.filter(
+        (c: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number]): boolean =>
+          Vector3.distance(c.point, shoulder) < around,
+      );
     return {
       parent: {
         rotation: parent.worldRotation,
@@ -287,6 +308,7 @@ export namespace HumanArmFrame {
       segments,
       corners: indices,
       related: model.related,
+      resting,
       bounds,
       colliders,
       shapes,
@@ -321,4 +343,7 @@ function sphere(points: readonly IAutoMovieVector3[]): {
 }
 
 /** The frames built, by base and then by arm and solve, kept while the base is held. */
-const FRAMES: WeakMap<G.IBase, Map<string, IAutoMovieMotionHumanArmGeometry.IFrame>> = new WeakMap();
+const FRAMES: WeakMap<
+  G.IBase,
+  Map<string, IAutoMovieMotionHumanArmGeometry.IFrame>
+> = new WeakMap();

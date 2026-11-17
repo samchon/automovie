@@ -68,5 +68,8 @@ export namespace HumanArmGeometryTypes {
 
     /** Other bodies' placed colliders in world coordinates. */
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+
+    /** The ones among `others` the hand rests on, whose contact with the hand is not a collision; none when absent. */
+    rests?: readonly IAutoMovieMotionHumanColliders.IPlaced[];
   }
 }
