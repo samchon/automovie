@@ -363,9 +363,13 @@ export function fitHingedChainCandidate(
     };
   };
   // Whether the hand's rotation error has a closed-form lower bound: a
-  // requested rotation on a limb whose mid segment twists distally.
+  // requested rotation on a limb whose mid segment twists distally about
+  // the line to its end, so that no twist moves where the segment points
+  // (the bound's premise; a twist axis off that line by an angle would move
+  // the direction by up to twice it).
   const missed: boolean = strain === undefined && turn !== null && rotation !== undefined &&
-    along !== null && lowerBasis.twistPlacement === "distal";
+    along !== null && lowerBasis.twistPlacement === "distal" &&
+    Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) > 1 - 1e-9;
   let ended: IEnd | undefined;
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
