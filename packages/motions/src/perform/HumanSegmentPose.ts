@@ -12,7 +12,6 @@ import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { humanRig } from "../posture/humanRig";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanFreeCurveRates } from "../posture/HumanFreeCurveRates";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
@@ -106,11 +105,11 @@ export namespace HumanSegmentPose {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the leaf, carry, stop and planted fits and explains how only the matching nearby seed continues each one.
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates layers, overlay/carry fits, stopped weapons, transition offset, range clamps and final planted refits in their original order; rate samples continue the cut's own seeds rather than unrelated evaluation history. The performer's rig stays unchanged during this synchronous evaluation, so its repeated clamps may share prepared metadata.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit. The actual original single raw read and final planted pose pair an optional native derivative source in the same workspace; the flight consumer invokes no second posture callback.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlay sets and nearby seeds still receive separate fits; no clamp, contact solve, transition sample or tolerance is removed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is one O(H) ordered pass with at most two lazy plan-side drive scans and four scalar side states; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). Cold final plants retain attachment-order checks but omit unused nearby keys and tuple arrays. The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit same-body preparation shares ROM metadata and lazy exact FK prerequisites across raw action calls, synchronous layer contexts, overlays/carries/stops, final plants and transition samples. Actual projections, goals and near fits remain separate; observational omission belongs only to conservative dependency proofs. Offset capture also shares its unchanged-rig codec without sharing numerical conversions.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation; a native derivative consumer may borrow one bounded original-source/final-pose pair from that workspace, removed before use or overwritten by the next capture. No returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation. No returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
    */
   export function seeded(
     person: HumanSegment.IPerson,
@@ -123,7 +122,6 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): ISeeded {
     const body: IHumanBody = person.performer.body;
-    HumanFreeCurveRates.release(prepared);
     if (prepared.body !== body)
       throw new Error("A displayed evaluation borrows its own body's rig preparation");
     const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
@@ -142,9 +140,6 @@ export namespace HumanSegmentPose {
       t: number,
       fits?: INear,
     ): {
-      raw: IHumanPosture;
-      reader: typeof segment.plan.posture;
-      localSeconds: number;
       posture: IHumanPosture;
       carried: HumanSegment.IHeld[];
       pose: IAutoMoviePose;
@@ -173,9 +168,6 @@ export namespace HumanSegmentPose {
         HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
           unplantedHumanObservation(written.limbs, observed), prepared);
       return {
-        raw,
-        reader,
-        localSeconds,
         posture: {
           ...written,
           limbs: { ...written.limbs, ...overlaid.contacts },
@@ -320,8 +312,6 @@ export namespace HumanSegmentPose {
     );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
-    if (now.localSeconds > 0 && now.localSeconds < segment.plan.duration)
-      HumanFreeCurveRates.capture(prepared, now.raw, planted.pose, now.reader, now.localSeconds);
     return { pose: planted.pose, seeds };
   }
 
