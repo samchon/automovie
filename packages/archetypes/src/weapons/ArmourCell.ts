@@ -45,12 +45,40 @@ export namespace ArmourCell {
   }
 
   /**
+   * The least centre-to-face distance of one complete authored outer course.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Takes actual planar outer faces and their shared model-metre centre; returns their least positive support or refuses an empty/degenerate course.
+   * @evidence contracts/development/implementation.md#principled-implementation Plane normals from each actual face give its centre distance d. A shared inner factor 1-wall/min(d) then keeps all adjoining corners identical and every face's normal gauge at least wall.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reduce the already prepared course's positive plane distances once; callers retain their outer faces for cell construction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the actual authored course rather than an ellipse radius proxy, sampled hull, guessed gauge or relaxed contact tolerance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the bounded course's face count with constant arithmetic per face and constant auxiliary storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Helmet and limb courses share this support law and the same plane-distance primitive used by radial walls; each caller evaluates its distinct canonical faces once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar without retaining input faces, profiles, hulls or external resources.
+   */
+  export function minimumDistance(
+    faces: Iterable<readonly IAutoMovieVector3[]>,
+    centre: IAutoMovieVector3,
+  ): number {
+    let minimum: number = Infinity;
+    for (const face of faces) {
+      const support: number = distance(face, centre);
+      if (!(Number.isFinite(support) && support > 0))
+        throw new RangeError("Armour outer course requires positive face support");
+      minimum = Math.min(minimum, support);
+    }
+    if (!Number.isFinite(minimum))
+      throw new RangeError("Armour outer course requires at least one face");
+    return minimum;
+  }
+
+  /**
    * A radial wall between one planar outer face and a parallel inner face.
    *
    * @param cavity A fitted spherical/circular cavity's exact minimum plane distance; absent for an inward plate offset.
-   * @param course Radial faces may scale all coordinates; axial/annular faces preserve their Y endpoints. An annulus retains its independent outer rim.
+   * @param course Radial faces may scale all coordinates; axial faces preserve Y endpoints. A lattice is already placed at cavity+wall and shares one global inner ratio.
+   * @param minimum The entire unfitted course's least positive face support; its shared homothety makes wall a minimum authored normal gauge, not a uniform specimen measurement.
    * @evidence contracts/development/common.md#meaningful-documentation States outer face/cell identity, model-metre centre, positive wall, optional exact cavity support and refusal of degenerate or incompatible walls.
-   * @evidence contracts/development/implementation.md#principled-implementation The outer face's normal gives its distance d from the centre. A fitted wall places its outer plane at cavity+wall and inner plane at cavity, so actual normal gauge and padding remain exact; an annulus retains its source rim and its independent vertical gauge. Unfitted faces offset inward by wall.
+   * @evidence contracts/development/implementation.md#principled-implementation The outer face's normal gives its distance d from the centre. Axial fitted walls place their planes at cavity+wall and cavity. A globally aligned fitted lattice scales its inner course by cavity/(cavity+wall), preserving shared edges and exact normal gauge. An unfitted course uses 1-wall/minimum for every face, retaining shared inner edges and at least the authored gauge; a standalone face defaults to its own support.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Derive one plane using engine vector operations, admit its positive radial interval and return the face with its scaled inner corners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Incompatible thin walls refuse rather than crossing the body, stretching the outer envelope, changing padding or dropping a cell.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the three or four supplied corners, with constant plane arithmetic and fresh output.
@@ -63,23 +91,20 @@ export namespace ArmourCell {
     centre: IAutoMovieVector3,
     wall: number,
     cavity?: number,
-    course: "radial" | "axis" | "annulus" = "radial",
+    course: "radial" | "axis" | "lattice" = "radial",
+    minimum?: number,
   ): ArmourProfile.ICell {
-    const a: IAutoMovieVector3 = Vector3.subtract(outer[1]!, outer[0]!);
-    const b: IAutoMovieVector3 = Vector3.subtract(outer[2]!, outer[0]!);
-    const cross: IAutoMovieVector3 = Vector3.cross(a, b);
-    const length: number = Math.hypot(cross.x, cross.y, cross.z);
-    const distance: number =
-      Math.abs(Vector3.dot(cross, Vector3.subtract(outer[0]!, centre))) /
-      length;
+    const support: number = distance(outer, centre);
     const outward: number =
-      cavity === undefined || course === "annulus"
+      cavity === undefined || course === "lattice"
         ? 1
-        : (cavity + wall) / distance;
+        : (cavity + wall) / support;
     const factor: number =
       cavity === undefined
-        ? (distance - wall) / distance
-        : cavity / (distance * outward);
+        ? 1 - wall / (minimum ?? support)
+        : course === "lattice"
+          ? cavity / (cavity + wall)
+          : cavity / (support * outward);
     if (!(Number.isFinite(factor) && factor > 0 && factor < 1 && wall > 0))
       throw new RangeError(
         `Armour ${id} cannot retain its cavity inside the actual wall`,
@@ -107,7 +132,22 @@ export namespace ArmourCell {
         centre,
         Vector3.scale(Vector3.subtract(point, centre), factorValue),
       );
-      return course === "radial" ? moved : { ...moved, y: point.y };
+      return course === "axis" ? { ...moved, y: point.y } : moved;
     }
+  }
+
+  /** The actual planar face's positive distance from the course's common centre. */
+  function distance(
+    face: readonly IAutoMovieVector3[],
+    centre: IAutoMovieVector3,
+  ): number {
+    const normal: IAutoMovieVector3 = Vector3.cross(
+      Vector3.subtract(face[1]!, face[0]!),
+      Vector3.subtract(face[2]!, face[0]!),
+    );
+    return (
+      Math.abs(Vector3.dot(normal, Vector3.subtract(face[0]!, centre))) /
+      Math.hypot(normal.x, normal.y, normal.z)
+    );
   }
 }

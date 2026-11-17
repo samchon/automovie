@@ -53,7 +53,20 @@ export namespace QuadrupedEars {
   export interface IPrepared {
     /** Actual two-box volume, cubic metres. */
     readonly volume: number;
-    /** Emit both admitted boxes with a pair weight, or existing volume allocation. */
+    /**
+     * Append both admitted metre-space boxes to the builder in the supplied colour.
+     * A supplied pair weight is split equally; absent, the builder allocates by
+     * actual volume. Invalid weights refuse before emission; part identity and
+     * material admission remain the builder's responsibility.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States builder mutation, model-metre geometry, optical colour, optional complete-pair weight and admission ownership.
+     * @evidence contracts/development/implementation.md#principled-implementation The prepared equal-volume boxes retain their admitted rigid frames and split a finite representably positive pair weight equally; absent weight preserves the builder's actual-volume allocation.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the optional weight, then append the two prepared boxes through the existing builder.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No biological ear density, massless proxy or dimension change is introduced; invalid pair weights refuse before either append.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Exactly two box appends and constant scalar checks use O(1) time and new storage per emission, without repeating root admission.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Each emission reuses the same admitted dimensions and root frames that supplied pair volume, while copying transforms and shapes for the independent builder.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared plan retains two bounded frames and scalar dimensions; emitted parts transfer to the builder and no builder, emitted model or external handle is retained.
+     */
     emit<Id extends string, Dimension extends string>(
       builder: ArchetypeBuilder<Id, Dimension>,
       color: string,

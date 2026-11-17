@@ -75,11 +75,11 @@ export namespace ArmourProfile {
     outer: IAutoMovieVector3;
     /** Cavity width, height and depth; radial fitted guards use half its width as body radius. */
     inner: IAutoMovieVector3;
-    /** Sourced plate's actual normal wall gauge; zero for mail. */
+    /** Plate band value: exact fitted normal gauge, minimum on unfitted elliptical walls; zero for mail. */
     plate: number;
     /** Existing provisional modern helmet pad; zero outside helmets. */
     pad: number;
-    /** Actual positive panel wall, or mail's equivalent wall under its explicit proxy. */
+    /** Positive wall gauge, a minimum on unfitted ellipses, or mail's explicit equivalent wall. */
     wall: number;
   }
 

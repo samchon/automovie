@@ -30,6 +30,9 @@ const PAD: string =
  * Actual closed wall cells leave face, neck, arm, hem and limb cavities open.
  * Museum H/W/D and total mass remain the selected record's; fitted body
  * boundaries retain their exact measure, plate and provisional helmet pad.
+ * Unfitted elliptical walls use the plate band as a minimum normal gauge;
+ * their varying gauge preserves shared inner edges and the record envelope.
+ * This coarse construction does not claim a uniform historical plate gauge.
  * Fitted mail places its wall outside the body's breadth/depth. Its wall is
  * the recorded mass's equivalent volume under the existing structural-steel
  * density, not a measurement of wire, weave or historical alloy. A gauntlet's
@@ -179,7 +182,7 @@ export namespace createArmour {
    * The free dimensions, metres unless stated:
    *
    * - `height`, `width`, `depth`: the read piece's, as its record measures it; a mail shirt's height is its length.
-   * - `thickness`: the plate's.
+   * - `thickness`: the plate's normal gauge; a minimum on unfitted elliptical walls.
    * - `pad`: a helmet's padding inside its plate.
    * - `mass`: kilograms.
    */

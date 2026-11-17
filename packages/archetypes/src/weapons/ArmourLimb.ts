@@ -14,9 +14,11 @@ import type { ArmourProfile } from "./ArmourProfile";
  * A hand's sole radius input is its cuff's forearm radius, not an invented palm
  * or thumb measurement. The hand regions use explicit coarse envelope fractions
  * and one rigid piece; their proportions are not specimen-exact anatomy.
+ * Unfitted elliptical guards/cuffs share one inner scale, retaining a minimum
+ * authored normal gauge instead of claiming uniform specimen thickness.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States model metres/+Y course, original unfitted extrema, actual fitted radial cavity, gauntlet cuff fitting site and authored rigid hand-domain limits.
- * @evidence contracts/development/implementation.md#principled-implementation Radial convex wall cells have an inner plane tangent to the admitted limb radius and an outer plane one exact sourced plate gauge beyond it. Their Y endpoints retain the measured segment length. Gauntlet cuffs continue into actual mitten/thumb regions with declared coarse hand limits.
+ * @evidence contracts/development/implementation.md#principled-implementation Fitted radial convex wall cells have an inner plane tangent to the admitted limb radius and an outer plane one exact sourced plate gauge beyond it. Unfitted ellipses retain their outer course and share inner factor 1-wall/minimum actual face support, so adjacent inner corners meet and every face retains at least the authored gauge. Y endpoints retain measured segment length. Gauntlet cuffs continue into actual mitten/thumb regions with declared coarse hand limits.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one bounded radial lattice, emit the actual tube/cuff, then build the gauntlet's hand and thumb through the shared interval-panel owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No filled cylinder, hidden body solid, extra hand measure, reconstructed elbow reinforce or articulated finger supplies the geometry; insufficient positive wall/working resolution refuses.
  * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen coarse radial cells and, for a gauntlet, ten panels. A fitted circle prepares one radial cell; an unfitted ellipse prepares its eight distinct half-turn classes, without a thin-wall resolution loop.
@@ -38,28 +40,40 @@ export function ArmourLimb(
   const count: number = 16;
   const end: number = profile.kind === "gauntlet" ? -half / 3 : half;
   const prefix: string = profile.kind === "gauntlet" ? "cuff" : "guard";
-  for (let index: number = 0; index < count; index++) {
-    const canonical: number = profile.fitted ? 0 : index % (count / 2);
+  const centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const lattice: Map<number, readonly IAutoMovieVector3[]> = new Map();
+  for (
+    let canonical: number = 0;
+    canonical < (profile.fitted ? 1 : count / 2);
+    canonical++
+  ) {
     const a: number = (2 * Math.PI * canonical) / count;
     const b: number = (2 * Math.PI * (canonical + 1)) / count;
+    lattice.set(canonical, [
+      point(a, -half),
+      point(a, end),
+      point(b, end),
+      point(b, -half),
+    ]);
+  }
+  const minimum: number | undefined = profile.fitted
+    ? undefined
+    : ArmourCell.minimumDistance(lattice.values(), centre);
+  for (let index: number = 0; index < count; index++) {
+    const canonical: number = profile.fitted ? 0 : index % (count / 2);
     const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       (-360 * (index - canonical)) / count,
     );
     if (!prepared.has(canonical)) {
-      const face: IAutoMovieVector3[] = [
-        point(a, -half),
-        point(a, end),
-        point(b, end),
-        point(b, -half),
-      ];
       const cell: ArmourProfile.ICell = ArmourCell.radial(
         prefix,
-        face,
-        { x: 0, y: 0, z: 0 },
+        lattice.get(canonical)!,
+        centre,
         t,
         cavity,
         "axis",
+        minimum,
       );
       prepared.set(canonical, {
         ...cell,
