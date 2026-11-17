@@ -27,7 +27,7 @@ import { StrikingReach } from "./StrikingReach";
  * - 30 degree body turn with lead shoulder forward, lead toe 15 degrees
  *   toward that heading and rear toe 45 degrees out (IBA p.34 readings);
  * - a sunk root flexes both knees 32 degrees, within the 25 to 45 degree band;
- * - both gloves at chin height beside their own jaw, the rear one just ahead
+ * - both gloves at ear height outside their own ear, the rear one just ahead
  *   of the face and the lead one a forearm ahead, chin tucked and eyes on the
  *   opponent (IABA, A Beginner's Guide: "tuck your chin down and look
  *   forward"; the boxing and MMA guard as coached: the rear hand "as if
@@ -230,8 +230,8 @@ export namespace StrikingStance {
   }
 
   /**
-   * The guard's glove goals for a posture: both fists at chin height beside
-   * their own jaw, the rear one just ahead of the face and the lead one a
+   * The guard's glove goals for a posture: both fists at ear height outside
+   * their own ear, the rear one just ahead of the face and the lead one a
    * forearm ahead, both vertical fists (knuckles up and forward, palms in),
    * elbows bending down under them. Placed on
    * the posture's own head, so the guard follows every root, turn and lean.
