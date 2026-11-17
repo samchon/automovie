@@ -28,6 +28,7 @@ import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
+import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
@@ -264,7 +265,13 @@ export namespace HumanLimbFit {
         placed.map(HumanLimbMirror.side),
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
         near,
-        resolution,
+
+        // The image is read through the operation reader's companion, as
+        // `solveHumanLimbFit` reads it (`prepareHumanLimbSource.mirror`).
+        resolution === undefined
+          ? undefined
+          : (): ReturnType<ReturnType<typeof prepareHumanPoseResolution>> =>
+              prepareHumanLimbSource.mirror(prepareHumanPoseResolution.read(resolution)),
         read,
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };

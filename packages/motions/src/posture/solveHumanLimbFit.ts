@@ -10,7 +10,8 @@ import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
-import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * Solve one limb fit directly, every time, with no memory of earlier fits.
@@ -64,7 +65,15 @@ export function solveHumanLimbFit(
       placed.map(HumanLimbMirror.side),
       rival === undefined ? undefined : HumanArmMirror.flip(rival),
       near,
-      resolution,
+
+      // The mirror image is read through the operation reader's companion
+      // (`prepareHumanLimbSource.mirror`), so neither the pose's rows nor
+      // its image's are recomputed for the other's sake. A solve with no
+      // reader lent makes its own either way.
+      resolution === undefined
+        ? undefined
+        : (): ReturnType<ReturnType<typeof prepareHumanPoseResolution>> =>
+            prepareHumanLimbSource.mirror(prepareHumanPoseResolution.read(resolution)),
       policy,
     );
     return { ...image, pose: HumanLimbMirror.pose(image.pose) };

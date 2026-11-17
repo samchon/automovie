@@ -40,13 +40,41 @@ export function prepareHumanLimbSource(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines optional source workspace, complete current options, exact first-baseline match and ordinary fallback.
  * @evidence contracts/development/design.md#principled-representation An actual unexposed private reader identifies one unchanged-body operation; incoming reader identity grants nothing. Source snapshots contain rigid/joint inputs while each returned engine workspace separately owns changing goal/search fields.
- * @evidence contracts/development/design.md#minimal-and-owned-surface workspace serves prepareHumanLimbFit; the factory getter serves fixed-base candidate searches, and retainedRoot lets internal memory issuing reject private factory output even after a root reenters as caller input. No cache key, fitted answer or caller-set ownership flag is exposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface workspace serves prepareHumanLimbFit; mirror serves solveHumanLimbFit's mirror-image solve of a left limb; the factory getter serves fixed-base candidate searches, and retainedRoot lets internal memory issuing reject private factory output even after a root reenters as caller input. No cache key, fitted answer or caller-set ownership flag is exposed.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown metadata or a different numerical source cannot claim equivalence; only fixed geometry is shared and existing ordinary preparation remains the fallback.
  */
 export namespace prepareHumanLimbSource {
   /** True only for an actual private snapshot/factory-result root, marked by its producer; callers cannot register roots. */
   export function retainedRoot(root: IAutoMoviePose["root"]): boolean {
     return root !== null && ROOTS.has(root);
+  }
+
+  /**
+   * The reader a left limb's mirror-image solve reads through: one companion
+   * of the operation's own reader, made at its first use and released with
+   * it. A left limb is fitted as the right limb of the mirrored pose
+   * (`solveHumanLimbFit`), and a reader keeps its forward-kinematics rows by
+   * the last pose it read, so one reader shared by a pose and its mirror
+   * image recomputed every frame at each turn from one to the other; with a
+   * reader each, either keeps the rows of its own pose, and a limb's fit
+   * recomputes the limbs fitted since. The frames either reader gives are
+   * those of the pose it is asked, whatever it read before. A reader with a
+   * source pool lends its body to the companion's own, so a mirror image's
+   * first sources are kept apart from the body's own. A reader that is not
+   * the engine's own (`preparePoseResolution.isNative`) is returned itself.
+   */
+  export function mirror(reader: ReturnType<typeof preparePoseResolution>): ReturnType<typeof preparePoseResolution> {
+    // A reader that is not the engine's own keeps every call it was lent
+    // for: its callbacks are its owner's to observe.
+    if (!preparePoseResolution.isNative(reader)) return reader;
+    let companion: ReturnType<typeof preparePoseResolution> | undefined = MIRRORS.get(reader);
+    if (companion === undefined) {
+      companion = preparePoseResolution();
+      MIRRORS.set(reader, companion);
+      const pool: IPool | undefined = POOLS.get(reader);
+      if (pool !== undefined) POOLS.set(companion, { body: pool.body, entries: new Map() });
+    }
+    return companion;
   }
 
   /** Bind current goal options to matching first-source geometry, or decline to ordinary preparation. */
@@ -155,6 +183,9 @@ function sameKeys(a: object, b: object): boolean {
 const CHAINS: ReadonlySet<string> = new Set(["leftHand", "rightHand", "leftFoot", "rightFoot"]);
 /** Source-only state releases with its exact operation reader, including reference cycles. */
 const POOLS: WeakMap<ReturnType<typeof preparePoseResolution>, IPool> = new WeakMap();
+
+/** Each operation reader's mirror-image companion (`mirror`), released with the reader. */
+const MIRRORS: WeakMap<ReturnType<typeof preparePoseResolution>, ReturnType<typeof preparePoseResolution>> = new WeakMap();
 
 /** Negative ownership evidence only; weak membership cannot retain source snapshots or be forged by a caller. */
 const ROOTS: WeakSet<object> = new WeakSet();
