@@ -264,7 +264,7 @@ export namespace HumanVerdicts {
         who,
         "turn",
         AutoMovieMotionHumanAuditSpin.measure(motion, who).turn,
-        5,
+        AutoMovieMotionHumanAuditSpin.SNAP,
       );
     }
     for (let i: number = 0; i < people.length; i++)

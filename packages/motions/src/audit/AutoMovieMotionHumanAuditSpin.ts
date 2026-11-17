@@ -44,7 +44,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit and both readers of the one limit.
    * @evidence contracts/development/design.md#principled-representation One angle compared with a departure and a resolved turn.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read as measure's default limit and by the compiled segment track, which derives its orientation bound from it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read as measure's default limit; HumanVerdicts bounds the resolved turn by the same value.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The audit's existing default, named once instead of restated by its readers.
    */
   export const SNAP: number = 5;

@@ -21,7 +21,6 @@ import type { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
-import { HumanSegmentTrack } from "./HumanSegmentTrack";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
@@ -338,10 +337,10 @@ export namespace HumanSegment {
 
   /**
    * Forget everything a person's plans and transitions evaluated: each
-   * plan's own memo, every transition offset, every held hand's carry, every
-   * displayed pose and every compiled track (`HumanSegmentTrack`). What they
-   * read may have changed since (another person was placed, a contact was
-   * committed), and each is rebuilt on its next read.
+   * plan's own memo, every transition offset, every held hand's carry and
+   * every displayed pose. What they read may have changed since (another
+   * person was placed, a contact was committed), and each is rebuilt on its
+   * next read.
    *
    * @param person The person.
    */
@@ -353,7 +352,6 @@ export namespace HumanSegment {
     for (const overlay of person.overlays) overlay.plan.settle?.();
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
-    HumanSegmentTrack.forget(person);
   }
 
   /**

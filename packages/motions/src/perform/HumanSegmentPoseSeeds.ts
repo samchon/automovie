@@ -5,8 +5,6 @@ import type {
 } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
-
 /**
  * Named limb-fit continuation data for one displayed evaluation and its
  * one-sided velocity samples. The evaluator owns the actual fit and sample.
@@ -72,10 +70,10 @@ export namespace HumanSegmentPoseSeeds {
   /**
    * A shown pose with the seeds of its fits.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content, including when the final goals are present.
-   * @evidence contracts/development/design.md#principled-representation The pose, its fits by name and, from the displayed evaluator, the complete goals its final planted refit read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Pose and seeds serve every continuation reader; the optional goals serve the compiled segment track, which corrects planted limbs between exact instants.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IFits` and the posture's own limb record; an intermediate shown reading, which has no final refit, leaves the goals absent rather than inventing them.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
+   * @evidence contracts/development/design.md#principled-representation The pose and its fits by name.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IFits`.
    */
   export interface ISeeded {
     /** The pose. */
@@ -83,9 +81,6 @@ export namespace HumanSegmentPoseSeeds {
 
     /** Its fits. */
     seeds: IFits;
-
-    /** The complete limb goals the final planted refit read, world or bone-attached; absent for an intermediate shown reading that has no final refit. */
-    limbs?: IHumanPosture["limbs"];
   }
 
   /**
