@@ -105,10 +105,7 @@ export namespace HumanArmTrajectoryLaid {
    */
   export function admitted(
     problem: HumanArmTrajectory.IProblem,
-    held: readonly (readonly (
-      | IAutoMovieMotionHumanArmClearance.IArm
-      | undefined
-    )[])[],
+    held: readonly (readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[])[],
   ): IAdmitted {
     // Read in the mirror image when the first arm is the left, as `solve`
     // reads it, so a course and its mirror are admitted alike to the bit;
@@ -128,44 +125,25 @@ export namespace HumanArmTrajectoryLaid {
     const times: readonly number[] = context.times;
     const hold: number[] = [];
     for (let k: number = 0; k < n; ++k)
-      if (
-        held.every(
-          (
-            arm: readonly (
-              | IAutoMovieMotionHumanArmClearance.IArm
-              | undefined
-            )[],
-          ): boolean => arm[k] !== undefined,
-        )
-      )
+      if (held.every((arm: readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[]): boolean => arm[k] !== undefined))
         hold.push(k);
     const first: number = hold.length === 0 ? n - 1 : hold[0]!;
     const last: number = hold.length === 0 ? n - 1 : hold[hold.length - 1]!;
     const x: number[][][] = held.map(
-      (
-        course: readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[],
-        a: number,
-      ): number[][] =>
-        course.map(
-          (
-            arm: IAutoMovieMotionHumanArmClearance.IArm | undefined,
-            k: number,
-          ): number[] =>
-            k === 0
-              ? [...context.rest[a]!]
-              : k === n - 1 && !context.open
-                ? [...context.back[a]!]
-                : arm === undefined || k < first || k > last
-                  ? []
-                  : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
+      (course: readonly (IAutoMovieMotionHumanArmClearance.IArm | undefined)[], a: number): number[][] =>
+        course.map((arm: IAutoMovieMotionHumanArmClearance.IArm | undefined, k: number): number[] =>
+          k === 0
+            ? [...context.rest[a]!]
+            : k === n - 1 && !context.open
+              ? [...context.back[a]!]
+              : arm === undefined || k < first || k > last
+                ? []
+                : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
         ),
     );
     const ramps: number[] = [];
-    const mix = (
-      p: readonly number[],
-      q: readonly number[],
-      w: number,
-    ): number[] => p.map((v: number, d: number): number => v + (q[d]! - v) * w);
+    const mix = (p: readonly number[], q: readonly number[], w: number): number[] =>
+      p.map((v: number, d: number): number => v + (q[d]! - v) * w);
 
     // One transport between two waypoints already laid, on the blend of its
     // ends and the detours laid on it (`HumanArmTrajectoryClear`): the arcs
@@ -173,20 +151,13 @@ export namespace HumanArmTrajectoryLaid {
     // Returns the share of the path each of its waypoints stands at and the
     // seconds its time law's ramps end and start at.
     type ILaid = { shares: number[]; ramps: number[] };
-    const lay = (
-      from: number,
-      to: number,
-      detours: readonly Clear.IDetour[],
-    ): ILaid => {
+    const lay = (from: number, to: number, detours: readonly Clear.IDetour[]): ILaid => {
       const shares: number[] = [];
       shares[from] = 0;
       shares[to] = 1;
       if (to - from < 2) return { shares, ramps: [] };
       const ends: [readonly number[], readonly number[]][] = x.map(
-        (arm: number[][]): [readonly number[], readonly number[]] => [
-          arm[from]!,
-          arm[to]!,
-        ],
+        (arm: number[][]): [readonly number[], readonly number[]] => [arm[from]!, arm[to]!],
       );
       const path = (a: number, share: number): number[] => {
         const out: number[] = mix(ends[a]![0], ends[a]![1], share);
@@ -199,36 +170,19 @@ export namespace HumanArmTrajectoryLaid {
         }
         return out;
       };
-      const placed = (
-        share: number,
-      ): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
-        ends.map(
-          (
-            _: [readonly number[], readonly number[]],
-            a: number,
-          ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-            G.placed(
-              context.setups[a]!,
-              context.frames[a]![from]!,
-              M.ranged(context, a, path(a, share)),
-            ),
-        );
+      const placed = (share: number): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
+        ends.map((_: [readonly number[], readonly number[]], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+          G.placed(context.setups[a]!, context.frames[a]![from]!, M.ranged(context, a, path(a, share))));
       const along: number[] = [0];
       let before: IAutoMovieMotionHumanArmGeometry.IPlaced[] = placed(0);
       for (let s: number = 1; s <= ARC; ++s) {
         const now: IAutoMovieMotionHumanArmGeometry.IPlaced[] = placed(s / ARC);
         let step: number = 0;
-        now.forEach(
-          (arm: IAutoMovieMotionHumanArmGeometry.IPlaced, a: number): void => {
-            for (const p of T.SPEED)
-              step = Math.max(
-                step,
-                Vector3.length(
-                  Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0]),
-                ),
-              );
-          },
-        );
+        now.forEach((arm: IAutoMovieMotionHumanArmGeometry.IPlaced, a: number): void => {
+          for (const p of T.SPEED)
+            step = Math.max(step, Vector3.length(
+              Vector3.subtract(arm.probes[p]![0], before[a]!.probes[p]![0])));
+        });
         along.push(along[s - 1]! + step);
         before = now;
       }
@@ -238,10 +192,7 @@ export namespace HumanArmTrajectoryLaid {
       // The waypoints on a trapezoid of the arc whose plateau runs at a
       // speed, its ramps the share of the span the arc leaves.
       const timed = (plateau: number): number => {
-        const ramp: number = Math.max(
-          0,
-          Math.min(0.5, 1 - arc / (plateau * seconds)),
-        );
+        const ramp: number = Math.max(0, Math.min(0.5, 1 - arc / (plateau * seconds)));
         const run = (w: number): number =>
           ramp < 1e-9
             ? w
@@ -251,14 +202,11 @@ export namespace HumanArmTrajectoryLaid {
                 ? 1 - ((1 - w) * (1 - w)) / (2 * ramp * (1 - ramp))
                 : (w - ramp / 2) / (1 - ramp);
         for (let k: number = from + 1; k < to; ++k) {
-          const reached: number =
-            arc * run((times[k]! - times[from]!) / seconds);
+          const reached: number = arc * run((times[k]! - times[from]!) / seconds);
           let s: number = 1;
           while (s < ARC && along[s]! < reached) ++s;
           const span: number = along[s]! - along[s - 1]!;
-          const share: number =
-            (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) /
-            ARC;
+          const share: number = (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
           shares[k] = share;
           x.forEach((arm: number[][], a: number): void => {
             arm[k] = M.ranged(context, a, path(a, share));
@@ -279,30 +227,14 @@ export namespace HumanArmTrajectoryLaid {
       const fastest = (): number => {
         let most: number = 0;
         x.forEach((arm: number[][], a: number): void => {
-          let before: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-            context.setups[a]!,
-            context.frames[a]![from]!,
-            arm[from]!,
-          );
+          let before: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(context.setups[a]!, context.frames[a]![from]!, arm[from]!);
           for (let k: number = from; k < to; ++k) {
-            const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
-              context.setups[a]!,
-              context.frames[a]![k + 1]!,
-              arm[k + 1]!,
-            );
+            const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k + 1]!, arm[k + 1]!);
             const dt: number = times[k + 1]! - times[k]!;
             for (const p of T.SPEED)
-              most = Math.max(
-                most,
-                Vector3.length(
-                  V.step(
-                    context.frames[a]![k]!,
-                    context.frames[a]![k + 1]!,
-                    before.probes[p]![0],
-                    next.probes[p]![0],
-                  ),
-                ) / dt,
-              );
+              most = Math.max(most, Vector3.length(V.step(
+                context.frames[a]![k]!, context.frames[a]![k + 1]!,
+                before.probes[p]![0], next.probes[p]![0])) / dt);
             before = next;
           }
         });
@@ -321,10 +253,9 @@ export namespace HumanArmTrajectoryLaid {
       }
       return {
         shares,
-        ramps:
-          ramp >= 1e-9 && ramp < 0.5
-            ? [times[from]! + ramp * seconds, times[to]! - ramp * seconds]
-            : [],
+        ramps: ramp >= 1e-9 && ramp < 0.5
+          ? [times[from]! + ramp * seconds, times[to]! - ramp * seconds]
+          : [],
       };
     };
 
@@ -346,10 +277,7 @@ export namespace HumanArmTrajectoryLaid {
       last: number;
       done: boolean;
     };
-    const transports: ITransport[] = [
-      [0, first],
-      [last, n - 1],
-    ].map(
+    const transports: ITransport[] = [[0, first], [last, n - 1]].map(
       ([from, to]: number[]): ITransport => ({
         from: from!,
         to: to!,
@@ -361,11 +289,7 @@ export namespace HumanArmTrajectoryLaid {
       }),
     );
     let reading: M.IEvaluation = M.evaluate(context, x);
-    for (
-      let round: number = 0;
-      round < DETOURS && reading.worst.value > M.TOLERANCE;
-      ++round
-    ) {
+    for (let round: number = 0; round < DETOURS && reading.worst.value > M.TOLERANCE; ++round) {
       let moved: boolean = false;
 
       // The waypoints this round lays again, a transport's inner ones: every
@@ -380,20 +304,9 @@ export namespace HumanArmTrajectoryLaid {
         if (t.done) continue;
         // One detour per arm still inside; the transport's depth is the
         // deepest of them, the progress the rule below reads.
-        const found: Clear.IDetour[] = Clear.detour(
-          context,
-          x,
-          reading,
-          t.from,
-          t.to,
-          t.laid.shares,
-          t.region,
-        );
-        // The progress a round is judged by is all the transport lies past
-        // what the admission allows, not its deepest pair alone: a detour at
-        // the deepest waypoint leaves its neighbours as deep, and a course
-        // laid round a partner's arm clears it a waypoint at a time.
-        const depth: number = Clear.excess(context, reading, t.from, t.to);
+        const found: Clear.IDetour[] =
+          Clear.detour(context, x, reading, t.from, t.to, t.laid.shares, t.region);
+        const depth: number = Math.max(0, ...found.map((d: Clear.IDetour): number => d.depth));
         if (found.length > 0 && t.depth !== undefined && !(depth < t.depth)) {
           t.detours.splice(t.detours.length - t.last, t.last);
           relay(t);
@@ -405,8 +318,7 @@ export namespace HumanArmTrajectoryLaid {
           t.done = true;
           continue;
         }
-        if (t.depth !== undefined)
-          t.region = Math.min(Clear.WIDEST, t.region * Clear.EXPAND);
+        if (t.depth !== undefined) t.region = Math.min(Clear.WIDEST, t.region * Clear.EXPAND);
         t.depth = depth;
         t.last = found.length;
         t.detours.push(...found);
@@ -420,10 +332,7 @@ export namespace HumanArmTrajectoryLaid {
     const worst: M.IEvaluation["worst"] = reading.worst;
     return {
       trajectories: problem.arms.map(
-        (
-          _: HumanArmTrajectory.IArm,
-          a: number,
-        ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+        (_: HumanArmTrajectory.IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
           HumanArmTrajectoryPlayback(context.setups, context.times, x, a),
       ),
       admitted: worst.value <= M.TOLERANCE,
