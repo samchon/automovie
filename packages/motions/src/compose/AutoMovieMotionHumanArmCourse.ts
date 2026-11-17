@@ -157,7 +157,8 @@ export namespace AutoMovieMotionHumanArmCourse {
     for (const t of times) {
       if (!holding(t)) continue;
       const solved: ReturnType<typeof fit> = fit(t,
-        arms.map((_: IProps["arms"][number], a: number): IHumanPosture.IGoal => props.aimed(a, t)), near);
+        arms.map((_: IProps["arms"][number], a: number): IHumanPosture.IGoal => props.aimed(a, t)), near,
+        course.get(times[times.indexOf(t) - 1]!));
       course.set(t, solved.arms);
       near = solved.near;
     }
@@ -204,17 +205,31 @@ function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
   t: number,
   goals: readonly IHumanPosture.IGoal[],
   near: resolveHumanPosture.INear,
+  before?: readonly HumanArmClearance.IArm[],
 ) => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } {
   // An arm that rides another is fitted after it, on the pose it placed.
   const order: number[] = props.arms
     .map((_: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): number => a)
     .sort((p: number, q: number): number =>
       Number(props.arms[p]!.on !== undefined) - Number(props.arms[q]!.on !== undefined) || p - q);
-  return (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear):
+  return (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear,
+    before?: readonly HumanArmClearance.IArm[]):
     { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } => {
     // Each arm alone on the base the planner already solved, the rest of
     // the body as it stands: one two-bone fit per arm, no posture solve.
+    // The base holds the planned arms at rest, and a fit reads the pose it
+    // is given for what it continues: the forearm's twist has two solutions
+    // and takes the one nearer the pose's own (`solveDistalTwist`), the
+    // wrist the one nearer its held angles. Fitted on the resting arm, each
+    // instant chose alone and consecutive instants took different solutions
+    // (a forearm twist of +41 then -41 degrees at one hand place). So the
+    // arms the instant before are posed in first, and the fit continues
+    // them.
     let pose: IAutoMoviePose = props.at(t).pose;
+    if (before !== undefined)
+      props.arms.forEach((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): void => {
+        pose = HumanArmClearance.posed(pose, arm.side, before[a]!);
+      });
     const next: Partial<Record<IHumanPosture.Limb, NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]>>> = {};
     for (const a of order) {
       const limb: IHumanPosture.Limb = `${props.arms[a]!.side}Arm`;
@@ -387,6 +402,7 @@ function transport(
       props.aimed(a, props.span.ready).clear,
   );
   let seeds: resolveHumanPosture.INear = near;
+  let before: readonly HumanArmClearance.IArm[] | undefined = course.get(from);
   for (const t of times) {
     if (!(t > from + 1e-9 && t < to - 1e-9)) continue;
     const share: number = minimumJerk.share((t - from) / (to - from));
@@ -413,9 +429,10 @@ function transport(
         };
       },
     );
-    const solved: ReturnType<typeof fit> = fit(t, goals, seeds);
+    const solved: ReturnType<typeof fit> = fit(t, goals, seeds, before);
     course.set(t, solved.arms);
     seeds = solved.near;
+    before = solved.arms;
   }
   return seeds;
 }
