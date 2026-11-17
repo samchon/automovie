@@ -6,7 +6,6 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
-  IAutoMovieBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -20,6 +19,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The prop a hand holds as an action enters, in that hand's own frame: the
@@ -110,18 +110,14 @@ export namespace AutoMovieMotionHumanHeld {
           kind: "alternatives",
           values: (["left", "right"] as const).filter(
             (other: "left" | "right"): boolean =>
-              context.body.skeleton.bones.some(
-                (bone: IAutoMovieBone): boolean => bone.bone === `${other}Hand`,
-              ),
+              readHumanBone(context.body, `${other}Hand`) !== undefined,
           ),
         },
         reason: `the body has no ${side}Hand bone to hold ${prop} in`,
         fix: "perform the action with a hand the body has, or with a body whose skeleton has that hand",
       });
     if (
-      !context.body.skeleton.bones.some(
-        (bone: IAutoMovieBone): boolean => bone.bone === `${side}Hand`,
-      )
+      readHumanBone(context.body, `${side}Hand`) === undefined
     )
       throw handless();
     const read: IHumanActionContext.IProp = context.prop(prop);

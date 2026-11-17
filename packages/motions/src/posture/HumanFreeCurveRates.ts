@@ -21,6 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { prepareHumanSegmentPose } from "../perform/prepareHumanSegmentPose";
@@ -334,7 +335,7 @@ export namespace HumanFreeCurveRates {
         if (axes.length !== 3) {
           const actual: IAutoMovieJointPose = current.joints.find((value: IAutoMovieJointPose): boolean => value.bone === bone)!;
           const fixed: readonly (number | null)[] = [actual.flexion, actual.abduction, actual.twist];
-          const definition: IHumanBody["skeleton"]["bones"][number] | undefined = body.skeleton.bones.find((value: IHumanBody["skeleton"]["bones"][number]): boolean => value.bone === bone);
+          const definition: IHumanBody["skeleton"]["bones"][number] | undefined = readHumanBone(body, bone);
           const constraint: IAutoMovieJointConstraint | null = getConstraint(bone, definition?.constraint ?? null);
           const limits: readonly (IAutoMovieJointConstraint["flexion"] | undefined)[] = [constraint?.flexion, constraint?.abduction, constraint?.twist];
           for (const axis of [0, 1, 2] as const)
@@ -400,7 +401,7 @@ export namespace HumanFreeCurveRates {
   /** Strict box/cone interiors exclude active-set and unsupported coupled gates. */
   function interior(body: IHumanBody, pose: IAutoMoviePose, bone: AutoMovieHumanoidBone, mobile: readonly number[]): boolean {
     const joint: IAutoMovieJointPose | undefined = pose.joints.find((value: IAutoMovieJointPose): boolean => value.bone === bone);
-    const definition: IHumanBody["skeleton"]["bones"][number] | undefined = body.skeleton.bones.find((value: IHumanBody["skeleton"]["bones"][number]): boolean => value.bone === bone);
+    const definition: IHumanBody["skeleton"]["bones"][number] | undefined = readHumanBone(body, bone);
     const constraint: IAutoMovieJointConstraint | null = getConstraint(bone, definition?.constraint ?? null);
     if (joint === undefined || constraint === null) return false;
     if (constraint.swingTwist !== undefined && constraint.swingTwist !== null) {
