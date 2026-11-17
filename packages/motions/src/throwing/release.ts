@@ -9,7 +9,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanBendTrack } from "../compose/AutoMovieMotionHumanBendTrack";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -150,10 +150,30 @@ export namespace release {
         kept,
       );
     const offsets: Partial<Record<"fist" | "flat", IAutoMovieVector3>> = {};
+    const placed: (posture: IHumanPosture, seconds: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => { wrist: HumanHand.IWrist; contact: IAutoMovieVector3 } = (
+      posture: IHumanPosture,
+      seconds: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+    ): { wrist: HumanHand.IWrist; contact: IAutoMovieVector3 } => {
+      const at: IHumanProp.IFrame = carried(posture, resolution);
+      const shape: "fist" | "flat" = seconds < open ? "fist" : "flat";
+      const contact: IAutoMovieVector3 = offsets[shape] ??=
+        { ...HumanHand.offset(body, side, "grip", shape).point };
+      return { wrist: placeHumanHandSurface(contact, at.position, at.rotation), contact };
+    };
+
+    // The elbow is solved once over the span, when the action is planned,
+    // and continued through it (`AutoMovieMotionHumanBendTrack`).
+    const elbow: AutoMovieMotionHumanBendTrack.ITrack = AutoMovieMotionHumanBendTrack.of({
+      body, side, from: 0, to: clock.duration, fallback: "hang",
+      goal: (posture: IHumanPosture, seconds: number): HumanHand.IWrist => placed(posture, seconds).wrist,
+    });
     const hand: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
       to: clock.duration,
+      prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void => elbow.prepare(before),
       ...(held === undefined
         ? {}
         : {
@@ -170,24 +190,13 @@ export namespace release {
       write: (posture: IHumanPosture, seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
-        const at: IHumanProp.IFrame = carried(posture, resolution);
-        const shape: "fist" | "flat" = seconds < open ? "fist" : "flat";
-        const contact: IAutoMovieVector3 = offsets[shape] ??=
-          { ...HumanHand.offset(body, side, "grip", shape).point };
-        const wrist: HumanHand.IWrist = placeHumanHandSurface(contact, at.position, at.rotation);
+        const { wrist, contact }: ReturnType<typeof placed> = placed(posture, seconds, resolution);
         return {
           ...posture,
           limbs: {
             ...posture.limbs,
             [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(wrist,
-              AutoMovieMotionHumanBend.solve({
-                body,
-                posture,
-                side,
-                point: wrist.point,
-                rotation: at.rotation,
-                fallback: "hang",
-              }), { ...contact }),
+              elbow.elbow(posture, seconds, wrist), { ...contact }),
           },
         };
       },
