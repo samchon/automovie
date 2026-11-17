@@ -85,10 +85,37 @@ export namespace swingTwistRegion {
     if (kept === undefined) {
       kept = build(constraint, joint);
       byFrame.set(frame, kept);
+      GREATEST.set(kept, Math.max(...kept));
     }
     return kept;
   }
+
+  /**
+   * The region's greatest radius: the farthest the limb may point from rest
+   * on any great circle, the bound every great circle's radius is at most.
+   *
+   * @param constraint The constraint.
+   * @param joint The joint's axes and rest frame.
+   * @returns The greatest radius of `table`'s, degrees, read when the table was built.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the radius bounds, its unit and when it is read.
+   * @evidence contracts/development/implementation.md#principled-implementation The maximum of the table's radii, by the same `Math.max` over all of them, taken once when the table is built.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The radius is the table's own maximum; nothing is sampled or bounded.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant after the table's build, which reads its 360 radii once for it, where a reader spreading the table per call read them all every time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A function of the kept table alone, kept beside it under the table's identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One number per kept table, held weakly by the table and released with it.
+   */
+  export function greatest(
+    constraint: IAutoMovieJointConstraint,
+    joint: IJoint,
+  ): number {
+    return GREATEST.get(table(constraint, joint))!;
+  }
 }
+
+/** Each kept table's greatest radius, degrees, set when the table is built. */
+const GREATEST: WeakMap<Float64Array, number> = new WeakMap();
 
 /** The radius tables, by the identity of the constraint, the axes and the rest frame: the tables of a rig are kept as long as its records are. */
 const TABLES: WeakMap<
