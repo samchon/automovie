@@ -157,10 +157,14 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   const { nodes, indices, conventions, fallback } = snapshot;
   const operations: WeakMap<ReturnType<typeof preparePoseResolution>, preparePoseResolutionState.IReader> =
     new WeakMap();
+
+  // The state of the reads that name no operation, and whether a read holds it.
+  let shared: preparePoseResolutionState.IReader | undefined;
+  let lent: boolean = false;
   const rig: prepareSkeletonPoseResolution.IRig = {
     jointAxes: snapshot.axes,
     joint: (joint: IAutoMovieJointPose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieQuaternion =>
-      readerOf(operation).joint(joint),
+      lend(operation, (reader: preparePoseResolutionState.IReader): IAutoMovieQuaternion => reader.joint(joint)),
     prepareTuples: (requested?: ReadonlySet<AutoMovieHumanoidBone>): prepareSkeletonPoseResolution.ITupleReader => {
       const demand: readonly number[] | undefined = requested === undefined ? undefined
         : preparePoseBoneDemand(indices, nodes.length, requested);
@@ -169,7 +173,8 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       return (joints: preparePoseTupleScan.IJoints): prepareSkeletonPoseResolution.ITupleRead => {
         const scan: preparePoseTupleScan.IScan = preparePoseTupleScan(joints, ancestors);
         return (pose: Omit<IAutoMoviePose, "joints">, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-          readerOf(operation).resolveTuples(scan, pose, demand);
+          lend(operation, (reader: preparePoseResolutionState.IReader): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+            reader.resolveTuples(scan, pose, demand));
       };
     },
     preparePose: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IOverlayReader =>
@@ -180,9 +185,11 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       const demand: readonly number[] = preparePoseBoneDemand(indices, nodes.length, requested);
       return {
         resolve: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[] =>
-          readerOf(operation).resolve(pose, undefined, demand),
+          lend(operation, (reader: preparePoseResolutionState.IReader): IAutoMovieResolvedBone[] =>
+            reader.resolve(pose, undefined, demand)),
         map: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-          readerOf(operation).resolveMap(pose, undefined, demand),
+          lend(operation, (reader: preparePoseResolutionState.IReader): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+            reader.resolveMap(pose, undefined, demand)),
         read: (reading: prepareSkeletonPoseResolution.IReading): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
           const own: IOwnReading | undefined = READINGS.get(reading);
           if (own === undefined || own.rig !== rig)
@@ -192,7 +199,8 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       };
     },
     read: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): prepareSkeletonPoseResolution.IReading => {
-      const read: preparePoseReading.IReading = readerOf(operation).read(pose);
+      const read: preparePoseReading.IReading = lend(operation,
+        (reader: preparePoseResolutionState.IReader): preparePoseReading.IReading => reader.read(pose));
       const reading: prepareSkeletonPoseResolution.IReading = {
         map: (requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
           read(requested),
@@ -202,13 +210,15 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
     },
     resolveMap: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      readerOf(operation).resolveMap(pose, requested),
+      lend(operation, (reader: preparePoseResolutionState.IReader): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        reader.resolveMap(pose, requested)),
     resolve: (
       pose: IAutoMoviePose,
       operation?: ReturnType<typeof preparePoseResolution>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): IAutoMovieResolvedBone[] => {
-      return readerOf(operation).resolve(pose, requested);
+      return lend(operation, (reader: preparePoseResolutionState.IReader): IAutoMovieResolvedBone[] =>
+        reader.resolve(pose, requested));
     },
   };
   REST_READERS.set(rig, (): IAutoMovieResolvedBone[] =>
@@ -217,14 +227,33 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   return rig;
 
   /** All output demands of the same operation borrow one actual dependency state. */
-  function readerOf(operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IReader {
-    let reader: preparePoseResolutionState.IReader | undefined = operation === undefined
-      ? undefined : operations.get(operation);
+  function readerOf(operation: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IReader {
+    let reader: preparePoseResolutionState.IReader | undefined = operations.get(operation);
     if (reader === undefined) {
       reader = preparePoseResolutionState(nodes, indices, conventions, fallback);
-      if (operation !== undefined) operations.set(operation, reader);
+      operations.set(operation, reader);
     }
     return reader;
+  }
+
+  /**
+   * Run one read on the operation's state or, for a read that names no
+   * operation, on the rig's own: a state is a function of the pose it
+   * admits and keeps only what it composed, and every read copies what it
+   * returns, so reads that name no operation share the rig's state as
+   * the reads of one operation share theirs. A read made while that state
+   * is lent (from inside another read's admission) takes a state of its own.
+   */
+  function lend<T>(operation: ReturnType<typeof preparePoseResolution> | undefined,
+    run: (reader: preparePoseResolutionState.IReader) => T): T {
+    if (operation !== undefined) return run(readerOf(operation));
+    if (lent) return run(preparePoseResolutionState(nodes, indices, conventions, fallback));
+    lent = true;
+    try {
+      return run(shared ??= preparePoseResolutionState(nodes, indices, conventions, fallback));
+    } finally {
+      lent = false;
+    }
   }
 }
 
