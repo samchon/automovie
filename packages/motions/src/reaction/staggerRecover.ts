@@ -170,17 +170,13 @@ export namespace staggerRecover {
    * The recovery from a push: the steps the capture-point rule places, the
    * closing step and the centre of mass's course over them.
    *
-   * @param body The body.
-   * @param entry The posture the push meets.
-   * @param push The push's horizontal unit direction, world.
-   * @param speed The centre of mass's speed after the blow, m/s.
-   * The steps are placed on the pendulum alone (`staggerStep`) and the legs
-   * only admit them (`staggerAdmission`), never moving a landing, so the
-   * admitted model's dynamics are the pendulum's: an order the pendulum
-   * does not catch and close is not caught by the admitted model either, at
-   * any prefix. The search therefore steps every prefix on the pendulum and
-   * admits only the prefixes of an order the pendulum catches and closes,
-   * each prefix once: a push the pendulum refuses costs no admission at all.
+   * Admitted, each landing is the aimed one where the legs hold it, else the
+   * other side of a crossing, else shortened toward the stance foot to the
+   * farthest point they hold (`staggerStep`), so the admitted model lands no
+   * nearer the extrapolated centre of mass than the pendulum alone. Its
+   * capture is taken as implied by the pendulum's, the premise `staggerLimit`
+   * states: the search first runs the pendulum alone, and a push it refuses
+   * is refused without a single admission.
    *
    * @param body The body.
    * @param entry The posture the push meets.
@@ -194,9 +190,9 @@ export namespace staggerRecover {
    * @evidence contracts/development/common.md#meaningful-documentation States each input, the pruning's premise and the null.
    * @evidence contracts/development/implementation.md#principled-implementation Hof's pendulum with its centre of pressure as near the extrapolated centre of mass as the bearing feet reach; each step's time and place within the measured bounds and its reachable footstep region, the orders of the feet searched for the fewest steps (Koolen et al.'s N-step capture); caught once the extrapolated centre of mass is inside the two feet's base; then the closing step and the settling (`staggerClose`), and the legs' two-bone admission of every step at its mid-swing and landing, of the close and of the rest.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pendulum per order of the feet, each step by `staggerStep`; the first order that catches, closes and is admitted is kept.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no order of `STEPS` steps catches is null, never a shortened bound; every bound is measured and cited, and admission refuses rather than moves a step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most 30 orders and 30 distinct prefixes of up to `STEPS` closed-form steps; admission (one ground settling per instant, two leg fits per crossed instant) runs only for the prefixes of orders the pendulum catches, each once; no stance course or quadratic program is solved.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exactly shared foot-order prefixes reuse their pendulum state and their admission within this recovery: a prefix's steps and its course up to its last landing are the same in every order that begins with it. The entry's fixed geometry is shared across a search's speeds through `fixed`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no order of `STEPS` steps catches is null, never a shortened bound; every bound is measured and cited, and a landing the legs do not hold is shortened inside the region or refused. The pendulum prune rests on the stated premise that a shortened landing never catches what the aimed one misses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A refused push: at most 30 closed-form pendulum prefixes and no admission. A caught one adds the admitted search: at most 30 prefixes, each one mid-swing admission and at most 3 + log2(1 / ADAPTED) landing admissions (one ground settling each, two leg fits where the feet cross); no stance course or quadratic program is solved.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exactly shared foot-order prefixes reuse their state, admitted landings included, within this recovery: a prefix's steps and its course up to its last landing are the same in every order that begins with it. The entry's fixed geometry is shared across a search's speeds through `fixed`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the shared prefixes for the search only.
    */
   export function recover(
@@ -209,6 +205,10 @@ export namespace staggerRecover {
     fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),
   ): IRecovery | null {
     const { REACTION, STEPS }: typeof staggerBounds = staggerBounds;
+
+    // The prune: a push the pendulum alone refuses is refused unadmitted.
+    if (admitted && recover(body, entry, push, speed, righting, false, fixed) === null)
+      return null;
     const pendulum: StaggerPendulum = new StaggerPendulum(
       body,
       entry,
@@ -259,15 +259,24 @@ export namespace staggerRecover {
       }
     /** One exactly shared foot-order prefix: its pendulum state and, once read, its admission. */
     type IPrefix = {
-      done: boolean;
-      crossing: boolean;
+      done: boolean | null;
       state: IState;
-      admitted?: boolean;
     };
+    // Admitted, each candidate step is read on the pendulum's course so far.
+    const admit: Parameters<typeof staggerStep.take>[4] = admitted
+      ? (step: IStep, instants: readonly number[], crossing: boolean): boolean =>
+          staggerAdmission(
+            body,
+            entry,
+            { ...pendulum.courses(), centre: fixed.centre, steps: [...pendulum.steps, step] },
+            fixed.bend,
+            instants,
+            crossing,
+          )
+      : undefined;
     const taken: Map<string, IPrefix> = new Map();
     for (const order of orders) {
       pendulum.reset();
-      const prefixes: IPrefix[] = [];
       let caught: boolean = false;
       for (let k: number = 0; k < order.length; k++) {
         // Orders that begin alike share their first steps: each sequence of
@@ -281,15 +290,12 @@ export namespace staggerRecover {
             order[k]!,
             k === 0 ? AutoMovieMotionHumanTiming.seconds(REACTION) : 0,
             k === 0 && sideways && order[0] === first,
+            admit,
           );
-          known = {
-            done: result.done,
-            crossing: result.crossing,
-            state: pendulum.snapshot(),
-          };
+          known = { done: result.done, state: pendulum.snapshot() };
           taken.set(key, known);
         } else pendulum.restore(known.state);
-        prefixes.push(known);
+        if (known.done === null) break;
         if (known.done) {
           caught = k === order.length - 1;
           break;
@@ -304,36 +310,16 @@ export namespace staggerRecover {
       if (recovery === null) continue;
       if (!admitted) return recovery;
 
-      // The legs admit each step at its mid-swing and its landing, once per
-      // prefix: the prefix's steps and its course up to its landing are the
-      // same in every order that begins with it.
-      const steps: readonly IStep[] = recovery.steps;
-      const instants: (step: IStep) => number[] = (step: IStep): number[] => [
-        (step.start + step.land) / 2,
-        step.land,
-      ];
-      let held: boolean = true;
-      for (let k: number = 0; k < prefixes.length && held; k++) {
-        const prefix: IPrefix = prefixes[k]!;
-        held = prefix.admitted ??= staggerAdmission(
-          body,
-          entry,
-          { ...recovery, steps: steps.slice(0, k + 1) },
-          fixed.bend,
-          instants(steps[k]!),
-          prefix.crossing,
-        );
-      }
-
-      // Then the close and the body at rest, which this order alone reaches.
+      // The catching steps were admitted as they were taken; then the close
+      // at its mid-swing and landing, and the body at rest.
+      const close: IStep = recovery.steps.at(-1)!;
       if (
-        held &&
         staggerAdmission(
           body,
           entry,
           recovery,
           fixed.bend,
-          [...instants(steps.at(-1)!), recovery.settled],
+          [(close.start + close.land) / 2, close.land, recovery.settled],
           false,
         )
       )

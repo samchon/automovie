@@ -7,6 +7,7 @@ import {
 import { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
+import type { staggerRecover } from "./staggerRecover";
 
 /**
  * One recovery step of a stagger (`staggerRecover`): the weight shifts onto
@@ -45,8 +46,8 @@ export namespace staggerStep {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reports the pendulum's actual capture, with no success override.
    */
   export interface IResult {
-    /** Whether the body is caught after it. */
-    done: boolean;
+    /** Whether the body is caught after it; null when the legs admit no landing in its region. */
+    done: boolean | null;
 
     /** Whether the landing crosses the stance foot. */
     crossing: boolean;
@@ -59,6 +60,7 @@ export namespace staggerStep {
    * @param side The stepping foot.
    * @param reaction Seconds both feet bear before the weight shifts.
    * @param unloaded Whether this is a sideways push's first step with the leg it unloads (`staggerBounds.LATERAL`).
+   * @param admit Whether the legs hold a candidate step at the given instants, whose feet cross when the flag says so (`staggerAdmission`); every landing is the aimed one when absent, the pendulum alone.
    * @returns Whether it catches the body, and whether the landing crosses.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the outcome.
@@ -74,6 +76,7 @@ export namespace staggerStep {
     side: "left" | "right",
     reaction: number,
     unloaded: boolean,
+    admit?: (step: staggerRecover.IStep, instants: readonly number[], crossing: boolean) => boolean,
   ): IResult {
     const body: StaggerPendulum["body"] = pendulum.body;
     const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
@@ -169,14 +172,50 @@ export namespace staggerStep {
     };
     const off: (ankle: IAutoMovieVector3) => number = (ankle: IAutoMovieVector3): number =>
       Vector3.length(flat(Vector3.subtract(ankle, wanted)));
-    const chosen: IAutoMovieVector3 = crossing
-      ? ((front: IAutoMovieVector3, back: IAutoMovieVector3): IAutoMovieVector3 =>
-          off(front) <= off(back) ? front : back)(crossed(1), crossed(-1))
-      : ankle0;
-    const to: HumanFoot.IPlacement = {
-      ankle: { ...chosen, y: from.ankle.y },
-      rotation: from.rotation,
-    };
+    const crosses: (ankle: IAutoMovieVector3) => boolean = (ankle: IAutoMovieVector3): boolean =>
+      sign * Vector3.dot(Vector3.subtract(ankle, pendulum.feet[stance].ankle), across) < width;
+    const sides: IAutoMovieVector3[] = crossing
+      ? ((front: IAutoMovieVector3, back: IAutoMovieVector3): IAutoMovieVector3[] =>
+          off(front) <= off(back) ? [front, back] : [back, front])(crossed(1), crossed(-1))
+      : [ankle0];
+    const stepTo: (ankle: IAutoMovieVector3) => staggerRecover.IStep = (ankle: IAutoMovieVector3): staggerRecover.IStep => ({
+      side,
+      from,
+      to: { ankle: { ...ankle, y: from.ankle.y }, rotation: from.rotation },
+      start,
+      land: pendulum.t,
+    });
+    let chosen: IAutoMovieVector3 = sides[0]!;
+    if (admit !== undefined) {
+      // The centre of mass's course up to the touch-down does not depend on
+      // where the foot lands, so each candidate landing is admitted on the
+      // same course: the stance leg at mid-swing once, then the aimed
+      // landing, the other side of a crossing, and else the farthest point
+      // the legs hold on the way back to where the foot stood beside the
+      // stance foot, as a step past the legs' reach shortens toward the
+      // stance foot (step adaptation, Khadiv et al. 2016), bisected to
+      // `ADAPTED` of the way, its admission taken as monotone along it.
+      const landing: (ankle: IAutoMovieVector3) => boolean = (ankle: IAutoMovieVector3): boolean =>
+        admit(stepTo(ankle), [pendulum.t], crosses(ankle));
+      if (!admit(stepTo(sides[0]!), [(start + pendulum.t) / 2], false))
+        return { done: null, crossing };
+      const held: IAutoMovieVector3 | undefined = sides.find(landing);
+      if (held !== undefined) chosen = held;
+      else {
+        const toward: (share: number) => IAutoMovieVector3 = (share: number): IAutoMovieVector3 =>
+          Vector3.lerp(beside, sides[0]!, share);
+        if (!landing(beside)) return { done: null, crossing };
+        let lo: number = 0;
+        let hi: number = 1;
+        while (hi - lo > staggerBounds.ADAPTED) {
+          const mid: number = (lo + hi) / 2;
+          if (landing(toward(mid))) lo = mid;
+          else hi = mid;
+        }
+        chosen = toward(lo);
+      }
+    }
+    const to: HumanFoot.IPlacement = stepTo(chosen).to;
     pendulum.steps.push({ side, from, to, start, land: pendulum.t });
     pendulum.feet[side] = to;
 
@@ -187,6 +226,6 @@ export namespace staggerStep {
 
     // Caught once the extrapolated centre of mass lies inside the base the
     // two feet now make, the zero-step capture region (Koolen et al. 2012).
-    return { done: pendulum.captured(), crossing };
+    return { done: pendulum.captured(), crossing: crosses(chosen) };
   }
 }
