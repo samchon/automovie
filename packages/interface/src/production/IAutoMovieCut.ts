@@ -20,6 +20,7 @@ export namespace IAutoMovieCut {
    * spans without overlapping the previous entry's own incoming transition,
    * ids are non-blank, and the frame rate is finite and positive. Each edit
    * event requirement matches exactly one event in its addressed playback entry.
+   * Every declared prop channel matches within tolerance across its hard cut.
    *
    * @evidence contracts/development/design.md#principled-representation `runtime` is the sum of played spans minus the sum of transition durations, the overlap arithmetic `sequenceTimeline` replays entry by entry, so the cut's runtime and the playback timeline's runtime agree for the same sequence.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the sequence the renderer plays and the one number every caller asks of it, so a consumer does not rebuild the timeline only to learn the running time.
@@ -55,7 +56,7 @@ export namespace IAutoMovieCut {
 
     /**
      * Every violation found, each with a path into the edit plan
-     * (`$input.entries[i]...` or `$input.requiredEvents[i]...`) or the shot list (`$shots[i]...`).
+     * (`$input.entries[i]...`, `$input.requiredEvents[i]...` or `$input.requiredPropContinuity[i]...`) or the shot list (`$shots[i]...`).
      */
     violations: IAutoMovieConstraintViolation[];
   }
