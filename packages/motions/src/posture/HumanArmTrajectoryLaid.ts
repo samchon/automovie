@@ -3,6 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
+import { HumanArmTrajectoryClear as Clear } from "./HumanArmTrajectoryClear";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -74,6 +75,9 @@ export namespace HumanArmTrajectoryLaid {
    * pace, the plateau is slowed by that ratio and the course timed again,
    * `RETIMES` times at most. A span too short for the arc at the plateau is
    * laid at constant speed and refused on `speed` by the reading below.
+   * Where the reading finds a transport inside a shape past what the
+   * admission allows, the transport is laid again round a detour of its
+   * deepest waypoint (`HumanArmTrajectoryClear`), `DETOURS` rounds at most.
    *
    * The course is read by the model's own evaluation (`M.evaluate`: every
    * site, range, clearance, crossing and speed bound) at the problem's own
@@ -91,7 +95,7 @@ export namespace HumanArmTrajectoryLaid {
    * @evidence contracts/development/implementation.md#principled-implementation A joint-space blend in the optimiser's own coordinates, time-scaled along the fastest probe's arc under the speed bound, read by the same context, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, the hold's encoding, two transports, one evaluation, then the shared playback factory.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, at most `RETIMES` readings of a transport's waypoints (one placement each), and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, at most `RETIMES` readings of a transport's waypoints (one placement each), and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme; a course inside a shape adds, per detour round, one Jacobian reading and one evaluation (`DETOURS` at most), where the optimiser spends a convexification, quadratic programmes and evaluations a round.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's placement and evaluation and `solve`'s playback, so both paths are read alike; the builder and the context are returned for `solve` to read the same grid on.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arc's samples live until return; the readers keep only setups, times and coordinates, as `solve`'s do, and the reading's context lives while the caller holds the result.
    */
@@ -137,16 +141,34 @@ export namespace HumanArmTrajectoryLaid {
     const mix = (p: readonly number[], q: readonly number[], w: number): number[] =>
       p.map((v: number, d: number): number => v + (q[d]! - v) * w);
 
-    // One transport between two waypoints already laid: the arcs are read
-    // on the base of its first waypoint, the arms' own travel.
-    const lay = (from: number, to: number): void => {
-      if (to - from < 2) return;
+    // One transport between two waypoints already laid, on the blend of its
+    // ends and the detours laid on it (`HumanArmTrajectoryClear`): the arcs
+    // are read on the base of its first waypoint, the arms' own travel.
+    // Returns the share of the path each of its waypoints stands at and the
+    // seconds its time law's ramps end and start at.
+    type ILaid = { shares: number[]; ramps: number[] };
+    const lay = (from: number, to: number, detours: readonly Clear.IDetour[]): ILaid => {
+      const shares: number[] = [];
+      shares[from] = 0;
+      shares[to] = 1;
+      if (to - from < 2) return { shares, ramps: [] };
       const ends: [readonly number[], readonly number[]][] = x.map(
         (arm: number[][]): [readonly number[], readonly number[]] => [arm[from]!, arm[to]!],
       );
+      const path = (a: number, share: number): number[] => {
+        const out: number[] = mix(ends[a]![0], ends[a]![1], share);
+        for (const detour of detours) {
+          const w: number = Clear.bump(share, detour.share);
+          if (w > 0)
+            detour.delta[a]!.forEach((v: number, d: number): void => {
+              out[d]! += w * v;
+            });
+        }
+        return out;
+      };
       const placed = (share: number): G.IPlaced[] =>
-        ends.map(([p, q]: [readonly number[], readonly number[]], a: number): G.IPlaced =>
-          G.placed(context.setups[a]!, context.frames[a]![from]!, mix(p, q, share)));
+        ends.map((_: [readonly number[], readonly number[]], a: number): G.IPlaced =>
+          G.placed(context.setups[a]!, context.frames[a]![from]!, M.ranged(context, a, path(a, share))));
       const along: number[] = [0];
       let before: G.IPlaced[] = placed(0);
       for (let s: number = 1; s <= ARC; ++s) {
@@ -181,8 +203,9 @@ export namespace HumanArmTrajectoryLaid {
           while (s < ARC && along[s]! < reached) ++s;
           const span: number = along[s]! - along[s - 1]!;
           const share: number = (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
+          shares[k] = share;
           x.forEach((arm: number[][], a: number): void => {
-            arm[k] = M.ranged(context, a, mix(ends[a]![0], ends[a]![1], share));
+            arm[k] = M.ranged(context, a, path(a, share));
           });
         }
         return ramp;
@@ -224,12 +247,70 @@ export namespace HumanArmTrajectoryLaid {
         plateau = (PACE * M.SPEED_LIMIT) / ratio;
         ramp = timed(plateau);
       }
-      if (ramp >= 1e-9 && ramp < 0.5)
-        ramps.push(times[from]! + ramp * seconds, times[to]! - ramp * seconds);
+      return {
+        shares,
+        ramps: ramp >= 1e-9 && ramp < 0.5
+          ? [times[from]! + ramp * seconds, times[to]! - ramp * seconds]
+          : [],
+      };
     };
-    lay(0, first);
-    lay(last, n - 1);
-    const worst: M.IEvaluation["worst"] = M.evaluate(context, x).worst;
+
+    // The reach and the return laid on their blends, then each laid again
+    // round the deepest waypoint the reading finds inside a shape past what
+    // the admission allows (`HumanArmTrajectoryClear.detour`), `DETOURS`
+    // rounds at most, every detour of a transport kept as it is laid again.
+    // A transport's region grows by the optimiser's own factor after a
+    // detour that made the transport shallower, and a detour that did not is
+    // taken back and ends that transport's detours: the trust region's rule
+    // (Nocedal and Wright, Algorithm 4.1) on the detour's own steps.
+    type ITransport = {
+      from: number;
+      to: number;
+      detours: Clear.IDetour[];
+      laid: ILaid;
+      region: number;
+      depth?: number;
+      done: boolean;
+    };
+    const transports: ITransport[] = [[0, first], [last, n - 1]].map(
+      ([from, to]: number[]): ITransport => ({
+        from: from!,
+        to: to!,
+        detours: [],
+        laid: lay(from!, to!, []),
+        region: Clear.REGION,
+        done: false,
+      }),
+    );
+    let reading: M.IEvaluation = M.evaluate(context, x);
+    for (let round: number = 0; round < DETOURS && reading.worst.value > M.TOLERANCE; ++round) {
+      let moved: boolean = false;
+      for (const t of transports) {
+        if (t.done) continue;
+        const detour: Clear.IDetour | undefined =
+          Clear.detour(context, x, reading, t.from, t.to, t.laid.shares, t.region);
+        if (detour !== undefined && t.depth !== undefined && !(detour.depth < t.depth)) {
+          t.detours.pop();
+          t.laid = lay(t.from, t.to, t.detours);
+          t.done = true;
+          moved = true;
+          continue;
+        }
+        if (detour === undefined) {
+          t.done = true;
+          continue;
+        }
+        if (t.depth !== undefined) t.region = Math.min(Clear.WIDEST, t.region * Clear.EXPAND);
+        t.depth = detour.depth;
+        t.detours.push(detour);
+        t.laid = lay(t.from, t.to, t.detours);
+        moved = true;
+      }
+      if (!moved) break;
+      reading = M.evaluate(context, x);
+    }
+    for (const t of transports) ramps.push(...t.laid.ramps);
+    const worst: M.IEvaluation["worst"] = reading.worst;
     return {
       trajectories: problem.arms.map(
         (_: HumanArmTrajectory.IArm, a: number): HumanArmTrajectory.Trajectory =>
@@ -248,6 +329,9 @@ const PACE: number = 0.97;
 
 /** The samples a laid transport's arc is read on (provisional: under a degree of any joint's travel apiece on a daily reach). */
 const ARC: number = 48;
+
+/** The detours a laid course's transports are laid round at most, each round one per transport at its deepest waypoint: the detour is the pairs' linearisation, so a pair nonlinear past it is met by the next round, and a course still inside a shape after them is the optimiser's seed (provisional). */
+const DETOURS: number = 10;
 
 /** The times a laid transport is timed again on the speed its waypoints are read at, at most: each slows the plateau by the ratio of the read speed to the planned one, which converges where the base's own motion varies little with the share (provisional). */
 const RETIMES: number = 3;
