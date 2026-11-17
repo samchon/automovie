@@ -41,6 +41,11 @@ import { vclose } from "../internal/vclose";
  * 1. One reader follows A-to-B-to-A edits of joint, root, ancestor, rest,
  *    axes and clinical frames. Prepared resolvePose and poseBones match
  *    ordered no-topology, unprepared FK on their respective actual frames.
+ *    A body's rig is a value read when the body is made
+ *    (`IHumanBody.poseResolution`): an edit of the skeleton's own records, a
+ *    rest transform or declared axes, is read by `poseBones` through a body
+ *    made from the edited skeleton, to the same exact cold FK, and the body
+ *    made before the edit keeps the frames of the rig it was made with.
  * 2. A warmed axes record rejects a newly zero axis. Earlier invalid duplicate
  *    joints and an invalid frame fail like cold FK and permit later recovery.
  * 3. Missing articulations use identity, and finite stray joints stay absent
@@ -212,11 +217,35 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     label: string,
     change: () => void,
     restore: () => void,
+    rig: boolean = false,
   ): void {
     const before: IAutoMovieResolvedBone[] = read(`${label} A`);
+
+    // A body's rig is a value, read once when the body is made: an edit of
+    // the skeleton's own records (a rest transform, declared axes) is read
+    // by a body made from the edited skeleton, and the body made before
+    // keeps the rig it was made with.
+    const kept: IAutoMovieResolvedBone[] | undefined = rig
+      ? [...poseBones(body, pose, prepared).values()]
+      : undefined;
     change();
     try {
-      const changed: IAutoMovieResolvedBone[] = read(`${label} B`);
+      const changed: IAutoMovieResolvedBone[] = read(
+        `${label} B`,
+        pose,
+        rig
+          ? createHumanBody(
+              structuredClone(skeleton),
+              structuredClone(source.profile),
+            )
+          : body,
+      );
+      if (kept !== undefined)
+        compare(
+          `${label} B earlier body keeps its rig`,
+          [...poseBones(body, pose, prepared).values()],
+          kept,
+        );
       check(
         `${label} physically changes the wrist`,
         !sameQuaternion(
@@ -298,6 +327,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
         Object.assign(wrist.rest.translation, rest.translation);
         Object.assign(wrist.rest.rotation, rest.rotation);
       },
+      true,
     );
   });
   scenario("axes and frame current values", (): void => {
@@ -317,6 +347,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
         for (const axis of ["flexion", "abduction", "twist"] as const)
           Object.assign(axes[axis], initial[axis]);
       },
+      true,
     );
     const sign: 1 | -1 = frame.flexion!.sign;
     const neutral: number = frame.flexion!.neutral;
