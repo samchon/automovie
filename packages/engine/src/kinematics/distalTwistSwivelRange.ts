@@ -2,6 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
+import { sphericalBoxMiss } from "./sphericalBoxMiss";
 import { swivelArcs } from "./swivelArcs";
 
 /**
@@ -74,8 +76,8 @@ export namespace distalTwistSwivelRange {
    * The swivels' admission by the twist range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation Breakpoints on the swivel's circle and a predicate constant between them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
+   * @evidence contracts/development/design.md#principled-representation Breakpoints on the swivel's circle, a predicate constant between them, and the miss the range forces where it does not admit, as a bound over swivel intervals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members: the first two read by the nearest-admissible choice, the third by the sweep's bound.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The predicate is the closed form itself, not a lookup of sampled intervals.
    */
   export interface IRange {
@@ -84,6 +86,34 @@ export namespace distalTwistSwivelRange {
 
     /** Whether the twist asked at a swivel, degrees, exists and lies inside the range. */
     admits: (swivel: number) => boolean;
+
+    /**
+     * A certified lower bound, degrees, of how far any pose the two joints
+     * can show misses the requested end rotation over the swivels from `low`
+     * to `high` degrees, never negative. Given the end joint's middle-angle
+     * interval (its abduction, rest-relative degrees within a quarter turn
+     * either way) and the sense of `axis` along the mid segment (1 when it
+     * points toward the end joint, -1 when away from it), where the end
+     * joint's rest carries its right-handed twist axis onto the mid
+     * segment's direction (`distalEndSwivelReadings`' own premise): with the
+     * mid segment twisted by `r` and the end joint
+     * abducted by `a`, the shown rotation carries the end joint's flexion
+     * axis to `T(axis, r) (cos a ahead - sense sin a axis)`, a rectangle of
+     * latitudes `a` about `axis` and longitudes `r` from `ahead`, while the
+     * requested rotation carries it to the carried axis `x(s)`. A rotation
+     * by an angle moves no unit vector by more than that angle, so the miss
+     * is at least the spherical distance from `x(s)` to that rectangle
+     * (`sphericalBoxMiss`); `x(s)` moves by at most its circle's radius per
+     * unit of swivel, so over an interval the bound is its value at the
+     * middle less the radius times the half width, lowered by twice the
+     * joints' tolerance (`ROM_TOLERANCE`), within which each of the two
+     * angles may stand past its interval. Its premise is `ahead` unit and
+     * perpendicular to `axis`.
+     */
+    miss: (
+      middle: readonly [number, number],
+      sense: 1 | -1,
+    ) => (low: number, high: number) => number;
   }
 
   /**
@@ -173,8 +203,48 @@ export namespace distalTwistSwivelRange {
         -Vector3.dot(n, Vector3.cross(u, x)),
       ];
     };
+    // The carried axis's circle and the rectangle's frame, for the miss.
+    const reach: number = Math.max(
+      Math.hypot(onX.b, onY.b, onZ.b),
+      Math.hypot(onX.c, onY.c, onZ.c),
+    );
+    const meridian: IAutoMovieVector3 = Vector3.normalize(props.ahead);
+    const side: IAutoMovieVector3 = Vector3.cross(u, meridian);
+    const outer: readonly [number, number] | null =
+      props.range[1] - props.range[0] >= 360 ? null : props.range;
     return {
       breaks,
+      miss:
+        (
+          inner: readonly [number, number],
+          sense: 1 | -1,
+        ): ((low: number, high: number) => number) =>
+        (low: number, high: number): number => {
+          const swivel: number = (low + high) / 2;
+          const cos: number = Math.cos(swivel * D);
+          const sin: number = Math.sin(swivel * D);
+          const value = (f: swivelArcs.ISinusoid): number =>
+            f.a + f.b * cos + f.c * sin;
+          const x: IAutoMovieVector3 = {
+            x: value(onX),
+            y: value(onY),
+            z: value(onZ),
+          };
+          const length: number = Vector3.length(x);
+          if (!(length > 1e-9)) return 0;
+          return Math.max(
+            0,
+            sphericalBoxMiss(
+              (sense * Vector3.dot(u, x)) / length,
+              Vector3.dot(side, x) / length,
+              Vector3.dot(meridian, x) / length,
+              inner,
+              outer,
+            ) -
+              (reach * (high - low)) / 2 -
+              2 * ROM_TOLERANCE,
+          );
+        },
       admits: (swivel: number): boolean => {
         const cos: number = Math.cos(swivel * D);
         const sin: number = Math.sin(swivel * D);

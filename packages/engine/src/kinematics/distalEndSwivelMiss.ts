@@ -1,6 +1,7 @@
 import { Quaternion } from "../math/Quaternion";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { distalEndSwivelReadings } from "./distalEndSwivelReadings";
+import { sphericalBoxMiss } from "./sphericalBoxMiss";
 import type { swivelArcs } from "./swivelArcs";
 
 /**
@@ -39,7 +40,7 @@ import type { swivelArcs } from "./swivelArcs";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is bounded, the inequality, the distance in both cases, the interval rule, the tolerance and when the result is null.
  * @evidence contracts/development/implementation.md#principled-implementation The end joint's reachable directions are a latitude-longitude rectangle and the requested one a point on a circle, both from the same exact readings the refused arcs use (Tolani, Goswami and Badler 2000, after Korein); the bound is the point's spherical distance to the rectangle, Lipschitz in the point with constant one.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared readings, the circle's radius, the distance at a swivel, then the interval closure.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared readings, the circle's radius, the distance at a swivel (`sphericalBoxMiss`), then the interval closure.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact distance at the middle and a certified slope, never a sampled minimum; a joint the analysis does not cover returns null rather than a guess.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three directions once; per interval one sine and cosine, two inverse functions inside the longitudes or four on the meridians.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The readings are `distalEndSwivelReadings`'s, shared with the refused arcs.
@@ -51,16 +52,16 @@ export function distalEndSwivelMiss(
   const read: distalEndSwivelReadings.IReadings | null = distalEndSwivelReadings.of(props);
   if (read === null) return null;
   const { onFlexion, onAbduction, onTwist }: distalEndSwivelReadings.IReadings = read;
-  const [lowest, highest]: readonly [number, number] = read.abduction ?? [-90, 90];
+  const box: readonly [number, number] = read.abduction ?? [-90, 90];
   const flexion: readonly [number, number] | null = read.flexion;
   const radius: number = Math.max(
     Math.hypot(onFlexion.b, onAbduction.b, onTwist.b),
     Math.hypot(onFlexion.c, onAbduction.c, onTwist.c),
   );
   const D: number = Quaternion.DEG2RAD;
-  const clamp = (value: number): number => Math.max(-1, Math.min(1, value));
 
-  // The direction's distance from the box at one swivel, degrees.
+  // The direction's distance from the box at one swivel, degrees
+  // (`sphericalBoxMiss`).
   const at = (swivel: number): number => {
     const cos: number = Math.cos(swivel * D);
     const sin: number = Math.sin(swivel * D);
@@ -70,23 +71,7 @@ export function distalEndSwivelMiss(
     const x: number = value(onFlexion) / length;
     const y: number = value(onAbduction) / length;
     const z: number = value(onTwist) / length;
-    const abduction: number = Math.asin(clamp(-x)) / D;
-    const band: number = Math.max(0, lowest - abduction, abduction - highest);
-    if (flexion === null) return band;
-    const turned: number = (((Math.atan2(y, z) / D - flexion[0]) % 360) + 360) % 360;
-    if (turned <= flexion[1] - flexion[0]) return band;
-    let least: number = Infinity;
-    for (const end of flexion) {
-      const c: number = y * Math.sin(end * D) + z * Math.cos(end * D);
-      const peak: number = Math.atan2(-x, c) / D;
-      let cosine: number = Math.max(
-        -x * Math.sin(lowest * D) + c * Math.cos(lowest * D),
-        -x * Math.sin(highest * D) + c * Math.cos(highest * D),
-      );
-      if (peak >= lowest && peak <= highest) cosine = Math.max(cosine, Math.hypot(x, c));
-      least = Math.min(least, Math.acos(clamp(cosine)) / D);
-    }
-    return least;
+    return sphericalBoxMiss(x, y, z, box, flexion);
   };
   return (low: number, high: number): number =>
     Math.max(0, at((low + high) / 2) - (radius * (high - low)) / 2 - ROM_TOLERANCE);

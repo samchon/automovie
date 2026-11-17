@@ -14,7 +14,8 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
 import { distalEndSwivelMiss } from "../kinematics/distalEndSwivelMiss";
-import type { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
+import { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
+import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRange";
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
 import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
 import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
@@ -77,7 +78,9 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * (`distalEndSwivelNearest`); with a reference pose, the box's alone, since
  * the reference's turn then ranks beside the hint. Where that candidate does not answer, the sweep is bounded
  * from below by the least the end joint must miss the rotation by at each
- * swivel (`distalEndSwivelMiss`) besides the hint's side, so a rotation no
+ * swivel (`distalEndSwivelMiss`) or, when greater, the least the mid
+ * segment's twist range must (`distalTwistSwivelRange`'s miss), besides the
+ * hint's side, so a rotation no
  * swivel lets the wrist take is fitted by scoring only the swivels near the
  * least miss, with the full sweep's choice.
  * One degree of joint turn from the reference counts as much as
@@ -379,6 +382,51 @@ export function fitHingedChainCandidate(
     along !== null && lowerBasis.twistPlacement === "distal" &&
     Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) > 1 - 1e-9;
   let ended: IEnd | undefined;
+
+  // A branch's twist-range reading (`distalTwistRange`), read once a branch
+  // by the closed-form candidate and by the sweep's bound alike.
+  const twists: WeakMap<object, { range: distalTwistSwivelRange.IRange | null }> = new WeakMap();
+  const twisting = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+  ): distalTwistSwivelRange.IRange | null => {
+    let known: { range: distalTwistSwivelRange.IRange | null } | undefined = twists.get(posed);
+    if (known === undefined) {
+      const end: IEnd = (ended ??= endOf(props, prepared, rig));
+      known = {
+        range: distalTwistRange({
+          prepared,
+          axis: lowerBasis.twist,
+          frame: props.restFrames?.[props.chain.lower]?.twist,
+          flexion: end.basis.flexion,
+          fixed: rig?.distalTwist() ?? solveDistalTwist.prepare({
+            effectorRest: prepared.effectorBaseRotation,
+            effectorBasis: end.basis,
+            effectorFrame: end.frame,
+          }),
+          posed,
+          rotation: rotation!,
+        }),
+      };
+      twists.set(posed, known);
+    }
+    return known.range;
+  };
+
+  // The twist range's own lower bound of the rotation's miss on a branch;
+  // null when either joint's analysis does not apply. Read only where
+  // `missed` holds, so the mid segment's twist axis lies along it.
+  const twistMiss = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+  ): ((low: number, high: number) => number) | null => {
+    const range: distalTwistSwivelRange.IRange | null = twisting(posed);
+    if (range === null) return null;
+    const read: distalEndSwivelReadings.IReadings | null = distalEndSwivelReadings.of(pointing(posed));
+    if (read === null) return null;
+    return range.miss(
+      read.abduction ?? [-90, 90],
+      Vector3.dot(lowerBasis.twist, along!) > 0 ? 1 : -1,
+    );
+  };
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
       upper: prepared.upper,
@@ -430,8 +478,22 @@ export function fitHingedChainCandidate(
               const sided: ((low: number, high: number) => number) | null =
                 side === null || strain !== undefined
                   ? null : hingedChainSide.bound(offsetOf(upper), side);
-              const miss: ((low: number, high: number) => number) | null =
+              // The rotation's miss is bounded twice, by what the end
+              // joint's box cannot take of where the mid segment points
+              // (`distalEndSwivelMiss`) and by what the mid segment's twist
+              // range cannot take of the twist left to it
+              // (`distalTwistSwivelRange`'s miss): a rotation no swivel
+              // meets fails one or the other at every swivel, and the
+              // greater of two lower bounds is one.
+              const boxed: ((low: number, high: number) => number) | null =
                 missed ? distalEndSwivelMiss(pointing(posed)) : null;
+              const twisted: ((low: number, high: number) => number) | null =
+                boxed === null ? null : twistMiss(posed);
+              const miss: ((low: number, high: number) => number) | null =
+                boxed === null || twisted === null
+                  ? boxed
+                  : (low: number, high: number): number =>
+                      Math.max(boxed(low, high), twisted(low, high));
               return sided === null
                 ? (miss ?? ((): number => 0))
                 : miss === null
@@ -505,22 +567,9 @@ export function fitHingedChainCandidate(
                         // of error, so the admissible swivel nearest the pole
                         // is not its ranking's choice: such a fit keeps the
                         // box's own candidate and the search behind it.
-                        const end: IEnd = (ended ??= endOf(props, prepared, rig));
                         const nearest: number | null = distalEndSwivelNearest(
                           arcs,
-                          props.referencePose !== undefined ? null : distalTwistRange({
-                            prepared,
-                            axis: lowerBasis.twist,
-                            frame: props.restFrames?.[props.chain.lower]?.twist,
-                            flexion: end.basis.flexion,
-                            fixed: rig?.distalTwist() ?? solveDistalTwist.prepare({
-                              effectorRest: prepared.effectorBaseRotation,
-                              effectorBasis: end.basis,
-                              effectorFrame: end.frame,
-                            }),
-                            posed,
-                            rotation: rotation!,
-                          }),
+                          props.referencePose !== undefined ? null : twisting(posed),
                           desired,
                         );
                         return nearest === null ? null : [nearest];
