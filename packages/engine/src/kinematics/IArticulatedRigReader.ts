@@ -22,7 +22,7 @@ export interface IArticulatedRigReader<Bone extends string> {
    * @param joints Bone-local degree coordinates; null axes mean neutral.
    * @param root Optional finite rigid model-space placement with unit scale.
    * @returns A fresh map of independently owned world transforms.
-   * @throws {RangeError} For unknown names, invalid angles, non-rigid root or a declared degree-box violation.
+   * @throws {RangeError} For unknown names, invalid angles, non-rigid root, a declared degree-box violation or a derived world frame that finite binary64 rigid data cannot represent.
    * @evidence contracts/development/common.md#meaningful-documentation States angle units, null meaning, root domain, independent output and refusal cases.
    * @evidence contracts/development/implementation.md#principled-implementation Parent-first rigid FK composes each admitted neutral transform with the actual basis-defined joint quaternion.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate current names/angles and compose one world transform per prepared bone.

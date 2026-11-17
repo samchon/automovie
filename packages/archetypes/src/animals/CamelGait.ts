@@ -46,7 +46,7 @@ export namespace CamelGait {
   const HIND_DUTY: number = 0.66768111169193;
 
   /** Figure 2 supplement 2B, camera-facing fore onset as a fraction after its ipsilateral hind. */
-  const FORE_PHASE: number = 0.14293928555816956;
+  const FORE_PHASE: number = 14.293928555816956 / 100;
 
   /** Figure 2 supplement 2B, opposite fore onset on the same hind-referenced clock. */
   const OPPOSITE_FORE_PHASE: number = 0.6425789503922897;
@@ -64,13 +64,15 @@ export namespace CamelGait {
           leftHind: 1 - FORE_PHASE,
           rightHind: 0.5 - FORE_PHASE,
         },
-        rows: [{
-          speed: 1.08,
-          stride: STRIDE,
-          deviation: 0,
-          stance: STRIDE * FORE_DUTY,
-          hindStance: STRIDE * HIND_DUTY,
-        }],
+        rows: [
+          {
+            speed: 1.08,
+            stride: STRIDE,
+            deviation: 0,
+            stance: STRIDE * FORE_DUTY,
+            hindStance: STRIDE * HIND_DUTY,
+          },
+        ],
       },
     },
     reference: CamelBody.MEASURES.withers,

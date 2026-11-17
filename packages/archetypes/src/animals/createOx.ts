@@ -25,22 +25,48 @@ export function createOx(
 ): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
   const m: typeof OxBody.MEASURES = OxBody.MEASURES;
   return createCohortQuadruped({
-    archetype: "ox", name: "Kathani working-ox prototype", cohort: "kathani-working-bullock",
-    withers: m.withers, girth: m.girth, body: OxBody(), params, seed,
-    add: (builder: ArchetypeBuilder<createCohortQuadruped.Affordance, QuadrupedBody.Dimension>, rig: QuadrupedBody.IRig): void => {
-      for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
-        const x: number = sign * rig.headRadius / 2;
+    archetype: "ox",
+    name: "Kathani working-ox prototype",
+    cohort: "kathani-working-bullock",
+    withers: m.withers,
+    girth: m.girth,
+    body: OxBody(),
+    params,
+    seed,
+    add: (
+      builder: ArchetypeBuilder<
+        createCohortQuadruped.Affordance,
+        QuadrupedBody.Dimension
+      >,
+      rig: QuadrupedBody.IRig,
+    ): void => {
+      for (const [side, sign] of [
+        ["left", 1],
+        ["right", -1],
+      ] as const) {
+        const x: number = (sign * rig.headRadius) / 2;
         const y: number = rig.poll.y + rig.headRadius / 2;
-        builder.rod(`${side}Horn`, m.horn * createOx.CONSTRUCTION.hornRadius,
+        builder.rod(
+          `${side}Horn`,
+          m.horn * createOx.CONSTRUCTION.hornRadius,
           { x, y, z: rig.poll.z },
-          { x: x + sign * m.horn * Math.SQRT1_2, y: y + m.horn * Math.SQRT1_2, z: rig.poll.z },
-          { color: "#c0ac7a" });
-        builder.rod(`${side}Ear`, m.ear * createOx.CONSTRUCTION.earRadius,
+          {
+            x: x + sign * m.horn * Math.SQRT1_2,
+            y: y + m.horn * Math.SQRT1_2,
+            z: rig.poll.z,
+          },
+          { color: "#c0ac7a" },
+        );
+        builder.rod(
+          `${side}Ear`,
+          m.ear * createOx.CONSTRUCTION.earRadius,
           { x: sign * rig.headRadius, y: rig.poll.y, z: rig.poll.z },
           { x: sign * (rig.headRadius + m.ear), y: rig.poll.y, z: rig.poll.z },
-          { color: "#8a6a46" });
+          { color: "#8a6a46" },
+        );
       }
-      if (params.equipment !== undefined) QuadrupedEquipment.lay(builder, rig, params.equipment, "ox");
+      if (params.equipment !== undefined)
+        QuadrupedEquipment.lay(builder, rig, params.equipment, "ox");
     },
   });
 }
@@ -64,5 +90,8 @@ export namespace createOx {
   }
 
   /** Radius/length ratios of coarse identifying rods; not anatomical measurements. */
-  export const CONSTRUCTION: Readonly<{ hornRadius: number; earRadius: number }> = { hornRadius: 0.06, earRadius: 0.07 };
+  export const CONSTRUCTION: Readonly<{
+    hornRadius: number;
+    earRadius: number;
+  }> = { hornRadius: 0.06, earRadius: 0.07 };
 }

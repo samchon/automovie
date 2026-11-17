@@ -42,12 +42,16 @@ export function QuadrupedRestPose(
   const nodes: Map<
     QuadrupedBody.Bone,
     IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number]
-  > = new Map(rig.bones.map(
-    (node: IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number]): [
-      QuadrupedBody.Bone,
-      IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number],
-    ] => [node.bone, node],
-  ));
+  > = new Map(
+    rig.bones.map(
+      (
+        node: IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number],
+      ): [
+        QuadrupedBody.Bone,
+        IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number],
+      ] => [node.bone, node],
+    ),
+  );
   const current: Map<QuadrupedBody.Bone, IAutoMovieQuaternion> = new Map(
     [...placed].map(
       ([bone, frame]: [QuadrupedBody.Bone, IAutoMovieTransform]): [
@@ -64,7 +68,10 @@ export function QuadrupedRestPose(
     const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
     for (let index: number = 0; index < chain.length; index++) {
       const bone: QuadrupedBody.Bone = chain[index]!;
-      const direction: IAutoMovieVector3 = Vector3.subtract(points[index + 1]!, points[index]!);
+      const direction: IAutoMovieVector3 = Vector3.subtract(
+        points[index + 1]!,
+        points[index]!,
+      );
       aim(bone, direction);
     }
   }
@@ -73,11 +80,20 @@ export function QuadrupedRestPose(
 
   /** One direction goal lowers through the same actual basis for limbs and tail. */
   function aim(bone: QuadrupedBody.Bone, direction: IAutoMovieVector3): void {
-    const node: IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number] | undefined = nodes.get(bone);
+    const node:
+      | IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number]
+      | undefined = nodes.get(bone);
     const old: IAutoMovieTransform | undefined = neutral.get(bone);
     const parent: IAutoMovieQuaternion | undefined =
-      node?.parent == null ? undefined : current.get(node.parent);
-    if (node === undefined || old === undefined || parent === undefined || Vector3.length(direction) === 0)
+      node === undefined || node.parent === null
+        ? undefined
+        : current.get(node.parent);
+    if (
+      node === undefined ||
+      old === undefined ||
+      parent === undefined ||
+      Vector3.length(direction) === 0
+    )
       throw new RangeError(`Rest cannot resolve actual ${bone} frames`);
     const aimed: IAutoMovieQuaternion = Quaternion.multiply(
       rotationBetween(

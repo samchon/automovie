@@ -46,7 +46,7 @@ export namespace OxGait {
   const HIND_DUTY: number = 0.6880389797326112;
 
   /** Figure 2 supplement 2B, tFL percentage divided by 100, relative to ipsilateral hind touchdown. */
-  const FORE_PHASE: number = 0.22450064886615763;
+  const FORE_PHASE: number = 22.450064886615763 / 100;
 
   /** Figure 2 supplement 2B, tFLcontr percentage divided by 100, on the same hind-referenced clock. */
   const OPPOSITE_FORE_PHASE: number = 0.7169512028591289;
@@ -64,13 +64,15 @@ export namespace OxGait {
           leftHind: 1 - FORE_PHASE,
           rightHind: 0.5 - FORE_PHASE,
         },
-        rows: [{
-          speed: 0.71,
-          stride: STRIDE,
-          deviation: 0,
-          stance: STRIDE * FORE_DUTY,
-          hindStance: STRIDE * HIND_DUTY,
-        }],
+        rows: [
+          {
+            speed: 0.71,
+            stride: STRIDE,
+            deviation: 0,
+            stance: STRIDE * FORE_DUTY,
+            hindStance: STRIDE * HIND_DUTY,
+          },
+        ],
       },
     },
     reference: OxBody.MEASURES.withers,

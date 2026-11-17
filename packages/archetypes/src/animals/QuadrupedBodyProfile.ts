@@ -28,22 +28,58 @@ export function QuadrupedBodyProfile(
   const c: QuadrupedBodyProfile.IConstruction = props.construction;
   const h: number = m.withers;
   const height: number = props.withersHeight ?? h;
-  for (const value of [height, m.withers, m.girth, m.body, m.neck,
-    m.neckRadius, m.head, m.headDiameter, m.tail, ...props.fore, ...props.hind,
-    c.withersRadius, c.pelvisRun, c.tailRadius, ...c.barRadii])
+  for (const value of [
+    height,
+    m.withers,
+    m.girth,
+    m.body,
+    m.neck,
+    m.neckRadius,
+    m.head,
+    m.headDiameter,
+    m.tail,
+    ...props.fore,
+    ...props.hind,
+    c.withersRadius,
+    c.pelvisRun,
+    c.tailRadius,
+    ...c.barRadii,
+  ])
     if (!(Number.isFinite(value) && value > 0))
-      throw new RangeError("Coarse quadruped lengths and radii must be positive and finite");
-  for (const value of [c.neckRootDrop, c.tailDock, c.inset, c.neckPitch,
-    c.headPitch, c.tailPitch, ...c.forePitch, ...c.hindPitch])
+      throw new RangeError(
+        "Coarse quadruped lengths and radii must be positive and finite",
+      );
+  for (const value of [
+    c.neckRootDrop,
+    c.tailDock,
+    c.inset,
+    c.neckPitch,
+    c.headPitch,
+    c.tailPitch,
+    ...c.forePitch,
+    ...c.hindPitch,
+  ])
     if (!Number.isFinite(value))
       throw new RangeError("Coarse quadruped construction must be finite");
-  if (props.fore.length !== 4 || props.hind.length !== 4 || c.barRadii.length !== 4
-    || c.forePitch.length !== 4 || c.hindPitch.length !== 4
-    || c.withersRadius >= 1 || c.pelvisRun >= 1
-    || c.neckRootDrop < 0 || c.neckRootDrop >= 1 - c.withersRadius
-    || c.inset < 0 || c.inset >= 1 || c.tailDock < 0 || c.tailDock > 1
-    || m.head <= m.headDiameter)
-    throw new RangeError("Coarse quadruped construction is outside its rigid-bar domain");
+  if (
+    props.fore.length !== 4 ||
+    props.hind.length !== 4 ||
+    c.barRadii.length !== 4 ||
+    c.forePitch.length !== 4 ||
+    c.hindPitch.length !== 4 ||
+    c.withersRadius >= 1 ||
+    c.pelvisRun >= 1 ||
+    c.neckRootDrop < 0 ||
+    c.neckRootDrop >= 1 - c.withersRadius ||
+    c.inset < 0 ||
+    c.inset >= 1 ||
+    c.tailDock < 0 ||
+    c.tailDock > 1 ||
+    m.head <= m.headDiameter
+  )
+    throw new RangeError(
+      "Coarse quadruped construction is outside its rigid-bar domain",
+    );
 
   const barrel: number = m.girth / (2 * Math.PI);
   const trunk: number = (m.body * (1 - c.pelvisRun) - barrel) / h;
@@ -53,26 +89,37 @@ export function QuadrupedBodyProfile(
   const headControl: number = m.head - m.headDiameter;
   const tailPitch: number = c.tailPitch * ArchetypeUnits.DEGREE;
   const fore: QuadrupedBody.IBody["lengths"]["fore"] = [
-    props.fore[0] / h, props.fore[1] / h, props.fore[2] / h, props.fore[3] / h,
+    props.fore[0] / h,
+    props.fore[1] / h,
+    props.fore[2] / h,
+    props.fore[3] / h,
   ];
   const hind: QuadrupedBody.IBody["lengths"]["hind"] = [
-    props.hind[0] / h, props.hind[1] / h, props.hind[2] / h, props.hind[3] / h,
+    props.hind[0] / h,
+    props.hind[1] / h,
+    props.hind[2] / h,
+    props.hind[3] / h,
   ];
-  const rise: number = m.neck * Math.sin(neckPitch) / h - c.neckRootDrop;
-  const ahead: number = m.neck * Math.cos(neckPitch) / h;
-  const drop: number = headControl * Math.sin(headPitch) / h;
-  const muzzle: number = headControl * Math.cos(headPitch) / h;
+  const rise: number = (m.neck * Math.sin(neckPitch)) / h - c.neckRootDrop;
+  const ahead: number = (m.neck * Math.cos(neckPitch)) / h;
+  const drop: number = (headControl * Math.sin(headPitch)) / h;
+  const muzzle: number = (headControl * Math.cos(headPitch)) / h;
   const neckRadius: number = m.neckRadius / h;
   const headRadius: number = m.headDiameter / h / 2;
-  const tailDrop: number = m.tail * Math.sin(tailPitch) / h;
-  const tailBack: number = m.tail * Math.cos(tailPitch) / h;
-  const inset: number = barrel / h * c.inset * height;
-  if ([barrel, ...fore, ...hind, trunk, buttock, neckRadius, headRadius].some(
-    (value: number): boolean => !(value > 0 && Number.isFinite(value)),
-  ) || [rise, ahead, drop, muzzle, tailDrop, tailBack, inset].some(
-    (value: number): boolean => !Number.isFinite(value),
-  ))
-    throw new RangeError("Coarse quadruped controls are not finitely representable");
+  const tailDrop: number = (m.tail * Math.sin(tailPitch)) / h;
+  const tailBack: number = (m.tail * Math.cos(tailPitch)) / h;
+  const inset: number = (barrel / h) * c.inset * height;
+  if (
+    [barrel, ...fore, ...hind, trunk, buttock, neckRadius, headRadius].some(
+      (value: number): boolean => !(value > 0 && Number.isFinite(value)),
+    ) ||
+    [rise, ahead, drop, muzzle, tailDrop, tailBack, inset].some(
+      (value: number): boolean => !Number.isFinite(value),
+    )
+  )
+    throw new RangeError(
+      "Coarse quadruped controls are not finitely representable",
+    );
   return {
     lengths: { fore, hind, trunk },
     stance: { fore: [...c.forePitch], hind: [...c.hindPitch] },
@@ -81,10 +128,17 @@ export function QuadrupedBodyProfile(
     withers: c.withersRadius,
     neck: { root: c.neckRootDrop, radius: neckRadius },
     head: {
-      poll: { rise, ahead }, nose: { drop, ahead: muzzle },
-      radius: headRadius, mouth: 0,
+      poll: { rise, ahead },
+      nose: { drop, ahead: muzzle },
+      radius: headRadius,
+      mouth: 0,
     },
-    tail: { radius: c.tailRadius, drop: tailDrop, back: tailBack, dock: c.tailDock },
+    tail: {
+      radius: c.tailRadius,
+      drop: tailDrop,
+      back: tailBack,
+      dock: c.tailDock,
+    },
     bones: [...c.barRadii],
     inset,
     colors: { ...props.colors },

@@ -24,17 +24,10 @@ export namespace HorseGait {
   export type Gait = "walk" | "trot" | "canter" | "gallop";
 
   /** Every gait of the horse, slowest first. */
-  export const GAITS: readonly Gait[] = [
-    "walk",
-    "trot",
-    "canter",
-    "gallop",
-  ];
+  export const GAITS: readonly Gait[] = ["walk", "trot", "canter", "gallop"];
 
   /** The measured rows by gait, in order of speed (Robilliard et al. 2007, Tables 2 and 3; the canter and gallop rows are the left and right lead rows the paper could be read at). */
-  export const ROWS: Readonly<
-    Record<Gait, readonly QuadrupedGait.IRow[]>
-  > = {
+  export const ROWS: Readonly<Record<Gait, readonly QuadrupedGait.IRow[]>> = {
     walk: [
       { speed: 1.0, stride: 1.121, deviation: 0.12, stance: 0.733 },
       { speed: 1.5, stride: 0.904, deviation: 0.079, stance: 0.54 },

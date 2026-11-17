@@ -37,14 +37,27 @@ export function OxBody(
   const transfer: number = m.withers / limb.withers;
   return QuadrupedBodyProfile({
     measures: {
-      withers: m.withers, girth: m.girth, body: m.body,
-      neck: limb.neck * transfer, neckRadius: m.headWidth * c.neckRadius,
-      head: m.head, headDiameter: m.headWidth, tail: m.tail,
+      withers: m.withers,
+      girth: m.girth,
+      body: m.body,
+      neck: limb.neck * transfer,
+      neckRadius: m.headWidth * c.neckRadius,
+      head: m.head,
+      headDiameter: m.headWidth,
+      tail: m.tail,
     },
-    fore: [limb.fore[0] * transfer, limb.fore[1] * transfer,
-      limb.fore[2] * transfer, c.distalLength * m.withers],
-    hind: [limb.hind[0] * transfer, limb.hind[1] * transfer,
-      limb.hind[2] * transfer, c.distalLength * m.withers],
+    fore: [
+      limb.fore[0] * transfer,
+      limb.fore[1] * transfer,
+      limb.fore[2] * transfer,
+      c.distalLength * m.withers,
+    ],
+    hind: [
+      limb.hind[0] * transfer,
+      limb.hind[1] * transfer,
+      limb.hind[2] * transfer,
+      c.distalLength * m.withers,
+    ],
     construction: c,
     withersHeight,
     colors: { coat: "#aaa398", tail: "#272320" },
@@ -86,9 +99,14 @@ export namespace OxBody {
     /** Reported horn length, without a curvature measurement. */
     horn: number;
   }> = {
-    withers: 1.1932, girth: 1.5061, body: 1.229,
-    head: 0.4292, headWidth: 0.1693, tail: 0.9595,
-    ear: 0.1903, horn: 0.1757,
+    withers: 1.1932,
+    girth: 1.5061,
+    body: 1.229,
+    head: 0.4292,
+    headWidth: 0.1693,
+    tail: 0.9595,
+    ear: 0.1903,
+    horn: 0.1757,
   };
 
   /** Hakim 2019 Table 2 digital FH adult-female means, n = 24, metres; external landmarks, not bones. */
@@ -105,23 +123,35 @@ export namespace OxBody {
     /** Axis/atlas region to dorsal neck base, not a measured ox neck. */
     neck: number;
   }> = {
-    withers: 1.3658, fore: [0.3876, 0.3922, 0.2425],
-    hind: [0.4745, 0.4497, 0.2855], neck: 0.3692,
+    withers: 1.3658,
+    fore: [0.3876, 0.3922, 0.2425],
+    hind: [0.4745, 0.4497, 0.2855],
+    neck: 0.3692,
   };
 
   /** Authored coarse controls, not measurements or anatomical limits. Colors are likewise authored. */
-  export const CONSTRUCTION: Readonly<QuadrupedBodyProfile.IConstruction & {
-    /** Unmeasured fourth limb bar / withers height. */
-    distalLength: number;
+  export const CONSTRUCTION: Readonly<
+    QuadrupedBodyProfile.IConstruction & {
+      /** Unmeasured fourth limb bar / withers height. */
+      distalLength: number;
 
-    /** Neck cylinder radius / reported forehead width. */
-    neckRadius: number;
-  }> = {
-    withersRadius: 0.05, distalLength: 0.1, pelvisRun: 0.15,
-    neckRootDrop: 0.09, neckRadius: 0.65, neckPitch: 10,
-    headPitch: 50, tailPitch: 85, tailRadius: 0.012,
-    tailDock: 0.5, inset: 0.2,
-    forePitch: [-30, 10, 0, 0], hindPitch: [40, -40, 0, 0],
+      /** Neck cylinder radius / reported forehead width. */
+      neckRadius: number;
+    }
+  > = {
+    withersRadius: 0.05,
+    distalLength: 0.1,
+    pelvisRun: 0.15,
+    neckRootDrop: 0.09,
+    neckRadius: 0.65,
+    neckPitch: 10,
+    headPitch: 50,
+    tailPitch: 85,
+    tailRadius: 0.012,
+    tailDock: 0.5,
+    inset: 0.2,
+    forePitch: [-30, 10, 0, 0],
+    hindPitch: [40, -40, 0, 0],
     barRadii: [0.055, 0.033, 0.025, 0.03],
   };
 }

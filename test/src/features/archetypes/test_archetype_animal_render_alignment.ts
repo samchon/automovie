@@ -1,5 +1,14 @@
-import { ArchetypeFrame, ArchetypeMarks, createDog } from "@automovie/archetypes";
-import { type IAutoMovieInspectionHandle, type IAutoMovieModelObject, applyAutoMovieInspection, buildModel } from "@automovie/render";
+import {
+  ArchetypeFrame,
+  ArchetypeMarks,
+  createDog,
+} from "@automovie/archetypes";
+import {
+  type IAutoMovieInspectionHandle,
+  type IAutoMovieModelObject,
+  applyAutoMovieInspection,
+  buildModel,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -21,8 +30,20 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/testing.md#execution-ownership One portable synchronous scenario owns its scene, built buffers/materials and inspection, restores and disposes them in finally, and starts no browser, process or compiler.
  */
 export function test_archetype_animal_render_alignment(): void {
-  const animal: ReturnType<typeof createDog> = createDog({ mass: 22, cohort: "pet", tempo: 0,
-    collar: { width: 0.02, thickness: 0.003, leadLength: 0.6, leadRadius: 0.004 } }, 43);
+  const animal: ReturnType<typeof createDog> = createDog(
+    {
+      mass: 22,
+      cohort: "pet",
+      tempo: 0,
+      collar: {
+        width: 0.02,
+        thickness: 0.003,
+        leadLength: 0.6,
+        leadRadius: 0.004,
+      },
+    },
+    43,
+  );
   const built: IAutoMovieModelObject = buildModel(animal);
   built.object.name = "dog";
   const group: THREE.Group = new THREE.Group();
@@ -34,9 +55,18 @@ export function test_archetype_animal_render_alignment(): void {
   const findings: string[] = [];
   try {
     check("built");
-    inspection = applyAutoMovieInspection({ scene,
-      request: InspectionScene.ask({ parts: ["set/dog"], marks: ["affordance/*"] }),
-      marks: ArchetypeMarks.of("set/dog", animal.affordances, ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }), 0.1),
+    inspection = applyAutoMovieInspection({
+      scene,
+      request: InspectionScene.ask({
+        parts: ["set/dog"],
+        marks: ["affordance/*"],
+      }),
+      marks: ArchetypeMarks.of(
+        "set/dog",
+        animal.affordances,
+        ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+        0.1,
+      ),
     });
     check("inspected");
     TestValidator.equals("actual lead render alignment", findings, []);
@@ -47,7 +77,10 @@ export function test_archetype_animal_render_alignment(): void {
     built.object.traverse((object: THREE.Object3D): void => {
       if (!(object instanceof THREE.Mesh)) return;
       geometries.add(object.geometry);
-      for (const material of Array.isArray(object.material) ? object.material : [object.material]) materials.add(material);
+      for (const material of Array.isArray(object.material)
+        ? object.material
+        : [object.material])
+        materials.add(material);
     });
     for (const geometry of geometries) geometry.dispose();
     for (const material of materials) material.dispose();
@@ -59,7 +92,13 @@ export function test_archetype_animal_render_alignment(): void {
     const rope: THREE.Object3D = built.parts.get("lead")!;
     const box: THREE.Box3 = new THREE.Box3().setFromObject(rope, true);
     const size: THREE.Vector3 = box.getSize(new THREE.Vector3());
-    if (Math.abs(size.x - 0.6) > 1e-6 || Math.abs(size.y - 0.008) > 1e-6 || Math.abs(size.z - 0.008) > 1e-6)
-      findings.push(`${stage}: actual lead bounds ${JSON.stringify(size)}, quaternion ${JSON.stringify(rope.quaternion)}`);
+    if (
+      Math.abs(size.x - 0.6) > 1e-6 ||
+      Math.abs(size.y - 0.008) > 1e-6 ||
+      Math.abs(size.z - 0.008) > 1e-6
+    )
+      findings.push(
+        `${stage}: actual lead bounds ${JSON.stringify(size)}, quaternion ${JSON.stringify(rope.quaternion)}`,
+      );
   }
 }

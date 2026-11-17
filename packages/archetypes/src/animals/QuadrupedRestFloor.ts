@@ -22,15 +22,28 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses call-local scalar/vector records and retains no model, buffers, cache or external resources.
  */
 export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
-  if (part.geometry.type !== "primitive" || part.transform == null)
+  if (
+    part.geometry.type !== "primitive" ||
+    part.transform === null ||
+    part.transform === undefined
+  )
     throw new RangeError(`Rest requires a transformed primitive: ${part.id}`);
   const shape: AutoMoviePrimitiveShape = part.geometry.shape;
   if (shape.type === "plane") return Infinity;
-  const dimensions: readonly number[] = shape.type === "box"
-    ? [shape.width, shape.height, shape.depth]
-    : shape.type === "sphere" ? [shape.radius] : [shape.height, shape.radius];
-  if (dimensions.some((value: number): boolean => !(Number.isFinite(value) && value > 0)))
-    throw new RangeError(`Rest requires positive finite dimensions: ${part.id}`);
+  const dimensions: readonly number[] =
+    shape.type === "box"
+      ? [shape.width, shape.height, shape.depth]
+      : shape.type === "sphere"
+        ? [shape.radius]
+        : [shape.height, shape.radius];
+  if (
+    dimensions.some(
+      (value: number): boolean => !(Number.isFinite(value) && value > 0),
+    )
+  )
+    throw new RangeError(
+      `Rest requires positive finite dimensions: ${part.id}`,
+    );
   for (const axis of ["x", "y", "z"] as const)
     if (
       part.transform.scale[axis] !== 1 ||
@@ -38,24 +51,52 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
     )
       throw new RangeError(`Rest requires a finite rigid part: ${part.id}`);
   const rotation: IAutoMovieQuaternion = part.transform.rotation;
-  const norm: number = Math.hypot(rotation.x, rotation.y, rotation.z, rotation.w);
+  const norm: number = Math.hypot(
+    rotation.x,
+    rotation.y,
+    rotation.z,
+    rotation.w,
+  );
   if (!(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON))
     throw new RangeError(`Rest requires a unit rotation: ${part.id}`);
-  const base: Pick<IAutoMoviePhysicalProfile.IShape, "id" | "material" | "transform"> = {
+  const base: Pick<
+    IAutoMoviePhysicalProfile.IShape,
+    "id" | "material" | "transform"
+  > = {
     id: part.id,
     material: "rest-bound",
-    transform: { position: part.transform.translation, rotation: Quaternion.normalize(part.transform.rotation) },
+    transform: {
+      position: part.transform.translation,
+      rotation: Quaternion.normalize(part.transform.rotation),
+    },
   };
   const placement: IAutoMoviePhysicalProfile.ITransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   if (shape.type === "sphere")
-    return physicalShapeBounds(placement, { ...base, kind: "sphere", radius: shape.radius }).min.y;
+    return physicalShapeBounds(placement, {
+      ...base,
+      kind: "sphere",
+      radius: shape.radius,
+    }).min.y;
   if (shape.type === "capsule")
-    return physicalShapeBounds(placement, { ...base, kind: "capsule", radius: shape.radius, halfLength: shape.height / 2 }).min.y;
+    return physicalShapeBounds(placement, {
+      ...base,
+      kind: "capsule",
+      radius: shape.radius,
+      halfLength: shape.height / 2,
+    }).min.y;
   if (shape.type === "box")
-    return physicalShapeBounds(placement, { ...base, kind: "box", halfExtents: { x: shape.width / 2, y: shape.height / 2, z: shape.depth / 2 } }).min.y;
+    return physicalShapeBounds(placement, {
+      ...base,
+      kind: "box",
+      halfExtents: {
+        x: shape.width / 2,
+        y: shape.height / 2,
+        z: shape.depth / 2,
+      },
+    }).min.y;
   const axis: IAutoMovieVector3 = Quaternion.rotateVector(
     base.transform.rotation,
     { x: 0, y: 1, z: 0 },
@@ -68,6 +109,7 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
       centre - (axis.y * shape.height) / 2,
     );
   }
-  const extent: number = (Math.abs(axis.y) * shape.height) / 2 + shape.radius * projected;
+  const extent: number =
+    (Math.abs(axis.y) * shape.height) / 2 + shape.radius * projected;
   return centre - extent;
 }

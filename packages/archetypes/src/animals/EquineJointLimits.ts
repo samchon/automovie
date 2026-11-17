@@ -50,6 +50,17 @@ export function EquineJointLimits(
     case "rightHindPastern":
       joint = "hindFetlock";
       break;
+    case "head":
+    case "hindquarters":
+    case "leftForeHumerus":
+    case "leftHindFemur":
+    case "neck":
+    case "rightForeHumerus":
+    case "rightHindFemur":
+    case "tail":
+    case "trunk":
+      joint = null;
+      break;
   }
 
   return joint === null
@@ -57,7 +68,9 @@ export function EquineJointLimits(
     : {
         joint,
         observations: OBSERVATIONS[joint].map(
-          (row: EquineJointLimits.IObservation): EquineJointLimits.IObservation => ({
+          (
+            row: EquineJointLimits.IObservation,
+          ): EquineJointLimits.IObservation => ({
             ...row,
             study: { ...row.study },
             flexion: [row.flexion[0], row.flexion[1]],
@@ -243,7 +256,9 @@ export namespace EquineJointLimits {
       (row: IObservation): boolean => row.study.doi === studyDoi,
     );
     if (observation === undefined)
-      throw new RangeError(`The selected study did not measure ${reference.joint}`);
+      throw new RangeError(
+        `The selected study did not measure ${reference.joint}`,
+      );
 
     return {
       observation,

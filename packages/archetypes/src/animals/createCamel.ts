@@ -25,14 +25,34 @@ export function createCamel(
 ): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
   const m: typeof CamelBody.MEASURES = CamelBody.MEASURES;
   return createCohortQuadruped({
-    archetype: "camel", name: "Mauritanian dromedary prototype", cohort: "mauritanian-adult-female",
-    withers: m.withers, girth: m.girth, body: CamelBody(), params, seed,
-    add: (builder: ArchetypeBuilder<createCohortQuadruped.Affordance, QuadrupedBody.Dimension>, rig: QuadrupedBody.IRig): void => {
+    archetype: "camel",
+    name: "Mauritanian dromedary prototype",
+    cohort: "mauritanian-adult-female",
+    withers: m.withers,
+    girth: m.girth,
+    body: CamelBody(),
+    params,
+    seed,
+    add: (
+      builder: ArchetypeBuilder<
+        createCohortQuadruped.Affordance,
+        QuadrupedBody.Dimension
+      >,
+      rig: QuadrupedBody.IRig,
+    ): void => {
       const radius: number = m.withers * createCamel.CONSTRUCTION.humpRadius;
-      builder.ball("hump", radius,
-        { x: 0, y: rig.back, z: -rig.trunk * createCamel.CONSTRUCTION.humpBehind },
-        { color: "#ae8b59" });
-      if (params.equipment !== undefined) QuadrupedEquipment.lay(builder, rig, params.equipment, "camel");
+      builder.ball(
+        "hump",
+        radius,
+        {
+          x: 0,
+          y: rig.back,
+          z: -rig.trunk * createCamel.CONSTRUCTION.humpBehind,
+        },
+        { color: "#ae8b59" },
+      );
+      if (params.equipment !== undefined)
+        QuadrupedEquipment.lay(builder, rig, params.equipment, "camel");
     },
   });
 }
@@ -56,5 +76,8 @@ export namespace createCamel {
   }
 
   /** Named normalized hump estimates: radius/withers and distance behind trunk midpoint/trunk length. */
-  export const CONSTRUCTION: Readonly<{ humpRadius: number; humpBehind: number }> = { humpRadius: 0.12, humpBehind: 0.1 };
+  export const CONSTRUCTION: Readonly<{
+    humpRadius: number;
+    humpBehind: number;
+  }> = { humpRadius: 0.12, humpBehind: 0.1 };
 }

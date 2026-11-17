@@ -1,5 +1,8 @@
-import type { Archetype, ArchetypeBuilder } from "../core";
-import { ArchetypeRefusal } from "../core";
+import {
+  type Archetype,
+  type ArchetypeBuilder,
+  ArchetypeRefusal,
+} from "../core";
 import { DeerBody } from "./DeerBody";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { createCohortQuadruped } from "./createCohortQuadruped";
@@ -24,34 +27,71 @@ export function createDeer(
   seed?: number | string,
 ): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
   if (params.lead !== undefined && params.mass === undefined)
-    throw new ArchetypeRefusal({ kind: "parameter", archetype: "deer", axis: "mass", value: null,
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "deer",
+      axis: "mass",
+      value: null,
       feasible: { kind: "range", minimum: 0, maximum: null, unit: "kg" },
-      reason: "the bare animal's cohort mean does not measure authored lead equipment",
-      fix: "supply the complete authored model mass when adding equipment" });
+      reason:
+        "the bare animal's cohort mean does not measure authored lead equipment",
+      fix: "supply the complete authored model mass when adding equipment",
+    });
   const m: typeof DeerBody.MEASURES = DeerBody.MEASURES;
-  const actual: createCohortQuadruped.IParams = { ...params, mass: params.mass ?? m.mass };
+  const actual: createCohortQuadruped.IParams = {
+    ...params,
+    mass: params.mass ?? m.mass,
+  };
   return createCohortQuadruped({
-    archetype: "deer", name: "adult male Boso sika prototype", cohort: "boso-adult-male",
-    withers: m.withers, girth: m.girth, body: DeerBody(), params: actual, seed,
-    add: (builder: ArchetypeBuilder<createCohortQuadruped.Affordance, QuadrupedBody.Dimension>, rig: QuadrupedBody.IRig): void => {
+    archetype: "deer",
+    name: "adult male Boso sika prototype",
+    cohort: "boso-adult-male",
+    withers: m.withers,
+    girth: m.girth,
+    body: DeerBody(),
+    params: actual,
+    seed,
+    add: (
+      builder: ArchetypeBuilder<
+        createCohortQuadruped.Affordance,
+        QuadrupedBody.Dimension
+      >,
+      rig: QuadrupedBody.IRig,
+    ): void => {
       if (params.antlers === false) return;
       const a: typeof createDeer.ANTLERS = createDeer.ANTLERS;
       const root: number = rig.headRadius;
       const lateral: number = a.tipWidth / 2 - root;
       const rise: number = Math.sqrt(a.curve * a.curve - lateral * lateral);
       const radius: number = (a.baseLong + a.baseShort) / 4;
-      for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
+      for (const [side, sign] of [
+        ["left", 1],
+        ["right", -1],
+      ] as const) {
         const y: number = rig.poll.y + rig.headRadius;
-        builder.rod(`${side}Antler`, radius, { x: sign * root, y, z: rig.poll.z },
-          { x: sign * a.tipWidth / 2, y: y + rise, z: rig.poll.z }, { color: "#b2a184" });
+        builder.rod(
+          `${side}Antler`,
+          radius,
+          { x: sign * root, y, z: rig.poll.z },
+          { x: (sign * a.tipWidth) / 2, y: y + rise, z: rig.poll.z },
+          { color: "#b2a184" },
+        );
         for (let i: number = 1; i <= createDeer.CONSTRUCTION.tines; i++) {
           const share: number = i / (createDeer.CONSTRUCTION.tines + 1);
           const startX: number = sign * (root + lateral * share);
           const startY: number = y + rise * share;
           const length: number = a.curve * createDeer.CONSTRUCTION.tineLength;
-          builder.rod(`${side}AntlerTine${i}`, radius * createDeer.CONSTRUCTION.tineRadius,
+          builder.rod(
+            `${side}AntlerTine${i}`,
+            radius * createDeer.CONSTRUCTION.tineRadius,
             { x: startX, y: startY, z: rig.poll.z },
-            { x: startX, y: startY + length * Math.SQRT1_2, z: rig.poll.z + length * Math.SQRT1_2 }, { color: "#b2a184" });
+            {
+              x: startX,
+              y: startY + length * Math.SQRT1_2,
+              z: rig.poll.z + length * Math.SQRT1_2,
+            },
+            { color: "#b2a184" },
+          );
         }
       }
     },
@@ -76,10 +116,22 @@ export namespace createDeer {
   }
 
   /** Ochiai/Asada 1997 Boso mature males: antler curve length, whole tip width and base ellipse diameters, metres (https://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_04-2_12ochiai.pdf). Separate from the 1995 body cohort. */
-  export const ANTLERS: Readonly<{ curve: number; tipWidth: number; baseLong: number; baseShort: number }> = {
-    curve: 0.489, tipWidth: 0.269, baseLong: 0.0347, baseShort: 0.0280,
+  export const ANTLERS: Readonly<{
+    curve: number;
+    tipWidth: number;
+    baseLong: number;
+    baseShort: number;
+  }> = {
+    curve: 0.489,
+    tipWidth: 0.269,
+    baseLong: 0.0347,
+    baseShort: 0.028,
   };
 
   /** Authored tines per beam and their length/main-beam and radius/main-beam ratios. */
-  export const CONSTRUCTION: Readonly<{ tines: number; tineLength: number; tineRadius: number }> = { tines: 2, tineLength: 0.28, tineRadius: 0.6 };
+  export const CONSTRUCTION: Readonly<{
+    tines: number;
+    tineLength: number;
+    tineRadius: number;
+  }> = { tines: 2, tineLength: 0.28, tineRadius: 0.6 };
 }

@@ -38,11 +38,17 @@ export function CamelBody(
   const c: typeof CamelBody.CONSTRUCTION = CamelBody.CONSTRUCTION;
   return QuadrupedBodyProfile({
     measures: {
-      withers: m.withers, girth: m.girth, body: m.body,
-      neck: m.neck, neckRadius: m.neckGirth / (2 * Math.PI),
-      head: m.head, headDiameter: m.headBreadth, tail: c.tailLength * m.withers,
+      withers: m.withers,
+      girth: m.girth,
+      body: m.body,
+      neck: m.neck,
+      neckRadius: m.neckGirth / (2 * Math.PI),
+      head: m.head,
+      headDiameter: m.headBreadth,
+      tail: c.tailLength * m.withers,
     },
-    fore: [...limb.fore], hind: [...limb.hind],
+    fore: [...limb.fore],
+    hind: [...limb.hind],
     construction: c,
     withersHeight,
     colors: { coat: "#aa7951", tail: "#664830" },
@@ -81,8 +87,13 @@ export namespace CamelBody {
     /** Tape path between ears via the occipital crest; used as a coarse diameter proxy. */
     headBreadth: number;
   }> = {
-    withers: 1.847, girth: 1.978, body: 1.471,
-    neck: 1.084, neckGirth: 0.656, head: 0.515, headBreadth: 0.215,
+    withers: 1.847,
+    girth: 1.978,
+    body: 1.471,
+    neck: 1.084,
+    neckGirth: 0.656,
+    head: 0.515,
+    headBreadth: 0.215,
   };
 
   /** Mostafa/Khalil 2018 Table3, normal external conformation means in metres; no paired height. */
@@ -98,14 +109,24 @@ export namespace CamelBody {
   };
 
   /** Authored rigid-bar interpretation. None of these directions is a measured joint angle. */
-  export const CONSTRUCTION: Readonly<QuadrupedBodyProfile.IConstruction & {
-    /** Unknown tail's authored length / withers height. */
-    tailLength: number;
-  }> = {
-    withersRadius: 0.055, pelvisRun: 0.15, neckRootDrop: 0.12,
-    neckPitch: 55, headPitch: 20, tailLength: 0.3,
-    tailPitch: 75, tailRadius: 0.009, tailDock: 0.5, inset: 0.2,
-    forePitch: [-15, 10, 0, 0], hindPitch: [22, -20, 0, 0],
+  export const CONSTRUCTION: Readonly<
+    QuadrupedBodyProfile.IConstruction & {
+      /** Unknown tail's authored length / withers height. */
+      tailLength: number;
+    }
+  > = {
+    withersRadius: 0.055,
+    pelvisRun: 0.15,
+    neckRootDrop: 0.12,
+    neckPitch: 55,
+    headPitch: 20,
+    tailLength: 0.3,
+    tailPitch: 75,
+    tailRadius: 0.009,
+    tailDock: 0.5,
+    inset: 0.2,
+    forePitch: [-15, 10, 0, 0],
+    hindPitch: [22, -20, 0, 0],
     barRadii: [0.045, 0.026, 0.018, 0.023],
   };
 }

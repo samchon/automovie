@@ -1,11 +1,23 @@
-import { type Archetype, ArchetypeBand, type ArchetypeBuilder, ArchetypeDrawSession, ArchetypeRefusal, type IArchetypeBand } from "../core";
+import {
+  type Archetype,
+  ArchetypeBand,
+  type ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeRefusal,
+  type IArchetypeBand,
+} from "../core";
 import { QuadrupedAnimal } from "./QuadrupedAnimal";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedEquipment } from "./QuadrupedEquipment";
 import { QuadrupedLead } from "./QuadrupedLead";
 
 /** Coordinate of the table's declared spread; no unreported animal SD is inferred. */
-const TEMPO: IArchetypeBand = ArchetypeBand.of("", -1, 1,
-  "authored coordinate of the species table's declared timing spread; deterministic point rows have zero authored spread without claiming a measured standard deviation");
+const TEMPO: IArchetypeBand = ArchetypeBand.of(
+  "",
+  -1,
+  1,
+  "authored coordinate of the species table's declared timing spread; deterministic point rows have zero authored spread without claiming a measured standard deviation",
+);
 
 /**
  * Build one coherent non-equid cohort prototype without an equine mass law.
@@ -24,23 +36,49 @@ const TEMPO: IArchetypeBand = ArchetypeBand.of("", -1, 1,
 export function createCohortQuadruped(
   props: createCohortQuadruped.IProps,
 ): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
-  for (const [axis, value, unit] of [["withersHeight", props.withers, "m"], ["girth", props.girth, "m"], ["mass", props.params.mass, "kg"]] as const)
+  for (const [axis, value, unit] of [
+    ["withersHeight", props.withers, "m"],
+    ["girth", props.girth, "m"],
+    ["mass", props.params.mass, "kg"],
+  ] as const)
     if (!(Number.isFinite(value) && value > 0))
-      throw new ArchetypeRefusal({ kind: "parameter", archetype: props.archetype, axis, value,
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: props.archetype,
+        axis,
+        value,
         feasible: { kind: "range", minimum: 0, maximum: null, unit },
-        reason: "a reference dimension and authored mass must be finite and positive",
-        fix: "supply a positive physical value in the stated unit" });
-  const draw: ArchetypeDrawSession<QuadrupedBody.Dimension> = new ArchetypeDrawSession(
-    props.archetype, { withersHeight: "m", girth: "m", mass: "kg", tempo: "" }, props.seed, props.params,
-  );
-  draw.model("cohort", props.cohort, { [props.cohort]: { withersHeight: props.withers, girth: props.girth } });
+        reason:
+          "a reference dimension and authored mass must be finite and positive",
+        fix: "supply a positive physical value in the stated unit",
+      });
+  const draw: ArchetypeDrawSession<QuadrupedBody.Dimension> =
+    new ArchetypeDrawSession(
+      props.archetype,
+      { withersHeight: "m", girth: "m", mass: "kg", tempo: "" },
+      props.seed,
+      props.params,
+    );
+  draw.model("cohort", props.cohort, {
+    [props.cohort]: { withersHeight: props.withers, girth: props.girth },
+  });
   draw.dimensions({ tempo: TEMPO });
   draw.derive("mass", props.params.mass);
   return QuadrupedAnimal<createCohortQuadruped.Affordance>({
-    id: props.params.id, name: props.name, draw, body: props.body,
-    add: (builder: ArchetypeBuilder<createCohortQuadruped.Affordance, QuadrupedBody.Dimension>, rig: QuadrupedBody.IRig): void => {
+    id: props.params.id,
+    name: props.name,
+    draw,
+    body: props.body,
+    add: (
+      builder: ArchetypeBuilder<
+        createCohortQuadruped.Affordance,
+        QuadrupedBody.Dimension
+      >,
+      rig: QuadrupedBody.IRig,
+    ): void => {
       props.add?.(builder, rig);
-      if (props.params.lead !== undefined) QuadrupedLead(builder, rig, "lead", props.params.lead, props.archetype);
+      if (props.params.lead !== undefined)
+        QuadrupedLead(builder, rig, "lead", props.params.lead, props.archetype);
     },
   });
 }
@@ -55,7 +93,7 @@ export function createCohortQuadruped(
  */
 export namespace createCohortQuadruped {
   /** Contacts the non-equid producers may actually build. */
-  export type Affordance = "lead" | "leftLoad" | "rightLoad" | "hitch";
+  export type Affordance = QuadrupedEquipment.Affordance;
 
   /** Authored construction choices, independent of the reference cohort's traits. */
   export interface IParams {
@@ -88,6 +126,9 @@ export namespace createCohortQuadruped {
     /** Independent deterministic construction seed. */
     seed?: number | string;
     /** Identifying geometry/equipment on the same physical body. */
-    add?: (builder: ArchetypeBuilder<Affordance, QuadrupedBody.Dimension>, rig: QuadrupedBody.IRig) => void;
+    add?: (
+      builder: ArchetypeBuilder<Affordance, QuadrupedBody.Dimension>,
+      rig: QuadrupedBody.IRig,
+    ) => void;
   }
 }

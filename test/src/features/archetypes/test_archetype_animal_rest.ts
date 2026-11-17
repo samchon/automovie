@@ -1,0 +1,263 @@
+import {
+  type Archetype,
+  QuadrupedBody,
+  QuadrupedRest,
+  type QuadrupedRestPlan,
+  createDog,
+  createHorse,
+} from "@automovie/archetypes";
+import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { archetypeRestObservation } from "../internal/archetypeRestObservation";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
+
+/**
+ * Actual dog and horse geometry lowers onto its trunk support and rises again.
+ *
+ * Scenarios:
+ * 1. A canonical pet dog with authored collar and a saddle horse with admitted
+ *    short stirrups and a torso-support pitch complete a bounded 33-time cycle
+ *    and its support events. Horse pitch aligns the actual front/rear capsule
+ *    axes on the floor; it is a geometric constraint, not measured behavior.
+ *    Four actual bars keep their lengths and shared-root origins; terminal
+ *    footprints stay fixed and actual soles and all rendered vertices clear
+ *    the declared floor. The resting trunk touches it and standing recovers.
+ * 2. Current source contact ids, semantics and carrier-local frames survive;
+ *    source bytes stay unchanged, output transforms are independent, and
+ *    unordered seeking reproduces the same actual geometry.
+ * 3. Translating the floor translates the result; nontrivial authored windows
+ *    produce their declared support events without inventing clinical timing.
+ * 4. Malformed clocks/carriage/windows, incomplete carriers, invalid sample
+ *    times and an actual one-millimetre upper-bar contradiction are refused.
+ *
+ * Ellis et al. 2018 (doi:10.3389/fbioe.2018.00162) supports the symmetrical
+ * belly-lying, fixed-footprint greyhound study condition. The two-second
+ * transitions, one-second hold, horizontal resting tail and distal carriage
+ * below are authored geometric choices. No measured ROM, GRF, clinical
+ * hip/knee/ankle timing, no-slip material point or side roll is asserted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists actual body/tack choices, all bounded successful and refusal cases, independent mesh/contact measurements and the distinction between primary-study context and authored performance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public actual producers and rest sampler, measures their current bars, source contacts and renderer-owned primitive vertices, and requires complete successful dog/horse cycles rather than accepting an always-refusing law.
+ * @evidence contracts/development/testing.md#independent-expectations Euclidean link lengths, rigid placement invariance, fixed X/Z footprints, zero sole/trunk floor gaps and unchanged carrier-local contact coordinates follow from the declared geometry contract. Render tessellation supplies an independent vertex path; the terminal cylinder rim is also measured analytically so polygon sampling cannot hide its true sole. The 1e-9 m/rotation budget is numerical observation precision, not an allowed authored contact gap.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts dog and larger horse, lowering/hold/rise, beginning/recovered standing, current/rest contacts, translated support, nontrivial windows, unordered seeks, independent returned transforms and finite malformed/unreachable inputs. Species gait and clinical validation remain outside this geometric unit.
+ * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit owns two actual in-memory models, bounded sample/vertex loops and local negative cases; it opens no viewer, renderer, process, native artifact or foreign-runtime replacement.
+ */
+export function test_archetype_animal_rest(): void {
+  const dog: ReturnType<typeof createDog> = createDog({
+    ...createDog.REFERENCE,
+    cohort: "pet",
+    tempo: 0,
+    collar: {
+      width: 0.02,
+      thickness: 0.003,
+      leadLength: 0.6,
+      leadRadius: 0.004,
+    },
+  });
+  const horse: ReturnType<typeof createHorse> = createHorse({
+    tack: "saddle",
+    withersHeight: 1.72,
+    stirrupDrop: 0.575,
+    tempo: 0,
+  });
+  const dogParams: QuadrupedRestPlan.IParams = {
+    floorY: 0,
+    loweringSeconds: 2,
+    restingSeconds: 1,
+    risingSeconds: 2,
+    restPitch: 0,
+    tailDirection: -90,
+    folded: { fore: [90, 0], hind: [-90, 0] },
+    windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
+    parts: {
+      withers: "trunk",
+      leftEar: "head",
+      rightEar: "head",
+      collar: "neck",
+      lead: "neck",
+    },
+    contacts: { lead: "neck" },
+  };
+
+  // The horse's rear capsule axis is lower than its trunk axis. One rigid
+  // torso pitch aligns their actual low ends; lowering it level would put
+  // the rear capsule below the floor while the trunk first reaches support.
+  const foreSupport: IAutoMovieVector3 = archetypeRestObservation.endpoint(
+    horse.parts.find(
+      (part: IAutoMovieModelPart): boolean => part.id === "trunk",
+    )!,
+    1,
+  );
+  const rearSupport: IAutoMovieVector3 = archetypeRestObservation.endpoint(
+    horse.parts.find(
+      (part: IAutoMovieModelPart): boolean => part.id === "hindquarters",
+    )!,
+    1,
+  );
+  const horseParams: QuadrupedRestPlan.IParams = {
+    ...dogParams,
+    restPitch:
+      (Math.atan2(
+        foreSupport.y - rearSupport.y,
+        foreSupport.z - rearSupport.z,
+      ) *
+        180) /
+      Math.PI,
+    parts: {
+      withers: "trunk",
+      saddle: "trunk",
+      pommel: "trunk",
+      cantle: "trunk",
+      "leather-left": "trunk",
+      "leather-right": "trunk",
+      "stirrup-left": "trunk",
+      "stirrup-right": "trunk",
+      "rein-left": "head",
+      "rein-right": "head",
+      lead: "head",
+    },
+    contacts: {
+      seat: "trunk",
+      pommel: "trunk",
+      cantle: "trunk",
+      leftStirrup: "trunk",
+      rightStirrup: "trunk",
+      leftRein: "head",
+      rightRein: "head",
+      lead: "head",
+    },
+  };
+  const cases: readonly {
+    name: string;
+    animal: Archetype;
+    params: QuadrupedRestPlan.IParams;
+  }[] = [
+    { name: "dog", animal: dog, params: dogParams },
+    { name: "horse", animal: horse, params: horseParams },
+  ];
+  for (const entry of cases) archetypeRestObservation.verify(entry.name, entry.animal, entry.params);
+
+  const clip: QuadrupedRestPlan.IClip<
+    createDog.Affordance,
+    QuadrupedBody.Dimension
+  > = QuadrupedRest(dog, dogParams);
+  const shifted: QuadrupedRestPlan.ISample<
+    createDog.Affordance,
+    QuadrupedBody.Dimension
+  > = QuadrupedRest(dog, { ...dogParams, floorY: 0.25 }).sample(2.5);
+  const resting: QuadrupedRestPlan.ISample<
+    createDog.Affordance,
+    QuadrupedBody.Dimension
+  > = clip.sample(2.5);
+  for (let index: number = 0; index < resting.animal.parts.length; index++)
+    TestValidator.predicate(
+      "floor translation carries actual body",
+      vclose(
+        shifted.animal.parts[index]!.transform!.translation,
+        Vector3.add(resting.animal.parts[index]!.transform!.translation, {
+          x: 0,
+          y: 0.25,
+          z: 0,
+        }),
+        1e-9,
+      ),
+    );
+  const windowed: QuadrupedRestPlan.IClip<
+    createDog.Affordance,
+    QuadrupedBody.Dimension
+  > = QuadrupedRest(dog, {
+    ...dogParams,
+    windows: { body: [0.1, 0.8], fore: [0.1, 0.8], hind: [0.1, 0.8] },
+  });
+  TestValidator.predicate(
+    "authored window belly-on",
+    nclose(windowed.events.bellyOn, 1.8, 1e-12),
+  );
+  TestValidator.predicate(
+    "authored window belly-off",
+    nclose(windowed.events.bellyOff, 3.2, 1e-12),
+  );
+  TestValidator.predicate(
+    "authored window standing",
+    nclose(windowed.events.standing, 4.6, 1e-12),
+  );
+  TestValidator.predicate(
+    "pre-hold body window already supports belly",
+    windowed.sample(1.9).bellySupported,
+  );
+  TestValidator.predicate(
+    "zero hold has a supported transition boundary",
+    QuadrupedRest(dog, { ...dogParams, restingSeconds: 0 }).sample(2)
+      .bellySupported,
+  );
+
+  const invalid: readonly QuadrupedRestPlan.IParams[] = [
+    { ...dogParams, floorY: NaN },
+    { ...dogParams, loweringSeconds: 0 },
+    { ...dogParams, restingSeconds: -1 },
+    { ...dogParams, risingSeconds: Infinity },
+    { ...dogParams, restPitch: 90 },
+    { ...dogParams, tailDirection: NaN },
+    { ...dogParams, folded: { fore: [181, 0], hind: [-90, 0] } },
+    { ...dogParams, folded: { fore: [90, 90], hind: [-90, 0] } },
+    { ...dogParams, windows: { ...dogParams.windows, body: [0.5, 0.5] } },
+    { ...dogParams, windows: { ...dogParams.windows, body: [NaN, 1] } },
+    { ...dogParams, windows: { ...dogParams.windows, hind: [0, 1.1] } },
+  ];
+  for (const params of invalid)
+    TestValidator.predicate(
+      "malformed rest input refuses",
+      archetypeRestObservation.refuses((): void => {
+        QuadrupedRest(dog, params);
+      }),
+    );
+  for (const seconds of [-1, NaN, 5.001])
+    TestValidator.predicate(
+      "time outside the cycle refuses",
+      archetypeRestObservation.refuses((): void => {
+        clip.sample(seconds);
+      }),
+    );
+  for (const params of [
+    { ...dogParams, parts: {} },
+    { ...dogParams, contacts: {} },
+  ])
+    TestValidator.predicate(
+      "incomplete actual carrier map refuses",
+      archetypeRestObservation.refuses((): void => {
+        QuadrupedRest(dog, params).sample(2.5);
+      }),
+    );
+
+  // This actual source contradiction is deliberately not a biological model:
+  // a 1 mm upper bar cannot span the existing shoulder-to-wrist geometry.
+  const impossible: typeof dog = dog.reposed(
+    dog.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
+      if (
+        part.id !== "leftForeHumerus" ||
+        part.geometry.type !== "primitive" ||
+        part.geometry.shape.type !== "cylinder"
+      )
+        return part;
+      return {
+        ...part,
+        geometry: {
+          ...part.geometry,
+          shape: { ...part.geometry.shape, height: 0.001 },
+        },
+      };
+    }),
+  );
+  TestValidator.predicate(
+    "actual impossible geometry refuses instead of stretching",
+    archetypeRestObservation.refuses((): void => {
+      QuadrupedRest(impossible, dogParams).sample(2.5);
+    }),
+  );
+}

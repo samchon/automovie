@@ -14,16 +14,41 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both subjects share the immutable canonical rest animal and the common capture-subject producer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Subjects retain their model/plans for the catalogue lifetime; no browser, process or renderer is opened here.
  */
-export function archetypeCaptureDogGaits(): Readonly<Record<string, archetypeCaptureCatalog.ISubject>> {
-  const dog: ReturnType<typeof createDog> = createDog({
-    ...createDog.REFERENCE, cohort: "pet", tempo: 0,
-    collar: { width: 0.02, thickness: 0.003, leadLength: 0.6, leadRadius: 0.004 },
-  }, 43);
+export function archetypeCaptureDogGaits(): Readonly<
+  Record<string, archetypeCaptureCatalog.ISubject>
+> {
+  const dog: ReturnType<typeof createDog> = createDog(
+    {
+      ...createDog.REFERENCE,
+      cohort: "pet",
+      tempo: 0,
+      collar: {
+        width: 0.02,
+        thickness: 0.003,
+        leadLength: 0.6,
+        leadRadius: 0.004,
+      },
+    },
+    43,
+  );
   const subjects: Record<string, archetypeCaptureCatalog.ISubject> = {};
-  for (const [gait, speed] of [["trot", 2.69], ["gallop", 4.34]] as const)
-    subjects[`ride-dog-${gait}`] = archetypeCaptureSubject.moving("dog", rideQuadruped(dog, {
-      start: { x: 0, z: 0, heading: 0 }, legs: [{ kind: "straight", length: 20 }],
-      cruise: speed, startSpeed: speed, endSpeed: speed,
-    }, gait));
+  for (const [gait, speed] of [
+    ["trot", 2.69],
+    ["gallop", 4.34],
+  ] as const)
+    subjects[`ride-dog-${gait}`] = archetypeCaptureSubject.moving(
+      "dog",
+      rideQuadruped(
+        dog,
+        {
+          start: { x: 0, z: 0, heading: 0 },
+          legs: [{ kind: "straight", length: 20 }],
+          cruise: speed,
+          startSpeed: speed,
+          endSpeed: speed,
+        },
+        gait,
+      ),
+    );
   return subjects;
 }

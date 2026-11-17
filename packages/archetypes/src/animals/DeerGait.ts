@@ -64,13 +64,15 @@ export namespace DeerGait {
           leftHind: 1 - FORE_PHASE,
           rightHind: 0.5 - FORE_PHASE,
         },
-        rows: [{
-          speed: 0.78,
-          stride: STRIDE,
-          deviation: 0,
-          stance: STRIDE * FORE_DUTY,
-          hindStance: STRIDE * HIND_DUTY,
-        }],
+        rows: [
+          {
+            speed: 0.78,
+            stride: STRIDE,
+            deviation: 0,
+            stance: STRIDE * FORE_DUTY,
+            hindStance: STRIDE * HIND_DUTY,
+          },
+        ],
       },
     },
     reference: DeerBody.MEASURES.withers,

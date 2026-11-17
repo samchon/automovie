@@ -1,8 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeRefusal } from "../core";
+import type { ArchetypeBuilder } from "../core";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
 /**
  * Authored yokes and pack frames on the actual rest quadruped's landmarks.
@@ -23,7 +24,7 @@ export namespace QuadrupedEquipment {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Distinguishes this owner's three hooks from the existing lead contact.
    * @evidence contracts/development/design.md#principled-representation Closed identities distinguish left/right pack loads and the yoke's hitch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the producer's one contact vocabulary without implementing its lead twice.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the single non-equid contact vocabulary imported by the cohort producer; its lead geometry remains with QuadrupedLead.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown or free-text attachment identities cannot enter the builder through this contract.
    */
   export type Affordance = "lead" | "leftLoad" | "rightLoad" | "hitch";
@@ -96,15 +97,7 @@ export namespace QuadrupedEquipment {
     };
   }
 
-  /** One planned real primitive, before the actual builder is mutated. */
-  type Part =
-    | { kind: "rod"; id: string; radius: number; from: IAutoMovieVector3; to: IAutoMovieVector3; color: string }
-    | { kind: "box"; id: string; size: IAutoMovieVector3; at: IAutoMovieVector3; color: string };
-
-  /** A declared contact on an actual planned hook's inner bearing surface. */
-  type Contact = IAutoMovieAffordance & { id: Affordance };
-
-  /** Authored coarse wood/pad and metal colors, not physical material declarations. */
+  /** Authored coarse wood/pad color, not a physical material declaration. */
   const WOOD: string = "#70543b";
 
   /** Metal display color; no friction/restitution is inferred from it. */
@@ -133,150 +126,165 @@ export namespace QuadrupedEquipment {
     params: IParams,
     archetype: string,
   ): void {
-    const parts: Part[] = [];
-    const contacts: Contact[] = [];
-    if (params.yoke !== undefined) planYoke(parts, contacts, rig, params.yoke, archetype);
-    if (params.pack !== undefined) planPack(parts, contacts, rig, params.pack, archetype);
-    for (const part of parts)
-      if (part.kind === "rod") builder.rod(part.id, part.radius, part.from, part.to, { color: part.color });
-      else builder.box(part.id, part.size, part.at, { color: part.color });
-    for (const contact of contacts) builder.affordance(contact);
+    const plan: QuadrupedEquipmentPlan = new QuadrupedEquipmentPlan(archetype);
+    if (params.yoke !== undefined) planYoke(plan, rig, params.yoke);
+    if (params.pack !== undefined) planPack(plan, rig, params.pack);
+    plan.emit(builder);
   }
 
   /** Plan the beam above the neck/trunk envelope and connect its forward U hitch. */
-  function planYoke(parts: Part[], sites: Contact[], rig: QuadrupedBody.IRig,
-    yoke: NonNullable<IParams["yoke"]>, archetype: string): void {
-    for (const key of ["width", "radius", "neckAt"] as const) positive(archetype, `yoke.${key}`, yoke[key]);
-    nonnegative(archetype, "yoke.clearance", yoke.clearance);
-    admitHook(archetype, "yoke.hook", yoke.hook);
-    positive(archetype, "rig.neckRadius", rig.neckRadius);
-    positive(archetype, "rig.back", rig.back);
-    point(archetype, "rig.neck", rig.neck);
-    point(archetype, "rig.poll", rig.poll);
+  function planYoke(
+    plan: QuadrupedEquipmentPlan,
+    rig: QuadrupedBody.IRig,
+    yoke: NonNullable<IParams["yoke"]>,
+  ): void {
+    for (const key of ["width", "radius", "neckAt"] as const)
+      plan.positive(`yoke.${key}`, yoke[key]);
+    plan.nonnegative("yoke.clearance", yoke.clearance);
+    plan.admitHook("yoke.hook", yoke.hook);
+    plan.positive("rig.neckRadius", rig.neckRadius);
+    plan.positive("rig.back", rig.back);
+    plan.point("rig.neck", rig.neck);
+    plan.point("rig.poll", rig.poll);
     const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
     const length: number = Vector3.length(axis);
-    positive(archetype, "rig.neck.length", length);
+    plan.positive("rig.neck.length", length);
     if (axis.x !== 0 || !(axis.z > 0))
-      refuse(archetype, "rig.neckAxis", axis, "a rest neck must lie in its +Z-forward sagittal plane", "use the actual canonical rest rig");
-    atMost(archetype, "yoke.neckAt", yoke.neckAt, length);
-    atMost(archetype, "yoke.hook.radius", yoke.hook.radius, yoke.radius);
+      plan.refuse("rig.neckAxis",
+        axis,
+        "a rest neck must lie in its +Z-forward sagittal plane",
+        "use the actual canonical rest rig",
+      );
+    plan.atMost("yoke.neckAt", yoke.neckAt, length);
+    plan.atMost("yoke.hook.radius", yoke.hook.radius, yoke.radius);
     const minimum: number = 2 * (rig.neckRadius + yoke.radius + yoke.clearance);
     if (!Number.isFinite(minimum) || yoke.width < minimum)
-      refuse(archetype, "yoke.width", yoke.width, `beam width must span at least ${minimum} m of neck and clearance`, "increase width or reduce the authored beam radius/clearance");
+      plan.refuse("yoke.width",
+        yoke.width,
+        `beam width must span at least ${minimum} m of neck and clearance`,
+        "increase width or reduce the authored beam radius/clearance",
+      );
     const az: number = axis.z / length;
     const ay: number = axis.y / length;
     if (yoke.neckAt * az < yoke.radius + yoke.clearance)
-      refuse(archetype, "yoke.neckAt", yoke.neckAt, "the beam's rear edge would pass behind the neck root", "move the beam farther along the actual neck or reduce its radius/clearance");
-    const anchor: IAutoMovieVector3 = Vector3.add(rig.neck, Vector3.scale(axis, yoke.neckAt / length));
-    const front: number = yoke.radius + yoke.hook.opening + 4 * yoke.hook.radius;
-    const lift: number = (rig.neckRadius + yoke.clearance + Math.abs(ay) * front) / az + yoke.radius;
-    const centre: IAutoMovieVector3 = { ...anchor,
-      y: Math.max(anchor.y + lift, rig.back + yoke.radius + yoke.clearance) };
-    rod(parts, archetype, "yoke-beam", yoke.radius,
-      { ...centre, x: centre.x - yoke.width / 2 }, { ...centre, x: centre.x + yoke.width / 2 }, WOOD);
-    const hook: IAutoMovieVector3 = { ...centre,
-      z: centre.z + yoke.radius + yoke.hook.opening / 2 + 2 * yoke.hook.radius };
-    rod(parts, archetype, "yoke-hitch-link", yoke.hook.radius, centre, hook, METAL);
-    planHook(parts, sites, archetype, "yoke-hitch", "hitch", hook, yoke.hook);
+      plan.refuse("yoke.neckAt",
+        yoke.neckAt,
+        "the beam's rear edge would pass behind the neck root",
+        "move the beam farther along the actual neck or reduce its radius/clearance",
+      );
+    const anchor: IAutoMovieVector3 = Vector3.add(
+      rig.neck,
+      Vector3.scale(axis, yoke.neckAt / length),
+    );
+    const front: number =
+      yoke.radius + yoke.hook.opening + 4 * yoke.hook.radius;
+    const lift: number =
+      (rig.neckRadius + yoke.clearance + Math.abs(ay) * front) / az +
+      yoke.radius;
+    const centre: IAutoMovieVector3 = {
+      ...anchor,
+      y: Math.max(anchor.y + lift, rig.back + yoke.radius + yoke.clearance),
+    };
+    plan.rod("yoke-beam",
+      yoke.radius,
+      { ...centre, x: centre.x - yoke.width / 2 },
+      { ...centre, x: centre.x + yoke.width / 2 },
+      WOOD,
+    );
+    const hook: IAutoMovieVector3 = {
+      ...centre,
+      z: centre.z + yoke.radius + yoke.hook.opening / 2 + 2 * yoke.hook.radius,
+    };
+    plan.rod("yoke-hitch-link",
+      yoke.hook.radius,
+      centre,
+      hook,
+      METAL,
+    );
+    plan.hook("yoke-hitch", "hitch", hook, yoke.hook, METAL);
   }
 
   /** Fit pads to the actual side planes; their rails and over-back bridges share those endpoints. */
-  function planPack(parts: Part[], sites: Contact[], rig: QuadrupedBody.IRig,
-    pack: NonNullable<IParams["pack"]>, archetype: string): void {
-    for (const key of ["length", "width", "thickness", "railRadius"] as const) positive(archetype, `pack.${key}`, pack[key]);
-    nonnegative(archetype, "pack.clearance", pack.clearance);
-    admitHook(archetype, "pack.hook", pack.hook);
-    positive(archetype, "rig.barrel", rig.barrel);
-    positive(archetype, "rig.trunk", rig.trunk);
-    positive(archetype, "rig.back", rig.back);
-    positive(archetype, "rig.neckRadius", rig.neckRadius);
-    point(archetype, "rig.neck", rig.neck);
+  function planPack(
+    plan: QuadrupedEquipmentPlan,
+    rig: QuadrupedBody.IRig,
+    pack: NonNullable<IParams["pack"]>,
+  ): void {
+    for (const key of ["length", "width", "thickness", "railRadius"] as const)
+      plan.positive(`pack.${key}`, pack[key]);
+    plan.nonnegative("pack.clearance", pack.clearance);
+    plan.admitHook("pack.hook", pack.hook);
+    plan.positive("rig.barrel", rig.barrel);
+    plan.positive("rig.trunk", rig.trunk);
+    plan.positive("rig.back", rig.back);
+    plan.positive("rig.neckRadius", rig.neckRadius);
+    plan.point("rig.neck", rig.neck);
     const middle: number = rig.back - rig.barrel;
-    atMost(archetype, "pack.width", pack.width, Math.min(2 * rig.barrel, 2 * middle));
+    plan.atMost("pack.width",
+      pack.width,
+      Math.min(2 * rig.barrel, 2 * middle),
+    );
     const span: number = Math.min(rig.trunk, 2 * (rig.neck.z - rig.neckRadius));
-    atMost(archetype, "pack.length", pack.length, span - 2 * pack.railRadius);
-    atMost(archetype, "pack.railRadius", pack.railRadius, pack.thickness / 2);
-    atMost(archetype, "pack.hook.radius", pack.hook.radius, pack.railRadius);
-    atMost(archetype, "pack.hook.opening", pack.hook.opening, pack.length - 4 * pack.hook.radius);
+    plan.atMost("pack.length", pack.length, span - 2 * pack.railRadius);
+    plan.atMost("pack.railRadius", pack.railRadius, pack.thickness / 2);
+    plan.atMost("pack.hook.radius", pack.hook.radius, pack.railRadius);
+    plan.atMost("pack.hook.opening",
+      pack.hook.opening,
+      pack.length - 4 * pack.hook.radius,
+    );
     const x: number = rig.barrel + pack.clearance + pack.thickness / 2;
     const rail: number = middle + pack.width / 2 + pack.railRadius;
     const bridge: number = rig.back + pack.railRadius + pack.clearance;
-    for (const [side, sign, id] of [["left", 1, "leftLoad"], ["right", -1, "rightLoad"]] as const) {
+    for (const [side, sign, id] of [
+      ["left", 1, "leftLoad"],
+      ["right", -1, "rightLoad"],
+    ] as const) {
       const at: IAutoMovieVector3 = { x: sign * x, y: middle, z: 0 };
-      const size: IAutoMovieVector3 = { x: pack.thickness, y: pack.width, z: pack.length };
-      point(archetype, `pack-${side}-pad.position`, at);
-      point(archetype, `pack-${side}-pad.size`, size);
-      parts.push({ kind: "box", id: `pack-${side}-pad`, size, at, color: WOOD });
-      rod(parts, archetype, `pack-${side}-rail`, pack.railRadius,
-        { x: at.x, y: rail, z: -pack.length / 2 }, { x: at.x, y: rail, z: pack.length / 2 }, WOOD);
+      const size: IAutoMovieVector3 = {
+        x: pack.thickness,
+        y: pack.width,
+        z: pack.length,
+      };
+      plan.box(`pack-${side}-pad`, size, at, WOOD);
+      plan.rod(`pack-${side}-rail`,
+        pack.railRadius,
+        { x: at.x, y: rail, z: -pack.length / 2 },
+        { x: at.x, y: rail, z: pack.length / 2 },
+        WOOD,
+      );
       for (const end of [-1, 1] as const)
-        if (bridge > rail) rod(parts, archetype, `pack-${side}-post-${end}`, pack.railRadius,
-          { x: at.x, y: rail, z: end * pack.length / 2 }, { x: at.x, y: bridge, z: end * pack.length / 2 }, WOOD);
-      const hook: IAutoMovieVector3 = { x: sign * (x + pack.thickness / 2 + pack.hook.radius), y: rail, z: 0 };
-      rod(parts, archetype, `pack-${side}-hook-link`, pack.hook.radius, { x: at.x, y: rail, z: 0 }, hook, METAL);
-      planHook(parts, sites, archetype, `pack-${side}-hook`, id, hook, pack.hook);
+        if (bridge > rail)
+          plan.rod(`pack-${side}-post-${end}`,
+            pack.railRadius,
+            { x: at.x, y: rail, z: (end * pack.length) / 2 },
+            { x: at.x, y: bridge, z: (end * pack.length) / 2 },
+            WOOD,
+          );
+      const hook: IAutoMovieVector3 = {
+        x: sign * (x + pack.thickness / 2 + pack.hook.radius),
+        y: rail,
+        z: 0,
+      };
+      plan.rod(`pack-${side}-hook-link`,
+        pack.hook.radius,
+        { x: at.x, y: rail, z: 0 },
+        hook,
+        METAL,
+      );
+      plan.hook(`pack-${side}-hook`,
+        id,
+        hook,
+        pack.hook,
+        METAL,
+      );
     }
     for (const end of [-1, 1] as const)
-      rod(parts, archetype, `pack-bridge-${end}`, pack.railRadius,
-        { x: -x, y: bridge, z: end * pack.length / 2 }, { x, y: bridge, z: end * pack.length / 2 }, WOOD);
+      plan.rod(`pack-bridge-${end}`,
+        pack.railRadius,
+        { x: -x, y: bridge, z: (end * pack.length) / 2 },
+        { x, y: bridge, z: (end * pack.length) / 2 },
+        WOOD,
+      );
   }
 
-  /** Three actual U bars leave the declared opening and depth above this bearing point. */
-  function planHook(parts: Part[], sites: Contact[], archetype: string,
-    name: string, id: Affordance, base: IAutoMovieVector3, hook: IHook): void {
-    const half: number = hook.opening / 2 + hook.radius;
-    rod(parts, archetype, `${name}-base`, hook.radius,
-      { ...base, z: base.z - half }, { ...base, z: base.z + half }, METAL);
-    for (const end of [-1, 1] as const)
-      rod(parts, archetype, `${name}-upright-${end}`, hook.radius,
-        { ...base, z: base.z + end * half },
-        { ...base, y: base.y + hook.radius + hook.depth, z: base.z + end * half }, METAL);
-    const bearing: IAutoMovieVector3 = { ...base, y: base.y + hook.radius };
-    point(archetype, `${name}.bearing`, bearing);
-    sites.push({ id, kind: "hook", extent: null, frame: ArchetypeFrame.upright(bearing) });
-  }
-
-  /** Admit every physical hook dimension before laying any assembly. */
-  function admitHook(archetype: string, name: string, hook: IHook): void {
-    for (const key of ["radius", "opening", "depth"] as const) positive(archetype, `${name}.${key}`, hook[key]);
-  }
-
-  /** Validate a complete real rod before recording it in the uncommitted plan. */
-  function rod(parts: Part[], archetype: string, id: string, radius: number,
-    from: IAutoMovieVector3, to: IAutoMovieVector3, color: string): void {
-    positive(archetype, `${id}.radius`, radius);
-    point(archetype, `${id}.from`, from);
-    point(archetype, `${id}.to`, to);
-    positive(archetype, `${id}.length`, Vector3.length(Vector3.subtract(to, from)));
-    parts.push({ kind: "rod", id, radius, from, to, color });
-  }
-
-  /** Every derived coordinate must remain finite before the builder receives it. */
-  function point(archetype: string, axis: string, value: IAutoMovieVector3): void {
-    if (![value.x, value.y, value.z].every(Number.isFinite))
-      refuse(archetype, axis, value, "derived equipment coordinates must be finite", "reduce the authored dimensions or correct the rest rig");
-  }
-
-  /** Positive finite metres; no inclusive-zero range is falsely reported as feasible. */
-  function positive(archetype: string, axis: string, value: number): void {
-    if (!(Number.isFinite(value) && value > 0))
-      refuse(archetype, axis, value, "the authored or actual length must be finite and strictly positive", "supply a positive finite length in metres");
-  }
-
-  /** Zero clearance is an admitted exact-contact construction. */
-  function nonnegative(archetype: string, axis: string, value: number): void {
-    if (!(Number.isFinite(value) && value >= 0))
-      refuse(archetype, axis, value, "clearance must be finite and nonnegative", "supply zero or a positive finite clearance in metres");
-  }
-
-  /** Report the actual inclusive span limit after positivity has already been admitted. */
-  function atMost(archetype: string, axis: string, value: number, maximum: number): void {
-    if (!(Number.isFinite(value) && Number.isFinite(maximum) && maximum > 0 && value <= maximum))
-      refuse(archetype, axis, value, `the complete occupied length must not exceed ${maximum} m`, "reduce the equipment dimensions to fit the actual rig");
-  }
-
-  /** A source-located parameter failure names the caller's real producer and physical axis. */
-  function refuse(archetype: string, axis: string, value: unknown, reason: string, fix: string): never {
-    throw new ArchetypeRefusal({ kind: "parameter", archetype, axis, value, feasible: null, reason, fix });
-  }
 }

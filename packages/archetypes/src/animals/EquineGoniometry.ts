@@ -98,13 +98,17 @@ export namespace EquineGoniometry {
   export function measure(input: IInput): IResult {
     for (const point of [...input.markers, input.planeNormal])
       if (!finite(point))
-        throw new RangeError("Equine marker coordinates and plane normal must be finite");
+        throw new RangeError(
+          "Equine marker coordinates and plane normal must be finite",
+        );
     if (
       input.planeNormal.x === 0 &&
       input.planeNormal.y === 0 &&
       input.planeNormal.z === 0
     )
-      throw new RangeError("The equine measurement plane needs a nonzero normal");
+      throw new RangeError(
+        "The equine measurement plane needs a nonzero normal",
+      );
 
     const normal: IAutoMovieVector3 = Vector3.normalize(input.planeNormal);
     const first: IAutoMovieVector3 = project(input.markers[0]);
@@ -113,11 +117,14 @@ export namespace EquineGoniometry {
       Math.atan2(
         Vector3.dot(normal, Vector3.cross(first, second)),
         Vector3.dot(first, second),
-      ) * (180 / Math.PI);
-    const oriented: number = signedDegrees < 0 ? 360 + signedDegrees : signedDegrees;
+      ) *
+      (180 / Math.PI);
+    const oriented: number =
+      signedDegrees < 0 ? 360 + signedDegrees : signedDegrees;
 
     // Rounding a negative infinitesimal turn to 360 represents the same zero ray.
-    const includedAngle: number = oriented === 360 || oriented === 0 ? 0 : oriented;
+    const includedAngle: number =
+      oriented === 360 || oriented === 0 ? 0 : oriented;
     return {
       includedAngle,
       normal,
@@ -132,7 +139,10 @@ export namespace EquineGoniometry {
 
     /** A unit double-cross projection retains orientation without subtractive axial cancellation. */
     function project(marker: Readonly<IAutoMovieVector3>): IAutoMovieVector3 {
-      const displacement: IAutoMovieVector3 = Vector3.subtract(marker, input.markers[1]);
+      const displacement: IAutoMovieVector3 = Vector3.subtract(
+        marker,
+        input.markers[1],
+      );
       if (!finite(displacement))
         throw new RangeError("Equine marker differences must be finite");
       const direction: IAutoMovieVector3 = Vector3.normalize(displacement);
@@ -141,7 +151,9 @@ export namespace EquineGoniometry {
         Vector3.cross(direction, normal),
       );
       if (!finite(projected) || Vector3.length(projected) === 0)
-        throw new RangeError("An equine marker ray has no nonzero planar projection");
+        throw new RangeError(
+          "An equine marker ray has no nonzero planar projection",
+        );
       return Vector3.normalize(projected);
     }
   }
@@ -149,5 +161,9 @@ export namespace EquineGoniometry {
 
 /** Component checks preserve the shared Vector3 owner's normalization behavior. */
 function finite(point: Readonly<IAutoMovieVector3>): boolean {
-  return Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z);
+  return (
+    Number.isFinite(point.x) &&
+    Number.isFinite(point.y) &&
+    Number.isFinite(point.z)
+  );
 }

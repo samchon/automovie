@@ -62,9 +62,13 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
   const pitch: number = finite(params.restPitch, "restPitch");
   const tailAngle: number = finite(params.tailDirection, "tailDirection");
   if (Math.abs(tailAngle) > 180)
-    throw new RangeError("Rest tail direction must be within [-180, 180] degrees");
+    throw new RangeError(
+      "Rest tail direction must be within [-180, 180] degrees",
+    );
   if (resting < 0 || Math.abs(pitch) >= 90)
-    throw new RangeError("Rest requires nonnegative hold time and |restPitch| < 90 degrees");
+    throw new RangeError(
+      "Rest requires nonnegative hold time and |restPitch| < 90 degrees",
+    );
   const riseStart: number = lowering + resting;
   const duration: number = riseStart + rising;
   if (!Number.isFinite(duration))
@@ -78,49 +82,85 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
     fore: directions(params.folded.fore),
     hind: directions(params.folded.hind),
   };
-  const partCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = { ...params.parts };
-  const contactCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = { ...params.contacts };
-  const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> = QuadrupedSkeleton.of(animal);
-  const reader: IArticulatedRigReader<QuadrupedBody.Bone> = prepareArticulatedRig(rig);
-  const neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> = reader.read();
-  const neutralTail: IAutoMovieVector3 = Quaternion.rotateVector(neutral.get("tail")!.rotation, { x: 0, y: 1, z: 0 });
-  const tailTurn: IAutoMovieTransform["rotation"] = rotationBetween(neutralTail, {
-    x: 0, y: -Math.cos(tailAngle * Math.PI / 180), z: Math.sin(tailAngle * Math.PI / 180),
-  });
-  const source: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(animal.parts);
+  const partCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = {
+    ...params.parts,
+  };
+  const contactCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = {
+    ...params.contacts,
+  };
+  const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
+    QuadrupedSkeleton.of(animal);
+  const reader: IArticulatedRigReader<QuadrupedBody.Bone> =
+    prepareArticulatedRig(rig);
+  const neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
+    reader.read();
+  const neutralTail: IAutoMovieVector3 = Quaternion.rotateVector(
+    neutral.get("tail")!.rotation,
+    { x: 0, y: 1, z: 0 },
+  );
+  const tailTurn: IAutoMovieTransform["rotation"] = rotationBetween(
+    neutralTail,
+    {
+      x: 0,
+      y: -Math.cos((tailAngle * Math.PI) / 180),
+      z: Math.sin((tailAngle * Math.PI) / 180),
+    },
+  );
+  const source: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
+    animal.parts,
+  );
   const parts: Map<string, IAutoMovieModelPart> = new Map(
-    animal.parts.map((part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [part.id, part]),
+    animal.parts.map(
+      (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
+        part.id,
+        part,
+      ],
+    ),
   );
   for (const part of animal.parts) QuadrupedRestFloor(part);
   const trunk: IAutoMovieModelPart = bar("trunk");
-  const restTurn: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, pitch);
+  const restTurn: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
+    { x: 1, y: 0, z: 0 },
+    pitch,
+  );
   const rotatedTrunk: IAutoMovieModelPart = {
     ...trunk,
-    transform: ArchetypeFrame.move({ rotation: restTurn, translation: { x: 0, y: 0, z: 0 } }, trunk.transform!),
+    transform: ArchetypeFrame.move(
+      { rotation: restTurn, translation: { x: 0, y: 0, z: 0 } },
+      trunk.transform!,
+    ),
   };
   const lowRoot: number = floorY - QuadrupedRestFloor(rotatedTrunk);
 
   // The smallest sole correction preserves the reach of a source limb that
   // already stands straight; the remaining legs flex onto their own soles.
   // Raising every root by the largest correction could overextend that limb.
-  const highRoot: number = floorY - Math.max(
-    ...QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): number =>
-      QuadrupedRestFloor(bar(QuadrupedBody.BONES[limb][3])),
-    ),
-  );
+  const highRoot: number =
+    floorY -
+    Math.max(
+      ...QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): number =>
+        QuadrupedRestFloor(bar(QuadrupedBody.BONES[limb][3])),
+      ),
+    );
   if (!(lowRoot < highRoot))
-    throw new RangeError("The actual trunk support does not lie below standing support");
+    throw new RangeError(
+      "The actual trunk support does not lie below standing support",
+    );
   const scale: number = Math.max(
     1,
     Math.abs(floorY),
-    ...[...neutral.values()].map((frame: IAutoMovieTransform): number => Vector3.length(frame.translation)),
+    ...[...neutral.values()].map((frame: IAutoMovieTransform): number =>
+      Vector3.length(frame.translation),
+    ),
   );
 
   // A fixed number of rigid compositions and circle operations accumulates
   // binary64 error. This budget scales with coordinates, never with a desired
   // floor gap or a missed contact that should instead be refused.
   const roundoff: number = 256 * Number.EPSILON * scale;
-  const standing: number = riseStart + rising * Math.max(windows.body[1], windows.fore[1], windows.hind[1]);
+  const standing: number =
+    riseStart +
+    rising * Math.max(windows.body[1], windows.fore[1], windows.hind[1]);
   return {
     duration,
     events: Object.freeze({
@@ -135,31 +175,53 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
   /** Evaluate the complete independently posed sample from its finite clock. */
   function sample(seconds: number): QuadrupedRestPlan.ISample<Id, Dimension> {
     if (!(Number.isFinite(seconds) && seconds >= 0 && seconds <= duration))
-      throw new RangeError(`Rest sample time must be in [0, ${duration}] seconds`);
+      throw new RangeError(
+        `Rest sample time must be in [0, ${duration}] seconds`,
+      );
     const phase: QuadrupedRestPlan.ISample<Id, Dimension>["phase"] =
-      seconds < lowering ? "lowering" : seconds < riseStart ? "resting" : seconds < standing ? "rising" : "standing";
+      seconds < lowering
+        ? "lowering"
+        : seconds < riseStart
+          ? "resting"
+          : seconds < standing
+            ? "rising"
+            : "standing";
     const u: number =
-      phase === "lowering" ? 1 - seconds / lowering :
-        phase === "resting" ? 0 : (seconds - riseStart) / rising;
+      phase === "lowering"
+        ? 1 - seconds / lowering
+        : phase === "resting"
+          ? 0
+          : (seconds - riseStart) / rising;
     const body: number = progress(u, windows.body);
     const root: IAutoMovieTransform = {
       translation: { x: 0, y: lowRoot + (highRoot - lowRoot) * body, z: 0 },
-      rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, pitch * (1 - body)),
+      rotation: Quaternion.fromAxisAngle(
+        { x: 1, y: 0, z: 0 },
+        pitch * (1 - body),
+      ),
       scale: { x: 1, y: 1, z: 1 },
     };
-    const placed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> = reader.read(undefined, root);
+    const placed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
+      reader.read(undefined, root);
     const feet: Map<QuadrupedBody.Limb, IAutoMovieVector3> = new Map();
-    const limbs: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> = new Map();
+    const limbs: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> =
+      new Map();
     for (const limb of QuadrupedBody.LIMBS) {
       const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
       const end: "fore" | "hind" = limb.endsWith("Fore") ? "fore" : "hind";
       const current: number = progress(u, windows[end]);
       const points: readonly IAutoMovieVector3[] = source.limbs[limb];
       const angle: (index: 2 | 3) => number = (index: 2 | 3): number => {
-        const vector: IAutoMovieVector3 = Vector3.subtract(points[index + 1]!, points[index]!);
+        const vector: IAutoMovieVector3 = Vector3.subtract(
+          points[index + 1]!,
+          points[index]!,
+        );
         const neutralAngle: number = Math.atan2(vector.z, -vector.y);
         const rest: number = folded[end][index - 2]!;
-        const shortest: number = Math.atan2(Math.sin(neutralAngle - rest), Math.cos(neutralAngle - rest));
+        const shortest: number = Math.atan2(
+          Math.sin(neutralAngle - rest),
+          Math.cos(neutralAngle - rest),
+        );
         return rest + shortest * current;
       };
       const distal: [number, number] = [angle(2), angle(3)];
@@ -167,25 +229,68 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
         throw new RangeError(`Rest requires a downward terminal ${limb} bar`);
       const terminal: IAutoMovieModelPart = bar(chain[3]!);
       const shape: IAutoMovieModelPart["geometry"] = terminal.geometry;
-      if (shape.type !== "primitive" || (shape.shape.type !== "cylinder" && shape.shape.type !== "capsule"))
+      if (
+        shape.type !== "primitive" ||
+        (shape.shape.type !== "cylinder" && shape.shape.type !== "capsule")
+      )
         throw new RangeError(`Rest requires an actual terminal ${limb} bar`);
-      const clearance: number = shape.shape.radius * (shape.shape.type === "capsule" ? 1 : Math.abs(Math.sin(distal[1])));
-      const foot: IAutoMovieVector3 = { x: points[4]!.x, y: floorY + clearance, z: points[4]!.z };
+      const clearance: number =
+        shape.shape.radius *
+        (shape.shape.type === "capsule" ? 1 : Math.abs(Math.sin(distal[1])));
+      const foot: IAutoMovieVector3 = {
+        x: points[4]!.x,
+        y: floorY + clearance,
+        z: points[4]!.z,
+      };
       feet.set(limb, foot);
-      limbs.set(limb, QuadrupedRestLimb(points, placed.get(chain[0]!)!.translation, foot, distal, end === "fore" ? -1 : 1));
+      limbs.set(
+        limb,
+        QuadrupedRestLimb(
+          points,
+          placed.get(chain[0]!)!.translation,
+          foot,
+          distal,
+          end === "fore" ? -1 : 1,
+        ),
+      );
     }
-    const tail: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.slerp(tailTurn, Quaternion.identity(), body), neutralTail);
-    const joints: Map<QuadrupedBody.Bone, QuadrupedRestPlan.Rotation> = QuadrupedRestPose(rig, neutral, placed, limbs, tail);
-    const posed: Archetype<Id, Dimension> = QuadrupedSkeleton.pose(animal, joints, partCarriers, contactCarriers, root);
-    const currentFrames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> = reader.read(joints, root);
+    const tail: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.slerp(tailTurn, Quaternion.identity(), body),
+      neutralTail,
+    );
+    const joints: Map<QuadrupedBody.Bone, QuadrupedRestPlan.Rotation> =
+      QuadrupedRestPose(rig, neutral, placed, limbs, tail);
+    const posed: Archetype<Id, Dimension> = QuadrupedSkeleton.pose(
+      animal,
+      joints,
+      partCarriers,
+      contactCarriers,
+      root,
+    );
+    const currentFrames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
+      reader.read(joints, root);
     for (const limb of QuadrupedBody.LIMBS) {
       const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
       const frame: IAutoMovieTransform = currentFrames.get(chain[3]!)!;
-      const neutralEnd: IAutoMovieVector3 = Vector3.subtract(source.limbs[limb][4]!, source.limbs[limb][3]!);
-      const actual: IAutoMovieVector3 = Vector3.add(frame.translation, Quaternion.rotateVector(frame.rotation, { x: 0, y: Vector3.length(neutralEnd), z: 0 }));
-      const error: number = Vector3.length(Vector3.subtract(actual, feet.get(limb)!));
+      const neutralEnd: IAutoMovieVector3 = Vector3.subtract(
+        source.limbs[limb][4]!,
+        source.limbs[limb][3]!,
+      );
+      const actual: IAutoMovieVector3 = Vector3.add(
+        frame.translation,
+        Quaternion.rotateVector(frame.rotation, {
+          x: 0,
+          y: Vector3.length(neutralEnd),
+          z: 0,
+        }),
+      );
+      const error: number = Vector3.length(
+        Vector3.subtract(actual, feet.get(limb)!),
+      );
       if (error > roundoff)
-        throw new RangeError(`Rest ${limb} misses its terminal goal by ${error} m`);
+        throw new RangeError(
+          `Rest ${limb} misses its terminal goal by ${error} m`,
+        );
     }
     let lowest: number = Infinity;
     let belly: number = Infinity;
@@ -194,17 +299,34 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
       lowest = Math.min(lowest, clearance);
       if (part.id === "trunk") belly = clearance;
       if (clearance < -roundoff)
-        throw new RangeError(`Rest ${part.id} penetrates its floor by ${-clearance} m`);
+        throw new RangeError(
+          `Rest ${part.id} penetrates its floor by ${-clearance} m`,
+        );
     }
     if (phase === "resting" && Math.abs(belly) > roundoff)
       throw new RangeError(`Rest trunk misses its belly support by ${belly} m`);
-    return { animal: posed, joints, root, feet, floorClearance: lowest, bellySupported: Math.abs(belly) <= roundoff, phase };
+    return {
+      animal: posed,
+      joints,
+      root,
+      feet,
+      floorClearance: lowest,
+      bellySupported: Math.abs(belly) <= roundoff,
+      phase,
+    };
   }
 
   /** Require the source's actual bar rather than rebuilding a species profile. */
   function bar(bone: QuadrupedBody.Bone): IAutoMovieModelPart {
     const part: IAutoMovieModelPart | undefined = parts.get(bone);
-    if (part === undefined || part.transform == null || part.geometry.type !== "primitive" || (part.geometry.shape.type !== "cylinder" && part.geometry.shape.type !== "capsule"))
+    if (
+      part === undefined ||
+      part.transform === null ||
+      part.transform === undefined ||
+      part.geometry.type !== "primitive" ||
+      (part.geometry.shape.type !== "cylinder" &&
+        part.geometry.shape.type !== "capsule")
+    )
       throw new RangeError(`Rest requires actual ${bone} bar geometry`);
     return part;
   }
@@ -212,13 +334,15 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
 
 /** Keep malformed source-independent authoring input out of a retained plan. */
 function finite(value: number, name: string): number {
-  if (!Number.isFinite(value)) throw new RangeError(`Rest ${name} must be finite`);
+  if (!Number.isFinite(value))
+    throw new RangeError(`Rest ${name} must be finite`);
   return value;
 }
 
 /** Admit a positive transition clock without supplying a biological duration. */
 function positive(value: number, name: string): number {
-  if (!(finite(value, name) > 0)) throw new RangeError(`Rest ${name} must be positive`);
+  if (!(finite(value, name) > 0))
+    throw new RangeError(`Rest ${name} must be positive`);
   return value;
 }
 
@@ -226,17 +350,29 @@ function positive(value: number, name: string): number {
 function window(value: QuadrupedRestPlan.Window): QuadrupedRestPlan.Window {
   const start: number = value[0];
   const end: number = value[1];
-  if (!(Number.isFinite(start) && Number.isFinite(end) && start >= 0 && end <= 1 && start < end))
+  if (
+    !(
+      Number.isFinite(start) &&
+      Number.isFinite(end) &&
+      start >= 0 &&
+      end <= 1 &&
+      start < end
+    )
+  )
     throw new RangeError("Rest movement windows require 0 <= start < end <= 1");
   return [start, end];
 }
 
 /** Copy degree carriage as radians in a single-turn chart; terminal bars point down. */
-function directions(value: readonly [number, number]): readonly [number, number] {
+function directions(
+  value: readonly [number, number],
+): readonly [number, number] {
   const a: number = finite(value[0], "folded direction");
   const b: number = finite(value[1], "folded terminal direction");
   if (Math.abs(a) > 180 || Math.abs(b) >= 90)
-    throw new RangeError("Rest distal directions require |third| <= 180 and |fourth| < 90 degrees");
+    throw new RangeError(
+      "Rest distal directions require |third| <= 180 and |fourth| < 90 degrees",
+    );
   return [(a * Math.PI) / 180, (b * Math.PI) / 180];
 }
 

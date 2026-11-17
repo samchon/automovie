@@ -38,12 +38,27 @@ export function DeerBody(
   const c: typeof DeerBody.CONSTRUCTION = DeerBody.CONSTRUCTION;
   return QuadrupedBodyProfile({
     measures: {
-      withers: m.withers, girth: m.girth, body: m.body,
-      neck: c.neckLength * m.withers, neckRadius: c.neckRadius * m.withers,
-      head: bone.head, headDiameter: bone.headWidth, tail: c.tailLength * m.withers,
+      withers: m.withers,
+      girth: m.girth,
+      body: m.body,
+      neck: c.neckLength * m.withers,
+      neckRadius: c.neckRadius * m.withers,
+      head: bone.head,
+      headDiameter: bone.headWidth,
+      tail: c.tailLength * m.withers,
     },
-    fore: [bone.fore[0], bone.fore[1], bone.fore[2], c.distalLength * m.withers],
-    hind: [bone.hind[0], bone.hind[1], bone.hind[2], c.distalLength * m.withers],
+    fore: [
+      bone.fore[0],
+      bone.fore[1],
+      bone.fore[2],
+      c.distalLength * m.withers,
+    ],
+    hind: [
+      bone.hind[0],
+      bone.hind[1],
+      bone.hind[2],
+      c.distalLength * m.withers,
+    ],
     construction: c,
     withersHeight,
     colors: { coat: "#96613e", tail: "#dad2bb" },
@@ -72,7 +87,7 @@ export namespace DeerBody {
 
     /** Actual weighed body mass of the reference population, not a scaling law. */
     mass: number;
-  }> = { withers: 0.836, girth: 0.920, body: 0.882, mass: 60.4 };
+  }> = { withers: 0.836, girth: 0.92, body: 0.882, mass: 60.4 };
 
   /** Ochiai/Asada 1997 Tables 3/7, male age 5+, metres; actual skull n = 25, limb bones n = 6. */
   export const SKELETON: Readonly<{
@@ -88,29 +103,43 @@ export namespace DeerBody {
     /** Greatest breadth across parietal processes. */
     headWidth: number;
   }> = {
-    fore: [0.1995, 0.1980, 0.1873],
-    hind: [0.2396, 0.2780, 0.2143], head: 0.2669, headWidth: 0.1219,
+    fore: [0.1995, 0.198, 0.1873],
+    hind: [0.2396, 0.278, 0.2143],
+    head: 0.2669,
+    headWidth: 0.1219,
   };
 
   /** Authored construction parameters for an unmeasured standing soft-tissue proxy; coat colors are authored too. */
-  export const CONSTRUCTION: Readonly<QuadrupedBodyProfile.IConstruction & {
-    /** Unmeasured distal limb control / height. */
-    distalLength: number;
+  export const CONSTRUCTION: Readonly<
+    QuadrupedBodyProfile.IConstruction & {
+      /** Unmeasured distal limb control / height. */
+      distalLength: number;
 
-    /** Straight neck control length / height. */
-    neckLength: number;
+      /** Straight neck control length / height. */
+      neckLength: number;
 
-    /** Neck radius / height. */
-    neckRadius: number;
+      /** Neck radius / height. */
+      neckRadius: number;
 
-    /** Short tail length / height. */
-    tailLength: number;
-  }> = {
-    withersRadius: 0.045, distalLength: 0.11, pelvisRun: 0.15,
-    neckLength: 0.34, neckRadius: 0.06, neckRootDrop: 0.1,
-    neckPitch: 45, headPitch: 35, tailLength: 0.1,
-    tailPitch: 55, tailRadius: 0.009, tailDock: 0.5, inset: 0.2,
-    forePitch: [-25, 10, 0, 0], hindPitch: [35, -35, 0, 0],
+      /** Short tail length / height. */
+      tailLength: number;
+    }
+  > = {
+    withersRadius: 0.045,
+    distalLength: 0.11,
+    pelvisRun: 0.15,
+    neckLength: 0.34,
+    neckRadius: 0.06,
+    neckRootDrop: 0.1,
+    neckPitch: 45,
+    headPitch: 35,
+    tailLength: 0.1,
+    tailPitch: 55,
+    tailRadius: 0.009,
+    tailDock: 0.5,
+    inset: 0.2,
+    forePitch: [-25, 10, 0, 0],
+    hindPitch: [35, -35, 0, 0],
     barRadii: [0.035, 0.022, 0.014, 0.019],
   };
 }

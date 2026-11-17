@@ -66,7 +66,15 @@ export function createQuadruped(
  */
 export namespace createQuadruped {
   /** The kinds. */
-  export type Kind = "horse" | "pony" | "donkey" | "mule" | "dog" | "ox" | "camel" | "deer";
+  export type Kind =
+    | "horse"
+    | "pony"
+    | "donkey"
+    | "mule"
+    | "dog"
+    | "ox"
+    | "camel"
+    | "deer";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -89,14 +97,17 @@ export namespace createQuadruped {
   ];
 
   /** The affordance ids of every kind: each kind's own, as its producer lists them. */
-  export type Affordance = createHorse.Affordance | createCohortQuadruped.Affordance;
+  export type Affordance =
+    | createHorse.Affordance
+    | createCohortQuadruped.Affordance;
 
   /** The free dimensions of every kind: each kind's own, as its producer lists them. */
   export type Dimension = createHorse.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =
-    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams & createMule.IParams)
+    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams &
+        createMule.IParams)
     | ({ kind: "dog" } & createDog.IParams)
     | ({ kind: "ox" } & createOx.IParams)
     | ({ kind: "camel" } & createCamel.IParams)
@@ -139,6 +150,9 @@ export namespace createQuadruped {
 
     /** The parts that pitch with the head as it nods, the neck and the head with any tack they wear. */
     nodding: readonly string[];
+
+    /** Explicit contact ids carried by the nodding head; absent preserves the legacy static-contact policy. */
+    noddingContacts?: readonly string[];
   }
 
   /** The parts an equid nods with its head: the neck, the head and a harness's bridle. */
@@ -151,24 +165,28 @@ export namespace createQuadruped {
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     pony: {
       archetype: createPony.ARCHETYPE,
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     donkey: {
       archetype: createDonkey.ARCHETYPE,
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     mule: {
       archetype: createMule.ARCHETYPE,
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     dog: {
       archetype: "dog",
@@ -177,18 +195,53 @@ export namespace createQuadruped {
       stance: DogBody("pet").stance,
       table: DogGait.TABLE,
       nodding: ["neck", "head", "leftEar", "rightEar", "collar", "lead"],
+      noddingContacts: ["lead"],
     },
     ox: {
-      archetype: "ox", stance: OxBody().stance, table: OxGait.TABLE,
-      nodding: ["neck", "head", "leftEar", "rightEar", "leftHorn", "rightHorn", "collar", "lead"],
+      archetype: "ox",
+      stance: OxBody().stance,
+      table: OxGait.TABLE,
+      nodding: [
+        "neck",
+        "head",
+        "leftEar",
+        "rightEar",
+        "leftHorn",
+        "rightHorn",
+        "collar",
+        "lead",
+        "yoke-beam",
+        "yoke-hitch-link",
+        "yoke-hitch-base",
+        "yoke-hitch-upright--1",
+        "yoke-hitch-upright-1",
+      ],
+      noddingContacts: ["lead", "hitch"],
     },
     camel: {
-      archetype: "camel", stance: CamelBody().stance, table: CamelGait.TABLE,
+      archetype: "camel",
+      stance: CamelBody().stance,
+      table: CamelGait.TABLE,
       nodding: ["neck", "head", "collar", "lead"],
+      noddingContacts: ["lead"],
     },
     deer: {
-      archetype: "deer", stance: DeerBody().stance, table: DeerGait.TABLE,
-      nodding: ["neck", "head", "leftAntler", "rightAntler", "leftAntlerTine1", "leftAntlerTine2", "rightAntlerTine1", "rightAntlerTine2", "collar", "lead"],
+      archetype: "deer",
+      stance: DeerBody().stance,
+      table: DeerGait.TABLE,
+      nodding: [
+        "neck",
+        "head",
+        "leftAntler",
+        "rightAntler",
+        "leftAntlerTine1",
+        "leftAntlerTine2",
+        "rightAntlerTine1",
+        "rightAntlerTine2",
+        "collar",
+        "lead",
+      ],
+      noddingContacts: ["lead"],
     },
   };
 

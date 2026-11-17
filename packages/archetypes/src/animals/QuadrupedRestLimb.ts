@@ -28,25 +28,39 @@ export function QuadrupedRestLimb(
 ): IAutoMovieVector3[] {
   if (source.length !== 5)
     throw new RangeError("A resting quadruped limb requires five joints");
-  const lengths: number[] = source.slice(1).map(
-    (point: IAutoMovieVector3, index: number): number =>
+  const lengths: number[] = source
+    .slice(1)
+    .map((point: IAutoMovieVector3, index: number): number =>
       Vector3.length(Vector3.subtract(point, source[index]!)),
-  );
+    );
   if (
-    lengths.some((length: number): boolean => !(Number.isFinite(length) && length > 0)) ||
-    ![root.x, root.y, root.z, foot.x, foot.y, foot.z, ...distal].every(Number.isFinite)
+    lengths.some(
+      (length: number): boolean => !(Number.isFinite(length) && length > 0),
+    ) ||
+    ![root.x, root.y, root.z, foot.x, foot.y, foot.z, ...distal].every(
+      Number.isFinite,
+    )
   )
-    throw new RangeError("Resting limb data must be finite with positive lengths");
+    throw new RangeError(
+      "Resting limb data must be finite with positive lengths",
+    );
   const [a, b, c, d]: number[] = lengths;
   const roundoff: number =
-    64 * Number.EPSILON * Math.max(...lengths, Vector3.length(root), Vector3.length(foot), 1);
+    64 *
+    Number.EPSILON *
+    Math.max(...lengths, Vector3.length(root), Vector3.length(foot), 1);
   if (
-    bend !== -1 && bend !== 1 ||
+    (bend !== -1 && bend !== 1) ||
     Math.abs(root.x - foot.x) > roundoff ||
     Math.abs(root.x - source[0]!.x) > roundoff ||
-    source.some((point: IAutoMovieVector3): boolean => Math.abs(point.x - source[0]!.x) > roundoff)
+    source.some(
+      (point: IAutoMovieVector3): boolean =>
+        Math.abs(point.x - source[0]!.x) > roundoff,
+    )
   )
-    throw new RangeError("Resting limb goals must remain in the source sagittal plane");
+    throw new RangeError(
+      "Resting limb goals must remain in the source sagittal plane",
+    );
   const ankle: IAutoMovieVector3 = {
     x: foot.x,
     y: foot.y + d! * Math.cos(distal[1]),
@@ -75,12 +89,19 @@ export function QuadrupedRestLimb(
   // spill beyond the mathematical [-1,1] domain at an admitted tangency.
   const cosine: number = Math.max(
     -1,
-    Math.min(1, (a! * a! + distance * distance - b! * b!) / (2 * a! * distance)),
+    Math.min(
+      1,
+      (a! * a! + distance * distance - b! * b!) / (2 * a! * distance),
+    ),
   );
   const upper: number = Math.atan2(dz, -dy) + bend * Math.acos(cosine);
   return [
     { ...root },
-    { x: root.x, y: root.y - a! * Math.cos(upper), z: root.z + a! * Math.sin(upper) },
+    {
+      x: root.x,
+      y: root.y - a! * Math.cos(upper),
+      z: root.z + a! * Math.sin(upper),
+    },
     wrist,
     ankle,
     { ...foot },
