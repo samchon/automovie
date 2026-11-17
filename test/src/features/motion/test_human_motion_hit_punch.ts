@@ -23,7 +23,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios, two average men facing each other at arm's length, `a`
  * throwing a `cross` (#3362's row) at `b`'s jaw, `b` standing then
- * flinching synced to the hit:
+ * flinching synced to the hit, both starting together (a parallel with the
+ * striker composed first, since the struck performer's synced reaction reads
+ * the striker's placed hits):
  * 1. `b` has exactly one melee hit, by `a`, from `collisionSolver`, of
  *    outcome `stick` with a zero exit.
  * 2. Its time is the stop of `a`'s weapon (the hit record's own melee
@@ -41,7 +43,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Performs a landed cross through the public chain and reads the hit record, the fist capsule the contact resolution sweeps and the synced reaction's placement; no hit, two hits, a hit off the head, a velocity away from the receiver, a fist capsule away from the chin at the contact or a reaction placed elsewhere fails.
  * @evidence contracts/development/testing.md#independent-expectations The forearm's mass is the striker's own profile segment, the frame bound the 60 Hz frame of #3470's acceptance, the fist's bound the struck body's own head radius about the aimed chin.
  * @evidence contracts/development/testing.md#distinguishing-cases The struck performer's hits against the striker's none; a synced reaction.
- * @evidence contracts/development/testing.md#execution-ownership Builds one two-person performance in memory.
+ * @evidence contracts/development/testing.md#execution-ownership Builds one two-person performance in memory, the two chains in parallel with the striker first.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_hit_punch(): void {
@@ -68,7 +70,12 @@ export function test_human_motion_hit_punch(): void {
           proficiency: { level: "trained" },
         },
       ],
-      composition: AutoMovieComposition.sequence(
+
+      // Both start together. `a` is composed first because the hit track
+      // b's flinch syncs to is asked for when the flinch is placed, so the
+      // striker must already be placed (`HumanHitTrack`); a sequence would
+      // instead start b only once the cross has ended, after its hit.
+      composition: AutoMovieComposition.parallel(
         HumanChain.subject("a").registered(
           "cross",
           { at: { kind: "person", subject: "b", region: "chin" } },
