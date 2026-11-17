@@ -102,7 +102,7 @@ export namespace AutoMovieMotionHumanGaze {
    * @returns The primitive, on the head.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what moves, by what, and the channel claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation The gaze owner solves the eyes and the head for the target; the weight scales both shares alike and the trunk's share is 0, since the trunk is another channel.
+   * @evidence contracts/development/implementation.md#principled-implementation The gaze owner solves the eyes and the head for the target; the weight scales both shares alike where the head is recruited, the head's is 0 where the eyes are recruited alone so the neck and the head stay as the posture holds them, and the trunk's share is 0, since the trunk is another channel.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp and one call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1], so an overshooting time course cannot turn the head past the target.
    * @evidence contracts/development/implementation.md#efficient-algorithms One gaze solution per written second.
@@ -118,12 +118,17 @@ export namespace AutoMovieMotionHumanGaze {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3]): IHumanPosture => {
         const w: number = Math.min(1, Math.max(0, props.weight(seconds)));
+
+        // Eyes recruited alone leave the neck and the head where the
+        // posture holds them: the head's weight is what moves them toward
+        // the cervical split even at no share (`HumanGaze.aim`), and a
+        // standing neck need not lie on that split's stack.
         return HumanGaze.aim(
           props.body,
           posture,
           props.target(posture, seconds),
           props.recruit,
-          { eyes: w, head: w, trunk: 0 },
+          { eyes: w, head: props.recruit === "eyes" ? 0 : w, trunk: 0 },
           resolution,
         );
       },
