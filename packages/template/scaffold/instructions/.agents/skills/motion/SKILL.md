@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Composes and verifies performance through the installed motion vocabulary. Use for programmed action, staging, camera, catalog cases and genuine vocabulary extensions.
+description: Composes and verifies performance through the installed motion vocabulary.
 ---
 
 # Programmed motion
@@ -16,7 +16,7 @@ The vocabulary owns body movement, fitting, supports and contact bounds, and its
 ## Order
 
 1. Prepare the coarse [entities](../development/entities.md#coarse-first).
-2. [Compose the performance](compose/composition.md), repairing [refusals](compose/refusals.md) at the named axis.
+2. [Compose the performance](compose/SKILL.md), repairing refusals at the named axis.
 3. Accept each module in its [catalog case](catalog-cases.md).
 4. [Stage](staging.md) and [review](segment-review.md) each segment before extending it.
 5. Hand it to [assembly](../production/assembly.md) or [video finishing](../video/SKILL.md), as commissioned.
@@ -26,8 +26,6 @@ The vocabulary owns body movement, fitting, supports and contact bounds, and its
 Use [frame evaluation](frame-evaluation.md) for clocks, seeking and split renders. Render commissioned [control channels](control-channels.md) from the same performance.
 
 ## Additional capabilities
-
-Most films stop at the order above. Take a route below only for the need it names.
 
 | Read | For |
 | --- | --- |

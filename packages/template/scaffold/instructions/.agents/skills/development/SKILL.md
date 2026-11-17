@@ -1,6 +1,6 @@
 ---
 name: development
-description: Implements and tests production source, integrations, dependencies and commands, reusing installed packages before writing a capability. Use for code or host changes and behavioral tests; documentation owns technical writing and story owns creative bodies.
+description: Implements and tests production source.
 ---
 
 # Development

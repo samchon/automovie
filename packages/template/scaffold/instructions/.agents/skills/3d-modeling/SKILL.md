@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling
-description: Prepares a subject's form and attachments. Use for coarse models and their parts, or for a detail option the user commissioned; motion and picture judgment have their own skills.
+description: Prepares a subject's form and attachments.
 ---
 
 # 3D modeling
@@ -23,7 +23,7 @@ A coarse form that reads poorly gets a better choice of primitives, never finer 
 
 ## Commissioned detail
 
-Read this section only when the user commissioned a [detail option](../development/entities.md#detail), such as for a direct 3D film. The user chooses a generated, crafted or existing mesh, and the detail covers only its requested views and controls.
+A [detail option](../development/entities.md#detail) is made on the user's commission, such as for a direct 3D film. The user chooses a generated, crafted or existing mesh, and the detail covers only its requested views and controls.
 
 | Read | To |
 | --- | --- |

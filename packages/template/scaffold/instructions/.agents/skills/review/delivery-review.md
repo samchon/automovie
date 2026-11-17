@@ -23,17 +23,25 @@ Draw the source pass with the README's capture command, and extract the artifact
 
 Review first as an audience that has not read the plans, covering the opening, the ending, the middle and every join, and lock that response before opening the screenplay or code. Then inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Find every screenplay beat in the picture; a function name or a citation proves neither invocation nor visibility.
 
-Judge each output by what it promises. A whole motion hint carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do, and its control channels are checked at matched frames under [control channels](../motion/control-channels.md). A selected generator is judged on its accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning, and a direct 3D film also for what [direct film](../video/direct-film.md#what-to-look-for) lists.
+Judge each output by what it promises. A whole motion hint carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do, and its control channels are checked at matched frames under [control channels](../motion/control-channels.md).
+
+A selected generator is judged on its accepted inputs and takes under [generation](../video/generation.md).
+
+A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning, and a direct 3D film also for what [direct film](../video/direct-film.md#what-to-look-for) lists.
 
 Ask the user for what only playback shows, and record each report against its film time so the repair can find the frames.
 
 ### Measurement and comparison
 
-Before any delivery claim, cut the film into review segments, each one capture of a stretch of the film, and inspect every segment on its contact sheets at the capture's default spacing, with the consecutive frames [capture](../visual-debugging/capture.md#times) requires around every contact, cut and join. The README owns the window, the spacing and the options that select exact frames. With motion already accepted in its catalog cases, this pass judges staging, camera and timing under [motion judgment](../motion/judgment.md). Repeat it on every segment a fix touches.
+Before any delivery claim, cut the film into review segments, each one capture of a stretch of the film, and inspect every segment on its contact sheets at the capture's default spacing, with the consecutive frames [capture](../visual-debugging/capture.md#times) requires around every contact, cut and join. The README owns the window, the spacing and the options that select exact frames.
+
+With motion already accepted in its catalog cases, this pass judges staging, camera and timing under [motion judgment](../motion/judgment.md). Repeat it on every segment a fix touches.
 
 Study what [when to study](../story/planning/research.md#when-to-study) assigns to delivery review. Measure a study's visible targets on the displayed bodies and camera in those stills, because the resolved schedule only plans them, and its audible targets on the decoded audio, confirmed by the user's listening.
 
-Measure the delivered file against the [delivery profile](../production/project-context.md#the-delivery-profile) by reading the file itself: every property the profile records, as the file is tagged, with its frame count and loudness by the profile's measurement method. An untagged file is played with a guessed color matrix, so stills extracted from it can match the source while the audience sees shifted color. An encoder's exit or a matching nominal duration is not a measurement, and runtime comes from performed and measured timing, never from page or word count.
+Measure the delivered file against the [delivery profile](../production/project-context.md#the-delivery-profile) by reading the file itself: every property the profile records, as the file is tagged, with its frame count and loudness by the profile's measurement method. An untagged file is played with a guessed color matrix, so stills extracted from it can match the source while the audience sees shifted color.
+
+An encoder's exit or a matching nominal duration is not a measurement, and runtime comes from performed and measured timing, never from page or word count.
 
 Keep an accepted delivery's sheets and measures where [media records](../production/media-records.md#files) puts them. Every later delivery claim sets each segment's sheets and measures beside the previous delivery's at matched times under [comparison](../visual-debugging/comparison.md). A regression holds delivery until it is repaired or the owner accepts it.
 

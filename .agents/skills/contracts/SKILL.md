@@ -1,6 +1,6 @@
 ---
 name: contracts
-description: Defines the @evidence checklists every maintained automovie declaration and test answers, and their evidence.config.ts wiring. Use when writing or reviewing maintained source or tests, or changing Evidence selection.
+description: Defines the evidence checklists maintained declarations and tests answer.
 ---
 
 # Contracts

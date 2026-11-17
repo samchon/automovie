@@ -1,6 +1,6 @@
 ---
 name: image
-description: Prepares canon references, shot frames and turnaround views, and routes generation methods to image diffusion. Use when a production or standalone asset needs images.
+description: Prepares canon references, shot frames and turnaround views.
 ---
 
 # Image

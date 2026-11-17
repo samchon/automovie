@@ -4,7 +4,9 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 ## Channels to render
 
-Render only the channels the receiver needs, such as the hint video, pose, depth, normal, outline, a semantic mask or the tracks of chosen points. The outline, a line drawing, is the channel nearest a model's edge input, and point tracks projected from the scene are exact where a model drawing trajectories would guess them. Material channels, such as base color and roughness, carry only what the forms' materials hold, so they serve only a film that switched on its [detail options](../development/entities.md#detail).
+Render only the channels the receiver needs, such as the hint video, pose, depth, normal, outline, a semantic mask or the tracks of chosen points. The outline, a line drawing, is the channel nearest a model's edge input, and point tracks projected from the scene are exact where a model drawing trajectories would guess them.
+
+Material channels, such as base color and roughness, carry only what the forms' materials hold, so they serve only a film that switched on its [detail options](../development/entities.md#detail).
 
 Read the installed packages' documentation for what each channel outputs, because a mode name or a plausible image does not establish the representation another tool expects. When no installed path produces an essential channel, tell the user.
 

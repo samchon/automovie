@@ -1,6 +1,6 @@
 ---
 name: review
-description: Runs automovie's overall self-review of a complete change, which any unqualified review request means, and an issue campaign's per-commit individual self-review. Use for every review or self-review.
+description: Runs automovie's self-review of a change.
 ---
 
 # Review

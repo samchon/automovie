@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling-diffusion
-description: Generates the form of a commissioned detail option with a text- or image-to-3D model, steered first by the subject's own coarse form and canon references. Use when the user chooses a generated form for a detail option.
+description: Generates a commissioned detail option's form with a text- or image-to-3D model.
 ---
 
 # Diffusion
@@ -17,7 +17,7 @@ A generated form serves only a commissioned [detail option](../../development/en
 
 The geometry condition is the [coarse form](../coarse-forms.md) itself, with one canon reference beside it for the look, and a final crafted form takes its texture from the canon references. Bodies takes a pose condition from the polygon man's joints, then a bind onto the same skeleton, so the motion planned for the polygon man still fits.
 
-The views are rendered from the coarse form and restyled under [turnaround views](../../image/turnaround-views.md), so read [image hints](image-hints.md) with that row's page. A text prompt keeps the record's wording.
+The views are rendered from the coarse form and restyled under [turnaround views](../../image/turnaround-views.md), and [image hints](image-hints.md) covers those images. A text prompt keeps the record's wording.
 
 Choose the model with the user, from [3D models](models.md) or beyond, and record it in [project context](../../production/project-context.md); [request](request.md) sets what to ask for, whatever steers it.
 

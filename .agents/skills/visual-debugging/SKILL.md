@@ -1,6 +1,6 @@
 ---
 name: visual-debugging
-description: Owns how a picture is judged and corrected, whatever made it, namely the instrument, planned captures of matched stills, passes, comparisons and correction rounds. Use before judging a form, a motion, a guide channel, a generated image or a film on screen, before claiming a visual change works, and when changing viewer or capture behavior or finding it broken or short of a view the judgment needs.
+description: Captures, compares and corrects pictures.
 ---
 
 # Visual debugging

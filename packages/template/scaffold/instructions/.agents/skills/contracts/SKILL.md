@@ -1,11 +1,11 @@
 ---
 name: contracts
-description: Holds the checklists Evidence asks, in two families: development for source and tests, and story for research through the screenplay, each broad item with its detailed statements. Use before selecting, answering or citing a contract item.
+description: Holds the checklists Evidence asks of source and story.
 ---
 
 # Contracts
 
-This tree holds the questions Evidence asks. A respondent is whoever answers one: a declaration, a document or a record. Read only the family and contracts the calling task selects; this file is not an evidence target.
+This tree holds the questions Evidence asks. A respondent is whoever answers one: a declaration, a document or a record. The calling task selects the family and contracts; this file is not an evidence target.
 
 | Family | Respondents |
 | --- | --- |

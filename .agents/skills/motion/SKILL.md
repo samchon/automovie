@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Defines how body motion is designed, authored and verified in this repository, centered on interaction as effector goals and on action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
+description: Sets how body motion is designed, authored and verified in this repository.
 ---
 
 # Motion

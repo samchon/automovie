@@ -14,7 +14,9 @@ State each input's role, as its request plans it, in the model's wording, with w
 
 ### Shared description
 
-Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md). Keep them in one file that every request cites, where [media records](../../production/media-records.md#files) puts generation requests, and reuse the identical words in every prompt, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, for the same reason. Where the model's guide asks, leave out what a first frame already shows.
+Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md).
+
+Keep those descriptions in one file that every request cites, where [media records](../../production/media-records.md#files) puts generation requests, and reuse the identical words in every prompt, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, for the same reason. Where the model's guide asks, leave out what a first frame already shows.
 
 ### Request paragraph
 
@@ -32,7 +34,9 @@ Leave out what the request keeps from the hint, such as positions, actions, timi
 
 ### Sound
 
-Write the request's sound, as the audio skill's generated sound page decides it, in the dialogue form the chosen model's current guide gives, because forms differ and quotation marks make one model render a line as on-screen text. Attribute each line to its speaker by the name the [shared description](#shared-description) gives, and keep effects and ambience apart from speech. Leave the scene's score out, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays as the screenplay decides it. When the model makes no sound, leave sound out.
+Write the request's sound, as the audio skill's generated sound page decides it, in the dialogue form the chosen model's current guide gives, because forms differ and quotation marks make one model render a line as on-screen text. Attribute each line to its speaker by the name the [shared description](#shared-description) gives, and keep effects and ambience apart from speech.
+
+Leave the scene's score out, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays as the screenplay decides it. When the model makes no sound, leave sound out.
 
 ## Wording
 

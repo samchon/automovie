@@ -1,6 +1,6 @@
 ---
 name: visual-debugging
-description: Owns how a production's pictures are judged and corrected, whatever made them, namely the instrument, planned captures of matched stills, passes, comparisons and correction rounds. Use before judging an entity, a catalog case, a segment, a control channel, a generated image or take or a delivery on screen, before claiming a visual change works, and when the inspector page or the capture is broken or lacks a view the judgment needs.
+description: Captures, compares and corrects a production's pictures.
 ---
 
 # Visual debugging

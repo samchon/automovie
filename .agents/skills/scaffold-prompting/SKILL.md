@@ -1,6 +1,6 @@
 ---
 name: scaffold-prompting
-description: Owns the design of what AutoMovie productions receive, namely the product principles every shipped skill serves, task design, the shape and reading cost of the skill tree, contracts with their statements, research support and verification. Use before editing packages/template, when adding, revising or auditing scaffold instructions, and before reading, authoring or reviewing production content; prompting owns what makes an instruction work.
+description: Designs the skills, contracts and routers a production receives.
 ---
 
 # Scaffold prompting

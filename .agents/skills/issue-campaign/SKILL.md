@@ -1,6 +1,6 @@
 ---
 name: issue-campaign
-description: Runs automovie's issue campaign, repeating full discovery rounds until one finds nothing new, publishing the issues, and landing them in one pull request per cycle. Use for a broad audit or repeated issue-to-pull-request work, not for one defined issue.
+description: Runs discovery rounds and lands their issues in one pull request per cycle.
 ---
 
 # Issue campaign

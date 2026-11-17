@@ -4,7 +4,9 @@ An independent reader is an [isolated context](../story/correction/inspection.md
 
 ## Reading as the recipient
 
-Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the [evidence answers](narrative-rounds.md#reviewers). Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading). Read that item's statements before locking, because a lock that fails them, such as one without a quotation, has to be read again.
+Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the [evidence answers](narrative-rounds.md#reviewers).
+
+Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading). Read that item's statements before locking, because a lock that fails them, such as one without a quotation, has to be read again.
 
 Read each layer as its recipient:
 

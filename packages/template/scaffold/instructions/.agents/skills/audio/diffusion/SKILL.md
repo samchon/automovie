@@ -1,6 +1,6 @@
 ---
 name: audio-diffusion
-description: Chooses audio generators, writes speech and sound prompts, clones voices and converts performances. Use when choosing an audio model, writing a generation request or cloning a reference voice.
+description: Chooses audio models, writes sound prompts and clones voices.
 ---
 
 # Audio generation

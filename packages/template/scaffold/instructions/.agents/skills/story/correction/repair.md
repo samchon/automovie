@@ -16,7 +16,9 @@ In the same repair, reconcile dependent statements, quotations, values and, whil
 
 ### Concretization
 
-A decision the screenplay left vague, which scene composition or a generation prompt must make, belongs to the screenplay. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the brief holds. A closed screenplay stays closed: a concretized beat keeps its answers and reviews under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
+A decision the screenplay left vague, which scene composition or a generation prompt must make, belongs to the screenplay. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the brief holds.
+
+A closed screenplay stays closed: a concretized beat keeps its answers and reviews under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
 
 An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects). A user's fixed screenplay is never edited: its concretizations go to the instructions.
 

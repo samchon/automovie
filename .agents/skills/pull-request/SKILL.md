@@ -1,6 +1,6 @@
 ---
 name: pull-request
-description: Branches, commits, pushes, opens, updates, and merges automovie pull requests. Use only when the user asks for one of those actions or a mandate names delivery.
+description: Branches, commits, pushes, opens, updates and merges pull requests.
 ---
 
 # Pull request

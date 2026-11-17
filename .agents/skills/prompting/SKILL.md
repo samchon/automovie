@@ -1,6 +1,6 @@
 ---
 name: prompting
-description: Owns what makes an instruction for an agent work, namely what to state, the default route, reasons and examples, one owner per rule, routing to packages, the layout and splitting of skills, what a shared skill may hold and how a prompt is verified. Use before changing AGENTS.md, CLAUDE.md or a skill.
+description: Sets what makes an instruction for an agent work.
 ---
 
 # Prompting
@@ -31,7 +31,7 @@ Keep examples few and varied, because an agent copies an example's surface.
 
 State the default route first and concretely, then each other route under the condition that opens it. An agent takes the route described in most detail, so an exception written more concretely than the default becomes the default.
 
-Whatever a prompt lists reads as something to use. A folder, command, option or table row that only some work needs is named with its condition, or left out of the page every task reads.
+Whatever a prompt lists reads as something to use, so a folder, command or option outside the default route is listed apart from it, with the need it serves.
 
 ### One owner
 
@@ -67,11 +67,11 @@ Start each trigger with the task's verb, such as `Changing` or `Reviewing`. `CLA
 
 ### Skill files
 
-A job with its own trigger gets its own top-level skill at `.agents/skills/<name>/SKILL.md`. Its `name` equals the directory and uses lowercase letters, digits and hyphens, within 64 characters. Its third-person `description`, within 1024 characters, says what the skill does and when to use it.
+A job with its own trigger gets its own top-level skill at `.agents/skills/<name>/SKILL.md`. Its `name` equals the directory and uses lowercase letters, digits and hyphens, within 64 characters. Its third-person `description` says what the skill does in one short sentence; the entry file's table holds its trigger.
 
 ### Splitting a skill
 
-`SKILL.md` stays short, far under 500 lines: what the skill is for, when to read it, and, once it has resources, which resource each task needs. An agent loads it on every use of the skill, so whatever the task at hand does not need costs attention on every task.
+`SKILL.md` stays short, far under 500 lines: what the skill is for and, once it has resources, which resource each task needs. An agent loads it on every use of the skill, so whatever the task at hand does not need costs attention on every task.
 
 Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
 

@@ -94,7 +94,9 @@ The field shades are skin weight heat maps, texture-coordinate checkers and curv
 
 ### The inspector page
 
-A production's development page is the `viewer` package's inspector, mounted over the same subjects module that the capture command draws, so the page offers exactly the subjects a capture can take; the [`viewer` README](../../../packages/viewer/README.md#inspector-page) owns its mount. The page's state is one request: every panel edits it, the address carries it, and the page shows the capture command that repeats the picture. An address the grammar refuses opens the request that asks for nothing and shows the refusal.
+A production's development page is the `viewer` package's inspector, mounted over the same subjects module that the capture command draws, so the page offers exactly the subjects a capture can take; the [`viewer` README](../../../packages/viewer/README.md#inspector-page) owns its mount.
+
+The page's state is one request: every panel edits it, the address carries it, and the page shows the capture command that repeats the picture. An address the grammar refuses opens the request that asks for nothing and shows the refusal.
 
 A package or folder without a page of its own, such as one holding motion cases, gets the same page from the `automovie` command's inspect mode. It serves the inspector over any module that exports its subjects, refuses a request the capture would refuse before serving, and prints the address whose query is the request.
 

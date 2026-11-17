@@ -1,6 +1,6 @@
 ---
 name: documentation
-description: Owns how any document is written, with its sentences, terms, paragraphs and lists, and what a README holds. Use before writing or changing a technical document, README or doc comment; instructions for an agent add the prompting skill's rules.
+description: Sets how any document is written and what a README holds.
 ---
 
 # Documentation

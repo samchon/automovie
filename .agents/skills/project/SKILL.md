@@ -1,6 +1,6 @@
 ---
 name: project
-description: Defines the automovie product contract, its decided exclusions, package boundaries, and commands the tree does not show. Use when judging whether a capability is in scope, choosing which package owns a change, or choosing a build, test, or evidence command.
+description: Defines the automovie product contract, package boundaries and commands.
 ---
 
 # Project

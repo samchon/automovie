@@ -1,6 +1,6 @@
 # Physical feedback
 
-A film's performance is kinematic: the installed actions already resolve their supports, contacts and forces from the composition's [forces and outcomes](compose/composition.md#forces-and-outcomes). This page serves the scene that needs a simulated response as well, or a law that moves a body no package moves.
+A film's performance is kinematic: the installed actions already resolve their supports, contacts and forces from the composition's [forces and outcomes](compose/composition.md#forces-and-outcomes). This page covers the simulated response a scene adds to that performance, and the goals of a law that moves a body no package moves.
 
 ## Simulation
 

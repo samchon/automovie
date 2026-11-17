@@ -1,6 +1,6 @@
 ---
 name: story-layers
-description: Writes each narrative layer, settings or a short's brief, treatments, scripts and the final screenplay, and the notation they use. Use when constructing or correcting a layer's body.
+description: Writes each narrative layer and its notation.
 ---
 
 # Layers

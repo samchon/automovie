@@ -6,7 +6,9 @@ A shipped contract is a checklist of items that each selected respondent answers
 
 An item is an H2 naming its theme, such as `Beat decisions`, opened by one question short enough to hold in mind while answering. Its checkable detail goes into statements under the item, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) define; an item that is already one short question needs none.
 
-Write each statement so one reading of the work finds it met or failed, and attach each exception, such as useful notation, deliberate stillness or an adopted stylization, to the statement it limits. Say whether listed failures are examples of a broader achievement or the whole boundary of the judgment, so review cannot turn taste into a requirement. Judge sufficient and excessive detail in the same item, because more explanation, geometry or emphasis can displace the required action.
+Write each statement so one reading of the work finds it met or failed, and attach each exception, such as useful notation, deliberate stillness or an adopted stylization, to the statement it limits.
+
+Say whether listed failures are examples of a broader achievement or the whole boundary of the judgment, so review cannot turn taste into a requirement. Judge sufficient and excessive detail in the same item, because more explanation, geometry or emphasis can displace the required action.
 
 A contract family is a folder one owner keeps; a new sentence pattern needs no new family. When adding one, confirm against the selector documentation of `@automovie/evidence` that no selector selects its statements.
 

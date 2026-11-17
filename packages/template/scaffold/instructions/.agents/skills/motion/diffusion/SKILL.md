@@ -1,6 +1,6 @@
 ---
 name: motion-diffusion
-description: Generates or refines body motion with a motion model hinted by the polygon man's composed performance, and traces a performer in footage into the polygon man's motion. Use when the user chooses generated or traced motion for a stretch of a performance, or when a study measures footage.
+description: Generates or traces body motion with a motion model.
 ---
 
 # Motion diffusion

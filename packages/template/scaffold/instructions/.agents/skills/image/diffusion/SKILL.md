@@ -1,6 +1,6 @@
 ---
 name: image-diffusion
-description: Chooses image generators, writes prompts, conditions images on renders and references, preserves subjects, edits images and finishes accepted results. Use when generating or editing an image with an external model, or choosing its model and input method.
+description: Generates, conditions, edits and finishes images with an external model.
 ---
 
 # Image diffusion

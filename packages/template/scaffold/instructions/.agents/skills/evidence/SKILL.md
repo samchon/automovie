@@ -1,6 +1,6 @@
 ---
 name: evidence
-description: Owns production requirements, evidence answers and graph configuration. Use to adopt a requirement, configure what the graph selects, or write and audit source evidence; story owns creative answers.
+description: Adopts requirements, configures the evidence graph and writes source answers.
 ---
 
 # Evidence
