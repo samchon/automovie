@@ -94,10 +94,62 @@ export namespace HumanArmTrajectoryClear {
     // detour of one arm alone leaves the other's depth as it was.
     const out: IDetour[] = [];
     x.forEach((_: readonly (readonly number[])[], arm: number): void => {
-      const detour: IDetour | undefined = ofArm(c, x, at, arm, from, to, shares, region);
+      const detour: IDetour | undefined = ofArm(
+        c,
+        x,
+        at,
+        arm,
+        from,
+        to,
+        shares,
+        region,
+      );
       if (detour !== undefined) out.push(detour);
     });
     return out;
+  }
+
+  /**
+   * How far a transport lies past what the admission allows, all of it: each
+   * waypoint pair's depth past the skin's slack (`T.SKIN`) and each
+   * interval's sweep past its bound, summed over the arms, millimetres.
+   *
+   * @param c The context.
+   * @param at The reading of the course.
+   * @param from The transport's first waypoint.
+   * @param to Its last.
+   * @returns Millimetres; 0 for a transport the admission lets through.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is summed, over what, the unit and the zero.
+   * @evidence contracts/development/implementation.md#principled-implementation The admission's own terms (`HumanArmTrajectoryEvaluate`), each past its slack, the l1 measure of the transport's violation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the transport's inner waypoints and its intervals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A declared rest's pair is not counted, as the admission does not count it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads the reading's pairs and sweeps, no geometry.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function excess(
+    c: M.IContext,
+    at: M.IEvaluation,
+    from: number,
+    to: number,
+  ): number {
+    let sum: number = 0;
+    at.placed.forEach((_: readonly unknown[], a: number): void => {
+      for (let k: number = from; k < to; ++k) {
+        const pairs: M.IEvaluation["pairs"][number][number] | undefined =
+          at.pairs[a]?.[k];
+        if (k > from && M.inner(c, k) && pairs !== undefined)
+          for (const pair of [
+            ...pairs.deepest.values(),
+            ...pairs.embedded.values(),
+          ])
+            if (!pair.rested) sum += Math.max(0, pair.short - T.SKIN);
+        for (const sweep of at.swept[a]?.[k] ?? [])
+          sum += Math.max(0, 1000 * (sweep.lower - sweep.clear));
+      }
+    });
+    return sum;
   }
 
   /** One arm's detour of a transport (`detour`): its deepest waypoint's change, none where it lies within what the admission allows. */
@@ -118,13 +170,19 @@ export namespace HumanArmTrajectoryClear {
     let waypoint: number = -1;
     let excess: number = M.TOLERANCE;
     let deepest: number = 0;
-    let swept: { sweep: HumanArmTrajectorySweep.ISwept; later: boolean } | undefined;
+    let swept:
+      | { sweep: HumanArmTrajectorySweep.ISwept; later: boolean }
+      | undefined;
     {
       const a: number = arm;
       for (let k: number = from; k < to; ++k) {
-        const pairs: M.IEvaluation["pairs"][number][number] | undefined = at.pairs[a]?.[k];
+        const pairs: M.IEvaluation["pairs"][number][number] | undefined =
+          at.pairs[a]?.[k];
         if (k > from && pairs !== undefined)
-          for (const pair of [...pairs.deepest.values(), ...pairs.embedded.values()])
+          for (const pair of [
+            ...pairs.deepest.values(),
+            ...pairs.embedded.values(),
+          ])
             if (!pair.rested && pair.short - T.SKIN > excess) {
               excess = pair.short - T.SKIN;
               deepest = pair.short;
@@ -153,32 +211,46 @@ export namespace HumanArmTrajectoryClear {
     const all: J.IJacobian[][] = [];
     all[arm] = [];
     all[arm]![waypoint] = jac;
-    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![waypoint]!;
-    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[arm]![waypoint]!;
-    const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> = at.pairs[arm]![waypoint]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+      c.frames[arm]![waypoint]!;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced =
+      at.placed[arm]![waypoint]!;
+    const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> =
+      at.pairs[arm]![waypoint]!;
     const rows: { coef: number[]; gain: number }[] = [];
 
     // A sweep's row at its inner end: the shape's normal at that end of the
     // swept sphere, in that waypoint's frame, on the end's own Jacobian.
     if (swept !== undefined) {
       const { sweep, later } = swept;
-      const start: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![later ? waypoint - 1 : waypoint]!;
-      const end: IAutoMovieVector3 = later ? sweep.to : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
+      const start: IAutoMovieMotionHumanArmGeometry.IFrame =
+        c.frames[arm]![later ? waypoint - 1 : waypoint]!;
+      const end: IAutoMovieVector3 = later
+        ? sweep.to
+        : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
       const normal: IAutoMovieVector3 = S.normal(start, sweep.shape, end);
       const g: IAutoMovieVector3 = later
         ? Quaternion.rotateVector(Quaternion.inverse(sweep.turn), normal)
         : normal;
       rows.push({
-        coef: jac.probe(sweep.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac
+          .probe(sweep.probe)
+          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: deepest + M.TOLERANCE,
       });
     }
     // A declared rest is drawn to its contact, not cleared of it.
     for (const pair of pairs.deepest.values()) {
       if (pair.rested || pair.short < -M.TOLERANCE) continue;
-      const g: IAutoMovieVector3 = S.normal(frame, pair.shape, placed.probes[pair.probe]![0]);
+      const g: IAutoMovieVector3 = S.normal(
+        frame,
+        pair.shape,
+        placed.probes[pair.probe]![0],
+      );
       rows.push({
-        coef: jac.probe(pair.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac
+          .probe(pair.probe)
+          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: pair.short + M.TOLERANCE,
       });
     }
@@ -200,8 +272,10 @@ export namespace HumanArmTrajectoryClear {
     }
     const step: number[] | undefined = least(rows, region);
     if (step === undefined) return undefined;
-    const delta: number[][] = x.map((own: readonly (readonly number[])[]): number[] =>
-      new Array<number>(own[0]!.length).fill(0));
+    const delta: number[][] = x.map(
+      (own: readonly (readonly number[])[]): number[] =>
+        new Array<number>(own[0]!.length).fill(0),
+    );
     c.free[arm]!.forEach((d: number, f: number): void => {
       delta[arm]![d] = step[f]!;
     });
@@ -241,7 +315,10 @@ export namespace HumanArmTrajectoryClear {
  * change held inside a region, where the rows' linearisation is trusted,
  * the next round meeting what is left.
  */
-function least(rows: readonly { coef: number[]; gain: number }[], region: number): number[] | undefined {
+function least(
+  rows: readonly { coef: number[]; gain: number }[],
+  region: number,
+): number[] | undefined {
   const chosen: { coef: number[]; gain: number }[] = rows.filter(
     (row: { coef: number[]; gain: number }): boolean => row.gain > 0,
   );
@@ -249,13 +326,23 @@ function least(rows: readonly { coef: number[]; gain: number }[], region: number
   const size: number = chosen[0]!.coef.length;
   const gram: number[][] = chosen.map((p: { coef: number[] }): number[] =>
     chosen.map((q: { coef: number[] }): number =>
-      p.coef.reduce((s: number, v: number, d: number): number => s + v * q.coef[d]!, 0)));
-  const strongest: number = Math.max(...gram.map((row: number[], i: number): number => row[i]!));
+      p.coef.reduce(
+        (s: number, v: number, d: number): number => s + v * q.coef[d]!,
+        0,
+      ),
+    ),
+  );
+  const strongest: number = Math.max(
+    ...gram.map((row: number[], i: number): number => row[i]!),
+  );
   if (!(strongest > 0)) return undefined;
   gram.forEach((row: number[], i: number): void => {
     row[i]! += DAMPING * strongest;
   });
-  const y: number[] | undefined = solve(gram, chosen.map((row: { gain: number }): number => row.gain));
+  const y: number[] | undefined = solve(
+    gram,
+    chosen.map((row: { gain: number }): number => row.gain),
+  );
   if (y === undefined) return undefined;
   const step: number[] = new Array<number>(size).fill(0);
   chosen.forEach((row: { coef: number[] }, r: number): void => {
@@ -265,7 +352,9 @@ function least(rows: readonly { coef: number[]; gain: number }[], region: number
   });
   const largest: number = Math.max(...step.map(Math.abs));
   if (!Number.isFinite(largest) || largest === 0) return undefined;
-  return largest > region ? step.map((v: number): number => (v * region) / largest) : step;
+  return largest > region
+    ? step.map((v: number): number => (v * region) / largest)
+    : step;
 }
 
 /** The damping of the detour's least squares, a share of the strongest row's squared norm (provisional: a row a tenth as sensitive as the strongest is met about halfway). */
@@ -274,7 +363,10 @@ const DAMPING: number = 0.01;
 /** A small dense system by Gaussian elimination with partial pivoting; none when singular. */
 function solve(a: number[][], b: number[]): number[] | undefined {
   const n: number = b.length;
-  const m: number[][] = a.map((row: number[], i: number): number[] => [...row, b[i]!]);
+  const m: number[][] = a.map((row: number[], i: number): number[] => [
+    ...row,
+    b[i]!,
+  ]);
   for (let col: number = 0; col < n; ++col) {
     let pivot: number = col;
     for (let r: number = col + 1; r < n; ++r)
