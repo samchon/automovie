@@ -15,6 +15,7 @@ import { HumanFootOutline } from "./HumanFootOutline";
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootBones } from "./humanFootBones";
 import { humanFootOffset } from "./humanFootOffset";
+import { prepareHumanFootAnkle } from "./prepareHumanFootAnkle";
 import { prepareHumanFootAt } from "./prepareHumanFootAt";
 import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
@@ -47,6 +48,9 @@ import { readHumanFoot } from "./readHumanFoot";
 export namespace HumanFoot {
   /** Bound base/socket geometry for one unchanged synchronous displayed-bone reading (`readHumanFoot`); release it with that evaluation. */
   export const reading: typeof readHumanFoot = readHumanFoot;
+
+  /** The ankle alone of a foot pivoting about a fixed sole point, for a search over pitches (`prepareHumanFootAnkle`); the reader overwrites the record it returns. */
+  export const prepareAnkle: typeof prepareHumanFootAnkle = prepareHumanFootAnkle;
 
   /** A fixed-articulation reader over a varying world contact (`prepareHumanFootAt`), preserving fresh placement outputs. */
   export const prepareAt: typeof prepareHumanFootAt = prepareHumanFootAt;

@@ -127,6 +127,7 @@ export namespace walkReachStance {
       (about === "heel" && bears) || (about === "mtp" && course === undefined)
         ? walkLeg.prepareLean(body, heading) : undefined;
     let trailing: ReturnType<typeof walkLeg.prepareTrailing> | undefined;
+    let trailAnkle: ReturnType<typeof HumanFoot.prepareAnkle> | undefined;
     return (h: IAutoMovieVector3): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
       let placement: HumanFoot.IPlacement = initial;
       let pitch: number = starting;
@@ -173,7 +174,9 @@ export namespace walkReachStance {
       if (about === "mtp" && course === undefined) {
         const risen: number = walkLeg.rise(
           (degrees: number): number => {
-            const ankle: IAutoMovieVector3 = at(degrees).ankle;
+            // The search keeps no placement, so it reads the ankle alone; the
+            // record is the reader's own, read here before its next pitch.
+            const ankle: IAutoMovieVector3 = (trailAnkle ??= HumanFoot.prepareAnkle(body, side, about, pivot, heading))(degrees);
             return degrees + lean!(h, ankle) + 50 >
               walkLeg.ANKLE
               ? TRAIL - (trailing ??= walkLeg.prepareTrailing(body, yaw))(h, ankle)

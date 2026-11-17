@@ -217,6 +217,7 @@ const files: string[] = [
   "src/posture/prepareHumanPostureTranslation.ts",
   "src/posture/prepareHumanPostureProjection.ts",
   "src/posture/prepareHumanJointRom.ts",
+  "src/posture/prepareHumanFootAnkle.ts",
   "src/posture/prepareHumanFootAt.ts",
   "src/posture/prepareHumanFootSole.ts",
   "src/posture/prepareHumanFootHeight.ts",

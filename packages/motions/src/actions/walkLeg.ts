@@ -138,13 +138,11 @@ export namespace walkLeg {
       { x: 0, y: 0, z: 1 },
     );
     const bend: ReturnType<typeof prepareBehind> = prepareBehind(body);
-    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
-      const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-      return (
-        ((Math.atan2(-(v.x * forward.x + v.z * forward.z), -v.y) -
-          bend(Vector3.length(v))) * 180) / Math.PI
-      );
-    };
+    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
+      // The hip-to-ankle line's components and its length (`Vector3.distance`
+      // is the length of the difference), read without a vector record.
+      ((Math.atan2(-((ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z), -(ankle.y - hip.y)) -
+        bend(Vector3.distance(ankle, hip))) * 180) / Math.PI;
   }
 
   /**
@@ -276,13 +274,13 @@ export namespace walkLeg {
     heading: number,
     width: number,
   ): (hip: IAutoMovieVector3, pitch: number) => number {
-    const at: (degrees: number) => HumanFoot.IPlacement =
-      HumanFoot.preparePivot(body, side, "mtp", pivot, heading);
+    const at: (degrees: number) => IAutoMovieVector3 =
+      HumanFoot.prepareAnkle(body, side, "mtp", pivot, heading);
     const lean: ReturnType<typeof prepareWalkLegLean.bounded> = prepareWalkLegLean.bounded(body, heading);
     return (hip: IAutoMovieVector3, pitch: number): number => rise(
       (degrees: number): number => {
-        const ankle: IAutoMovieVector3 = at(degrees).ankle;
-        const shank: number | undefined = lean(hip, ankle);
+        // The ankle record is the reader's own, read here before its next pitch.
+        const shank: number | undefined = lean(hip, at(degrees));
         return shank === undefined ? -Infinity : roomValue(shank, degrees);
       },
       pitch,
