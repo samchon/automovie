@@ -15,6 +15,7 @@ export type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHum
 export type { IAutoMovieMotionHumanPlacedAction } from "./IAutoMovieMotionHumanPlacedAction";
 export type { IAutoMovieMotionHumanPropReader } from "./IAutoMovieMotionHumanPropReader";
 export type { IAutoMovieMotionHumanRefusal } from "./IAutoMovieMotionHumanRefusal";
+export type { IAutoMovieMotionHumanSpacecraftGlide } from "./IAutoMovieMotionHumanSpacecraftGlide";
 export type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
 export type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
 export type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";

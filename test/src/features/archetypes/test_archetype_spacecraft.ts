@@ -2,7 +2,7 @@ import {
   ArchetypeRefusal,
   createSpacecraft,
 } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { Quaternion, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -17,10 +17,11 @@ const MM: number = 0.001;
 /**
  * A fictional spacecraft has a continuous deck from the exterior walkway
  * through the articulated opening, a tapered but hollow hull, and a visible
- * forward crew station beside the route.
+ * forward crew station beside the route. Fixed rails give a separate cabin
+ * route two grip points that do not follow the hatch.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the set's staging behavior across the aperture, hull, and crew station.
- * @evidence contracts/development/testing.md#behavioral-verification Checks the public producer's replay, admission, refusals, collider extents, support contacts and posed hinge and handle.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the public producer's replay, admission, refusals, collider extents, support contacts and posed hinge and handle. Checks that the rails describe solid, fixed cabin grips.
  * @evidence contracts/development/testing.md#independent-expectations Measures emitted solids against independently selected author dimensions, the ±X clearance of a rear gate, and the geometry of a quarter turn. The numerical expectations do not read the builder's bands or generating ratios.
  * @evidence contracts/development/testing.md#distinguishing-cases Compares identical and different seeds, fixed nominal dimensions, a refused hatch width, an open and a shut hatch, and a seeded set at the tight limit for cabin clearance.
  * @evidence contracts/development/testing.md#execution-ownership A discovered in-memory test using the public archetype entry point and engine model validator.
@@ -107,6 +108,25 @@ export function test_archetype_spacecraft(): void {
   near("right-angle grip Z", openHandle.z, pivot.z - (closedHandle.x - pivot.x));
   near("open handle remains on its rod", openHandle.x, (archetypeExtent(open, "x", ["hatch-grip"]).low + archetypeExtent(open, "x", ["hatch-grip"]).high) / 2);
   near("hatch articulation leaves the deck fixed", archetypeExtent(open, "z", ["walkway"]).high, -4);
+
+  for (const [id, station] of [["aftHandrail", -2.8], ["forwardHandrail", -0.4]] as const) {
+    const rail: IAutoMovieAffordance = set.affordance(id);
+    const grip: IAutoMovieVector3 = rail.frame.translation;
+    const { x, y, z }: IAutoMovieVector3 = open.affordance(id).frame.translation;
+    expect(`${id} is a fixed power grip`, rail.kind === "bar" && rail.grip === "power" && rail.rides === undefined);
+    near(`${id} grip station`, grip.z, station);
+    near(`${id} grip above the cabin deck`, grip.y, 1.63);
+    near(`${id} grip stays fixed as the hatch opens`, Math.hypot(x - grip.x, y - grip.y, z - grip.z), 0);
+    near(`${id} grip diameter`, rail.aperture!, 0.032);
+    near(`${id} declared length spans the solid bar`, rail.length!, archetypeExtent(set, "z", [id]).size);
+    const normal: IAutoMovieVector3 = Quaternion.rotateVector(rail.frame.rotation, { x: 0, y: 1, z: 0 });
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(rail.frame.rotation, { x: 1, y: 0, z: 0 });
+    near(`${id} faces into the cabin`, normal.x, 1);
+    near(`${id} runs along the cabin`, along.z, 1);
+    const cabinWall: number = archetypeExtent(set, "x", ["cabin-starboard"]).high;
+    expect(`${id} leaves grip clearance from the cabin wall`, archetypeExtent(set, "x", [id]).low - cabinWall > 0.08);
+    near(`${id} brackets start at the cabin wall`, archetypeExtent(set, "x", [`${id}-aft-bracket`, `${id}-forward-bracket`]).low, cabinWall);
+  }
 
   const tight: ReturnType<typeof createSpacecraft> = createSpacecraft({
     width: 3.4,

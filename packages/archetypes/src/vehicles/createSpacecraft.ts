@@ -23,6 +23,10 @@ const CREW_COMPARTMENT: string =
 const PASSAGE: string =
   "Smithsonian National Air and Space Museum, Airlock Module, Skylab (https://airandspace.si.edu/collection-objects/airlock-module-skylab/nasm_A19761035000)";
 
+/** Identifiable handholds give crew contact points to start and stop translating. */
+const MOBILITY_AIDS: string =
+  "NASA-STD-3001 Volume 2, sections 8.5.2 and 8.5.5 (https://www.nasa.gov/reference/8-0-architecture-vol-2/#8.5)";
+
 /** Panel thickness in metres for this scenic construction. */
 const PANEL: number = 0.08;
 
@@ -34,18 +38,20 @@ const ALUMINIUM_DENSITY: number = 2700;
  * hatch and forward crew station. The cabin floor is at Y=0, the blunt nose
  * faces +Z and boarding proceeds along +Z from the walkway. The hatch is
  * closed at rest and swings 90 degrees out to -Z on its -X jamb.
+ * Two starboard handrails stage a clear glide alongside the crew furniture.
+ * Their color and function follow the mobility aid guidance in {@link MOBILITY_AIDS}.
  *
  * @param params The model id and any fixed dimensions in metres.
  * @param seed A number or string that draws the remaining dimensions. With
  * no seed, dimensions take the middle of their bands.
- * @returns The set and its local boarding, seated crew and console contacts.
+ * @returns The set and its local boarding, handrail, seated crew and console contacts.
  * @throws {ArchetypeRefusal} For a dimension outside its authored band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the cabin frame, boarding direction, hinge and dimension controls.
  * @evidence contracts/development/implementation.md#principled-implementation Shared station sections generate a hollow tapered shell; the rear wall and deck meet at one threshold, and the hinge owns the leaf and handle. Mass is the nominal scenic material density times the drawn solids' volume.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the wall sections, frame the rear aperture and add crew furniture, then describe the associated contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Historical sources inform visual roles. All dimensions describe a fictional set; no solid spans the cabin cavity and no operating spacecraft systems are represented.
- * @evidence contracts/development/implementation.md#efficient-algorithms Uses a fixed number of boxes, one rod and two sets of fixed-size convex panels.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Uses a fixed number of boxes, rods and convex panels.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The two adjacent hull segments share their shoulder station; each convex panel is prepared once and its volume is reused for total mass.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The builder hands its model to the caller and retains no external resources.
  */
@@ -184,6 +190,36 @@ export function createSpacecraft(
   box("console-base", v(0.24, consoleHeight - PANEL, 0.24), v(stationX, (consoleHeight - PANEL) / 2, consoleZ), deck);
   box("console-top", v(consoleWidth, PANEL, consoleDepth), v(stationX, consoleHeight - PANEL / 2, consoleZ), glazing);
 
+  // Bracket both grips off the starboard wall on the side clear of furniture.
+  const wallX: number = -half + PANEL;
+  const railStandOff: number = 0.10;
+  const railHeight: number = 1.63;
+  const railLength: number = 0.32;
+  const railColor: string = "#dfb144";
+  for (const [id, setback] of [
+    ["aftHandrail", 1.2],
+    ["forwardHandrail", 3.6],
+  ] as const) {
+    const rail: IAutoMovieVector3 = v(wallX + railStandOff, railHeight, rear + setback);
+    const aft: number = rail.z - railLength / 2;
+    const forward: number = rail.z + railLength / 2;
+    builder.rod(id, gripRadius, v(rail.x, rail.y, aft), v(rail.x, rail.y, forward), { color: railColor });
+    volume += Math.PI * gripRadius ** 2 * railLength;
+    for (const [end, z] of [["aft", aft], ["forward", forward]] as const)
+      box(`${id}-${end}-bracket`, v(railStandOff, 2 * gripRadius, 2 * gripRadius), v(wallX + railStandOff / 2, rail.y, z), railColor);
+
+    builder.affordance({
+      id,
+      kind: "bar",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(rail, v(1, 0, 0), v(0, 0, 1)),
+      extent: null,
+      grip: "power",
+      aperture: 2 * gripRadius,
+      length: railLength,
+    });
+  }
+
   builder.affordance({
     id: "boardingWalkway",
     kind: "surface",
@@ -251,13 +287,13 @@ export function createSpacecraft(
  * The spacecraft's typed contacts, dimensions and fictional staging bands.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the boarding and crew contacts and dimensions, their units and the origin of the staging bands.
- * @evidence contracts/development/design.md#principled-representation The existing semantic contacts distinguish the walkway, threshold, hinge, grip, floor, seat and console. Independent metre dimensions draw from bands that preserve positive shell and aperture heights.
+ * @evidence contracts/development/design.md#principled-representation Semantic contacts distinguish the boarding route, hinge, grip, cabin floor, fixed handrails, seat and console. Independent metre dimensions draw from bands that preserve positive shell and aperture heights.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The producer owns the authoring parameters and the fixed set of contact ids used to stage boarding and the crew station.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Historical references supply visual analogies. The bands are explicitly fictional set decisions, not inferred spacecraft specifications.
  */
 export namespace createSpacecraft {
   /**
-   * Contacts for the walking route, hatch articulation and forward crew station.
+   * Contacts for the walking route, hatch articulation, cabin mobility and forward crew station.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the authored sites consumed for scene blocking.
    */
@@ -267,6 +303,8 @@ export namespace createSpacecraft {
     | "boardingHatch"
     | "boardingHandle"
     | "cabinFloor"
+    | "aftHandrail"
+    | "forwardHandrail"
     | "crewSeat"
     | "controlConsole";
 
