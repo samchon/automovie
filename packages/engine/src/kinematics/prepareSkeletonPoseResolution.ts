@@ -84,8 +84,8 @@ const READINGS: WeakMap<prepareSkeletonPoseResolution.IReading, IOwnReading> = n
  * @evidence contracts/development/implementation.md#clear-and-simple-structure snapshotRig copies static inputs in a scope with no returned reader; bindSnapshot closes only over that owned result. Array/map outputs share one admission and sparse-FK owner with private static output writers. preparePoseTupleScan stages entries/scalars before root work and delegates to that same owner. admitSource owns native method provenance and delegates real validation to the ordinary map; prepareChainFit owns source lifetime and raw fallback. No target/fit policy enters this producer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose/time identity, tolerance or result flag certifies equivalence. All authored records keep finite admission/last precedence, missing articulation is identity and unreachable demands remain absent. Rest accepts only actual factory provenance, no external map/skeleton pair or public-method assertion. admitSource declines unknown rigs before descriptor observation and replaced/accessor/inherited methods without invoking getters; no boolean, structural match or frozen wrapper replaces numerical admission. Raw resolvePose remains live.
  * @evidence contracts/development/implementation.md#efficient-algorithms Static setup is linear in bones/mappings. Fixed tuple names bind their D ancestors once. All J tuples retain admission, one 4J name/F/A/T array replaces J records and releases entry pairs before root work, and only changed ancestor articulations compose. Out-of-scope old selections invalidate conservatively before a future demand repopulates actual values. Changes revise observed frames; K fresh copies/inserts remain, with map reads avoiding a temporary FK array. Fixed sources admit baseline once then E edits. admitSource uses a weak lookup and one own-descriptor check before unchanged O(J) admission with empty FK demand; unknown readers decline in constant work. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Owned static data and actual neutral FK serve both ordinary reads and genuine mass-model rest production. Private rest provenance cannot invoke a replaced public method or borrow foreign frames. Dynamic composers stay independent; demands share operation rows and actual fixed-source admission produces separate overlays whose missing edits restore baseline. admitSource shares only the registered callable and immutable rig prerequisites; each supported call admits current source data, while successful-completion reuse belongs to the matching fixed-source consumer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rig data and weak operation rows cost O(B+A+F) and O(U+B); rest/source provenance remains weak and source registration retains only the original factory callable. Runtime closures are created outside the input-reading scope, receiving only owned snapshots, so original skeleton/topology/tables are not retained by a shared constructor scope. Fixed demands hold K indices and tuple demands additionally D ancestor names. Fixed sources own O(B+U) rows. Tuple queries hold 4J copied name/coordinate slots until release, with no current entries/root/operation/result history entering their bound factory. admitSource's descriptor and empty name set are call-local; no source verdict, strong registry, handle or task is retained.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Owned static data and actual neutral FK serve both ordinary reads and genuine mass-model rest production. Private rest provenance cannot invoke a replaced public method or borrow foreign frames. Every read, whatever operation it names, shares the rig's one state (a state is a function of the pose it admits and every output is a copy), so a joint tuple the state converted before is not converted again; a read nested in another's admission takes a fresh state. Actual fixed-source admission produces separate overlays whose missing edits restore baseline. admitSource shares only the registered callable and immutable rig prerequisites; each supported call admits current source data, while successful-completion reuse belongs to the matching fixed-source consumer.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rig data and the one shared state cost O(B+A+F) and O(U+B) for the rig's lifetime; rest/source provenance remains weak and source registration retains only the original factory callable. Runtime closures are created outside the input-reading scope, receiving only owned snapshots, so original skeleton/topology/tables are not retained by a shared constructor scope. Fixed demands hold K indices and tuple demands additionally D ancestor names. Fixed sources own O(B+U) rows. Tuple queries hold 4J copied name/coordinate slots until release, with no current entries/root/operation/result history entering their bound factory. admitSource's descriptor and empty name set are call-local; no source verdict, strong registry, handle or task is retained.
  */
 export function prepareSkeletonPoseResolution(
   skeleton: IAutoMovieSkeleton,
@@ -155,10 +155,8 @@ function snapshotRig(
 /** Runtime readers can reach only copied metadata, never the input-reading scope. */
 function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   const { nodes, indices, conventions, fallback } = snapshot;
-  const operations: WeakMap<ReturnType<typeof preparePoseResolution>, preparePoseResolutionState.IReader> =
-    new WeakMap();
 
-  // The state of the reads that name no operation, and whether a read holds it.
+  // The state every read shares, and whether a read holds it.
   let shared: preparePoseResolutionState.IReader | undefined;
   let lent: boolean = false;
   const rig: prepareSkeletonPoseResolution.IRig = {
@@ -178,9 +176,8 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       };
     },
     preparePose: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IOverlayReader =>
-      operation === undefined
-        ? preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, pose, requested)
-        : readerOf(operation).preparePose(pose, requested),
+      lend(operation, (reader: preparePoseResolutionState.IReader): preparePoseResolutionState.IOverlayReader =>
+        reader.preparePose(pose, requested)),
     prepareBones: (requested: ReadonlySet<AutoMovieHumanoidBone>): prepareSkeletonPoseResolution.IBoneDemand => {
       const demand: readonly number[] = preparePoseBoneDemand(indices, nodes.length, requested);
       return {
@@ -226,27 +223,20 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   SOURCE_READERS.set(rig, rig.resolveMap);
   return rig;
 
-  /** All output demands of the same operation borrow one actual dependency state. */
-  function readerOf(operation: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IReader {
-    let reader: preparePoseResolutionState.IReader | undefined = operations.get(operation);
-    if (reader === undefined) {
-      reader = preparePoseResolutionState(nodes, indices, conventions, fallback);
-      operations.set(operation, reader);
-    }
-    return reader;
-  }
-
   /**
-   * Run one read on the operation's state or, for a read that names no
-   * operation, on the rig's own: a state is a function of the pose it
-   * admits and keeps only what it composed, and every read copies what it
-   * returns, so reads that name no operation share the rig's state as
-   * the reads of one operation share theirs. A read made while that state
-   * is lent (from inside another read's admission) takes a state of its own.
+   * Run one read on the rig's own state, whatever operation it names: a
+   * state is a function of the pose it admits and keeps only what it
+   * composed, every read copies what it returns, and an overlay owns a
+   * state of its own after its preparation, so one state serves every read
+   * of the rig. A state of each operation's own admitted its first pose
+   * with nothing composed yet (a limb fit's new operation composed every
+   * joint of a pose the assembly had just composed). A read made while the
+   * state is lent (from inside another read's admission) takes a state of
+   * its own. The operation stays in the readers' signatures, which callers
+   * name; it selects nothing.
    */
-  function lend<T>(operation: ReturnType<typeof preparePoseResolution> | undefined,
+  function lend<T>(_operation: ReturnType<typeof preparePoseResolution> | undefined,
     run: (reader: preparePoseResolutionState.IReader) => T): T {
-    if (operation !== undefined) return run(readerOf(operation));
     if (lent) return run(preparePoseResolutionState(nodes, indices, conventions, fallback));
     lent = true;
     try {
