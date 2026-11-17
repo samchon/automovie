@@ -281,6 +281,7 @@ export namespace gestureHands {
    * @param rest Each arm at rest.
    * @param prior The gesture before its arms at a second, borrowing the planner's current FK3/ROM4 operation loans only for that synchronous query.
    * @param envelope The same transport share used by prior, without computing its geometry.
+   * @param plan The arms' handover and span flag (`AutoMovieMotionHumanArmPlanned.planned`'s `plan`); absent, nothing is handed on and the span is not taken to stretch.
    * @returns Each arm's trajectory.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the planned span, entry/rest arms, complete frame producer and separate scalar envelope producer.
@@ -299,6 +300,7 @@ export namespace gestureHands {
     rest: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
     prior: (...args: Parameters<IHumanActionPlan["posture"]>) => IPrior,
     envelope: (seconds: number) => number,
+    plan?: Parameters<typeof AutoMovieMotionHumanArmPlanned.planned>[4],
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
     // The planner passes the exact posture returned by before to each arm.
     // Keep that posture's hand requests with it, rather than evaluating the
@@ -331,6 +333,7 @@ export namespace gestureHands {
         frames.set(before.posture, before);
         return before.posture;
       },
+      plan,
     );
   }
 

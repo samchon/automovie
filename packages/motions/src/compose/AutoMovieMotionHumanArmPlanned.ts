@@ -79,6 +79,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
 
     /** The solutions this plan's optimiser reached, by the arms solved together, written as each is solved: what a replan of the same action hands to its group's `warm`. A problem whose laid course was admitted is not optimised and writes none. */
     last?: Map<string, IWarm>;
+
+    /** Whether the group's span is its law's own, which a replan at a slower tempo lengthens (`HumanPerformanceTempo`); unset for a span an end of which another performer or a cue fixes (a meeting). Only such a span is handed back for a longer one before an optimisation (`HumanArmTrajectory.solve`). */
+    stretches?: boolean;
   }
 
   /**
@@ -129,6 +132,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * A group for arms moved together.
    *
    * @param handover The action's handover between its plans (`IHumanActionContext.handover`): the group reads the last plan's solutions from it and writes its own into it. Absent, the group hands nothing on.
+   * @param stretches Whether the group's span is its law's own, lengthened by a slower tempo (`ITogether.stretches`).
    * @returns The empty group.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
@@ -139,14 +143,13 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it; the handover maps are the performance's.
    */
-  export function together(handover?: IHumanActionContext.IHandover): ITogether {
-    return handover === undefined
-      ? { carries: [] }
-      : {
-          carries: [],
-          ...(handover.warm === undefined ? {} : { warm: handover.warm }),
-          last: handover.last,
-        };
+  export function together(handover?: IHumanActionContext.IHandover, stretches?: boolean): ITogether {
+    return {
+      carries: [],
+      ...(handover?.warm === undefined ? {} : { warm: handover.warm }),
+      ...(handover === undefined ? {} : { last: handover.last }),
+      ...(stretches === true ? { stretches } : {}),
+    };
   }
 
   /**
@@ -206,7 +209,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     span: ISpan,
     carries: readonly IPlanned[],
     before: IHumanActionPlan["posture"],
-    plan?: Pick<ITogether, "warm" | "last">,
+    plan?: Pick<ITogether, "warm" | "last" | "stretches">,
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
@@ -464,6 +467,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       const result: HumanArmTrajectory.ISolved = HumanArmTrajectory.solve(
         problem, times, laid,
         earlier === undefined ? undefined : AutoMovieMotionHumanArmRetimed(earlier, span),
+        plan?.stretches === true,
       );
       if (plan !== undefined)
         (plan.last ??= new Map()).set(key, { span, state: result.state });

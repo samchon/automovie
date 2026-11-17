@@ -394,7 +394,7 @@ export namespace handToFace {
       );
     // Two hands are planned as one trajectory; one hand is a group of one,
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      AutoMovieMotionHumanArmPlanned.together(context.handover);
+      AutoMovieMotionHumanArmPlanned.together(context.handover, true);
     for (const [index, [side, name]] of hands.entries()) {
       const own: HumanGrasp.IKey | null = side === first ? kept : null;
       const arm: handToFaceArm.IArm = arms[index]!;

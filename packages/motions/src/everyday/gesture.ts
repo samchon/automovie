@@ -11,6 +11,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
@@ -446,6 +447,8 @@ export namespace gesture {
               projection?: Parameters<IHumanActionPlan["posture"]>[3]): gestureHands.IPrior =>
               prior(at, true, resolution, projection),
             weight,
+            // The gesture's span is its own, timed by its tempo.
+            AutoMovieMotionHumanArmPlanned.together(context.handover, true),
           );
 
     return {

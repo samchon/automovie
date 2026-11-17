@@ -192,6 +192,7 @@ export namespace HumanArmTrajectory {
    * @param times The first knots' seconds, ascending, each taken to the frame grid's nearest instant: knots are grid instants, so a stretch refined to the end is bounded at the very instants it is admitted at, and the admission there is the knots' own evaluation.
    * @param course A laid course the model refused (`admitted`), read at the knots as the seed, its reading's context the frame grid; the sampling planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when absent, and after the course when it leads to no admitted trajectory.
    * @param warm An earlier solution of this action on this span's seconds (`ISolved.state`, retimed by the caller where the span changed): tried first as it stands and returned where the model admits it at its knots and on the frame grid, the optimiser's start at its penalty where not, and dropped for the course and the planner's seed where that ends unadmitted. Any state is safe to give: nothing of it is trusted.
+   * @param stretches Whether the span is its law's own, lengthened by a replan at a slower tempo; a laid course refused only for its speed is then handed back for the span it needs before any optimisation. False for a span a meeting fixes.
    * @returns Each arm's trajectory, in the problem's order, and the solution.
    * @throws {HumanRefusal} When no trajectory meets the constraints at its knots and on the frame grid.
    *
@@ -208,6 +209,7 @@ export namespace HumanArmTrajectory {
     times: readonly number[],
     course?: IAdmitted,
     warm?: IState,
+    stretches: boolean = false,
   ): ISolved {
     // The frame grid over the span, the instants the played trajectory is
     // admitted at: the course's own where one was read. The knots are
@@ -256,6 +258,28 @@ export namespace HumanArmTrajectory {
     const fine: M.IContext = course?.read.context ?? contextOf(reading(grid));
     let context: M.IContext = contextOf(problem, fine);
 
+    // A laid course whose worst term is its speed is met by the same course
+    // over a longer span: scaling time by a factor divides every speed by it
+    // (Hollerbach 1984), so the span the course needs is its own times its
+    // fastest probe's speed over the bound. Where the span is the law's own,
+    // which a replan at a slower tempo lengthens (`stretches`), no
+    // trajectory is optimised at this span for it: the caller is handed that
+    // span at once, as the optimiser's refusal hands it below. A span an end
+    // of which a meeting fixes is not lengthened by the tempo, so its course
+    // goes to the optimiser, which may find a shorter path within it.
+    if (stretches && course !== undefined && warm === undefined && course.refused === "speed") {
+      const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
+      const factor: number = slower(fine, coursed(fine, course.trajectories));
+      if (factor > 1)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "duration",
+          value: span,
+          feasible: { kind: "range", minimum: span * factor, maximum: null, unit: "s" },
+          reason: `the laid course of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action moves faster than the audit's ${M.SPEED_LIMIT} m/s`,
+          fix: "give the action more time",
+        });
+    }
     // The arms carried by their own interpolant onto knots with the given
     // intervals split; the knots kept keep what the last context built.
     const refine = (x: number[][][], split: readonly number[]): number[][][] => {
