@@ -256,6 +256,28 @@ export namespace HumanArmTrajectory {
     const fine: M.IContext = course?.read.context ?? contextOf(reading(grid));
     let context: M.IContext = contextOf(problem, fine);
 
+    // A laid course whose worst term is its speed is met by the same course
+    // over a longer span: scaling time by a factor divides every speed by it
+    // (Hollerbach 1984), so the span the course needs is its own times its
+    // fastest probe's speed over the bound. No trajectory is optimised at
+    // this span for it, where the speed bound is what a course's own time
+    // law already spends to its plateau (`HumanArmTrajectoryLaid`): the
+    // caller is handed that span at once, as the optimiser's refusal hands
+    // it below, and its plan over that span lays the course again.
+    if (course !== undefined && warm === undefined && course.refused === "speed") {
+      const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
+      const factor: number = slower(fine, coursed(fine, course.trajectories));
+      if (factor > 1)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "duration",
+          value: span,
+          feasible: { kind: "range", minimum: span * factor, maximum: null, unit: "s" },
+          reason: `the laid course of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action moves faster than the audit's ${M.SPEED_LIMIT} m/s`,
+          fix: "give the action more time",
+        });
+    }
+
     // The arms carried by their own interpolant onto knots with the given
     // intervals split; the knots kept keep what the last context built.
     const refine = (x: number[][][], split: readonly number[]): number[][][] => {
