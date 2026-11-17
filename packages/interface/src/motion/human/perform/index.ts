@@ -16,6 +16,7 @@ export type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerf
 export type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 export type { IAutoMovieMotionHumanPropDynamics } from "./IAutoMovieMotionHumanPropDynamics";
 export type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
+export type { IAutoMovieMotionHumanPropFracture } from "./IAutoMovieMotionHumanPropFracture";
 export type { IAutoMovieMotionHumanPropFrame } from "./IAutoMovieMotionHumanPropFrame";
 export type { IAutoMovieMotionHumanPropOutcome } from "./IAutoMovieMotionHumanPropOutcome";
 export type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
