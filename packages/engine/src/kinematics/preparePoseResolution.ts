@@ -31,8 +31,61 @@ interface IReader {
   ): IAutoMovieResolvedBone;
 }
 
-/** Callable-only snapshots are weakly owned by their actual plain factory reader. */
-const NATIVE_READERS: WeakMap<IReader, IReader> = new WeakMap();
+/**
+ * The factory's reader: its two methods as own data properties, as before,
+ * and the originals in private fields, which are its provenance. A brand
+ * check (`#joint in reader`) refuses every other object, a proxy among
+ * them, without a trap or a property read, and costs the reader two slots
+ * instead of an entry in a weak registry a reader.
+ */
+class NativeReader implements IReader {
+  /** The original joint reader, the provenance `native` compares the own property with. */
+  readonly #joint: IReader["joint"];
+
+  /** The original bone reader, likewise. */
+  readonly #bone: IReader["bone"];
+
+  /** The joint reader, an own data property as the plain reader had it. */
+  joint: IReader["joint"];
+
+  /** The bone reader, an own data property. */
+  bone: IReader["bone"];
+
+  /** Make a reader with its composers made at its first joint read. */
+  public constructor() {
+    // The composers by admitted basis, made at the first joint read.
+    let joints: WeakMap<IAutoMovieJointAxes, ReturnType<typeof jointToQuaternionOnBasis.prepareMutable>> | undefined;
+    this.joint = (
+      joint: IAutoMovieJointPose,
+      axes: IAutoMovieJointAxes | undefined,
+      frame: IAutoMovieRestFrame | undefined,
+    ): IAutoMovieQuaternion => {
+      const basis: IAutoMovieJointAxes = normalizeJointAxes(
+        axes === undefined ? DEFAULT_JOINT_AXES : axes,
+        "jointToQuaternion axes",
+      );
+      joints ??= new WeakMap();
+      const known: ReturnType<typeof jointToQuaternionOnBasis.prepareMutable> | undefined = joints.get(basis);
+      const read: ReturnType<typeof jointToQuaternionOnBasis.prepareMutable> =
+        known ?? jointToQuaternionOnBasis.prepareMutable(basis);
+      const rotation: IAutoMovieQuaternion = read(joint, frame);
+      if (known === undefined) joints.set(basis, read);
+      return rotation;
+    };
+    this.bone = resolvePoseBone;
+    this.#joint = this.joint;
+    this.#bone = this.bone;
+  }
+
+  /** Whether a reader is this factory's with its original methods still its own data properties. */
+  public static native(reader: IReader): boolean {
+    if (!(#joint in reader)) return false;
+    const joint: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(reader, "joint");
+    const bone: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(reader, "bone");
+    return joint !== undefined && Object.hasOwn(joint, "value") && joint.value === reader.#joint &&
+      bone !== undefined && Object.hasOwn(bone, "value") && bone.value === reader.#bone;
+  }
+}
 
 /**
  * Own pure joint-composition work within one synchronous motion evaluation.
@@ -44,51 +97,29 @@ const NATIVE_READERS: WeakMap<IReader, IReader> = new WeakMap();
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines raw ordered admission/fresh outputs, pure basis work and immutable-rig operation identity. isNative below states actual factory provenance, unchanged own-data callable checks, no foreign metadata observation and its limited non-admission meaning.
  * @evidence contracts/development/implementation.md#principled-implementation Normalize the current actual axes with undefined-only defaults, then always perform original current clinical/frame admission before sharing exact-angle factors on that admitted basis. Raw bone calls delegate directly to resolvePoseBone, preserving rest rotation, Hamilton products, rest translation, vector arithmetic and final bone-name read order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure resolvePose owns traversal, mutable OnBasis owns current clinical/frame reads and resolvePoseBone owns raw composition. Immutable rigs own sparse rows under this key. A private weak callable snapshot alone lets isNative recognize original factory readers without invoking or trusting their methods.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure resolvePose owns traversal, mutable OnBasis owns current clinical/frame reads and resolvePoseBone owns raw composition. Immutable rigs own sparse rows under this key. The reader's private fields hold its original callables, so isNative recognizes original factory readers by a brand check without invoking or trusting their methods.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No raw joint name, clinical/frame tuple or transform is sampled to create a cache key. Null coordinates keep unused sign/neutral bypass; used coordinates retain finite/frame failure order. Every overwritten authored record remains visited, raw bones retain original reads and no caller flag, target or time certifies equivalence.
- * @evidence contracts/development/implementation.md#efficient-algorithms Raw joints keep original admission and share pure factors; raw bones retain their full composition. Immutable-rig clients independently retain sparse dependency reuse. isNative costs one weak lookup and, only for a registered reader, two own-descriptor reads/temporary descriptors; no rig/input scan or numerical callback runs. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Raw joints keep original admission and share pure factors; raw bones retain their full composition. Immutable-rig clients independently retain sparse dependency reuse. isNative costs one brand check and, only for a factory reader, two own-descriptor reads/temporary descriptors; no rig/input scan or numerical callback runs. A reader costs one object with two private slots and its basis map only at its first joint read, no weak-registry entry (a limb fit makes one). Speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Basis identity selects pure arithmetic, never mutable frame validity. All current reads remain live. isNative proves only actual factory identity and unchanged own-data joint/bone callables; proxy/wrapped/foreign keys miss before metadata access. It certifies no source admission, pose or solve, and consumers still own their separate source proof.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak basis keys own bounded factor workspaces until operation release. The private weak native-reader registry retains only two original callable references without a strong reader key. No raw input, result history or handle is stored; immutable rigs separately own weak-keyed dynamic rows.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak basis keys own bounded factor workspaces until operation release. The reader's two private fields retain its own original callables and go with it. No raw input, result history or handle is stored; immutable rigs separately own weak-keyed dynamic rows.
  */
 export function preparePoseResolution(): IReader {
-  const joints: WeakMap<IAutoMovieJointAxes, ReturnType<typeof jointToQuaternionOnBasis.prepareMutable>> =
-    new WeakMap();
-  const reader: IReader = {
-    joint: (
-      joint: IAutoMovieJointPose,
-      axes: IAutoMovieJointAxes | undefined,
-      frame: IAutoMovieRestFrame | undefined,
-    ): IAutoMovieQuaternion => {
-      const basis: IAutoMovieJointAxes = normalizeJointAxes(
-        axes === undefined ? DEFAULT_JOINT_AXES : axes,
-        "jointToQuaternion axes",
-      );
-      const known: ReturnType<typeof jointToQuaternionOnBasis.prepareMutable> | undefined = joints.get(basis);
-      const read: ReturnType<typeof jointToQuaternionOnBasis.prepareMutable> =
-        known ?? jointToQuaternionOnBasis.prepareMutable(basis);
-      const rotation: IAutoMovieQuaternion = read(joint, frame);
-      if (known === undefined) joints.set(basis, read);
-      return rotation;
-    },
-    bone: resolvePoseBone,
-  };
-  NATIVE_READERS.set(reader, { joint: reader.joint, bone: reader.bone });
-  return reader;
+  return new NativeReader();
 }
 
 /**
  * Actual factory-reader provenance without claiming any numerical admission.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged own-data callable checks, unknown/proxy/wrapped refusal without metadata access and no source/pose validity claim.
- * @evidence contracts/development/design.md#principled-representation The private weak registry associates an actual plain reader with its original two callables; descriptors expose current data-method identity without executing accessor getters.
+ * @evidence contracts/development/design.md#principled-representation The factory's reader class keeps its original two callables in private fields; descriptors expose current data-method identity without executing accessor getters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Canonical source preparation uses isNative before issuing reusable source metadata; no caller registration, brand setter or numerical readiness flag is public.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unregistered objects return false before descriptor reads. Registered objects must still own the exact original data methods; wrappers/accessors/bound replacements never inherit provenance, while freezing unchanged methods remains valid.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Objects without the factory's private brand return false before descriptor reads. Factory readers must still own the exact original data methods; wrappers/accessors/bound replacements never inherit provenance, while freezing unchanged methods remains valid.
  */
 export namespace preparePoseResolution {
   /**
    * Whether this exact factory reader still has its original data methods.
-   * A weak-map miss observes no metadata, so foreign and proxy wrappers are
-   * refused without traps. Only registered plain objects receive descriptor
+   * A failed brand check observes no metadata, so foreign and proxy wrappers are
+   * refused without traps. Only the factory's own readers receive descriptor
    * reads; accessor getters never execute. Descriptor flags may differ when
    * the original callable values remain unchanged, including Object.freeze.
    * This constant-time check neither calls a reader nor certifies any source,
@@ -96,11 +127,6 @@ export namespace preparePoseResolution {
    * method changes; no state, handle or new strong reference is retained.
    */
   export function isNative(reader: ReturnType<typeof preparePoseResolution>): boolean {
-    const known: IReader | undefined = NATIVE_READERS.get(reader);
-    if (known === undefined) return false;
-    const joint: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(reader, "joint");
-    const bone: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(reader, "bone");
-    return joint !== undefined && Object.hasOwn(joint, "value") && joint.value === known.joint &&
-      bone !== undefined && Object.hasOwn(bone, "value") && bone.value === known.bone;
+    return NativeReader.native(reader);
   }
 }
