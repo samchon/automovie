@@ -1,3 +1,4 @@
+import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 
@@ -9,12 +10,12 @@ import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  *
  * `performShot` refuses an actor attaching to itself, a parent that is not a
  * staged node or has no rig, and a bone missing from the parent's skeleton.
- * `compileAttach` bakes the child's node translation and rotation at evenly spaced keys from the parent's posed bone, with no grip offset or parent-scale composition. Keys agree with that rigid-frame calculation; interpolation approximates curved motion between them. Alone, sampleClip clamps to the first bone frame before coupling, while sequence playback writes nothing before its start and holds the last frame afterward. An auto duration keeps coupling to the shot end.
+ * `compileAttach` bakes the child's translation and rotation from the parent's posed bone and the optional bone-local offset. The authored offset determines the child's pose at the first key, including when switching parents. Playback writes nothing before the first key and holds the last key afterward. An auto duration keeps coupling to the shot end.
  *
- * @evidence contracts/development/design.md#principled-representation The child's world transform is the parent's placement composed with the bone's model-space frame from forward kinematics, `translation = parentPos + parentRot · bone.translation` and `rotation = parentRot ∘ bone.rotation`, the behavior of a fixed joint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The action adds only the parent node and bone to the shared base; the child is the action's actor, and the coupling becomes an ordinary node clip so the renderer needs no attachment concept.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No grip offset or per-prop correction hides an origin mismatch, and an unrigged parent is refused. Parent scale is ignored, matching staged unit-scale actor use; finite positive duration/fps and safe interval count are required, while feasible memory and distinct representable key times remain caller responsibilities.
- * @evidence contracts/development/common.md#meaningful-documentation States the use, where a persistent mount belongs instead, every refusal, how the clip is baked and held outside the span, the absent grip offset, and what `"auto"` means; members name the parent and bone requirements.
+ * @evidence contracts/development/design.md#principled-representation The child's world frame is the product of the parent's placement, posed bone frame and bone-local rigid offset. An omitted offset is the identity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The action adds a parent, bone and optional rigid offset. The child is the action's actor and the result uses the ordinary node clip representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The shot gate refuses invalid parents, bones and offsets. The baker applies the authored offset directly at every key and omits parent scale as it does for identity offsets.
+ * @evidence contracts/development/common.md#meaningful-documentation States where to author persistent mounts, how authored offsets determine the first key, what omission and auto duration mean, and the sampler's span behavior.
  */
 export interface IAutoMovieAttachAction extends IAutoMovieActionBase {
   /** Selects an attachment as the action family. */
@@ -25,4 +26,7 @@ export interface IAutoMovieAttachAction extends IAutoMovieActionBase {
 
   /** Semantic bone on the parent's skeleton to which the actor is attached. */
   bone: AutoMovieHumanoidBone;
+
+  /** Child frame in the posed bone, in metres with a unit rotation. The child uses the bone frame when omitted. */
+  offset?: IAutoMovieRigidTransform;
 }

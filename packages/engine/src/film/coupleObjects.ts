@@ -226,6 +226,7 @@ function bakeAttachFollows(
     const baked: IAutoMovieClip = compileAttach({
       child,
       bone: job.action.bone,
+      offset: job.action.offset,
       parentTransform: context.nodes.get(parent)!.transform,
       parentTransformAt: context.parentPathOf(parent),
       parentSkeleton: context.skeleton(parent)!,

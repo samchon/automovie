@@ -1,12 +1,14 @@
 import type {
   IAutoMovieCut,
   IAutoMovieEditPlan,
+  IAutoMovieSequence,
   IAutoMovieSequenceEntry,
   IAutoMovieShot,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
 /**
  * A built shot with the index it was first supplied at.
@@ -19,20 +21,23 @@ interface IBuiltShot {
   index: number;
 }
 
+/** A requirement for one exact event on one play of a shot in the cut. */
+type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
+
 /**
  * The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built, or return every violation at once.
  *
- * The gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity stay prose, because they have no deterministic verifier.
+ * The layout gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity stay prose, because they have no deterministic verifier.
  *
- * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
+ * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. For a structurally valid cut, each required event must appear exactly once in the named playback entry after trim and seam ownership. The requirement reads built shot interaction events. An absent requirement slot is refused. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
  *
- * @evidence contracts/development/implementation.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
+ * @evidence contracts/development/implementation.md#principled-implementation The edit clock follows [OpenTimelineIO time ranges](https://github.com/AcademySoftwareFoundation/OpenTimelineIO/blob/main/docs/tutorials/time-ranges.md#markers), with source instants placed in a parent timeline. One ordered pass carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice. After layout admission, the number of projected matches for each entry and event address must be one.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state; event requirements reuse `sequenceEventTimeline` after edit admission to respect the same trim and seam rules as playback.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
  * @evidence contracts/development/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shots plus entries: shots are indexed by id once and each entry is a map lookup with constant bookkeeping.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Edits without event requirements take linear time in shots plus entries with one shot index. When requirements exist, one event projection and sort are followed by one pass to index placed events and one constant-time lookup per requirement.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All required events share one playback projection and one per-entry count index. Calls read their own supplied shot metadata synchronously.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The projected events and count index are local to assembly. The result owns a new sequence and entry list or a violation list bounded by the input shots, entries and requirements.
  */
 export function cutSequence(
   assemble: IAutoMovieEditPlan,
@@ -220,20 +225,60 @@ export function cutSequence(
     );
   if (out.items.length > 0) return { success: false, violations: out.items };
 
-  return {
-    success: true,
-    sequence: {
-      id: assemble.sequence.id,
-      name: assemble.sequence.name,
-      shots: assemble.entries.map(
-        (entry: IAutoMovieSequenceEntry): IAutoMovieSequenceEntry => ({
-          shot: entry.shot,
-          trim: entry.trim,
-          transition: entry.transition,
-        }),
-      ),
-      fps: assemble.fps,
-    },
-    runtime,
+  const sequence: IAutoMovieSequence = {
+    id: assemble.sequence.id,
+    name: assemble.sequence.name,
+    shots: assemble.entries.map(
+      (entry: IAutoMovieSequenceEntry): IAutoMovieSequenceEntry => ({
+        shot: entry.shot,
+        trim: entry.trim,
+        transition: entry.transition,
+      }),
+    ),
+    fps: assemble.fps,
   };
+
+  const requiredEvents: readonly RequiredEvent[] = assemble.requiredEvents ?? [];
+  if (requiredEvents.length > 0) {
+    const counts: Map<number, Map<string, number>> = new Map();
+    for (const event of sequenceEventTimeline(sequence, shots)) {
+      const entryCounts: Map<string, number> =
+        counts.get(event.entry) ?? new Map();
+      entryCounts.set(event.id, (entryCounts.get(event.id) ?? 0) + 1);
+      counts.set(event.entry, entryCounts);
+    }
+    for (let index: number = 0; index < requiredEvents.length; index++) {
+      const requirement: RequiredEvent | undefined = requiredEvents[index];
+      const path: string = `$input.requiredEvents[${index}]`;
+      if (requirement === undefined) {
+        out.push("type", path, "event requirement is absent", undefined);
+        continue;
+      }
+      const validEntry: boolean =
+        Number.isInteger(requirement.entry) &&
+        requirement.entry >= 0 &&
+        requirement.entry < sequence.shots.length;
+      if (!validEntry)
+        out.push(
+          "range",
+          `${path}.entry`,
+          "required event must address a playback entry by zero-based index",
+          requirement.entry,
+        );
+      validateNonEmptyId(requirement.event, `${path}.event`, "event id");
+      if (!validEntry || requirement.event.trim().length === 0) continue;
+
+      const count: number =
+        counts.get(requirement.entry)?.get(requirement.event) ?? 0;
+      if (count !== 1)
+        out.push(
+          "type",
+          `${path}.event`,
+          `entry ${requirement.entry} must retain exactly one event "${requirement.event}", but retains ${count}`,
+          count,
+        );
+    }
+  }
+  if (out.items.length > 0) return { success: false, violations: out.items };
+  return { success: true, sequence, runtime };
 }

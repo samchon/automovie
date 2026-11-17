@@ -15,27 +15,27 @@ import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 
-/** The child rides the bone directly: origin on the bone, no extra offset. */
+/** Default child frame when the author gives no offset. */
 const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
 
 /**
  * Bake the `attachTo` verb into the child object's follow clip, the per-frame realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop on a saddle). The child is not a rig, so, like a projectile, it moves by a node clip of translation and rotation tracks, not a pose motion.
  *
- * Each sample resolves the parent's posed skeleton at that instant through {@link resolveAttachment}, which runs the parent's FK, to find the bone's frame in the parent's model space, then composes that onto the parent's world frame: its staged placement, or, when the parent itself rides a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
+ * Each sample resolves the parent's posed skeleton at that instant through {@link resolveAttachment}, which runs the parent's FK, to compose the child's bone-local offset into the parent's model space, then composes that onto the parent's world frame: its staged placement, or, when the parent itself rides a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
  *
- * - `translation = parentPos + parentRot · boneLocal.translation`
- * - `rotation = parentRot ∘ boneLocal.rotation`
+ * - `translation = parentPos + parentRot · childLocal.translation`
+ * - `rotation = parentRot ∘ childLocal.rotation`
  *
  * The parent's scale is not applied, which matches the renderer for the unit-scale actors staging places. Pass the same `jointAxes` the renderer poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames` when parent clips are authored in clinical space, or the child follows a bone where the renderer does not draw it. A parent with no motion holds its rest pose.
  *
- * The clip is shot-local: N = max(1, round(duration × fps)) equal intervals give N + 1 keys including both ends of [start, start + duration], with duration set to `shotDuration`, the same convention as `cameraMotion`. Read alone through `sampleClip` it clamps to the bone's first frame before `start`; playback reads it through `sampleClipSequence`, where it writes nothing before `start` and holds its last frame after the coupling ends. The clip id is `attach:<child>`; a caller baking several couplings of one child suffixes repeats. Throws a `RangeError` for nonfinite/nonpositive duration or fps, or an unsafe rounded interval count that cannot support an advancing indexed loop. This representability gate is not a workload cap; callers still own feasible memory use and representable distinct key times.
+ * The clip is shot-local: N = max(1, round(duration × fps)) equal intervals give N + 1 keys including both ends of [start, start + duration], with duration set to `shotDuration`, the same convention as `cameraMotion`. Read alone through `sampleClip` it clamps to the child's first frame before `start`; playback reads it through `sampleClipSequence`, where it writes nothing before `start` and holds its last frame after the coupling ends. The clip id is `attach:<child>`; a caller baking several couplings of one child suffixes repeats. Throws a `RangeError` for nonfinite/nonpositive duration or fps, or an unsafe rounded interval count that cannot support an advancing indexed loop. This representability gate is not a workload cap; callers still own feasible memory use and representable distinct key times.
  *
  *
  * @evidence contracts/development/implementation.md#principled-implementation Resolves the parent's bone by forward kinematics at evenly spaced keys and composes its world translation and rotation, the rigid fixed-joint relation. Linear keys are exact for a still or constant-velocity parent and approximate other motion; nonfinite/nonpositive spans and rates and unsafe interval counts are refused; feasible memory use and representable distinct key times remain caller premises.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One baker for both per-beat `attachTo` and staged mounts, called by `coupleObjects`, which owns chain order and id uniqueness; the optional `parentTransformAt` is the single seam through which a chained parent's ridden frame enters, so the composition is not duplicated for chains.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no bone, rig or prop; the identity offset is the verb's contract that the child's origin sits on the bone, and the unapplied parent scale is stated as a limit rather than compensated.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no bone, rig or prop; the bake uses the supplied bone-local offset directly or identity on omission, with unit offset scale and no parent-scale compensation.
  * @evidence contracts/development/common.md#meaningful-documentation States the per-sample composition formula, the parent frame choices, the unapplied scale, which joint tables must match the renderer, the rest-pose case, the clip's time base, sample count, id and both read semantics, and the throw.
- * @evidence contracts/development/implementation.md#efficient-algorithms For S = max(1, round(duration × fps)) + 1 feasible samples, resolves one FK per moving-parent sample plus delegated motion sampling; FK spans B bones. A motionless parent's bone frame is resolved once, while its world callback is still read at each sample.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For S = max(1, round(duration × fps)) + 1 feasible samples, resolves one FK per moving-parent sample plus delegated motion sampling; FK spans B bones. A motionless parent's bone and offset are resolved once, while its world callback is still read at each sample.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning; the two tracks share one time array and own position and rotation arrays, holding 1 + 3 + 4 numbers per sample for the caller.
  */
@@ -63,7 +63,10 @@ export function compileAttach(
     );
   const attachment: IAutoMovieAttachment = {
     parentBone: props.bone,
-    offset: IDENTITY_OFFSET,
+    offset:
+      props.offset === undefined
+        ? IDENTITY_OFFSET
+        : Transform.of(props.offset.position, props.offset.rotation),
   };
   function boneAt(pose: IAutoMoviePose): IAutoMovieTransform {
     return resolveAttachment(
