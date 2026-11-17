@@ -10,6 +10,7 @@ import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLea
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -314,14 +315,29 @@ export namespace operate {
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,
       });
-    // Refuse at plan time a part whose movement leaves the reach.
-    for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / 8);
+    // Refuse at plan time a part whose movement leaves the reach. Over a
+    // carrier the trunk is the carrier's (`overlay`: it claims only the
+    // parts it moves), so the part is worked by the arm alone, and one that
+    // would need a lean is refused there instead of leaned to.
+    const grounded: boolean = context.carrier === undefined;
+    for (let k: number = 0; k <= 8; k++) {
+      const needed: number = lean.pitch(standing, k / 8);
+      if (!grounded && needed > 1e-6)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "at",
+          value: needed,
+          feasible: { kind: "range", minimum: 0, maximum: 0, unit: "deg" },
+          reason: `${context.subject}: the ${mechanism.kind} needs a lean of ${needed.toFixed(1)} degrees to reach, and the action it is performed over keeps the trunk for itself`,
+          fix: "operate it as an action of its own, or bring the body nearer first",
+        });
+    }
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "strokeEnd",
       primitives: [
-        lean.primitive(clock),
+        ...(grounded ? [lean.primitive(clock)] : []),
         AutoMovieMotionHumanArm.stroke({
           body,
           clock,
