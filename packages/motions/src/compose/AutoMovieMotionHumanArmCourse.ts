@@ -137,8 +137,20 @@ export namespace AutoMovieMotionHumanArmCourse {
     const fit: (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear)
       => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } = solver(props);
 
-    // The hold: every arm's own goal.
-    let near: resolveHumanPosture.INear = {};
+    const first: number | undefined = times.find(holding);
+    const last: number | undefined = [...times].reverse().find(holding);
+    if (first === undefined || last === undefined) return undefined;
+
+    // One chain of fits from the rest to the return, each instant continuing
+    // the swivel and branch the one before chose, so the elbow never changes
+    // its side between two frames: the reach toward the hold's first goal,
+    // the hold on every arm's own goal, the return from the hold's last arm.
+    const rest: HumanArmClearance.IArm[] = arms.map(
+      (arm: IProps["arms"][number]): HumanArmClearance.IArm => arm.rest,
+    );
+    course.set(span.start, rest);
+    let near: resolveHumanPosture.INear = transport(props, times, fit, course, span.start, first, rest,
+      arms.map((_: IProps["arms"][number], a: number): IHumanPosture.IGoal => props.aimed(a, first)), {});
     for (const t of times) {
       if (!holding(t)) continue;
       const solved: ReturnType<typeof fit> = fit(t,
@@ -146,22 +158,11 @@ export namespace AutoMovieMotionHumanArmCourse {
       course.set(t, solved.arms);
       near = solved.near;
     }
-    const first: number | undefined = times.find(holding);
-    const last: number | undefined = [...times].reverse().find(holding);
-    if (first === undefined || last === undefined) return undefined;
-
-    // The reach from the rest to the hold's first instant, and the return
-    // from its last to the arm it goes back to.
-    const rest: HumanArmClearance.IArm[] = arms.map(
-      (arm: IProps["arms"][number]): HumanArmClearance.IArm => arm.rest,
-    );
-    course.set(span.start, rest);
-    transport(props, times, fit, course, span.start, first, rest, course.get(first)!);
     if (span.relax < span.end - 1e-9) {
       const back: HumanArmClearance.IArm[] = arms.map(
         (arm: IProps["arms"][number]): HumanArmClearance.IArm => arm.back ?? arm.rest,
       );
-      transport(props, times, fit, course, last, span.end, course.get(last)!, back);
+      transport(props, times, fit, course, last, span.end, course.get(last)!, back, near);
       course.set(span.end, back);
     }
     if (times.some((t: number): boolean => !course.has(t))) return undefined;
@@ -220,8 +221,11 @@ function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
 
       // Refined to the cold sweep's own resolution, so a continued fit
       // resolves its swivel as finely as a cold one.
+      // A fit that names no seed (another candidate won) leaves the last one,
+      // so the next instant still continues rather than sweeping afresh.
       if (fitted.seed !== undefined && fitted.seed !== null)
         next[limb] = { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION };
+      else if (near[limb] !== undefined) next[limb] = near[limb]!;
     }
     return {
       arms: props.arms.map((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number]): HumanArmClearance.IArm =>
@@ -255,7 +259,13 @@ interface ITrunk {
 /** One end of a transport, read on the base it stands on: its course point and the trunk frame it is laid in. */
 interface IEnd extends IOn, ITrunk {}
 
-/** Lay one transport's instants between two ends into the course (the module documentation states the course). */
+/**
+ * Lay one transport's instants between two ends into the course (the module
+ * documentation states the course), each end an arm as posed or a goal the
+ * arm is to meet, the fits continued from `near` and on from instant to
+ * instant; returns the seeds the last instant leaves, which the next phase
+ * continues.
+ */
 function transport(
   props: AutoMovieMotionHumanArmCourse.IProps,
   times: readonly number[],
@@ -263,9 +273,10 @@ function transport(
   course: Map<number, HumanArmClearance.IArm[]>,
   from: number,
   to: number,
-  start: readonly HumanArmClearance.IArm[],
-  end: readonly HumanArmClearance.IArm[],
-): void {
+  start: readonly (HumanArmClearance.IArm | IHumanPosture.IGoal)[],
+  end: readonly (HumanArmClearance.IArm | IHumanPosture.IGoal)[],
+  near: resolveHumanPosture.INear,
+): resolveHumanPosture.INear {
   const { body, arms } = props;
 
   // The trunk frame at an instant: the shoulder's place and the chest's
@@ -278,23 +289,35 @@ function transport(
     shoulder: bones.get(`${side}UpperArm`)!.worldPosition,
     turn: (bones.get("chest") ?? bones.get("hips"))?.worldRotation ?? Quaternion.identity(),
   });
-  const read: (t: number, side: "left" | "right", arm: HumanArmClearance.IArm) => IEnd = (
+  // An end in the trunk frame: an arm read by its forward kinematics on
+  // the base, or a goal by its wrist, its rotation and its bend hint.
+  const read: (t: number, side: "left" | "right", end: HumanArmClearance.IArm | IHumanPosture.IGoal) => IEnd = (
     t: number,
     side: "left" | "right",
-    arm: HumanArmClearance.IArm,
+    end: HumanArmClearance.IArm | IHumanPosture.IGoal,
   ): IEnd => {
+    const posed: boolean = "upper" in end;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body,
-      HumanArmClearance.posed(props.at(t).pose, side, arm), props.resolution(),
+      posed ? HumanArmClearance.posed(props.at(t).pose, side, end as HumanArmClearance.IArm) : props.at(t).pose,
+      props.resolution(),
       new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, "chest", "hips"]));
     const frame: ITrunk = trunk(bones, side);
     const into: IAutoMovieQuaternion = Quaternion.inverse(frame.turn);
-    const local: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-      Quaternion.rotateVector(into, Vector3.subtract(bones.get(bone)!.worldPosition, frame.shoulder));
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(into, Vector3.subtract(point, frame.shoulder));
+    if (posed)
+      return {
+        ...frame,
+        wrist: local(bones.get(`${side}Hand`)!.worldPosition),
+        rotation: Quaternion.multiply(into, bones.get(`${side}Hand`)!.worldRotation),
+        elbow: local(bones.get(`${side}LowerArm`)!.worldPosition),
+      };
+    const goal: IHumanPosture.IGoal = end as IHumanPosture.IGoal;
     return {
       ...frame,
-      wrist: local(`${side}Hand`),
-      rotation: Quaternion.multiply(into, bones.get(`${side}Hand`)!.worldRotation),
-      elbow: local(`${side}LowerArm`),
+      wrist: local(goal.point),
+      rotation: Quaternion.multiply(into, goal.rotation ?? bones.get(`${side}Hand`)!.worldRotation),
+      elbow: local(goal.bend),
     };
   };
 
@@ -360,7 +383,7 @@ function transport(
     (_: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): IHumanPosture.IGoal["clear"] =>
       props.aimed(a, props.span.ready).clear,
   );
-  let near: resolveHumanPosture.INear = {};
+  let seeds: resolveHumanPosture.INear = near;
   for (const t of times) {
     if (!(t > from + 1e-9 && t < to - 1e-9)) continue;
     const share: number = minimumJerk.share((t - from) / (to - from));
@@ -387,8 +410,9 @@ function transport(
         };
       },
     );
-    const solved: ReturnType<typeof fit> = fit(t, goals, near);
+    const solved: ReturnType<typeof fit> = fit(t, goals, seeds);
     course.set(t, solved.arms);
-    near = solved.near;
+    seeds = solved.near;
   }
+  return seeds;
 }
