@@ -100,7 +100,7 @@ export namespace AutoMovieMotionHumanDrinkingLean {
    * (measured on a held glass: 54.7, 38.9, 25.0 and 10.2 degrees off at
    * leans of 15, 30, 45 and 60, so 69.7, 68.9, 70.0 and 70.2). Once two
    * coarse leans in a row place that zero within a step of each other, the
-   * grid's leans within a step of it are tried at once, least first: the
+   * grid's leans within a step of it are tried at once, nearest it first: the
    * window an arm is admitted in is two steps wide and may hold no coarse
    * lean, and past it the miss grows again, so the coarse walk alone steps
    * over it.
@@ -146,12 +146,25 @@ export namespace AutoMovieMotionHumanDrinkingLean {
           before !== undefined && Math.abs(exact - before) <= STEP;
         before = exact;
         if (!agreed) continue;
+
+        // The grid's lean nearest the zero first: a hand at its joint's end
+        // shows the vessel at the zero's lean whatever is asked, so the lean
+        // asked nearest it is the one the hand holds as asked, and a lean a
+        // step short of it only adds that step to the goal's own miss (the
+        // vessel's point then stands off its region by the miss times its
+        // distance from the wrist, which the arm's plan cannot close).
+        const window: number[] = [];
         for (
           let fine: number = Math.ceil((exact - STEP) / STEP - 1e-9) * STEP;
           fine <= Math.min(MOST, exact + STEP) + 1e-9;
           fine += STEP
-        ) {
-          if (fine <= coarse || tried.has(fine)) continue;
+        )
+          if (fine > coarse && !tried.has(fine)) window.push(fine);
+        window.sort(
+          (a: number, b: number): number =>
+            Math.abs(a - exact) - Math.abs(b - exact) || a - b,
+        );
+        for (const fine of window) {
           const reached: T | undefined = once(fine);
           if (reached !== undefined) return reached;
         }
