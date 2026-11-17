@@ -154,7 +154,7 @@ export namespace HumanPerformanceAhead {
       if (law === undefined) return null;
       const given: object = params(intent);
       try {
-        HumanPerformanceParams.check(intent.capability, given);
+        HumanPerformanceParams.check(intent.capability, given, law);
       } catch (error) {
         if (error instanceof HumanRefusal) return null;
         throw error;

@@ -1,4 +1,6 @@
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import { HUMAN_LEXICON } from "../lexicon/HUMAN_LEXICON";
 import { HUMAN_LEXICON_SCHEMAS } from "../lexicon/HUMAN_LEXICON_SCHEMAS";
 
 /**
@@ -27,19 +29,34 @@ export namespace HumanPerformanceParams {
    *
    * @param row The row's registered name.
    * @param given The parameters as the author gave them, before the row's fixed ones.
+   * @param law The law the performance performs under that name; a listed row's schema is read only for the lexicon's own record of it.
    * @throws {HumanRefusal} A `parameter` refusal, for a row or an action the schema lists, on the first member, by its path, that it does not name, that is missing, of another type, not one of its alternatives or outside its bounds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A JSON schema walk over the keywords typia writes (`$ref`, `type`, `properties`, `required`, `oneOf`, `const`, numeric bounds, `items`, `prefixItems`); a union refuses through the alternative its discriminator names, or with the alternatives when none is named.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One recursive reader returning the first fault, one refusal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row the schema does not list is not guessed at.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row the schema does not list is not guessed at, and neither is a registered law that only shares a listed row's name.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parameters given and the union's alternatives.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per placed intent.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure check that retains nothing.
    */
-  export function check(row: string, given: object): void {
+  export function check(
+    row: string,
+    given: object,
+    law?: IHumanActionLaw<never>,
+  ): void {
+    // A row's schema is listed under the row's name, and a law registered
+    // under that name is that row only when it is the lexicon's own record:
+    // a performance may register another law so named (the striking
+    // `HumanDefence.parry` beside the blade's `parry`), whose parameters the
+    // listed schema does not describe. Read by the name alone, the striking
+    // parry's `outcome` was refused as a member the blade's parry lacks.
+    const listed: HUMAN_LEXICON_SCHEMAS.ISchema | undefined =
+      HUMAN_LEXICON_SCHEMAS.rows[row];
+    if (listed !== undefined && law !== undefined && shipped().get(row) !== law)
+      return;
     const schema: HUMAN_LEXICON_SCHEMAS.ISchema | undefined =
-      HUMAN_LEXICON_SCHEMAS.rows[row] ?? HUMAN_LEXICON_SCHEMAS.actions[row];
+      listed ?? HUMAN_LEXICON_SCHEMAS.actions[row];
     if (schema === undefined) return;
     const fault: IFault | null = read(schema, given, "", undefined);
     if (fault === null) return;
@@ -52,6 +69,19 @@ export namespace HumanPerformanceParams {
       fix: fault.fix,
     });
   }
+}
+
+/** The lexicon's rows by name, read once: the records a listed row schema describes. */
+let rows: Map<string, IHumanActionLaw<never>> | undefined;
+
+/** The lexicon's own record of each row name. */
+function shipped(): Map<string, IHumanActionLaw<never>> {
+  if (rows === undefined) {
+    rows = new Map();
+    for (const family of Object.values(HUMAN_LEXICON))
+      for (const law of family) rows.set(law.name, law);
+  }
+  return rows;
 }
 
 /** The first member a schema does not accept. */
