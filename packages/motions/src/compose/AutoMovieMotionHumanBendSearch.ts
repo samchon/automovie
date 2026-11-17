@@ -11,6 +11,7 @@ import {
   normalizeJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
+import type { IAutoMovieSwivelNear, IAutoMovieSwivelSeed } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
@@ -226,7 +227,8 @@ export namespace AutoMovieMotionHumanBendSearch {
     rotation: IAutoMovieQuaternion | undefined,
     neutral: IAngles | null,
     score: (candidate: ICandidate) => IScore,
-  ): ICandidate | null {
+    near?: IAutoMovieSwivelNear,
+  ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | null {
     const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] = chain.prepared;
     const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
     const lowerBone: AutoMovieHumanoidBone = prepared.chain.lower;
@@ -344,8 +346,49 @@ export namespace AutoMovieMotionHumanBendSearch {
           upper: IAutoMovieQuaternion,
           lower: IAutoMovieQuaternion,
         ): IScore => score(read(upper, lower)),
+
+        // A solve continued from a nearby one refines that one's swivel on
+        // its branch, with no sweep (`IAutoMovieSwivelNear`).
+        ...(near === undefined ? {} : { near }),
       });
-    return solved === null ? null : read(solved.upper, solved.lower);
+    return solved === null ? null : {
+      candidate: read(solved.upper, solved.lower),
+      seed: { swivel: solved.swivel, branch: solved.branch },
+    };
+  }
+
+  /**
+   * `AutoMovieMotionHumanBend.solve`'s search with the seed it was chosen
+   * at, cold or continued from a nearby solve's seed: legality first, then
+   * the least strain, on the request's own trunk.
+   *
+   * @param props The request; its `fallback` is not read.
+   * @param hang The `hang` preset's hint for an upright trunk at the origin.
+   * @param near The seed of a nearby solve of the same arm to continue (`IAutoMovieSwivelNear`); absent, every swivel is swept.
+   * @returns The candidate and its swivel and bend branch, or the reason there is none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the ranking, the two modes, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's swivel search cold, or its continuation of a seed within one step either way on the seed's branch (`hingedArmArticulation`'s `near`), under `solve`'s ranking.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare, refuse, search: `prepare`'s own steps with the seed kept.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A continued candidate's overshoot is reported as scored, so a caller sees a seed that left the legal places.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain preparation; cold, the bounded sweep; continued, the refinement's probes alone.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the chain, the hanging arm and `best` with `search`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains what `search` retains.
+   */
+  export function continued(
+    props: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side" | "point" | "rotation">,
+    hang: Parameters<typeof search>[2],
+    near?: IAutoMovieSwivelNear,
+  ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string {
+    const chain: AutoMovieMotionHumanBendChain.IChain | null =
+      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
+    const neutral: IAngles | null = neutralOf(props.body, props.side, hang);
+    if (chain === null || neutral === null) return "the rig has no arm chain";
+    if (Vector3.length(Vector3.subtract(props.point, chain.shoulder)) > chain.span)
+      return "the wrist is beyond the arm's span";
+    return best(chain, props.body, props.side, props.point, props.rotation, neutral,
+      (candidate: ICandidate): IScore => ({ overshoot: candidate.overshoot, deviation: candidate.strain }),
+      near) ?? "the arm chain is degenerate";
   }
 
   /**
@@ -388,7 +431,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       undefined,
       null,
       AutoMovieMotionHumanBendSide.prepare(chain.shoulder, point, hint),
-    );
+    )?.candidate ?? null;
     if (hanging === null) return null;
     NEUTRAL.set(body, { ...NEUTRAL.get(body), [side]: hanging.angles });
     return hanging.angles;
@@ -459,7 +502,7 @@ export namespace AutoMovieMotionHumanBendSearch {
           goal.rotation,
           neutral,
           rank(chain),
-        ) ?? "the arm chain is degenerate"
+        )?.candidate ?? "the arm chain is degenerate"
       );
     };
   }
