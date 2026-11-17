@@ -95,15 +95,19 @@ export namespace AutoMovieMotionHumanTouch {
     target: AutoMovieMotionTarget,
     seconds: number,
     posture: IHumanPosture,
-    entry: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    entry:
+      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+      | (() => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>),
     resolution?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[2],
   ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     if (target.kind === "self") {
       const frame = context.body.surfaces.regions[target.region];
       if (!TRUNK.has(frame.bone)) {
+        // The bones are read only here: a caller whose bones cost a pose
+        // lends a supplier, which a region on the trunk never calls.
         const placed = resolveAutoMovieHumanoidSurfaces.place(
           frame,
-          entry.get(frame.bone)!,
+          (typeof entry === "function" ? entry() : entry).get(frame.bone)!,
         );
         return { point: placed.point, normal: placed.normal };
       }

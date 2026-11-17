@@ -258,10 +258,14 @@ export namespace handToFace {
           posture,
 
           // Over a carrier the face travels with the body, so the region
-          // is read on the bones the posture of that instant gives.
+          // is read on the bones the posture of that instant gives: posed
+          // only when the region lies on a bone the reader asks them for (a
+          // region on the trunk is read from the posture itself, and posing
+          // the whole body for it at every second was work no one read).
           context.carrier === undefined
             ? bones
-            : poseBones(body, resolveHumanPosture(body, posture)),
+            : (): ReturnType<typeof poseBones> =>
+                poseBones(body, resolveHumanPosture(body, posture)),
         );
         // A row that stands its effector upright reads the region's normal
         // level, so its tangent `up` is the world's up.
