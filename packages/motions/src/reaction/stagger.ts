@@ -29,6 +29,7 @@ import { ReactionSource } from "./ReactionSource";
 import { StaggerFeet } from "./StaggerFeet";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
+import { staggerContacts } from "./staggerContacts";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
@@ -182,7 +183,7 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning steps at most 30 closed-form pendulum prefixes and admits only the prefixes of an order the pendulum catches; a refused push adds the limit's bisection of such recoveries over one prepared entry geometry. No stance course or quadratic program is solved; each pose query is one course read, one ground settling and at most two prepared swing holds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan (`HumanArmSwing.carriage` at `KNOTS` a second, about 50 samples a second of plan, each raised to its neighbours' largest) and interpolated, so a pose query writes the arms as joint angles with no fit; between samples the clearance is the interpolated envelope's, unverified inside an interval.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. While the plan is built, each sample's feet and pelvis with no balance shift are solved once and lent to the legs' writer for the arms' carriage read and the first balance pass, which show the plan there before any shift exists; the second balance pass and every pose query solve their own, shifted. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan (`HumanArmSwing.carriage` at `KNOTS` a second, about 50 samples a second of plan, each raised to its neighbours' largest) and interpolated, so a pose query writes the arms as joint angles with no fit; between samples the clearance is the interpolated envelope's, unverified inside an interval.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
@@ -283,7 +284,7 @@ export namespace stagger {
         const shift: IAutoMovieVector3 =
           a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
         const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> =
-          feet.solve(seconds, resolution, shift);
+          lent !== undefined && lent.seconds === seconds ? lent.solved : feet.solve(seconds, resolution, shift);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           const key: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
@@ -404,6 +405,7 @@ export namespace stagger {
     const KNOTS: number = staggerBounds.KNOTS;
     let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
     let balanced: IAutoMovieVector3[] = [];
+    let lent: { seconds: number; solved: ReturnType<StaggerFeet["solve"]> } | undefined;
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(duration, {
@@ -418,10 +420,31 @@ export namespace stagger {
       clock,
       primitives: [legs, arms],
     });
-    const needs: Record<"left" | "right", number>[] = Array.from(
+    const samples: number[] = Array.from(
       { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
-      (_: unknown, i: number): Record<"left" | "right", number> =>
-        HumanArmSwing.carriage(body, [Math.min(duration, i / KNOTS)], composed.posture, ["left", "right"]),
+      (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
+    );
+
+    // Each sample's feet and pelvis with no balance shift, solved once and
+    // lent to the legs' writer while the plan is read there before any shift
+    // exists: the arms' carriage and the first balance pass each settled
+    // that same pelvis again.
+    const unshifted: ReturnType<StaggerFeet["solve"]>[] = samples.map(
+      (seconds: number): ReturnType<StaggerFeet["solve"]> => feet.solve(seconds),
+    );
+    const lend = <T>(i: number, read: () => T): T => {
+      lent = balanced.length === 0 ? { seconds: samples[i]!, solved: unshifted[i]! } : undefined;
+      try {
+        return read();
+      } finally {
+        lent = undefined;
+      }
+    };
+    const needs: Record<"left" | "right", number>[] = samples.map(
+      (seconds: number, i: number): Record<"left" | "right", number> =>
+        lend(i, (): Record<"left" | "right", number> =>
+          HumanArmSwing.carriage(body, [seconds], composed.posture, ["left", "right"]),
+        ),
     );
     const envelope: (side: "left" | "right") => number[] = (side: "left" | "right"): number[] =>
       needs.map((_: Record<"left" | "right", number>, i: number): number =>
@@ -440,13 +463,11 @@ export namespace stagger {
     // mass correction (Phillips and Badler 1991): the legs stand planted
     // while the rest of the body follows the root, so one step leaves the
     // planted legs' share of the residual, which the second takes off.
-    const samples: number[] = Array.from(
-      { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
-      (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
-    );
     for (let pass: number = 0; pass < 2; pass++) {
-      const residual: IAutoMovieVector3[] = samples.map((seconds: number): IAutoMovieVector3 => {
-        const shown: IAutoMovieVector3 = HumanBalance.centre(body, composed.posture(seconds));
+      const residual: IAutoMovieVector3[] = samples.map((seconds: number, i: number): IAutoMovieVector3 => {
+        const shown: IAutoMovieVector3 = lend(i, (): IAutoMovieVector3 =>
+          HumanBalance.centre(body, composed.posture(seconds)),
+        );
         const travel: IAutoMovieVector3 = recovery.course(seconds);
         return {
           x: recovery.centre.x + travel.x - shown.x,
@@ -461,30 +482,7 @@ export namespace stagger {
     return {
       ...composed,
       get contacts(): IHumanContactWindow[] {
-        const out: IHumanContactWindow[] = [];
-        for (const side of ["left", "right"] as const) {
-          let from: number = 0;
-          for (const step of recovery.steps) {
-            if (step.side !== side) continue;
-            if (step.start > from)
-              out.push({
-                part: `${side}Foot`,
-                kind: "plant",
-                from: from / duration,
-                to: step.start / duration,
-                support: { kind: "ground" },
-              });
-            from = step.land;
-          }
-          out.push({
-            part: `${side}Foot`,
-            kind: "plant",
-            from: Math.min(1, from / duration),
-            to: 1,
-            support: { kind: "ground" },
-          });
-        }
-        return out;
+        return staggerContacts(recovery, duration);
       },
     };
   }
