@@ -5,13 +5,13 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { GymnasticsFlight } from "./GymnasticsFlight";
 
 /** The root orientation that changes while the prepared articulation stays fixed. */
 type Heading = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
@@ -37,7 +37,7 @@ type Heading = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
  */
 export function prepareGymnasticsPlacement(
   body: IAutoMovieMotionHumanBody,
-  model: GymnasticsFlight.Model,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   posture: IAutoMovieMotionHumanPosture,
 ): (heading: Heading, centre: IAutoMovieVector3) => IAutoMovieMotionHumanPosture {
   if (

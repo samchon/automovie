@@ -5,7 +5,6 @@ import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanHandspring,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTrunk,
   IAutoMovieMotionHumanTurnHumanPosture,
@@ -261,10 +260,10 @@ export namespace HumanTrunk {
   export function prepareRegion(
     body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
-  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanHandspring.ISurface {
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => HumanTrunk.ISurface {
     const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
     const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanHandspring.ISurface => {
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): HumanTrunk.ISurface => {
       const bones: ReturnType<typeof read> = read(posture, resolution);
       const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
         resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
@@ -368,14 +367,14 @@ export namespace HumanTrunk {
     let colliders: ReturnType<typeof HumanColliders.reading> | undefined;
     return {
       bones,
-      region: (region: AutoMovieHumanoidRegion): IAutoMovieMotionHumanHandspring.ISurface => {
+      region: (region: AutoMovieHumanoidRegion): HumanTrunk.ISurface => {
         const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[region];
         const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
           resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
         return { point: placed.point, normal: placed.normal };
       },
-      surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): IAutoMovieMotionHumanHandspring.ISurface => {
+      surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): HumanTrunk.ISurface => {
         if (colliders === undefined) {
           const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
           for (const [bone, resolved] of bones)
@@ -410,7 +409,7 @@ export namespace HumanTrunk {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration coordinates no computation; prepare owns fixed FK sharing.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature retains no query or frame; prepare owns the reader lifetime.
      */
-    region(region: AutoMovieHumanoidRegion): IAutoMovieMotionHumanHandspring.ISurface;
+    region(region: AutoMovieHumanoidRegion): HumanTrunk.ISurface;
 
     /**
      * A world ray's hit on midline colliders, throwing when it misses within two statures.
@@ -423,7 +422,7 @@ export namespace HumanTrunk {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature shares no ray result; prepare owns only immutable frame preparation.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature holds no collider or hit; prepare owns its synchronous readers.
      */
-    surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): IAutoMovieMotionHumanHandspring.ISurface;
+    surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): HumanTrunk.ISurface;
   }
 
   /**
@@ -448,7 +447,7 @@ export namespace HumanTrunk {
     colliders: ReturnType<typeof HumanColliders.reading>,
     from: IAutoMovieVector3,
     toward: IAutoMovieVector3,
-  ): IAutoMovieMotionHumanHandspring.ISurface {
+  ): HumanTrunk.ISurface {
     const hit: IAutoMovieMotionHumanColliders.IHit | undefined = colliders.cast(
       from,
       toward,

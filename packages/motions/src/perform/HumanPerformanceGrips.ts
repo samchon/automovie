@@ -4,8 +4,6 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * Assemble a prop's grip, worn and mounted spans in the existing film order.

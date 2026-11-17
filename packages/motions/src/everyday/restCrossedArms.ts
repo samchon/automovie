@@ -18,7 +18,6 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
-import type { rest } from "./rest";
 
 /**
  * Both crossed-arms goals on upper arms set before the goals: each hangs

@@ -1,7 +1,6 @@
 import {
   Quaternion,
   Vector3,
-  type curlChainUntilContact,
   physicalShapeSpan,
 } from "@automovie/engine";
 import type {
@@ -9,7 +8,6 @@ import type {
   IAutoMovieCurlChainUntilContact,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanProp,
-  IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,

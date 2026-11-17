@@ -16,7 +16,6 @@ import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAu
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { isHumanArmAlone } from "../posture/isHumanArmAlone";
@@ -24,7 +23,6 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
-import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
  * Physical observations used by arm planning and target feedback: travel

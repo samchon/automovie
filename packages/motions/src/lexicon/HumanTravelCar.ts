@@ -13,10 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { seated } from "../everyday/seated";
 import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanFrame } from "../posture/HumanFrame";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";

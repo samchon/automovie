@@ -11,7 +11,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
@@ -25,7 +24,6 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import type { kick } from "./kick";
 
 /**
  * What a kick fixes when it is launched: the point it aims at as the kicker

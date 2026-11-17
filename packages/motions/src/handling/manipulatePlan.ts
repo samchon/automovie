@@ -13,8 +13,6 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { typeText } from "../everyday/typeText";
-import type { HumanHand } from "../posture/HumanHand";
-import type { manipulate } from "./manipulate";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
@@ -43,22 +41,22 @@ import { manipulateShape } from "./manipulateShape";
 export function manipulatePlan(
   body: IAutoMovieMotionHumanBody,
   hold: IAutoMovieMotionHumanPosture,
-  presses: readonly manipulate.IPress[],
+  presses: readonly IAutoMovieMotionHumanManipulate.IPress[],
   span: number,
   reach: number,
 ): IAutoMovieMotionHumanActionPlan {
   const duration: number = presses[presses.length - 1]!.time + reach * span;
   const hands: IHand[] = [];
   for (const side of ["left", "right"] as const) {
-    const mine: manipulate.IPress[] = presses.filter(
-      (press: manipulate.IPress): boolean => press.side === side,
+    const mine: IAutoMovieMotionHumanManipulate.IPress[] = presses.filter(
+      (press: IAutoMovieMotionHumanManipulate.IPress): boolean => press.side === side,
     );
     if (mine.length === 0) continue;
     const rotation: IAutoMovieQuaternion = manipulateFacing(hold, presses, side);
     const reachAt: ReturnType<typeof manipulateReach.prepare> =
       manipulateReach.prepare(body, side, rotation);
     const shapes: Map<IAutoMovieMotionHumanManipulate.Finger, IAutoMovieMotionHumanPosture["joints"]> = new Map();
-    const prepared: IAutoMovieMotionHumanManipulate.IPress[] = mine.map((press: manipulate.IPress): IAutoMovieMotionHumanManipulate.IPress => {
+    const prepared: IPress[] = mine.map((press: IAutoMovieMotionHumanManipulate.IPress): IPress => {
       let joints: IAutoMovieMotionHumanPosture["joints"] | undefined = shapes.get(press.digit);
       if (joints === undefined) {
         joints = manipulateShape(side, press.digit);
@@ -72,7 +70,7 @@ export function manipulatePlan(
       };
     });
     const windows: IWindow[] = mine.map(
-      (press: manipulate.IPress, index: number): IWindow => ({
+      (press: IAutoMovieMotionHumanManipulate.IPress, index: number): IWindow => ({
         from: press.time - reach * span,
         index,
       }),
@@ -93,7 +91,7 @@ export function manipulatePlan(
   );
   return {
     duration,
-    events: presses.map((press: manipulate.IPress, index: number): IAutoMovieMotionHumanActionPlan["events"][number] => ({
+    events: presses.map((press: IAutoMovieMotionHumanManipulate.IPress, index: number): IAutoMovieMotionHumanActionPlan["events"][number] => ({
       name: `press${index + 1}`, share: press.time / duration,
     })),
     contacts,
@@ -104,9 +102,9 @@ export function manipulatePlan(
       const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
       for (const hand of hands) {
         const index: number = active(hand.windows, time);
-        const current: IAutoMovieMotionHumanManipulate.IPress = hand.prepared[index]!;
-        const previous: IAutoMovieMotionHumanManipulate.IPress = hand.prepared[Math.max(0, index - 1)]!;
-        const press: manipulate.IPress = current.press;
+        const current: IPress = hand.prepared[index]!;
+        const previous: IPress = hand.prepared[Math.max(0, index - 1)]!;
+        const press: IAutoMovieMotionHumanManipulate.IPress = current.press;
         Object.assign(joints, current.joints);
         const approach: number = minimumJerk.share(Math.min(1, Math.max(0,
           (time - (press.time - reach * span)) / (reach * span),
@@ -134,7 +132,7 @@ export function manipulatePlan(
 
 /** One immutable contact's placement and hand shape. */
 interface IPress {
-  press: manipulate.IPress;
+  press: IAutoMovieMotionHumanManipulate.IPress;
   wrist: IAutoMovieVector3;
   joints: IAutoMovieMotionHumanPosture["joints"];
   digit: AutoMovieHumanDigit;
@@ -145,7 +143,7 @@ interface IHand {
   side: AutoMovieHumanSide;
   rotation: IAutoMovieQuaternion;
   bend: IAutoMovieVector3;
-  prepared: readonly IAutoMovieMotionHumanManipulate.IPress[];
+  prepared: readonly IPress[];
   windows: readonly IWindow[];
 }
 

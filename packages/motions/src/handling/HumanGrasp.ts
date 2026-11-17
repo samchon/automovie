@@ -15,8 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanHand } from "../posture/HumanHand";
 import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspReach } from "./HumanGraspReach";
 import { HumanGraspTarget } from "./HumanGraspTarget";

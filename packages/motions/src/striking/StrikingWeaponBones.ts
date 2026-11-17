@@ -1,11 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";

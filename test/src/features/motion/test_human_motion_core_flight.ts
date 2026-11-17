@@ -27,8 +27,6 @@ import {
   HumanAirborneShape,
   HumanChain,
   HumanPerformance,
-  HumanRefusal,
-  type jump,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

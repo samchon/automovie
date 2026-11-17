@@ -23,7 +23,6 @@ import {
   HumanChain,
   HumanLimbFitFrame,
   HumanPerformance,
-  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import { performance } from "node:perf_hooks";

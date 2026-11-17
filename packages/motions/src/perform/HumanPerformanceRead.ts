@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPerformanceState,
@@ -11,7 +12,6 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";

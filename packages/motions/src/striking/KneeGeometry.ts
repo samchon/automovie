@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanFoot } from "../posture/HumanFoot";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
@@ -18,7 +17,6 @@ import { KneeReach } from "./KneeReach";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import type { knee } from "./knee";
 
 /**
  * The original knee's contact key, separated from its phase/contact law.

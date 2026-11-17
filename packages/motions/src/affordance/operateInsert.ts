@@ -14,7 +14,6 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingRollHand } from "../striking/StrikingRollHand";
 
 /**

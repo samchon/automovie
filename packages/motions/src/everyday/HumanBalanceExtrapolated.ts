@@ -1,6 +1,5 @@
 import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
-  AutoMovieHumanForceSite,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -63,7 +62,7 @@ export namespace HumanBalanceExtrapolated {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged canonical body establishes fixed rig/profile/surface membership. Each invocation lends its own or a parent's exact FK workspace and genuine ROM metadata; every changed root/joint/goal and mass placement remains actual and no sample identity keys a result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning search/plan retains body and two bounded static readers until release. Current movement functions, postures, returned maps, mass centres, FK/ROM loans and time samples remain invocation-local and are never saved by the returned closure.
    */
-  export function prepare(body: IAutoMovieMotionHumanBody): (at: AutoMovieHumanForceSite, seconds: number,
+  export function prepare(body: IAutoMovieMotionHumanBody): (at: At, seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>) => number {
     const centre: ReturnType<typeof prepareHumanBalanceCentre> = prepareHumanBalanceCentre(body);
@@ -71,7 +70,7 @@ export namespace HumanBalanceExtrapolated {
       ...HumanColliders.bones(body), ...HumanFoot.bones(body),
     ]);
     const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-    return (at: AutoMovieHumanForceSite, seconds: number, source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    return (at: At, seconds: number, source?: Parameters<typeof prepareHumanPoseResolution>[0],
       supplied?: ReturnType<typeof prepareHumanPostureProjection>): number => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const projection: ReturnType<typeof prepareHumanPostureProjection> = supplied ?? prepareHumanPostureProjection(body);
@@ -85,7 +84,7 @@ type At = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResol
   projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanPosture;
 
 /** The original central difference, current full solve and support margin. */
-function observed(body: IAutoMovieMotionHumanBody, at: AutoMovieHumanForceSite, seconds: number,
+function observed(body: IAutoMovieMotionHumanBody, at: At, seconds: number,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
   centre: ReturnType<typeof prepareHumanBalanceCentre>, frames?: ReturnType<typeof poseBones.prepare>): number {

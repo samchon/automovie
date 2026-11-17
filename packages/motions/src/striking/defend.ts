@@ -20,8 +20,6 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendGeometry } from "./defendGeometry";
-import type { kick } from "./kick";
-import type { punch } from "./punch";
 
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to

@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanNeutralKnuckle,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmPlanned,
@@ -25,7 +24,6 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
-import type { gesture } from "./gesture";
 
 /**
  * A gesture's hands: each moving hand's request on the stroke's goal and its
@@ -121,7 +119,7 @@ export namespace gestureHands {
     );
     const emblem: ReturnType<typeof HumanHand.shape> | undefined =
       p.shape === undefined ? undefined : HumanHandShape.emblem(side, p.shape);
-    const shapes: Map<IAutoMovieMotionHumanHand.Shape, readonly IAutoMovieHumanNeutralKnuckle.IFinger[]> = new Map();
+    const shapes: Map<IAutoMovieMotionHumanHand.Shape, readonly IFinger[]> = new Map();
     let target: { surface: IAutoMovieMotionHumanHand.Surface; shape: IAutoMovieMotionHumanHand.Shape;
       emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget> } | undefined;
     const fingers: IPrepared["fingers"] = (
@@ -129,12 +127,12 @@ export namespace gestureHands {
       envelope: number,
       output?: IAutoMovieMotionHumanPosture["joints"],
     ): IAutoMovieMotionHumanPosture["joints"] => {
-      let entries: readonly IAutoMovieHumanNeutralKnuckle.IFinger[] | undefined = shapes.get(goal.shape);
+      let entries: readonly IFinger[] | undefined = shapes.get(goal.shape);
       if (entries === undefined) {
         const shape: ReturnType<typeof HumanHand.shape> =
           emblem ?? HumanHand.shape(side, goal.shape);
         entries = (Object.keys(shape) as AutoMovieHumanoidBone[]).map(
-          (bone: AutoMovieHumanoidBone): IAutoMovieHumanNeutralKnuckle.IFinger => ({
+          (bone: AutoMovieHumanoidBone): IFinger => ({
             bone,
             at: shape[bone]!,
             relaxed: relaxed[bone]!,

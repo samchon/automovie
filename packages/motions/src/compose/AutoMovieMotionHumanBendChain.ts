@@ -19,7 +19,6 @@ import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
  * An arm chain prepared on a posture's trunk for the elbow search of

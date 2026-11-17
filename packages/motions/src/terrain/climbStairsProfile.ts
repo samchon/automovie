@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interface";
 import { climbStairsFlight } from "./climbStairsFlight";
 
 /**
@@ -17,7 +18,7 @@ import { climbStairsFlight } from "./climbStairsFlight";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns one edge record per tread until its climb plan releases it, without a sample history or external handle.
  */
 export function climbStairsProfile(
-  stairs: climbStairsFlight.IFlight,
+  stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
   near: number,
   clearance: number,
 ): (z: number) => number {

@@ -11,12 +11,10 @@ import type {
   IAutoMovieProjectileFirstContact,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPropFlight } from "./HumanPropFlight";
 
 /**
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a

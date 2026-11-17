@@ -12,7 +12,6 @@ import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingTwist } from "./StrikingTwist";
-import type { punch } from "./punch";
 import { punchContact } from "./punchContact";
 import type { punchGeometry } from "./punchGeometry";
 

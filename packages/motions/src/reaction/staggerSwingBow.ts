@@ -6,7 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { walkFoot } from "../actions/walkFoot";
 import { HumanFoot } from "../posture/HumanFoot";
 import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";

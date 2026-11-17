@@ -4,7 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanFoot } from "../posture/HumanFoot";
 
 /**
  * Floor outlines used by stance support geometry: convex clipping, hulls,

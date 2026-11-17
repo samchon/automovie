@@ -8,12 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanClasp } from "./HumanClasp";
 import { HumanClaspClearance } from "./HumanClaspClearance";
-import type { HumanGrasp } from "./HumanGrasp";
 
 /**
  * Read only the original clasp candidates' consumed posture and contact frames.

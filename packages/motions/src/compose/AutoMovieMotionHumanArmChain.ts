@@ -8,7 +8,6 @@ import type {
   IAutoMovieMotionHumanResolveHumanPosture,
 } from "@automovie/interface";
 
-import type { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";

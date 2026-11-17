@@ -23,7 +23,6 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";

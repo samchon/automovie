@@ -30,7 +30,6 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanForceExchange } from "./HumanForceExchange";
-import type { HumanForceResponse } from "./HumanForceResponse";
 
 /**
  * The throw of a pulled body whose base has broken (#3439): the swing over

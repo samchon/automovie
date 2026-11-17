@@ -7,7 +7,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import type { StrikingHeld } from "./StrikingHeld";
 
 /**
  * Rank actual hand frames by the straight-wrist arm's length residual.

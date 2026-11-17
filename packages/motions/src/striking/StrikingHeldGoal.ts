@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import type { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 
 /**

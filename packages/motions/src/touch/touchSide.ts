@@ -18,7 +18,6 @@ import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { poseBones } from "../posture/poseBones";
-import type { touch } from "./touch";
 import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
 

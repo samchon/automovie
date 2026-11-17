@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPhrase,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanPosture,
@@ -334,7 +335,7 @@ export namespace swim {
             side,
             0,
             duration,
-            (_: IAutoMovieMotionHumanPosture, s: number): AutoMovieMotionHumanArm.ISwing => {
+            (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanArmPhrase.ISwing => {
               const u: number = phase(s, offset);
               if (u < PULL) {
                 const w: number = u / PULL;
@@ -382,7 +383,7 @@ export namespace swim {
             side,
             0,
             duration,
-            (_: IAutoMovieMotionHumanPosture, s: number): AutoMovieMotionHumanArm.ISwing => ({
+            (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanArmPhrase.ISwing => ({
               upper: [30, 45 + 20 * Math.sin(2 * Math.PI * phase(s)), 0],
               elbow: 60,
             }),

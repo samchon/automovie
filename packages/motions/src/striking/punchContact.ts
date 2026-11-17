@@ -25,7 +25,6 @@ import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import type { punch } from "./punch";
 import { punchFootwork } from "./punchFootwork";
 import type { punchGeometry } from "./punchGeometry";
 import type { punchLaunch } from "./punchLaunch";

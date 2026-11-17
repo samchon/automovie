@@ -1,10 +1,10 @@
 import {
   AutoMovieGravity,
-  type resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJumpAirborne,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieResolveCenterOfMass,
@@ -44,7 +44,7 @@ export function prepareJumpPosture(
   model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
   phase: prepareJumpPosture.IPhase & { centre: IAutoMovieVector3; launch: IAutoMovieVector3 },
-  rotation: jumpAirborne.IRotation | undefined,
+  rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
   before: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
   after: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
 ): prepareJumpPosture.IConstruction {

@@ -14,7 +14,6 @@ import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
-import type { punch } from "./punch";
 import type { punchGeometry } from "./punchGeometry";
 
 /**

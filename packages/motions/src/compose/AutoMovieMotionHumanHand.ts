@@ -1,7 +1,6 @@
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieHumanNeutralKnuckle,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
@@ -76,7 +75,7 @@ export namespace AutoMovieMotionHumanHand {
     side: AutoMovieHumanSide,
     shape: IAutoMovieMotionHumanHand.Shape,
   ): (curl: number, weight: number) => IAutoMovieMotionHumanPosture["joints"] {
-    const fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[] = entries(side, shape);
+    const fixed: readonly IFinger[] = entries(side, shape);
     return (curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] => shaped(fixed, curl, weight);
   }
 
@@ -97,7 +96,7 @@ export namespace AutoMovieMotionHumanHand {
    */
   export function prepareFingerWriter(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape):
     (joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number) => void {
-    const fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[] = entries(side, shape);
+    const fixed: readonly IFinger[] = entries(side, shape);
     return (joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void => {
       written(fixed, joints, curl, weight);
     };
@@ -187,18 +186,18 @@ interface IFinger {
 }
 
 /** Compile only unchanged named-shape scalars; every output remains independent. */
-function entries(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape): readonly IAutoMovieHumanNeutralKnuckle.IFinger[] {
+function entries(side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape): readonly IFinger[] {
   const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
   const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
   return (Object.keys(asked) as AutoMovieHumanoidBone[]).map(
-    (bone: AutoMovieHumanoidBone): IAutoMovieHumanNeutralKnuckle.IFinger => ({
+    (bone: AutoMovieHumanoidBone): IFinger => ({
       bone, asked: asked[bone]![0], relaxed: relaxed[bone]![0], curls: !bone.includes("Thumb"),
     }),
   );
 }
 
 /** The original curl-then-subtract interpolation shared by cold and prepared reads. */
-function shaped(fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[], curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] {
+function shaped(fixed: readonly IFinger[], curl: number, weight: number): IAutoMovieMotionHumanPosture["joints"] {
   const out: IAutoMovieMotionHumanPosture["joints"] = {};
   written(fixed, out, curl, weight);
   return out;
@@ -213,7 +212,7 @@ function shaped(fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[], curl: n
  * a seated body had laid flat on its thigh into the thigh at the action's
  * first and last instants.
  */
-function written(fixed: readonly IAutoMovieHumanNeutralKnuckle.IFinger[], joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void {
+function written(fixed: readonly IFinger[], joints: IAutoMovieMotionHumanPosture["joints"], curl: number, weight: number): void {
   for (const entry of fixed)
     joints[entry.bone] = interpolated(entry.asked, joints[entry.bone]?.[0] ?? entry.relaxed, entry.curls, curl, weight);
 }

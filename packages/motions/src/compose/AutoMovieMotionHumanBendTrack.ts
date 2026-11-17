@@ -1,4 +1,3 @@
-import { hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,

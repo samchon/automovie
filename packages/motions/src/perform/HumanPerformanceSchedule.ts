@@ -173,7 +173,7 @@ export namespace HumanPerformanceSchedule {
         );
 
       // The meetings this planning recorded go with its kept plan, for the
-      // placement that takes it (`IHumanPerformanceTrial`).
+      // placement that takes it (`IAutoMovieMotionHumanPerformanceTrial`).
       if (self.trial !== undefined)
         self.trial.meetings = [...self.meetings].filter(
           ([key, value]: [string, { subject: string; meeting: IAutoMovieMotionMeeting }]): boolean =>

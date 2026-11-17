@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
-import type { walkSteps } from "./walkSteps";
 
 /** Fixed body, path and timing inputs of a stepping take's unconstrained root. */
 interface IProps {

@@ -9,7 +9,6 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { HumanLegChain } from "../posture/HumanLegChain";
 import { walkLegBinding } from "./walkLegBinding";
 import { walkLegCapsules } from "./walkLegCapsules";
 

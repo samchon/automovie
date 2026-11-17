@@ -1,6 +1,5 @@
 import {
   resolveAutoMovieContactEvents,
-  type resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,

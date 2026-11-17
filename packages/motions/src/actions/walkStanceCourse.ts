@@ -1,7 +1,6 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
 import type { IAutoMovieMotionHumanWalkStanceCourse } from "@automovie/interface";
 
-import type { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**

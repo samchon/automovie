@@ -10,7 +10,6 @@ import type {
 
 import { KickGeometry } from "./KickGeometry";
 import { KickLaunch } from "./KickLaunch";
-import type { kick } from "./kick";
 
 /**
  * A round kick redirected before its chamber key into another round kick (a

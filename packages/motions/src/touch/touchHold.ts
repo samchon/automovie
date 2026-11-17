@@ -29,7 +29,6 @@ import { HumanPerception } from "../law/HumanPerception";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingTarget } from "../striking/StrikingTarget";
-import type { touch } from "./touch";
 import { touchRegion } from "./touchRegion";
 
 /**

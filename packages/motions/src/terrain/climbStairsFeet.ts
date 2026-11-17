@@ -4,7 +4,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import type { HumanFoot } from "../posture/HumanFoot";
 
 /**
  * Prepare each stair foot's timed swings and select its active interval.

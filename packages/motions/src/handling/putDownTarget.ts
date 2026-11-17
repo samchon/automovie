@@ -12,7 +12,6 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { poseBones } from "../posture/poseBones";
-import type { putDown } from "./putDown";
 
 /**
  * The rigid frame a prop is set on: a bone of the performer or another

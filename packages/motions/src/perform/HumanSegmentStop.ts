@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 
 import { poseBones } from "../posture/poseBones";
-import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 

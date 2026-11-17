@@ -33,7 +33,6 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";

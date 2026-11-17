@@ -13,7 +13,6 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import type { HumanHeld } from "./HumanHeld";
 
 /**
  * Prepare one held prop's fixed hand-local contact and actual rim turns.

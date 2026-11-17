@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanMassSource,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -63,10 +62,10 @@ export namespace StrikingLegGoals {
     feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean>,
   ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    let seeds: readonly IAutoMovieHumanMassSource.ISeed[] | undefined;
+    let seeds: readonly ISeed[] | undefined;
     return (): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> => {
       if (seeds === undefined)
-        seeds = (["left", "right"] as const).map((side: "left" | "right"): IAutoMovieHumanMassSource.ISeed => {
+        seeds = (["left", "right"] as const).map((side: "left" | "right"): ISeed => {
           const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
           const bearing: boolean = planted[side];
           return {

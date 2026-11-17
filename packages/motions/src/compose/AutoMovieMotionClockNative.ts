@@ -5,7 +5,6 @@ import type {
   IAutoMovieMotionEvent,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 
 /**

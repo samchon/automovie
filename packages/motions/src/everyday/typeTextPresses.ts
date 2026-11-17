@@ -2,12 +2,10 @@ import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanManipulate,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
 
 /**
  * Prepare each typing hand's ordered key presses and evaluate the first
@@ -40,7 +38,7 @@ export function typeTextPresses(
   hover: number,
   travel: number,
 ): (side: AutoMovieHumanSide, seconds: number) => IAutoMovieVector3 {
-  const presses: Record<AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.IPress[]> = { left: [], right: [] };
+  const presses: Record<AutoMovieHumanSide, IPress[]> = { left: [], right: [] };
   const previous: Record<AutoMovieHumanSide, IAutoMovieVector3> = { ...home };
   const until: Record<AutoMovieHumanSide, number> = { left: 0, right: 0 };
   const reach: number = 0.4 * interval;
@@ -69,7 +67,7 @@ export function typeTextPresses(
     height: number,
   ): IAutoMovieVector3 => transform.point({ x, y: height, z });
   return (side: AutoMovieHumanSide, seconds: number): IAutoMovieVector3 => {
-    const ordered: readonly IAutoMovieMotionHumanManipulate.IPress[] = presses[side];
+    const ordered: readonly IPress[] = presses[side];
     if (Number.isNaN(seconds)) return world(previous[side].x, previous[side].z, hover);
     let low: number = 0;
     let high: number = ordered.length;
@@ -78,7 +76,7 @@ export function typeTextPresses(
       if (ordered[middle]!.end <= seconds) low = middle + 1;
       else high = middle;
     }
-    const active: IAutoMovieMotionHumanManipulate.IPress | undefined = ordered[low];
+    const active: IPress | undefined = ordered[low];
     if (active === undefined) return world(previous[side].x, previous[side].z, hover);
     if (seconds < active.approach) return world(active.from.x, active.from.z, hover);
     if (seconds < active.press) {

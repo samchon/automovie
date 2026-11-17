@@ -40,7 +40,6 @@ import { jumpPushPosture } from "./jumpPushPosture";
 import type { jumpState } from "./jumpState";
 import { jumpTakeoff } from "./jumpTakeoff";
 import { prepareJumpPosture } from "./prepareJumpPosture";
-import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 
 /**

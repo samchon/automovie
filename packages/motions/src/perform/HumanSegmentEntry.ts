@@ -16,7 +16,6 @@ import type {
 import { HumanBase } from "../law/HumanBase";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
-import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 

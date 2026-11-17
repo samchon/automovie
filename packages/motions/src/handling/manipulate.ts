@@ -21,8 +21,6 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";
-import { manipulateReach } from "./manipulateReach";
-import { manipulateShape } from "./manipulateShape";
 
 /**
  * A keyed contact sequence: digits of one hand or both pressing sites of a

@@ -1,18 +1,16 @@
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHandToFaceRows,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
-import type { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
 
 /**
@@ -45,7 +43,7 @@ import { handToFaceSheet } from "./handToFaceSheet";
  */
 export function handToFaceRegion(
   context: IAutoMovieMotionHumanActionContext,
-  row: handToFaceRows.IRow,
+  row: IAutoMovieMotionHumanHandToFaceRows.IRow,
   bones: ReturnType<typeof poseBones>,
 ): (
   side: AutoMovieHumanSide,

@@ -13,7 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanForce } from "../perform/HumanForce";
 import { HumanForceDrawn } from "./HumanForceDrawn";
 
 /**

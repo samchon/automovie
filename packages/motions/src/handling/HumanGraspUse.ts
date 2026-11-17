@@ -14,13 +14,11 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
-import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUsePreparation } from "./HumanGraspUsePreparation";
 import { HumanGraspWorn } from "./HumanGraspWorn";

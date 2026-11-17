@@ -1,12 +1,9 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieLoftSectionSource,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
-import type { ExerciseKey } from "./ExerciseKey";
 
 /**
  * Prepare the joint union and fixed endpoints of a keyed posture transition.
@@ -27,7 +24,7 @@ export function prepareExerciseKeyBlend(
   a: IAutoMovieMotionHumanExerciseKey.IKey,
   b: IAutoMovieMotionHumanExerciseKey.IKey,
 ): (share: number) => IAutoMovieMotionHumanExerciseKey.IKey {
-  const endpoints: IAutoMovieLoftSectionSource.IEndpoint[] = [];
+  const endpoints: IEndpoint[] = [];
   for (const bone of bones(a, b))
     endpoints.push({ bone, from: a.joints[bone] ?? [0, 0, 0], to: b.joints[bone] ?? [0, 0, 0] });
   return (share: number): IAutoMovieMotionHumanExerciseKey.IKey => blend(a, b, share, endpoints);
@@ -71,7 +68,7 @@ function blend(
   a: IAutoMovieMotionHumanExerciseKey.IKey,
   b: IAutoMovieMotionHumanExerciseKey.IKey,
   share: number,
-  endpoints?: readonly IAutoMovieLoftSectionSource.IEndpoint[],
+  endpoints?: readonly IEndpoint[],
 ): IAutoMovieMotionHumanExerciseKey.IKey {
   const joints: IAutoMovieMotionHumanJoints.Angles = {};
   if (endpoints === undefined)

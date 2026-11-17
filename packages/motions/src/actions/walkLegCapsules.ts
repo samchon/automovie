@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import { walkLegClearance } from "./walkLegClearance";
 
 /**
  * The legs' geometry the clearance reads (`walkLegClearance`): a leg's

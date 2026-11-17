@@ -24,7 +24,6 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { HumanClaspCandidateFrames } from "./HumanClaspCandidateFrames";
 import { HumanClaspClearance } from "./HumanClaspClearance";
-import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 

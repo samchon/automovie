@@ -1,7 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
 /**
  * Named clock intervals resolved once for repeated progress reads.

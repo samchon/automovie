@@ -7,7 +7,6 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanHandover } from "./HumanHandover";
 
 /**

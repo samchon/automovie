@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanKiss,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
   IAutoMovieVector3,
@@ -9,7 +10,6 @@ import type {
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
-import type { kiss } from "./kiss";
 
 /**
  * Build each actual kiss-search candidate from the current raw entry.
@@ -37,9 +37,9 @@ export function kissPose(
   stance: IAutoMovieMotionHumanRise.Stance,
   twist: number,
   behind: number,
-): (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IAutoMovieMotionHumanPosture {
+): (s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IAutoMovieMotionHumanPosture {
   const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(2, twist);
-  return (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IAutoMovieMotionHumanPosture => {
+  return (s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IAutoMovieMotionHumanPosture => {
     const yaw: number = (entry.yaw * Math.PI) / 180;
     const offset: IAutoMovieVector3 = { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind };
     const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(

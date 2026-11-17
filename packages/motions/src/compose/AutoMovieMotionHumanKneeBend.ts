@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
  * The original knee-over-foot bend hint and its fixed-foot-heading geometry.

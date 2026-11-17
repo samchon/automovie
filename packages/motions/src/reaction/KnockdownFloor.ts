@@ -6,7 +6,6 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanColliders } from "../posture/HumanColliders";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";

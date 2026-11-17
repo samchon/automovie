@@ -14,7 +14,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanTrunk } from "./HumanTrunk";
-import type { rest } from "./rest";
 
 /**
  * The rest goals of two hands laid one on the other against the trunk: in

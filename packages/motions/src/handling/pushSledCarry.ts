@@ -1,13 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanCarriedCouplingPose,
   IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanHand } from "../posture/HumanHand";
 
 /**
  * Carry the two grips of a floor load by one already resolved chest frame.
@@ -60,7 +58,7 @@ export namespace pushSledCarry {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Both hands share the same current frame's actual yaw quaternion and point transform while the borrowed arrival/current frames remain unchanged; different holds still calculate their own points and attitudes.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call returns fresh IHold, wrist, point, bend and rotation records. Its owning frame closure borrows arrival/current bone frames and the fixed yaw for that frame's lifetime, with no queried-hold history or external handle.
      */
-    hold: (hold: IAutoMovieMotionHumanCarriedCouplingPose.IHold) => IAutoMovieMotionHumanCarriedCouplingPose.IHold;
+    hold: (hold: pushSledCarry.IHold) => pushSledCarry.IHold;
   }
 
   /**
@@ -91,7 +89,7 @@ export namespace pushSledCarry {
         return { x: carried.x, y: point.y, z: carried.z };
       };
       return {
-        hold: (hold: IAutoMovieMotionHumanCarriedCouplingPose.IHold): IAutoMovieMotionHumanCarriedCouplingPose.IHold => ({
+        hold: (hold: pushSledCarry.IHold): pushSledCarry.IHold => ({
           wrist: { point: moved(hold.wrist.point), rotation: Quaternion.normalize(
             Quaternion.multiply(turn, hold.wrist.rotation)) },
           bend: moved(hold.bend),

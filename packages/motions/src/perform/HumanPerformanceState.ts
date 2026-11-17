@@ -15,6 +15,7 @@ import type {
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformanceTrial,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
@@ -32,7 +33,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
@@ -42,7 +42,6 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
-import type { IHumanPerformanceTrial } from "./IHumanPerformanceTrial";
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -137,7 +136,7 @@ export class HumanPerformanceState {
   public placements: number = 0;
 
   /** The plan the last alignment trial made (`HumanPerformancePlace.place` with `trial`), kept until the next placement reads or drops it; none otherwise. */
-  public trial: IHumanPerformanceTrial | undefined;
+  public trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
 
   /**
    * Resolve a performance.

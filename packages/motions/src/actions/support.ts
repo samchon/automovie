@@ -16,8 +16,6 @@ import type {
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { crawl } from "../floor/crawl";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanSupport } from "../law/HumanSupport";
-import type { HumanBodyFit } from "../posture/HumanBodyFit";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportInterval } from "./prepareSupportInterval";

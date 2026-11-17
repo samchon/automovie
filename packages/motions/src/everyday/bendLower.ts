@@ -19,7 +19,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
-import type { bend } from "./bend";
 
 /**
  * A standing body lowered toward a low target by a strategy, and the trunk

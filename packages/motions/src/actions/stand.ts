@@ -14,7 +14,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { prepareStand } from "./prepareStand";

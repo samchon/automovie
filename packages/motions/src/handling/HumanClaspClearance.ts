@@ -1,7 +1,6 @@
 import {
   Quaternion,
   Vector3,
-  type curlChainUntilContact,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -14,7 +13,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanGrip } from "./HumanGrip";
 
 /**

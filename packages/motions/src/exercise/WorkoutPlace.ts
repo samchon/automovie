@@ -17,7 +17,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { ExerciseKey } from "./ExerciseKey";
-import type { WorkoutKind } from "./WorkoutKind";
 
 /**
  * Where a workout's bearing bones stay: the one place the kind's pin keeps

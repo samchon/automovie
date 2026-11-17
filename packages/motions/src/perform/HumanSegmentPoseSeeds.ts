@@ -1,4 +1,3 @@
-import type { samplePoseVelocity } from "@automovie/engine";
 import type {
   IAutoMoviePose,
   IAutoMoviePoseState,

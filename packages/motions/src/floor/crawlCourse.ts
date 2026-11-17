@@ -1,7 +1,9 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanCrawl,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { crawl } from "./crawl";
 
 /**
  * Prepared support courses for a crawl. Footprints and exact swing boundaries
@@ -23,7 +25,7 @@ export namespace crawlCourse {
    */
   export interface IProps {
     /** Limbs in the gait. */
-    limbs: readonly crawl.Limb[];
+    limbs: readonly IAutoMovieMotionHumanCrawl.Limb[];
 
     /** Positive integer count of authored cycles. */
     cycles: number;
@@ -41,7 +43,7 @@ export namespace crawlCourse {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed law frame and stride make each limb/cycle footprint invariant; of requests it once and shares it across independent time queries.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callback owns no handle or query history; of retains at most cycles plus one returned point per limb until its plan is released.
      */
-    print(limb: crawl.Limb, cycle: number): IAutoMovieVector3;
+    print(limb: IAutoMovieMotionHumanCrawl.Limb, cycle: number): IAutoMovieVector3;
 
     /**
      * Seconds of each numbered liftoff, one through cycles. For each limb
@@ -55,7 +57,7 @@ export namespace crawlCourse {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work A fixed down time, period and limb phase make every numbered liftoff invariant; of reads each once for all time queries.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callback retains no queried time or result history; the owning course stores exactly one interval per authored limb/cycle until release.
      */
-    lift(limb: crawl.Limb, cycle: number): number;
+    lift(limb: IAutoMovieMotionHumanCrawl.Limb, cycle: number): number;
 
     /** Positive seconds from liftoff to touchdown. */
     swing: number;
@@ -81,8 +83,8 @@ export namespace crawlCourse {
    */
   export function of(
     props: IProps,
-  ): (limb: crawl.Limb, seconds: number) => IAutoMovieVector3 {
-    const courses: Map<crawl.Limb, ICourse> = new Map();
+  ): (limb: IAutoMovieMotionHumanCrawl.Limb, seconds: number) => IAutoMovieVector3 {
+    const courses: Map<IAutoMovieMotionHumanCrawl.Limb, ICourse> = new Map();
     for (const limb of props.limbs) {
       const points: IAutoMovieVector3[] = [];
       const intervals: IInterval[] = [];
@@ -99,7 +101,7 @@ export namespace crawlCourse {
       });
     }
     const swing: number = props.swing;
-    return (limb: crawl.Limb, seconds: number): IAutoMovieVector3 => {
+    return (limb: IAutoMovieMotionHumanCrawl.Limb, seconds: number): IAutoMovieVector3 => {
       const course: ICourse = courses.get(limb)!;
       let lo: number = 0;
       let hi: number = course.intervals.length;

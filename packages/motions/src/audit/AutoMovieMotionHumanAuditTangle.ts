@@ -13,10 +13,7 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
-import {
-  AutoMovieMotionHumanAuditTangleModel,
-  AutoMovieMotionHumanAuditTangleModel as M,
-} from "./AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoMovieMotionHumanAuditExemption";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 

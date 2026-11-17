@@ -17,7 +17,6 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { rise } from "../everyday/rise";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";

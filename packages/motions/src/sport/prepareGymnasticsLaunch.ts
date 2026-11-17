@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -16,7 +17,6 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { GymnasticsFlight } from "./GymnasticsFlight";
 
 /**
  * Prepare the fixed mass-bone demand for launch readings of one unchanged
@@ -37,7 +37,7 @@ import type { GymnasticsFlight } from "./GymnasticsFlight";
  */
 export function prepareGymnasticsLaunch(
   body: IAutoMovieMotionHumanBody,
-  model: GymnasticsFlight.Model,
+  model: IAutoMovieResolveCenterOfMass.IModel,
 ): (plan: IAutoMovieMotionHumanActionPlan, seconds: number) => ILaunch {
   let readBones: ReturnType<typeof poseBones.prepare> | undefined;
   return (plan: IAutoMovieMotionHumanActionPlan, seconds: number): ILaunch => {

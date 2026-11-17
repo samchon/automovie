@@ -56,8 +56,7 @@ export namespace HumanPerformanceHold {
     subject: string,
     seconds: number,
     own?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
-      ): IAutoMovieRigidTransform {
+  ): IAutoMovieRigidTransform {
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [

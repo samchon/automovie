@@ -1,6 +1,7 @@
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanArmClearance,
@@ -25,7 +26,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
-import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /**
  * An arm carried toward a goal: the joint-space carry between held angles
@@ -376,7 +377,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         seconds > span.start &&
         (seconds < span.end || span.relax >= span.end)
           ? []
-          : AutoMovieMotionHumanChannel.ORDER,
+          : HumanChannels.ORDER,
       from: props.from,
       to: props.to,
       // The group is planned when the action is, on the posture so far

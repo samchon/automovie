@@ -12,7 +12,6 @@ import {
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
-  HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

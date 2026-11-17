@@ -14,7 +14,6 @@ import type {
 import { HumanFormation } from "../ensemble/HumanFormation";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { walkPaced } from "./walkPaced";
 

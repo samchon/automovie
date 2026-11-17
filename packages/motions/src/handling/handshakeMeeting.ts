@@ -18,7 +18,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";

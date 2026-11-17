@@ -12,7 +12,6 @@ import type {
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieReactionTimeDistribution,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -134,7 +133,7 @@ export namespace give {
           angles: IAutoMovieMotionHumanJoints.Angles;
         }
       | { part: "trunk"; away: IAutoMovieVector3 };
-    const reaction: IAutoMovieReactionTimeDistribution = ((): IAutoMovieReactionTimeDistribution => {
+    const reaction: IReaction = ((): IReaction => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const headAt: ReturnType<typeof HumanTrunk.prepareResolve> =

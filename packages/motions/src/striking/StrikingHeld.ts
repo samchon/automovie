@@ -17,7 +17,6 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingHeldGoal } from "./StrikingHeldGoal";
-import { StrikingRoll } from "./StrikingRoll";
 
 /**
  * A thing held in the hand as the effector of an action: a blade whose point

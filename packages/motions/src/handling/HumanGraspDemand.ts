@@ -18,7 +18,6 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspJudgement } from "./HumanGraspJudgement";
 
 /**

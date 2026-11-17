@@ -19,8 +19,6 @@ import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
 import { runStance } from "./runStance";
 import { stand } from "./stand";
-import type { walkFacing } from "./walkFacing";
-import { walkFoot } from "./walkFoot";
 import { walkHeading } from "./walkHeading";
 import { walkReach } from "./walkReach";
 import { walkRoot } from "./walkRoot";

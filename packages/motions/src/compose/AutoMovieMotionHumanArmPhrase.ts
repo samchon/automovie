@@ -144,10 +144,8 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function stroke(
-    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps ,
-        resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
-        projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
-      ): IAutoMovieMotionHumanPrimitive {
+    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
         body: props.body,

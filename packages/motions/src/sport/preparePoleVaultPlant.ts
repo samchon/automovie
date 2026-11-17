@@ -4,11 +4,12 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -38,7 +39,7 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
  */
 export function preparePoleVaultPlant(props: {
   body: IAutoMovieMotionHumanBody;
-  model: GymnasticsFlight.Model;
+  model: IAutoMovieResolveCenterOfMass.IModel;
   side: AutoMovieHumanSide;
   end: IAutoMovieVector3;
   height: number;

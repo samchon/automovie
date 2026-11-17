@@ -3,7 +3,6 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import type { HumanHand } from "../posture/HumanHand";
 import type { touchHold } from "./touchHold";
 
 /**

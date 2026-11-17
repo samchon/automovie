@@ -9,7 +9,6 @@ import type {
 
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import type { HumanGrasp } from "./HumanGrasp";
 
 /**
  * The original demanded held-tool measure on actual displayed bones.

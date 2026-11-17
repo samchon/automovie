@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,

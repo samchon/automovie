@@ -10,12 +10,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanDrinkingPool } from "../compose/AutoMovieMotionHumanDrinkingPool";
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
-import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanHand } from "../posture/HumanHand";
 
 /**
  * The side of a held vessel's rim a drink is taken from, found by the
@@ -88,7 +85,7 @@ export namespace handToFaceVessel {
     sides: readonly IAutoMovieMotionHumanTouchEffector.IEffector[],
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
-    after: AutoMovieMotionHumanTouchDrink.IAfter,
+    after: IAutoMovieMotionHumanTouchDrink.IAfter,
   ): IVessel {
     // The hand's turn at the lips is the facing less the side, so with the
     // sides spaced evenly round the rim (`HumanHeld.SIDES`) the facings need

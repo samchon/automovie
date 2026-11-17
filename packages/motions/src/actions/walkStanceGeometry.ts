@@ -18,7 +18,6 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanLegChain } from "../posture/HumanLegChain";
 import { walkLeg } from "./walkLeg";
-import type { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceOutline } from "./walkStanceOutline";
 import { walkStanceTerms } from "./walkStanceTerms";
 

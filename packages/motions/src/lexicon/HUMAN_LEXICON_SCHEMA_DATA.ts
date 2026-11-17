@@ -1,7 +1,6 @@
 // Written by `pnpm --filter @automovie/motions schemas` from the lexicon laws' parameter types (src/executable/lexiconSchemas.ts); do not edit by hand.
 import type { IAutoMovieMotionHumanLexiconSchemas } from "@automovie/interface";
 
-import type { HUMAN_LEXICON_SCHEMAS } from "./HUMAN_LEXICON_SCHEMAS";
 
 /**
  * The generated schemas as data: OpenAPI 3.1 JSON schemas of every lexicon

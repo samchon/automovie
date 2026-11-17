@@ -15,7 +15,6 @@ import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUse } from "./HumanGraspUse";
-import type { pickUp } from "./pickUp";
 import { pickUpPosture } from "./pickUpPosture";
 
 /**

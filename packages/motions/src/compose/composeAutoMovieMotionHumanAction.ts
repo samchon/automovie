@@ -1,4 +1,5 @@
 import type {
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
   IAutoMovieMotionHumanContactWindow,
@@ -10,10 +11,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import {
-  AutoMovieMotionHumanChannel,
-  AutoMovieMotionHumanChannel as HumanChannels,
-} from "./AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /**
  * An action composed of part primitives over a base.
@@ -141,7 +139,7 @@ export function composeAutoMovieMotionHumanAction(
   }
 
   /** Fixed-claim posture merge retained by each primitive's plan. */
-  type Merger = ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>;
+  type Merger = ReturnType<typeof HumanChannels.prepareMerge>;
 
   /** Exact FK metadata borrowed only by the currently active synchronous query. */
   type Resolution = Parameters<typeof prepareHumanPoseResolution>[0];
@@ -151,14 +149,14 @@ export function composeAutoMovieMotionHumanAction(
 
   // Nine owned channels fit in one integer. A write may replace a channel
   // without reading it; only its declared prerequisites propagate backward.
-  const width: number = 1 << AutoMovieMotionHumanChannel.ORDER.length;
+  const width: number = 1 << HumanChannels.ORDER.length;
   const all: number = width - 1;
   const masks: number[] = primitives.map(
     (p: IAutoMovieMotionHumanPrimitive): number => mask(p.channels),
   );
   const mergers: Merger[] =
     primitives.map((p: IAutoMovieMotionHumanPrimitive): Merger =>
-      AutoMovieMotionHumanChannel.prepareMerge(p.channels));
+      HumanChannels.prepareMerge(p.channels));
   const dependencies: (number | ((seconds: number) => number))[] = primitives.map(
     (p: IAutoMovieMotionHumanPrimitive): number | ((seconds: number) => number) => {
       const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;

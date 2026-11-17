@@ -42,7 +42,6 @@ import { WorkoutFeet } from "./WorkoutFeet";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutGym } from "./WorkoutGym";
 import { WorkoutHanging } from "./WorkoutHanging";
-import type { WorkoutKind } from "./WorkoutKind";
 import { WorkoutLoad } from "./WorkoutLoad";
 import { WorkoutLying } from "./WorkoutLying";
 import { WorkoutPlace } from "./WorkoutPlace";

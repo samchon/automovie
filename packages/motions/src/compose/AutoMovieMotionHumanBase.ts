@@ -1,4 +1,5 @@
 import type {
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -6,7 +7,6 @@ import type {
 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel

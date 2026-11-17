@@ -18,7 +18,6 @@ import { KickGeometry } from "./KickGeometry";
 import type { KickLaunch } from "./KickLaunch";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
-import type { kick } from "./kick";
 
 /**
  * A kick's way to its contact, kept clear of the person it is thrown at.

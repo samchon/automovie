@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
+  AutoMovieMotionHumanChannel,
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
@@ -11,6 +12,7 @@ import type {
   IAutoMovieMotionHumanForce,
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformanceTrial,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
@@ -26,7 +28,6 @@ import type {
 
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
 import type { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -42,7 +43,6 @@ import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanSegment } from "./HumanSegment";
-import type { IHumanPerformanceTrial } from "./IHumanPerformanceTrial";
 
 /**
  * One intent placed in the performance: its law found, its entry state
@@ -59,7 +59,7 @@ export namespace HumanPerformancePlace {
    * The schedule's timing law: plan the intent from the state its person is
    * in. A trial plans and returns the timing without placing anything, and
    * its planning is kept for the placement of the same intent at the same
-   * start with nothing placed in between (`IHumanPerformanceTrial`).
+   * start with nothing placed in between (`IAutoMovieMotionHumanPerformanceTrial`).
    * Participant registry/body/entry metadata is fixed for this action context,
    * so its private per-subject reader templates share closures until context
    * release. Every performer lookup still checks existence and returns a fresh
@@ -184,9 +184,9 @@ export namespace HumanPerformancePlace {
 
     // The alignment's last trial planned this intent at this start with the
     // same placed state: its planning is the one this placement would make
-    // (`IHumanPerformanceTrial`). A placement reads or drops the kept trial.
-    const last: IHumanPerformanceTrial | undefined = trial ? undefined : self.trial;
-    const kept: IHumanPerformanceTrial | undefined =
+    // (`IAutoMovieMotionHumanPerformanceTrial`). A placement reads or drops the kept trial.
+    const last: IAutoMovieMotionHumanPerformanceTrial | undefined = trial ? undefined : self.trial;
+    const kept: IAutoMovieMotionHumanPerformanceTrial | undefined =
       last !== undefined && last.intent === intent && last.start === start &&
       last.placements === self.placements && last.entries === entries.length
         ? last

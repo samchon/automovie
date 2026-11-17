@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
  * The span a carry's weight states: where it leaves 0 (`start`), first

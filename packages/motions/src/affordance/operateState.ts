@@ -6,7 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { operate } from "./operate";
 import { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
 

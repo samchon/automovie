@@ -11,7 +11,6 @@ import type {
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**

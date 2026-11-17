@@ -5,7 +5,6 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { HumanHand } from "../posture/HumanHand";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";

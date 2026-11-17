@@ -3,8 +3,6 @@ import type {
   IAutoMovieMotionHumanWalkStanceCourse,
 } from "@automovie/interface";
 
-import type { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
-import type { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceTerms } from "./walkStanceTerms";
 
 /**

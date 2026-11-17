@@ -76,7 +76,7 @@ export namespace getUp {
     any: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
   };
   /** The patterns of {@link Pattern}, as data. */
-  export const PATTERNS: readonly ["symmetric", "rotation"] = ["symmetric", "rotation"] satisfies readonly NonNullable< IAutoMovieMotionHumanGetUp.Pattern>[];
+  export const PATTERNS: readonly ["symmetric", "rotation"] = ["symmetric", "rotation"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGetUp.Pattern>[];
   /** The share of the trained young adult's supine-to-stand time a body takes, seconds (Ulbrich et al. 2000: 2.6 s). */
   export const SECONDS: number = 2.6;
 

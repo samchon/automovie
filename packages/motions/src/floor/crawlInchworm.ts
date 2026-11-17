@@ -18,7 +18,6 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import type { crawl } from "./crawl";
 import { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
 import { crawlInchwormPose } from "./crawlInchwormPose";

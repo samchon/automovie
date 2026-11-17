@@ -1,7 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
 /**
  * Clock-driven whole-cycle oscillation with the original minimum-jerk ramps.

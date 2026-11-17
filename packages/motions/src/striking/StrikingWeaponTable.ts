@@ -6,7 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A striking limb's free course tabulated on the contact scan's own knots:

@@ -10,7 +10,6 @@ import type {
 
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
-import type { gestureStroke } from "./gestureStroke";
 
 /**
  * Measure the farthest entry-to-stroke hand transport while sharing only the

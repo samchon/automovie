@@ -11,7 +11,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";

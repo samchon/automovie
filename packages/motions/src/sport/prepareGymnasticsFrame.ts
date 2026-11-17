@@ -5,6 +5,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,7 +14,6 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 
 /**
@@ -36,7 +36,7 @@ import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
  */
 export function prepareGymnasticsFrame(
   body: IAutoMovieMotionHumanBody,
-  model: GymnasticsFlight.Model,
+  model: IAutoMovieResolveCenterOfMass.IModel,
 ): (raw: IAutoMovieMotionHumanPosture, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IPreparedGymnasticsFrame {
   let requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(body);
   if (model !== body.massModel) {

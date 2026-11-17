@@ -1,4 +1,5 @@
 import type {
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -9,7 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -19,7 +19,6 @@ import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import type { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
-import type { walkSteps } from "./walkSteps";
 
 /** The settled feet and pelvis the gait's posture reads at one second. */
 interface ISettled {

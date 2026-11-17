@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-import type { HumanSegment } from "./HumanSegment";
 
 /**
  * Select a placed carrier for an exact film second in placement order.
