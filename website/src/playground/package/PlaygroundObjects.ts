@@ -65,7 +65,7 @@ export namespace PlaygroundObjects {
     if (objects.length === 0) return undefined;
     const human: IHumanObject = attach();
     // An object worn at the start rides the wearer's bone until a hand
-    // draws it, as `IHumanProp.worn` says.
+    // draws it, as `IAutoMovieMotionHumanProp.worn` says.
     return objects.map(
       (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
         const made: IAutoMovieMotionHumanProp = human.prop(

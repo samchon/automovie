@@ -25,6 +25,7 @@ import type { ISceneChainNames } from "../../src/scenes/structures/ISceneChainNa
  * 1. For every scene a page computes, refused ones included, objects and mutual actions included, the shown code, compiled from TypeScript and run with the names it imports from `@automovie/motions`, with `@automovie/archetypes` and with a stand-in for each body, up to its last line, `const performance = new HumanPerformance(input);`, which it must end with and which is not run because planning costs seconds a scene: gives a `scene` whose composition node equals the playground's, and a `laws` list of the same laws.
  * 2. The code names every performer's subject.
  * 3. The shown `input` carries that composition node, each performer's subject, body, floor point, heading and skill, the same authored impulses, the laws only when there are some, and the props only when the scene places objects; its props are those `PlaygroundObjects.props` builds: the same subjects in order, the same `worn` wearer, bone and offset, and the same placed frame within a micrometre and a millionth of a quaternion component.
+ * 4. Every runtime motion import exists in the package; canonical data contracts use a separate type-only import.
  */
 export function test_website_scene_chain(): void {
   const exported: Readonly<Record<string, unknown>> = motions as Readonly<
@@ -57,6 +58,12 @@ export function test_website_scene_chain(): void {
       .split(",")
       .map((name: string): string => name.trim())
       .filter((name: string): boolean => name !== "");
+    for (const name of imported)
+      if (!(name in exported))
+        findings.push(
+          `${scene.id}: the shown code imports missing runtime export ${name}`,
+        );
+
     // The shown code is TypeScript; it runs as the JavaScript it compiles to.
     const body: string = ts.transpileModule(
       code.slice(0, -LAST.length).replace(/^import[^\n]*\n/gm, ""),
