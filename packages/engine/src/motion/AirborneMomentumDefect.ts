@@ -8,6 +8,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
+import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 
 /** Relative angular-momentum share and absolute kg m²/s budget. */
@@ -32,7 +33,7 @@ type MomentumTolerance = Pick<IAutoMovieIntegrateMotionTrajectory.ITolerance, "r
  * @evidence contracts/development/implementation.md#principled-implementation Evaluates R(I omega+h) and compares it with L in world coordinates. Unobserved factory tensors supply their admitted SPD operator directly; foreign or publicly observed principals retain Q diag(I) Q^T. Unit frames and a pure history are premises; finite components and positive principal moments are admitted on the public path. The metric retains actual tensor conditioning and relative-motion cancellation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and snapshot the integration's fixed target and physical budget, then reconstruct one queried momentum and return its scaled Euclidean error.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate, inertia or momentum is clamped or repaired. A zero physical scale requires exact agreement and has no invented absolute floor. A sampled dense defect does not certify every intermediate time or the separate finite-difference observation stencil.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each measurement makes one history query plus a fixed-size tensor product and world rotation. A valid factory operator avoids principal materialization and its two rotations; the public path retains them. No perturbed integration or sampled pose is retained here; no wall-time improvement is yet measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each measurement makes one history query plus a fixed-size tensor product and world rotation; a tabulated history's reading answers a second without an instant with its numbers and factorisation alone. A valid factory operator avoids principal materialization and its two rotations; the public path retains them. No perturbed integration or sampled pose is retained here; no wall-time improvement is yet measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration copies target components and admits its relative/absolute budget once; those same captured scalars drive the component-scaled norm without rereading the caller's budget. Each time reads its actual history instant. Engine histories share exact principal inverses under copied quaternion keys; general histories retain their original inverse path, and changed physical inputs require a new integration.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned integration-scoped callback holds its history, copied target and one scalar budget until the integrator releases it. Each query's vectors are temporary and no query population, body identity cache or external resource is owned here.
  */
@@ -69,16 +70,22 @@ export function AirborneMomentumDefect(
   if (!Number.isFinite(scale))
     throw new Error("Airborne momentum error budget exceeds finite arithmetic");
 
+  // A tabulated history reads a new second's numbers and factorisation
+  // without issuing an instant; any other history issues its instant.
+  const reading: ((seconds: number) => AirborneTabulatedShapeHistory.IReading | IAutoMovieIntegrateAirborneRotation.IInstant) =
+    AirborneTabulatedShapeHistory.reading(history) ?? history;
   return (
     seconds: number,
     orientation: IAutoMovieQuaternion,
     angularVelocity: IAutoMovieVector3,
   ): number => {
-    const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(seconds);
-    const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
+    const read: AirborneTabulatedShapeHistory.IReading | IAutoMovieIntegrateAirborneRotation.IInstant = reading(seconds);
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant | undefined = "factor" in read ? undefined : read;
+    const factor: physicalInertiaFactor.IPrepared | undefined =
+      "factor" in read ? read.factor : AirborneShapeHistory.factor(read);
     if (
       !(
-        finiteVector(instant.relative) &&
+        finiteVector(read.relative) &&
         finiteVector(angularVelocity) &&
         finiteQuaternion(orientation)
       )
@@ -89,20 +96,21 @@ export function AirborneMomentumDefect(
     let body: IAutoMovieVector3;
     if (factor !== undefined) body = factor.apply(angularVelocity);
     else {
-      const { moments, rotation }: typeof instant.inertia = instant.inertia;
+      // Only an instant leaves the factorisation undefined.
+      const { moments, rotation }: IAutoMovieIntegrateAirborneRotation.IInstant["inertia"] = instant!.inertia;
       if (!(finiteVector(moments) && moments.x > 0 && moments.y > 0 && moments.z > 0 && finiteQuaternion(rotation)))
         throw new Error("Airborne momentum defect needs finite physical data and positive principal moments");
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        AirborneShapeHistory.inverse(instant) ?? Quaternion.inverse(rotation), angularVelocity,
+        AirborneShapeHistory.inverse(instant!) ?? Quaternion.inverse(rotation), angularVelocity,
       );
       local.x *= moments.x;
       local.y *= moments.y;
       local.z *= moments.z;
       body = Quaternion.rotateVector(rotation, local);
     }
-    body.x += instant.relative.x;
-    body.y += instant.relative.y;
-    body.z += instant.relative.z;
+    body.x += read.relative.x;
+    body.y += read.relative.y;
+    body.z += read.relative.z;
     const world: IAutoMovieVector3 = Quaternion.rotateVector(orientation, body);
     const error: number = Math.hypot(
       world.x - target.x,

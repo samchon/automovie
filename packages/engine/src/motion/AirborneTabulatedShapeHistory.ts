@@ -10,6 +10,7 @@ import type { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMa
 import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
@@ -91,8 +92,8 @@ const HISTORIES: WeakSet<IHistory> = new WeakSet();
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy table build (uniform knot shapes, the divided intervals' shapes, tensors, knot momenta, slopes), one interpolation that finds its interval and part in constant time, one exact-second memo; the model's reductions are `AirborneShapeReduction`'s, the issued instant `AirborneShapeInertia`'s and the derivative weights Fornberg's recursion's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rounded query time, no nearest-knot answer and no changed physical bound: every query interpolates at its own second, and the knots' tensors pass the stencil history's own admission.
  * @evidence contracts/development/implementation.md#efficient-algorithms For K uniform knots, D added knots where parts turn fast and S mass parts the build reads K + D shapes and does O((K + D) S) reduction once, five-point stencils included; a query costs nine cubic evaluations and no shape read, where the stencil history reads up to three shapes for each new query second. Knots are added only in intervals where a part turns past the bound, and a shape that turns within it everywhere keeps one read a uniform knot. Runtime gain is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One table serves every stage, defect probe and shooting trial of the history's lifetime, since none of them changes the shape; an exact second's issued instant, with its tensor factor, is shared by the memo. No attitude, momentum or flight answer is kept.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns two arrays of nine scalars a knot, the knots' seconds, two integers a uniform interval and one issued instant per distinct queried second, unbounded in the number of distinct seconds; posed shapes are dropped when the build ends. `clear` releases the arrays, the memo and each instant's factor; the caller releases a prepared model.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One table serves every stage, defect probe and shooting trial of the history's lifetime, since none of them changes the shape; an exact second's issued instant, with its tensor factor, is shared by the memo, and a defect's reading of a second with no instant keeps its numbers and factorisation for the instant a later query issues there, counted as the query and factorisation that instant would have made. No attitude, momentum or flight answer is kept.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns two arrays of nine scalars a knot, the knots' seconds, two integers a uniform interval and one issued instant or numeric reading (nine scalars and a factor) per distinct queried second, unbounded in the number of distinct seconds; posed shapes are dropped when the build ends. `clear` releases the arrays, both memos and each instant's factor; the caller releases a prepared model.
  */
 export function AirborneTabulatedShapeHistory(
   model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -234,7 +235,7 @@ export function AirborneTabulatedShapeHistory(
     return { values, slopes, times, parts, first };
   };
 
-  const evaluate = (seconds: number): IInstant => {
+  const numbers = (seconds: number): { matrix: number[][]; relative: IAutoMovieVector3 } => {
     const built: ITable = (table ??= build());
     const held: number = Math.min(to, Math.max(from, seconds));
 
@@ -264,15 +265,18 @@ export function AirborneTabulatedShapeHistory(
       h10 * width * built.slopes[a + i]! +
       h01 * built.values[b + i]! +
       h11 * width * built.slopes[b + i]!;
-    return AirborneShapeInertia(
-      [
+    return {
+      matrix: [
         [y(0), y(3), y(4)],
         [y(3), y(1), y(5)],
         [y(4), y(5), y(2)],
       ],
-      { x: y(6), y: y(7), z: y(8) },
-      statistics,
-    );
+      relative: { x: y(6), y: y(7), z: y(8) },
+    };
+  };
+  const evaluate = (seconds: number): IInstant => {
+    const read: { matrix: number[][]; relative: IAutoMovieVector3 } = numbers(seconds);
+    return AirborneShapeInertia(read.matrix, read.relative, statistics);
   };
   const query: IHistory = (seconds: number): IInstant => {
     if (statistics !== undefined) statistics.queries++;
@@ -281,19 +285,70 @@ export function AirborneTabulatedShapeHistory(
       if (statistics !== undefined) statistics.memoHits++;
       return known;
     }
-    const instant: IInstant = evaluate(seconds);
+    // A defect read this second already: its numbers and factorisation make
+    // the instant, a memo hit as the instant the defect once made was.
+    const held: INumeric | undefined = numerics.get(seconds);
+    if (held !== undefined && statistics !== undefined) statistics.memoHits++;
+    const instant: IInstant = held === undefined ? evaluate(seconds)
+      : AirborneShapeInertia(held.matrix, held.relative, statistics, held.factor);
+    if (held !== undefined) numerics.delete(seconds);
     instants.set(seconds, instant);
     return instant;
   };
+
+  // A defect's reading at a second: the issued instant's own, or the same
+  // numbers and factorisation without an instant, counted as a query and a
+  // factorisation as the instant's would be.
+  const numerics: Map<number, INumeric> = new Map();
+  const numeric = (seconds: number): INumeric | IInstant => {
+    const known: IInstant | undefined = instants.get(seconds);
+    if (known !== undefined) {
+      if (statistics !== undefined) {
+        statistics.queries++;
+        statistics.memoHits++;
+      }
+      return known;
+    }
+    const kept: INumeric | undefined = numerics.get(seconds);
+    if (statistics !== undefined) statistics.queries++;
+    if (kept !== undefined) {
+      if (statistics !== undefined) statistics.memoHits++;
+      return kept;
+    }
+    const read: { matrix: number[][]; relative: IAutoMovieVector3 } = numbers(seconds);
+    if (statistics !== undefined) statistics.factorizations++;
+    const factor: physicalInertiaFactor.IPrepared | null = physicalInertiaFactor(read.matrix);
+    // A tensor that is not positive definite reads its principal axes, an
+    // instant's own path: the instant is issued, holding the failed factor.
+    if (factor === null) {
+      const instant: IInstant = AirborneShapeInertia(read.matrix, read.relative, statistics, null);
+      instants.set(seconds, instant);
+      return instant;
+    }
+    const made: INumeric = { matrix: read.matrix, relative: read.relative, factor };
+    numerics.set(seconds, made);
+    return made;
+  };
   HISTORIES.add(query);
+  NUMERIC.set(query, numeric);
   return Object.assign(query, {
     clear: (): void => {
       for (const instant of instants.values()) AirborneShapeInertia.release(instant);
       instants.clear();
+      numerics.clear();
       table = undefined;
     },
   });
 }
+
+/** A defect's numeric reading at a second, with the tensor an instant made from it would own. */
+interface INumeric extends AirborneTabulatedShapeHistory.IReading {
+  /** The interpolated root-frame tensor rows. */
+  matrix: number[][];
+}
+
+/** Each issued history's numeric reader. */
+const NUMERIC: WeakMap<IHistory, (seconds: number) => INumeric | IInstant> = new WeakMap();
 
 /** A built table: nine scalars and their slopes a knot, the knots' seconds and how each uniform interval is divided. */
 interface ITable {
@@ -452,5 +507,26 @@ export namespace AirborneTabulatedShapeHistory {
   /** Whether a reader was issued by this producer: a pure function of time whose instants may be shared between an operation's stages. It proves construction, not a constant shape. */
   export function owned(history: IHistory): boolean {
     return HISTORIES.has(history);
+  }
+
+  /** A second's relative momentum and positive-definite tensor factorisation, read without issuing an instant. */
+  export interface IReading {
+    /** The relative angular momentum in the root frame, kg m²/s. */
+    relative: IAutoMovieVector3;
+
+    /** The tensor's factorisation. */
+    factor: physicalInertiaFactor.IPrepared;
+  }
+
+  /**
+   * The issued reader's numeric reading of a second, for a defect that needs
+   * only the tensor's factorisation and the relative momentum: the issued
+   * instant where the second already has one, otherwise the same numbers and
+   * factorisation without an instant, or a newly issued instant where the
+   * tensor is not positive definite. Counted as the query and factorisation an
+   * instant would make. Undefined for a reader this producer did not issue.
+   */
+  export function reading(history: IHistory): ((seconds: number) => IReading | IInstant) | undefined {
+    return NUMERIC.get(history);
   }
 }

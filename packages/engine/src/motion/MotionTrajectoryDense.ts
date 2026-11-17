@@ -19,6 +19,18 @@ const D: readonly number[] = [-12715105075 / 11282082432, 0,
 /** Numeric coordinate names of a body-frame rotation vector. */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
+/** The method's stage fractions, its endpoints and the two derivative nodes, ascending. */
+const METHOD_NODES: readonly number[] = [0, 1 / 5, 3 / 10, 4 / 5, 8 / 9, 1, ...MotionTrajectoryPolynomial.NODES]
+  .sort((a: number, b: number): number => a - b);
+
+/** Insert a node into an ascending list unless an equal one is there. */
+function insert(nodes: number[], node: number): void {
+  let at: number = nodes.length;
+  while (at > 0 && nodes[at - 1]! > node) --at;
+  if (at > 0 && nodes[at - 1] === node) return;
+  nodes.splice(at, 0, node);
+}
+
 /**
  * Build a C1 dense step, optionally controlled by a paired physical defect.
  *
@@ -147,8 +159,7 @@ export function MotionTrajectoryDense(props: {
   if (!finite(v)) return null;
 
   // The extrema belong to the actual paired polynomials, not a time grid.
-  const nodes: Set<number> = new Set([0, 1 / 5, 3 / 10, 4 / 5, 8 / 9, 1,
-    ...MotionTrajectoryPolynomial.NODES]);
+  const nodes: number[] = METHOD_NODES.slice();
   for (const axis of AXES) {
     const deltaD: number = u.turns[3]![axis] - v.turns[3]![axis];
     const deltaE: number = u.turns[4]![axis] - v.turns[4]![axis];
@@ -160,11 +171,11 @@ export function MotionTrajectoryDense(props: {
 
     // The paired difference is u²(1-u)²(d+u*e). Its derivative factors as
     // u(1-u)[2d+(-4d+3e)u-5e*u²]; 0 and 1 are already method nodes.
-    for (const root of polynomialUnitRoots([2 * d, -4 * d + 3 * e, -5 * e])) nodes.add(root);
-    for (const root of polynomialUnitRoots([2 * d, -12 * d + 6 * e, 12 * d - 24 * e, 20 * e])) nodes.add(root);
+    for (const root of polynomialUnitRoots([2 * d, -4 * d + 3 * e, -5 * e])) insert(nodes, root);
+    for (const root of polynomialUnitRoots([2 * d, -12 * d + 6 * e, 12 * d - 24 * e, 20 * e])) insert(nodes, root);
   }
   let error: number = 0;
-  for (const at of [...nodes].sort((a: number, b: number): number => a - b)) {
+  for (const at of nodes) {
     let previousQ: IAutoMovieQuaternion | undefined;
     let previousW: IAutoMovieVector3 | undefined;
     let previousError: number = 0;
