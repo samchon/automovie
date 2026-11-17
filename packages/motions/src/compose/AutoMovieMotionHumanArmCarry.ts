@@ -277,8 +277,38 @@ export namespace AutoMovieMotionHumanArmCarry {
     // The arm's whole action, solved once over its span, with the other
     // arms of its group.
     const group: AutoMovieMotionHumanArmPlanned.ITogether =
-      props.together ?? AutoMovieMotionHumanArmPlanned.together();
+      props.beside ?? props.together ?? AutoMovieMotionHumanArmPlanned.together();
     group.carries.push(props);
+
+    // A group planned beside solves each member alone on the shared base
+    // (`IAutoMovieMotionHumanArmCarry.beside`): two problems of one arm's
+    // nine coordinates, where one problem of both arms' eighteen costs
+    // several times as much (measured on a six-second stretch: 95 s of a
+    // 146 s spec in the joint problem's optimiser).
+    const solve = (
+      before: (seconds: number) => IHumanPosture,
+    ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> =>
+      props.beside === undefined
+        ? AutoMovieMotionHumanArmPlanned.planned(
+            props.body,
+            span!,
+            group.carries,
+            before,
+          )
+        : new Map(
+            group.carries.flatMap(
+              (
+                member: ICarry,
+              ): [HumanHand.Side, HumanArmTrajectory.Trajectory][] => [
+                ...AutoMovieMotionHumanArmPlanned.planned(
+                  member.body,
+                  member.span ?? span!,
+                  [member],
+                  before,
+                ),
+              ],
+            ),
+          );
     const planned = (
       before: (seconds: number) => IHumanPosture,
     ): HumanArmTrajectory.Trajectory => {
@@ -289,12 +319,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           );
         group.solving = true;
         try {
-          group.solved = AutoMovieMotionHumanArmPlanned.planned(
-            props.body,
-            span!,
-            group.carries,
-            before,
-          );
+          group.solved = solve(before);
         } finally {
           group.solving = false;
         }

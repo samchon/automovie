@@ -289,12 +289,14 @@ export namespace selfAction {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
 
-    // Two arms raised over one span are one trajectory problem, as the two
-    // hands of a hand-to-face task are (`handToFace`). Planned one after the
+    // Two arms raised over one span are planned on one base, each beside
+    // the other at its rest (`IAutoMovieMotionHumanArmCarry.beside`): they
+    // rise on their own sides and never share space. Planned one after the
     // other, the right arm was solved beside a left arm at rest and the left
     // beside the right arm's solved course, so the stretch's two arms were
     // not each other's mirror: the little fingers stood 0.24 m apart from
-    // their mirror places (measured).
+    // their mirror places (measured). As one problem of both arms they
+    // mirrored, at several times the cost of two.
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
       raised.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
     const raise = (r: IRaised): void => {
@@ -303,7 +305,7 @@ export namespace selfAction {
         AutoMovieMotionHumanArm.carried({
           body,
           side,
-          ...(together === undefined ? {} : { together }),
+          ...(together === undefined ? {} : { beside: together }),
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),

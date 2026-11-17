@@ -109,6 +109,17 @@ export interface IAutoMovieMotionHumanArmCarry {
   /** The arms planned over the same span as one problem; this arm alone when absent. */
   together?: AutoMovieMotionHumanArmPlanned.ITogether;
 
+  /**
+   * The arms planned over the same span on one base, each as a problem of
+   * its own: every member is solved on the posture before the group's first
+   * member, which shows the others at their rest, so the plans do not depend
+   * on the order the arms are written in and two arms raised alike are each
+   * other's mirror. For arms that keep to their own sides (a stretch, a
+   * winner's two fists): arms whose paths may cross are one problem
+   * (`together`). When both are given, `beside` decides.
+   */
+  beside?: AutoMovieMotionHumanArmPlanned.ITogether;
+
   /** The bone of the performer's own body the hand's region rides, for a region of the performer: a region on another arm of the group rides that arm as it is solved. */
   on?: AutoMovieHumanoidBone;
 
