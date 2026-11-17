@@ -271,11 +271,11 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * Turn the memory of limb fits off or on again. Off, every fit is solved
-   * afresh and nothing is kept, which is what a check of the memory against
-   * the solver compares with; it is on unless turned off.
+   * The former switch of the limb-fit memory (`HumanLimbFit.memory`). No fit
+   * is remembered: every fit is solved directly, so this changes nothing; it
+   * stays only while specifications written against the memory call it.
    *
-   * @param on Whether fits are remembered.
+   * @param on Unread.
    */
   export function memory(on: boolean): void {
     HumanLimbFit.memory(on);

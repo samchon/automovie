@@ -27,8 +27,8 @@ import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
  * A leg posed as the posture's own fit poses it, read through the engine's
  * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone,
  * and the leg is one bend branch and one swivel about its hip-to-ankle line.
- * `fit` runs the posture's leg fit itself (`HumanLimbFit.remembered`,
- * remembered by its exact inputs) on a pelvis and reads its branch and swivel,
+ * `fit` runs the posture's leg fit itself (`HumanLimbFit.remembered`, solved
+ * directly every time) on a pelvis and reads its branch and swivel,
  * and `seeded` does so continuing a nearby fit's seed;
  * `pose` places the leg from a held branch and swivel for any ankle, so a
  * planner that holds them between fits poses the very knee the fit does
@@ -242,8 +242,8 @@ export namespace HumanLegChain {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, the fit and its four requested bone frames feed the existing swivel reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is the posture's own, ROM bend search included.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds ordered authored-joint admission plus only the requested hips/thigh/shank/foot ancestor FK to the existing fit cost; unrelated body subtrees are not transformed for the swivel read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanLimbFit.remembered and read. One invocation-owned lazy resolution reader shares only exact unchanged FK prerequisites between a memory miss and the actual fitted-pose reading; all poses and swivel results remain actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its reader only through synchronous return or throw; requested maps and snapshots do not enter the returned swivel/seed or body fit memory.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanLimbFit.remembered (the direct solve) and read. One invocation-owned lazy resolution reader shares only exact unchanged FK prerequisites between the solve and the actual fitted-pose reading; all poses and swivel results remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its reader only through synchronous return or throw; requested maps and snapshots do not enter the returned swivel/seed.
    */
   export function fit(
     body: IHumanBody,
@@ -276,11 +276,11 @@ export namespace HumanLegChain {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the continuation and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The posture's fit run on the hips alone, continued from a nearby seed where one is given, its warm start (`IAutoMovieSwivelNear`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, its remembered fit and a requested four-frame FK feed read; one local lazy reader spans only that synchronous operation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, its directly solved fit and a requested four-frame FK feed read; one local lazy reader spans only that synchronous operation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is the posture's own, ROM bend search included; a continuation only replaces its sweep with a refinement about the seed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds ordered authored-joint admission and only the hips/thigh/shank/foot ancestor FK to the existing fit cost; unrelated body subtrees are not transformed for the swivel read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses remembered and read; its one local lazy resolution reader shares exact unchanged prerequisites between a fit miss and its actual fitted-pose read, never targets, candidate answers or swivel values.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation releases its FK getter/snapshots and temporary subset map on return or throw; only the actual swivel and seed escape, without retaining an FK reader in memory.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the direct solve and read; its one local lazy resolution reader shares exact unchanged prerequisites between the solve and its actual fitted-pose read, never targets, candidate answers or swivel values.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation releases its FK getter/snapshots and temporary subset map on return or throw; only the actual swivel and seed escape.
    */
   export function seeded(
     body: IHumanBody,
@@ -300,10 +300,10 @@ export namespace HumanLegChain {
    * Body, pelvis and hip stay unchanged until this synchronous piece ends.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines fixed model-frame pelvis/hip, changing target/bend/rotation/near and caller-owned piece lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing hips-only root is constant for fixed pelvis/hip; each query still executes the original remembered limb fit and reads its actual shown branch/swivel.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareHumanLegSeededFit owns fixed construction/reader, HumanLimbFit owns every actual solve/memory policy and read owns swivel extraction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target, bend, rotation or near seed is substituted or cached; original mirror/floor/grid/LRU/disabled behavior remains with its owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed root and bounded exact FK workspace serve repeated coordinate probes. Its actual local reader also lends matching source geometry/rig preparation across native misses; every query retains its actual fit/memory read, complete search and current four-frame FK. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing hips-only root is constant for fixed pelvis/hip; each query still executes the directly solved limb fit and reads its actual shown branch/swivel.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareHumanLegSeededFit owns fixed construction/reader, HumanLimbFit owns every actual solve and read owns swivel extraction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target, bend, rotation or near seed is substituted or cached; the mirror and root-frame conventions remain with the solve's owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed root and bounded exact FK workspace serve repeated coordinate probes. Its actual local reader also lends matching source geometry/rig preparation across solves; every query retains its actual solve and current four-frame FK. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed source scalars and exact FK prerequisites are shared; the source owner additionally snapshots and checks the complete normalized/mirrored source before reusing only preparation. Changed goals/near remain actual query inputs and changed body/pelvis/hip require new preparation; no fitted result is lent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns fixed source/root and bounded reader state until release; temporary fitted maps end per query and no fitted answer, target history or handle is retained here.
    */

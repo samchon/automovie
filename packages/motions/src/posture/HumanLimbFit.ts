@@ -19,7 +19,7 @@ import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import type { HumanColliders } from "./HumanColliders";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
-import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
+import { solveHumanLimbFit } from "./solveHumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
 import { HumanLimbMirror } from "./HumanLimbMirror";
@@ -82,23 +82,22 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * Turn limb-fit cache reads and inserts off or on again through
-   * `HumanLimbFitMemory.memory`. Off solves afresh; existing body-owned pools
-   * remain available when enabled again and are not purged by this switch.
+   * The former switch of the limb-fit memory. No fit is remembered any more:
+   * every fit is solved directly (`solveHumanLimbFit`), with the switch on or
+   * off, so this call changes nothing. It stays only while specifications
+   * written against the memory still call it.
    *
-   * @param on Whether fits are remembered.
+   * @param _on Unread.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the read/insert switch, fresh solves while disabled and preservation of existing pools.
-   * @evidence contracts/development/implementation.md#principled-implementation Forwards the switch to the single memory owner, whose disabled branch calls fit directly.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call keeps cache policy in HumanLimbFitMemory.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no fit, seed, key or rig rule, and does not claim disabling purges prior entries.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The owner sets one boolean in constant work; subsequent remembered calls own their key and fit costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The switch only enables or bypasses the owner's existing reuse; it computes and shares no fit itself.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This wrapper retains nothing; the owner's weak body keys and 4096-entry LRU bound pools, which remain while disabled. No handle or task is acquired.
+   * @evidence contracts/development/common.md#meaningful-documentation States that the switch has no effect, why, and why it remains.
+   * @evidence contracts/development/implementation.md#principled-implementation With no memory there is nothing to turn on or off; every fit is the direct solve either way.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure An empty body.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Claims no effect and keeps no hidden state.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms No work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function memory(on: boolean): void {
-    HumanLimbFitMemory.memory(on);
-  }
+  export function memory(_on: boolean): void {}
 
   /**
    * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
@@ -336,8 +335,9 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * The fit of one limb, remembered by every input it is a pure function of
-   * (`HumanLimbFitMemory.remembered`).
+   * The fit of one limb in the mirror image and root-position frame,
+   * solved directly every time (`solveHumanLimbFit`). The name is the
+   * former memory's; nothing is remembered.
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -346,16 +346,16 @@ export namespace HumanLimbFit {
    * @param placed The arms already placed.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
-   * @param resolution Optional parent FK reader or lazy supplier, forwarded to a miss without entering its key or stored result.
-   * @returns The pose with the limb fitted, and the seed that continues it.
+   * @param resolution Optional parent FK reader or lazy supplier, borrowed by the solve.
+   * @returns The pose with the limb fitted, and the seed that continues it; untouched records are shared with the input pose, which callers treat as immutable.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the source pose, complete goal, placed arms, rival and optional continuation forwarded to the memory owner.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates deterministic fit reuse to HumanLimbFitMemory; the body's skeleton, topology, ranges and profile must remain unchanged while its entries are valid.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call forwards every argument; the owner handles mirror/root-frame keys, lookup, a miss's fit and recency eviction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the owner's existing root-frame/grid key and all arguments, including near; this wrapper adds no quantization, target adjustment or new exact-key claim.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Enabled memory builds a key proportional to serialized pose, goal and collider data; a miss adds fit's bounded search. Disabled memory directly fits. The wrapper adds no traversal or measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body owns equivalence and the complete keyed inputs select reuse under the memory owner's existing grid policy; disabled memory solves afresh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains at most 4096 fits per live body, evicts least-recent entries and uses weak body keys; entry bytes depend on key/pose size and callers may retain returned poses. No handles or tasks are added.
+   * @evidence contracts/development/common.md#meaningful-documentation States the direct solve, its frames and the shared-record result.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to solveHumanLimbFit, the memory's former miss path: mirror reflection and the rigid root frame leave the fit equivariant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call forwards every argument.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No key, lookup or stored answer; every request is solved from its own inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fit's own search plus O(B) frame and mirror copies; no serialization or result clone.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each request is solved afresh.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function remembered(
     body: IHumanBody,
@@ -367,7 +367,7 @@ export namespace HumanLimbFit {
     near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
-    return HumanLimbFitMemory.remembered(
+    return solveHumanLimbFit(
       body,
       pose,
       limb,

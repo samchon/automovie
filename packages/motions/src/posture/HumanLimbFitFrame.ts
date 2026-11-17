@@ -9,9 +9,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "./IHumanPosture";
 
 /**
- * The frame a limb fit is remembered in (`HumanLimbFit.remembered`): the
- * root's world position and heading, so two people of one body doing the same
- * thing in different places, or one body facing another way, share one fit.
+ * The frame a limb fit is solved in (`solveHumanLimbFit`): the root's world
+ * position and heading, so two people of one body doing the same thing in
+ * different places, or one body facing another way, solve the same numbers.
  *
  * A pose and its goal are moved into the frame by taking away the root's
  * world position on all three axes and turning by minus its
@@ -34,7 +34,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world. The original GRID constant remains1e-12; its local documentation explains normalization rounding and the existing1e-9 moved-fit comparison.
  * @evidence contracts/development/design.md#principled-representation A rigid reference frame removes all three root translation components and only its world-up heading; pitch/roll, joint coordinates, local contacts and seed branch/swivel remain unchanged. Optional y defaults to zero for existing explicitly constructed floor frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The frame, moving a pose, a goal and a point into it, the key's grid (`grid`, `GRID`), and the memory's hit counts; `HumanLimbFit.remembered` is the one caller.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The frame and moving a pose, a goal and a point into it, read by solveHumanLimbFit; the solve counters; and the former memory's grid (`grid`, `GRID`) and hit/miss fields, which specifications written against the memory still read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is moved that names a world collider: it is keyed in the world, not approximated.
  */
 export namespace HumanLimbFitFrame {
@@ -61,18 +61,18 @@ export namespace HumanLimbFitFrame {
   }
 
   /**
-   * A body's fit-memory counters, copied by statistics for cost tests.
+   * A body's limb-fit work counters, copied by statistics for cost tests.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States hits versus actual solved misses and the copied observation purpose.
-   * @evidence contracts/development/design.md#principled-representation Cumulative actual lookup, solve-attempt, serialization-character and eviction-event counts describe work for one weak body lifetime. A resident miss cannot identify a first-ever key versus an evicted return without an unbounded seen-key history, so neither category is fabricated.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface count and work update actual events and statistics exposes an independent observation without a reset, fixture key or result override.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counters report actual memory operations and never decide physical acceptance or substitute for a fit.
+   * @evidence contracts/development/common.md#meaningful-documentation States what each counter counts, including the former memory's hit/miss fields that now stay zero.
+   * @evidence contracts/development/design.md#principled-representation Cumulative actual solve-attempt, curve, continuation and course counts describe work for one weak body lifetime.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface work updates actual events and statistics exposes an independent observation without a reset, fixture key or result override; hits and misses remain only while specifications written against the memory read them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counters report actual operations and never decide physical acceptance or substitute for a fit.
    */
   export interface IStatistics {
-    /** Fits read from the memory. */
+    /** Fits read from the former fit memory: always 0, since every fit is solved directly; kept while specifications written against the memory read it. */
     hits: number;
 
-    /** Fits solved and kept. */
+    /** Fits solved and kept by the former memory: always 0, for the same reason. */
     misses: number;
 
     /** Actual solver attempts without a near seed, including failed attempts. */
@@ -80,21 +80,6 @@ export namespace HumanLimbFitFrame {
 
     /** Actual solver attempts with a near seed, including failed attempts. */
     continuedFits: number;
-
-    /** Actual solver attempts while memory was disabled. */
-    disabledFits: number;
-
-    /** Capacity-driven removal events, not later misses attributed to eviction. */
-    evictions: number;
-
-    /** Actual body-pool deletions caused by changed complete rig prerequisites. */
-    cacheInvalidations: number;
-
-    /** Complete normalized fit keys actually serialized. */
-    serializedKeys: number;
-
-    /** UTF-16 code units of those actual keys, not allocated-byte estimates. */
-    serializedCharacters: number;
 
     /** Actual outer owned-free-curve queries, including unsupported inputs. */
     curveQueries: number;
@@ -282,6 +267,8 @@ export namespace HumanLimbFitFrame {
   }
 
   /**
+   * The former fit memory's key grid, which no solve reads any more; kept
+   * while specifications written against the memory serialize with it.
    * A key's number on the memory's grid (`GRID`), for `JSON.stringify`: a
    * pose and a goal moved into the frame from two places or headings differ
    * by the rounding of the move, a few units in the last place of a double
@@ -306,7 +293,8 @@ export namespace HumanLimbFitFrame {
   }
 
   /**
-   * The memory key's resolution, in metres and in units of a quaternion or
+   * The former memory key's resolution (read by no solve; kept with `grid`),
+   * in metres and in units of a quaternion or
    * an angle: a thousand times the rounding of a move into the frame, so two
    * copies of one fit read the same key but for the rare value that falls
    * on a step of the grid, which is only solved again; and a thousand times
@@ -319,31 +307,11 @@ export namespace HumanLimbFitFrame {
   export const GRID: number = 1e-12;
 
   /**
-   * Count a read of a body's memory.
-   *
-   * @param body The body.
-   * @param hit Whether the fit was read from the memory.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines body-local actual hit/miss increments.
-   * @evidence contracts/development/implementation.md#principled-implementation Increments exactly one existing cumulative counter for the actual memory lookup outcome.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak lookup, field increment and insertion keep counters with their body owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not affect lookup, fitting, physical acceptance or eviction; it records the supplied actual outcome.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup/update and at most one fixed-size scalar record per live body.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Counters are effects of every actual lookup and are never coalesced.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak body entry holds fixed cumulative scalar fields until that body is released; values grow with calls but entry size stays constant.
-   */
-  export function count(body: IHumanBody, hit: boolean): void {
-    const counts: IStatistics = counters(body);
-    if (hit) counts.hits += 1;
-    else counts.misses += 1;
-  }
-
-  /**
    * Record one actual operation event without retaining keys or inputs.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines solve attempts, key counts/UTF-16 characters and actual capacity eviction events; positive amounts accumulate actual work only.
-   * @evidence contracts/development/implementation.md#principled-implementation Call sites report events at their actual solver, serialization and removal boundaries, separately from lookup success; no miss is guessed to have been an eviction or dependency change.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed field-name union updates the same weak body's fixed scalar counter record used by existing hit/miss observations.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines solve attempts and curve, continuation and course events; positive amounts accumulate actual work only.
+   * @evidence contracts/development/implementation.md#principled-implementation Call sites report events at their actual solver and planner boundaries.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed field-name union updates the same weak body's fixed scalar counter record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics never select a solver, alter acceptance, patch a method or keep a seen-key set to invent unavailable provenance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and no per-event allocation after the body's first counter record; there is no candidate logging or graph scan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each supplied event is counted once at its actual owning call site.
@@ -354,10 +322,10 @@ export namespace HumanLimbFitFrame {
   }
 
   /**
-   * A body's fit memory counts since the process began.
+   * A body's limb-fit work counts since the process began.
    *
    * @param body The body.
-   * @returns Independent cumulative actual lookup, fitting, serialization, eviction and curve-work counts.
+   * @returns Independent cumulative actual fitting, curve, continuation and course counts, with the former memory's hit/miss fields at zero.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines copied cumulative counters and initial zero values.
    * @evidence contracts/development/implementation.md#principled-implementation Reads the body's actual scalar counters or initial zero fields and returns an independent observation; no unavailable cause of a historical miss is inferred.
@@ -375,8 +343,7 @@ export namespace HumanLimbFitFrame {
   function counters(body: IHumanBody): IStatistics {
     let out: IStatistics | undefined = COUNTS.get(body);
     if (out === undefined) {
-      out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0, disabledFits: 0,
-        evictions: 0, cacheInvalidations: 0, serializedKeys: 0, serializedCharacters: 0,
+      out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0,
         curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
         curveColdFallbacks: 0, curveRefinements: 0, orientationRootTrials: 0,
         orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0,

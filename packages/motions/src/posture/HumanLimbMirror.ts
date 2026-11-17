@@ -5,13 +5,13 @@ import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * A limb's fit seen in the median plane's mirror: the pose, the goal, the
- * limb and the side each taken to the other side, so a left limb is fitted
- * and remembered as the right limb of its mirror image (`HumanLimbFit`,
- * `HumanLimbFitMemory`) and a fit and its mirror are one to the bit.
+ * limb and the side each taken to the other side, so a left limb is solved
+ * as the right limb of its mirror image (`HumanLimbFit`, `solveHumanLimbFit`)
+ * and a fit and its mirror are one to the bit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and who reads it.
  * @evidence contracts/development/design.md#principled-representation The median-plane reflection of each part a limb's fit reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, read by the fit and its memory.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, read by the fit and its direct solve.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanArmMirror` for every reflected part.
  */
 export namespace HumanLimbMirror {
