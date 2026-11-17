@@ -155,8 +155,13 @@ export namespace createQuadruped {
     noddingContacts?: readonly string[];
   }
 
-  /** The parts an equid nods with its head: the neck, the head and a harness's bridle. */
-  export const BRIDLED: readonly string[] = ["neck", ...HorseHarness.HEAD];
+  /** Equid head-carried vocabulary: neck, head, bridle and optional actual ear plates. */
+  export const BRIDLED: readonly string[] = [
+    "neck",
+    ...HorseHarness.HEAD,
+    "leftEar",
+    "rightEar",
+  ];
 
   /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `HorseGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
   export const SPECIES: Readonly<Record<Kind, ISpecies>> = {

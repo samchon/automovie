@@ -22,8 +22,6 @@ import type { createArmour } from "./createArmour";
 export namespace ArmourProfile {
   /**
    * Explicit coarse shirt/torso topology, dimensionless and not historical measurements.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the authored torso share of shirt spread, neck width/height shares and sleeve-height share; geometry and the equivalent-volume law consume this single definition.
    */
   export const TORSO: Readonly<{
     breadthShare: number;

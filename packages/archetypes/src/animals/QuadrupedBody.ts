@@ -7,6 +7,8 @@ import {
   ArchetypeUnits,
 } from "../core";
 import { QuadrupedAttachments } from "./QuadrupedAttachments";
+import type { QuadrupedEars } from "./QuadrupedEars";
+import { QuadrupedHead } from "./QuadrupedHead";
 
 /**
  * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
@@ -150,6 +152,8 @@ export namespace QuadrupedBody {
       nose: Readonly<{ drop: number; ahead: number }>;
       radius: number;
       mouth: number;
+      /** Optional explicit reference pinnae and authored coarse plate construction. */
+      ears?: QuadrupedEars.IProfile;
     }>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
@@ -347,7 +351,7 @@ export namespace QuadrupedBody {
   }
 
   /**
-   * Lay a quadruped's body on a model under construction: a bar per bone from joint to joint at rest, and the withers.
+   * Lay the neutral bone bars, withers and explicitly profiled coarse ear plates.
    *
    * @param body The species' body.
    * @param builder The model under construction.
@@ -356,10 +360,10 @@ export namespace QuadrupedBody {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
    * @evidence contracts/development/implementation.md#principled-implementation Each bar joins the rig's endpoints. Known mass shares are normalized by their printed sum (Kubo's horse sums to 100.4); the torso's share is divided by drawn capsule volumes. With no segment study the shares remain absent and the existing builder uses solid volume under the authored total mass.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, the withers, the neck, head and tail, then the limbs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula is part of the trunk and the pelvis of the trunk and the hindquarters, as the studies' torso includes them; ears, mane and hooves are not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones and the withers.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one body.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, withers, neck, shared head/pinna assembly, tail and limbs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula and pelvis remain in the source torso allocation. Optional explicitly sourced pinnae divide the unchanged whole-head share with the actual head capsule by solid volume; no biological ear density or mass fraction is invented. Mane and detailed hooves remain unmodelled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bone bars, the withers and at most two prepared ear plates take constant construction work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared torso definition serves conformation/layout and QuadrupedHead owns the complete capsule/pinna geometry and source-budget allocation without duplicate ear planning.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay<Affordance extends string, D extends string>(
@@ -434,11 +438,14 @@ export namespace QuadrupedBody {
       color: coat,
       share: share === undefined ? undefined : scale * share.neck,
     });
-    builder.rod("head", rig.headRadius, rig.poll, rig.nose, {
-      color: coat,
-      round: true,
-      share: share === undefined ? undefined : scale * share.head,
-    });
+    QuadrupedHead(
+      builder,
+      rig,
+      h,
+      body.head,
+      coat,
+      share === undefined ? undefined : scale * share.head,
+    );
     const dock: IAutoMovieVector3 = rig.dock;
     builder.rod(
       "tail",

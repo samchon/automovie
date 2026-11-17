@@ -1,4 +1,5 @@
 export * from "./EquidSegments";
+export * from "./EquidEarProfiles";
 export * from "./EquineGoniometry";
 export * from "./EquineJointLimits";
 export * from "./CamelBody";
@@ -13,6 +14,8 @@ export * from "./OxGait";
 export * from "./QuadrupedAnimal";
 export * from "./QuadrupedAttachments";
 export * from "./QuadrupedHeadAttachment";
+export * from "./QuadrupedHead";
+export * from "./QuadrupedEars";
 export * from "./QuadrupedBody";
 export * from "./QuadrupedBodyProfile";
 export * from "./QuadrupedEquipment";
