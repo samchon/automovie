@@ -33,6 +33,7 @@ import { staggerContacts } from "./staggerContacts";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
+import { staggerShift } from "./staggerShift";
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -459,12 +460,14 @@ export namespace stagger {
     // The displayed centre of mass kept on the pendulum's course: at each
     // sample the residual of the displayed posture's centre of mass
     // (`HumanBalance.centre`) from the course's horizontal point is added
-    // to the root, twice, as a fixed-point step of the per-frame centre of
-    // mass correction (Phillips and Badler 1991): the legs stand planted
-    // while the rest of the body follows the root, so one step leaves the
-    // planted legs' share of the residual, which the second takes off.
-    for (let pass: number = 0; pass < 2; pass++) {
-      const residual: IAutoMovieVector3[] = samples.map((seconds: number, i: number): IAutoMovieVector3 => {
+    // to the root, as the fixed point of the per-frame centre of mass
+    // correction (Phillips and Badler 1991): the legs stand planted while
+    // the rest of the body follows the root, so each step leaves the planted
+    // legs' share of the residual, and the shift is the sum of that series,
+    // read from the residual with no shift and the one its shift leaves
+    // (`staggerShift`).
+    const residuals = (): IAutoMovieVector3[] =>
+      samples.map((seconds: number, i: number): IAutoMovieVector3 => {
         const shown: IAutoMovieVector3 = lend(i, (): IAutoMovieVector3 =>
           HumanBalance.centre(body, composed.posture(seconds)),
         );
@@ -475,10 +478,10 @@ export namespace stagger {
           z: recovery.centre.z + travel.z - shown.z,
         };
       });
-      balanced = residual.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
-        Vector3.add(balanced[i] ?? { x: 0, y: 0, z: 0 }, e),
-      );
-    }
+    const first: IAutoMovieVector3[] = residuals();
+    balanced = first;
+    const second: IAutoMovieVector3[] = residuals();
+    balanced = first.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 => staggerShift(e, second[i]!));
     return {
       ...composed,
       get contacts(): IHumanContactWindow[] {
