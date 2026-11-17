@@ -122,11 +122,18 @@ export namespace HumanSegmentTable {
     if (!(to - from > SHORTEST) || seconds < from || seconds > to) return undefined;
     const fresh: boolean = segment.table === undefined;
     const table: ITable = (segment.table ??= { knots: [], poses: [], seeds: [], held: [] });
-    const knot = (at: number): number => {
+    const find = (at: number): number => {
       let i: number = 0;
       while (i < table.knots.length && table.knots[i]! < at) ++i;
+      return i;
+    };
+    const knot = (at: number): number => {
+      if (table.knots[find(at)] === at) return find(at);
+      // The index is found after the exact read, which may itself have read
+      // this table at other seconds.
+      const read: { pose: IAutoMoviePose; seeds: IAutoMovieMotionHumanSegment["incumbents"] } = exact(at);
+      const i: number = find(at);
       if (table.knots[i] !== at) {
-        const read: { pose: IAutoMoviePose; seeds: IAutoMovieMotionHumanSegment["incumbents"] } = exact(at);
         table.knots.splice(i, 0, at);
         table.poses.splice(i, 0, read.pose);
         table.seeds.splice(i, 0, read.seeds);
