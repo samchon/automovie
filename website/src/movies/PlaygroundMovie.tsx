@@ -101,17 +101,18 @@ export default function PlaygroundMovie(): ReactElement {
       setOutcome({ kind: "building" });
       setVerdicts({ kind: "idle" });
       setPerformed(next);
-      const result: IPlaygroundAdapter.Result = await performPlaygroundComposition(
-        adapter,
-        next,
-        (hash: string): void => {
-          window.history.replaceState(
-            window.history.state,
-            "",
-            `${window.location.pathname}${window.location.search}${hash}`,
-          );
-        },
-      );
+      const result: IPlaygroundAdapter.Result =
+        await performPlaygroundComposition(
+          adapter,
+          next,
+          (hash: string): void => {
+            window.history.replaceState(
+              window.history.state,
+              "",
+              `${window.location.pathname}${window.location.search}${hash}`,
+            );
+          },
+        );
       if (mine === generation.current) setOutcome(result);
     },
     [],

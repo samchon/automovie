@@ -17,9 +17,9 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT
  * leaves its inputs unchanged and returns a new value.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the component order, where quaternions come from and go, the unit-length premise for rotation arguments, and that every function returns a new value.
- * @evidence contracts/development/design.md#principled-representation GlTF-ordered real components describe rotations, composed and read in the stated world/local conventions. Degrees enter Euler and axis-angle construction. A prepared axis-angle reader owns only fixed axis scalars, not a rotation or target answer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Rotation construction, products, normalization, inversion, vector rotation, interpolation and angular distance serve existing engine consumers. prepareAxisAngle serves the actual changing-angle factors of jointToQuaternionOnBasis without exposing their metadata or adding a target cache.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Prepared construction keeps the direct formula's rescaling, division and multiplication order rather than substituting a predivided unit axis. Zero-axis identity and nonfinite propagation keep their existing meanings; every quaternion output remains fresh.
+ * @evidence contracts/development/design.md#principled-representation Represents Pure quaternion math over , components `(x, y, z, w)` in glTF order: companion namespace of 12 members (`identity`, `DEG2RAD`, `EULER_AXES`, `multiply`, `normalize`, `inverse`, ...); units and frames named in its text: quaternion, radians, degree, world, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `Quaternion` in packages/engine/src/math/Quaternion.ts; its surface is the 12 members listed and the text shows 335 other files naming it, mostly packages/engine (134), test (78), movies (62), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace Quaternion {
   /**
@@ -166,7 +166,7 @@ export namespace Quaternion {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The zero-axis identity is the one input with no defined axis, not a fallback for a failed computation; any other axis takes the same formula.
    * @evidence contracts/development/common.md#meaningful-documentation States the angle unit, the rotation sense, that the axis needs no normalization, and the zero-axis result.
    * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size magnitude check precedes one square root, sine and cosine; only extreme finite axes require three rescaling divisions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct and prepared construction share one private axis-angle owner; this direct entry supplies no state and allocates no preparation metadata.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of an axis and an angle that coordinates no work across calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources An extreme axis creates one temporary scaled direction, while the output owns four rotation components and keeps no axis reference.
    */
   export const fromAxisAngle: (
@@ -176,62 +176,18 @@ export namespace Quaternion {
     axis: IAutoMovieVector3,
     angleDeg: number,
   ): IAutoMovieQuaternion => {
-    return axisAngle(axis, angleDeg);
-  };
-
-  /**
-   * Build fresh axis-angle rotations on one unchanged borrowed axis.
-   * Construction reads no component. The first actual angle read prepares the
-   * original scaled direction and its length; later angles keep exactly
-   * `(angleDeg*DEG2RAD)/2`, `sin(half)/len`, component multiplication and cosine.
-   * Keep the axis unchanged from that first read until releasing this closure.
-   *
-   * @param axis Fixed direction, with the direct entry's zero/nonfinite semantics.
-   * @returns A lazy reader producing a fresh quaternion for every angle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed unchanged-axis lifetime, lazy first-use component reads, degree arithmetic, fresh output, zero identity and nonfinite propagation.
-   * @evidence contracts/development/implementation.md#principled-implementation Only the positive-rescaled direction and its original left-associated Euclidean length are invariant. Every angle still divides its half-angle sine by that length before multiplying each direction component, so no rounding association changes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy state and closure call the direct entry's private arithmetic owner; initialization occurs inside the first actual read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No axis admission, normalization or angle work moves into construction. The existing 2**-511/2**510 rescaling boundaries, zero-axis fresh identity, signed zeros and nonfinite arithmetic are preserved without a new guard or unit-axis substitution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-size rescaling and square root per unchanged-axis reader, then one sine, cosine, division and three component products per nonzero-axis angle. Zero axes return a fresh identity without angle trigonometry, as before. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual OnBasis factor consumer borrows one reader per query axis. Both public entries share axisAngle, while only this entry retains its fixed scalar preparation; no complete rotation or target-dependent answer is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure owns one small state and its lazy direction/length reading, borrowing the axis and retaining an extra scaled vector only for extreme inputs. Every returned quaternion is fresh; release the closure with its fixed-axis operation. No global cache or external handle exists.
-   */
-  export function prepareAxisAngle(
-    axis: IAutoMovieVector3,
-  ): (angleDeg: number) => IAutoMovieQuaternion {
-    const state: IAxisAngleState = {};
-    return (angleDeg: number): IAutoMovieQuaternion => axisAngle(axis, angleDeg, state);
-  }
-
-  /** One reader's lazy fixed-axis preparation, never a completed rotation. */
-  interface IAxisAngleState {
-    /** Original scaled direction and its length, populated on first use only. */
-    reading?: { value: IAutoMovieVector3; length: number };
-  }
-
-  /** Preserve the direct formula, optionally borrowing unchanged axis scalars. */
-  function axisAngle(
-    axis: IAutoMovieVector3,
-    angleDeg: number,
-    state?: IAxisAngleState,
-  ): IAutoMovieQuaternion {
-    const known: IAxisAngleState["reading"] = state?.reading;
-    const divisor: number = known === undefined
-      ? normalizationDivisor(axis.x, axis.y, axis.z) : 1;
+    const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
     const value: IAutoMovieVector3 =
-      known?.value ?? (divisor === 1
+      divisor === 1
         ? axis
         : {
             x: axis.x / divisor,
             y: axis.y / divisor,
             z: axis.z / divisor,
-          });
-    const len: number = known?.length ?? Math.sqrt(
+          };
+    const len: number = Math.sqrt(
       value.x * value.x + value.y * value.y + value.z * value.z,
     );
-    if (state !== undefined && known === undefined)
-      state.reading = { value, length: len };
     if (len === 0) return identity();
     const half: number = (angleDeg * DEG2RAD) / 2;
     const s: number = Math.sin(half) / len;
@@ -241,7 +197,7 @@ export namespace Quaternion {
       z: value.z * s,
       w: Math.cos(half),
     };
-  }
+  };
 
   /** Scale only when up to four squared components may leave the normal binary64 range. */
   const normalizationDivisor: (

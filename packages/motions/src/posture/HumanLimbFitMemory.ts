@@ -10,7 +10,6 @@ import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
-import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * The memory of limb fits (`HumanLimbFit.fit`): each body's fits kept by
@@ -25,18 +24,19 @@ import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  */
 export namespace HumanLimbFitMemory {
   /**
-   * Turn fit-memory reads and inserts off or on. Disabled calls solve afresh;
-   * existing body pools remain available when enabled again. Default is on.
+   * Turn the memory of limb fits off or on again. Off, every fit is solved
+   * afresh and nothing is kept, which is what a check of the memory against
+   * the solver compares with; it is on unless turned off.
    *
    * @param on Whether fits are remembered.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each setting does and the default.
    * @evidence contracts/development/implementation.md#principled-implementation One switch read by every remembered fit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One assignment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Disabled calls bypass reads/inserts but do not purge old pools; solver inputs, grid, near and projection rules remain unchanged.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Off keeps nothing, so a comparison reads the solver alone.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sets one switch; existing weak body pools remain bounded by remembered's 4096-entry policy and are not released by disabling.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The fits kept are bounded by `remembered`.
    */
   export function memory(on: boolean): void {
     REMEMBERING.on = on;
@@ -58,8 +58,7 @@ export namespace HumanLimbFitMemory {
    * and scale and every joint's angles, which is where the trunk, the other
    * limbs already fitted and any layer have left the body). The body itself,
    * with its skeleton, topology, ranges and shapes, is the memory's owner.
-   * A borrowed invocation reader shares only same-valued FK computation,
-   * is not a numerical solve input, and is never kept with a result.
+   * Nothing else is read: the solver draws nothing and keeps no state.
    *
    * Each body keeps its last `FIT_MEMORY` fits, the least recently read
    * dropped first, and a body no longer held drops them all. A left limb's
@@ -90,16 +89,15 @@ export namespace HumanLimbFitMemory {
    * @param placed The arms already placed.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
-   * @param resolution Optional parent FK reader or lazy supplier, borrowed only by a synchronous miss or disabled fit; hits do not invoke it and entries never store it.
    * @returns The pose with the limb fitted, and the seed that continues it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States why a fit can be remembered, exactly what its key holds and how much is kept.
    * @evidence contracts/development/implementation.md#principled-implementation The key is every input of a pure function; the body owns its fits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup, one insertion in recency order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All existing numerical solve inputs remain keyed under the original mirror/floor/grid policy. The optional reader only shares same-valued FK math, does not affect results or key equality, and is never stored in an entry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing the fit reads is left out of the key.
    * @evidence contracts/development/implementation.md#efficient-algorithms A map read in place of a fit, the key linear in the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing normalized fit entries are read again unchanged. A synchronous miss or disabled call can borrow its parent's exact FK reader; mirror and floor transforms remain actual inputs checked by scalar dependencies, with no reuse of another target's solution.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY fit entries, with key/pose-dependent byte size. Only result data enters FITS; borrowed reader/supplier state is passed synchronously, not invoked on hits, and released by its caller without a retained plan, callback or context.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit of an instant already solved is read again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last `FIT_MEMORY` fits, least recently read dropped first, in a weak map that lets them go with the body.
    */
   export function remembered(
     body: IHumanBody,
@@ -109,19 +107,9 @@ export namespace HumanLimbFitMemory {
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
     if (!REMEMBERING.on)
-      return HumanLimbFit.fit(
-        body,
-        pose,
-        limb,
-        goal,
-        placed,
-        rival,
-        near,
-        resolution,
-      );
+      return HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near);
     // A left limb's fit is its mirror's, remembered under the right limb's
     // key, so a fit and its mirror image share one entry.
     if (limb.startsWith("left")) {
@@ -133,7 +121,6 @@ export namespace HumanLimbFitMemory {
         placed.map(HumanLimbMirror.side),
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
         near,
-        resolution,
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
@@ -165,16 +152,7 @@ export namespace HumanLimbFitMemory {
     let out: IAutoMovieSeededChainFit | undefined = fits.get(key);
     HumanLimbFitFrame.count(body, out !== undefined);
     if (out === undefined)
-      out = HumanLimbFit.fit(
-        body,
-        own,
-        limb,
-        aim,
-        placed,
-        away,
-        near,
-        resolution,
-      );
+      out = HumanLimbFit.fit(body, own, limb, aim, placed, away, near);
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);

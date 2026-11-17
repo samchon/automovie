@@ -1,17 +1,13 @@
 import {
   IAutoMovieAngleRange,
-  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
-import { SwingTwistFramePreparation } from "../kinematics/SwingTwistFramePreparation";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { swingConeBlend } from "./swingConeBlend";
 
@@ -46,9 +42,9 @@ const clampAxis: (
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Axis projection and combined swing are distinct constraints; swingConeBlend supplies fixed bisection and the result preserves bone identity.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Specified nonfinite angles reset to neutral before box projection; unrestricted multi-turn overrides can violate swing monotonicity, so universal box/cone projection is not certified. For a swing-twist joint the edge tolerance `EDGE` (a millionth of a degree) only absorbs the rounding of reading a rotation back into angles, so a joint on the edge clamps to itself; it hides no real overshoot.
  * @evidence contracts/development/common.md#meaningful-documentation Docs identify nonfinite repair, null/immobile distinction, degrees and finite ordered constraint premise with remaining cone limitation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three clamps and at most forty fixed swing iterations cost constant work and one fixed-size result. A swing-twist joint costs one overshoot test and, only outside the range, one projection and one decomposition, reading the cached radius table. Explicit prepared frames share their one admitted basis instead of repeating raw-axis comparisons in composition and readback; ordinary frames retain both original admission calls. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Targeted/full-pose clamps reuse the same joint owner and borrow constraints; changed angles need new projection. Explicit unchanged-operation frames lend their lazy admitted axes to the existing OnBasis composition/inverse, keeping every clinical angle/frame check and the first admission's jointToQuaternion diagnostic. Swing-twist readback lends that same constraint to the inverse's shared box-preparation owner instead of cloning another box here.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh joint record. Existing swing-region and inverse box metadata remain weakly keyed by their owning constraint/basis records; no projected answer, pose population, native handle or task is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three clamps and at most forty fixed swing iterations cost constant work and one fixed-size result. A swing-twist joint costs one overshoot test and, only outside the range, one projection and one decomposition, reading the radius table that `swingTwistRange` builds once per constraint and basis and caches.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Targeted/full-pose clamps reuse the same joint owner and borrow constraints; changed angles need new projection.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh joint record and no pose population, native handle or task is retained.
  */
 export const clampJointRom: (
   joint: IAutoMovieJointPose,
@@ -77,31 +73,21 @@ export const clampJointRom: (
       abduction: finite(joint.abduction),
       twist: finite(joint.twist),
     };
-    const basis: IAutoMovieJointAxes | undefined =
-      SwingTwistFramePreparation.normalized(range, "jointToQuaternion axes");
-    const q: IAutoMovieQuaternion =
-      basis === undefined
-        ? jointToQuaternion(sanitized, range.axes, range.frame)
-        : jointToQuaternionOnBasis(sanitized, basis, range.frame);
+    const q: IAutoMovieQuaternion = jointToQuaternion(
+      sanitized,
+      range.axes,
+      range.frame,
+    );
     // A joint on the range's edge within a rounding error is inside, so a
     // clamped joint clamps to itself.
     if (swingTwistRange.overshoot(q, constraint, range) <= EDGE)
       return sanitized;
-    const projected: IAutoMovieQuaternion = swingTwistRange.project(
-      q,
-      constraint,
-      range,
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      swingTwistRange.project(q, constraint, range),
+      range.axes,
+      range.frame,
+      { bone: joint.bone, constraint: { ...constraint, swingTwist: null } },
     );
-    const read: IAutoMovieResolvedJointAngles =
-      basis === undefined
-        ? decomposeJointRotation(projected, range.axes, range.frame, {
-            bone: joint.bone,
-            constraint,
-          })
-        : decomposeJointRotationOnBasis(projected, basis, range.frame, {
-            bone: joint.bone,
-            constraint,
-          });
     return {
       bone: joint.bone,
       flexion: read.flexion,

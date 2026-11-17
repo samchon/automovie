@@ -34,7 +34,6 @@ export * from "./jointToQuaternionOnBasis";
 export * from "./measureAutoMovieHumanoidBody";
 export * from "./normalizeJointAxes";
 export * from "./poseJointCodec";
-export * from "./preparePoseResolution";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";

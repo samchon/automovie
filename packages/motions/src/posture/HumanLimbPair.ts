@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   type IAutoMovieSeededChainFit,
   type IAutoMovieSwivelNear,
   type IAutoMovieSwivelSeed,
@@ -24,7 +23,6 @@ import type { HumanColliders } from "./HumanColliders";
 import { HumanLimbFit } from "./HumanLimbFit";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * Two arms with goals fitted as one coupled problem, symmetric in the two
@@ -64,16 +62,15 @@ export namespace HumanLimbPair {
    * @param pose The pose before the arms, its legs fitted.
    * @param goals Each arm's goal.
    * @param near Each arm's nearby fit to continue, if any.
-   * @param resolution Optional parent-owned exact reader or lazy supplier; a standalone pair creates a reader only on first actual FK demand.
    * @returns The pose with both arms fitted, and the seed each arm's own fit was chosen at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear; a coupled still solve where they meet, on the pair's canonical representative under the mirror.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fits, one clearance reading per arm, then one coupled solve when they meet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither arm is fitted against the other's fit; the representative is chosen from the inputs alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two remembered fits retain their actual bounded searches, followed by the existing coupled optimizer only on overlap. Source attachment FK is lazy once; source, independent fits and combined-arm FK share exact completed math while ordered scans and fresh outputs remain. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing fit, clearance and trajectory owners. A supplied person/refit reader crosses only these synchronous calls; actual mirror/floor poses and changed arm descendants still invalidate scalar dependencies, and near/target/result choices remain unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair-local source FK and temporary callbacks end with this call. A borrowed reader remains with its synchronous parent, or a lazily created standalone reader ends here; no returned pose, seed, value or retained optimizer context captures the reader or supplier.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two remembered fits; a coupled solve only where the arms meet.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanLimbFit`, `HumanArmClearance`, the trajectory's context, model and optimiser.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fitted(
     body: IHumanBody,
@@ -82,10 +79,7 @@ export namespace HumanLimbPair {
     near: Readonly<
       Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
     > = {},
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IFitted {
-    const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution(resolution);
     const mirrored: IAutoMoviePose = HumanArmMirror.mirrored({
       pose,
       others: [],
@@ -97,10 +91,7 @@ export namespace HumanLimbPair {
     // The inputs serialised by content, each joint under its bone's name in
     // name order, so the mirror's exchange of the sides' names reorders
     // nothing.
-    const key: (
-      p: IAutoMoviePose,
-      g: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
-    ) => string = (
+    const key = (
       p: IAutoMoviePose,
       g: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
     ): string =>
@@ -110,37 +101,22 @@ export namespace HumanLimbPair {
           .sort((x: IAutoMovieJointPose, y: IAutoMovieJointPose): number =>
             x.bone < y.bone ? -1 : x.bone > y.bone ? 1 : 0,
           )
-          .map(
-            (
-              j: IAutoMovieJointPose,
-            ): [
-              AutoMovieHumanoidBone,
-              number | null,
-              number | null,
-              number | null,
-            ] => [
-              j.bone,
-              j.flexion ?? null,
-              j.abduction ?? null,
-              j.twist ?? null,
-            ],
-          ),
+          .map((j: IAutoMovieJointPose) => [
+            j.bone,
+            j.flexion ?? null,
+            j.abduction ?? null,
+            j.twist ?? null,
+          ]),
         g.left,
         g.right,
       ]);
     if (key(pose, goals) <= key(mirrored, image))
-      return solved(body, pose, goals, near, readResolution);
+      return solved(body, pose, goals, near);
     // The image's left arm is this pose's right arm, solved alike.
-    const out: IFitted = solved(
-      body,
-      mirrored,
-      image,
-      {
-        ...(near.right === undefined ? {} : { left: near.right }),
-        ...(near.left === undefined ? {} : { right: near.left }),
-      },
-      readResolution,
-    );
+    const out: IFitted = solved(body, mirrored, image, {
+      ...(near.right === undefined ? {} : { left: near.right }),
+      ...(near.left === undefined ? {} : { right: near.left }),
+    });
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
       seeds: { left: out.seeds.right, right: out.seeds.left },
@@ -153,7 +129,7 @@ export namespace HumanLimbPair {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
    * @evidence contracts/development/design.md#principled-representation The pose and one seed per arm, null where the fit has none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Pose, per-arm seeds and per-arm fit values are the existing data the refit caller consumes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieSwivelSeed`.
    */
   export interface IFitted {
@@ -174,27 +150,13 @@ function solved(
   pose: IAutoMoviePose,
   goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
-  resolution: ReturnType<typeof prepareHumanPoseResolution>,
 ): HumanLimbPair.IFitted {
-  let authoredBones:
-    | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-    | undefined;
-  const readAuthored: () => ReadonlyMap<
-    AutoMovieHumanoidBone,
-    IAutoMovieResolvedBone
-  > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    authoredBones ??= poseBones(body, pose, resolution());
-    return authoredBones;
-  };
-  const world: (limb: "leftArm" | "rightArm") => IHumanPosture.IGoal = (
-    limb: "leftArm" | "rightArm",
-  ): IHumanPosture.IGoal =>
+  const world = (limb: "leftArm" | "rightArm"): IHumanPosture.IGoal =>
     HumanLimbFit.world(
       body,
       pose,
       limb,
       goals[limb === "leftArm" ? "left" : "right"],
-      readAuthored,
     );
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
     left: HumanLimbFit.remembered(
@@ -205,7 +167,6 @@ function solved(
       [],
       world("rightArm").point,
       near.left,
-      resolution,
     ),
     right: HumanLimbFit.remembered(
       body,
@@ -215,23 +176,17 @@ function solved(
       [],
       world("leftArm").point,
       near.right,
-      resolution,
     ),
   };
   const seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null> = {
     left: own.left.seed,
     right: own.right.seed,
   };
-  const arm: (
-    p: IAutoMoviePose,
-    side: "left" | "right",
-  ) => HumanArmClearance.IArm = (
+  const arm = (
     p: IAutoMoviePose,
     side: "left" | "right",
   ): HumanArmClearance.IArm => {
-    const read: (
-      bone: AutoMovieHumanoidBone,
-    ) => readonly [number, number, number] = (
+    const read = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {
       const j: IAutoMovieJointPose | undefined = p.joints.find(
@@ -256,14 +211,8 @@ function solved(
   );
 
   // Each arm's forearm against the other arm's segments alone.
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-    body,
-    both,
-    resolution(),
-  );
-  const meets: (side: "left" | "right") => boolean = (
-    side: "left" | "right",
-  ): boolean => {
+  const bones = poseBones(body, both);
+  const meets = (side: "left" | "right"): boolean => {
     const other: "left" | "right" = side === "left" ? "right" : "left";
     const shapes: HumanColliders.IPlaced[] = HumanArmClearance.obstacles(
       body,
@@ -292,9 +241,7 @@ function solved(
 
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
-  const site: (side: "left" | "right") => M.ISite = (
-    side: "left" | "right",
-  ): M.ISite => {
+  const site = (side: "left" | "right"): M.ISite => {
     const goal: IHumanPosture.IGoal = world(
       side === "left" ? "leftArm" : "rightArm",
     );
@@ -319,21 +266,17 @@ function solved(
     ],
   );
   const base: G.IBase = { pose, others };
-  const sides: readonly ["right", "left"] = ["right", "left"];
+  const sides = ["right", "left"] as const;
   const context: M.IContext = HumanArmTrajectoryContext.of({
     body,
     times: [0, 1, 2],
     bases: [base, base, base],
-    arms: sides.map(
-      (
-        side: "left" | "right",
-      ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
-        side,
-        rest: arm(pose, side),
-        sites: [undefined, site(side), undefined],
-        anchor: fits[side],
-      }),
-    ),
+    arms: sides.map((side: "left" | "right") => ({
+      side,
+      rest: arm(pose, side),
+      sites: [undefined, site(side), undefined],
+      anchor: fits[side],
+    })),
     still: true,
   });
   const start: number[][][] = sides.map(

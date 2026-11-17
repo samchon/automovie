@@ -167,7 +167,10 @@ export async function test_website_playground_perform(): Promise<void> {
     ): Promise<IPlaygroundAdapter.Result> => {
       requests++;
       order.push("perform");
-      TestValidator.predicate("the adapter receives the edited input", received === impulsed);
+      TestValidator.predicate(
+        "the adapter receives the edited input",
+        received === impulsed,
+      );
       return answer;
     },
   };
@@ -181,43 +184,66 @@ export async function test_website_playground_perform(): Promise<void> {
       0,
       { subject },
     );
-    const failed: IPlaygroundAdapter.Result = await performPlaygroundComposition(
-      adapter,
-      invalid,
-      write,
-    );
+    const failed: IPlaygroundAdapter.Result =
+      await performPlaygroundComposition(adapter, invalid, write);
     TestValidator.predicate(
       "an invalid impulse subject gives a visible error result",
-      failed.kind === "refusal" && failed.refusal.kind === "error" && failed.refusal.message.length !== 0,
+      failed.kind === "refusal" &&
+        failed.refusal.kind === "error" &&
+        failed.refusal.message.length !== 0,
     );
   }
-  TestValidator.equals("invalid inputs neither publish nor request a take", [published.length, requests], [0, 0]);
+  TestValidator.equals(
+    "invalid inputs neither publish nor request a take",
+    [published.length, requests],
+    [0, 0],
+  );
   const retried: IPlaygroundAdapter.Result = await performPlaygroundComposition(
     adapter,
     impulsed,
     write,
   );
-  TestValidator.predicate("a corrected retry returns the adapter result unchanged", retried === answer);
-  TestValidator.equals("the admitted address is published before its take", order, ["address", "perform"]);
-  TestValidator.equals("the published address retains the impulses", PlaygroundAddress.decode(published[0]!), impulsed);
+  TestValidator.predicate(
+    "a corrected retry returns the adapter result unchanged",
+    retried === answer,
+  );
+  TestValidator.equals(
+    "the admitted address is published before its take",
+    order,
+    ["address", "perform"],
+  );
+  TestValidator.equals(
+    "the published address retains the impulses",
+    PlaygroundAddress.decode(published[0]!),
+    impulsed,
+  );
 
   // 6. Neither a browser failure nor an unexpected request rejection strands the page.
-  const historyFailure: IPlaygroundAdapter.Result = await performPlaygroundComposition(
-    adapter,
-    impulsed,
-    (): void => { throw new Error("history unavailable"); },
-  );
+  const historyFailure: IPlaygroundAdapter.Result =
+    await performPlaygroundComposition(adapter, impulsed, (): void => {
+      throw new Error("history unavailable");
+    });
   TestValidator.predicate(
     "a history failure is an error and makes no take request",
-    historyFailure.kind === "refusal" && historyFailure.refusal.kind === "error" && historyFailure.refusal.message === "history unavailable" && requests === 1,
+    historyFailure.kind === "refusal" &&
+      historyFailure.refusal.kind === "error" &&
+      historyFailure.refusal.message === "history unavailable" &&
+      requests === 1,
   );
-  const requestFailure: IPlaygroundAdapter.Result = await performPlaygroundComposition(
-    { perform: async (): Promise<IPlaygroundAdapter.Result> => { throw new Error("worker unavailable"); } },
-    impulsed,
-    (): void => {},
-  );
+  const requestFailure: IPlaygroundAdapter.Result =
+    await performPlaygroundComposition(
+      {
+        perform: async (): Promise<IPlaygroundAdapter.Result> => {
+          throw new Error("worker unavailable");
+        },
+      },
+      impulsed,
+      (): void => {},
+    );
   TestValidator.predicate(
     "a rejected request is an error result with its original message",
-    requestFailure.kind === "refusal" && requestFailure.refusal.kind === "error" && requestFailure.refusal.message === "worker unavailable",
+    requestFailure.kind === "refusal" &&
+      requestFailure.refusal.kind === "error" &&
+      requestFailure.refusal.message === "worker unavailable",
   );
 }

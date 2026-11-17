@@ -118,7 +118,10 @@ export function test_website_motion_reference(): void {
       (first?.composition?.forces?.length ?? 0) !== 0 &&
       firstUse !== undefined &&
       Object.keys(firstUse.params).length === 0 &&
-      (entry.parameters ?? []).every((parameter: IMotionReference.IParameter): boolean => !parameter.required)
+      (entry.parameters ?? []).every(
+        (parameter: IMotionReference.IParameter): boolean =>
+          !parameter.required,
+      )
     )
       forceOnlyContexts++;
     const trial: MotionUsage.ITrial | null = MotionUsage.trial(
@@ -151,7 +154,9 @@ export function test_website_motion_reference(): void {
           `${name}: tried alone, though ${first.id} names it only as a mutual action`,
         );
       if ((first?.composition?.forces?.length ?? 0) !== 0)
-        findings.push(`${name}: the solo drops its first scene's authored forces`);
+        findings.push(
+          `${name}: the solo drops its first scene's authored forces`,
+        );
       if (JSON.stringify(solo.params) !== JSON.stringify(use?.params ?? {}))
         findings.push(`${name}: the solo's parameters are not its first use's`);
       if (missing.length !== 0)
@@ -188,7 +193,10 @@ export function test_website_motion_reference(): void {
     }
   }
   TestValidator.equals("each name's scenes", findings, []);
-  TestValidator.predicate("a force-only first use distinguishes context from solo parameters", forceOnlyContexts > 0);
+  TestValidator.predicate(
+    "a force-only first use distinguishes context from solo parameters",
+    forceOnlyContexts > 0,
+  );
 }
 
 /** A scene's first performer action of a name, overlays included, in the order its chains are written; undefined when only a mutual action names it. */

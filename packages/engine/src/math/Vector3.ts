@@ -8,8 +8,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * stays independent of the renderer and runs headless.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the record shape, that inputs are never changed, and why the engine keeps its own math instead of `three.js`.
- * @evidence contracts/development/design.md#principled-representation Three scalar components describe a vector or point in the caller's frame and unit; addition, subtraction, products, norm, distance and interpolation preserve those ordinary Euclidean meanings without another coordinate representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The engine's shared vector operations serve geometry, FK and physical computation. distance serves actual bend residuals and two-bone lengths without exposing an unused displacement record; vector-producing callers retain subtract and length.
+ * @evidence contracts/development/design.md#principled-representation Represents Pure vector math over (`{ x, y, z }`): companion namespace of 10 members (`create`, `add`, `subtract`, `scale`, `dot`, `cross`, ...); units and frames named in its text: frame, world, quaternion. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `Vector3` in packages/engine/src/math/Vector3.ts; its surface is the 10 members listed and the text shows 481 other files naming it, mostly packages/engine (176), movies (159), test (74), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace Vector3 {
@@ -151,7 +151,7 @@ export namespace Vector3 {
    * non-finite length.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The Euclidean norm; `Math.sqrt(dot(a, a))` is exact to rounding when no square leaves the normal range, and `Math.hypot`, which the ECMAScript specification directs implementations to compute without that overflow and underflow, covers the extreme magnitudes where squaring fails.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The private extremeScale owns the range gate for length, normalize and distance; normalizationScale keeps the existing vector-component read order for length and normalize.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The range test lives in the private `normalizationScale` shared with `normalize`, so both functions agree on which vectors are extreme.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The `2^-511` and `2^511` thresholds are the binary64 limits where a square underflows or overflows, not values tuned to a caller; ordinary input keeps `sqrt(dot)` so its result stays identical to that expression wherever callers compute it directly.
    * @evidence contracts/development/common.md#meaningful-documentation States which formula applies in which magnitude range and why, that ordinary results equal `sqrt(dot)` exactly, and the non-finite behavior.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One maximum of three magnitudes and one square root in constant time, with no algorithm to choose.
@@ -164,33 +164,6 @@ export namespace Vector3 {
     normalizationScale(a) === 0
       ? Math.sqrt(dot(a, a))
       : Math.hypot(a.x, a.y, a.z);
-
-  /**
-   * Euclidean distance between two points in the same frame and unit.
-   * It equals length(subtract(a, b)) with the same ordinary arithmetic,
-   * extreme-magnitude branch and nonfinite propagation, without a vector.
-   *
-   * @param a The first point, read before b on each X/Y/Z subtraction.
-   * @param b The second point in the same frame and unit.
-   * @returns Their scalar separation in that unit, including the original nonfinite result.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States matching frames/units, operand-read order, exact length/subtract equivalence and scalar/nonfinite output.
-   * @evidence contracts/development/implementation.md#principled-implementation Forms the same three differences as subtract, then evaluates the same expanded self-dot square root or extreme Math.hypot selected by the shared binary64 magnitude gate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A scalar point-distance operation beside length serves consumers that never use the displacement; extremeScale remains the single owner of magnitude thresholds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps subtraction order, left-associated square sum, zero, NaN and infinity behavior and the existing extreme branch; no hypot-only replacement, distance tolerance, snapping or finite repair is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three scalar differences and the same fixed-size magnitude/norm work omit one displacement allocation per query. Both magnitude branches remain constant work, with runtime speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the existing norm's magnitude policy and arithmetic on the exact completed differences; every current point pair is actually evaluated and no distance or point is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number, allocates no vector or collection and retains neither point nor any operation state.
-   */
-  export function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
-    const x: number = a.x - b.x;
-    const y: number = a.y - b.y;
-    const z: number = a.z - b.z;
-    const largest: number = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
-    return extremeScale(largest) === 0
-      ? Math.sqrt(x * x + y * y + z * z)
-      : Math.hypot(x, y, z);
-  }
 
   /**
    * A unit-length vector in the direction of `a`, or the zero vector when `a`
@@ -235,16 +208,12 @@ export namespace Vector3 {
       Math.abs(a.y),
       Math.abs(a.z),
     );
-    return extremeScale(largest);
-  };
-
-  /** Shared binary64 magnitude gate; zero and nonfinite inputs retain the ordinary norm path. */
-  const extremeScale: (largest: number) => number = (largest: number): number =>
-    Number.isFinite(largest) &&
+    return Number.isFinite(largest) &&
       largest > 0 &&
       (largest < 2 ** -511 || largest > 2 ** 511)
       ? largest
       : 0;
+  };
 
   /**
    * The component-wise linear interpolation `a + (b - a) · t`, giving `a` at

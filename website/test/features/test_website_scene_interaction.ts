@@ -74,12 +74,14 @@ export function test_website_scene_interaction(): void {
       (knownRefusal
         ? status.kind !== "refused" || status.until !== 3573
         : status.kind !== "plays") ||
-      !actions.every(
-        (action: string): boolean => SceneFacts.actions(scene).includes(action),
+      !actions.every((action: string): boolean =>
+        SceneFacts.actions(scene).includes(action),
       ) ||
       scene.takes.length === 0
     ) {
-      findings.push(`${scene.id}: no computable composition for ${actions?.join(", ")}`);
+      findings.push(
+        `${scene.id}: no computable composition for ${actions?.join(", ")}`,
+      );
       continue;
     }
 
@@ -92,18 +94,22 @@ export function test_website_scene_interaction(): void {
       findings.push(
         `${scene.id}: ${error instanceof Error ? error.message : String(error)}`,
       );
-      console.log(JSON.stringify({
-        scene: scene.id,
-        phase: "error",
-        elapsedMs: performance.now() - started,
-      }));
+      console.log(
+        JSON.stringify({
+          scene: scene.id,
+          phase: "error",
+          elapsedMs: performance.now() - started,
+        }),
+      );
       continue;
     }
-    console.log(JSON.stringify({
-      scene: scene.id,
-      phase: "computed",
-      elapsedMs: performance.now() - started,
-    }));
+    console.log(
+      JSON.stringify({
+        scene: scene.id,
+        phase: "computed",
+        elapsedMs: performance.now() - started,
+      }),
+    );
     if (knownRefusal) {
       if ("track" in made)
         findings.push(
