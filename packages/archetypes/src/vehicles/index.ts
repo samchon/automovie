@@ -5,6 +5,8 @@ export * from "./createCart";
 export * from "./createDeck";
 export * from "./createMotorcycle";
 export * from "./createPram";
+export * from "./createRailCarriage";
+export * from "./createRailPlatform";
 export * from "./createScenicShip";
 export * from "./createSpacecraft";
 export * from "./createWheelchair";

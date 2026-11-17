@@ -1,0 +1,76 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  type Archetype,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  ArchetypeUnits,
+} from "../core";
+import { createRailCarriage } from "./createRailCarriage";
+
+/**
+ * A one-car segment of a level-boarding station platform, aligned with
+ * createRailCarriage at the parked carriage's origin and orientation. The
+ * platform is on +X and its track-facing edge runs along Z. Keep this model
+ * stationary when giving the carriage its own ride.
+ *
+ * The 11-foot clear depth and one-foot contrasting edge strip are from the
+ * Southern California Rapid Transit District's 1968 preliminary design §III.C
+ * (https://libraryarchives.metro.net/DPGTL/scrtd/1968-metro-rail-preliminary-design-criteria-and-outline-specifications.pdf).
+ * The 75 mm gap is inside the three-inch level-boarding bound in §1192.53(d)
+ * (https://www.access-board.gov/ada/vehicles/subpart-c/).
+ *
+ * @param id The scene model id, defaulting to railPlatform.
+ * @returns The stationary platform, including the support top and its track edge.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the matching model, units, axes, level-boarding relation and sources.
+ * @evidence contracts/development/implementation.md#principled-implementation Both platform slabs have a common top, flush with the matched car floor. The walking support covers both slabs and the ledge runs along the track-side face.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Finds the track edge, lays the contrasting and ordinary slabs, records their support and edge, then derives mass.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One level concrete section is used for staging. The contrasting strip has no tactile detail.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two adjacent boxes and two fixed contacts.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call produces an independent model.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned model.
+ */
+export function createRailPlatform(
+  id: string = "railPlatform",
+): Archetype<"platform" | "platformEdge", never> {
+  const builder: ArchetypeBuilder<"platform" | "platformEdge", never> =
+    new ArchetypeBuilder({
+      id,
+      name: "rail platform",
+      material: "concrete",
+      draw: new ArchetypeDrawSession<never>("railPlatform", {}, undefined),
+    });
+  const v: typeof Vector3.create = Vector3.create;
+  const depth: number = 11 * ArchetypeUnits.FOOT;
+  const strip: number = ArchetypeUnits.FOOT;
+  const length: number = 75 * ArchetypeUnits.FOOT;
+  const height: number = createRailCarriage.REFERENCE.floor;
+  const edge: number = createRailCarriage.REFERENCE.width / 2 + 0.075;
+  builder.box("platform-edge-strip", v(strip, height, length), v(edge + strip / 2, height / 2, 0), {
+    color: "#e4b63a",
+  });
+  builder.box("platform-deck", v(depth - strip, height, length), v(edge + (depth + strip) / 2, height / 2, 0), {
+    color: "#a6a29b",
+  });
+  builder.affordance({
+    id: "platform",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(edge + depth / 2, height, 0)),
+    extent: null,
+    width: depth,
+    depth: length,
+  });
+  builder.affordance({
+    id: "platformEdge",
+    kind: "ledge",
+    frame: ArchetypeFrame.facing(v(edge, height, 0), v(0, 1, 0), v(0, 0, 1)),
+    extent: null,
+    length,
+  });
+  return builder.build(CONCRETE_DENSITY * depth * length * height);
+}
+
+/** Nominal concrete density for the schematic slab, kilograms per cubic metre. */
+const CONCRETE_DENSITY: number = 2_400;
