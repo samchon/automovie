@@ -18,9 +18,11 @@ import { StrikingStance } from "./StrikingStance";
  * carriage leaves it and fitted by the engine's limb fit ({@link KickChain}),
  * lands its weapon on the planned point with the support foot on its plant.
  *
- * The leans are tried from the least upward and the first that lands is the
- * kick's; when none does, the one whose fitted leg comes nearest is, which is
- * the declared miss. Under each lean a leg that falls short steps the support
+ * The leans are tried from the least upward and the first that lands exactly
+ * (weapon and support ball within {@link KickForm.TOLERANCE}) is the kick's;
+ * when none does, the nearest of those whose weapon is on the point (within
+ * {@link KickForm.RESIDUAL}) is, and only when no weapon is on the point the
+ * one whose fitted leg comes nearest, which is the declared miss. Under each lean a leg that falls short steps the support
  * foot up along the line by what it lacks, unless the step is given: first by
  * the solve's gap, then by what the fitted weapon still lacks toward the
  * point, because the hip's range of motion can leave the fitted leg shorter
@@ -116,6 +118,7 @@ export namespace KickContact {
     };
     let best: IContact | undefined;
     let least: number = Number.POSITIVE_INFINITY;
+    let landed: boolean = false;
     for (const lean of leans) {
       let carriage: IKickGeometry.ICarriage = { ...set, lean, step: step ?? 0 };
       let forward: number = limit;
@@ -182,9 +185,21 @@ export namespace KickContact {
           fit.residual <= KickForm.TOLERANCE
         )
           return candidate;
+
+        // No candidate was exact so far: one whose weapon is on the point
+        // (not `short`) comes before any that misses it, and among equals the
+        // nearer fit does. Ranking by the cost alone let a miss with a clean
+        // plant displace a landed leg whose support ball slipped a few
+        // millimetres, and the kick then recorded a miss it had not made.
         const cost: number = fit.slip + fit.residual;
-        if (cost < least) {
+        const lands: boolean = fit.status !== "short";
+        if (
+          best === undefined ||
+          (lands && !landed) ||
+          (lands === landed && cost < least)
+        ) {
           least = cost;
+          landed = lands;
           best = candidate;
         }
 
