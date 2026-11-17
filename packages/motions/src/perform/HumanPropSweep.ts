@@ -22,7 +22,8 @@ import type { IHumanProp } from "./IHumanProp";
  * film second against every person but the launcher, read on their displayed
  * bones at each second and passed over while a bound around their root
  * shows them out of reach (the bounding-sphere reject of #3379), the props
- * that do not fly and the floor, through the engine's one resolver
+ * that do not fly but those the launcher holds or wears as the flight starts
+ * (they go with the launcher), and the floor, through the engine's one resolver
  * (`projectileFirstContact`). The step keeps the prop from crossing the
  * thinnest collider it may meet in one step, finger bones aside: a finger is
  * the stated blind spot. A pass leaves the body it passes through behind.
@@ -121,6 +122,13 @@ export namespace HumanPropSweep {
       if (other.subject === prop.subject || other.shapes === undefined)
         continue;
       if (launched(self, other.subject)) continue;
+
+      // What the launcher holds or wears as the flight starts goes with the
+      // launcher, who is no collider: a ball leaving a gun's muzzle starts
+      // on the gun's own shape, and read as a collider the gun held the
+      // sweep's step at the muzzle's zero gap, each step a fresh read of
+      // the shooter's displayed pose (firearm_shot_launch ran 7 minutes).
+      if (carried(self, other.subject, launcher, seconds)) continue;
       other.shapes.forEach((shape: P.IShape, k: number): void => {
         const id: string = `prop:${other.subject}:${k}`;
         if (id === leave) return;
@@ -169,6 +177,19 @@ export namespace HumanPropSweep {
           }
         : { kind: "ground" };
     return { hit, struck, collider: id };
+  }
+
+  /** Whether a person holds or wears a prop at a film second. */
+  function carried(
+    self: HumanPerformanceState,
+    subject: string,
+    person: string,
+    seconds: number,
+  ): boolean {
+    return HumanPerformanceRead.grips(self, subject).some(
+      (g: HumanPerformanceState.IGrip): boolean =>
+        g.subject === person && g.from <= seconds && g.to >= seconds - 1e-6,
+    );
   }
 
   /** Whether any action launches a prop. */
