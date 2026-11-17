@@ -238,7 +238,17 @@ export namespace hingedArmSwivel {
     sine: IAutoMovieQuaternion;
     /** Actual fixed lower articulation about its hinge. */
     lower: IAutoMovieQuaternion;
-    /** Build the ordinary degree-swivel poser from this same completed branch aim. */
+    /**
+     * Build the degree-swivel reader from this completed branch's unchanged geometry.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The returned reader takes swivel degrees and returns bone-local upper/lower quaternions; coefficients and lower articulation must stay unchanged during use.
+     * @evidence contracts/development/implementation.md#principled-implementation poseBranch composes the completed aim with the actual swivel rotation about its root-to-effector line and preserves the same hinge articulation.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure This factory delegates to the ordinary poseBranch owner with the harmonic producer's completed aimed record.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No score, clamp or physical acceptance is inferred; the consuming dispatcher still verifies the actual candidate's FK, ROM, pole and orientation.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size factory work avoids repeating hinge rotation, mid-offset rotation and aim construction; each swivel still computes its actual trigonometric rotation and product.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this same branch's completed aim, line and lower articulation are shared; another target or branch gets its own geometry.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned reader retains the current branch's numeric geometry and lazy axis reader until caller release, without target history, handles or tasks.
+     */
     pose(): ReturnType<typeof hingedArmSwivel.pose>;
   }
 
