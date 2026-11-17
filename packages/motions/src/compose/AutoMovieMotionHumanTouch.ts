@@ -79,7 +79,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @param target The target.
    * @param seconds Film seconds.
    * @param posture The posture so far.
-   * @param entry The entry pose's resolved bones.
+   * @param entry The entry pose's resolved bones, or a supplier of the bones to read a region off the trunk on, called only for such a region.
    * @returns The point and the outward normal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which pose each kind of region is read on and why.
