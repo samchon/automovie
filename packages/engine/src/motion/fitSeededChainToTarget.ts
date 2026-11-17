@@ -93,8 +93,11 @@ export namespace fitSeededChainToTarget {
     /**
      * Fit one target using the original source pose and unchanged search policy.
    * Keep that target's coordinate record unchanged until the fit returns.
+     * An optional `near` replaces the source's cold/near mode for this target
+     * only: the fit continues that seed (a later contact re-aim pass
+     * continuing the previous pass's answer for a target millimetres away).
      *
-     * States model-metre input and fixed source/search meaning.
+     * States model-metre input, fixed source/search meaning and the per-target continuation.
      * Signature only; prepare owns the fit composition.
      * No body is declared here.
      * The signature performs no solve.
@@ -102,7 +105,7 @@ export namespace fitSeededChainToTarget {
      * The producer owns invariant sharing.
      * The signature acquires nothing.
      */
-    fit(target: IAutoMovieVector3): IAutoMovieSeededChainFit;
+    fit(target: IAutoMovieVector3, near?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit;
 
     /**
      * Evaluate an explicit continuous-curve candidate at the current target.
@@ -243,8 +246,9 @@ function preparedWorkspace(
     ...(bend.value === undefined ? {} : { value: bend.value }),
   });
   return {
-      fit: (target: IAutoMovieVector3): IAutoMovieSeededChainFit => {
-        const props: IFitChainToTargetProps = { ...workspace.props, target };
+      fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
+        const props: IFitChainToTargetProps = near === undefined
+          ? { ...workspace.props, target } : { ...workspace.props, target, near };
         return finish(props, fitChainBend(props, workspace));
       },
       continued: (target: IAutoMovieVector3,

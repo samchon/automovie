@@ -82,8 +82,8 @@ export namespace prepareHumanLimbSource {
       fixed.chain.effector !== source.chain.effector || !same(fixed.pose, source.pose)) return undefined;
     const workspace: fitSeededChainToTarget.IWorkspace = entry.bind(source);
     return {
-      fit: (point: IAutoMovieVector3): ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> => {
-        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> = workspace.fit(point);
+      fit: (point: IAutoMovieVector3, near?: Parameters<fitSeededChainToTarget.IWorkspace["fit"]>[1]): ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> => {
+        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> = workspace.fit(point, near);
         if (fitted.pose.root !== null) ROOTS.add(fitted.pose.root);
         return fitted;
       },

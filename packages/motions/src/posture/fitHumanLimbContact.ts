@@ -1,4 +1,4 @@
-import { type IAutoMovieSeededChainFit, Quaternion, Vector3 } from "@automovie/engine";
+import { type IAutoMovieSeededChainFit, type IAutoMovieSwivelNear, Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFoot } from "./HumanFoot";
@@ -13,12 +13,13 @@ import type { prepareHumanLimbFit } from "./prepareHumanLimbFit";
  * @evidence contracts/development/implementation.md#principled-implementation Uses the original fixed-point contact relation and one-step Anderson mixing, retaining the nearest actual fitted contact and its actual toe correction when iteration does not close.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner holds contact re-aiming once, while HumanLimbFit owns attachment/obstacle/source construction and selects ordinary versus explicit continuous-curve point fitting.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original20-micrometre contact resolution,16-pass budget, mixing bound, original arithmetic and best-candidate policy remain unchanged; no sampled contact or altered goal replaces a fit.
- * @evidence contracts/development/implementation.md#efficient-algorithms One fit without an offset contact; otherwise at most16 actual contact fits and bounded vector work, with no additional solve or callback-result cache.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same goal-specific workspace across actual re-aimed targets; each fit and rotation remains current and the actual chosen toes travel with that candidate.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One fit without an offset contact; otherwise one fit and at most fifteen re-aimed fits, each continuing the previous pass's seed (a refinement within one swivel step to the cold resolution, `hingedArmSwivel.RESOLUTION`) rather than a full search, and bounded vector work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same goal-specific workspace across actual re-aimed targets; a later pass continues the previous pass's swivel seed for a target millimetres away (a seed from this same synchronous fit, never another instant's); each fit and rotation remains current and the actual chosen toes travel with that candidate.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Goal, workspace, fit policy and bounded current/best candidate state are synchronous local data. Returned records retain no reader, callback, source factory, history or handle.
  */
 export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFit>, goal: IHumanPosture.IGoal,
-  side: "left" | "right", leg: boolean, fit: (point: IAutoMovieVector3) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
+  side: "left" | "right", leg: boolean,
+  fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
   let fitted: IAutoMovieSeededChainFit = fit(goal.point);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
   const anchor: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, goal.contact));
@@ -47,7 +48,12 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     }
     last = { image: off.ankle, miss };
     point = next;
-    fitted = fit(point);
+
+    // A re-aimed target lies millimetres from the last one, so its fit
+    // continues the last pass's seed, refined to the cold sweep's own
+    // resolution, instead of searching every swivel again.
+    fitted = fit(point, fitted.seed === null ? undefined
+      : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION });
   }
   fitted = nearest.fitted;
   toes = nearest.toes;

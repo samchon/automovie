@@ -10,10 +10,12 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
  * caller's certified refusal (`excluded`, closed-form range arcs) refuses
  * its two-step bracket, at the nearest swivel, one step apart, whose bracket
  * it does not refuse; of two at the same distance either way the better
- * scored is kept. It then reads both neighbours, walks downhill one step at
- * a time toward the better one while the next step is strictly ahead under
- * the caller's ordering, and refines the two-step bracket around the step
- * reached by the golden-section search (`refineHingedSwivel`). Every choice
+ * scored is kept. It then reads both neighbours and walks downhill toward the
+ * better one by a pattern search (Hooke and Jeeves 1961): steps doubling
+ * while the next is strictly ahead under the caller's ordering, then halving
+ * back to one step, trying the walk's direction first and then the other at
+ * each size; and refines the two-step bracket around the swivel reached by
+ * the golden-section search (`refineHingedSwivel`). Every choice
  * is made by the scores alone, never by a preferred direction, so a mirrored
  * request, whose swivel runs the other way, takes the mirrored path. When the
  * caller's score is the start's own term alone (`direct`) and nothing refused
@@ -61,7 +63,7 @@ export namespace hingedSwivelPole {
    * @evidence contracts/development/implementation.md#principled-implementation The caller's closed-form start (the pole of two-bone IK, or a term's own minimiser) fixes the swivel; with a direct score the nearest admissible start is Tolani's selection, otherwise the downhill walk and golden refinement minimise the caller's full score in that start's basin under the caller's strict ordering.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop per branch: start, walk, refine, keep the best; start and direction are chosen by score, so the search has no direction-dependent tie-break beyond exactly equal scores.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused bracket moves the start; a branch with no unrefused swivel within half a turn is skipped; a missing pole returns null rather than guessing a side.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A direct score whose start is unrefused costs one start reading, the refusal test and one score per branch. Otherwise per branch one start reading, at most 360 refusal tests and at most two start scores, the two neighbours, one score per further step walked plus the one that stops it, and the refinement's scores: a start already at its minimum costs three scores and the refinement, against the sweep's 360 and every minimum's refinement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A direct score whose start is unrefused costs one start reading, the refusal test and one score per branch. Otherwise per branch one start reading, at most 360 refusal tests and at most two start scores, the two neighbours, one score per doubling plus the one that stops it, at most two per halving, and the refinement's scores: about 4 log2(d) scores for a minimum d steps away, three and the refinement for a start already at its minimum, against the sweep's 360 and every minimum's refinement.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure search of the caller's scorers.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds two candidates per branch until return.
    */
@@ -114,12 +116,30 @@ export namespace hingedSwivelPole {
       if (direction !== 0) {
         at += direction * props.step;
         here = direction === 1 ? above : below;
-        for (let k: number = 1; k * props.step < 360; ++k) {
-          const next: T = branch.probe(at + direction * props.step);
+
+        // A pattern search: steps doubling while the score improves, then
+        // halving back to one step, either way at each size and the walk's
+        // own direction first, so a start far from its minimum costs scores
+        // in the logarithm of the distance rather than one per step.
+        let size: number = 2 * props.step;
+        let travelled: number = props.step;
+        while (travelled + size <= 360) {
+          const next: T = branch.probe(at + direction * size);
           if (!props.better(next, here)) break;
-          at += direction * props.step;
+          at += direction * size;
           here = next;
+          travelled += size;
+          size *= 2;
         }
+        for (size /= 2; size >= props.step; size /= 2)
+          for (const way of [direction, -direction]) {
+            const next: T = branch.probe(at + way * size);
+            if (props.better(next, here)) {
+              at += way * size;
+              here = next;
+              break;
+            }
+          }
       }
       const refined: T = props.refine(branch.probe, at);
       const kept: T = props.better(here, refined) ? here : refined;
