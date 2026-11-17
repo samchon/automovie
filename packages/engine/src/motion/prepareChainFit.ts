@@ -66,14 +66,18 @@ export function prepareChainFit(
   resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
   poseResolution?: prepareSkeletonPoseResolution.IRig,
   fixed?: prepareChainFit.IWorkspace,
+  plant?: () => IPreparedChainPlant | null,
 ): prepareChainFit.IWorkspace {
   const props: Omit<IFitChainToTargetProps, "target"> = {
     ...source,
     jointAxes: fixed?.props.jointAxes ?? poseResolution?.jointAxes ??
       skeletonJointAxes(source.skeleton, source.jointAxes),
   };
+  // A caller that holds the rig's chain constants and the pose's frame of
+  // the chain root's parent places the chain itself (`placeChainPlant`);
+  // otherwise the articulation-free pose is read by forward kinematics.
   const prepared: IPreparedChainPlant | null = fixed === undefined
-    ? prepareChainPlant(props, resolution, poseResolution) : fixed.prepared;
+    ? (plant?.() ?? prepareChainPlant(props, resolution, poseResolution)) : fixed.prepared;
   const rig: prepareChainFit.IRig = prepareChainFitRig(props, prepared, fixed?.rig);
   let reading: prepareChainFit.IReading | undefined;
   let referenceLower: IAutoMovieResolvedBone | undefined;

@@ -170,12 +170,15 @@ export namespace fitSeededChainToTarget {
     readAuthored?: Parameters<typeof prepareChainFit>[1],
     resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
     poseResolution?: prepareSkeletonPoseResolution.IRig,
+    plant?: Parameters<typeof prepareChainFit>[5],
   ): IWorkspace {
     const workspace: prepareChainFit.IWorkspace = prepareChainFit(
       source,
       readAuthored,
       resolution,
       poseResolution,
+      undefined,
+      plant,
     );
     return preparedWorkspace(workspace, resolution, poseResolution);
   }

@@ -1,5 +1,6 @@
 import type {
   IAutoMovieSkeletonTopology,
+  prepareChainConstants,
   prepareSkeletonPoseResolution,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieHumanoidSurfaces,
@@ -49,6 +50,9 @@ export interface IHumanBody {
 
   /** Immutable canonical FK prerequisites, prepared once with this body's rig. */
   poseResolution: prepareSkeletonPoseResolution.IRig;
+
+  /** Each limb's two-bone chain as the rig alone fixes it (`prepareChainConstants`), read once: a fit places the chain under a pose from these and the frame of the chain root's parent. A limb whose chain is not parent to child twice has none. */
+  chains: Readonly<Partial<Record<"leftArm" | "rightArm" | "leftLeg" | "rightLeg", prepareChainConstants.IConstants>>>;
 
   /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: resolveAutoMovieCenterOfMass.IModel;

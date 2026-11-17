@@ -43,6 +43,7 @@ export function prepareHumanLimbFit(
   near?: IAutoMovieSwivelNear,
   readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
   resolution?: Parameters<typeof fitSeededChainToTarget.prepare>[2],
+  plant?: Parameters<typeof fitSeededChainToTarget.prepare>[4],
 ): fitSeededChainToTarget.IWorkspace {
   // A continued fit keeps its seed's basin. An uncontinued arm may instead
   // rank its own legal swivels by the same joint strain as Bend.solve.
@@ -89,7 +90,7 @@ export function prepareHumanLimbFit(
     restFrames: HUMANOID_REST_FRAME,
   };
   return prepareHumanLimbSource.workspace(body, source, readAuthored, resolution) ??
-    fitSeededChainToTarget.prepare(source, readAuthored, resolution, body.poseResolution);
+    fitSeededChainToTarget.prepare(source, readAuthored, resolution, body.poseResolution, plant);
 }
 
 /** Read the current clinical reference in degrees without a per-goal closure. */

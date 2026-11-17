@@ -5,6 +5,7 @@ import {
   type IAutoMovieSwivelNear,
   Quaternion,
   Vector3,
+  placeChainPlant,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -275,6 +276,11 @@ export namespace HumanLimbFit {
       | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
       | undefined;
 
+    // The chain as the rig alone fixes it: placed under this pose from the
+    // frame of its root's parent, which the source's one read gives, in
+    // place of a second read of the whole pose with the chain left out.
+    const constants: IHumanBody["chains"][IHumanPosture.Limb] = body.chains[limb];
+
     // These consumers all read the unchanged source pose. Keep the reader
     // lazy so attachment refusals and degenerate leg fits keep their original
     // admission order, and never let a fitted pose replace this source.
@@ -287,6 +293,7 @@ export namespace HumanLimbFit {
           ? HumanArmObstacleBones(placed.filter((arm: "left" | "right"): boolean => arm !== side)) : []);
         requested.add(chain(limb).effector);
         if (attached.on !== undefined) requested.add(attached.on);
+        if (constants !== undefined && constants.parent !== null) requested.add(constants.parent);
         authoredBones = poseBones(body, pose, readResolution(), requested);
       }
       return authoredBones;
@@ -330,6 +337,15 @@ export namespace HumanLimbFit {
       near,
       readAuthored,
       readResolution(),
+      constants === undefined
+        ? undefined
+        : (): ReturnType<typeof placeChainPlant> | null => {
+            const parent: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation"> | undefined =
+              constants.parent === null
+                ? { worldPosition: pose.root.translation, worldRotation: pose.root.rotation }
+                : readAuthored().get(constants.parent);
+            return parent === undefined ? null : placeChainPlant(constants, parent);
+          },
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
       (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit =>

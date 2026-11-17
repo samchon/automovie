@@ -2,6 +2,7 @@ import {
   indexSkeletonTopology,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  prepareChainConstants,
   prepareSkeletonPoseResolution,
   measureAutoMovieHumanoidBody,
   resolveAutoMovieCenterOfMass,
@@ -57,6 +58,23 @@ export function createHumanBody(
     HUMANOID_REST_FRAME,
     topology,
   );
+  const chains: Partial<Record<keyof IHumanBody["chains"], prepareChainConstants.IConstants>> = {};
+  for (const side of ["left", "right"] as const)
+    for (const [limb, upper, lower, effector] of [
+      ["Arm", "UpperArm", "LowerArm", "Hand"],
+      ["Leg", "UpperLeg", "LowerLeg", "Foot"],
+    ] as const) {
+      const constants: prepareChainConstants.IConstants | null = prepareChainConstants({
+        skeleton,
+        chain: {
+          upper: `${side}${upper}`,
+          lower: `${side}${lower}`,
+          effector: `${side}${effector}`,
+        },
+        jointAxes: poseResolution.jointAxes,
+      });
+      if (constants !== null) chains[`${side}${limb}`] = constants;
+    }
   let massModel: IHumanBody["massModel"] | undefined;
   const body: IHumanBody = {
     skeleton,
@@ -65,6 +83,7 @@ export function createHumanBody(
     surfaces,
     topology,
     poseResolution,
+    chains,
     get massModel(): IHumanBody["massModel"] {
       massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
       return massModel;
