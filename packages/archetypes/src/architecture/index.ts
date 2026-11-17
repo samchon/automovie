@@ -1,5 +1,6 @@
 export * from "./createAppliance";
 export * from "./createBar";
+export * from "./createBellFrame";
 export * from "./createBeerTap";
 export * from "./createBin";
 export * from "./createBoard";
@@ -12,6 +13,7 @@ export * from "./createHandhold";
 export * from "./createHatch";
 export * from "./createKerb";
 export * from "./createLadder";
+export * from "./createLoadingTower";
 export * from "./createMachine";
 export * from "./createMirror";
 export * from "./createObstacle";
