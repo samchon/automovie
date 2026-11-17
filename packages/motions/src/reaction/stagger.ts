@@ -20,7 +20,6 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -184,7 +183,7 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning steps at most 30 closed-form pendulum prefixes and admits only the prefixes of an order the pendulum catches; a refused push adds the limit's bisection of such recoveries over one prepared entry geometry. No stance course or quadratic program is solved; each pose query is one course read, one ground settling and at most two prepared swing holds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. While the plan is built, each sample's feet and pelvis with no balance shift are solved once and lent to the legs' writer for the arms' carriage read and the first balance pass, which show the plan there before any shift exists; the second balance pass and every pose query solve their own, shifted. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan, at `HumanArmSwing.PHASES` samples over the span (`HumanArmSwing.carriage` at each), and the most of each arm held over the plan, so a pose query writes the arms as joint angles with no fit; between those samples the clearance is that most's, unverified.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. While the plan is built, each sample's feet and pelvis with no balance shift are solved once and lent to the legs' writer for the arms' carriage read and the first balance pass, which show the plan there before any shift exists; the second balance pass and every pose query solve their own, shifted. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan (`HumanArmSwing.carriage` at `KNOTS` a second, about 50 samples a second of plan, each raised to its neighbours' largest) and interpolated, so a pose query writes the arms as joint angles with no fit; between samples the clearance is the interpolated envelope's, unverified inside an interval.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
@@ -447,18 +446,21 @@ export namespace stagger {
       }
     };
     const resolved: staggerResolved.IReader = staggerResolved(body);
-    // The arms' let-out read once for the plan at the phases a gait's
-    // carriage reads (`HumanArmSwing.PHASES` over the span), the most of each
-    // arm kept for every sample; every sample is still resolved for its centre.
-    const every: number = Math.max(1, Math.ceil(samples.length / HumanArmSwing.PHASES));
-    const most: Record<"left" | "right", number> = { left: 0, right: 0 };
-    samples.forEach((seconds: number, i: number): void => lend(i, (): void => {
-      if (i % every !== 0) return resolved.fitted(i, composed.posture(seconds));
-      const need: Record<"left" | "right", number> = resolved.carriage(i, composed.posture(seconds));
-      most.left = Math.max(most.left, need.left);
-      most.right = Math.max(most.right, need.right);
-    }));
-    carried = { left: samples.map((): number => most.left), right: samples.map((): number => most.right) };
+    const needs: Record<"left" | "right", number>[] = samples.map(
+      (seconds: number, i: number): Record<"left" | "right", number> =>
+        lend(i, (): Record<"left" | "right", number> =>
+          resolved.carriage(i, composed.posture(seconds)),
+        ),
+    );
+    const envelope: (side: "left" | "right") => number[] = (side: "left" | "right"): number[] =>
+      needs.map((_: Record<"left" | "right", number>, i: number): number =>
+        Math.max(
+          needs[Math.max(0, i - 1)]![side],
+          needs[i]![side],
+          needs[Math.min(needs.length - 1, i + 1)]![side],
+        ),
+      );
+    carried = { left: envelope("left"), right: envelope("right") };
 
     // The displayed centre of mass kept on the pendulum's course: at each
     // sample the residual of the displayed posture's centre of mass
