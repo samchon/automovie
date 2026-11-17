@@ -299,6 +299,7 @@ export namespace HumanSignature {
    * @param seconds Film seconds.
    * @param side The foot.
    * @param floor The floor's height under it, metres; 0 when absent.
+   * @param origin The first instant of a series the caller reads at 120 Hz or a divisor of it (`times(origin, …)`). When `seconds` is an instant of the 120 Hz series from it, the speed is read on that series' own neighbours, the instants the caller reads anyway, in place of `seconds` less and plus a 120th, which binary rounding puts beside them. Absent, the latter.
    * @returns Whether the foot bears.
    */
   export function bears(
@@ -306,6 +307,7 @@ export namespace HumanSignature {
     seconds: number,
     side: "left" | "right",
     floor: number = 0,
+    origin?: number,
   ): boolean {
     const at = (t: number): IAutoMovieVector3[] =>
       HumanFoot.sockets(reader.body, bones(reader, t), side).map(
@@ -321,18 +323,25 @@ export namespace HumanSignature {
     // The same socket a moment either side, so a heel handing the load to
     // the ball does not read as a slide.
     const h: number = 1 / 120;
-    const from: number = Math.max(0, seconds - h);
-    const to: number = Math.min(reader.motion.duration, seconds + h);
+    const k: number = origin === undefined ? NaN : Math.round((seconds - origin) * 120);
+    const on: boolean = origin !== undefined && k >= 1 && origin + k / 120 === seconds;
+    const from: number = Math.max(0, on ? origin! + (k - 1) / 120 : seconds - h);
+    const to: number = Math.min(reader.motion.duration, on ? origin! + (k + 1) / 120 : seconds + h);
     const a: IAutoMovieVector3 = at(from)[low]!;
     const b: IAutoMovieVector3 = at(to)[low]!;
     const span: number = to - from;
     return span <= 0 || Math.hypot(b.x - a.x, b.z - a.z) / span <= SLIDE;
   }
 
-  /** Instants from `from` to `to` at a rate. */
+  /**
+   * Instants from `from` to `to` at a rate, each `from + k / rate` from its
+   * index: two series from one `from` whose rates divide one another share
+   * their common instants bit for bit (`k / 30` is `4k / 120`), where a
+   * running sum's rounding would have a film resolved twice at one instant.
+   */
   export function times(from: number, to: number, rate: number = 60): number[] {
     const out: number[] = [];
-    for (let t: number = from; t <= to + 1e-9; t += 1 / rate) out.push(t);
+    for (let k: number = 0; from + k / rate <= to + 1e-9; k++) out.push(from + k / rate);
     return out;
   }
 
@@ -357,7 +366,7 @@ export namespace HumanSignature {
     for (const side of ["left", "right"] as const) {
       let before: boolean | undefined;
       for (const t of ts) {
-        const now: boolean = bears(reader, t, side);
+        const now: boolean = bears(reader, t, side, 0, from);
         if (now) bearing++;
 
         // A foot strikes once a stride: a contact that flickers within a

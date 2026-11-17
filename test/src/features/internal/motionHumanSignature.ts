@@ -242,8 +242,9 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
     floor: number = 0,
+    origin?: number,
   ): boolean {
-    return HumanSignature.bears(reader(staged), seconds, side, floor);
+    return HumanSignature.bears(reader(staged), seconds, side, floor, origin);
   }
 
   /** The least time between two strikes of one foot, seconds. */

@@ -84,9 +84,15 @@ export namespace motionHumanRunSignature {
       const stances: { from: number; to: number; side: "left" | "right" }[] =
         [];
       const open: Partial<Record<"left" | "right", number>> = {};
-      for (const t of M.times(from, to, 120)) {
-        const l: boolean = M.bears(s, t, "left");
-        const r: boolean = M.bears(s, t, "right");
+
+      // One 120 Hz series from the window's start: the trunk's 30 Hz mean,
+      // the gait and each stance read its instants, and a foot's speed is
+      // read on its own neighbours (`HumanSignature.bears`), so the film is
+      // resolved once an instant.
+      const instants: number[] = M.times(from, to, 120);
+      for (const t of instants) {
+        const l: boolean = M.bears(s, t, "left", 0, from);
+        const r: boolean = M.bears(s, t, "right", 0, from);
         if (!l && !r) flight++;
         if (l && r) both++;
         for (const [side, down] of [
@@ -119,8 +125,9 @@ export namespace motionHumanRunSignature {
           drop >= 0.005,
         );
         let peak: number = 0;
-        for (const t of M.times(p.from, p.to, 120))
-          peak = Math.max(peak, M.knee(s, t, p.side));
+        for (const t of instants)
+          if (t >= p.from && t <= p.to)
+            peak = Math.max(peak, M.knee(s, t, p.side));
         complaints.check(
           `${cell}: peak stance knee flexion ${peak.toFixed(1)} deg (${p.side}, ${mid.toFixed(2)} s) outside [25, 60] (Novacheck 1998; provisional)`,
           peak >= 25 && peak <= 60,
