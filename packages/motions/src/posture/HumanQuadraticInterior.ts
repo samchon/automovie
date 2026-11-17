@@ -53,19 +53,31 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * `Delta lambda Delta t` and `Delta nu Delta e` added to `r_c` and `r_s`,
  * where `mu` is the mean complementarity product and `sigma = (mu_aff /
  * mu)^3` from the mean the predictor's longest step would leave. One step
- * length serves the primal and the dual variables, `BOUNDARY` of the longest
- * that keeps every `t`, `e`, `lambda` and `nu` positive. The reduced matrix
+ * length serves the primal and the dual variables: the full Newton step,
+ * or `BOUNDARY` of the longest that keeps every `t`, `e`, `lambda` and `nu`
+ * positive where that is shorter. The reduced matrix
  * takes `REGULAR` on its diagonal so that it is definite where the curvature
  * and the rows leave a direction free; the residuals are read on the
  * unregularised conditions at every iteration, so the regularisation
  * changes steps, never the point converged to (HPIPM regularises the same
  * way, section 4.2).
  *
- * The solve ends where the three residuals are within `ACCURACY` of their
- * scales, read on the equilibrated data. It gives up, returning nothing,
- * when `ITERATIONS` are spent, a step length collapses, a number is not
- * finite or a hard row holds no variable and excludes zero; the caller then
- * solves by OSQP, so a failure here costs time and never an answer.
+ * A hard row with equal ends is one equation `a.x = b` with a multiplier
+ * of either sign and no slack: its step is `Delta lambda = (a.Delta x + r)
+ * / EQUAL` for its residual `r = a.x - b`, the regularised equation `a.
+ * Delta x - EQUAL Delta lambda = -r` (the dual regularisation of OSQP's
+ * polishing system, Stellato et al. 2020, their (30)), so it enters the
+ * reduced matrix as `a a^T / EQUAL` and takes no part in the step length
+ * or the centring; each iteration leaves `EQUAL Delta lambda` of its
+ * residual, which the next removes.
+ *
+ * The solve ends where the three residuals (stationarity, the rows'
+ * equations and the mean product) are within `ACCURACY` of their scales,
+ * read on the equilibrated data. Where `ITERATIONS` are spent or a step
+ * length collapses, the last iterate is still returned if it is within
+ * `ACCEPTED`; otherwise, and where a number is not finite or a hard row
+ * holds no variable and excludes zero, the solve returns nothing and the
+ * caller solves by OSQP, so a failure here costs time and never an answer.
  *
  * @param problem The program; its storage is unchanged during this synchronous solve.
  * @returns The unscaled variables, each row's value (a hard row's within its interval) and multiplier, with status `solved`; undefined when the method did not converge.
@@ -90,6 +102,7 @@ export function HumanQuadraticInterior(
   const ends: number = 2 * m;
   const live: Uint8Array = new Uint8Array(ends);
   const soft: Uint8Array = new Uint8Array(ends);
+  const free: Uint8Array = new Uint8Array(ends);
   const bound: Float64Array = new Float64Array(ends);
   let pairs: number = 0;
   for (let r: number = 0; r < m; ++r) {
@@ -99,6 +112,13 @@ export function HumanQuadraticInterior(
       continue;
     }
     if (!hard && weight[r] === 0) continue;
+    if (hard && lo[r] === hi[r]) {
+      // An equality: one end with a multiplier of either sign.
+      live[2 * r] = 1;
+      free[2 * r] = 1;
+      bound[2 * r] = hi[r]!;
+      continue;
+    }
     for (let side: number = 0; side < 2; ++side) {
       const b: number = side === 0 ? hi[r]! : -lo[r]!;
       if (b === Infinity) continue;
@@ -122,7 +142,7 @@ export function HumanQuadraticInterior(
   const e: Float64Array = new Float64Array(ends);
   const nu: Float64Array = new Float64Array(ends);
   for (let j: number = 0; j < ends; ++j) {
-    if (live[j] === 0) continue;
+    if (live[j] === 0 || free[j] === 1) continue;
     t[j] = Math.max(bound[j]!, 1);
     if (soft[j] === 0) lambda[j] = 1 / t[j]!;
     else {
@@ -187,9 +207,12 @@ export function HumanQuadraticInterior(
       for (let side: number = 0; side < 2; ++side) {
         const j: number = 2 * r + side;
         if (live[j] === 0) continue;
-        const rc: number =
-          lambda[j]! * t[j]! - target + (second ? secondT[j]! : 0);
-        let at: number = -primal[j]! + rc / lambda[j]!;
+        let at: number = -primal[j]!;
+        if (free[j] === 0) {
+          const rc: number =
+            lambda[j]! * t[j]! - target + (second ? secondT[j]! : 0);
+          at += rc / lambda[j]!;
+        }
         if (soft[j] === 1) {
           const rs: number =
             nu[j]! * e[j]! - target + (second ? secondE[j]! : 0);
@@ -208,9 +231,10 @@ export function HumanQuadraticInterior(
     for (let j: number = 0; j < ends; ++j) {
       if (live[j] === 0) continue;
       const moved: number = (j & 1) === 0 ? along[j >> 1]! : -along[j >> 1]!;
+      dLambda[j] = stiff[j]! * (moved - rho[j]!);
+      if (free[j] === 1) continue;
       const rc: number =
         lambda[j]! * t[j]! - target + (second ? secondT[j]! : 0);
-      dLambda[j] = stiff[j]! * (moved - rho[j]!);
       dT[j] = (-rc - t[j]! * dLambda[j]!) / lambda[j]!;
       if (soft[j] === 1) {
         const rs: number =
@@ -221,11 +245,11 @@ export function HumanQuadraticInterior(
     }
   };
 
-  /** The longest step, at most one, that keeps every slack and multiplier nonnegative. */
+  /** The longest step that keeps every slack and multiplier nonnegative; unbounded where none falls. */
   const longest: () => number = (): number => {
-    let step: number = 1;
+    let step: number = Infinity;
     for (let j: number = 0; j < ends; ++j) {
-      if (live[j] === 0) continue;
+      if (live[j] === 0 || free[j] === 1) continue;
       if (dT[j]! < 0) step = Math.min(step, -t[j]! / dT[j]!);
       if (dLambda[j]! < 0) step = Math.min(step, -lambda[j]! / dLambda[j]!);
       if (soft[j] === 0) continue;
@@ -234,6 +258,7 @@ export function HumanQuadraticInterior(
     }
     return step;
   };
+  let fair: Q.IState | undefined;
   for (let it: number = 0; it < ITERATIONS; ++it) {
     // The residuals of the unregularised conditions at the iterate.
     products(x, value);
@@ -255,10 +280,16 @@ export function HumanQuadraticInterior(
         const j: number = 2 * r + side;
         if (live[j] === 0) continue;
         const c: number = side === 0 ? value[r]! : -value[r]!;
+        multiplier += side === 0 ? lambda[j]! : -lambda[j]!;
+        if (free[j] === 1) {
+          primal[j] = c - bound[j]!;
+          missed = Math.max(missed, Math.abs(primal[j]!));
+          stiff[j] = 1 / EQUAL;
+          continue;
+        }
         primal[j] = c - e[j]! + t[j]! - bound[j]!;
         missed = Math.max(missed, Math.abs(primal[j]!));
         gap += lambda[j]! * t[j]!;
-        multiplier += side === 0 ? lambda[j]! : -lambda[j]!;
         if (soft[j] === 1) {
           excess[j] = weight[r]! - lambda[j]! - nu[j]!;
           missed = Math.max(missed, Math.abs(excess[j]!));
@@ -286,12 +317,15 @@ export function HumanQuadraticInterior(
       !Number.isFinite(mu)
     )
       return undefined;
-    if (
-      stationary <= ACCURACY * Math.max(1, curved, drawn, s.qNorm) &&
-      missed <= ACCURACY * Math.max(1, reached) &&
-      mu <= ACCURACY
-    )
-      return unscaled(s, x, value, lambda);
+    const within: (accuracy: number) => boolean = (accuracy: number): boolean =>
+      stationary <= accuracy * Math.max(1, curved, drawn, s.qNorm) &&
+      missed <= accuracy * Math.max(1, reached) &&
+      mu <= accuracy;
+    if (within(ACCURACY)) return unscaled(s, x, value, lambda);
+
+    // An iterate within the accepted accuracy is kept, should the solve
+    // end short of the accuracy it aims at.
+    fair = within(ACCEPTED) ? unscaled(s, x, value, lambda) : undefined;
 
     // The reduced matrix, factored once for the predictor and the corrector.
     const matrices: Workspace.IFactor = Workspace.system(s, REGULAR, work);
@@ -305,10 +339,10 @@ export function HumanQuadraticInterior(
     direction(factor, 0, false);
     let centring: number = 0;
     if (pairs !== 0 && mu > 0) {
-      const affine: number = longest();
+      const affine: number = Math.min(1, longest());
       let left: number = 0;
       for (let j: number = 0; j < ends; ++j) {
-        if (live[j] === 0) continue;
+        if (live[j] === 0 || free[j] === 1) continue;
         left +=
           (lambda[j]! + affine * dLambda[j]!) * (t[j]! + affine * dT[j]!);
         secondT[j] = dLambda[j]! * dT[j]!;
@@ -322,18 +356,19 @@ export function HumanQuadraticInterior(
 
     // One step for every variable, short of the boundary.
     const step: number = Math.min(1, BOUNDARY * longest());
-    if (!(step > LEAST)) return undefined;
+    if (!(step > LEAST)) return fair;
     for (let i: number = 0; i < n; ++i) x[i] = x[i]! + step * dx[i]!;
     for (let j: number = 0; j < ends; ++j) {
       if (live[j] === 0) continue;
-      t[j] = t[j]! + step * dT[j]!;
       lambda[j] = lambda[j]! + step * dLambda[j]!;
+      if (free[j] === 1) continue;
+      t[j] = t[j]! + step * dT[j]!;
       if (soft[j] === 0) continue;
       e[j] = e[j]! + step * dE[j]!;
       nu[j] = nu[j]! + step * dNu[j]!;
     }
   }
-  return undefined;
+  return fair;
 }
 
 /**
@@ -378,5 +413,11 @@ const LEAST: number = 1e-10;
 /** The reduced matrix's added diagonal, in the equilibrated units where the curvature's and the rows' entries are of order one: this solver's value, provisional and unsourced, the square root of a double's rounding short of an order, so it shifts no step by more than the factor's own accuracy. */
 const REGULAR: number = 1e-9;
 
-/** The residuals' relative accuracy on the equilibrated data: a thousandth of the OSQP solve's relative tolerance (`HumanQuadraticProgram.TOLERANCE`), this solver's value, provisional, chosen so the outer loop's predicted decrease is read well inside its own settling threshold. */
-const ACCURACY: number = 1e-6;
+/** An equality row's dual regularisation, in the equilibrated units: this solver's value, provisional and unsourced, small enough that an iteration leaves a millionth of its multiplier's step in the row's residual and large enough that the step's cancellation `a.Delta x + r`, of a double's rounding, moves the multiplier by no more than 1e-10. */
+const EQUAL: number = 1e-6;
+
+/** The residuals' relative accuracy the solve aims at, on the equilibrated data: this solver's value, provisional and unsourced, the square root of a double's rounding, which a Newton iteration on a quadratic program reaches once its active ends are found. */
+const ACCURACY: number = 1e-8;
+
+/** The residuals' relative accuracy accepted from a solve that ends short of `ACCURACY`: a thousandth of the OSQP solve's relative tolerance (`HumanQuadraticProgram.TOLERANCE`), this solver's value, provisional, so an accepted answer is never looser than the fallback's own. */
+const ACCEPTED: number = 1e-6;
