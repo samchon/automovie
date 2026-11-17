@@ -90,6 +90,21 @@ export namespace HumanArmTrajectoryModel {
   /** The audit's bound on a point's travel, 80 mm per twenty-fourth of a second, metres per second: a bound against a step, not a human norm (a daily reach peaks near 0.55 m/s, J NeuroEng Rehabil 2006 3:18). */
   export const SPEED_LIMIT: number = 0.08 * 24;
 
+  /**
+   * The travel a speed-bounded probe may make over an interval, millimetres:
+   * the audit's bound over it less the tolerance a violation is accepted
+   * within. The audit reads its bound with no tolerance, so a step the model
+   * accepts at its own tolerance must still lie within the audit's bound; a
+   * step bounded at the audit's own figure and accepted a millimetre past it
+   * would not (measured: 33.0 mm in a sixtieth of a second against 32).
+   *
+   * @param dt The interval, seconds.
+   * @returns The bound, millimetres.
+   */
+  export function stepLimit(dt: number): number {
+    return 1000 * SPEED_LIMIT * dt - TOLERANCE;
+  }
+
   /** What a solve reads, built once (`HumanArmTrajectoryContext.of`). */
   export interface IContext {
     /** The number of waypoints. */
@@ -345,7 +360,7 @@ export namespace HumanArmTrajectoryModel {
         for (const p of c.still ? [] : T.SPEED) {
           const step: number = travel(p);
           note(
-            step - 1000 * SPEED_LIMIT * dt,
+            step - stepLimit(dt),
             "speed",
             () =>
               `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,

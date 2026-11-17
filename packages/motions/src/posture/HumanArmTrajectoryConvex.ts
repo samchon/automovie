@@ -153,7 +153,7 @@ export namespace HumanArmTrajectoryConvex {
           if (
             T.SPEED.includes(probe) &&
             length > 1e-6 &&
-            length + reach(a, k) + reach(a, k + 1) > 1000 * M.SPEED_LIMIT * dt
+            length + reach(a, k) + reach(a, k + 1) > M.stepLimit(dt)
           ) {
             const s: ILinear = step(Vector3.scale(d, 1 / length));
             if (s.idx.length > 0)
@@ -162,7 +162,7 @@ export namespace HumanArmTrajectoryConvex {
                 index: s.idx,
                 coef: s.coef,
                 l: -Infinity,
-                u: 1000 * M.SPEED_LIMIT * dt - length,
+                u: M.stepLimit(dt) - length,
                 weight: mu,
               });
           }

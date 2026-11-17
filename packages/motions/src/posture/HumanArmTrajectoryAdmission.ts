@@ -101,7 +101,7 @@ export namespace HumanArmTrajectoryAdmission {
                     evaluation.placed[a]![g + 1]!.probes[p]![0],
                   ),
                 ) -
-                1000 * M.SPEED_LIMIT * dt >
+                M.stepLimit(dt) >
               M.TOLERANCE,
           );
           const swept: boolean = (evaluation.swept[a]![g] ?? []).some(
