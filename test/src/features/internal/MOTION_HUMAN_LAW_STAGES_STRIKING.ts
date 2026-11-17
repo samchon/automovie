@@ -34,7 +34,8 @@ const kicking = (a: IHumanBody, b: IHumanBody): number =>
  * the kick, the knee, the defences, the three reactions to a blow and the
  * clinch.
  *
- * The two people face each other, each in a guard. A punch is thrown at the
+ * The two people face each other, each in a guard, except a punch's partner,
+ * who stands with the hands down so the punch lands. A punch is thrown at the
  * face from 1.3 arm lengths and a kick at the ribs (the flank the kicking
  * leg's side faces, `motionKickFlank`) from 0.9 of the shorter leg, the
  * ranges of the striking captures with the arm read as shoulder to
@@ -79,6 +80,16 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     // it perceives the partner at rest, the target a straight punch's
     // signature describes; the guard settling during the perception is
     // `test_human_motion_strike_punch_settling_guard`'s.
+    //
+    // The partner stands with its hands down. In a guard of its own its lead
+    // glove stood in the lead hand's lane: placed by the guard's own rule (a
+    // forearm ahead of the lead cheek), the average man's lead wrist stood
+    // at (0.143, 1.443, 0.567) m, 17 mm from the axis of the jab's forearm
+    // on its way from the shoulder (x 0.14) to the face (x 0.118), where two
+    // limbs of 40 mm radius need 80 mm; the jab's forearm met it 13 ms
+    // before the impact and the arm stopped at 50 degrees of elbow flexion.
+    // A jab into a covering guard is `striking-jab-cover`'s; this stage is
+    // the punch that lands, which a signature describes.
     return S.duo(a, b, punching(a), [
       guard("a", 1).act("punch", {
         technique: pick("technique") ?? "straight",
@@ -86,7 +97,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
         ...S.set(pick, "hand", "accuracy"),
         ...(feint === "true" ? { feint: 0.5 } : {}),
       }),
-      guard("b", 3),
+      S.chain("b").act("stand", { seconds: 3, sway: 0 }),
     ]);
   },
   kick: (
