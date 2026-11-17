@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
@@ -52,7 +53,9 @@ export namespace HumanArmTrajectoryAdmission {
   }
 
   /**
-   * Read a trajectory on the frame grid.
+   * Read a trajectory on the frame grid. A grid interval that lies between
+   * knots is read on its `PARTS` parts for its speed as well (`hurried`),
+   * since a film faster than the grid reads inside it.
    *
    * @param c The knots' context.
    * @param fine The context at the frame grid's instants over the same span, its first and last the knots'.
@@ -81,6 +84,7 @@ export namespace HumanArmTrajectoryAdmission {
     const evaluation: M.IEvaluation = M.evaluate(fine, at);
     const failed: Set<number> = new Set();
     const last: number = fine.n - 1;
+    const known: ReadonlySet<number> = new Set(c.times);
     at.forEach((_: number[][], a: number): void => {
       for (let g: number = 0; g <= last; ++g) {
         if (g < last && !fine.still) {
@@ -104,7 +108,7 @@ export namespace HumanArmTrajectoryAdmission {
             (sweep: M.IEvaluation["swept"][number][number][number]): boolean =>
               1000 * (sweep.lower - sweep.clear) > M.TOLERANCE,
           );
-          if (fast || swept) {
+          if (fast || swept || hurried(c, fine, x[a]!, a, g, known)) {
             failed.add(g);
             failed.add(g + 1);
           }
@@ -132,6 +136,71 @@ export namespace HumanArmTrajectoryAdmission {
       evaluation,
       failed: [...failed].sort((p: number, q: number): number => p - q),
     };
+  }
+
+  /** The parts a grid interval between knots is read in for its speed: with a frame grid of thirty a second they are the instants of every film rate that divides a hundred and twenty (24, 30, 40, 60, 120). */
+  export const PARTS: number = 4;
+
+  /**
+   * Whether a speed-bounded probe passes the bound within a grid interval
+   * that lies between knots, read on the interval's `PARTS` equal parts.
+   *
+   * The grid's own step bounds a probe's travel over one frame-grid
+   * interval. A film read faster than the grid (the audit bounds a step at
+   * `0.08 * 24 / rate` metres whatever the rate) sees the halves of that
+   * interval, and on an interpolant spanning several grid intervals the
+   * halves need not be equal: 64 mm in a thirtieth of a second can be 33
+   * and 31 in its two sixtieths. So such an interval is read on its parts,
+   * each against the bound itself with no tolerance. Where both its ends
+   * are knots the interval is the solver's own, bounded by the knots'
+   * evaluation as a frame-grid trajectory always was, and is not read
+   * again; a stretch refined to the grid therefore ends the splitting.
+   *
+   * A probe's travel is read against the arm's base
+   * (`HumanArmTrajectoryTravel`), where its place is a function of the
+   * arm's coordinates alone, so every part is placed on the interval's
+   * first base frame and the base's own motion plays no part.
+   */
+  function hurried(
+    c: M.IContext,
+    fine: M.IContext,
+    arm: readonly (readonly number[])[],
+    a: number,
+    g: number,
+    known: ReadonlySet<number>,
+  ): boolean {
+    const from: number = fine.times[g]!;
+    const to: number = fine.times[g + 1]!;
+    if (known.has(from) && known.has(to)) return false;
+    const frame: G.IFrame = fine.frames[a]![g]!;
+    const limit: number = (M.SPEED_LIMIT * (to - from)) / PARTS;
+    let earlier: G.IPlaced = G.placed(
+      c.setups[a]!,
+      frame,
+      HumanArmRefine.hermite(c.times, arm, from),
+      false,
+    );
+    for (let part: number = 1; part <= PARTS; ++part) {
+      const later: G.IPlaced = G.placed(
+        c.setups[a]!,
+        frame,
+        HumanArmRefine.hermite(
+          c.times,
+          arm,
+          part === PARTS ? to : from + ((to - from) * part) / PARTS,
+        ),
+        false,
+      );
+      for (const p of T.SPEED)
+        if (
+          Vector3.length(
+            Vector3.subtract(later.probes[p]![0], earlier.probes[p]![0]),
+          ) > limit
+        )
+          return true;
+      earlier = later;
+    }
+    return false;
   }
 
   /**
