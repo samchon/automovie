@@ -38,13 +38,35 @@ export namespace swingTwistReachBound {
   export const MARGIN: number = 1e-6;
 
   /**
+   * What the scan's grid can read of a ray's reached swings, written beside
+   * the bound for a caller that gives the grid's step.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, its meaning and its empty value.
+   * @evidence contracts/development/design.md#principled-representation The scan reads grid steps, so the closed form answers in them: the farthest step an interval of reached swings holds, and that interval's ends when it alone decides the step's cell.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One input and three outputs, all read by `swingTwistRegion`'s reach scan.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record is the caller's and reused per ray; an interval is reported only where the closed forms hold and nothing else reaches into the cell.
+   */
+  export interface ISpan {
+    /** The scan grid's step, degrees; given by the caller. */
+    grid: number;
+
+    /** The farthest grid step, at most half a turn less one step, that lies inside an interval of reached swings, to the margins; 0 when none does. No grid step past it is reached. */
+    cell: number;
+
+    /** The least swing of the interval of reached swings that holds `cell`, joined with those overlapping it; NaN when no interval is reported. */
+    low: number;
+
+    /** That interval's greatest swing; NaN when none is reported: the circle passes the abduction axis, where the longitude's closed form does not hold, or another interval reaches into the cell past it. */
+    high: number;
+  }
+  /**
    * Prepare a joint's bound.
    *
    * @param constraint The constraint, with flexion and abduction intervals in clinical degrees.
    * @param frame The rest frame its clinical angles are lifted by.
    * @param basis The joint's swing frame.
    * @param across `(f x u) . a` of that frame.
-   * @returns For a great circle's azimuth cosine and sine, an upper bound in degrees within [0, 180] of every swing the intervals reach on it, 0 when none is reached; null when an interval is absent or the basis is not orthonormal to rounding, so the chart's closed forms do not hold.
+   * @returns For a great circle's azimuth cosine and sine, an upper bound in degrees within [0, 180] of every swing the intervals reach on it, 0 when none is reached, and, when a span is given, what the scan's grid can read of them ({@link ISpan}); null when an interval is absent or the basis is not orthonormal to rounding, so the chart's closed forms do not hold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, units, the bound's meaning and the null cases.
    * @evidence contracts/development/implementation.md#principled-implementation The latitude and longitude chart of two successive rotations about orthogonal axes. Each admitted interval of rig angles, with its full-turn aliases (`nearestAngleAlias` admits an angle when any alias lies inside), maps to swings through `asin` and `atan2`, monotone on the pieces used. Where the circle passes within 1e-4 of the abduction axis (`|c|` under it) the longitude is undefined or nearly so and the scan tests three fixed abductions instead, so there the latitude alone bounds.
@@ -59,7 +81,7 @@ export namespace swingTwistReachBound {
     frame: IAutoMovieRestFrame | undefined,
     basis: swingTwistBasis.IBasis,
     across: number,
-  ): ((cosine: number, sine: number) => number) | null {
+  ): ((cosine: number, sine: number, span?: swingTwistReachBound.ISpan) => number) | null {
     const flexion: IAutoMovieAngleRange | null = constraint.flexion;
     const abduction: IAutoMovieAngleRange | null = constraint.abduction;
     if (flexion === null || abduction === null) return null;
@@ -82,7 +104,7 @@ export namespace swingTwistReachBound {
     const sides: IInterval[] = admitted(abduction, frame?.abduction, -180, 180);
     const firstAcross: number = Vector3.dot(basis.e1, basis.a);
     const secondAcross: number = Vector3.dot(basis.e2, basis.a);
-    return (cosine: number, sine: number): number => {
+    return (cosine: number, sine: number, span?: swingTwistReachBound.ISpan): number => {
       // w = cosine e1 + sine e2, on the scan's own circle axes.
       const k: number = (cosine * firstAcross + sine * secondAcross) / across;
       const c: number = Vector3.dot(
@@ -94,6 +116,8 @@ export namespace swingTwistReachBound {
         }),
       );
       let most: number = 0;
+      let exact: boolean = true;
+      const reached: IInterval[] = [];
       for (const reading of [0, 1]) {
         // The near reading's flexion is asin(k sin s); the far one's is half
         // a turn less it, so its admitted flexions map back by 180 - f.
@@ -107,7 +131,11 @@ export namespace swingTwistReachBound {
           );
         if (latitudes.length === 0) continue;
         if (Math.abs(c) < 1e-4) {
-          for (const latitude of latitudes) most = Math.max(most, latitude.high);
+          exact = false;
+          for (const latitude of latitudes) {
+            reached.push(latitude);
+            most = Math.max(most, latitude.high);
+          }
           continue;
         }
         for (const a of sides) {
@@ -115,8 +143,60 @@ export namespace swingTwistReachBound {
           if (longitude === null) continue;
           for (const latitude of latitudes) {
             const high: number = Math.min(latitude.high, longitude.high);
-            if (high >= Math.max(latitude.low, longitude.low))
-              most = Math.max(most, high);
+            const low: number = Math.max(latitude.low, longitude.low);
+            if (!(high >= low)) continue;
+            reached.push({ low, high });
+            most = Math.max(most, high);
+          }
+        }
+      }
+      if (span !== undefined) {
+        // The farthest step of the scan's grid inside any interval: a step
+        // the scan finds inside lies in one of them, so none lies past it.
+        let cell: number = 0;
+        let held: IInterval | null = null;
+        for (const interval of reached) {
+          const step: number = Math.min(
+            180 - span.grid,
+            Math.floor(interval.high / span.grid) * span.grid,
+          );
+          if (step >= interval.low && step > cell) {
+            cell = step;
+            held = interval;
+          }
+        }
+        span.cell = cell;
+        span.low = NaN;
+        span.high = NaN;
+        if (held !== null && exact) {
+          // The interval that holds that step, joined with every other one
+          // that overlaps it by more than the margins: each is reached
+          // throughout, so their union is. It places the scan's answer only
+          // when no other interval reaches into the step's cell past it.
+          let low: number = held.low;
+          let high: number = held.high;
+          const joined: Set<IInterval> = new Set([held]);
+          for (let grown: boolean = true; grown; ) {
+            grown = false;
+            for (const other of reached)
+              if (
+                !joined.has(other) &&
+                other.high >= low + OVERLAP &&
+                other.low <= high - OVERLAP
+              ) {
+                joined.add(other);
+                low = Math.min(low, other.low);
+                high = Math.max(high, other.high);
+                grown = true;
+              }
+          }
+          let alone: boolean = true;
+          for (const other of reached)
+            if (!joined.has(other) && other.high > high && other.low < cell + span.grid)
+              alone = false;
+          if (alone) {
+            span.low = low;
+            span.high = high;
           }
         }
       }
@@ -133,6 +213,9 @@ interface IInterval {
   /** Its greatest. */
   high: number;
 }
+
+/** How far two intervals of reached swings must overlap to be joined as one, degrees: far above their margins, so the join never bridges a gap the margins hide. */
+const OVERLAP: number = 0.01;
 
 /** Degrees per radian. */
 const DEG: number = 180 / Math.PI;

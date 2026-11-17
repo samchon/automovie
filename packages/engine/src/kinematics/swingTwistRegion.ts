@@ -57,10 +57,10 @@ export namespace swingTwistRegion {
    * @returns The radius on each of `swingTwistBasis.RAYS` great circles, degrees; built on first use and kept.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the table, its units and that it is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, widened for a proximal twist and raised to the slope bound.
+   * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, or that same lattice point placed from the intervals' closed-form reach and confirmed by the scan's own test, widened for a proximal twist and raised to the slope bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup by identity, and the build in three steps on a miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays a scan of up to 360 half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising reads, for each ray, only the rays near enough to lend a positive radius (60 degrees either way at a radius of 180 and the slope of 3); speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays the scan's answer placed from the closed form in a handful of reach tests where the intervals' own reach covers the cell and no swing cone cuts it (`latticed`), and otherwise a scan from the farthest grid step a closed-form interval holds down in half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising reads, for each ray, only the rays near enough to lend a positive radius (60 degrees either way at a radius of 180 and the slope of 3); speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the kept table. During one cold build, the admitted basis fixes its cross/dot, each ray fixes its azimuth, and each test fixes its projected direction; every actual swing test and clinical-range reading retains its original order and arithmetic.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in weak maps keyed by the constraint and the axes and released with either; the frame map under them holds the rest-frame records, which are table constants.
    */
@@ -108,6 +108,9 @@ const SCAN: number = 0.5;
 /** The bisections that refine it: twenty halve half a degree to under a millionth. */
 const HALVINGS: number = 20;
 
+/** How far before a grid step, degrees, the closed form's interval of reached swings must begin for the step's cell to count as inside from the step on: far above the interval's own margins (a sine widened by 1e-9 moves an end by up to 0.003 degrees beside a quarter turn), far under the grid's half degree. */
+const COVERED: number = 0.01;
+
 /** The region's radius on each ray: reached, widened and raised. */
 function build(
   constraint: IAutoMovieJointConstraint,
@@ -135,11 +138,19 @@ function reach(
   const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
 
   // No swing past the intervals' closed-form reach on a ray can be inside
-  // (`swingTwistReachBound`), so the scan starts at the first grid step at
-  // or above it: the same steps from there on, the same bracket, the same
-  // table.
-  const bound: ((cosine: number, sine: number) => number) | null =
+  // (`swingTwistReachBound`), and no grid step past the farthest one an
+  // interval of reached swings holds, so the scan starts at that step: the
+  // same steps from there on, the same bracket, the same table. An arm's
+  // antipode is reached on every great circle, in an interval far narrower
+  // than a step, and the scan passed it by a hundred steps on half of them.
+  const bound: ((cosine: number, sine: number, span?: swingTwistReachBound.ISpan) => number) | null =
     swingTwistReachBound.prepare(constraint, joint.frame, basis, across);
+  const span: swingTwistReachBound.ISpan = { grid: SCAN, cell: 0, low: NaN, high: NaN };
+
+  // Where the swing cone removes no direction the intervals reach, the
+  // reached swings on a ray are the closed form's own intervals, so the one
+  // that holds the scan's step places the scan's answer (`latticed`).
+  const free: boolean = bound !== null && coneFree(constraint);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
     const direction: (swing: number) => IAutoMovieVector3 =
@@ -148,10 +159,18 @@ function reach(
       reached(constraint, joint, basis, direction(swing), across);
     const angle: number = azimuth / swingTwistBasis.DEG;
     const farthest: number =
-      bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle));
+      bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle), span);
+    if (free) {
+      const placed: number | null = latticed(inside, span.cell, span.low, span.high);
+      if (placed !== null) {
+        table[ray] = placed;
+        continue;
+      }
+    }
     const start: number = Math.min(
       180 - SCAN,
       Math.ceil(farthest / SCAN) * SCAN,
+      bound === null ? Infinity : span.cell,
     );
     let hi: number = start + SCAN;
     let lo: number = 0;
@@ -170,6 +189,83 @@ function reach(
     table[ray] = lo;
   }
   return table;
+}
+
+/**
+ * The scan's own answer on a ray, placed from the closed form instead of
+ * searched for, or null when the closed form does not place it.
+ *
+ * The scan stops at the farthest grid step inside and bisects the cell above
+ * it `HALVINGS` times, so its answer is that step plus a whole number of
+ * `SCAN / 2 ** HALVINGS`: the farthest point of that lattice that is inside
+ * with the next one outside, wherever the cell is inside up to one swing and
+ * outside past it. The closed form gives that (`swingTwistReachBound.ISpan`):
+ * `cell` is the farthest grid step an interval of reached swings holds, that
+ * interval covers the cell from the step when it begins at least `COVERED`
+ * before it, nothing is reached past the interval's end `ended` inside the
+ * cell, and the cell's top is a grid step no interval holds. The lattice
+ * point is sought from the one at or under `ended` downward, by steps that
+ * double and a bisection of the lattice between the last point outside and
+ * the first inside. Every answer is read off the scan's own test, so it is
+ * the scan's.
+ */
+function latticed(
+  inside: (swing: number) => boolean,
+  cell: number,
+  covered: number,
+  ended: number,
+): number | null {
+  const cells: number = 2 ** HALVINGS;
+  if (!(cell > 0) || !(covered + COVERED <= cell) || !(ended >= cell)) return null;
+  if (!inside(cell)) return null;
+
+  // The lattice point known outside: the first past the interval's end, or
+  // the cell's top, which the scan takes as outside without reading it.
+  let high: number = Math.min(cells, Math.floor((ended - cell) / (SCAN / cells)) + 1);
+  let low: number = 0;
+  for (let back: number = 1; high - back > low; back *= 2) {
+    if (inside(cell + (high - back) * (SCAN / cells))) {
+      low = high - back;
+      break;
+    }
+    high -= back;
+  }
+  while (high - low > 1) {
+    const middle: number = Math.floor((low + high) / 2);
+    if (inside(cell + middle * (SCAN / cells))) low = middle;
+    else high = middle;
+  }
+  return cell + low * (SCAN / cells);
+}
+
+/**
+ * Whether the swing cone removes no direction the flexion and abduction
+ * intervals reach: the greatest combined swing over the box,
+ * `2 acos(cos(f / 2) cos(a / 2))` at the least product of the two half-angle
+ * cosines, is within the cone, or the constraint states none.
+ */
+function coneFree(constraint: IAutoMovieJointConstraint): boolean {
+  if (typeof constraint.swingDeg !== "number") return true;
+  const flexion: IAutoMovieAngleRange | null = constraint.flexion;
+  const abduction: IAutoMovieAngleRange | null = constraint.abduction;
+  if (flexion === null || abduction === null) return false;
+  const cosines = (range: IAutoMovieAngleRange): [number, number] => {
+    let least: number = Math.min(Math.cos(range.min / 2 / swingTwistBasis.DEG), Math.cos(range.max / 2 / swingTwistBasis.DEG));
+    let most: number = Math.max(Math.cos(range.min / 2 / swingTwistBasis.DEG), Math.cos(range.max / 2 / swingTwistBasis.DEG));
+
+    // A half angle passing a whole number of half turns reaches 1 or -1.
+    for (let turn: number = Math.ceil(range.min / 360); turn * 360 <= range.max; ++turn)
+      if (turn % 2 === 0) most = 1;
+      else least = -1;
+    return [least, most];
+  };
+  const [fLow, fHigh]: [number, number] = cosines(flexion);
+  const [aLow, aHigh]: [number, number] = cosines(abduction);
+  const product: number = Math.min(fLow * aLow, fLow * aHigh, fHigh * aLow, fHigh * aHigh);
+  return (
+    (Math.acos(swingTwistBasis.clamp(product, -1, 1)) * 360) / Math.PI <=
+    constraint.swingDeg
+  );
 }
 
 /**
