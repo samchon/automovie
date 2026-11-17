@@ -33,6 +33,7 @@ export * from "./admitAutoMovieQuadraticProgram";
 export * from "./assembleAutoMovieQuadraticProgram";
 export * from "./assignAutoMovieMinimumCost";
 export * from "./bracketedBisection";
+export * from "./bracketedMinimum";
 export * from "./bracketedRoot";
 export * from "./clampAutoMovieUnitInterval";
 export * from "./closestPointOnSegmentXZ";

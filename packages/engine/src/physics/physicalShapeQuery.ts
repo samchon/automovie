@@ -6,6 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { bracketedMinimum } from "../math/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { physicalHullNearest } from "./physicalHullNearest";
 import { physicalHullSegment } from "./physicalHullSegment";
@@ -71,9 +72,9 @@ export function physicalShapeQuery(
  * Signed distance alone from that same query, with false detail mode.
  *
  * physicalShapeSegmentDistance supplies the same world geometry and
- * widening, and receives signed metres. Candidate order, 44 search steps,
- * endpoint comparisons, distance branches and numerical bounds stay the
- * same. Only unobserved final contact fields are omitted; hull local work
+ * widening, and receives signed metres. Candidate order, the searched
+ * parameter, endpoint comparisons, distance branches and numerical bounds
+ * stay the same. Only unobserved final contact fields are omitted; hull local work
  * keeps its existing owner. Endpoint transforms are shared only within this
  * synchronous pure-DTO query, and only the number escapes it.
  */
@@ -90,10 +91,10 @@ export function physicalShapeQuery(
  * The single numerical owner behind full and distance-only proximity reads.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Detail mode selects whether the original full contact or only its signed distance is materialized, with world-metre geometry and optional nonnegative endpoint radii.
- * @evidence contracts/development/implementation.md#principled-implementation Spheres/capsules use the original closest segments, bare hull segments use physicalHullSegment, and searched shapes retain the original 44-step convex parameter search; final readings use the same shape-local distance owners.
+ * @evidence contracts/development/implementation.md#principled-implementation Spheres/capsules use the original closest segments, bare hull segments use physicalHullSegment, and searched shapes locate the convex gap's one low along the segment by Brent's method (`bracketedMinimum`) to `ALONG` of its length, then compare it with both ends; final readings use the same shape-local distance owners.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame composition and ordered shape branches serve both modes; the private box/round overloads select observed fields after computing their common distance.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change any candidate, distance formula, threshold, taper, normal policy or tie; malformed shape fallthrough keeps its original error, and all inputs remain admitted pure DTO geometry during this synchronous call.
- * @evidence contracts/development/implementation.md#efficient-algorithms A bare round shape uses one closest-segment query; a searched segment keeps 48 scalar local evaluations and one final reading. Full mode materializes contact fields; scalar reads, including hull search probes, omit only unobserved contact fields while all geometric query costs remain.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A bare round shape uses one closest-segment query; a searched segment costs Brent's evaluations (superlinear on a smooth gap, golden section's ratio at a kink) and the two ends' in place of 48 fixed ones, and one final reading. Full mode materializes contact fields; scalar reads, including hull search probes, omit only unobserved contact fields while all geometric query costs remain.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One body owns every distance for both facades. Fixed local endpoint differences serve interpolation, and fixed taper coefficients are read lazily at the original first widening use; multiplication/addition grouping remains unchanged. Same-record endpoint transforms, private probe/round-axis points and Vector3.distance's exact norm are shared only within this query. Both hull modes use physicalHullNearest's one numerical owner.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps call-local frame/interpolation scalars, at most two taper scalars and the lazy round-axis scratch. Scratch points are consumed synchronously and never returned; full final fields are independent. No pose, shape, callback, handle or result history survives return.
  */
@@ -286,33 +287,16 @@ function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAu
     const probe: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const gap: (t: number) => number = (t: number): number =>
       distance(along(t, probe)) - widened(t);
-    const ratio: number = (Math.sqrt(5) - 1) / 2;
-    let lo: number = 0;
-    let hi: number = 1;
-    let c: number = hi - ratio * (hi - lo);
-    let d: number = lo + ratio * (hi - lo);
-    let fc: number = gap(c);
-    let fd: number = gap(d);
-    for (let i: number = 0; i < 44; i++) {
-      if (fc <= fd) {
-        hi = d;
-        d = c;
-        fd = fc;
-        c = hi - ratio * (hi - lo);
-        fc = gap(c);
-      } else {
-        lo = c;
-        c = d;
-        fc = fd;
-        d = lo + ratio * (hi - lo);
-        fd = gap(d);
-      }
-    }
+    // The gap of a point of the segment from a convex shape, less a radius
+    // that is linear along it, is convex in the parameter, so it has one
+    // low on the segment, found by Brent's method (`bracketedMinimum`) to
+    // `ALONG` of the segment's length and compared with the two ends,
+    // which the search does not evaluate.
+    const low: { at: number; value: number } = bracketedMinimum(gap, 0, 1, ALONG);
     let least: number = gap(0);
     for (const [t, value] of [
       [1, gap(1)],
-      [c, fc],
-      [d, fd],
+      [low.at, low.value],
     ] as const)
       if (value < least) {
         least = value;
@@ -425,3 +409,6 @@ function roundNearest(
     normal,
   };
 }
+
+/** The share of a segment's length its nearest point is located to: under a nanometre on a limb's segment, where the fixed golden-section search stopped. */
+const ALONG: number = 1e-9;
