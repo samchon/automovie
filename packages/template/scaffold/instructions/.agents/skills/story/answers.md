@@ -18,7 +18,7 @@ Construction answers stay detached from creative bodies, in the unit and file lo
 
 A question that does not apply takes what its relationship permits: an exclusion in the respondent unit's own HTML comment, because a detached document holds no exclusion or exclusion-review row, or a discovery negative in the designated discovery carrier. Place an H2's exclusion comment directly beneath it, before its H3 headings, and a file's before its first heading. State the inspected scope and exactly why the question does not apply; a population exclusion requires the entire population to be inapplicable.
 
-A work- or language-specific question is adopted through [adoption](../evidence/adoption.md), which also says where it lives: a unit answers for its own behavior, and a designated population respondent for a whole-work duty.
+A work- or language-specific question is adopted through [adoption](../evidence/adoption.md), which also chooses its respondent.
 
 ## Grounds for retaining a candidate
 
