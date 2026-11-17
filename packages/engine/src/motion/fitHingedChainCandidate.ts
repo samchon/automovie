@@ -422,9 +422,14 @@ export function fitHingedChainCandidate(
     if (range === null) return null;
     const read: distalEndSwivelReadings.IReadings | null = distalEndSwivelReadings.of(pointing(posed));
     if (read === null) return null;
+    // The rectangle's sense: the end joint's rest carries its twist axis
+    // onto the mid segment's direction or its opposite (`read.sense`), and
+    // the mid segment's own twist axis runs along that direction or
+    // against it.
+    const forward: 1 | -1 = Vector3.dot(lowerBasis.twist, along!) > 0 ? 1 : -1;
     return range.miss(
       read.abduction ?? [-90, 90],
-      Vector3.dot(lowerBasis.twist, along!) > 0 ? 1 : -1,
+      read.sense === forward ? 1 : -1,
     );
   };
   const solved: ReturnType<typeof hingedArmArticulation> =

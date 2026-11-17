@@ -40,7 +40,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    to `T(u, r) (cos a m - s sin a u)` within 1e-9: `u` the forearm's twist
  *    axis, `r` and `a` the twist and the abduction in rest-relative degrees,
  *    `m` the hand's flexion axis under its rest rotation and its fixed twist,
- *    and `s` the sense of `u` along the forearm. The wrist's flexion does
+ *    and `s` the sense of `u` along the forearm times the sense in which the
+ *    hand's rest carries its twist axis along it. The wrist's flexion does
  *    not move it. This is the rectangle the bound measures to, with its
  *    senses.
  * 2. A requested rotation is a seeded turn of up to 120 degrees from a pose
@@ -75,7 +76,18 @@ export function test_human_motion_core_twist_miss(): void {
     const handFrame: IAutoMovieRestFrame | undefined = HUMANOID_REST_FRAME[handBone];
     const rest: IAutoMovieQuaternion = constants.effectorBaseRotation;
     const u: IAutoMovieVector3 = Vector3.normalize(lowerBasis.twist);
-    const sense: 1 | -1 = Vector3.dot(u, constants.effectorOffset) > 0 ? 1 : -1;
+
+    // The rectangle's sense: whether the forearm's twist axis runs along the
+    // forearm or against it, times whether the hand's rest carries its
+    // right-handed twist axis onto the forearm's direction or its opposite.
+    const along: IAutoMovieVector3 = Vector3.normalize(constants.effectorOffset);
+    const handed: 1 | -1 =
+      Vector3.dot(handBasis.twist, Vector3.cross(handBasis.flexion, handBasis.abduction)) >= 0 ? 1 : -1;
+    const carried: number = Vector3.dot(
+      Quaternion.rotateVector(Quaternion.inverse(rest), along),
+      Vector3.scale(handBasis.twist, handed),
+    );
+    const sense: 1 | -1 = (Vector3.dot(u, along) > 0) === (carried > 0) ? 1 : -1;
 
     // The hand's flexion axis under its rest rotation and its fixed twist.
     const meridian: IAutoMovieVector3 = Quaternion.rotateVector(

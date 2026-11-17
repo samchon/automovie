@@ -23,7 +23,8 @@ import { swivelJointReadings } from "./swivelJointReadings";
  * is `L = Abd(a) Flex(f)` (the proximal order of
  * `decomposeJointRotationOnBasis` with no twist) and `R = M rest L` with `M`
  * the mid segment's world rotation, so `d = R^-1 u_world = L^-1 (rest^-1 u)`.
- * When `rest^-1 u` is the end joint's twist axis, in the joint's basis
+ * When `rest^-1 u` is the end joint's twist axis (or its opposite, read
+ * with `d` negated: `sense`), in the joint's basis
  * coordinates (flexion, abduction, twist) that is
  * `d = (-sin a, cos a sin f, cos a cos f)`: the abduction is the middle angle,
  * read by its sine `-d_flexion`, and the flexion an outer angle, read by the
@@ -43,7 +44,7 @@ export namespace distalEndSwivelReadings {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
    * @evidence contracts/development/design.md#principled-representation Sinusoids of the swivel in degrees; intervals in rest-relative degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The five members the two readers of the box use.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The five members the two readers of the box use, and the sense the twist-range miss reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts An unbounded angle is null, not a wide interval.
    */
   export interface IReadings {
@@ -61,6 +62,9 @@ export namespace distalEndSwivelReadings {
 
     /** The flexion's interval, rest-relative degrees, no wider than a half turn; null when unbounded. */
     flexion: readonly [number, number] | null;
+
+    /** Whether the joint's rest carries the mid segment's axis onto its right-handed twist axis (1) or onto the opposite of it (-1); the three components are those of the direction times this sense, which is where the twist axis itself is carried. */
+    sense: 1 | -1;
   }
 
   /**
@@ -93,7 +97,7 @@ export namespace distalEndSwivelReadings {
    * Read an end joint over a turn of the swivel.
    *
    * @param props The end joint and the mid segment's direction by swivel.
-   * @returns The readings, or null when the analysis does not apply (no range, a swing-twist gate, a mobile twist, a rest that does not carry the mid segment's axis onto the twist axis, an abduction interval past a quarter turn or a flexion interval wider than a half turn).
+   * @returns The readings, or null when the analysis does not apply (no range, a swing-twist gate, a mobile twist, a rest that carries the mid segment's axis neither onto the twist axis nor onto its opposite, an abduction interval past a quarter turn or a flexion interval wider than a half turn).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every case that returns null.
    * @evidence contracts/development/implementation.md#principled-implementation Three sampled directions fit each component's sinusoid exactly, since the direction is affine in the mid joint's place, which circles the root-to-target line (Tolani, Goswami and Badler 2000, after Korein).
@@ -113,13 +117,21 @@ export namespace distalEndSwivelReadings {
     const handed: 1 | -1 =
       Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0 ? 1 : -1;
     const twist: IAutoMovieVector3 = Vector3.scale(basis.twist, handed);
-    if (!(Vector3.dot(props.axis, twist) > 1 - 1e-9)) return null;
+
+    // The rest carries the mid segment's axis onto the joint's twist axis or
+    // onto its opposite (a limb whose bones run against their own twist
+    // axis, as one side of a rig that gives both sides one basis). The
+    // derivation reads where the twist axis itself is carried, so the
+    // opposite sense reads the direction negated.
+    const aligned: number = Vector3.dot(props.axis, twist);
+    if (!(Math.abs(aligned) > 1 - 1e-9)) return null;
+    const sense: 1 | -1 = aligned > 0 ? 1 : -1;
 
     // The direction's three components on the basis, each a sinusoid of the swivel.
     const sampled: IAutoMovieVector3[] = [0, 90, 180].map(props.direction);
     const along = (axis: IAutoMovieVector3): swivelArcs.ISinusoid => {
       const [zero, quarter, half] = sampled.map(
-        (d: IAutoMovieVector3): number => Vector3.dot(d, axis),
+        (d: IAutoMovieVector3): number => sense * Vector3.dot(d, axis),
       ) as [number, number, number];
       return swivelArcs.fitted(zero, quarter, half);
     };
@@ -138,6 +150,7 @@ export namespace distalEndSwivelReadings {
       onTwist: along(twist),
       abduction,
       flexion,
+      sense,
     };
   }
 }
