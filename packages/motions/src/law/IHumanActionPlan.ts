@@ -38,6 +38,14 @@ export interface IHumanActionPlan {
   contacts: IHumanContactWindow[];
 
   /**
+   * Seconds since the action's start, from and to, over which `posture`
+   * returns one and the same posture, for a plan that holds still there (a
+   * stand without sway once it has settled). A reader may treat the body as
+   * not moving there; absent, no such window is declared.
+   */
+  still?: readonly [number, number];
+
+  /**
    * The channels the plan's own movements write, when it is composed of part
    * primitives over a base: what an overlay takes from its carrier. Absent
    * for a plan that writes the whole body.

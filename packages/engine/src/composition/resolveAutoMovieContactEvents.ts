@@ -245,7 +245,7 @@ function earlier(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
  * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far. A combined frame carries actual world-metre endpoints from one exact query; the endpoint reader validates agreement with the declared sphere/capsule kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Resolver-owned inputs, events and actual weapon frames serve the first-impact scan, departure witnesses, mutual-contact query and Motion's combined endpoint producers. The optional sampler replaces existing endpoint computations without exposing cache metadata.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Resolver-owned inputs, events and actual weapon frames serve the first-impact scan, departure witnesses, mutual-contact query and Motion's combined endpoint producers. The optional sampler replaces existing endpoint computations without exposing cache metadata. A search's grid and the speed bound on it let each side state its own certified bound per search.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector. The optional frame tail expresses the existing sphere/capsule alternatives, and a runtime kind check prevents a sampler from changing that declaration.
  */
 export namespace resolveAutoMovieContactEvents {
@@ -296,6 +296,36 @@ export namespace resolveAutoMovieContactEvents {
         kind: "no-entry";
       };
 
+  /**
+   * The seconds one search reads: `from + k * step` for k = 0, 1, 2, ...,
+   * the last of them clipped to `to`. A search after a contact starts its
+   * grid at that contact's second, so each search has its own.
+   */
+  export interface IGrid {
+    /** The search's first second. */
+    from: number;
+
+    /** The span's end, where the last step is clipped. */
+    to: number;
+
+    /** The step, seconds; positive. */
+    step: number;
+  }
+
+  /**
+   * A bound on a search's grid, metres a second, between two of its seconds
+   * `from` and `to`: for any two grid seconds a < b in [from, to], no point
+   * of the weapon's sphere or capsule, or of the body's surface, moves more
+   * than the bound times b - a from a to b. Finite and not negative, or
+   * undefined where none is certified. Only the grid's seconds are bound,
+   * because the scan reads no other second where it advances.
+   *
+   * @param from A grid second.
+   * @param to A later second.
+   * @returns The bound, or undefined.
+   */
+  export type Speed = (from: number, to: number) => number | undefined;
+
   /** One moving weapon. */
   export interface IWeapon {
     /** Unique id. */
@@ -316,16 +346,20 @@ export namespace resolveAutoMovieContactEvents {
     tailRadius?: number;
 
     /**
-     * A bound of the speed of every point of the weapon's sphere or capsule
-     * on its free path, metres a second, at every second of its live span
-     * and under any stops; finite and not negative. With it, and the same of
-     * a body, the gap between the two closes no faster than the two bounds
-     * together, so a clear gap rules out a contact for that gap over that
-     * rate, and the scan reads no grid step inside that time. A bound that
-     * a point exceeds lets a contact be missed, so only a certified one is
-     * stated; absent, every grid step is read.
+     * The weapon's speed bound on one search's grid (`Speed`), prepared once
+     * a search under that search's stops. With it, and a body's own, the gap
+     * between the two closes on the grid no faster than the two bounds
+     * together, so a clear gap rules out a contact at the grid seconds
+     * within that gap over that rate, and the scan reads none of them. The
+     * scan asks it from a grid second it read to the weapon's live end. A
+     * bound that a point exceeds lets a contact be missed, so only a
+     * certified one is stated; absent, every grid step is read.
+     *
+     * @param grid The search's grid.
+     * @param stops The stops of the search.
+     * @returns The bound's reader.
      */
-    speed?: number;
+    speed?(grid: IGrid, stops: IStops): Speed;
 
     /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
     from?: number;
@@ -377,12 +411,18 @@ export namespace resolveAutoMovieContactEvents {
     id: string;
 
     /**
-     * A bound of the speed of every point of the body's surface, metres a
-     * second, at every second of the span and under any stops; finite and
-     * not negative. Read with a weapon's own bound (`IWeapon.speed`);
-     * absent, every grid step is read against this body.
+     * The body's speed bound on one search's grid (`Speed`), prepared once a
+     * search under that search's stops and read with a weapon's own
+     * (`IWeapon.speed`). The scan asks it only from a grid second it read to
+     * the farthest second the weapon's bound alone could certify, so a body
+     * that holds still only for a while is still bound there; absent, every
+     * grid step is read against this body.
+     *
+     * @param grid The search's grid.
+     * @param stops The stops of the search.
+     * @returns The bound's reader.
      */
-    speed?: number;
+    speed?(grid: IGrid, stops: IStops): Speed;
 
     /**
      * Certify departure of an already-present pair only when its physical

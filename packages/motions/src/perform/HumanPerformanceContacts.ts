@@ -11,6 +11,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
+import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
@@ -115,14 +116,18 @@ export namespace HumanPerformanceContacts {
    * limb of one action are one part (the engine's weapon `group`): the first
    * of them to meet a body stops the limb, and the others give no stop or
    * hit of their own, as a striking law keeps only its chain's first contact.
+   * Each weapon states its bound on a search's grid from its own path and
+   * each person 0 where its shown pose provably holds still
+   * (`HumanPerformanceContactSpeed`), so the scan reads no grid second a
+   * clear gap rules out.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States clipped live spans, stop application, plan settling, mutual-contact selection and that one limb's capsules stop as one part.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates unchanged signed-distance scan and event ordering to the engine; current performance bones define actual colliders and the nearest carried capsule determines the mutual stop.
+   * @evidence contracts/development/common.md#meaningful-documentation States clipped live spans, stop application, plan settling, mutual-contact selection, that one limb's capsules stop as one part and the grid bounds each side states.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates unchanged signed-distance scan and event ordering to the engine; current performance bones define actual colliders and the nearest carried capsule determines the mutual stop. The bounds are certified on the grid: a weapon's measured from its own path, a person's 0 only where its pose provably holds still.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects original weapons and owners, then snapshots the constructor-fixed ordered cast only when a live weapon exists; actual frame/body readers keep those mutable person records live, apply stop changes and commit events/hits.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps STEP, live clipping, every engine scan and crossing search, taper, nearest-body decision and whole-performance invalidation on changed stops; no pose is cached by time.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains engine weapon/body/sample search cost. The actual append-only stop producer permits O(1) unchanged-installation checks per query; sorted O(S log S) signatures for S stops run only when that Map grows or the explicit final Map arrives. Each sampled capsule reads both ends once, grouped carried chains run once, and each queried actor prepares genuine profile-name demand once; under one installed stop set each actor's displayed/FK bones at an exact second are evaluated once for every weapon's scan. The capsules of one limb of one action form one engine group, so after its first contact the limb's other capsules are scanned no more. Owner metadata removes the final event weapon scan. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sole live stops source is the event resolver's private native Map: both writes add an id only after absence checks, so identical Map identity and size prove no entry changed during this call. A new Map or increased size still takes the original full content comparison and every changed stop forgets person memos. Chain endpoints share only one explicit query. The constructor-fixed actor/body and copied canonical profile names justify a bound query producer. Bones are shared by exact second only while one stop set is installed: the memo is cleared when the stops change, before the nearest-person reads, and again after the plans settle and every person is forgotten, so each read observes the state it was read in.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ordered cast references, at most one fixed-name query producer per actually queried actor, adapter/owner/event maps, installed-stop Map/size reference and signature last only this synchronous resolution; their stop population is bounded by input weapons. The bones memo holds one collider-bone map per actor and distinct second read under the current stop set, released at each stop change and on return. Each grouped axis map ends before its callback returns. Only existing person stops, plan stops and hit records persist, without any new pose/time history.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps STEP, live clipping, every engine scan and crossing search (a grid second is left unread only where both certified bounds rule it out), taper, nearest-body decision and whole-performance invalidation on changed stops; no pose is cached by time.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains engine weapon/body/sample search cost. The actual append-only stop producer permits O(1) unchanged-installation checks per query; sorted O(S log S) signatures for S stops run only when that Map grows or the explicit final Map arrives. Each sampled capsule reads both ends once, grouped carried chains run once, and each queried actor prepares genuine profile-name demand once; under one installed stop set each actor's displayed/FK bones at an exact second are evaluated once for every weapon's scan. The capsules of one limb of one action form one engine group, so after its first contact the limb's other capsules are scanned no more. Owner metadata removes the final event weapon scan. A grid bound reads each grid second of a weapon's window once a search, shared with the scan's own reads, and lets the scan skip the bones of a still person. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sole live stops source is the event resolver's private native Map: both writes add an id only after absence checks, so identical Map identity and size prove no entry changed during this call. A new Map or increased size still takes the original full content comparison and every changed stop forgets person memos. Chain endpoints share only one explicit query. The constructor-fixed actor/body and copied canonical profile names justify a bound query producer. Bones are shared by exact second only while one stop set is installed: the memo is cleared when the stops change, before the nearest-person reads, and again after the plans settle and every person is forgotten, so each read observes the state it was read in; weapon axes are shared the same way, and a limb's capsules share their chain's evaluation at a second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ordered cast references, at most one fixed-name query producer per actually queried actor, adapter/owner/event maps, installed-stop Map/size reference and signature last only this synchronous resolution; their stop population is bounded by input weapons. The bones memo holds one collider-bone map per actor and distinct second read under the current stop set, released at each stop change and on return, as is the axes memo of one axis per live weapon and distinct second read. Each grouped axis map ends before its callback returns. Only existing person stops, plan stops and hit records persist, without any new pose/time history.
    */
   export function contacts(self: HumanPerformanceState): void {
     const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
@@ -141,6 +146,28 @@ export namespace HumanPerformanceContacts {
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
     let from: number = Infinity;
     let to: number = -Infinity;
+
+    // Under one installed set of stops a weapon's axis is a pure function of
+    // the second, as a person's bones are: the grid bound's reads and the
+    // scan's share each, and the capsules of one limb of one action share
+    // their chain's evaluation. `apply` clears this with the bones.
+    const limbs: Map<string, { weapon: IHumanActionPlan.IWeapon; from: number; to: number }[]> = new Map();
+    const axes: Map<number, Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis>> = new Map();
+    const axis = (weapon: IHumanActionPlan.IWeapon, limb: string, t: number): StrikingWeapon.IAxis => {
+      let known: Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis> | undefined = axes.get(t);
+      if (known === undefined) {
+        known = new Map();
+        axes.set(t, known);
+      }
+      const found: StrikingWeapon.IAxis | undefined = known.get(weapon);
+      if (found !== undefined) return found;
+      const live: IHumanActionPlan.IWeapon[] = limbs
+        .get(limb)!
+        .filter((w: { weapon: IHumanActionPlan.IWeapon; from: number; to: number }): boolean => !(t < w.from || t > w.to))
+        .map((w: { weapon: IHumanActionPlan.IWeapon; from: number; to: number }): IHumanActionPlan.IWeapon => w.weapon);
+      for (const [w, a] of StrikingWeapon.sample(live, t)) known.set(w, a);
+      return known.get(weapon)!;
+    };
     for (const person of self.people.values())
       for (const segment of person.segments)
         for (const w of segment.plan.weapons ?? []) {
@@ -158,6 +185,10 @@ export namespace HumanPerformanceContacts {
             weapon: w,
           });
           const tail = w.tail;
+          const group: string = `${person.performer.subject}|${segment.index}:${w.limb}`;
+          const siblings: { weapon: IHumanActionPlan.IWeapon; from: number; to: number }[] = limbs.get(group) ?? [];
+          siblings.push({ weapon: w, from: a, to: b });
+          limbs.set(group, siblings);
           weapons.push({
             id: key,
             owner: person.performer.subject,
@@ -165,7 +196,7 @@ export namespace HumanPerformanceContacts {
             // A stop freezes the weapon's whole limb (`HumanSegmentStop`) and a
             // striking law keeps its chain's first contact, so the capsules on
             // one limb of one action stop together as one part.
-            group: `${person.performer.subject}|${segment.index}:${w.limb}`,
+            group,
             radius: w.radius,
             from: a,
             to: b,
@@ -173,8 +204,17 @@ export namespace HumanPerformanceContacts {
             sample: (t: number): resolveAutoMovieContactEvents.IWeaponFrame => {
               if (t < a || t > b)
                 return { position: far, ...(tail === undefined ? {} : { tail: far }) };
-              const [position, end]: StrikingWeapon.IAxis = StrikingWeapon.read(w, t);
+              const [position, end]: StrikingWeapon.IAxis = axis(w, group, t);
               return { position, ...(end === undefined ? {} : { tail: end }) };
+            },
+
+            // Its own path on the search's grid, read under the search's stops.
+            speed: (
+              grid: resolveAutoMovieContactEvents.IGrid,
+              stops: resolveAutoMovieContactEvents.IStops,
+            ): resolveAutoMovieContactEvents.Speed => {
+              apply(stops);
+              return HumanPerformanceContactSpeed.weapon((t: number): StrikingWeapon.IAxis => axis(w, group, t), a, b, grid);
             },
             ...(tail === undefined
               ? {}
@@ -246,6 +286,7 @@ export namespace HumanPerformanceContacts {
       if (signature === applied) return;
       applied = signature;
       shown.clear();
+      axes.clear();
       for (const person of people) person.stops.clear();
       const changed: Set<HumanSegment.ISegment> = new Set();
       for (const [key, seconds] of stops) {
@@ -287,6 +328,7 @@ export namespace HumanPerformanceContacts {
       // showing, so everyone's memos go, not the owner's alone.
       for (const person of people) HumanSegment.forget(person);
       shown.clear();
+      axes.clear();
     };
     const nearest = (
       owner: HumanSegment.IPerson,
@@ -316,6 +358,16 @@ export namespace HumanPerformanceContacts {
         bodies: people.map(
           (person: HumanSegment.IPerson) => ({
             id: person.performer.subject,
+
+            // 0 where the shown pose provably holds still, none elsewhere.
+            speed: (
+              _grid: resolveAutoMovieContactEvents.IGrid,
+              stops: resolveAutoMovieContactEvents.IStops,
+            ): resolveAutoMovieContactEvents.Speed => {
+              apply(stops);
+              return (a: number, b: number): number | undefined =>
+                HumanPerformanceContactSpeed.still(person, a, b) ? 0 : undefined;
+            },
             distance: (
               point: IAutoMovieVector3,
               seconds: number,

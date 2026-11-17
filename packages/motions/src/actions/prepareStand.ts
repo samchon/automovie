@@ -102,6 +102,12 @@ export function prepareStand(
     return {
       duration,
       events: [{ name: "settled", share: settle / duration }],
+
+      // Once settled, without sway or a moving support, every term below is
+      // constant: the course is at its end and the sway is zero.
+      ...(sway === 0 && on === undefined && settle < duration
+        ? { still: [settle, duration] as const }
+        : {}),
       contacts: (["leftFoot", "rightFoot"] as const).map(
         (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
           part,
