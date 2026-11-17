@@ -72,11 +72,13 @@ import { restGoals } from "./restGoals";
  * - `elbowSupport`: the palm under the other arm's elbow while that hand is
  *   at `chinRest`, the thinking pose.
  *
- * Each arm is carried in joint angles from where the entry left it to its
- * place on a minimum-jerk course (`AutoMovieMotionHumanArm.carry`), the
- * fingers taking the place's shape on the same course, over the free-space
- * time of the hand's distance
- * (`AutoMovieMotionHumanTiming.transport`) and holds there. The places are
+ * The arms are carried together in joint angles from where the entry left
+ * them to their places on one minimum-jerk course
+ * (`AutoMovieMotionHumanArm.carry`), the fingers taking the places' shapes
+ * on the same course, over the free-space time of the farther hand's
+ * distance (`AutoMovieMotionHumanTiming.transport`), and hold there: two
+ * hands sent at once to targets of unequal distance arrive together
+ * (Kelso, Southard and Goodman 1979, Science 203:1029). The places are
  * solved once, on the body as it stands when the last hand arrives, and the
  * arms hold those angles, so the place follows the body the arms hang from:
  * breathing and sway carry the hands with it. A hand at `side` is not
@@ -87,10 +89,10 @@ import { restGoals } from "./restGoals";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
  * @evidence contracts/development/implementation.md#principled-implementation Each place is an effector goal on the body's own surface, solved once by the shared inverse kinematics; the arm is carried to that solution in joint angles on a minimum-jerk course (a free arm movement is smooth in joint space, Soechting and Lacquaniti 1981) and the fingers take the place's shape on the same course. The body under it is the stand law's, or the carrier's when the rest is an overlay.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the places, ordered moving sides, each arm's entry angles and the arms' solved places once; each posture is the base, the held arm angles and one carry per arm still travelling.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the places, ordered moving sides, each arm's entry angles and the arms' solved places once; each posture is the base, the held arm angles and, while the arms travel, one carry of both.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve of the places per plan (two arms that meet are one coupled solve there, not one per displayed second); per posture one base posture, and a carry with its clearance only for an arm still travelling; a rest without hand goals omits frame transforms and arm preparation, and nothing grows with the duration.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed goals, entry observations, side order and shape entries prepare once. Each actual posture forwards its local/borrowed FK workspace to the complete base and both sequential carries; the first interior carry acquires a genuine ROM projector when none is supplied, shared only across that call's actual fits. Output triples remain fresh.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve of the places per plan (two arms that meet are one coupled solve there, not one per displayed second); per posture one base posture, and while the arms travel one carry with its clearance against the fixed arrival; a rest without hand goals omits frame transforms and arm preparation, and nothing grows with the duration.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed goals, entry observations, side order, shape entries, the solved places and the arrival the clearing course is planned against prepare once. Each actual posture forwards its local/borrowed FK workspace to the complete base and the carry; an interior carry acquires a genuine ROM projector when none is supplied. Output triples remain fresh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed instance inputs until release; current FK getters and genuine ROM projectors end with synchronous return/throw and enter no returned posture or retained callback.
  */
 export namespace rest {
@@ -149,9 +151,9 @@ export namespace rest {
    * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan, context, paired-place/duration refusals, original place units and entry-to-rest transport; the namespace and parameter fields own each place's meaning.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the original self-surface rest goals, carries them with the base root/heading to the body as it stands at the last arrival, solves the places there once, and carries each arm from its entry angles to its solved place on its own minimum-jerk arrival in joint space; finger shares and base contacts remain unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rest geometry, finger entries and the solved places prepare once. Each query reads the actual base, writes the held arm angles and current fingers, then carries each arm still travelling.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves paired-place rules, raw duration validation, goal surfaces, current base posture and each independent arrival share; the places are solved by the posture resolver itself, and an arrived arm holds that solution rather than an approximation of it.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the original self-surface rest goals, carries them with the base root/heading to the body as it stands at the last arrival, solves the places there once, and carries both arms from their entry angles to their solved places on one minimum-jerk arrival in joint space, the clearing course planned against that arrival; finger shares follow the same course and base contacts remain unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rest geometry, finger entries, the solved places and the planned arrival prepare once. Each query reads the actual base, writes the held arm angles and current fingers, then carries the arms while they travel.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves paired-place rules, raw duration validation, goal surfaces, current base posture and the farther hand's transport time; the places are solved by the posture resolver itself, and an arrived arm holds that solution rather than an approximation of it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Prepared entries avoid rebuilding named finger maps; the places' posture solve runs once per plan, and a query fits nothing for an arrived arm (measured: the both-fists chin rest's coupled solve took 100-640 ms at each displayed second).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The solved places are a constant of the plan, the places riding the body the arms hang from; a carry borrows one synchronous exact FK/genuine ROM operation context.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed local rest/finger/entry metadata and at most one yaw/scalar-frame/quaternion record until release. Query-local FK/ROM loans and temporary postures never enter retained frame state or returned goal fields; seeking grows no history.
@@ -293,7 +295,26 @@ export namespace rest {
     const settled: ReturnType<typeof resolveHumanPosture> | undefined = arrived === undefined
       ? undefined : resolveHumanPosture(body, handGoals(body, arrived, requests(arrived)));
     const held: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>> = {};
-    for (const side of sides) held[side] = AutoMovieMotionHumanArm.angles(settled!, side);
+    const from: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>> = {};
+    for (const side of sides) {
+      held[side] = AutoMovieMotionHumanArm.angles(settled!, side);
+      from[side] = begin[side]!.angles;
+    }
+    // A posture with the arms on their solved places and their goals gone.
+    const holding = (posture: IHumanPosture): Pick<IHumanPosture, "joints" | "limbs"> => {
+      const joints: IHumanPosture["joints"] = { ...posture.joints };
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      for (const side of sides) {
+        const arm: AutoMovieMotionHumanArm.IAngles = held[side]!;
+        joints[`${side}UpperArm`] = arm.upper;
+        joints[`${side}LowerArm`] = arm.lower;
+        joints[`${side}Hand`] = arm.hand;
+        delete limbs[`${side}Arm`];
+      }
+      return { joints, limbs };
+    };
+    const planned: IHumanPosture | undefined = arrived === undefined
+      ? undefined : { ...arrived, ...holding(arrived) };
 
     return {
       duration,
@@ -320,20 +341,12 @@ export namespace rest {
         const posture: IHumanPosture = base.posture(t, undefined, read, projection);
         if (sides.length === 0)
           return { ...posture, joints: { ...posture.joints } };
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-        const shares: [HumanHand.Side, number][] = [];
+        const s: number = minimumJerk.share(t / arrive);
+        const kept: Pick<IHumanPosture, "joints" | "limbs"> = holding(posture);
+        const joints: IHumanPosture["joints"] = kept.joints;
         for (const side of sides) {
-          const from: { angles: AutoMovieMotionHumanArm.IAngles; travel: number } = begin[side]!;
-          const s: number = minimumJerk.share(t / from.travel);
-          shares.push([side, s]);
-          const arm: AutoMovieMotionHumanArm.IAngles = held[side]!;
-          joints[`${side}UpperArm`] = arm.upper;
-          joints[`${side}LowerArm`] = arm.lower;
-          joints[`${side}Hand`] = arm.hand;
-          delete limbs[`${side}Arm`];
-          // The fingers take the place's shape on the hand's own course, from
-          // what the body under the rest holds them in.
+          // The fingers take the place's shape on the arms' course, from what
+          // the body under the rest holds them in.
           for (const [bone, angles] of shapes[side]!) {
             const was: readonly [number, number, number] = posture.joints[
               bone
@@ -345,28 +358,24 @@ export namespace rest {
             ];
           }
         }
-        // Each arm is carried to its solved place in joint angles from what
-        // the entry held (a free arm movement is smooth in joint space,
-        // Soechting and Lacquaniti 1981), so no instant asks the fit for a
-        // hand part way along a nearly straight arm, where the elbow's side
-        // is ill-conditioned; an arm that has arrived holds its place.
-        let placed: IHumanPosture = { ...posture, joints, limbs };
-        let project: Parameters<IHumanActionPlan["posture"]>[3] = projection;
-        for (const [side, s] of shares)
-          if (s < 1) {
-            if (project === undefined && s > 0)
-              project = prepareHumanPostureProjection(body);
-            placed = AutoMovieMotionHumanArm.carry(
-              body,
-              placed,
-              { [side]: begin[side]!.angles },
-              s,
-              undefined,
-              read,
-              project,
-            );
-          }
-        return placed;
+        // The arms are carried together to their solved places in joint
+        // angles from what the entry held (a free arm movement is smooth in
+        // joint space, Soechting and Lacquaniti 1981), so no instant asks the
+        // fit for a hand part way along a nearly straight arm, where the
+        // elbow's side is ill-conditioned. Their clearing course is planned
+        // against the arrival, a constant of the carry, so each arm reads
+        // the other at the same share and neither steps as the other moves.
+        const placed: IHumanPosture = { ...posture, joints, limbs: kept.limbs };
+        if (s >= 1) return placed;
+        return AutoMovieMotionHumanArm.carry(
+          body,
+          placed,
+          from,
+          s,
+          planned,
+          read,
+          projection ?? (s > 0 ? prepareHumanPostureProjection(body) : undefined),
+        );
       },
     };
   }
