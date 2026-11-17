@@ -130,7 +130,7 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. An end joint with one immobile axis has two degrees of freedom, so the swivel supplies the third of a requested rotation and the admissible swivels are the roots of that axis's sinusoid, the analytic joint-limit swivels of the same paper. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the swivel nearest the pole that the wrist's box and the forearm's twist range admit) is legal and met (measured with the box alone: 9 of 119 hand fits of test_human_motion_core_overlay_hold; with the twist range, unmeasured; a rotation no swivel meets goes to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). A fit with no hint side keeps its exact-zero first-candidate certificate and, with a requested rotation, is bounded by the miss as well; a strain fit with a requested rotation scores only the swivels whose miss shares the least legal error's bucket (both unmeasured). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the swivel nearest the pole that the wrist's box and the forearm's twist range admit) is legal and met (measured with the box alone: 9 of 119 hand fits of test_human_motion_core_overlay_hold; with the twist range, unmeasured; a rotation no swivel meets goes to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). A fit with no hint side keeps its exact-zero first-candidate certificate and, with a requested rotation, is bounded by the miss as well; a strain fit with a requested rotation scores only the swivels whose miss shares the least legal error's bucket (both unmeasured). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. A fit refills one reading record for its candidates, every reader taking its fields at once, and reads the effort off the root's record without a temporary angle record. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. A root gated by swing and twist whose angles are decomposed on its range's own basis and rest frame (`readsSwingTwistFrame`) has its range read on the candidate rotation itself, which its angles compose back to up to the round trip's rounding, so no candidate recomposes its root; under task priority, which weighs no clinical effort, such a root's candidates are not decomposed at all (`scanJointRom.prepareRotated` scores the rotation with the same arithmetic) and only the chosen one is, for its record. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -404,30 +404,37 @@ export function fitHingedChainCandidate(
               Quaternion.rotateVector(lowerWorld!, prepared.effectorOffset),
             ),
           );
-    return {
-      joint: u,
-      mid,
-      above,
-      lowerWorld,
-      // Angles are left unread only under task priority, whose effort is 0.
-      effort:
-        strain === undefined ? clinicalDeviation({
-          flexion: u!.flexion ?? 0,
-          abduction: u!.abduction ?? 0,
-          twist: u!.twist ?? 0,
-        }) + known.effort : 0,
-      overshoot:
-        (u === undefined
-          ? rotatedOvershoot!(upper)
-          : scoredByChart && !Number.isNaN(angles!.overshoot)
-            ? angles!.overshoot
-            : upperOvershoot(u, upperRotated ? upper : undefined)) +
-        known.overshoot +
-        blocked,
-      turned:
-        strain === undefined ? anchor * (apart(upper, before[0]) + known.turned) : 0,
-      midTurn: known.turned,
-    };
+    const result: IReading = readingRecord;
+    result.joint = u;
+    result.mid = mid;
+    result.above = above;
+    result.lowerWorld = lowerWorld;
+    // Angles are left unread only under task priority, whose effort is 0;
+    // the effort is `clinicalDeviation`'s sum, read off the record.
+    if (strain === undefined) {
+      const f: number = u!.flexion ?? 0;
+      const a: number = u!.abduction ?? 0;
+      const t: number = u!.twist ?? 0;
+      result.effort = f * f + a * a + t * t + known.effort;
+    } else result.effort = 0;
+    result.overshoot =
+      (u === undefined
+        ? rotatedOvershoot!(upper)
+        : scoredByChart && !Number.isNaN(angles!.overshoot)
+          ? angles!.overshoot
+          : upperOvershoot(u, upperRotated ? upper : undefined)) +
+      known.overshoot +
+      blocked;
+    result.turned =
+      strain === undefined ? anchor * (apart(upper, before[0]) + known.turned) : 0;
+    result.midTurn = known.turned;
+    return result;
+  };
+  // The one reading record, refilled for each candidate: every reader takes
+  // its fields before the next candidate is read.
+  const readingRecord: IReading = {
+    joint: undefined, mid: undefined, above: undefined, lowerWorld: undefined,
+    effort: 0, overshoot: 0, turned: 0, midTurn: 0,
   };
   // With a strain the swivels are ranked by task priority (Siciliano and
   // Slotine 1991): legality, then the hand's rotation error, errors in one
