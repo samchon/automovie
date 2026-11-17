@@ -107,6 +107,15 @@ export namespace HumanHandAttitude {
       return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
     };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+
+    // An arm already written as joints keeps the shoulder it was written
+    // with: only the forearm's twist and the wrist are this solve's. Read
+    // back off the resolved pose, a planned arm's shoulder came out as
+    // another reading of the three angles, and the frames before a hold
+    // (where the attitude is held) showed the elbow 105 mm from where the
+    // hold's own first frame (the plan's arm as written) shows it.
+    const authored: readonly [number, number, number] | undefined =
+      limbs[`${side}Arm`] === undefined ? posture.joints[upper] : undefined;
     delete limbs[`${side}Arm`];
     const written: (
       forearm: readonly [number, number, number],
@@ -118,7 +127,7 @@ export namespace HumanHandAttitude {
       ...posture,
       joints: {
         ...posture.joints,
-        [upper]: read(upper),
+        [upper]: authored ?? read(upper),
         [lower]: forearm,
         [hand]: wrist,
       },
