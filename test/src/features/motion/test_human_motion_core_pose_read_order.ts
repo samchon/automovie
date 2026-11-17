@@ -5,7 +5,6 @@ import {
   HumanChain,
   HumanPerformance,
   type IHumanBody,
-  resolveHumanPosture,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -15,35 +14,31 @@ import { motionHumanFrame } from "../internal/motionHumanFrame";
 import { nclose } from "../internal/nclose";
 
 /**
- * A limb fit read from memory is the fit the solver gives: a film shows
- * the same pose at every instant whether each fit is solved afresh or
- * remembered, and in whatever order its instants are read.
+ * A film's pose at an instant is a function of the plan and that instant
+ * alone: two films of the same input show the same pose at every instant,
+ * to the last bit, whichever order their instants are read in.
  *
- * `resolveHumanPosture` remembers each limb's fit by everything the fit
- * reads. A key that missed one input would hand a pose of another instant
- * back silently, so the remembered poses are compared with solved ones to
- * the last bit.
+ * Every limb fit is solved from its own inputs, so a pose that depended on
+ * which instant was read before it would let playback, seeking and capture
+ * at different rates disagree.
  *
  * Scenarios, the average man, each film built twice and read at five
  * instants spread over it, on distinct body wrappers of the same prepared
- * geometry so neither the resolved performance nor per-body limb memory is shared:
+ * geometry so the resolved performances share nothing:
  * 1. A brief kneel, whose hands rest on the thighs under the arm's
  *    clearance search.
  * 2. Sitting down into an armchair, whose hands reach for the armrests.
  * 3. A walk of 2 m with a wave over it, an arm layered over stepping legs.
- * The first is built and read forward with the memory turned off
- * (`resolveHumanPosture.memory`), so every fit is solved. The second is read backward with the
- * memory left to fill, so the fits the plan solved are read again by the
- * display and later instants find earlier ones' entries. Every bone's
+ * The first film is read forward and the second backward. Every bone's
  * world position and rotation at every instant is the same number in both.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs real films through the public chain and compares the displayed bones of two readings; a remembered fit that differs from the solved one in any bone at any instant fails.
- * @evidence contracts/development/testing.md#independent-expectations A memory of a pure function changes no value; the solved reading is the oracle and the remembered one is compared with it, neither read from the memory's own bookkeeping.
- * @evidence contracts/development/testing.md#distinguishing-cases Arm goals under clearance, arm goals that travel, and an overlay over stepping legs; forward against backward order, cold against filled memory.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds six short performances in memory, reading five instants of each: one body, since the memory is kept per body and the claim is equality, not anatomy.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs real films through the public chain and compares the displayed bones of two readings; a pose that differs in any bone at any instant between a forward and a backward reading fails.
+ * @evidence contracts/development/testing.md#independent-expectations Pose by time is the motion contract (a pose depends on the plan and the instant only); the forward reading is the oracle for the backward one, compared to the last bit, and neither is read from a solver's bookkeeping.
+ * @evidence contracts/development/testing.md#distinguishing-cases Arm goals under clearance, arm goals that travel, and an overlay over stepping legs; forward against backward order on separately built films. This spec owned the former limb-fit memory's equality with a direct solve; that memory is removed, and the order independence is what remains of it.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds six short performances in memory, reading five instants of each: one body, since the claim is equality, not anatomy.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it matters and the 3 scenarios with how each is read.
  */
-export function test_human_motion_core_fit_memory(): void {
+export function test_human_motion_core_pose_read_order(): void {
   const complaints: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
   const height: number = seated.popliteal(body);
@@ -106,7 +101,7 @@ export function test_human_motion_core_fit_memory(): void {
     ],
   ];
 
-  // Copy scalars now so later workspace writes cannot change the solved oracle.
+  // Copy scalars now so later workspace writes cannot change the oracle.
   const shown: (
     performance: HumanPerformance,
     t: number,
@@ -116,7 +111,7 @@ export function test_human_motion_core_fit_memory(): void {
   ): Map<AutoMovieHumanoidBone, readonly number[]> => {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       performance.bones("a", t);
-    motionHumanFrame(bones, `fit memory at ${t} s`);
+    motionHumanFrame(bones, `read order at ${t} s`);
     return new Map(
       [...bones.entries()].map(
         ([bone, at]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): [
@@ -139,26 +134,24 @@ export function test_human_motion_core_fit_memory(): void {
   };
   for (const [label, compose] of films)
     try {
-      resolveHumanPosture.memory(false);
-      const solved: HumanPerformance = perform(compose(), { ...body });
-      const end: number = solved.segments("a").at(-1)!.end;
+      const forward: HumanPerformance = perform(compose(), { ...body });
+      const end: number = forward.segments("a").at(-1)!.end;
       const instants: number[] = [0.1, 0.3, 0.5, 0.7, 0.9].map(
         (share: number): number => share * end,
       );
-      const afresh: Map<AutoMovieHumanoidBone, readonly number[]>[] =
+      const first: Map<AutoMovieHumanoidBone, readonly number[]>[] =
         instants.map(
           (t: number): Map<AutoMovieHumanoidBone, readonly number[]> =>
-            shown(solved, t),
+            shown(forward, t),
         );
-      resolveHumanPosture.memory(true);
-      const remembered: HumanPerformance = perform(compose(), { ...body });
+      const backward: HumanPerformance = perform(compose(), { ...body });
       for (let i: number = instants.length - 1; i >= 0; --i) {
         const actual: Map<AutoMovieHumanoidBone, readonly number[]> = shown(
-          remembered,
+          backward,
           instants[i]!,
         );
         const expected: Map<AutoMovieHumanoidBone, readonly number[]> =
-          afresh[i]!;
+          first[i]!;
         if (
           actual.size !== expected.size ||
           [...expected].some(
@@ -179,15 +172,17 @@ export function test_human_motion_core_fit_memory(): void {
           )
         )
           complaints.push(
-            `${label}: the pose at ${instants[i]!.toFixed(2)} s read from memory differs from the pose solved afresh`,
+            `${label}: the pose at ${instants[i]!.toFixed(2)} s read backward differs from the pose read forward`,
           );
       }
     } catch (error) {
       complaints.push(
         `${label}: ${error instanceof Error ? error.message : String(error)}`,
       );
-    } finally {
-      resolveHumanPosture.memory(true);
     }
-  TestValidator.equals("a remembered fit is the solved fit", complaints, []);
+  TestValidator.equals(
+    "a pose does not depend on the reading order",
+    complaints,
+    [],
+  );
 }

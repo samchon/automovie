@@ -2152,9 +2152,7 @@
     {
       "layer": "posture",
       "symbol": "resolveHumanPosture.memory",
-      "tests": [
-        "test_human_motion_core_fit_memory"
-      ]
+      "tests": []
     },
     {
       "layer": "posture",

@@ -67,13 +67,14 @@ import { qunit } from "../internal/qunit";
  *    a separately labeled stand-only public-context control observes the
  *    original jump parameters' raw and resolved takeoff boundary. It cannot
  *    change acceptance or stand in for the failed instance's actual context.
- * 6. Public per-body limb-memory snapshots and deltas bracket planning,
- *    original observations, repeated reads and the later diagnostic. Reads
- *    occur outside all timed sections; misses mean memory misses, not inner
- *    IK targets, primitive queries or projector calls. The final control is
- *    excluded from these original-performance counts.
+ * 6. Public per-body limb-fit work counters (`HumanLimbFitFrame.statistics`),
+ *    as snapshots and deltas, bracket planning, original observations,
+ *    repeated reads and the later diagnostic. Reads occur outside all timed
+ *    sections; they count solver attempts and curve, continuation and course
+ *    work, not inner IK targets, primitive queries or projector calls. The
+ *    final control is excluded from these original-performance counts.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the unchanged fixture/physical bounds, observed frame, singularity precondition, timing phases and public memory snapshot/delta scopes with explicit limits on their meaning.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the unchanged fixture/physical bounds, observed frame, singularity precondition, timing phases and public limb-fit work-counter snapshot/delta scopes with explicit limits on their meaning.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the actual public turned performance and reads canonical displayed bones/root and mass-model momentum; ignored rotation, invalid FK, drift, excessive impulse or refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations A requested turn winds 2 pi; projecting the actual long axis in the takeoff frame gives its angle. Undoing that somersault and tilt from the actual lateral axis yields twist. Conservation and the existing impulse ceiling provide momentum expectations without the solver's residual.
  * @evidence contracts/development/testing.md#distinguishing-cases One existing feasible layout case, a full cycle rather than its identity endpoint, distinct-time versus repeated reads, finite/unit poses and zero-safe relative momentum comparison. It makes no claim about every motion or crowd playback.
