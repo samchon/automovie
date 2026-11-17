@@ -1,16 +1,14 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import type { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
-import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
-import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
+import type { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
-import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import type { IHumanPosture } from "./IHumanPosture";
 
 /**
@@ -267,234 +265,22 @@ export namespace HumanArmTrajectoryModel {
     HumanArmTrajectoryInvalid.swing;
 
   /**
-   * The objective and the constraints' violations at an iterate.
+   * The objective and the constraints' violations at an iterate, read in
+   * full or, given an earlier reading and the waypoints changed since it, at
+   * those waypoints only (`HumanArmTrajectoryEvaluate`, which owns the
+   * reading).
    *
    * @param c The context.
    * @param x Each arm's coordinates at each waypoint.
+   * @param kept An earlier reading of this context and the waypoints whose coordinates changed since it; absent, every waypoint is read.
    * @returns The arms placed, the objective, the summed violation and the worst one past its slack.
    */
   export function evaluate(
     c: IContext,
     x: readonly (readonly number[])[][],
+    kept?: { reading: IEvaluation; laid: readonly boolean[] },
   ): IEvaluation {
-    const placed: G.IPlaced[][] = x.map(
-      (arm: readonly (readonly number[])[], a: number): G.IPlaced[] =>
-        arm.map(
-          (v: readonly number[], k: number): G.IPlaced =>
-            G.placed(c.setups[a]!, c.frames[a]![k]!, v),
-        ),
-    );
-    let objective: number = 0;
-    let violation: number = 0;
-    let worst: IEvaluation["worst"] = {
-      value: 0,
-      what: "",
-      axis: "region",
-      at: 0,
-      term: "",
-    };
-    // A clearance miss refuses only past the audit's own skin, the margin
-    // the allowance keeps below it aside (`HumanArmTrajectoryTerms.SKIN`).
-    // The waypoint the loop below reads, where a violation noted is placed.
-    let here: number = 0;
-    const pairs: IEvaluation["pairs"] = x.map(
-      (): IEvaluation["pairs"][number] => [],
-    );
-    const swept: IEvaluation["swept"] = x.map(
-      (): IEvaluation["swept"][number] => [],
-    );
-    const crossing: IEvaluation["crossing"] = [];
-    // A term's refusal axis: a speed asks for time, a task point names its
-    // target, every other term the region.
-    const note = (
-      v: number,
-      term: "speed" | "swept" | "site" | "lift" | "limit" | "probe" | "embedded" | "crossing",
-      what: () => string,
-      slack: number = 0,
-    ): void => {
-      if (v <= 0) return;
-      violation += v;
-      if (v - slack > worst.value) worst = { value: v - slack, what: what(), at: here, term,
-        axis: term === "speed" ? "duration" : term === "limit" ? "target" : "region" };
-    };
-    const n: number = c.n;
-    const times: readonly number[] = c.times;
-    x.forEach((arm: readonly (readonly number[])[], a: number): void => {
-      // A still configuration's waypoints are smoothed among themselves
-      // only: its ends are not part of it.
-      for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
-        for (const d of c.free[a]!) {
-          const acc: number =
-            arm[Math.min(n - 1, k + 1)]![d]! -
-            2 * arm[k]![d]! +
-            arm[Math.max(0, k - 1)]![d]!;
-          objective += T.ACCELERATION * acc * acc;
-        }
-      // A still configuration drawn to its anchor.
-      const anchor: readonly number[] | undefined = c.anchor?.[a];
-      if (anchor !== undefined)
-        for (let k: number = 1; k + 1 < n; ++k)
-          for (const d of c.free[a]!) {
-            const off: number = arm[k]![d]! - anchor[d]!;
-            objective += T.ANCHOR * off * off;
-          }
-      for (let k: number = 0; k + 1 < n; ++k) {
-        here = k;
-        // A probe's travel is read against the arm's own base, so a carried
-        // body's travel is never charged to the arm (`HumanArmTrajectoryTravel`).
-        const travel = (p: number): number =>
-          1000 *
-          Vector3.length(
-            V.step(
-              c.frames[a]![k]!,
-              c.frames[a]![k + 1]!,
-              placed[a]![k]!.probes[p]![0],
-              placed[a]![k + 1]!.probes[p]![0],
-            ),
-          );
-        for (const p of c.still ? [] : T.PATH) {
-          const s: number = travel(p);
-          objective += T.LENGTH * s * s;
-        }
-        const dt: number = times[k + 1]! - times[k]!;
-        for (const p of c.still ? [] : T.SPEED) {
-          const step: number = travel(p);
-          note(
-            step - stepLimit(dt),
-            "speed",
-            () =>
-              `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,
-          );
-        }
-        const sweeps: HumanArmTrajectorySweep.ISwept[] = c.still
-          ? []
-          : HumanArmTrajectorySweep.of(c, a, k, placed[a]![k]!, placed[a]![k + 1]!);
-        swept[a]![k] = sweeps;
-        for (const sweep of sweeps) {
-          const short: number = 1000 * (sweep.lower - sweep.clear);
-          note(
-            short,
-            "swept",
-            () =>
-              `probe ${sweep.probe} swept ${short.toFixed(1)} mm inside shape ${sweep.shape} after ${times[k]!.toFixed(3)} s`,
-          );
-        }
-      }
-      for (let k: number = 1; k < n; ++k) {
-        if (!inner(c, k)) continue;
-        here = k;
-        const site: ISite | undefined = c.sites[a]![k];
-        if (site !== undefined) {
-          const at: P.ILocated = P.located(c, placed, a, k, site);
-          const contact: IAutoMovieVector3 = P.pad(
-            placed[a]![k]!,
-            site.contact,
-          );
-          const off: IAutoMovieVector3 = Vector3.scale(
-            Vector3.subtract(contact, at.point),
-            1000,
-          );
-          const normal: IAutoMovieVector3 | undefined = at.normal;
-          const across: number =
-            normal === undefined ? 0 : Vector3.dot(off, normal);
-          const slide: number = Vector3.length(
-            normal === undefined
-              ? off
-              : Vector3.subtract(off, Vector3.scale(normal, across)),
-          );
-          // The contact's height above the touched collider, less the site's
-          // own: the site's standing off the surface is kept where the region
-          // curves away from its plane.
-          const lift: number =
-            normal === undefined || at.shape === undefined
-              ? 0
-              : 1000 * (at.gap(contact) - at.gap(at.point));
-          note(
-            slide - 1000 * site.disc,
-            "site",
-            () =>
-              `the hand ${slide.toFixed(1)} mm off its site along the surface at ${times[k]!.toFixed(3)} s, beyond the region's ${(1000 * site.disc).toFixed(0)} mm`,
-          );
-          objective += T.SITE * slide * slide;
-          note(
-            -lift,
-            "lift",
-            () =>
-              `the hand ${(-lift).toFixed(1)} mm inside its site at ${times[k]!.toFixed(3)} s`,
-          );
-          objective += T.LIFT * lift * lift;
-          for (const limit of L.of(site, at, placed[a]![k]!))
-            note(
-              limit.distance - limit.allowance,
-              "limit",
-              () =>
-                `a task point ${limit.distance.toFixed(1)} mm off its asked place at ${times[k]!.toFixed(3)} s`,
-            );
-          if (site.rotation !== undefined) {
-            const turned: number = P.angle(
-              at.rotation ?? site.rotation,
-              placed[a]![k]!.hand,
-            );
-            objective += T.ROTATION * turned * turned;
-          }
-        }
-        // Only the pairs the merit and the convex model can use are read
-        // exactly (`HumanArmTrajectoryPairs.CUT`).
-        const deepest: Map<number, P.IPair> = P.deepest(
-          c,
-          a,
-          k,
-          placed[a]![k]!,
-          P.CUT,
-        );
-        const embedded: Map<number, P.IEmbedded> = P.embedded(
-          c,
-          a,
-          k,
-          placed[a]![k]!,
-          P.CUT,
-        );
-        pairs[a]![k] = { deepest, embedded };
-        for (const pair of deepest.values()) {
-          note(
-            pair.short,
-            "probe",
-            () =>
-              `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape} at ${times[k]!.toFixed(3)} s`,
-            T.SKIN,
-          );
-          // A declared rest is drawn to where its segments meet.
-          if (pair.rested) objective += T.LIFT * pair.short * pair.short;
-        }
-        for (const pair of embedded.values()) {
-          note(
-            pair.short,
-            "embedded",
-            () =>
-              `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone} at ${times[k]!.toFixed(3)} s`,
-            T.SKIN,
-          );
-          if (pair.rested) objective += T.LIFT * pair.short * pair.short;
-        }
-      }
-    });
-    if (x.length === 2)
-      for (let k: number = 1; k < n; ++k) {
-        if (!inner(c, k)) continue;
-        crossing[k] = P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT);
-        for (const pair of crossing[k]!.values()) {
-          here = k;
-          note(
-            pair.short,
-            "crossing",
-            () =>
-              `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone} at ${times[k]!.toFixed(3)} s`,
-            T.SKIN,
-          );
-          if (pair.rested) objective += T.LIFT * pair.short * pair.short;
-        }
-      }
-    return { placed, objective, violation, worst, pairs, swept, crossing };
+    return HumanArmTrajectoryEvaluate(c, x, kept);
   }
 
   /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */
