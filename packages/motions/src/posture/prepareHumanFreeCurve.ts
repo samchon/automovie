@@ -41,7 +41,7 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body/law/fixture switch, approximate result key, sampled global certificate, fixed physical grid, skipped bound, interpolated pose or whole-pose cache is used. Every target still runs the actual fit and full checks. Query-dependent failures never mutate another target's canonical choice. Unsupported contexts retain ordinary cold fitting.
  * @evidence contracts/development/implementation.md#efficient-algorithms For C retained intervals and depth D, selection uses O(D) map lookups and normally one current correction instead of repeating the same coarse failures and recursive anchor reconstruction. A newly demanded canonical boundary still pays actual correction/subdivision. Endpoint classification is reused while resident; eviction may recompute it. Each correction retains actual demanded FK and changed-tuple ROM scoring. C is bounded by the numerical-retention budget, not by weakened angular resolution; gains remain unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact directed dyadic boundaries under the same immutable curve and live rig identify one canonical left-anchor construction. Only primitive seeds, quaternions and endpoint classification share; every requested target is fitted afresh through the existing exact continuous-policy memory. No child links affect construction after eviction. ROM memoization still requires exact current nullable coordinates.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A curve owns at most 1024 unlinked numerical interval records, one origin, fixed ROM scorers/last tuples, and one cold-reference anchor per finite binary64 level when no origin exists. Recursive boundary construction owns O(D) temporary anchors; adjacent midpoint collapse ends refinement. Rig invalidation clears all numerical populations. No pose, output history, FK loan, callback handle or task is retained in interval data.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A curve owns at most 1024 unlinked numerical interval records, one origin, fixed ROM scorers/last tuples, at most four observed-bone sets with their bound demands (one per sequence of leg goals), and one cold-reference anchor per finite binary64 level when no origin exists. Recursive boundary construction owns O(D) temporary anchors; adjacent midpoint collapse ends refinement. Rig invalidation clears all numerical populations. No pose, output history, FK loan, callback handle or task is retained in interval data.
  */
 export function prepareHumanFreeCurve(
   body: IHumanBody,
@@ -58,6 +58,7 @@ export function prepareHumanFreeCurve(
     legality.set(bone.bone, jointRomOvershoot.prepare(bone.bone,
       getConstraint(bone.bone, bone.constraint ?? null), swingTwistRange.of(bone.bone, body.skeleton)));
   const anchors: Map<number, { share: number; value: IAnchor }> = new Map();
+  const observations: Map<number, IObserved> = new Map();
   const intervals: Map<string, IInterval> = new Map();
   let origin: IAnchor | undefined;
   let pivot: number = 0;
@@ -77,18 +78,29 @@ export function prepareHumanFreeCurve(
     if (raw.rotation !== undefined || !HumanPostureRaw.eligible(raw)) return undefined;
     const limbs: [IHumanPosture.Limb, IHumanPosture.IGoal][] = Object.entries(raw.limbs) as [IHumanPosture.Limb, IHumanPosture.IGoal][];
     if (limbs.length === 0) return undefined;
-    const names: Set<AutoMovieHumanoidBone> = new Set();
-    for (const [limb] of limbs) {
-      const side: "left" | "right" = limb === "leftLeg" ? "left" : "right";
-      names.add(`${side}UpperLeg`); names.add(`${side}LowerLeg`); names.add(`${side}Foot`);
+
+    // The observed bones depend only on which sides' goals the posture
+    // holds, in their order: read once per curve for each such sequence.
+    let code: number = 0;
+    for (const [limb] of limbs) code = 3 * code + (limb === "leftLeg" ? 1 : 2);
+    let observed: IObserved | undefined = observations.get(code);
+    if (observed === undefined) {
+      const names: Set<AutoMovieHumanoidBone> = new Set();
+      for (const [limb] of limbs) {
+        const side: "left" | "right" = limb === "leftLeg" ? "left" : "right";
+        names.add(`${side}UpperLeg`); names.add(`${side}LowerLeg`); names.add(`${side}Foot`);
+      }
+      observed = { names, read: poseBones.prepare(body, names) };
+      observations.set(code, observed);
     }
+    const names: ReadonlySet<AutoMovieHumanoidBone> = observed.names;
     const source: HumanPosturePreparation.IObservation | undefined = HumanPosturePreparation.source(prepared, names);
     let bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     if (source === undefined) {
       const pose: HumanPosturePreparation.IPrepared["pose"] = prepared.pose;
       for (const joint of pose.joints)
         if (!legal(joint.bone, joint.flexion, joint.abduction, joint.twist)) return undefined;
-      bones = poseBones(body, pose, undefined, names);
+      bones = observed.read(pose);
     } else {
       for (let i: number = 0; i < source.names.length; ++i)
         if (!legal(source.names[i]!, source.values[3 * i]!, source.values[3 * i + 1]!, source.values[3 * i + 2]!)) return undefined;
@@ -299,6 +311,15 @@ export function prepareHumanFreeCurve(
     }
     return solve(share, resolution, projection).prepared;
   };
+}
+
+/** The bones a curve observes for one sequence of leg goals, and the rig's bound demand of them. */
+interface IObserved {
+  /** The legs' hip, knee and ankle bones, in the goals' order. */
+  names: ReadonlySet<AutoMovieHumanoidBone>;
+
+  /** Those bones of a pose, read through the bound demand. */
+  read: ReturnType<typeof poseBones.prepare>;
 }
 
 /** Only primitive fit seeds and native quaternion observations survive a query. */
