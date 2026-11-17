@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
@@ -95,12 +96,12 @@ export namespace HumanHitTrack {
    * @returns The instants.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States unknown-prefix behavior and the namespace documents provisional versus committed sources.
-   * @evidence contracts/development/implementation.md#principled-implementation During placement actual per-weapon sweeps supply provisional melee contacts; the common hit record supplies blasts/flights and committed contacts, filtered by target/producer and ordered by time.
+   * @evidence contracts/development/implementation.md#principled-implementation During placement actual per-limb sweeps supply provisional melee contacts, each limb's capsules stopping together at the first contact; the common hit record supplies blasts/flights and committed contacts, filtered by target/producer and ordered by time.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Parses one hit-track address, selects current producers, then filters/maps/sorts cue records.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every provisional live window, original STEP/bisections/taper and actual struck-body distance; no event is fabricated or skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Provisional work retains actual weapon/body/sample geometry; registered head/tail reads share one exact chain evaluation. H selected records cost O(H log H) sorting and O(H) temporary space, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The common record owns committed reuse; provisional scans remain independent by weapon/context. One struck-actor/profile-name producer is prepared lazily for this synchronous call, while every exact-time query still observes current placed state and returns fresh scopes/maps; only one sampled capsule's two ends share their actual synchronous source read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call sweep inputs/events, cue arrays and at most one fixed-name struck-actor query producer end on return or throw. Each actual query owns its own FK/projector/pose scope; returned cues keep only names/seconds and retain no callbacks, bodies, readers or sampled poses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Provisional work sweeps each striking limb's capsules together, so a limb costs one scan that ends at its first contact instead of one full-window scan per capsule; registered head/tail reads share one exact chain evaluation, and the struck body is read once per exact second for every sweep of the call. H selected records cost O(H log H) sorting and O(H) temporary space, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The common record owns committed reuse. Within one provisional call nothing is placed, so the struck body's bones at an exact second are one pure value shared by every limb's sweep; the call's map ends with it. A limb's capsules form one engine group, so its part stops at its first contact and gives one provisional hit, as the committed resolution and the striking laws' first-contact stop do.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call sweep inputs/events, cue arrays, at most one fixed-name struck-actor query producer and one bones map per exact second read end on return or throw. Each actual query owns its own FK/projector/pose scope; returned cues keep only names/seconds and retain no callbacks, bodies, readers or sampled poses.
    */
   export function instants(
     self: HumanPerformanceState,
@@ -141,27 +142,46 @@ export namespace HumanHitTrack {
     if (struck === undefined) return [];
     const requested: ReadonlySet<AutoMovieHumanoidBone> =
       HumanColliders.bones(struck.performer.body);
+    // Nothing is placed during this call, so the struck body's pose at a
+    // second is the same for every weapon swept: read once per exact second.
     let frames: ReturnType<typeof HumanPerformanceRead.prepareBones> | undefined;
+    const read: Map<number, ReturnType<typeof HumanPerformanceRead.bones>> = new Map();
     const readBones = (seconds: number): ReturnType<typeof HumanPerformanceRead.bones> => {
-      if (frames === undefined) frames = HumanPerformanceRead.prepareBones(self, on, requested);
-      return frames(seconds);
+      let bones: ReturnType<typeof HumanPerformanceRead.bones> | undefined = read.get(seconds);
+      if (bones === undefined) {
+        if (frames === undefined) frames = HumanPerformanceRead.prepareBones(self, on, requested);
+        bones = frames(seconds);
+        read.set(seconds, bones);
+      }
+      return bones;
     };
     const out: IAutoMovieInteractionEvent[] = [];
     for (const person of self.people.values()) {
       if (person === struck) continue;
-      for (const segment of person.segments)
+      for (const segment of person.segments) {
+        // The weapons on one limb are the capsules of one striking part,
+        // which stops as a whole at its first contact: one sweep, one hit.
+        const limbs: Map<string, IHumanActionPlan.IWeapon[]> = new Map();
         for (const w of segment.plan.weapons ?? []) {
-          const from: number = Math.max(w.from, segment.entryTime);
-          const to: number = Math.min(w.to, segment.end);
-          if (!(to > from)) continue;
-          const tail = w.tail;
+          if (!(Math.min(w.to, segment.end) > Math.max(w.from, segment.entryTime))) continue;
+          const group: IHumanActionPlan.IWeapon[] | undefined = limbs.get(w.limb);
+          if (group === undefined) limbs.set(w.limb, [w]);
+          else group.push(w);
+        }
+        for (const [limb, group] of limbs) {
+          const from: number = Math.min(...group.map((w: IHumanActionPlan.IWeapon): number => Math.max(w.from, segment.entryTime)));
+          const to: number = Math.max(...group.map((w: IHumanActionPlan.IWeapon): number => Math.min(w.to, segment.end)));
           const events: resolveAutoMovieContactEvents.IEvent[] =
             resolveAutoMovieContactEvents({
-              weapons: [
-                {
+              weapons: group.map((w: IHumanActionPlan.IWeapon): resolveAutoMovieContactEvents.IWeapon => {
+                const tail = w.tail;
+                return {
                   id: w.id,
                   owner: person.performer.subject,
+                  group: limb,
                   radius: w.radius,
+                  from: Math.max(w.from, segment.entryTime),
+                  to: Math.min(w.to, segment.end),
                   position: (t: number): IAutoMovieVector3 => w.path(t),
                   sample: (t: number): resolveAutoMovieContactEvents.IWeaponFrame => {
                     const [position, end]: StrikingWeapon.IAxis = StrikingWeapon.read(w, t);
@@ -175,8 +195,8 @@ export namespace HumanHitTrack {
                           ? {}
                           : { tailRadius: w.tailRadius }),
                       }),
-                },
-              ],
+                };
+              }),
               bodies: [
                 {
                   id: on,
@@ -206,7 +226,10 @@ export namespace HumanHitTrack {
               to,
               step: HumanPerformanceContacts.STEP,
             });
-          for (const e of events)
+          for (const e of events) {
+            const w: IHumanActionPlan.IWeapon = group.find(
+              (weapon: IHumanActionPlan.IWeapon): boolean => weapon.id === e.weapon,
+            )!;
             out.push({
               id: `hit:${person.performer.subject}:${w.id}:${on}:${e.seconds.toFixed(6)}`,
               kind: "hit",
@@ -219,7 +242,9 @@ export namespace HumanHitTrack {
               actionIndex: segment.entry,
               reaction: null,
             });
+          }
         }
+      }
     }
     return out;
   }
