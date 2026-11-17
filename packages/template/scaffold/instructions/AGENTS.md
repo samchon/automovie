@@ -19,7 +19,7 @@ Keep 3D models simple and motion detailed:
 - Motion is composed from the actions of `@automovie/motions`.
 - The screenplay decides every outcome, and code realizes it.
 
-Performance is animated, not simulated. Physics is computed as films and games compute it: only at the moment, on the body part and to the degree a response needs.
+Performance is animated, not simulated. Physics is computed as films and games compute it: only at the moment, on the part and to the degree a response needs.
 
 ## Attitude
 
@@ -32,7 +32,7 @@ Work by these rules:
 - Finish each inspection round, then repair all its findings together by cause.
 - Review unprompted as a demanding viewer of the depicted practice. Report what you verified.
 - Judge pictures on captured stills, and ask the user for what only playback or listening shows.
-- Continue until the commissioned work is complete; stop only when the user or a confirmation is needed.
+- Work until the commission is complete; stop only for the user or to confirm a destructive or outward-facing action.
 
 ## Skills
 

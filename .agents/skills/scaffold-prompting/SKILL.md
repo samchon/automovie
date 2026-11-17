@@ -41,7 +41,7 @@ A skill gives the job and its boundaries. A rule every selected respondent must 
 
 ### Stills only
 
-No instruction asks the agent to watch playback, listen or read aloud. The production's [observation rule](../../../packages/template/scaffold/instructions/AGENTS.md#what-you-can-observe) says what it sees and asks the user for the rest.
+No instruction asks the agent to watch playback, listen or read aloud. The production's [attitude](../../../packages/template/scaffold/instructions/AGENTS.md#attitude) has it judge pictures on captured stills and ask the user for the rest.
 
 ## Repository and scaffold
 
