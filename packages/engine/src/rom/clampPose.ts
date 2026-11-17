@@ -82,6 +82,26 @@ export namespace clampPose {
   ): ReturnType<typeof clampJointToSkeleton.prepare> | undefined {
     return JOINTS.get(source);
   }
+
+  /**
+   * Borrow the angle-taking form of a genuine prepared pose projection's
+   * one-joint owner (`clampJointToSkeleton.values`): the joint's record made
+   * in range from its bone and three clinical angles, the record `joints`'
+   * owner gives for the record of those values, without that record being
+   * made first. Unknown functions return undefined.
+   *
+   * @param source The pose projection issued by this factory, if genuine.
+   * @returns The angle-taking clamp, or undefined.
+   *
+   * Two private weak lookups; nothing is invoked or retained, and every
+   * joint still runs its own projection.
+   */
+  export function values(
+    source: ReturnType<typeof prepare>,
+  ): ReturnType<typeof clampJointToSkeleton.values> {
+    const joint: ReturnType<typeof clampJointToSkeleton.prepare> | undefined = JOINTS.get(source);
+    return joint === undefined ? undefined : clampJointToSkeleton.values(joint);
+  }
 }
 
 /** Only the actual pose factory registers its existing source-only joint callable. */
