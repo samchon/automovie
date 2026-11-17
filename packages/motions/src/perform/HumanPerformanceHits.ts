@@ -36,12 +36,12 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
  * - blasts: one hit per person within a blast's radius (`HumanBlast`), with
  *   an impulse along the line from the blast to the nearest point of their
  *   colliders and no mass;
- * - flights: each flight's first contact (`HumanPropFlight`), with the
- *   prop's velocity and mass, and its outcome.
+ * - flights: each first and continuation contact (`HumanPropFlight`), with
+ *   the prop's incoming velocity and mass, its outcome and outgoing velocity.
  *
  * A hit on a person names the bone it struck and the region nearest the
  * point; its normal is the struck surface's outward normal. Hits are in time
- * order, ties by producer and then by striker.
+ * order, with ties sorted by event id.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three producers, how each fills velocity, mass and outcome, with the provisional mass and its source, and the order.
  * @evidence contracts/development/design.md#principled-representation One record for every contact, the interface's own; no second hit type.
@@ -55,6 +55,14 @@ export namespace HumanPerformanceHits {
    * @param self The placed performance.
    * @param subject The struck person or prop; every hit when absent.
    * @returns The hits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the film time order and optional struck-subject filter; the namespace describes the producers and fields.
+   * @evidence contracts/development/implementation.md#principled-implementation Projects observed melee, blast and flight contacts to the shared record and orders them by film time and event id.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each producer supplies one shared list before sorting; the optional subject filter applies to the completed list.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the same recorded contacts and outcomes as the placed performance without adding a collision query or predicted contact.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Visits each recorded flight contact once across its continuation legs and sorts H event records in O(H log H), in addition to the existing producer work and any struck-region reads. Filtering is O(H).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing result is reused only for a finalized performance; during placement the list reflects current events and uses already resolved flight legs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak performance entry retains H records until release of the performance. Traversal retains no new query, sampled pose or resource.
    */
   export function hits(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -174,51 +182,58 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /** The flights' first contacts, with what each did and the velocity it left with. */
+  /** Each recorded impact, with the departure from the following leg if one exists. */
   function flights(
     self: IAutoMovieMotionHumanPerformanceState,
   ): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const prop of self.props.values())
       for (const f of HumanPropFlight.flights(self, prop.subject)) {
-        const c: IAutoMovieMotionHumanPropFlight.IContact | undefined =
+        let contact: IAutoMovieMotionHumanPropFlight.IContact | undefined =
           f.contact;
-        if (c === undefined) continue;
-        const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
-          f.legs?.[0];
-        const region: AutoMovieHumanoidRegion | undefined =
-          c.struck.kind === "person"
-            ? nearestRegion(
-                HumanPerformanceRead.person(self, c.struck.subject).performer
-                  .body,
-                HumanPerformanceRead.bones(self, c.struck.subject, f.end),
-                c.point,
-              )
-            : undefined;
-        out.push({
-          id: `flight:${f.prop}:${f.launch.toFixed(6)}`,
-          kind: c.struck.kind === "ground" ? "contact" : "hit",
-          source: "collisionSolver",
-          time: f.end,
-          actor: f.source.subject,
-          target: c.struck.kind === "ground" ? null : c.struck.subject,
-          object: f.prop,
-          point: c.point,
-          actionIndex: f.source.entry,
-          reaction: null,
-          ...(c.struck.kind === "person" ? { bone: c.struck.bone } : {}),
-          ...(region === undefined ? {} : { region }),
-          velocity: c.velocity,
-          normal: c.normal,
-          ...(prop.body === undefined ? {} : { mass: prop.body.mass }),
-          // What the contact did and the velocity it left with: the next
-          // leg's at its start, at rest where it stays.
-          outcome: c.outcome,
-          exit:
-            next === undefined
-              ? { x: 0, y: 0, z: 0 }
-              : HumanPropOutcome.at(next, next.from).velocity,
-        });
+        let time: number = f.end;
+        const id: string = `flight:${f.prop}:${f.launch.toFixed(6)}`;
+        for (let index: number = 0; contact !== undefined; ++index) {
+          const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
+            f.legs?.[index];
+          const struck: IAutoMovieMotionHumanPropFlight.Struck = contact.struck;
+          const region: AutoMovieHumanoidRegion | undefined =
+            struck.kind === "person"
+              ? nearestRegion(
+                  HumanPerformanceRead.person(self, struck.subject).performer
+                    .body,
+                  HumanPerformanceRead.bones(self, struck.subject, time),
+                  contact.point,
+                )
+              : undefined;
+          out.push({
+            id: index === 0 ? id : `${id}:${index}`,
+            kind: struck.kind === "ground" ? "contact" : "hit",
+            source: "collisionSolver",
+            time,
+            actor: f.source.subject,
+            target: struck.kind === "ground" ? null : struck.subject,
+            object: f.prop,
+            point: contact.point,
+            actionIndex: f.source.entry,
+            reaction: null,
+            ...(struck.kind === "person" ? { bone: struck.bone } : {}),
+            ...(region === undefined ? {} : { region }),
+            velocity: contact.velocity,
+            normal: contact.normal,
+            ...(prop.body === undefined ? {} : { mass: prop.body.mass }),
+            outcome: contact.outcome,
+            exit:
+              next === undefined
+                ? { x: 0, y: 0, z: 0 }
+                : HumanPropOutcome.at(next, next.from).velocity,
+          });
+
+          // The outgoing leg's end carries the next impact on the launch clock.
+          if (next === undefined) break;
+          contact = next.contact;
+          time = f.launch + next.end;
+        }
       }
     return out;
   }
