@@ -4,13 +4,13 @@ import type { touch } from "@automovie/motions";
 import { motionHumanLawTouch } from "./motionHumanLawTouch";
 
 /**
- * The rows of the touch law's two spec families, one spec per row and part so
- * each runs within the time a test may take: the touches of the performer's own
- * body (`test_human_motion_law_touch_self_*`) and of a partner standing
- * still before them (`test_human_motion_law_touch_partner_*`), each read by
- * `motionHumanLawTouch`.
+ * The rows of the touch law's two spec families, one spec per row, each
+ * reading every expectation of its row off the row's one film: the touches
+ * of the performer's own body (`test_human_motion_law_touch_self_*`) and of
+ * a partner standing before them (`test_human_motion_law_touch_partner_*`),
+ * each read by `motionHumanLawTouch`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two families, who reads the rows and why they are split.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two families, who reads the rows and that one spec reads one row whole.
  * @evidence contracts/development/design.md#principled-representation One record per family keyed by the row's label, so a spec names its row and the table holds its parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two tables and the two readers the specs call.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; the partner's place is the stage's own distance.
@@ -106,33 +106,27 @@ export namespace motionHumanLawTouchRows {
   >;
 
   /**
-   * The complaints of one part of one self-directed row.
+   * The complaints of one self-directed row, every expectation of
+   * `motionHumanLawTouch` read off its film.
    *
    * @param label The row.
-   * @param part The part (`motionHumanLawTouch`'s).
    * @returns `motionHumanLawTouch`'s complaints; empty when the row is right.
    */
-  export function own(
-    label: keyof typeof SELF,
-    part: Parameters<typeof motionHumanLawTouch>[2],
-  ): string[] {
-    return motionHumanLawTouch(label, SELF[label], part);
+  export function own(label: keyof typeof SELF): string[] {
+    return motionHumanLawTouch(label, SELF[label]);
   }
 
   /**
-   * The complaints of one part of one row on a partner, who stands 0.55 m
-   * ahead facing the performer, or 0.45 m ahead turned away.
+   * The complaints of one row on a partner, who stands 0.55 m ahead facing
+   * the performer, or 0.45 m ahead turned away, every expectation of
+   * `motionHumanLawTouch` read off its film.
    *
    * @param label The row.
-   * @param part The part (`motionHumanLawTouch`'s).
    * @returns `motionHumanLawTouch`'s complaints; empty when the row is right.
    */
-  export function partner(
-    label: keyof typeof PARTNER,
-    part: Parameters<typeof motionHumanLawTouch>[2],
-  ): string[] {
+  export function partner(label: keyof typeof PARTNER): string[] {
     const row: { params: touch.IParams; facing: boolean } = PARTNER[label];
-    return motionHumanLawTouch(label, row.params, part, {
+    return motionHumanLawTouch(label, row.params, {
       facing: row.facing,
       gap: row.facing ? 0.55 : 0.45,
     });
