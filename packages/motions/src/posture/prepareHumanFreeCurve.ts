@@ -35,13 +35,13 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  * @param duration The physical duration in seconds, used by the existing velocity-continuation angular-resolution law.
  * @returns A current-phase preparation reader borrowing only a genuine native synchronous FK/projector source; foreign sources keep ordinary cold behavior.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines curve ownership, normalized phase/second units, canonical directed dyadic interval construction, exact current solves, supported free-goal domain, full physical gates, cold fallback and strict-cell numerical observations. An accepted interval endpoint is not a global smoothness certificate.
- * @evidence contracts/development/implementation.md#principled-implementation Predictor-corrector continuation uses the existing near-basin hinged solver. A directed interval's actual endpoint correction either meets the original branch/swivel and one-degree postclamp rotation gates or requires deterministic left-before-right subdivision. Every actual query is independently corrected and checked for ankle position, requested orientation, pole side and ROM with those same gates. Query-local failure can descend without changing the parent's canonical classification. A unique smooth local basin remains a premise; neither sampled endpoints nor cell metadata certify global C1 or analytic root selection.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One correct/observe pair owns all actual fit and physical gates. interval retains canonical endpoint classification; boundary constructs canonical preceding anchors; solve selects that prepared interval then actually fits the current target. A usable phase-zero or midpoint anchor starts the hierarchy; absent both, the original one-sided cold-reference policy remains. Precision-limited or physically unusable cases use cold fitting. The companion cell reader copies only an actual strict-interior canonical result's numerical construction facts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body/law/fixture switch, approximate result key, sampled global certificate, fixed physical grid, skipped bound, interpolated pose or whole-pose cache is used. Every target still runs the actual fit and full checks. Query-dependent failures never mutate another target's canonical choice; cell evidence excludes boundaries and query-local refinement and does not assert a unique engine root. Unsupported contexts retain ordinary cold fitting.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines curve ownership, normalized phase/second units, canonical directed dyadic interval construction, exact current solves, supported free-goal domain, full physical gates and cold fallback. An accepted interval endpoint is not a global smoothness certificate.
+ * @evidence contracts/development/implementation.md#principled-implementation Predictor-corrector continuation uses the existing near-basin hinged solver. A directed interval's actual endpoint correction either meets the original branch/swivel and one-degree postclamp rotation gates or requires deterministic left-before-right subdivision. Every actual query is independently corrected and checked for ankle position, requested orientation, pole side and ROM with those same gates. Query-local failure can descend without changing the parent's canonical classification. A unique smooth local basin remains a premise; sampled endpoints do not certify global C1 or analytic root selection.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One correct/observe pair owns all actual fit and physical gates. interval retains canonical endpoint classification; boundary constructs canonical preceding anchors; solve selects that prepared interval then actually fits the current target. A usable phase-zero or midpoint anchor starts the hierarchy; absent both, the original one-sided cold-reference policy remains. Precision-limited or physically unusable cases use cold fitting.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body/law/fixture switch, approximate result key, sampled global certificate, fixed physical grid, skipped bound, interpolated pose or whole-pose cache is used. Every target still runs the actual fit and full checks. Query-dependent failures never mutate another target's canonical choice. Unsupported contexts retain ordinary cold fitting.
  * @evidence contracts/development/implementation.md#efficient-algorithms For C retained intervals and depth D, selection uses O(D) map lookups and normally one current correction instead of repeating the same coarse failures and recursive anchor reconstruction. A newly demanded canonical boundary still pays actual correction/subdivision. Endpoint classification is reused while resident; eviction may recompute it. Each correction retains actual demanded FK and changed-tuple ROM scoring. C is bounded by the numerical-retention budget, not by weakened angular resolution; gains remain unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact directed dyadic boundaries under the same immutable curve and live rig identify one canonical left-anchor construction. Only primitive seeds, quaternions and endpoint classification share; every requested target is fitted afresh through the existing exact continuous-policy memory. No child links affect construction after eviction. ROM memoization still requires exact current nullable coordinates. Cell observations belong only to the actual issued preparation and are copied before exposure.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A curve owns at most 1024 unlinked numerical interval records, one origin, fixed ROM scorers/last tuples, and one cold-reference anchor per finite binary64 level when no origin exists. Recursive boundary construction owns O(D) temporary anchors; adjacent midpoint collapse ends refinement. Rig invalidation clears all numerical populations. Weak current-preparation cell records own fixed-size copied limb seeds only until that preparation releases; no pose, output history, FK loan, callback handle or task is retained in interval data.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact directed dyadic boundaries under the same immutable curve and live rig identify one canonical left-anchor construction. Only primitive seeds, quaternions and endpoint classification share; every requested target is fitted afresh through the existing exact continuous-policy memory. No child links affect construction after eviction. ROM memoization still requires exact current nullable coordinates.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A curve owns at most 1024 unlinked numerical interval records, one origin, fixed ROM scorers/last tuples, and one cold-reference anchor per finite binary64 level when no origin exists. Recursive boundary construction owns O(D) temporary anchors; adjacent midpoint collapse ends refinement. Rig invalidation clears all numerical populations. No pose, output history, FK loan, callback handle or task is retained in interval data.
  */
 export function prepareHumanFreeCurve(
   body: IHumanBody,
@@ -217,24 +217,12 @@ export function prepareHumanFreeCurve(
     let from: number = pivot;
     let to: number = share < pivot ? 0 : 1;
     let left: IAnchor = origin;
-    let local: boolean = false;
     for (;;) {
       const node: IInterval = interval(from, to, left, resolution, projection);
       if (node.right !== undefined) {
         const corrected: ICorrection = correct(share, left, resolution, projection);
-        if (corrected.kind === "accepted") {
-          const inside: boolean = share > Math.min(from, to) && share < Math.max(from, to);
-          const strict: boolean = corrected.anchor.rotations.every(
-            (rotation: IAutoMovieQuaternion, i: number): boolean => Quaternion.angleAfterNormalize(rotation, left.rotations[i]!) * 180 / Math.PI < hingedArmSwivel.STEP,
-          );
-          if (!local && inside && strict)
-            CELLS.set(corrected.prepared, { from, to, share,
-              left: structuredClone(left.seeds), current: structuredClone(corrected.anchor.seeds),
-              right: structuredClone(node.right.seeds) });
-          return corrected;
-        }
+        if (corrected.kind === "accepted") return corrected;
         if (corrected.kind === "unusable") return { prepared: cold(share, resolution, projection) };
-        local = true;
       }
       const middle: number = from + (to - from) / 2;
       if (middle === from || middle === to) return { prepared: cold(share, resolution, projection) };
@@ -313,42 +301,6 @@ export function prepareHumanFreeCurve(
   };
 }
 
-/**
- * Numerical construction facts of an actual strict-interior canonical solve.
- *
- * @evidence contracts/development/common.md#meaningful-documentation cell returns an independent observation only for an actual curve-issued strict-interior canonical solve; ICell documents directed normalized boundaries and actual branch/swivel records in degrees. Undefined covers seams, local refinement, unanchored/cold results and foreign preparations.
- * @evidence contracts/development/design.md#principled-representation The record describes one actual numerical construction: canonical interval boundaries, query phase and actual left/current/right limb seeds. Private weak issuance establishes origin; it does not represent global smoothness, unique engine roots or analytic derivative validity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanFreeCurveRates consumes the interval observation alongside separately proven actual engine-root provenance. Existing resolver-owned seed types retain branch/swivel ownership without a second pose, fit or public readiness flag.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller can register a cell or supply eligibility. Copied or forged preparations have no weak entry; returned records are independent and contain numerical facts rather than a caller-writable success switch.
- */
-export namespace prepareHumanFreeCurve {
-  /** One canonical cell observation; all seed swivels are in clinical degrees. */
-  export interface ICell {
-    /** Directed interval start in normalized phase, not seconds. */
-    from: number;
-    /** Directed interval end in normalized phase, not seconds. */
-    to: number;
-    /** Actual query phase, strictly between the directed boundaries. */
-    share: number;
-    /** Actual validated canonical start branch and swivel for every fitted limb. */
-    left: resolveHumanPosture.ISeeded["seeds"];
-    /** Actual accepted current branch and swivel, independently physically checked. */
-    current: resolveHumanPosture.ISeeded["seeds"];
-    /** Actual validated canonical endpoint branch and swivel. */
-    right: resolveHumanPosture.ISeeded["seeds"];
-  }
-
-  /**
-   * Copy the actual issued cell's numeric facts, or decline an unissued result.
-   * This fixed-size observation neither fits a pose nor certifies an engine
-   * root, a derivative, or continuity across a cell boundary.
-   */
-  export function cell(prepared: HumanPosturePreparation.IPrepared): ICell | undefined {
-    const value: ICell | undefined = CELLS.get(prepared);
-    return value === undefined ? undefined : structuredClone(value);
-  }
-}
-
 /** Only primitive fit seeds and native quaternion observations survive a query. */
 interface IAnchor {
   /** Actual branch and degree swivel of the validated canonical predecessor. */
@@ -383,6 +335,3 @@ interface IInterval {
 
 /** At most 1024 unlinked numerical interval records per owned curve; eviction changes work only. */
 const INTERVAL_CAPACITY: number = 1024;
-
-/** Only the actual curve's strict canonical current results can own a cell observation. */
-const CELLS: WeakMap<HumanPosturePreparation.IPrepared, prepareHumanFreeCurve.ICell> = new WeakMap();

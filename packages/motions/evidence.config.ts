@@ -176,7 +176,6 @@ const files: string[] = [
   "src/posture/HumanJacobian.ts",
   "src/posture/HumanLimbFit.ts",
   "src/posture/HumanLimbFitFrame.ts",
-  "src/posture/HumanFreeCurveRates.ts",
   "src/posture/HumanLimbRootProvenance.ts",
   "src/posture/HumanLimbPair.ts",
   "src/posture/HumanPostureRaw.ts",
