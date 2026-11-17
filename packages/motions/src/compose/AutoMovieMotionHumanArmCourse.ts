@@ -131,10 +131,18 @@ export namespace AutoMovieMotionHumanArmCourse {
     // an end falls milliseconds from a grid instant, and the arm's frame of
     // travel between the two reads as a speed of tens of metres a second.
     const times: number[] = [];
-    for (const [from, to] of [[span.start, span.ready], [span.ready, span.relax], [span.relax, span.end]] as const) {
+    for (const [from, to] of [
+      [span.start, span.ready],
+      [span.ready, span.relax],
+      [span.relax, span.end],
+    ] as const) {
       if (!(to > from + 1e-9)) continue;
-      const pieces: number = Math.max(1, Math.ceil((to - from) / STEP - 1e-9));
-      for (let j: number = 0; j < pieces; ++j) times.push(from + ((to - from) * j) / pieces);
+      const pieces: number = Math.max(
+        1,
+        Math.ceil((to - from) / AutoMovieMotionHumanArmCourse.STEP - 1e-9),
+      );
+      for (let j: number = 0; j < pieces; ++j)
+        times.push(from + ((to - from) * j) / pieces);
     }
     times.push(span.end);
     const holding: (t: number) => boolean = (t: number): boolean =>
@@ -174,24 +182,56 @@ export namespace AutoMovieMotionHumanArmCourse {
         course.set(t, before);
         continue;
       }
-      const solved: ReturnType<typeof fit> = fit(t,
-        arms.map((_: IProps["arms"][number], a: number): IHumanPosture.IGoal => props.aimed(a, t)), near, before);
+      const solved: ReturnType<typeof fit> = fit(
+        t,
+        arms.map(
+          (_: IProps["arms"][number], a: number): IHumanPosture.IGoal =>
+            props.aimed(a, t),
+        ),
+        near,
+        before,
+      );
       course.set(t, solved.arms);
       near = solved.near;
       before = solved.arms;
     }
-    const read: ReturnType<typeof HumanArmTrajectory.admitted> = HumanArmTrajectory.admitted(
-      problem,
-      arms.map((_: IProps["arms"][number], a: number): (HumanArmClearance.IArm | undefined)[] =>
-        times.map((t: number): HumanArmClearance.IArm | undefined => course.get(t)?.[a]),
-      ),
-    );
+    const read: ReturnType<typeof HumanArmTrajectory.admitted> =
+      HumanArmTrajectory.admitted(
+        problem,
+        arms.map(
+          (
+            _: IProps["arms"][number],
+            a: number,
+          ): (HumanArmClearance.IArm | undefined)[] =>
+            times.map(
+              (t: number): HumanArmClearance.IArm | undefined =>
+                course.get(t)?.[a],
+            ),
+        ),
+      );
     // How often a course is admitted, and which term refuses the others.
-    HumanLimbFitFrame.work(props.body, read.admitted ? "courseAdmitted" : "courseFallbacks");
-    const term: Parameters<typeof HumanLimbFitFrame.work>[1] | undefined = REFUSED[read.refused];
-    if (!read.admitted && term !== undefined) HumanLimbFitFrame.work(props.body, term);
+    HumanLimbFitFrame.work(
+      props.body,
+      read.admitted ? "courseAdmitted" : "courseFallbacks",
+    );
+    const term: Parameters<typeof HumanLimbFitFrame.work>[1] | undefined =
+      REFUSED[read.refused];
+    if (!read.admitted && term !== undefined)
+      HumanLimbFitFrame.work(props.body, term);
     return read;
   }
+
+  /**
+   * The frame grid, seconds: the finest the optimiser's waypoints are spaced
+   * (`HumanArmTrajectory`), the course's instants and the grid a law's arm
+   * chain continues on (`AutoMovieMotionHumanArmChain`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source and the readers.
+   * @evidence contracts/development/design.md#principled-representation One grid for every course of continued fits.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One constant, read here and by the chain.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optimiser's own waypoint spacing, not a value of its own.
+   */
+  export const STEP: number = 1 / 30;
 }
 
 /**
@@ -201,7 +241,12 @@ export namespace AutoMovieMotionHumanArmCourse {
  */
 function same(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null)
+  if (
+    typeof a !== "object" ||
+    typeof b !== "object" ||
+    a === null ||
+    b === null
+  )
     return false;
   if (Array.isArray(a) || Array.isArray(b))
     return (
@@ -226,11 +271,10 @@ function same(a: unknown, b: unknown): boolean {
   );
 }
 
-/** The frame grid, seconds: the finest the optimiser's waypoints are spaced (`HumanArmTrajectory`). */
-const STEP: number = 1 / 30;
-
 /** The counter of each model term that refuses a laid course (`HumanArmTrajectory.admitted`'s `refused`). */
-const REFUSED: Readonly<Record<string, Parameters<typeof HumanLimbFitFrame.work>[1]>> = {
+const REFUSED: Readonly<
+  Record<string, Parameters<typeof HumanLimbFitFrame.work>[1]>
+> = {
   speed: "courseRefusedSpeed",
   swept: "courseRefusedSwept",
   site: "courseRefusedSite",
@@ -242,7 +286,9 @@ const REFUSED: Readonly<Record<string, Parameters<typeof HumanLimbFitFrame.work>
 };
 
 /** The posture solve of every arm's goal at an instant, continued from the seeds the last instant chose. */
-function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
+function solver(
+  props: AutoMovieMotionHumanArmCourse.IProps,
+): (
   t: number,
   goals: readonly IHumanPosture.IGoal[],
   near: resolveHumanPosture.INear,
@@ -250,12 +296,23 @@ function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
 ) => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } {
   // An arm that rides another is fitted after it, on the pose it placed.
   const order: number[] = props.arms
-    .map((_: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): number => a)
-    .sort((p: number, q: number): number =>
-      Number(props.arms[p]!.on !== undefined) - Number(props.arms[q]!.on !== undefined) || p - q);
-  return (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear,
-    before?: readonly HumanArmClearance.IArm[]):
-    { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } => {
+    .map(
+      (
+        _: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
+        a: number,
+      ): number => a,
+    )
+    .sort(
+      (p: number, q: number): number =>
+        Number(props.arms[p]!.on !== undefined) -
+          Number(props.arms[q]!.on !== undefined) || p - q,
+    );
+  return (
+    t: number,
+    goals: readonly IHumanPosture.IGoal[],
+    near: resolveHumanPosture.INear,
+    before?: readonly HumanArmClearance.IArm[],
+  ): { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } => {
     // Each arm alone on the base the planner already solved, the rest of
     // the body as it stands: one two-bone fit per arm, no posture solve.
     // The base holds the planned arms at rest, and a fit reads the pose it
@@ -268,14 +325,31 @@ function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
     // them.
     let pose: IAutoMoviePose = props.at(t).pose;
     if (before !== undefined)
-      props.arms.forEach((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): void => {
-        pose = HumanArmClearance.posed(pose, arm.side, before[a]!);
-      });
-    const next: Partial<Record<IHumanPosture.Limb, NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]>>> = {};
+      props.arms.forEach(
+        (
+          arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
+          a: number,
+        ): void => {
+          pose = HumanArmClearance.posed(pose, arm.side, before[a]!);
+        },
+      );
+    const next: Partial<
+      Record<
+        IHumanPosture.Limb,
+        NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]>
+      >
+    > = {};
     for (const a of order) {
       const limb: IHumanPosture.Limb = `${props.arms[a]!.side}Arm`;
       const fitted: ReturnType<typeof resolveHumanPosture.limbSeeded> =
-        resolveHumanPosture.limbSeeded(props.body, pose, limb, goals[a]!, near[limb], props.resolution);
+        resolveHumanPosture.limbSeeded(
+          props.body,
+          pose,
+          limb,
+          goals[a]!,
+          near[limb],
+          props.resolution,
+        );
       pose = fitted.pose;
 
       // Refined to the cold sweep's own resolution, so a continued fit
@@ -287,8 +361,12 @@ function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
       else if (near[limb] !== undefined) next[limb] = near[limb]!;
     }
     return {
-      arms: props.arms.map((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number]): HumanArmClearance.IArm =>
-        AutoMovieMotionHumanArmAngles.angles(pose, arm.side)),
+      arms: props.arms.map(
+        (
+          arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
+        ): HumanArmClearance.IArm =>
+          AutoMovieMotionHumanArmAngles.angles(pose, arm.side),
+      ),
       near: next,
     };
   };

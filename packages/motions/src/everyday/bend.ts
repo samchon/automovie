@@ -8,6 +8,8 @@ import type { tags } from "typia";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { HumanBound } from "../law/HumanBound";
@@ -137,7 +139,7 @@ export namespace bend {
    * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016). Limitation: the doc promises the refusal names the lowest height the strategy reaches, but the message names only the target's height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The choice is `choose`, the lowered body `lower`, the inclination `pitch`; the plan composes them and the posture closure only interpolates and adds the hand goals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only fallback, `auto` squatting where the semi-squat refuses, is the documented strategy rule; bendLower's HIPS and HEEL, FITTS, the 0.2 and 0.3 elbow hints and the 0.6 brace point are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two pitch solves (`bendLower.solve`), each a scan and a 30-step bisection of lowered postures with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two pitch solves (`bendLower.solve`), each a scan and a 30-step bisection of lowered postures with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve continued from the course's frame instant before it (`AutoMovieMotionHumanArmChain`), whose instants are fitted once, and a joint-space carry of both arms from the entry's angles.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per instance and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, target, solved quantities and stand base, released with the performance; nothing grows per call.
    */
@@ -186,6 +188,143 @@ export namespace bend {
       side,
     );
 
+    // How far down the bend is at a second: down over the descent, held,
+    // and up again over as long.
+    const share = (seconds: number): number => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      return t <= down + hold
+        ? minimumJerk(t / down).s
+        : 1 - minimumJerk((t - down - hold) / down).s;
+    };
+    const free: HumanHand.Side = side === "left" ? "right" : "left";
+
+    // The arms' goals at each second are fitted along the bend's course, each
+    // second continuing the swivel the course chose before it, so neither
+    // elbow changes its side between two frames.
+    const posture: (seconds: number) => IHumanPosture =
+      AutoMovieMotionHumanArmChain.continued(
+        body,
+        duration,
+        (seconds: number): IHumanPosture => {
+          const t: number = Math.min(duration, Math.max(0, seconds));
+          const s: number = share(t);
+          const standing: IHumanPosture = base.posture(t);
+          const lowered: IHumanPosture = bendLower.lower(
+            body,
+            standing,
+            strategy,
+            pitch * s,
+            s,
+            lean * Math.sin((pitch * s * Math.PI) / 180),
+          );
+          const aimed: IHumanPosture = HumanGaze.aim(
+            body,
+            lowered,
+            target,
+            "head",
+            { eyes: s, head: s, trunk: 0 },
+          );
+
+          // Upright at both ends, the arms are the ones the body holds: no goal
+          // is fitted where the hands have not left where they hang.
+          if (s <= 0) return aimed;
+
+          // The palm onto the target, facing down onto it.
+          const hanging = bones(body, lowered);
+          const turn = HumanHand.rotation(side, {
+            fingers: HumanFrame.point(
+              { origin: { x: 0, y: 0, z: 0 }, yaw: lowered.yaw },
+              { x: 0, y: -0.3, z: 1 },
+            ),
+            palm: { x: 0, y: -1, z: 0 },
+          });
+
+          // The free palm braces on its own thigh just above the knee, as people
+          // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
+          // 2016, J Biomech 49:881).
+          const thigh = hanging.get(`${free}UpperLeg`)!;
+          const kneeAt: IAutoMovieVector3 = hanging.get(
+            `${free}LowerLeg`,
+          )!.worldPosition;
+          const region =
+            body.surfaces.regions[
+              free === "left" ? "thighFrontLeft" : "thighFrontRight"
+            ];
+          const onThigh: IAutoMovieVector3 = Vector3.add(
+            thigh.worldPosition,
+            Quaternion.rotateVector(thigh.worldRotation, region.point),
+          );
+          const brace: IAutoMovieVector3 = Vector3.lerp(
+            onThigh,
+            Vector3.add(
+              kneeAt,
+              Vector3.subtract(
+                onThigh,
+                Vector3.lerp(thigh.worldPosition, kneeAt, 0.5),
+              ),
+            ),
+            0.6,
+          );
+          const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+            thigh.worldRotation,
+            region.normal,
+          );
+          const freeTurn = HumanHand.rotation(free, {
+            fingers: Vector3.subtract(kneeAt, thigh.worldPosition),
+            palm: Vector3.scale(normal, -1),
+          });
+          return handGoals(
+            body,
+            {
+              ...aimed,
+              // Both hands open as they go down, the reaching palm onto the
+              // target and the free one onto its thigh: an open hand from the
+              // relaxed one by the descent's share, so neither the fingers
+              // jump at the start nor the free hand's curled thumb goes into
+              // the thigh it braces on.
+              joints: {
+                ...aimed.joints,
+                ...AutoMovieMotionHumanHand.fingers(side, "flat", 0, s),
+                ...AutoMovieMotionHumanHand.fingers(free, "flat", 0, s),
+              },
+            },
+            [
+              {
+                side,
+                surface: "palm",
+                shape: "flat",
+                point: target,
+                rotation: turn,
+                bend: AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
+              },
+              {
+                side: free,
+                surface: "palm",
+                shape: "flat",
+                point: brace,
+                rotation: freeTurn,
+                bend: AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
+              },
+            ],
+          );
+        },
+      );
+
+    // Each arm is carried in joint angles from the angles the entry held to
+    // its goal's solution by the descent's share (a free arm movement is
+    // smooth in joint space, Soechting and Lacquaniti 1981), so no second
+    // asks the fit for a hand part way along a nearly straight arm, where
+    // the elbow's side is ill-conditioned, and the hand reaches its place
+    // at the deepest instant and holds it.
+    const entered: Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles> = {
+      left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+    };
+    // The carry's clearing course is planned against the deepest instant's
+    // arms, a constant of the bend, so its least clear turn does not step as
+    // the arms of each second move.
+    let deepest: IHumanPosture | undefined;
+
     return {
       duration,
       events: [
@@ -195,143 +334,14 @@ export namespace bend {
       ],
       contacts: base.contacts,
       contact: down,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number =
-          t <= down + hold
-            ? minimumJerk(t / down).s
-            : 1 - minimumJerk((t - down - hold) / down).s;
-        const standing: IHumanPosture = base.posture(t);
-        const lowered: IHumanPosture = bendLower.lower(
+      posture: (seconds: number): IHumanPosture =>
+        AutoMovieMotionHumanArm.carry(
           body,
-          standing,
-          strategy,
-          pitch * s,
-          s,
-          lean * Math.sin((pitch * s * Math.PI) / 180),
-        );
-        const aimed: IHumanPosture = HumanGaze.aim(
-          body,
-          lowered,
-          target,
-          "head",
-          { eyes: s, head: s, trunk: 0 },
-        );
-
-        // Upright at both ends, the arms are the ones the body holds: no goal
-        // is fitted where the hands have not left where they hang.
-        if (s <= 0) return aimed;
-
-        // The palm from where it hangs to the target, facing down onto it.
-        const hanging = bones(body, lowered);
-        const from: IAutoMovieVector3 = HumanHand.frame(
-          body,
-          hanging,
-          side,
-          "palm",
-          "flat",
-        ).point;
-        const turn = HumanHand.rotation(side, {
-          fingers: HumanFrame.point(
-            { origin: { x: 0, y: 0, z: 0 }, yaw: lowered.yaw },
-            { x: 0, y: -0.3, z: 1 },
-          ),
-          palm: { x: 0, y: -1, z: 0 },
-        });
-
-        // The free palm braces on its own thigh just above the knee, as people
-        // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
-        // 2016, J Biomech 49:881), moving there from where it hangs.
-        const free: HumanHand.Side = side === "left" ? "right" : "left";
-        const thigh = hanging.get(`${free}UpperLeg`)!;
-        const kneeAt: IAutoMovieVector3 = hanging.get(
-          `${free}LowerLeg`,
-        )!.worldPosition;
-        const region =
-          body.surfaces.regions[
-            free === "left" ? "thighFrontLeft" : "thighFrontRight"
-          ];
-        const onThigh: IAutoMovieVector3 = Vector3.add(
-          thigh.worldPosition,
-          Quaternion.rotateVector(thigh.worldRotation, region.point),
-        );
-        const brace: IAutoMovieVector3 = Vector3.lerp(
-          onThigh,
-          Vector3.add(
-            kneeAt,
-            Vector3.subtract(
-              onThigh,
-              Vector3.lerp(thigh.worldPosition, kneeAt, 0.5),
-            ),
-          ),
-          0.6,
-        );
-        const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-          thigh.worldRotation,
-          region.normal,
-        );
-        const rest: IAutoMovieVector3 = HumanHand.frame(
-          body,
-          hanging,
-          free,
-          "palm",
-          "flat",
-        ).point;
-        const freeTurn = HumanHand.rotation(free, {
-          fingers: Vector3.subtract(kneeAt, thigh.worldPosition),
-          palm: Vector3.scale(normal, -1),
-        });
-        return handGoals(
-          body,
-          {
-            ...aimed,
-            // Both hands open as they go down, the reaching palm onto the
-            // target and the free one onto its thigh: an open hand from the
-            // relaxed one by the descent's share, so neither the fingers
-            // jump at the start nor the free hand's curled thumb goes into
-            // the thigh it braces on.
-            joints: {
-              ...aimed.joints,
-              ...AutoMovieMotionHumanHand.fingers(side, "flat", 0, s),
-              ...AutoMovieMotionHumanHand.fingers(free, "flat", 0, s),
-            },
-          },
-          [
-            // Each hand leaves the arm as it hangs: its turn and its elbow
-            // go from the hanging arm's own by the share, so at the start
-            // the goal is the arm the body holds, not a palm turned down at
-            // once or an elbow on another side of its swivel.
-            {
-              side,
-              surface: "palm",
-              shape: "flat",
-              point: Vector3.lerp(from, target, s),
-              rotation: Quaternion.slerp(hanging.get(`${side}Hand`)!.worldRotation, turn, s),
-              bend: Vector3.lerp(
-                hanging.get(`${side}LowerArm`)!.worldPosition,
-                AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
-                s,
-              ),
-            },
-            {
-              side: free,
-              surface: "palm",
-              shape: "flat",
-              point: Vector3.lerp(rest, brace, s),
-              rotation: Quaternion.slerp(
-                hanging.get(`${free}Hand`)!.worldRotation,
-                freeTurn,
-                s,
-              ),
-              bend: Vector3.lerp(
-                hanging.get(`${free}LowerArm`)!.worldPosition,
-                AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
-                s,
-              ),
-            },
-          ],
-        );
-      },
+          posture(seconds),
+          entered,
+          share(seconds),
+          (deepest ??= posture(down)),
+        ),
     };
   }
 
