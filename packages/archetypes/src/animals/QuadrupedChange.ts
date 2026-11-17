@@ -14,7 +14,7 @@ import type { createQuadruped } from "./createQuadruped";
  */
 export namespace QuadrupedChange {
   /**
-   * How a gait is changed into from the one below: `froude`, at a Froude number on the hip joint's height; `mass`, at a speed that scales with body mass as a power law through a measured point; `overlap`, at the middle of the two gaits' overlapping measured ranges.
+   * How a gait is changed into from the one below: froude on hip height, mass through a measured scaling law, overlap at the middle of common measured ranges, or speed at a declared reference-height speed. A declared speed may be an authored table boundary; its producer must distinguish that from a measured biological transition.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each rule and its members' units.
    * @evidence contracts/development/design.md#principled-representation A closed union of the change rules the sources give, with their own variables.
@@ -24,6 +24,7 @@ export namespace QuadrupedChange {
   export type Rule =
     | { kind: "froude"; froude: number }
     | { kind: "mass"; speed: number; mass: number; exponent: number }
+    | { kind: "speed"; speed: number }
     | { kind: "overlap" };
 
   /**
@@ -37,7 +38,7 @@ export namespace QuadrupedChange {
    * @returns The change point, metres per second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation By the faster gait's rule: the square root of the Froude number times gravity times the hip joint's height at rest; the measured speed times the mass ratio to the exponent; or the middle of the overlap of the two gaits' ranges scaled to the animal.
+   * @evidence contracts/development/implementation.md#principled-implementation By the declared rule: Froude scaling on hip height, a mass power law, a stated reference speed times the table's existing scale, or the midpoint of overlapping ranges. A producer labels authored speed thresholds instead of claiming measured transitions.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rule.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -57,6 +58,8 @@ export namespace QuadrupedChange {
       return Math.sqrt(rule.froude * AutoMovieGravity.STANDARD * hip);
     if (rule.kind === "mass")
       return rule.speed * (dimensions.mass! / rule.mass) ** rule.exponent;
+    if (rule.kind === "speed")
+      return rule.speed * QuadrupedGait.scale(species, dimensions.withersHeight!);
     const a: { minimum: number; maximum: number } = QuadrupedGait.range(
       species,
       low,

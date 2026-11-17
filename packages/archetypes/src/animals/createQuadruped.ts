@@ -1,14 +1,24 @@
 import { type Archetype, ArchetypeDraw, ArchetypeRefusal } from "../core";
+import { CamelBody } from "./CamelBody";
+import { CamelGait } from "./CamelGait";
+import { DeerBody } from "./DeerBody";
+import { DeerGait } from "./DeerGait";
 import { DogBody } from "./DogBody";
 import { DogGait } from "./DogGait";
 import { HorseGait } from "./HorseGait";
 import { HorseHarness } from "./HorseHarness";
+import { OxBody } from "./OxBody";
+import { OxGait } from "./OxGait";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedGait } from "./QuadrupedGait";
+import { createCamel } from "./createCamel";
+import type { createCohortQuadruped } from "./createCohortQuadruped";
+import { createDeer } from "./createDeer";
 import { createDog } from "./createDog";
 import { createDonkey } from "./createDonkey";
 import { createHorse } from "./createHorse";
 import { createMule } from "./createMule";
+import { createOx } from "./createOx";
 import { createPony } from "./createPony";
 
 /**
@@ -16,8 +26,10 @@ import { createPony } from "./createPony";
  *
  * The four equids retain their existing producers and tack. A `dog` is
  * createDog's coarse Husky cohort prototype with required authored mass and
- * optional authored collar. Its provisional walk is DogGait's; the remaining
- * species and accurate canine skeletal/gait data of #3496 remain unfinished.
+ * optional authored collar. Ox, single-hump camel and Boso sika are coherent
+ * coarse cohort references, with actual identifying parts and optional authored
+ * equipment. Source limitations remain with each body/gait owner; fixed cohort
+ * means are not measured population variation or complete animal dynamics.
  *
  * @param params The kind, and the kind's own parameters.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -38,6 +50,9 @@ export function createQuadruped(
 ): Archetype<createQuadruped.Affordance, createQuadruped.Dimension> {
   ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
   if (params.kind === "dog") return createDog(params, seed);
+  if (params.kind === "ox") return createOx(params, seed);
+  if (params.kind === "camel") return createCamel(params, seed);
+  if (params.kind === "deer") return createDeer(params, seed);
   return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
@@ -51,7 +66,7 @@ export function createQuadruped(
  */
 export namespace createQuadruped {
   /** The kinds. */
-  export type Kind = "horse" | "pony" | "donkey" | "mule" | "dog";
+  export type Kind = "horse" | "pony" | "donkey" | "mule" | "dog" | "ox" | "camel" | "deer";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -60,10 +75,13 @@ export namespace createQuadruped {
     "donkey",
     "mule",
     "dog",
+    "ox",
+    "camel",
+    "deer",
   ];
 
   /** The four existing equids, which share the horse tack contract. */
-  export const EQUIDS: readonly Exclude<Kind, "dog">[] = [
+  export const EQUIDS: readonly ("horse" | "pony" | "donkey" | "mule")[] = [
     "horse",
     "pony",
     "donkey",
@@ -71,15 +89,18 @@ export namespace createQuadruped {
   ];
 
   /** The affordance ids of every kind: each kind's own, as its producer lists them. */
-  export type Affordance = createHorse.Affordance;
+  export type Affordance = createHorse.Affordance | createCohortQuadruped.Affordance;
 
   /** The free dimensions of every kind: each kind's own, as its producer lists them. */
   export type Dimension = createHorse.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =
-    | ({ kind: Exclude<Kind, "dog"> } & createPony.IParams & createMule.IParams)
-    | ({ kind: "dog" } & createDog.IParams);
+    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams & createMule.IParams)
+    | ({ kind: "dog" } & createDog.IParams)
+    | ({ kind: "ox" } & createOx.IParams)
+    | ({ kind: "camel" } & createCamel.IParams)
+    | ({ kind: "deer" } & createDeer.IParams);
 
   /** Each kind's producer. */
   export const PRODUCERS: Readonly<{
@@ -88,12 +109,18 @@ export namespace createQuadruped {
     donkey: typeof createDonkey;
     mule: typeof createMule;
     dog: typeof createDog;
+    ox: typeof createOx;
+    camel: typeof createCamel;
+    deer: typeof createDeer;
   }> = {
     horse: createHorse,
     pony: createPony,
     donkey: createDonkey,
     mule: createMule,
     dog: createDog,
+    ox: createOx,
+    camel: createCamel,
+    deer: createDeer,
   };
 
   /**
@@ -150,6 +177,18 @@ export namespace createQuadruped {
       stance: DogBody("pet").stance,
       table: DogGait.TABLE,
       nodding: ["neck", "head", "leftEar", "rightEar", "collar", "lead"],
+    },
+    ox: {
+      archetype: "ox", stance: OxBody().stance, table: OxGait.TABLE,
+      nodding: ["neck", "head", "leftEar", "rightEar", "leftHorn", "rightHorn", "collar", "lead"],
+    },
+    camel: {
+      archetype: "camel", stance: CamelBody().stance, table: CamelGait.TABLE,
+      nodding: ["neck", "head", "collar", "lead"],
+    },
+    deer: {
+      archetype: "deer", stance: DeerBody().stance, table: DeerGait.TABLE,
+      nodding: ["neck", "head", "leftAntler", "rightAntler", "leftAntlerTine1", "leftAntlerTine2", "rightAntlerTine1", "rightAntlerTine2", "collar", "lead"],
     },
   };
 

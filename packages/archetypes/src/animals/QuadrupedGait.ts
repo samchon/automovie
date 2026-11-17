@@ -22,15 +22,16 @@ export namespace QuadrupedGait {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a parameter of `rideQuadruped` and the key of every species' table.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
-  export type Gait = "walk" | "trot" | "canter" | "gallop";
+  export type Gait = "walk" | "trot" | "pace" | "canter" | "gallop";
 
   /** The gaits that have a lead, whose right lead mirrors the left: the canter and the gallop; the walk and the trot are symmetric. */
   export const LEADED: readonly Gait[] = ["canter", "gallop"];
 
-  /** How many times a stride the trunk sinks: twice in the walk and the trot, whose two halves mirror each other, and once in the canter and the gallop. */
+  /** How many times a stride the trunk sinks: twice in the symmetric walk, trot and pace, and once in the canter and gallop. Species supply the actual oscillation range. */
   export const BEATS: Readonly<Record<Gait, number>> = {
     walk: 2,
     trot: 2,
+    pace: 2,
     canter: 1,
     gallop: 1,
   };
@@ -76,7 +77,7 @@ export namespace QuadrupedGait {
     /** Mean stride time, seconds. */
     stride: number;
 
-    /** Standard deviation of the stride time, seconds; zero for a row of one stride. */
+    /** Authored stride-time spread, seconds: the measured standard deviation when reported, or zero for a deterministic prototype with no claimed measured stride spread. */
     deviation: number;
 
     /** Mean stance time of the left fore foot, seconds. */
@@ -157,7 +158,7 @@ export namespace QuadrupedGait {
     /** Stride time, seconds. */
     stride: number;
 
-    /** Standard deviation of the stride time at that speed, seconds. */
+    /** Authored timing spread at that speed, seconds; a reported standard deviation or zero for a deterministic prototype without a measured spread claim. */
     deviation: number;
 
     /** Fore duty factor; also used for hind feet when hindDuty is absent. */
@@ -335,8 +336,8 @@ export namespace QuadrupedGait {
     let k: number = 0;
     while (k < rows.length - 2 && similar > rows[k + 1]!.speed) k++;
     const low: IRow = rows[k]!;
-    const high: IRow = rows[k + 1]!;
-    const share: number = (similar - low.speed) / (high.speed - low.speed);
+    const high: IRow = rows.length === 1 ? low : rows[k + 1]!;
+    const share: number = rows.length === 1 ? 0 : (similar - low.speed) / (high.speed - low.speed);
     const mix = (a: number, b: number): number => a + (b - a) * share;
     const deviation: number = mix(low.deviation, high.deviation);
     const stride: number = mix(low.stride, high.stride);

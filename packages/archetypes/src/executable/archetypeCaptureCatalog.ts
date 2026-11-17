@@ -66,6 +66,9 @@ import {
 } from "../vehicles";
 import { createLongGun } from "../weapons";
 import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
+import { archetypeCaptureDogGaits } from "./archetypeCaptureDogGaits";
+import { archetypeCaptureReferenceAnimals } from "./archetypeCaptureReferenceAnimals";
+import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
 import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -312,6 +315,9 @@ export function archetypeCaptureCatalog(): Readonly<
     }),
     ...archetypeCaptureArmoury(),
     ...archetypeCaptureAnimals(),
+    ...archetypeCaptureDogGaits(),
+    ...archetypeCaptureReferenceAnimals(),
+    ...archetypeCaptureRest(),
     articulated: still({
       "door-open": door.articulate({ hinge: 70, latch: 45 }),
       "door-sliding-open": createDoor({ kind: "sliding" }).articulate({

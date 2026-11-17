@@ -17,6 +17,7 @@ import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLimb } from "./QuadrupedLimb";
+import { QuadrupedLocomotion } from "./QuadrupedLocomotion";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import { createQuadruped } from "./createQuadruped";
 
@@ -29,15 +30,21 @@ import { createQuadruped } from "./createQuadruped";
  *
  * While the animal gathers speed from rest or slows to a halt, below the gait's slowest measured speed, the stride keeps that slowest speed's timing and the steps shorten with the speed.
  *
+ * An optional authoring table is admitted and copied before planning. It supplies
+ * only this ride's clocks and pose ranges; the animal's species identity, body
+ * data, nodding parts and registered default table remain owned by the producer.
+ * The table's producer states which values are measured and which are authored.
+ *
  * @param animal The animal, as `createQuadruped` or its kind's producer builds it.
  * @param course The course its root follows; a leg may name the `gait` and the `lead` it is taken at.
  * @param gait The gait of every stride whose leg names none; absent, the speed chooses it.
+ * @param table Optional admitted authoring table, replacing only this ride's gait data. Explicit authored clocks remain separate from the species' measured default; the source species and animal are unchanged.
  * @returns The ride.
- * @throws {ArchetypeRefusal} When the animal is no quadruped's, a gait is not its species', the cruising speed lies outside a given gait's range for the animal's height, a leg's speed exceeds the range of the gait it names, giving the range, or the course is malformed.
+ * @throws {ArchetypeRefusal} When the animal is no quadruped's, a supplied table fails QuadrupedLocomotion.admit, a gait is not in the selected table, the cruising speed lies outside a given gait's range for the animal's height, a leg's speed exceeds the range of the gait it names, giving the range, or the course is malformed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, where the timing comes from, how the gait is chosen and changed, the instants added, what the support frame is and what happens below the gait's slowest speed.
  * @evidence contracts/development/implementation.md#principled-implementation Phase advances with time by one stride per stride time of the stride's own gait. Each foot's landings are listed stride by stride at that stride's gait's phase, so across a change the gap to the next landing grows or shrinks and the swing between them stretches to meet it. A planted foot is set back through the model by the distance the body has travelled since it landed, read from the course's plan; it lands half of its stance's travel ahead of its rest place, so the stance is centred under the joint that carries it. Each limb is solved in its own fore-and-aft plane as two links (`QuadrupedLimb.solve`), its carpus or hock folded by the gait's fold, the trunk's rise and fall the gait's bob, the head's pitch the gait's nod timed to the footfalls (`QuadrupedMotion.nod`), and each swinging foot brought to its next landing by the minimum-jerk lift-and-place path (`QuadrupedMotion.swing`) at the gait's lift.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the species, read the rest joints off the animal (`QuadrupedJoints.read`), plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the species and optionally compose a validated private gait-table snapshot, read the rest joints off the animal (`QuadrupedJoints.read`), plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species branch: every number is the species' table's or body's. The tack keeps its rest lines while the head nods, except the parts the species names as nodding. A foot beyond the limb's reach draws the limb's top joint along the trunk until it is within reach, so a planted foot stays planted and no bone stretches.
  * @evidence contracts/development/implementation.md#efficient-algorithms The phase table has `STEPS` rows over the running time, built once; a sample is one table read, a few binary searches of it per limb for the stances' ends, and four closed-form limb solutions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan, the phase table, the strides' gaits and the rest joints are shared by every sample; the ride samples the plan made here.
@@ -47,8 +54,13 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   animal: Archetype<Affordance, D | QuadrupedBody.Dimension>,
   course: rideQuadruped.ICourse,
   gait?: QuadrupedGait.Gait,
+  table?: QuadrupedGait.ITable,
 ): ArchetypeRide.IRide<Affordance, D | QuadrupedBody.Dimension> {
-  const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+  const source: createQuadruped.ISpecies = createQuadruped.species(animal);
+  const species: createQuadruped.ISpecies =
+    table === undefined
+      ? source
+      : { ...source, table: QuadrupedLocomotion.admit(table) };
   const dimensions: Readonly<Partial<Record<QuadrupedBody.Dimension, number>>> =
     animal.dimensions;
   const tempo: number = dimensions.tempo ?? 0;

@@ -43,7 +43,7 @@ export function QuadrupedAnimal<Id extends string>(
 }
 
 /**
- * The inputs of the non-equid builder, currently consumed by createDog.
+ * Inputs of the non-equid builder, consumed by the dog and coherent ox/camel/deer reference producers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Every input states its ownership and unit.
  * @evidence contracts/development/design.md#principled-representation One body profile and its existing dimension draw session.

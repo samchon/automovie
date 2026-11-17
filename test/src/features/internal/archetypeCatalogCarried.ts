@@ -19,6 +19,9 @@ import {
   createHeavyBag,
   createHolster,
   createHorse,
+  createCamel,
+  createDeer,
+  createOx,
   createJumpRope,
   createKettlebell,
   createLongGun,
@@ -94,6 +97,9 @@ export function archetypeCatalogCarried(
     true,
   );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
+  add("ox", (seed?: number | string): Archetype => createOx(createOx.REFERENCE, seed), true);
+  add("camel", (seed?: number | string): Archetype => createCamel(createCamel.REFERENCE, seed), true);
+  add("deer", (seed?: number | string): Archetype => createDeer({}, seed), true);
   add("pony", (seed?: number | string): Archetype => createPony({}, seed));
   add("donkey", (seed?: number | string): Archetype => createDonkey({}, seed));
   add("mule", (seed?: number | string): Archetype => createMule({}, seed));

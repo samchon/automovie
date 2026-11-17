@@ -13,8 +13,18 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitted curve stands in for the rows; a value one gait borrows from another, and every estimate, says so.
  */
 export namespace HorseGait {
+  /**
+   * The four measured equine gaits represented by this table.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the measured horse subset independently of other species' gait vocabulary.
+   * @evidence contracts/development/design.md#principled-representation The existing four closed literals describe exactly the horse rows and phase data.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Horse data excludes the camel's pace without narrowing the shared quadruped grammar.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adding a gait to another species cannot invent an unmeasured horse row.
+   */
+  export type Gait = "walk" | "trot" | "canter" | "gallop";
+
   /** Every gait of the horse, slowest first. */
-  export const GAITS: readonly QuadrupedGait.Gait[] = [
+  export const GAITS: readonly Gait[] = [
     "walk",
     "trot",
     "canter",
@@ -23,7 +33,7 @@ export namespace HorseGait {
 
   /** The measured rows by gait, in order of speed (Robilliard et al. 2007, Tables 2 and 3; the canter and gallop rows are the left and right lead rows the paper could be read at). */
   export const ROWS: Readonly<
-    Record<QuadrupedGait.Gait, readonly QuadrupedGait.IRow[]>
+    Record<Gait, readonly QuadrupedGait.IRow[]>
   > = {
     walk: [
       { speed: 1.0, stride: 1.121, deviation: 0.12, stance: 0.733 },
@@ -62,7 +72,7 @@ export namespace HorseGait {
    * The walk is the lateral sequence left hind, left fore, right hind, right fore with the pairs half a stride apart (Table 4: fore and hind ratios 0.50); the quarter-stride lag from a hind hoof to the fore hoof of its side is the even four-beat walk's, which the paper does not give as a number. The trot lands diagonal pairs together. The left canter lands right hind, then right fore with left hind, then left fore (fore ratio 0.73, hind ratio 0.32). The left transverse gallop lands right hind, left hind, right fore, left fore (fore ratio 0.78, hind ratio 0.29); the lag from the hind pair to the fore pair is not in the paper, and is set so the right hind lands 0.05 of a stride after the left fore lifts off at the gallop's longest measured duty factor of 0.37, the suspension that makes the gait a gallop: an estimate.
    */
   export const PHASES: Readonly<
-    Record<QuadrupedGait.Gait, Readonly<Record<QuadrupedBody.Limb, number>>>
+    Record<Gait, Readonly<Record<QuadrupedBody.Limb, number>>>
   > = {
     walk: { leftFore: 0, rightFore: 0.5, leftHind: 0.75, rightHind: 0.25 },
     trot: { leftFore: 0, rightFore: 0.5, leftHind: 0.5, rightHind: 0 },
@@ -91,7 +101,7 @@ export namespace HorseGait {
   export const HYSTERESIS: number = 0.2;
 
   /** The head's pitch range in a stride, degrees, by gait: 9 at walk, 5 at trot and 10 at canter, the head's pitch displacement relative to space (Dunbar et al. 2008, J Exp Biol 211:3889, Table 1, https://pmc.ncbi.nlm.nih.gov/articles/PMC2768006). The gallop reuses the canter's; no measured value was found. Dunbar et al. time the nod to the footfalls: at the walk the head and neck pitch on the trunk as one, nose-up in the latter part of each forelimb's support (`support`); at the canter retraction, nose-up, begins at the leading forelimb's touchdown (`lead`), and the gallop is timed as the canter; at the trot the head bobs slightly as the body rises and falls (pitch "so small as to be insignificant" in their Fig. 9B), and its nose-down as the trunk sinks (`bob`) is a provisional reading of that sentence. */
-  export const NOD: Readonly<Record<QuadrupedGait.Gait, number>> = {
+  export const NOD: Readonly<Record<Gait, number>> = {
     walk: 9,
     trot: 5,
     canter: 10,
@@ -102,7 +112,7 @@ export namespace HorseGait {
   export const WARMBLOOD: number = 1.655;
 
   /** How far the trunk rises and falls in a stride, as a fraction of the height at the withers: the withers' vertical range of warmbloods, 33.4 mm at walk and 92.2 mm at trot (Rhodin et al. 2022, Tables 2 and 3, the same paper), over their `WARMBLOOD` height, so an animal of another height rises and falls in proportion, as dynamic similarity scales every length: a derivation. The same paper's Icelandic horses rise 46.8 mm at trot at 1.41 m, less than the warmbloods' share, so the share is the warmbloods' and not every breed's. The canter and the gallop reuse the trot's; no measured value was found. */
-  export const BOB: Readonly<Record<QuadrupedGait.Gait, number>> = {
+  export const BOB: Readonly<Record<Gait, number>> = {
     walk: 0.0334 / WARMBLOOD,
     trot: 0.0922 / WARMBLOOD,
     canter: 0.0922 / WARMBLOOD,
@@ -137,7 +147,7 @@ export namespace HorseGait {
    *
    */
   function gathered(
-    gait: QuadrupedGait.Gait,
+    gait: Gait,
     nod: QuadrupedGait.IGait["nod"]["timing"],
     change?: QuadrupedChange.Rule,
   ): QuadrupedGait.IGait {
