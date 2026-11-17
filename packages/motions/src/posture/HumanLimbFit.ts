@@ -17,6 +17,7 @@ import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
+import { HumanLimbAt } from "./HumanLimbAt";
 import type { HumanColliders } from "./HumanColliders";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
@@ -378,6 +379,38 @@ export namespace HumanLimbFit {
       near,
       resolution,
     );
+  }
+
+  /**
+   * The limb posed at a prescribed swivel and bend branch, with no search or
+   * score (`HumanLimbAt.at`): mirrored and attached as `fit` is.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the owner of the closed-form placement.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to HumanLimbAt.at, the engine's fitHingedChainAt on the fit's own request.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The given swivel is kept; nothing is searched.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function at(...args: Parameters<typeof HumanLimbAt.at>): ReturnType<typeof HumanLimbAt.at> {
+    return HumanLimbAt.at(...args);
+  }
+
+  /**
+   * The swivel and bend branch of a posed limb in its fits' seed frame
+   * (`HumanLimbAt.seed`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the owner of the seed reading.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to HumanLimbAt.seed, the engine's readHingedChainSeed on the fit's own request.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function seed(...args: Parameters<typeof HumanLimbAt.seed>): ReturnType<typeof HumanLimbAt.seed> {
+    return HumanLimbAt.seed(...args);
   }
 
   /**
