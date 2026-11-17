@@ -302,7 +302,7 @@ export namespace AutoMovieMotionHumanArmCarry {
               ): [HumanHand.Side, HumanArmTrajectory.Trajectory][] => [
                 ...AutoMovieMotionHumanArmPlanned.planned(
                   member.body,
-                  member.span ?? span!,
+                  member.span === undefined ? span! : member.span,
                   [member],
                   before,
                 ),
