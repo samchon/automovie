@@ -4,6 +4,7 @@ import type {
   IAutoMovieSwingTwistBasis,
 } from "@automovie/interface";
 
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
 
@@ -12,6 +13,9 @@ const READ_BASIS: unique symbol = Symbol("prepared swing-twist basis");
 
 /** The private normalized-axis reader owned by the same explicit wrapper. */
 const READ_AXES: unique symbol = Symbol("prepared normalized joint axes");
+
+/** The private composer reader owned by the same explicit wrapper. */
+const READ_COMPOSER: unique symbol = Symbol("prepared joint composer");
 
 /** Weak provenance of wrappers actually completed by this module's constructor. */
 const PREPARED: WeakSet<IAutoMovieJointRotationFrame> = new WeakSet();
@@ -28,6 +32,12 @@ interface IPrepared extends IAutoMovieJointRotationFrame {
     receiver: IAutoMovieJointRotationFrame,
     path: string,
   ) => IAutoMovieJointAxes | undefined;
+
+  /** The frame's record composer on its admitted axes, made at the first composition. */
+  readonly [READ_COMPOSER]: (
+    receiver: IAutoMovieJointRotationFrame,
+    path: string,
+  ) => ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
 }
 
 /** Exact constructor provenance, without probing any caller-owned property or prototype. */
@@ -65,6 +75,7 @@ export namespace SwingTwistFramePreparation {
     const axes: IAutoMovieJointAxes = joint.axes;
     let normal: IAutoMovieJointAxes | undefined;
     let basis: IAutoMovieSwingTwistBasis.IBasis | undefined;
+    let composer: ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined;
     const readAxes: (path: string) => IAutoMovieJointAxes = (
       path: string,
     ): IAutoMovieJointAxes => {
@@ -79,6 +90,12 @@ export namespace SwingTwistFramePreparation {
         path: string,
       ): IAutoMovieJointAxes | undefined =>
         receiver === frame ? readAxes(path) : undefined,
+      [READ_COMPOSER]: (
+        receiver: IAutoMovieJointRotationFrame,
+        path: string,
+      ): ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined =>
+        receiver !== frame ? undefined
+          : (composer ??= jointToQuaternionOnBasis.prepare(readAxes(path), joint.frame)),
       [READ_BASIS]: (
         receiver: IAutoMovieJointRotationFrame,
       ): IAutoMovieSwingTwistBasis.IBasis => {
@@ -94,6 +111,7 @@ export namespace SwingTwistFramePreparation {
     };
     Object.defineProperty(frame, READ_BASIS, { enumerable: false });
     Object.defineProperty(frame, READ_AXES, { enumerable: false });
+    Object.defineProperty(frame, READ_COMPOSER, { enumerable: false });
     const owned: IPrepared = Object.freeze(frame);
     PREPARED.add(owned);
     return owned;
@@ -121,6 +139,32 @@ export namespace SwingTwistFramePreparation {
     path: string,
   ): IAutoMovieJointAxes | undefined {
     return prepared(joint) ? joint[READ_AXES](joint, path) : undefined;
+  }
+
+  /**
+   * Read the explicit wrapper's record composer on its admitted axes and
+   * rest frame (`jointToQuaternionOnBasis.prepare`), made at the first
+   * composition, or undefined for an ordinary receiver, whose caller keeps
+   * its own composition. The composer's products are the direct
+   * composition's, sharing only its factors between calls.
+   *
+   * @param joint The frame whose exact wrapper identity owns any preparation.
+   * @param path The actual numerical caller's unchanged admission diagnostic prefix.
+   * @returns The composer, or undefined for an ordinary receiver.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the explicit-wrapper-only result, its first-composition preparation and the ordinary-receiver opt-out.
+   * @evidence contracts/development/implementation.md#principled-implementation The prepared composer is `jointToQuaternionOnBasis`'s own on the wrapper's admitted axes and rest frame, so each rotation is the direct composition's; only fixed factors are shared.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The same ownership dispatch as `normalized`; composition stays with its owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary, copied and proxied frames are not probed and keep their caller's own composition; no rotation or clamped answer is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A gated joint's clamp, run on every joint of every assembled posture, composes through one prepared composer a frame instead of preparing its factors per call (41 ms of a 3.6 s standing-resolve profile before).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The wrapper's unchanged axes and frame prove the composer's fixed factors equivalent; every joint's angles are still read and composed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The wrapper owns at most one composer and releases it with its operation.
+   */
+  export function composer(
+    joint: IAutoMovieJointRotationFrame,
+    path: string,
+  ): ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined {
+    return prepared(joint) ? joint[READ_COMPOSER](joint, path) : undefined;
   }
 
   /**

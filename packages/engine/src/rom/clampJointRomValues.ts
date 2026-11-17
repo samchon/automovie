@@ -69,10 +69,17 @@ export function clampJointRomValues(
     };
     const basis: IAutoMovieJointAxes | undefined =
       SwingTwistFramePreparation.normalized(range, "jointToQuaternion axes");
+    // A prepared frame lends its composer, the same products with its
+    // factors prepared once for the frame.
+    const compose: ReturnType<typeof SwingTwistFramePreparation.composer> =
+      basis === undefined ? undefined
+        : SwingTwistFramePreparation.composer(range, "jointToQuaternion axes");
     const q: IAutoMovieQuaternion =
       basis === undefined
         ? jointToQuaternion(sanitized, range.axes, range.frame)
-        : jointToQuaternionOnBasis(sanitized, basis, range.frame);
+        : compose !== undefined
+          ? compose(sanitized)
+          : jointToQuaternionOnBasis(sanitized, basis, range.frame);
     // A joint on the range's edge within a rounding error is inside, so a
     // clamped joint clamps to itself.
     if (swingTwistRange.overshoot(q, constraint, range) <= EDGE)
