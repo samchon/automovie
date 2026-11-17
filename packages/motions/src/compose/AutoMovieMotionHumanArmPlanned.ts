@@ -11,6 +11,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import type { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
@@ -217,10 +218,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the problem, the waypoints and their spacing, the sites and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is one trajectory optimisation (TrajOpt), read off the very postures it is written on, so the plan is a constant of the action.
+   * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: continued analytic fits on the hold, minimum-jerk joint transport cleared of the body) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it is one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An admitted course costs one posture solve per hold instant, constant transport work and one model evaluation on the frame grid, with no optimiser round; the optimiser's waypoints are cut only on its fallback. Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture/goal and endpoint second prove fit equivalence within this synchronous plan. One genuine projector/exact FK getter reaches actual prefix reads, removed-arm bases and endpoint fits; FK also serves all original probes/sites. Single-arm at(t).pose equals reaching's removed-goal base; multiarm planners retain original actual requests. Issued provenance still needs exact checks.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
@@ -313,26 +314,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
         Math.ceil(seconds / STEP),
         Math.max(Math.ceil(seconds * LEAST), Math.ceil(arc / SPACING), 1),
       );
-    cut(
-      span.start,
-      span.ready,
-      spaced(span.ready - span.start, travel(span.ready, 1)),
-      false,
-    );
-    cut(
-      span.ready,
-      span.relax,
-      span.relax > span.ready
-        ? Math.max(1, Math.ceil((span.relax - span.ready) * LEAST))
-        : 0,
-      false,
-    );
-    cut(
-      span.relax,
-      span.end,
-      spaced(span.end - span.relax, travel(span.relax, -1)),
-      true,
-    );
+    // The optimiser's first waypoints, cut only when the laid course is not
+    // admitted.
+    const waypoints: () => void = (): void => {
+      cut(span.start, span.ready, spaced(span.ready - span.start, travel(span.ready, 1)), false);
+      cut(span.ready, span.relax, span.relax > span.ready
+        ? Math.max(1, Math.ceil((span.relax - span.ready) * LEAST)) : 0, false);
+      cut(span.relax, span.end, spaced(span.end - span.relax, travel(span.relax, -1)), true);
+    };
 
     // Each instant's base, one record however often the refinement reads it,
     // so the frames built on it are built once (`HumanArmFrame.of`).
@@ -449,10 +438,23 @@ export namespace AutoMovieMotionHumanArmPlanned {
         (t: number): HumanArmTrajectory.IProblem["bases"][number] => base(t),
       ),
     });
-    const solved: HumanArmTrajectory.Trajectory[] = HumanArmTrajectory.solve(
-      problem,
-      times,
-    );
+    // The course an animation system lays (`AutoMovieMotionHumanArmCourse`),
+    // admitted by the model's own reading; the optimiser only for a course
+    // that misses a bound.
+    const laid: HumanArmTrajectory.Trajectory[] | undefined =
+      AutoMovieMotionHumanArmCourse.course({
+        body,
+        span,
+        arms: carries,
+        at,
+        aimed,
+        problem,
+        resolution,
+        projection,
+      });
+    if (laid === undefined) waypoints();
+    const solved: HumanArmTrajectory.Trajectory[] =
+      laid ?? HumanArmTrajectory.solve(problem, times);
     return new Map(
       carries.map(
         (

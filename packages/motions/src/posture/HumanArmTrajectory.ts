@@ -257,6 +257,55 @@ export namespace HumanArmTrajectory {
   }
 
   /**
+   * A course the caller laid without optimisation, admitted when it meets
+   * what a solved trajectory must meet: the arms at the problem's own
+   * waypoints, their first and their returned last waypoint the problem's
+   * rest and back, read by the model's own evaluation (`M.evaluate`: every
+   * site, range, clearance, crossing and speed bound), and admitted only when
+   * its worst violation is within `M.TOLERANCE`, the test `solve` refuses by.
+   * Waypoints a frame apart are the finest `solve` refines to
+   * (`HumanArmRefine`), so a course on the frame grid is read where a solved
+   * trajectory would be.
+   *
+   * @param problem The problem on the course's waypoints.
+   * @param arms Each arm's clinical triples at each waypoint, in the problem's order.
+   * @returns Each arm's trajectory through the course, read as `solve`'s are; none when any bound is missed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
+   * @evidence contracts/development/implementation.md#principled-implementation The same context, coordinates, hard-range projection and evaluation the optimiser's iterates are read by, so an admitted course meets every requirement a solved one meets.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, one encoding per waypoint, one evaluation, then the shared playback factory.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One context build and one evaluation over N waypoints, the work of a single optimiser iterate, with no convexification or quadratic programme.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's evaluation and `solve`'s playback, so both paths are read alike.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The context lives until return; the readers keep only setups, times and coordinates, as `solve`'s do.
+   */
+  export function admitted(
+    problem: IProblem,
+    arms: readonly (readonly HumanArmClearance.IArm[])[],
+  ): Trajectory[] | undefined {
+    const context: M.IContext = HumanArmTrajectoryContext.prepare(
+      problem.body,
+      problem.arms.map((arm: IArm): "left" | "right" => arm.side),
+    )(problem);
+    const n: number = context.n;
+    const x: number[][][] = arms.map(
+      (course: readonly HumanArmClearance.IArm[], a: number): number[][] =>
+        course.map((arm: HumanArmClearance.IArm, k: number): number[] =>
+          k === 0
+            ? [...context.rest[a]!]
+            : k === n - 1 && !context.open
+              ? [...context.back[a]!]
+              : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
+        ),
+    );
+    if (M.evaluate(context, x).worst.value > M.TOLERANCE) return undefined;
+    return problem.arms.map(
+      (_: IArm, a: number): Trajectory =>
+        trajectory(context.setups, context.times, x, a),
+    );
+  }
+
+  /**
    * The factor a trajectory's span must grow by for every speed-bounded
    * probe to move within the audit's bound: the largest ratio, over each
    * interval and probe, of the probe's speed to the bound.
