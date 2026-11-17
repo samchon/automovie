@@ -103,13 +103,16 @@ export namespace hingedArmSwivel {
    * The chain's bend branches toward its target: the two hinge angles whose
    * span is the target's distance, `phase + acos` first, or the fully
    * extended or folded one outside the span, each stopped at the nearer limit
-   * of the range.
+   * of the range. The fully extended branch is the rest hinge angle, zero,
+   * wherever zero's span is the extended span itself in floating point: a
+   * limb straight at rest to within rounding of its bones' offsets then
+   * stands straight, on either side of a mirrored body alike.
    *
    * @param chain The chain.
    * @returns The branches, in that order, or null for a degenerate chain (`hingedArmArticulation`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, the stops and the null.
-   * @evidence contracts/development/implementation.md#principled-implementation The span is an exact sinusoid in the hinge angle, so its two arccos roots are the only hinge angles reaching the distance.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order, the stops, the extended branch's rest choice and the null.
+   * @evidence contracts/development/implementation.md#principled-implementation The span is an exact sinusoid in the hinge angle, so its two arccos roots are the only hinge angles reaching the distance. Outside the span the extended branch is the sinusoid's maximum; when the rest angle's evaluated span equals the maximum's, every hinge angle between them is a maximum of the computed span, and the fit's own effort tie-break (least clinical articulation) chooses the rest angle among them. Without it a rest offset's rounding residue (2e-16 radian on the average man's arms) chose the bend's sign, which mirrored bones read opposite, so one arm stood straight at its range's edge and the other bent by the residue.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The sinusoid, its roots, then the range.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The degeneracy thresholds are the engine's shared length scale.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
@@ -441,11 +444,18 @@ export namespace hingedArmSwivel {
     if (fixed === null) return null;
     const { k, alpha, beta, span, phase }: IGeometry = fixed;
     const ratio: number = (distance * distance - k) / span;
-    const thetas: number[] = ratio >= 1 ? [phase] : ratio <= -1
+    const squared: (theta: number) => number = (theta: number): number =>
+      k + alpha * Math.cos(theta) + beta * Math.sin(theta);
+
+    // The extended branch is the rest angle wherever its computed span is the
+    // maximum's: the hinge angles between them are equal maxima, and the
+    // least articulation among them is the rest.
+    const extended: number = squared(0) === squared(phase) ? 0 : phase;
+    const thetas: number[] = ratio >= 1 ? [extended] : ratio <= -1
       ? [phase + Math.PI] : [phase + Math.acos(ratio), phase - Math.acos(ratio)];
     const outside: boolean = ratio >= 1 || ratio <= -1;
     const short: (theta: number) => number = (theta: number): number => Math.abs(
-      Math.sqrt(Math.max(0, k + alpha * Math.cos(theta) + beta * Math.sin(theta))) - distance,
+      Math.sqrt(Math.max(0, squared(theta))) - distance,
     );
     const range: IChain["range"] = chain.range;
     return thetas.map((theta: number): IStop => {
