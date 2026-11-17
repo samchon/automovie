@@ -19,6 +19,7 @@ import { Quaternion } from "../math/Quaternion";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
+import { scanJointRom } from "../rom/scanJointRom";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -73,6 +74,10 @@ export function prepareChainRigConstants(
   const scores: Map<
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number
+  > = new Map();
+  const rotatedScores: Map<
+    AutoMovieHumanoidBone,
+    ((rotation: IAutoMovieQuaternion) => number) | null
   > = new Map();
   let project: ReturnType<typeof prepareJointRotationProjection> | undefined;
   let restInverse: IAutoMovieQuaternion | undefined;
@@ -185,6 +190,17 @@ export function prepareChainRigConstants(
       }
       return score;
     },
+    rotatedOvershoot: (
+      bone: AutoMovieHumanoidBone,
+    ): ((rotation: IAutoMovieQuaternion) => number) | null => {
+      let score: ((rotation: IAutoMovieQuaternion) => number) | null | undefined =
+        rotatedScores.get(bone);
+      if (score === undefined) {
+        score = scanJointRom.prepareRotated(bone, rig.domain(bone).constraint);
+        rotatedScores.set(bone, score);
+      }
+      return score;
+    },
     effectorProjection: (): ReturnType<
       typeof prepareJointRotationProjection
     > => {
@@ -253,6 +269,7 @@ export namespace prepareChainRigConstants {
       | "composer"
       | "clamp"
       | "overshoot"
+      | "rotatedOvershoot"
       | "effectorProjection"
       | "effectorRestInverse"
       | "distalTwist"

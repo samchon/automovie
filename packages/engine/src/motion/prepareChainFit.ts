@@ -272,6 +272,10 @@ export namespace prepareChainFit {
   export interface IRig {
     /** Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame; the optional rotation is the one the angles were read from on that frame (`scanJointRom.prepare`). */
     overshoot(bone: AutoMovieHumanoidBone): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number;
+
+    /** The same scorer of a bone gated by swing and twist, read from the rotation alone (`scanJointRom.prepareRotated`); null for a bone the gate does not hold. */
+    rotatedOvershoot(bone: AutoMovieHumanoidBone): ((rotation: IAutoMovieQuaternion) => number) | null;
+
     /** Actual skeleton record; an absent bone is remembered too. */
     bone(bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined;
 

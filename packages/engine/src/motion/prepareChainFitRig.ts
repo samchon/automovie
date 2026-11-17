@@ -64,6 +64,7 @@ export function prepareChainFitRig(
     composer: constant.composer,
     clamp: constant.clamp,
     overshoot: constant.overshoot,
+    rotatedOvershoot: constant.rotatedOvershoot,
     effectorProjection: constant.effectorProjection,
     effectorRestInverse: constant.effectorRestInverse,
     distalTwist: constant.distalTwist,
