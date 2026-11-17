@@ -218,6 +218,10 @@ export namespace HumanArmOptimiser {
         rounds: ROUNDS,
         steer: true,
         ceiling: PENALTIES[PENALTIES.length - 1]!,
+
+        // A reduction of the violation under the millimetre the plan accepts
+        // as feasible is one the plan cannot tell (`IOptions.stationary`).
+        stationary: M.TOLERANCE,
         ...(from === undefined ? {} : { from }),
       },
     );

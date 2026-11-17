@@ -252,14 +252,17 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
    * iterate (numerical no progress, not a stationarity certificate);
    * `collapsed`, no step taken, the region fallen under
    * `ISchedule.least` or the tries spent; `rounds`, the convexifications ran
-   * out (`IOptions.rounds`) with steps still being taken.
+   * out (`IOptions.rounds`) with steps still being taken; `infeasible`, a
+   * steered iterate at which the step of the violation alone, inside its
+   * region, reduces the violation by no more than `IOptions.stationary`
+   * while it still violates by more: a stationary point of the violation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Why a solve stopped, read off its last convexification: `model`, the model's predicted decrease under `ISchedule.improved` or within its own accuracy (`IStep.accuracy`); `step`, a step taken under `ISchedule.least`, or a rejected proposal under it at an already feasible iterate (numerical no progress, not a stationarity certificate); `collapsed`, no step taken, the region fallen under `ISchedule.least` or the tries spent; `rounds`, the convexifications ran out (`IOptions.rounds`) with steps still being taken.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "model", "step", "collapsed", "rounds" distinguish the admitted cases.
+   * @evidence contracts/development/common.md#meaningful-documentation Why a solve stopped, read off its last convexification: `model`, the model's predicted decrease under `ISchedule.improved` or within its own accuracy (`IStep.accuracy`); `step`, a step taken under `ISchedule.least`, or a rejected proposal under it at an already feasible iterate (numerical no progress, not a stationarity certificate); `collapsed`, no step taken, the region fallen under `ISchedule.least` or the tries spent; `rounds`, the convexifications ran out (`IOptions.rounds`) with steps still being taken; `infeasible`, a steered iterate whose step of the violation alone, inside its region, reduces the violation by no more than `IOptions.stationary` while it violates by more.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "model", "step", "collapsed", "rounds", "infeasible" distinguish the admitted cases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanSequentialConvex.ts (HumanSequentialConvex.minimise).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanSequentialConvex.minimise.
    */
-  export type Reason = "model" | "step" | "collapsed" | "rounds";
+  export type Reason = "model" | "step" | "collapsed" | "rounds" | "infeasible";
 
   /**
    * How the region moves: a step is taken where the ratio of the actual to
@@ -369,6 +372,18 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
 
     /** The greatest penalty the steering may reach: a growth that would pass it is not made, and the round goes on with the step at the penalty reached, as it does when `STEERING.increases` are spent. Unbounded when absent; read only with `steer`. */
     ceiling?: number;
+
+    /**
+     * The least reduction of the violation the caller can tell, in the
+     * violation's units: its own feasibility tolerance. Where the steering's
+     * step of the violation alone lies inside its region (not at its edge),
+     * it is the linearised violation's own least; reducing the violation by
+     * no more than this while the iterate violates by more, it shows the
+     * iterate a first-order stationary point of the violation, an infeasible
+     * one that no later round leaves, and the solve stops there with reason
+     * `infeasible`. Absent, a solve runs its rounds; read only with `steer`.
+     */
+    stationary?: number;
   }
 
   /**
