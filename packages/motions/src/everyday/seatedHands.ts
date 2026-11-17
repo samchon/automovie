@@ -168,11 +168,11 @@ export namespace seatedHands {
    * armrest points, palms down, fingers along yaw in degrees. Other hand
    * goals remain; a hand bears when share reaches one.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the origins, target frame, hand orientation and contact threshold.
+   * @evidence contracts/development/common.md#meaningful-documentation States the origins, target frame, hand orientation and contact threshold. Positive shares retain complete legs-only canonical admission and a fresh posture/limb shell even when no armrest is supplied; nonpositive shares preserve input identity.
    * @evidence contracts/development/implementation.md#principled-implementation Reads hanging origins with leg goals alone, then linearly interpolates points and slerps the original palm-down armrest goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose solve and a two-side pass retain goals on missing sides.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the provisional hand-thickness and elbow shares and leaves out-of-reach reporting to the existing contact audit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Positive share with supplied rests costs one observational pose resolution and FK plus constant target work; zero share or no supplied rest needs none.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the provisional hand-thickness and elbow shares and leaves out-of-reach reporting to the existing contact audit. Public positive-share calls resolve before inspecting rests, preserving full joint/leg-goal refusal and original posture-spread/leg-getter order; an empty target set does not skip validation or alias the returned limb map.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every positive public share costs one complete legs-only canonical resolution and FK plus constant work per supplied armrest. Only nonpositive share skips this work; the separately owned rested path can still share its actual resolved map and metadata.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both supplied armrests use the same completed map, with no cross-posture cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Resolved bones and temporary goals end with the call; the returned posture owns its new limb map.
    */
@@ -186,23 +186,26 @@ export namespace seatedHands {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
     if (share <= 0) return posture;
-    const legs: IHumanPosture["limbs"] = {};
-    for (const side of SIDES) {
-      const goal: IHumanPosture.IGoal | undefined = posture.limbs[`${side}Leg`];
-      if (goal !== undefined) legs[`${side}Leg`] = goal;
-    }
-    const requested: Set<AutoMovieHumanoidBone> = new Set();
-    for (const side of SIDES)
-      if (rests[side] !== undefined) requested.add(`${side}Hand`);
-    if (requested.size === 0) return posture;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(
       body,
-      { ...posture, limbs: legs },
-      requested,
+      { ...posture, limbs: legsOnly(posture) },
+      undefined,
       resolution,
       projection,
     );
     return restGoals(body, posture, rests, yaw, share, bones);
+  }
+
+  /** Preserve the public spread-then-leg-read order and its original present-goal observations. */
+  function legsOnly(posture: IHumanPosture): IHumanPosture["limbs"] {
+    return {
+      ...(posture.limbs.leftLeg === undefined
+        ? {}
+        : { leftLeg: posture.limbs.leftLeg }),
+      ...(posture.limbs.rightLeg === undefined
+        ? {}
+        : { rightLeg: posture.limbs.rightLeg }),
+    };
   }
 
   /** Write armrest goals from the exact hanging-origin map owned by this call. */
@@ -344,7 +347,7 @@ export namespace seatedHands {
   function resolved(
     body: IHumanBody,
     posture: IHumanPosture,
-    requested: ReadonlySet<AutoMovieHumanoidBone>,
+    requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
