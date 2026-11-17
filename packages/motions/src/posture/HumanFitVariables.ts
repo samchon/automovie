@@ -7,8 +7,6 @@ import type {
   IAutoMovieMotionHumanQuadraticProgram,
 } from "@automovie/interface";
 
-import type { HumanJacobian } from "./HumanJacobian";
-
 /**
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
  * Jacobian names them (`HumanJacobian.IVariable`): read from a posture and
@@ -110,12 +108,14 @@ export namespace HumanFitVariables {
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     posture: IAutoMovieMotionHumanPosture,
   ): Float64Array {
-    return Float64Array.from(variables, (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
-      v.kind === "place"
-        ? posture.root[v.axis]
-        : v.kind === "heading"
-          ? posture[v.axis]
-          : (posture.joints[v.bone]?.[v.axis] ?? 0),
+    return Float64Array.from(
+      variables,
+      (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
+        v.kind === "place"
+          ? posture.root[v.axis]
+          : v.kind === "heading"
+            ? posture[v.axis]
+            : (posture.joints[v.bone]?.[v.axis] ?? 0),
     );
   }
 
@@ -146,22 +146,29 @@ export namespace HumanFitVariables {
       pitch: posture.pitch,
       roll: posture.roll,
     };
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
-    let changed: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> | undefined;
-    variables.forEach((v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
-      if (v.kind === "place") root[v.axis] = x[i]!;
-      else if (v.kind === "heading") heading[v.axis] = x[i]!;
-      else {
-        let set: [number, number, number] | undefined = changed?.[v.bone];
-        if (set === undefined) {
-          const was: readonly [number, number, number] = joints[v.bone] ?? ZERO_JOINT;
-          set = [was[0], was[1], was[2]];
-          (changed ??= {})[v.bone] = set;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    let changed:
+      | Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>
+      | undefined;
+    variables.forEach(
+      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
+        if (v.kind === "place") root[v.axis] = x[i]!;
+        else if (v.kind === "heading") heading[v.axis] = x[i]!;
+        else {
+          let set: [number, number, number] | undefined = changed?.[v.bone];
+          if (set === undefined) {
+            const was: readonly [number, number, number] =
+              joints[v.bone] ?? ZERO_JOINT;
+            set = [was[0], was[1], was[2]];
+            (changed ??= {})[v.bone] = set;
+          }
+          set[v.axis] = x[i]!;
+          joints[v.bone] = set;
         }
-        set[v.axis] = x[i]!;
-        joints[v.bone] = set;
-      }
-    });
+      },
+    );
     return { ...posture, root, ...heading, joints, limbs: {} };
   }
 
@@ -228,7 +235,10 @@ export namespace HumanFitVariables {
     radius: number,
   ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
     return variables.map(
-      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+      (
+        v: IAutoMovieMotionHumanJacobian.IVariable,
+        i: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow => {
         const span: Readonly<IAutoMovieAngleRange> | null = range(v);
         const step: number = reach(v) * radius;
         const lo: number =
@@ -305,7 +315,9 @@ export namespace HumanFitVariables {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no state.
    * @evidence contracts/development/common.md#meaningful-documentation Identifies the coordinate resolution and its own physical unit.
    */
-  export function resolution(v: IAutoMovieMotionHumanJacobian.IVariable): number {
+  export function resolution(
+    v: IAutoMovieMotionHumanJacobian.IVariable,
+  ): number {
     return v.kind === "place" ? RESOLUTION[0] : RESOLUTION[1];
   }
 

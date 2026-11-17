@@ -12,7 +12,6 @@ import { deriveHumanPosture } from "./deriveHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
-import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
 import { turnHumanPosture } from "./turnHumanPosture";
 
@@ -38,7 +37,18 @@ export function resolveHumanPostureSource(
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
   projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
 ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-  return structuredClone(solve(body, posture, base, near, resolution, requested, projection, refitHumanPosture.independent));
+  return structuredClone(
+    solve(
+      body,
+      posture,
+      base,
+      near,
+      resolution,
+      requested,
+      projection,
+      refitHumanPosture.independent,
+    ),
+  );
 }
 
 /**
@@ -92,8 +102,14 @@ export namespace resolveHumanPostureSource {
     base?: IAutoMoviePose,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAssembled {
-    const assembled: ReturnType<typeof assembleHumanPosture> = assembleHumanPosture(body, posture, base, projection);
-    return { posture, pose: assembled.pose, limbs: assembled.limbs, ...(base === undefined ? {} : { base }) };
+    const assembled: ReturnType<typeof assembleHumanPosture> =
+      assembleHumanPosture(body, posture, base, projection);
+    return {
+      posture,
+      pose: assembled.pose,
+      limbs: assembled.limbs,
+      ...(base === undefined ? {} : { base }),
+    };
   }
 
   /**
@@ -123,15 +139,28 @@ export namespace resolveHumanPostureSource {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     solved?: deriveHumanPosture.ISolved,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    if (solved !== undefined && limbs === undefined && Object.keys(near).length === 0) {
-      const taken: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined = deriveHumanPosture.inherited(body, assembled, solved);
+    if (
+      solved !== undefined &&
+      limbs === undefined &&
+      Object.keys(near).length === 0
+    ) {
+      const taken:
+        | IAutoMovieMotionHumanResolveHumanPosture.ISeeded
+        | undefined = deriveHumanPosture.inherited(body, assembled, solved);
       if (taken !== undefined) return taken;
     }
     return fitted(
       body,
-      limbs === undefined ? assembled
-        : { ...assembled, limbs: turnHumanPosture({ ...assembled.posture, limbs }).limbs },
-      near, resolution, undefined, refitHumanPosture.constructed,
+      limbs === undefined
+        ? assembled
+        : {
+            ...assembled,
+            limbs: turnHumanPosture({ ...assembled.posture, limbs }).limbs,
+          },
+      near,
+      resolution,
+      undefined,
+      refitHumanPosture.constructed,
     );
   }
 
@@ -158,7 +187,16 @@ export namespace resolveHumanPostureSource {
     requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return solve(body, posture, undefined, near, resolution, requested, projection, refitHumanPosture.constructed);
+    return solve(
+      body,
+      posture,
+      undefined,
+      near,
+      resolution,
+      requested,
+      projection,
+      refitHumanPosture.constructed,
+    );
   }
 
   /**
@@ -172,9 +210,23 @@ export namespace resolveHumanPostureSource {
    * Actual private source construction establishes ownership while exact current values and explicit algorithm policy govern memo equivalence.
    * Transfers owned current records to the preparation; the source, reader and callback never enter result history.
    */
-  export function continued(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, near: IAutoMovieMotionHumanResolveHumanPosture.INear,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return solve(body, posture, undefined, near, resolution, undefined, projection, refitHumanPosture.continued);
+  export function continued(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    return solve(
+      body,
+      posture,
+      undefined,
+      near,
+      resolution,
+      undefined,
+      projection,
+      refitHumanPosture.continued,
+    );
   }
 }
 
@@ -187,9 +239,18 @@ function solve(
   resolution: Parameters<typeof prepareHumanPoseResolution>[0],
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
   projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-  refit: (...args: Parameters<typeof refitHumanPosture>) => ReturnType<typeof refitHumanPosture>,
+  refit: (
+    ...args: Parameters<typeof refitHumanPosture>
+  ) => ReturnType<typeof refitHumanPosture>,
 ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-  return fitted(body, resolveHumanPostureSource.assemble(body, raw, base, projection), near, resolution, requested, refit);
+  return fitted(
+    body,
+    resolveHumanPostureSource.assemble(body, raw, base, projection),
+    near,
+    resolution,
+    requested,
+    refit,
+  );
 }
 
 /** The second half of the composition: the assembly's goals fitted in order, then its digits. */
@@ -199,15 +260,35 @@ function fitted(
   near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0],
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
-  refit: (...args: Parameters<typeof refitHumanPosture>) => ReturnType<typeof refitHumanPosture>,
+  refit: (
+    ...args: Parameters<typeof refitHumanPosture>
+  ) => ReturnType<typeof refitHumanPosture>,
 ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-  const posture: IAutoMovieMotionHumanPosture = { ...assembled.posture, limbs: assembled.limbs };
-  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-  const limbs: IAutoMovieMotionHumanPosture["limbs"] = requested === undefined || Object.keys(near).length !== 0
-    ? posture.limbs : selectHumanPostureGoals(body, posture, requested);
-  const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refit(body, assembled.pose, limbs, near, read);
+  const posture: IAutoMovieMotionHumanPosture = {
+    ...assembled.posture,
+    limbs: assembled.limbs,
+  };
+  const read: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution(resolution);
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] =
+    requested === undefined || Object.keys(near).length !== 0
+      ? posture.limbs
+      : selectHumanPostureGoals(body, posture, requested);
+  const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refit(
+    body,
+    assembled.pose,
+    limbs,
+    near,
+    read,
+  );
   return {
     ...solved,
-    pose: HumanDigitFit.fitted(body, solved.pose, posture.digits, read, requested),
+    pose: HumanDigitFit.fitted(
+      body,
+      solved.pose,
+      posture.digits,
+      read,
+      requested,
+    ),
   };
 }

@@ -13,7 +13,6 @@ import type {
 import { HumanLimbView } from "./HumanLimbView";
 import { HumanPosture } from "./HumanPosture";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
-import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
 import { turnHumanPosture } from "./turnHumanPosture";
 
@@ -47,34 +46,61 @@ export function deriveHumanPosture(
   const clamp: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, body.projection);
   const before: readonly IAutoMovieJointPose[] = assembled.pose.joints;
-  if (from.rotation !== undefined || posture.rotation !== undefined || assembled.base !== undefined ||
-    assembled.pose.root === null || clamp === undefined || before.length !== body.skeleton.bones.length)
+  if (
+    from.rotation !== undefined ||
+    posture.rotation !== undefined ||
+    assembled.base !== undefined ||
+    assembled.pose.root === null ||
+    clamp === undefined ||
+    before.length !== body.skeleton.bones.length
+  )
     return resolveHumanPostureSource.assemble(body, posture, assembled.base);
 
   // Each bone's record: the other assembly's where the angles are the same.
   let joints: IAutoMovieJointPose[] | undefined;
   for (let i: number = 0; i < before.length; ++i) {
     const bone: IAutoMovieJointPose["bone"] = body.skeleton.bones[i]!.bone;
-    const old: readonly [number, number, number] | undefined = from.joints[bone];
-    const set: readonly [number, number, number] | undefined = posture.joints[bone];
-    if (old === set || (old !== undefined && set !== undefined &&
-      Object.is(old[0], set[0]) && Object.is(old[1], set[1]) && Object.is(old[2], set[2]))) continue;
+    const old: readonly [number, number, number] | undefined =
+      from.joints[bone];
+    const set: readonly [number, number, number] | undefined =
+      posture.joints[bone];
+    if (
+      old === set ||
+      (old !== undefined &&
+        set !== undefined &&
+        Object.is(old[0], set[0]) &&
+        Object.is(old[1], set[1]) &&
+        Object.is(old[2], set[2]))
+    )
+      continue;
     joints ??= before.slice();
-    joints[i] = clamp(set === undefined
-      ? { bone, flexion: 0, abduction: 0, twist: 0 }
-      : { bone, flexion: set[0], abduction: set[1], twist: set[2] });
+    joints[i] = clamp(
+      set === undefined
+        ? { bone, flexion: 0, abduction: 0, twist: 0 }
+        : { bone, flexion: set[0], abduction: set[1], twist: set[2] },
+    );
   }
 
   // The root: the other assembly's own when root and heading are the same.
-  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
-  const placed: boolean = Object.is(from.root.x, posture.root.x) && Object.is(from.root.y, posture.root.y) &&
-    Object.is(from.root.z, posture.root.z) && Object.is(from.yaw, posture.yaw) &&
-    Object.is(from.pitch, posture.pitch) && Object.is(from.roll, posture.roll);
+  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+    turnHumanPosture(posture);
+  const placed: boolean =
+    Object.is(from.root.x, posture.root.x) &&
+    Object.is(from.root.y, posture.root.y) &&
+    Object.is(from.root.z, posture.root.z) &&
+    Object.is(from.yaw, posture.yaw) &&
+    Object.is(from.pitch, posture.pitch) &&
+    Object.is(from.roll, posture.roll);
   const root: NonNullable<IAutoMoviePose["root"]> = placed
-    ? assembled.pose.root : Transform.of({ ...turned.position }, turned.rotation);
+    ? assembled.pose.root
+    : Transform.of({ ...turned.position }, turned.rotation);
   return {
     posture,
-    pose: { skeleton: body.skeleton.id, root, joints: joints ?? assembled.pose.joints },
+    pose: {
+      skeleton: body.skeleton.id,
+      root,
+      joints: joints ?? assembled.pose.joints,
+    },
     limbs: turned.limbs,
   };
 }
@@ -128,18 +154,33 @@ export namespace deriveHumanPosture {
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined {
     const before: resolveHumanPostureSource.IAssembled = solved.assembled;
     const limbs: AutoMovieHumanLimb[] = HumanPosture.LIMBS.filter(
-      (limb: AutoMovieHumanLimb): boolean => assembled.limbs[limb] !== undefined);
-    if (limbs.length === 0 || Object.keys(assembled.limbs).length !== limbs.length ||
+      (limb: AutoMovieHumanLimb): boolean =>
+        assembled.limbs[limb] !== undefined,
+    );
+    if (
+      limbs.length === 0 ||
+      Object.keys(assembled.limbs).length !== limbs.length ||
       Object.keys(before.limbs).length !== limbs.length ||
-      assembled.posture.digits !== undefined || before.posture.digits !== undefined ||
+      assembled.posture.digits !== undefined ||
+      before.posture.digits !== undefined ||
       assembled.pose.joints.length !== before.pose.joints.length ||
-      !same(assembled.pose.root, before.pose.root)) return undefined;
+      !same(assembled.pose.root, before.pose.root)
+    )
+      return undefined;
     for (const limb of limbs) {
       const goal: IAutoMovieHumanLimbGoal | undefined = assembled.limbs[limb];
-      if (goal === undefined || !limb.endsWith("Leg") || goal.on !== undefined ||
-        !same(goal, before.limbs[limb]) || solved.seeded.seeds[limb] === undefined) return undefined;
-      for (const index of HumanLimbView.of(body, assembled.pose, limb, goal, []).at)
-        if (assembled.pose.joints[index] !== before.pose.joints[index]) return undefined;
+      if (
+        goal === undefined ||
+        !limb.endsWith("Leg") ||
+        goal.on !== undefined ||
+        !same(goal, before.limbs[limb]) ||
+        solved.seeded.seeds[limb] === undefined
+      )
+        return undefined;
+      for (const index of HumanLimbView.of(body, assembled.pose, limb, goal, [])
+        .at)
+        if (assembled.pose.joints[index] !== before.pose.joints[index])
+          return undefined;
     }
 
     // The records the two assemblies differ in, none of which a fit read.
@@ -152,18 +193,26 @@ export namespace deriveHumanPosture {
       swapped.set(before.pose.joints[i]!, now);
     }
     const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
-    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] = {};
+    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] =
+      {};
     for (const limb of limbs) {
-      const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb] = solved.seeded.seeds[limb];
+      const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb] =
+        solved.seeded.seeds[limb];
       seeds[limb] = seed === null || seed === undefined ? null : { ...seed };
-      const value: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"][AutoMovieHumanLimb] = solved.seeded.values[limb];
+      const value: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"][AutoMovieHumanLimb] =
+        solved.seeded.values[limb];
       if (value !== undefined) values[limb] = { ...value };
     }
     return {
       pose: {
         ...assembled.pose,
-        joints: swapped.size === 0 ? solved.seeded.pose.joints.slice()
-          : solved.seeded.pose.joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose => swapped.get(joint) ?? joint),
+        joints:
+          swapped.size === 0
+            ? solved.seeded.pose.joints.slice()
+            : solved.seeded.pose.joints.map(
+                (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+                  swapped.get(joint) ?? joint,
+              ),
       },
       seeds,
       values,
@@ -174,7 +223,13 @@ export namespace deriveHumanPosture {
 /** Whether two values are equal value for value: Object.is on primitives, and the same own enumerable members, in number and each, on arrays and plain records. */
 function same(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (
+    typeof a !== "object" ||
+    typeof b !== "object" ||
+    a === null ||
+    b === null
+  )
+    return false;
   if (Array.isArray(a) !== Array.isArray(b)) return false;
   const left: [string, unknown][] = Object.entries(a);
   const right: Record<string, unknown> = { ...b };

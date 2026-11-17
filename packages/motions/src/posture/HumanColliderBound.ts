@@ -3,7 +3,6 @@ import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 /**
@@ -36,7 +35,9 @@ export function HumanColliderBound(shape: IAutoMoviePhysicalShape): {
   if (shape.kind === "box")
     return { centre: origin, radius: Vector3.length(shape.halfExtents) };
   if (shape.kind === "hull") {
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+      shape.points,
+    );
     return { centre: hull.centre, radius: hull.radius };
   }
   shape satisfies never;

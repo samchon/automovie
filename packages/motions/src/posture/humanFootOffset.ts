@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  type resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
@@ -33,10 +29,15 @@ export function humanFootOffset(
   toes: number = 0,
 ): IAutoMovieVector3 {
   const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-  if (point === "mtp") return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
-  const socket: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
+  if (point === "mtp")
+    return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
+  const socket: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
   if (socket.bone === `${side}Foot`) return socket.point;
-  const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(socket.bone)!, foot);
+  const joint: IAutoMovieVector3 = Vector3.subtract(
+    body.rest.get(socket.bone)!,
+    foot,
+  );
   return articulated(joint, socket.point, toes);
 }
 
@@ -62,20 +63,34 @@ export namespace humanFootOffset {
   ): (toes: number) => IAutoMovieVector3 {
     const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
     if (point === "mtp") {
-      const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
+      const joint: IAutoMovieVector3 = Vector3.subtract(
+        body.rest.get(`${side}Toes`)!,
+        foot,
+      );
       return (_toes: number): IAutoMovieVector3 => ({ ...joint });
     }
-    const socket: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
-    if (socket.bone === `${side}Foot`) return (_toes: number): IAutoMovieVector3 => socket.point;
-    const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(socket.bone)!, foot);
-    return (toes: number): IAutoMovieVector3 => articulated(joint, socket.point, toes);
+    const socket: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
+    if (socket.bone === `${side}Foot`)
+      return (_toes: number): IAutoMovieVector3 => socket.point;
+    const joint: IAutoMovieVector3 = Vector3.subtract(
+      body.rest.get(socket.bone)!,
+      foot,
+    );
+    return (toes: number): IAutoMovieVector3 =>
+      articulated(joint, socket.point, toes);
   }
 }
 
 /** The unchanged joint translation after the socket's actual toe rotation. */
-function articulated(joint: IAutoMovieVector3, point: IAutoMovieVector3, toes: number): IAutoMovieVector3 {
+function articulated(
+  joint: IAutoMovieVector3,
+  point: IAutoMovieVector3,
+  toes: number,
+): IAutoMovieVector3 {
   return Vector3.add(joint, Quaternion.rotateVector(FLEXION(toes), point));
 }
 
 /** The private unchanged negative lateral toe-flexion axis. */
-const FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });
+const FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });

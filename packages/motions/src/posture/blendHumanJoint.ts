@@ -5,7 +5,6 @@ import {
   Quaternion,
   decomposeJointRotationOnBasis,
   getConstraint,
-  jointToQuaternion,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
   skeletonJointAxes,
@@ -60,11 +59,11 @@ const COLD: ILookup = {
     body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null =>
-    getConstraint(
-      bone,
-      readHumanBone(body, bone)?.constraint ?? null,
-    ),
-  frame: (body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IFrame =>
+    getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null),
+  frame: (
+    body: IAutoMovieMotionHumanBody,
+    bone: AutoMovieHumanoidBone,
+  ): IFrame =>
     frameOf(bone, skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]),
 };
 
@@ -179,7 +178,8 @@ export namespace blendHumanJoint {
    * original numerical branch, and every later share returns a fresh reading.
    */
   export function between(
-    body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone,
+    body: IAutoMovieMotionHumanBody,
+    bone: AutoMovieHumanoidBone,
     from: readonly [number, number, number],
     to: readonly [number, number, number],
   ): (share: number) => readonly [number, number, number] {
@@ -244,7 +244,10 @@ export namespace blendHumanJoint {
         }
         return constraint;
       },
-      frame: (current: IAutoMovieMotionHumanBody, name: AutoMovieHumanoidBone): IFrame => {
+      frame: (
+        current: IAutoMovieMotionHumanBody,
+        name: AutoMovieHumanoidBone,
+      ): IFrame => {
         let frame: IFrame | undefined = frames.get(name);
         if (frame === undefined) {
           axes ??= skeletonJointAxes(current.skeleton, HUMANOID_JOINT_AXES);
@@ -295,8 +298,11 @@ function blend(
       const da: number = to[1] - from[1];
       const t: number = from[2];
       const dt: number = to[2] - from[2];
-      fixed.read = (at: number): readonly [number, number, number] =>
-        [f + df * at, a + da * at, t + dt * at];
+      fixed.read = (at: number): readonly [number, number, number] => [
+        f + df * at,
+        a + da * at,
+        t + dt * at,
+      ];
       return fixed.read(s);
     }
     return [
@@ -307,8 +313,11 @@ function blend(
   }
   const rig: IFrame = lookup.frame(body, bone);
   const axes: IAutoMovieJointAxes | undefined = rig.axes;
-  const gated: boolean = constraint !== null &&
-    constraint.swingTwist !== undefined && constraint.swingTwist !== null && axes !== undefined;
+  const gated: boolean =
+    constraint !== null &&
+    constraint.swingTwist !== undefined &&
+    constraint.swingTwist !== null &&
+    axes !== undefined;
   const a: IAutoMovieQuaternion = rotationOf(from, rig, bone);
   const b: IAutoMovieQuaternion = rotationOf(to, rig, bone);
   if (fixed !== undefined) {
@@ -316,36 +325,42 @@ function blend(
       ? swingTwistRange.prepareBlend(a, b, constraint!, rig.joint)
       : Quaternion.prepareSlerp(a, b);
     fixed.read = (at: number): readonly [number, number, number] =>
-      readRotation(gated ? turn(at) : Quaternion.normalize(turn(at)), rig, bone, constraint);
+      readRotation(
+        gated ? turn(at) : Quaternion.normalize(turn(at)),
+        rig,
+        bone,
+        constraint,
+      );
     return fixed.read(s);
   }
   // A joint ranged by swing and twist is blended inside its range
   // (`swingTwistRange.blend`); another ball joint on the shorter arc.
-  const blended: IAutoMovieQuaternion =
-    gated
-      ? swingTwistRange.blend(
-          a,
-          b,
-          s,
-          constraint!,
-          rig.joint,
-        )
-      : Quaternion.normalize(Quaternion.slerp(a, b, s));
+  const blended: IAutoMovieQuaternion = gated
+    ? swingTwistRange.blend(a, b, s, constraint!, rig.joint)
+    : Quaternion.normalize(Quaternion.slerp(a, b, s));
   return readRotation(blended, rig, bone, constraint);
 }
 
 /** Original endpoint literal/axis/frame argument ordering without a per-read closure. */
 function rotationOf(
-  of: readonly [number, number, number], rig: IFrame, bone: AutoMovieHumanoidBone,
+  of: readonly [number, number, number],
+  rig: IFrame,
+  bone: AutoMovieHumanoidBone,
 ): IAutoMovieQuaternion {
-  return Quaternion.normalize(jointToQuaternionOnBasis(
-    { flexion: of[0], abduction: of[1], twist: of[2] }, rig.basis, HUMANOID_REST_FRAME[bone],
-  ));
+  return Quaternion.normalize(
+    jointToQuaternionOnBasis(
+      { flexion: of[0], abduction: of[1], twist: of[2] },
+      rig.basis,
+      HUMANOID_REST_FRAME[bone],
+    ),
+  );
 }
 
 /** Original chart-choice domain construction and clinical readback ordering. */
 function readRotation(
-  blended: IAutoMovieQuaternion, rig: IFrame, bone: AutoMovieHumanoidBone,
+  blended: IAutoMovieQuaternion,
+  rig: IFrame,
+  bone: AutoMovieHumanoidBone,
   constraint: IAutoMovieJointConstraint | null,
 ): readonly [number, number, number] {
   const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(

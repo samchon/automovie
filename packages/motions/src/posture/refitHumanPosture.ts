@@ -17,7 +17,6 @@ import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { orderHumanLimbs } from "./orderHumanLimbs";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import type { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * Fit one person's already placed pose in attachment order, with independent
@@ -43,7 +42,15 @@ export function refitHumanPosture(
   near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-  return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit, HumanLimbPair.owned);
+  return fitted(
+    body,
+    pose,
+    limbs,
+    near,
+    resolution,
+    applyHumanLimbFit,
+    HumanLimbPair.owned,
+  );
 }
 
 /**
@@ -67,9 +74,23 @@ export namespace refitHumanPosture {
    * Shares the original goal ordering, arm pairing and direct solve.
    * Current source/output and FK loan remain within the caller's synchronous operation; no input, reader, result history or new handle is retained here.
    */
-  export function constructed(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"],
-    near: IAutoMovieMotionHumanResolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.constructed, HumanLimbPair.constructed, true);
+  export function constructed(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    return fitted(
+      body,
+      pose,
+      limbs,
+      near,
+      resolution,
+      applyHumanLimbFit.constructed,
+      HumanLimbPair.constructed,
+      true,
+    );
   }
 
   /**
@@ -83,15 +104,42 @@ export namespace refitHumanPosture {
    * Uses the same actual source reader, solving every request afresh with no prior pose replay.
    * Source, readers and policy remain synchronous and no output or query history is retained here.
    */
-  export function continued(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"],
-    near: IAutoMovieMotionHumanResolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.continued, HumanLimbPair.constructed, true);
+  export function continued(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    return fitted(
+      body,
+      pose,
+      limbs,
+      near,
+      resolution,
+      applyHumanLimbFit.continued,
+      HumanLimbPair.constructed,
+      true,
+    );
   }
 
   /** Same physical loop for public explicit-pose refits, with the public pair entry and no-goal borrowing. */
-  export function independent(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"],
-    near: IAutoMovieMotionHumanResolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, HumanLimbFit.remembered, HumanLimbPair.fitted);
+  export function independent(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    return fitted(
+      body,
+      pose,
+      limbs,
+      near,
+      resolution,
+      HumanLimbFit.remembered,
+      HumanLimbPair.fitted,
+    );
   }
 }
 
@@ -105,11 +153,25 @@ function wellFormed(joint: IAutoMovieJointPose): boolean {
 }
 
 /** Keep the original limb-order loop once; only the entry's limb fit and pair owner differ. An `assembled` pose is the base-free assembly's own, one clamped record a rig bone. */
-function fitted(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"], near: IAutoMovieMotionHumanResolveHumanPosture.INear,
-  resolution: Parameters<typeof prepareHumanPoseResolution>[0], fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>,
-  pairFit: typeof HumanLimbPair.fitted, assembled: boolean = false): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-  if (limbs.leftLeg === undefined && limbs.rightLeg === undefined &&
-    limbs.leftArm === undefined && limbs.rightArm === undefined) return { pose, seeds: {}, values: {} };
+function fitted(
+  body: IAutoMovieMotionHumanBody,
+  pose: IAutoMoviePose,
+  limbs: IAutoMovieMotionHumanPosture["limbs"],
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+  resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+  fit: (
+    ...args: Parameters<typeof applyHumanLimbFit>
+  ) => ReturnType<typeof applyHumanLimbFit>,
+  pairFit: typeof HumanLimbPair.fitted,
+  assembled: boolean = false,
+): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+  if (
+    limbs.leftLeg === undefined &&
+    limbs.rightLeg === undefined &&
+    limbs.leftArm === undefined &&
+    limbs.rightArm === undefined
+  )
+    return { pose, seeds: {}, values: {} };
   let readResolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
 
   // The limbs are fitted in turn on one pose, each fit's pose the last
@@ -191,8 +253,13 @@ function fitted(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IA
             pose,
             other,
             coming,
-            (): ReturnType<typeof poseBones> => poseBones(body, pose, read(),
-              coming.on === undefined ? undefined : new Set([coming.on])),
+            (): ReturnType<typeof poseBones> =>
+              poseBones(
+                body,
+                pose,
+                read(),
+                coming.on === undefined ? undefined : new Set([coming.on]),
+              ),
           ).point;
     const fitted: IAutoMovieSeededChainFit = fit(
       body,

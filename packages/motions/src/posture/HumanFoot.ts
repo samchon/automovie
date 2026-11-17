@@ -52,13 +52,18 @@ export namespace HumanFoot {
   export const reading: typeof readHumanFoot = readHumanFoot;
 
   /** The ankle alone of a foot pivoting about a fixed sole point, for a search over pitches (`prepareHumanFootAnkle`); the reader overwrites the record it returns. */
-  export const prepareAnkle: typeof prepareHumanFootAnkle = prepareHumanFootAnkle;
+  export const prepareAnkle: typeof prepareHumanFootAnkle =
+    prepareHumanFootAnkle;
 
   /** A fixed-articulation reader over a varying world contact (`prepareHumanFootAt`), preserving fresh placement outputs. */
   export const prepareAt: typeof prepareHumanFootAt = prepareHumanFootAt;
 
   /** The sole sockets of {@link Socket}, as data. */
-  export const SOCKETS: readonly ["heel", "ball", "toe"] = ["heel", "ball", "toe"] satisfies readonly NonNullable< IAutoMovieMotionHumanFoot.Socket>[];
+  export const SOCKETS: readonly ["heel", "ball", "toe"] = [
+    "heel",
+    "ball",
+    "toe",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanFoot.Socket>[];
 
   /**
    * A foot's three sole sockets on displayed bones, heel first, each placed
@@ -75,17 +80,23 @@ export namespace HumanFoot {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): IAutoMovieMotionHumanFoot.ISocket[] {
-    return (["heel", "ball", "toe"] as const).map((socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieMotionHumanFoot.ISocket => {
-      const frame: IAutoMovieHumanoidSurfaces.IFrame =
-        body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
-      return {
-        socket,
-        point: resolveAutoMovieHumanoidSurfaces.point(
-          frame,
-          bones.get(frame.bone)!,
-        ),
-      };
-    });
+    return (["heel", "ball", "toe"] as const).map(
+      (
+        socket: IAutoMovieMotionHumanFoot.Socket,
+      ): IAutoMovieMotionHumanFoot.ISocket => {
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.sockets[
+            `${socket}${side === "left" ? "Left" : "Right"}`
+          ];
+        return {
+          socket,
+          point: resolveAutoMovieHumanoidSurfaces.point(
+            frame,
+            bones.get(frame.bone)!,
+          ),
+        };
+      },
+    );
   }
 
   /**
@@ -156,15 +167,15 @@ export namespace HumanFoot {
    * @param degrees The turn about +Y, degrees.
    * @returns The turned placement; the same one for no turn.
    */
-  export function turned(foot: IAutoMovieMotionHumanFoot.IPlacement, degrees: number): IAutoMovieMotionHumanFoot.IPlacement {
+  export function turned(
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+    degrees: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     if (degrees === 0) return foot;
     return {
       ankle: foot.ankle,
       rotation: Quaternion.normalize(
-        Quaternion.multiply(
-          YAW(degrees),
-          foot.rotation,
-        ),
+        Quaternion.multiply(YAW(degrees), foot.rotation),
       ),
     };
   }
@@ -177,10 +188,15 @@ export namespace HumanFoot {
    * @param roll Degrees about the foot's forward axis, positive lifting its outer border on the left foot's side (+X at rest); none when absent.
    * @returns The rotation.
    */
-  export const rotation: (heading: number, pitch: number, roll?: number) => IAutoMovieQuaternion = HumanFootRotation;
+  export const rotation: (
+    heading: number,
+    pitch: number,
+    roll?: number,
+  ) => IAutoMovieQuaternion = HumanFootRotation;
 
   /** Prepare the exact height component of one fixed articulated socket for actual clearance-only queries. */
-  export const prepareHeight: typeof prepareHumanFootHeight = prepareHumanFootHeight;
+  export const prepareHeight: typeof prepareHumanFootHeight =
+    prepareHumanFootHeight;
 
   /** Actual socket/outline frame bone membership for one unchanged displayed-foot observation. */
   export const bones: typeof humanFootBones = humanFootBones;
@@ -249,9 +265,16 @@ export namespace HumanFoot {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both scalar values derive from this same supplied quaternion within this call; no identity, pose or time key is involved.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh scalar pair and retains no input or state.
    */
-  export function headingPitch(rotation: IAutoMovieQuaternion): { heading: number; pitch: number } {
+  export function headingPitch(rotation: IAutoMovieQuaternion): {
+    heading: number;
+    pitch: number;
+  } {
     const angle: number = heading(rotation);
-    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     return { heading: angle, pitch: pitchAt(toes, angle) };
   }
 
@@ -278,7 +301,8 @@ export namespace HumanFoot {
   export const offset: typeof humanFootOffset = humanFootOffset;
 
   /** Fixed body/socket geometry over varying actual toe angles, owned by humanFootOffset.prepare. */
-  export const prepareOffset: typeof humanFootOffset.prepare = humanFootOffset.prepare;
+  export const prepareOffset: typeof humanFootOffset.prepare =
+    humanFootOffset.prepare;
 
   /**
    * The foot placed by pivoting about a sole point fixed on the floor.
@@ -348,11 +372,17 @@ export namespace HumanFoot {
     heading: number,
     toes: number = 0,
     roll: number = 0,
-  ): (pitch: number, contact?: IAutoMovieVector3) => IAutoMovieMotionHumanFoot.IPlacement {
+  ): (
+    pitch: number,
+    contact?: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanFoot.IPlacement {
     const turned: ReturnType<typeof HumanFootRotation.prepare> =
       HumanFootRotation.prepare(heading, roll);
     const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
-    return (pitch: number, contact: IAutoMovieVector3 = at): IAutoMovieMotionHumanFoot.IPlacement => {
+    return (
+      pitch: number,
+      contact: IAutoMovieVector3 = at,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       const r: IAutoMovieQuaternion = turned(pitch);
       return {
         ankle: Vector3.subtract(contact, Quaternion.rotateVector(r, local)),
@@ -435,11 +465,15 @@ export namespace HumanFoot {
     toes: number = 0,
   ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3 {
     const local: IAutoMovieVector3 = offset(body, side, point, toes);
-    return (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 => pointAt(local, foot);
+    return (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 =>
+      pointAt(local, foot);
   }
 
   /** The common ankle translation and rigid rotation of a prepared local socket. */
-  function pointAt(local: IAutoMovieVector3, foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 {
+  function pointAt(
+    local: IAutoMovieVector3,
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieVector3 {
     return Vector3.add(
       foot.ankle,
       Quaternion.rotateVector(foot.rotation, local),
@@ -448,5 +482,5 @@ export namespace HumanFoot {
 }
 
 /** The unchanged world-up axis shared only as axis-angle scalar preparation. */
-const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
-
+const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =
+  Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

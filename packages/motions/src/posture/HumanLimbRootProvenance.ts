@@ -1,8 +1,5 @@
 import { fitSeededChainToTarget } from "@automovie/engine";
-import type {
-  IAutoMovieHumanLegCrotchRoot,
-  IAutoMovieSeededChainFit,
-} from "@automovie/interface";
+import type { IAutoMovieSeededChainFit } from "@automovie/interface";
 
 /**
  * Transport genuine algebraic-root facts through owned fit copies.
@@ -27,7 +24,7 @@ export namespace HumanLimbRootProvenance {
    */
   export function capture(fit: IAutoMovieSeededChainFit): void {
     if (fit.seed === null) return;
-    const root: IAutoMovieHumanLegCrotchRoot.IRoot | undefined = fitSeededChainToTarget.orientationRoot(fit);
+    const root: IRoot | undefined = fitSeededChainToTarget.orientationRoot(fit);
     if (root !== undefined) ROOTS.set(fit.seed, { ...root });
   }
 
@@ -42,10 +39,14 @@ export namespace HumanLimbRootProvenance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared immutable-by-ownership numeric facts describe the same completed root while each returned seed remains independently owned.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both memberships are weak; the packet contains only five primitive numbers and releases with its last actual seed.
    */
-  export function copy(source: IAutoMovieSeededChainFit["seed"], target: IAutoMovieSeededChainFit["seed"]): void {
+  export function copy(
+    source: IAutoMovieSeededChainFit["seed"],
+    target: IAutoMovieSeededChainFit["seed"],
+  ): void {
     if (source === null || target === null) return;
-    const root: IAutoMovieHumanLegCrotchRoot.IRoot | undefined = ROOTS.get(source);
-    if (root !== undefined && matches(source, root) && matches(target, root)) ROOTS.set(target, root);
+    const root: IRoot | undefined = ROOTS.get(source);
+    if (root !== undefined && matches(source, root) && matches(target, root))
+      ROOTS.set(target, root);
   }
 
   /**
@@ -59,20 +60,32 @@ export namespace HumanLimbRootProvenance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each read independently observes the actual retained scalar facts.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh packet; this read retains no observation, seed, result or handle.
    */
-  export function read(seed: IAutoMovieSeededChainFit["seed"]): IAutoMovieHumanLegCrotchRoot.IRoot | undefined {
+  export function read(
+    seed: IAutoMovieSeededChainFit["seed"],
+  ): IRoot | undefined {
     if (seed === null) return undefined;
-    const root: IAutoMovieHumanLegCrotchRoot.IRoot | undefined = ROOTS.get(seed);
+    const root: IRoot | undefined = ROOTS.get(seed);
     return root !== undefined && matches(seed, root) ? { ...root } : undefined;
   }
 }
 
 /** Engine-owned scalar facts, without another independently maintained root schema. */
-type IRoot = NonNullable<ReturnType<typeof fitSeededChainToTarget.orientationRoot>>;
+type IRoot = NonNullable<
+  ReturnType<typeof fitSeededChainToTarget.orientationRoot>
+>;
 
 /** Actual original/copy seed lifetimes alone bound private membership. */
-const ROOTS: WeakMap<NonNullable<IAutoMovieSeededChainFit["seed"]>, IAutoMovieHumanLegCrotchRoot.IRoot> = new WeakMap();
+const ROOTS: WeakMap<
+  NonNullable<IAutoMovieSeededChainFit["seed"]>,
+  IRoot
+> = new WeakMap();
 
 /** Bone-local seed coordinates remain exact through the owner's legitimate transforms. */
-function matches(seed: NonNullable<IAutoMovieSeededChainFit["seed"]>, root: IAutoMovieHumanLegCrotchRoot.IRoot): boolean {
-  return Object.is(seed.branch, root.branch) && Object.is(seed.swivel, root.swivel);
+function matches(
+  seed: NonNullable<IAutoMovieSeededChainFit["seed"]>,
+  root: IRoot,
+): boolean {
+  return (
+    Object.is(seed.branch, root.branch) && Object.is(seed.swivel, root.swivel)
+  );
 }

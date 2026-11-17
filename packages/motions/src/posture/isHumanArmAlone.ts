@@ -4,8 +4,6 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { HumanHand } from "./HumanHand";
-
 /**
  * Whether an arm is the last limb a posture's solve fits and fits alone:
  * the other arm has no goal and no leg's goal rides a bone of this arm.
@@ -33,7 +31,8 @@ export function isHumanArmAlone(
   limbs: IAutoMovieMotionHumanPosture["limbs"],
   side: AutoMovieHumanSide,
 ): boolean {
-  const other: "leftArm" | "rightArm" = side === "left" ? "rightArm" : "leftArm";
+  const other: "leftArm" | "rightArm" =
+    side === "left" ? "rightArm" : "leftArm";
   if (limbs[other] !== undefined) return false;
   for (const name of ["leftLeg", "rightLeg"] as const) {
     const on: AutoMovieHumanoidBone | undefined = limbs[name]?.on;

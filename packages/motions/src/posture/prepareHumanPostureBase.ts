@@ -11,7 +11,6 @@ import { assembleHumanPosture } from "./assembleHumanPosture";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { refitHumanPosture } from "./refitHumanPosture";
-import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { turnHumanPosture } from "./turnHumanPosture";
 
 /**
@@ -33,26 +32,30 @@ export function prepareHumanPostureBase(
   posture: IAutoMovieMotionHumanPosture,
   base?: IAutoMoviePose,
 ): prepareHumanPostureBase.IWorkspace {
-  const fixed: IAutoMovieMotionHumanPosture = structuredClone({ ...posture, limbs: {} });
-  const assembled: ReturnType<typeof assembleHumanPosture> = assembleHumanPosture(body, fixed, base);
+  const fixed: IAutoMovieMotionHumanPosture = structuredClone({
+    ...posture,
+    limbs: {},
+  });
+  const assembled: ReturnType<typeof assembleHumanPosture> =
+    assembleHumanPosture(body, fixed, base);
   const pose: IAutoMoviePose = structuredClone(assembled.pose);
-  const ownedResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanLimbSource(body);
+  const ownedResolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanLimbSource(body);
   return {
     seeded: (
       limbs: IAutoMovieMotionHumanPosture["limbs"],
       near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => {
-      const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({ ...fixed, limbs });
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = source === undefined
-        ? ownedResolution : prepareHumanPoseResolution(source);
-      const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = (source === undefined ? refitHumanPosture : refitHumanPosture.independent)(
-        body,
-        structuredClone(pose),
-        turned.limbs,
-        near,
-        resolution,
-      );
+      const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+        turnHumanPosture({ ...fixed, limbs });
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        source === undefined
+          ? ownedResolution
+          : prepareHumanPoseResolution(source);
+      const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = (
+        source === undefined ? refitHumanPosture : refitHumanPosture.independent
+      )(body, structuredClone(pose), turned.limbs, near, resolution);
       const result: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = {
         ...fitted,
         pose: HumanDigitFit.fitted(body, fitted.pose, fixed.digits, resolution),

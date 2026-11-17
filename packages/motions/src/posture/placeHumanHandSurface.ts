@@ -5,8 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanHand } from "./HumanHand";
-
 /**
  * Place the wrist whose rigidly carried local hand surface meets a world point.
  *
@@ -56,8 +54,11 @@ export namespace placeHumanHandSurface {
     turn: IAutoMovieQuaternion,
   ): (at: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist {
     const rotation: IAutoMovieQuaternion = { ...turn };
-    const shift: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { ...local });
-    return (at: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist => placed(at, { ...rotation }, shift);
+    const shift: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      ...local,
+    });
+    return (at: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist =>
+      placed(at, { ...rotation }, shift);
   }
 }
 

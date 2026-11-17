@@ -5,8 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanArmGeometry as G } from "./HumanArmGeometry";
-
 /**
  * Attach the existing axis and optional collider probes to a completed arm
  * chain. The chain must be the actual FK of this setup and instant's frame.
@@ -43,7 +41,8 @@ export function placeHumanArmGeometry(
     ph,
     Quaternion.rotateVector(wh, at.tip),
   );
-  const m: IAutoMovieMotionHumanArmGeometry.ISetup["body"]["measure"] = setup.body.measure;
+  const m: IAutoMovieMotionHumanArmGeometry.ISetup["body"]["measure"] =
+    setup.body.measure;
   return {
     probes: [
       [Vector3.lerp(pu, pl, 0.5), m.upperArmRadius],

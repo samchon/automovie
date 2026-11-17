@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliderBound } from "./HumanColliderBound";
-import type { HumanColliders } from "./HumanColliders";
 
 /**
  * Ordered signed-distance reduction over one actual collider placement.
@@ -59,16 +58,25 @@ export function HumanColliderDistance(
           if (bounds !== undefined) bounds[slot] = ball;
         }
         if (
-          closestPointsBetweenSegments(a, b, ball.centre, ball.centre).distance -
-            ball.radius - widest >= best.distance
-        ) continue;
+          closestPointsBetweenSegments(a, b, ball.centre, ball.centre)
+            .distance -
+            ball.radius -
+            widest >=
+          best.distance
+        )
+          continue;
       }
-      const d: number = readers === undefined
-        ? physicalShapeSegmentDistance(pose, shape, a, b, taper)
-        : (readers[slot] ??= physicalShapeSegmentDistance.prepare(pose, shape))(a, b, taper);
+      const d: number =
+        readers === undefined
+          ? physicalShapeSegmentDistance(pose, shape, a, b, taper)
+          : (readers[slot] ??= physicalShapeSegmentDistance.prepare(
+              pose,
+              shape,
+            ))(a, b, taper);
       if (best === undefined || d < best.distance) best = { distance: d, bone };
     }
-  if (best === undefined) throw new Error("A body without colliders has no distance");
+  if (best === undefined)
+    throw new Error("A body without colliders has no distance");
   return best;
 }
 
@@ -95,10 +103,18 @@ export namespace HumanColliderDistance {
    */
   export function prepare(
     placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-  ): (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => IAutoMovieMotionHumanColliders.IDistance {
+  ): (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    taper?: readonly [number, number],
+  ) => IAutoMovieMotionHumanColliders.IDistance {
     const bounds: IWorldBall[] = [];
     const readers: IDistanceReader[] = [];
-    return (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]): IAutoMovieMotionHumanColliders.IDistance =>
+    return (
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      taper?: readonly [number, number],
+    ): IAutoMovieMotionHumanColliders.IDistance =>
       HumanColliderDistance(
         placements,
         a,
@@ -112,7 +128,10 @@ export namespace HumanColliderDistance {
 }
 
 /** Operation-owned world sphere; centre never aliases borrowed hull metadata. */
-interface IWorldBall { centre: IAutoMovieVector3; radius: number; }
+interface IWorldBall {
+  centre: IAutoMovieVector3;
+  radius: number;
+}
 
 /** Engine-owned fixed shape geometry with no retained point or result. */
 type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;

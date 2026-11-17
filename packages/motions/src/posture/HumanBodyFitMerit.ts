@@ -8,7 +8,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanBodyFit } from "./HumanBodyFit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanFitGoals } from "./HumanFitGoals";
@@ -71,7 +70,8 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the reading, misses, ordered selected supports and their membership set, plus actual ordered pair gaps whose witnesses the next convexification consumes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The loop's own evaluation extended, not restated.
    */
-  export interface IEvaluation extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
+  export interface IEvaluation
+    extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
     /** The reading. */
     r: HumanBodyFitRows.IReading;
 
@@ -197,7 +197,8 @@ export namespace HumanBodyFitMerit {
     const n: number = variables.length;
     const BAND: number = HumanBodyFitRows.BAND;
     const MM: number = HumanBodyFitRows.MM;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
 
     // The points the named bearing parts bear on at a reading: each of their
     // support candidates within the bearing margin of the part's lowest.
@@ -223,7 +224,11 @@ export namespace HumanBodyFitMerit {
     const read: (x: Float64Array) => HumanBodyFitRows.IReading = (
       x: Float64Array,
     ): HumanBodyFitRows.IReading => {
-      const written: IAutoMovieMotionHumanPosture = HumanFitVariables.written(variables, posture, x);
+      const written: IAutoMovieMotionHumanPosture = HumanFitVariables.written(
+        variables,
+        posture,
+        x,
+      );
       const r: HumanFloorReading.IReading = HumanFloorReading.of(
         body,
         written,
@@ -304,13 +309,11 @@ export namespace HumanBodyFitMerit {
                     axis,
                   ),
               ),
-        pairs: pairs.map(
-          (pair: HumanFitPairs.IPair, k: number): number => {
-            const gap: HumanFitPairs.IGap = HumanFitPairs.gap(r.bones, pair);
-            gaps[k] = gap;
-            return -gap.distance;
-          },
-        ),
+        pairs: pairs.map((pair: HumanFitPairs.IPair, k: number): number => {
+          const gap: HumanFitPairs.IGap = HumanFitPairs.gap(r.bones, pair);
+          gaps[k] = gap;
+          return -gap.distance;
+        }),
       };
     };
 

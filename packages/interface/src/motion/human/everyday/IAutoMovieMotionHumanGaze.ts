@@ -145,7 +145,7 @@ export namespace IAutoMovieMotionHumanGaze {
     to?: number;
 
     /** Which segments may join; auto when omitted. */
-    with?:Recruit;
+    with?: IAutoMovieMotionHumanGaze.Recruit;
   }
 
   /**

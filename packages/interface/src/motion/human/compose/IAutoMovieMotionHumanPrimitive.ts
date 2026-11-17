@@ -71,7 +71,8 @@ export interface IAutoMovieMotionHumanPrimitive {
     seconds: number,
     before?: IAutoMovieMotionHumanPrimitive.Reader,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3] ): IAutoMovieMotionHumanPosture;
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+  ): IAutoMovieMotionHumanPosture;
 
   /**
    * Plan what is planned once over the primitive's span, when its action is
@@ -99,11 +100,6 @@ export interface IAutoMovieMotionHumanPrimitive {
  * A Reader's action-local second and optional channel set identify the
  * prefix values its consumer may inspect. Omission requests the whole
  * posture; preparation and writing share this same borrowed-result rule.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a Reader identifies and the borrowed-result rule its preparation and writing share.
- * @evidence contracts/development/design.md#principled-representation One alias of the action plan's own posture signature, so a primitive reads its prefix through exactly what a plan answers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Primitive preparation and writing read the preceding posture through it; nothing else is declared.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no parallel posture record or metadata; the plan contract stays the one owner of the signature.
  */
 export namespace IAutoMovieMotionHumanPrimitive {
   /**

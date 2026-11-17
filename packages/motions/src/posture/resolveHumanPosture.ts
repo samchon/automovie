@@ -1,4 +1,3 @@
-import { clampPose } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -15,9 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanDigitFit } from "./HumanDigitFit";
 import { HumanLimbFit } from "./HumanLimbFit";
-import { HumanLimbPair } from "./HumanLimbPair";
 import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { deriveHumanPosture } from "./deriveHumanPosture";
 import { humanPostureHeading } from "./humanPostureHeading";
@@ -121,15 +118,38 @@ export namespace resolveHumanPosture {
     // The owned route assembles fresh records from the raw demands and fits
     // them in place; a reader lends only exact FK, so a native one (this
     // owner's factory or the engine's) can alias no record of the result.
-    const owned: boolean = base === undefined &&
-      (resolution === undefined || prepareHumanPoseResolution.isNativeSource(resolution));
+    const owned: boolean =
+      base === undefined &&
+      (resolution === undefined ||
+        prepareHumanPoseResolution.isNativeSource(resolution));
     if (cold) {
-      const prepared: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined = HumanPosturePreparation.read(body, posture);
-      if (prepared !== undefined && prepareHumanPoseResolution.isNativeSource(resolution)) return prepared;
+      const prepared:
+        | IAutoMovieMotionHumanResolveHumanPosture.ISeeded
+        | undefined = HumanPosturePreparation.read(body, posture);
+      if (
+        prepared !== undefined &&
+        prepareHumanPoseResolution.isNativeSource(resolution)
+      )
+        return prepared;
     }
     return owned
-      ? resolveHumanPostureSource.owned(body, posture, near, resolution, requested, projection)
-      : resolveHumanPostureSource(body, posture, base, near, resolution, requested, projection);
+      ? resolveHumanPostureSource.owned(
+          body,
+          posture,
+          near,
+          resolution,
+          requested,
+          projection,
+        )
+      : resolveHumanPostureSource(
+          body,
+          posture,
+          base,
+          near,
+          resolution,
+          requested,
+          projection,
+        );
   }
 
   /**
@@ -156,13 +176,24 @@ export namespace resolveHumanPosture {
    * Only actual translated/rigid construction plus current graph/rig/native-loan proof can lend its solution; carried cannot mint proof from arbitrary same-string authoring.
    * The issued wrapper and weakly associated carried postures own bounded private source/result data until release; no FK reader, time history or external resource is retained.
    */
-  export function prepare(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IPrepared {
-    return HumanPosturePreparation.prepare(body, posture, resolution, projection);
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): IPrepared {
+    return HumanPosturePreparation.prepare(
+      body,
+      posture,
+      resolution,
+      projection,
+    );
   }
 
   /** Observe an issued source through fresh FK only; no private pose escapes or unused public pose is copied. */
-  export function preparedBones(...args: Parameters<typeof HumanPosturePreparation.bones>): ReturnType<typeof HumanPosturePreparation.bones> {
+  export function preparedBones(
+    ...args: Parameters<typeof HumanPosturePreparation.bones>
+  ): ReturnType<typeof HumanPosturePreparation.bones> {
     return HumanPosturePreparation.bones(...args);
   }
 
@@ -179,7 +210,11 @@ export namespace resolveHumanPosture {
    * Explicit fixed-source preparation proves direct-coordinate equivalence while varying goals/near seeds still execute through original solvers.
    * The search owns bounded fixed snapshots until completion or failure, and every mutable returned pose is independent of its protected base and later results.
    */
-  export function prepareBase(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, base?: IAutoMoviePose): ReturnType<typeof prepareHumanPostureBase> {
+  export function prepareBase(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    base?: IAutoMoviePose,
+  ): ReturnType<typeof prepareHumanPostureBase> {
     return prepareHumanPostureBase(body, posture, base);
   }
 
@@ -187,7 +222,10 @@ export namespace resolveHumanPosture {
   export type IAssembled = resolveHumanPostureSource.IAssembled;
 
   /** The first half of a resolve, held as a value: the posture's root, heading and direct joints clamped to the rig's range, before any limb is fitted; a cold resolve of the posture is `fit` of it. The posture is kept by reference for the goals' turning and the digits, so it stays unchanged while the assembly is used. */
-  export function assemble(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): IAssembled {
+  export function assemble(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAssembled {
     return resolveHumanPostureSource.assemble(body, posture);
   }
 
@@ -197,7 +235,11 @@ export namespace resolveHumanPosture {
    * gives it, sharing every record whose bone's angles are exactly the same
    * and clamping only the others again.
    */
-  export function derive(body: IAutoMovieMotionHumanBody, assembled: IAssembled, posture: IAutoMovieMotionHumanPosture): IAssembled {
+  export function derive(
+    body: IAutoMovieMotionHumanBody,
+    assembled: IAssembled,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAssembled {
     return deriveHumanPosture(body, assembled, posture);
   }
 
@@ -222,7 +264,14 @@ export namespace resolveHumanPosture {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     solved?: deriveHumanPosture.ISolved,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return resolveHumanPostureSource.fit(body, assembled, limbs, near, resolution, solved);
+    return resolveHumanPostureSource.fit(
+      body,
+      assembled,
+      limbs,
+      near,
+      resolution,
+      solved,
+    );
   }
 
   /**
@@ -238,7 +287,10 @@ export namespace resolveHumanPosture {
    * Only exact issued source evidence can be attached; seeded still checks current body/rig/raw scalar equivalence and absent base/near context.
    * The fresh raw posture owns its data and weak evidence retains the bounded source only for its lifetime, without readers or a global result history.
    */
-  export function translated(prepared: IPrepared, root: IAutoMovieVector3): IAutoMovieMotionHumanPosture {
+  export function translated(
+    prepared: IPrepared,
+    root: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPosturePreparation.translated(prepared, root);
   }
 
@@ -254,17 +306,32 @@ export namespace resolveHumanPosture {
    * Actual constructor provenance and complete current graph/rig/native-loan checks establish equivalence independently of the observed strings; copied or changed inputs retain normal resolution.
    * Returns the supplied raw object and associates only weak, bounded source evidence; no resource handle or query history is acquired.
    */
-  export function carried(prepared: IPrepared, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
+  export function carried(
+    prepared: IPrepared,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPosturePreparation.carried(prepared, posture);
   }
 
   /** Construct an owned joint-only raw shape at a current world root and yaw/pitch/roll in degrees. */
-  export function rigid(prepared: IPrepared, root: IAutoMovieVector3, yaw: number, pitch: number, roll: number): IAutoMovieMotionHumanPosture {
+  export function rigid(
+    prepared: IPrepared,
+    root: IAutoMovieVector3,
+    yaw: number,
+    pitch: number,
+    roll: number,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPosturePreparation.rigid(prepared, root, yaw, pitch, roll);
   }
 
   /** Construct an owned joint-only placement when its private source supports it, otherwise decline to the caller's original raw path. */
-  export function tryRigid(prepared: IPrepared, root: IAutoMovieVector3, yaw: number, pitch: number, roll: number): IAutoMovieMotionHumanPosture | undefined {
+  export function tryRigid(
+    prepared: IPrepared,
+    root: IAutoMovieVector3,
+    yaw: number,
+    pitch: number,
+    roll: number,
+  ): IAutoMovieMotionHumanPosture | undefined {
     return HumanPosturePreparation.tryRigid(prepared, root, yaw, pitch, roll);
   }
 
@@ -294,8 +361,10 @@ export namespace resolveHumanPosture {
     near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refitHumanPosture.independent(body, pose, limbs, near, resolution);
-    if (fitted.pose === pose && Object.keys(fitted.seeds).length === 0) return fitted;
+    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      refitHumanPosture.independent(body, pose, limbs, near, resolution);
+    if (fitted.pose === pose && Object.keys(fitted.seeds).length === 0)
+      return fitted;
 
     // The fit shares with the input pose the records it leaves as they are,
     // so the result is issued as a structured copy, whatever a record
@@ -305,7 +374,8 @@ export namespace resolveHumanPosture {
     try {
       return structuredClone(fitted);
     } catch {
-      const issued: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = structuredClone({ ...fitted, pose: { ...fitted.pose, joints: [] } });
+      const issued: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+        structuredClone({ ...fitted, pose: { ...fitted.pose, joints: [] } });
       issued.pose.joints = fitted.pose.joints.map(
         (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
           try {
@@ -389,7 +459,10 @@ export namespace resolveHumanPosture {
   }
 
   /** Prepare fixed body/knee reach geometry; every hip/ankle query retains the original lowering and refusal arithmetic. */
-  export function prepareShort(body: IAutoMovieMotionHumanBody, knee: number): ReturnType<typeof lowerHumanPosture.prepareShort> {
+  export function prepareShort(
+    body: IAutoMovieMotionHumanBody,
+    knee: number,
+  ): ReturnType<typeof lowerHumanPosture.prepareShort> {
     return lowerHumanPosture.prepareShort(body, knee);
   }
 
@@ -433,16 +506,18 @@ export namespace resolveHumanPosture {
     near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
-    return structuredClone(HumanLimbFit.fit(
-      body,
-      pose,
-      limb,
-      goal,
-      ["left", "right"],
-      undefined,
-      near,
-      resolution,
-    ));
+    return structuredClone(
+      HumanLimbFit.fit(
+        body,
+        pose,
+        limb,
+        goal,
+        ["left", "right"],
+        undefined,
+        near,
+        resolution,
+      ),
+    );
   }
 
   /**
@@ -474,7 +549,9 @@ export namespace resolveHumanPosture {
   }
 
   /** The order to fit a posture's limbs in ({@link orderHumanLimbs}). */
-  export function order(limbs: IAutoMovieMotionHumanPosture["limbs"]): AutoMovieHumanLimb[] {
+  export function order(
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+  ): AutoMovieHumanLimb[] {
     return orderHumanLimbs(limbs);
   }
 

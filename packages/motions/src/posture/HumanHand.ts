@@ -1,4 +1,3 @@
-import { quaternionFromAutoMovieBasis } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -92,9 +91,11 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing digit memo weakly follows each body and grows with its requested sides/surfaces/shapes/curls. Two module-owned fixed canonical direction readers retain at most two successful inverse quaternions and no body, world input, aligned output or query history.
  */
 export namespace HumanHand {
-
   /** The sides of {@link Side}, as data. */
-  export const SIDES = ["left", "right"] as const satisfies readonly NonNullable<AutoMovieHumanSide>[];
+  export const SIDES = [
+    "left",
+    "right",
+  ] as const satisfies readonly NonNullable<AutoMovieHumanSide>[];
 
   /** The surfaces of {@link Surface}, as data. */
   export const SURFACES = [
@@ -136,7 +137,9 @@ export namespace HumanHand {
    * @param surface The surface.
    * @returns Whether it is a digit's tip or pad.
    */
-  export function digital(surface: IAutoMovieMotionHumanHand.Surface): surface is IAutoMovieMotionHumanHand.DigitSurface {
+  export function digital(
+    surface: IAutoMovieMotionHumanHand.Surface,
+  ): surface is IAutoMovieMotionHumanHand.DigitSurface {
     return (DIGIT_SURFACES as readonly string[]).includes(surface);
   }
 
@@ -148,14 +151,22 @@ export namespace HumanHand {
    * @param surface The surface.
    * @returns The bone.
    */
-  export function bone(side: AutoMovieHumanSide, surface: IAutoMovieMotionHumanHand.Surface): AutoMovieHumanoidBone {
+  export function bone(
+    side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface,
+  ): AutoMovieHumanoidBone {
     if (!digital(surface)) return `${side}Hand`;
     const digit: string = surface.replace(/(Tip|Pad)$/, "");
     return `${side}${digit[0]!.toUpperCase()}${digit.slice(1)}Distal` as AutoMovieHumanoidBone;
   }
 
   /** The hand shapes of {@link Shape}, as data. */
-  export const SHAPES = ["relaxed", "flat", "point", "fist"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Shape>[];
+  export const SHAPES = [
+    "relaxed",
+    "flat",
+    "point",
+    "fist",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Shape>[];
 
   /**
    * The finger joints of a hand shape, clinical degrees.
@@ -254,7 +265,8 @@ export namespace HumanHand {
   }
 
   /** Fixed-rest alignment owned by alignHumanHandSurface.prepare, with world-first admission on every actual read. */
-  export const prepareAlignment: typeof alignHumanHandSurface.prepare = alignHumanHandSurface.prepare;
+  export const prepareAlignment: typeof alignHumanHandSurface.prepare =
+    alignHumanHandSurface.prepare;
 
   /**
    * The hand's world rotation from its rest for an anatomical orientation:
@@ -269,12 +281,21 @@ export namespace HumanHand {
     side: AutoMovieHumanSide,
     orientation: IAutoMovieMotionHumanHand.IOrientation,
   ): IAutoMovieQuaternion {
-    return (side === "left" ? LEFT_ROTATION : RIGHT_ROTATION)(
-      { normal: orientation.fingers, forward: orientation.palm });
+    return (side === "left" ? LEFT_ROTATION : RIGHT_ROTATION)({
+      normal: orientation.fingers,
+      forward: orientation.palm,
+    });
   }
 
   /** The axes of {@link Axis}, as data. */
-  export const AXES = ["out", "in", "up", "down", "forward", "back"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Axis>[];
+  export const AXES = [
+    "out",
+    "in",
+    "up",
+    "down",
+    "forward",
+    "back",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Axis>[];
 
   /**
    * The world unit vector of a named direction for a hand of a performer
@@ -333,7 +354,12 @@ export namespace HumanHand {
     turn: IAutoMovieQuaternion,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IWrist {
-    const local: IAutoMovieMotionHumanHand.IFrame = offset(body, side, surface, form);
+    const local: IAutoMovieMotionHumanHand.IFrame = offset(
+      body,
+      side,
+      surface,
+      form,
+    );
     return placeHumanHandSurface(local.point, at, turn);
   }
 
@@ -358,7 +384,12 @@ export namespace HumanHand {
     target: IAutoMovieMotionHumanHand.IFrame,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IWrist {
-    const local: IAutoMovieMotionHumanHand.IFrame = offset(body, side, surface, form);
+    const local: IAutoMovieMotionHumanHand.IFrame = offset(
+      body,
+      side,
+      surface,
+      form,
+    );
     return place(body, side, surface, target.point, align(local, target), form);
   }
 
@@ -384,29 +415,52 @@ export namespace HumanHand {
     surface: IAutoMovieMotionHumanHand.Surface,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IFrame {
-    return readHumanHandFrame(body, bones, side, surface,
-      (): IAutoMovieMotionHumanHand.IFrame => offset(body, side, surface, form), digital(surface));
+    return readHumanHandFrame(
+      body,
+      bones,
+      side,
+      surface,
+      (): IAutoMovieMotionHumanHand.IFrame => offset(body, side, surface, form),
+      digital(surface),
+    );
   }
 
   /** Actual hand and body-declared digit-region bones consumed by frame, including custom/fallback region metadata. */
-  export function frameBones(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, surface: IAutoMovieMotionHumanHand.Surface): ReadonlySet<AutoMovieHumanoidBone> {
+  export function frameBones(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface,
+  ): ReadonlySet<AutoMovieHumanoidBone> {
     return readHumanHandFrame.bones(body, side, surface, digital(surface));
   }
 
   /** Prepare fixed body/side/surface/form point geometry; current bones return fresh points, while digits keep complete original frame seating. */
-  export function preparePoint(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, surface: IAutoMovieMotionHumanHand.Surface,
-    form: IAutoMovieMotionHumanHand.Shape = "relaxed"): ReturnType<typeof readHumanHandFrame.preparePoint> {
-    return readHumanHandFrame.preparePoint(body, side, surface,
-      (): IAutoMovieMotionHumanHand.IFrame => offset(body, side, surface, form), digital(surface));
+  export function preparePoint(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface,
+    form: IAutoMovieMotionHumanHand.Shape = "relaxed",
+  ): ReturnType<typeof readHumanHandFrame.preparePoint> {
+    return readHumanHandFrame.preparePoint(
+      body,
+      side,
+      surface,
+      (): IAutoMovieMotionHumanHand.IFrame => offset(body, side, surface, form),
+      digital(surface),
+    );
   }
 }
 
 /** Canonical left rest directions; inverse admission remains lazy and world-first. */
-const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> = alignHumanHandSurface.prepare({
-  normal: { x: 1, y: 0, z: 0 }, forward: { x: 0, y: -1, z: 0 },
-});
+const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =
+  alignHumanHandSurface.prepare({
+    normal: { x: 1, y: 0, z: 0 },
+    forward: { x: 0, y: -1, z: 0 },
+  });
 
 /** Canonical right rest directions; no world frame or result is retained. */
-const RIGHT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> = alignHumanHandSurface.prepare({
-  normal: { x: -1, y: 0, z: 0 }, forward: { x: 0, y: -1, z: 0 },
-});
+const RIGHT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =
+  alignHumanHandSurface.prepare({
+    normal: { x: -1, y: 0, z: 0 },
+    forward: { x: 0, y: -1, z: 0 },
+  });

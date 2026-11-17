@@ -73,13 +73,17 @@ export interface IAutoMoviePoseResolution {
 
 /**
  * Companion types of {@link IAutoMoviePoseResolution}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the loan forms a borrower accepts.
- * @evidence contracts/development/design.md#principled-representation A reader is lent directly or through a lazy getter that creates it at the first actual demand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The action plans' and carriers' posture readers and the motions pose-resolution loans accept exactly these two forms.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The union names the two real forms; an absent loan stays the optional parameter's own absence.
  */
 export namespace IAutoMoviePoseResolution {
-  /** A reader lent directly, or a getter that creates or borrows one at its first actual demand. */
-  export type ISource = IAutoMoviePoseResolution | (() => IAutoMoviePoseResolution);
+  /**
+   * A reader lent directly, or a getter that creates or borrows one at its first actual demand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the loan forms a borrower accepts.
+   * @evidence contracts/development/design.md#principled-representation A reader is lent directly or through a lazy getter that creates it at the first actual demand.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The action plans' and carriers' posture readers and the motions pose-resolution loans accept exactly these two forms.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The union names the two real forms; an absent loan stays the optional parameter's own absence.
+   */
+  export type ISource =
+    | IAutoMoviePoseResolution
+    | (() => IAutoMoviePoseResolution);
 }

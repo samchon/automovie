@@ -6,9 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanBodyFit } from "./HumanBodyFit";
-import type { HumanJacobian } from "./HumanJacobian";
-
 /**
  * Angular error derivatives of one target on one unchanged body reading.
  * Each variable produces its full vector once; the target-row owner selects
@@ -46,17 +43,19 @@ export namespace HumanFitTargetSlopes {
       angle < Number.EPSILON ** 0.25
         ? 1 / 12 + (angle * angle) / 720
         : 1 / (angle * angle) - 1 / (2 * angle * Math.tan(angle / 2));
-    return motions.map((motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
-      const omega: IAutoMovieVector3 = motion.angular;
-      const cross: IAutoMovieVector3 = Vector3.cross(e, omega);
-      return Vector3.add(
-        omega,
-        Vector3.add(
-          Vector3.scale(cross, 0.5),
-          Vector3.scale(Vector3.cross(e, cross), factor),
-        ),
-      );
-    });
+    return motions.map(
+      (motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
+        const omega: IAutoMovieVector3 = motion.angular;
+        const cross: IAutoMovieVector3 = Vector3.cross(e, omega);
+        return Vector3.add(
+          omega,
+          Vector3.add(
+            Vector3.scale(cross, 0.5),
+            Vector3.scale(Vector3.cross(e, cross), factor),
+          ),
+        );
+      },
+    );
   }
 
   /**
@@ -104,15 +103,17 @@ export namespace HumanFitTargetSlopes {
       );
     }
     const angle: number = Math.atan2(sine, cosine);
-    return motions.map((motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
-      const dn: IAutoMovieVector3 = Vector3.cross(motion.angular, n);
-      const dc: IAutoMovieVector3 = Vector3.cross(w, dn);
-      const ds: number = Vector3.dot(c, dc) / sine;
-      const dt: number = cosine * ds - sine * Vector3.dot(w, dn);
-      return Vector3.add(
-        Vector3.scale(dc, angle / sine),
-        Vector3.scale(c, dt / sine - (angle * ds) / (sine * sine)),
-      );
-    });
+    return motions.map(
+      (motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
+        const dn: IAutoMovieVector3 = Vector3.cross(motion.angular, n);
+        const dc: IAutoMovieVector3 = Vector3.cross(w, dn);
+        const ds: number = Vector3.dot(c, dc) / sine;
+        const dt: number = cosine * ds - sine * Vector3.dot(w, dn);
+        return Vector3.add(
+          Vector3.scale(dc, angle / sine),
+          Vector3.scale(c, dt / sine - (angle * ds) / (sine * sine)),
+        );
+      },
+    );
   }
 }

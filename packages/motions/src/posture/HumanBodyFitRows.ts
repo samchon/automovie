@@ -8,7 +8,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanBodyFit } from "./HumanBodyFit";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitTargets } from "./HumanFitTargets";
@@ -213,9 +212,14 @@ export namespace HumanBodyFitRows {
         readColumns?.(),
       ).forEach((slope: number[], e: number): void => {
         const inside: (r: IReading) => number = (r: IReading): number =>
-            r === at
-              ? balance.inside[e]!
-              : HumanFitBalance.distance(outline, e, r.balance!.com, balance.normals[e]!);
+          r === at
+            ? balance.inside[e]!
+            : HumanFitBalance.distance(
+                outline,
+                e,
+                r.balance!.com,
+                balance.normals[e]!,
+              );
         rows.push({
           row: {
             key: `balance:${e}`,
@@ -361,14 +365,12 @@ export namespace HumanBodyFitRows {
 
   /** A support candidate's height's slope: its point's, riding its collider's bone. */
   function low(step: IStep, c: number): number[] {
-    return scaled(
-      step,
-      (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
-        HumanJacobian.velocityY(
-          m,
-          step.at.owners[step.at.of[c]!]!,
-          step.at.spots[c]!,
-        ),
+    return scaled(step, (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
+      HumanJacobian.velocityY(
+        m,
+        step.at.owners[step.at.of[c]!]!,
+        step.at.spots[c]!,
+      ),
     );
   }
 }

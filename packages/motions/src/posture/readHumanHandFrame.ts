@@ -15,8 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanHand } from "./HumanHand";
-
 /**
  * Read a hand surface using its actual body-declared digit region bone.
  * HumanHand owns surface classification and local offset construction.
@@ -39,14 +37,23 @@ export function readHumanHandFrame(
 ): IAutoMovieMotionHumanHand.IFrame {
   const hand: WorldBone = bones.get(`${side}Hand`)!;
   const local: IAutoMovieMotionHumanHand.IFrame = offset();
-  const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 =
-    (v: IAutoMovieVector3): IAutoMovieVector3 => Quaternion.rotateVector(hand.worldRotation, v);
-  if (!digital) return { point: worldPoint(hand.worldPosition, local.point, hand.worldRotation),
-    normal: turn(local.normal), forward: turn(local.forward) };
+  const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+    v: IAutoMovieVector3,
+  ): IAutoMovieVector3 => Quaternion.rotateVector(hand.worldRotation, v);
+  if (!digital)
+    return {
+      point: worldPoint(hand.worldPosition, local.point, hand.worldRotation),
+      normal: turn(local.normal),
+      forward: turn(local.forward),
+    };
   const actual: IAutoMovieHumanoidSurfaces.IFrame = region(body, side, surface);
   const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
     resolveAutoMovieHumanoidSurfaces.place(actual, bones.get(actual.bone)!);
-  return { point: placed.point, normal: placed.normal, forward: turn(local.forward) };
+  return {
+    point: placed.point,
+    normal: placed.normal,
+    forward: turn(local.forward),
+  };
 }
 
 /**
@@ -68,11 +75,16 @@ export namespace readHumanHandFrame {
    * Release this fixed local-point reader with its owner; it keeps no pose,
    * bones map, queried time, world point or result history.
    */
-  export function preparePoint(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
-    surface: IAutoMovieMotionHumanHand.Surface, offset: () => IAutoMovieMotionHumanHand.IFrame, digital: boolean):
-    (bones: Bones) => IAutoMovieVector3 {
-    if (digital) return (bones: Bones): IAutoMovieVector3 =>
-      readHumanHandFrame(body, bones, side, surface, offset, true).point;
+  export function preparePoint(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface,
+    offset: () => IAutoMovieMotionHumanHand.IFrame,
+    digital: boolean,
+  ): (bones: Bones) => IAutoMovieVector3 {
+    if (digital)
+      return (bones: Bones): IAutoMovieVector3 =>
+        readHumanHandFrame(body, bones, side, surface, offset, true).point;
     let local: IAutoMovieVector3 | undefined;
     return (bones: Bones): IAutoMovieVector3 => {
       const hand: WorldBone = bones.get(`${side}Hand`)!;
@@ -95,9 +107,14 @@ export namespace readHumanHandFrame {
    * The query coordinates no retained work.
    * Returns a fresh caller-owned set and retains no body or metadata.
    */
-  export function bones(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, surface: IAutoMovieMotionHumanHand.Surface,
-    digital: boolean): ReadonlySet<AutoMovieHumanoidBone> {
-    const requested: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+  export function bones(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface,
+    digital: boolean,
+  ): ReadonlySet<AutoMovieHumanoidBone> {
+    const requested: Set<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     if (digital) requested.add(region(body, side, surface).bone);
     return requested;
   }
@@ -107,17 +124,26 @@ export namespace readHumanHandFrame {
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, WorldBone>;
 
 /** The two current world transform values used by hand-surface seating. */
-type WorldBone = Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">;
+type WorldBone = Pick<
+  IAutoMovieResolvedBone,
+  "worldPosition" | "worldRotation"
+>;
 
 /** Preserve cold point arithmetic and its position/local-point/rotation argument order. */
-function worldPoint(position: IAutoMovieVector3, point: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
+function worldPoint(
+  position: IAutoMovieVector3,
+  point: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+): IAutoMovieVector3 {
   return Vector3.add(position, Quaternion.rotateVector(rotation, point));
 }
 
 /** Preserve the original body-owned digital surface key and its actual bone. */
-function region(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
-  surface: IAutoMovieMotionHumanHand.Surface): IAutoMovieHumanoidSurfaces.IFrame {
+function region(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  surface: IAutoMovieMotionHumanHand.Surface,
+): IAutoMovieHumanoidSurfaces.IFrame {
   return body.surfaces.regions[
     `${surface}${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
   ];

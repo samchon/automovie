@@ -216,11 +216,13 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanArmPhrase.IPhrase, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanArmTarget.ITarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IStrokeProps = IAutoMovieMotionHumanArmPhrase.IPhrase & {
-    /** Retained synchronous target callback in action-relative seconds. At positive progress each write calls it both at that progress and at zero with the same posture and seconds, regardless of contact or extent; zero-weight writes may call it. Keep captured inputs stable; exceptions propagate. */
+    /** Retained synchronous target callback in action-relative seconds. At positive progress each write calls it both at that progress and at zero with the same posture and seconds, regardless of contact or extent; zero-weight writes may call it. Keep captured inputs stable; exceptions propagate. It may optionally borrow same-body FK and genuine ROM metadata as its fourth/fifth arguments only during that invocation. */
     path: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       progress: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
     ) => IAutoMovieMotionHumanArmTarget.ITarget;
   };
 

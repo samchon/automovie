@@ -19,7 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanHand } from "./HumanHand";
 import { poseBones } from "./poseBones";
 
 /**
@@ -55,15 +54,24 @@ export namespace HumanHandShape {
     side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const key: string | undefined = (side === "left" || side === "right") &&
-      (form === "relaxed" || form === "flat" || form === "point" || form === "fist")
-      ? `working:${side}:${form}` : undefined;
-    const known: readonly IShapeEntry[] | undefined = key === undefined ? undefined : SHAPES.get(key);
+    const key: string | undefined =
+      (side === "left" || side === "right") &&
+      (form === "relaxed" ||
+        form === "flat" ||
+        form === "point" ||
+        form === "fist")
+        ? `working:${side}:${form}`
+        : undefined;
+    const known: readonly IShapeEntry[] | undefined =
+      key === undefined ? undefined : SHAPES.get(key);
     if (known !== undefined) return copyShape(known);
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
-    const set: (bone: string, flexion: number) => void = (bone: string, flexion: number): void => {
+    const set: (bone: string, flexion: number) => void = (
+      bone: string,
+      flexion: number,
+    ): void => {
       out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
     };
     for (const digit of ["Index", "Middle", "Ring", "Little"]) {
@@ -128,9 +136,12 @@ export namespace HumanHandShape {
     side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHandShape.Emblem,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const key: string | undefined = (side === "left" || side === "right") && EMBLEMS.includes(form)
-      ? `emblem:${side}:${form}` : undefined;
-    const known: readonly IShapeEntry[] | undefined = key === undefined ? undefined : SHAPES.get(key);
+    const key: string | undefined =
+      (side === "left" || side === "right") && EMBLEMS.includes(form)
+        ? `emblem:${side}:${form}`
+        : undefined;
+    const known: readonly IShapeEntry[] | undefined =
+      key === undefined ? undefined : SHAPES.get(key);
     if (known !== undefined) return copyShape(known);
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -258,7 +269,9 @@ export namespace HumanHandShape {
       body,
       pose,
     );
-    const at: (segment: "Proximal" | "Distal") => IAutoMovieVector3 = (segment: "Proximal" | "Distal"): IAutoMovieVector3 =>
+    const at: (segment: "Proximal" | "Distal") => IAutoMovieVector3 = (
+      segment: "Proximal" | "Distal",
+    ): IAutoMovieVector3 =>
       bones.get(`${side}${name}${segment}` as AutoMovieHumanoidBone)!
         .worldPosition;
     return Vector3.normalize(
@@ -351,7 +364,8 @@ export namespace HumanHandShape {
     surface: IAutoMovieMotionHumanHand.DigitSurface = "indexTip",
   ): IAutoMovieMotionHumanHand.IFrame {
     const key: string = `${side}:${surface}:${form}:${curl}`;
-    let memo: Map<string, IAutoMovieMotionHumanHand.IFrame> | undefined = TIPS.get(body);
+    let memo: Map<string, IAutoMovieMotionHumanHand.IFrame> | undefined =
+      TIPS.get(body);
     if (memo === undefined) {
       memo = new Map();
       TIPS.set(body, memo);
@@ -373,10 +387,8 @@ export namespace HumanHandShape {
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
     const region: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[`${surface}${Side}` as AutoMovieHumanoidRegion];
-    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
-      region,
-      bones.get(region.bone)!,
-    );
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+      resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand.worldRotation,
@@ -396,7 +408,10 @@ export namespace HumanHandShape {
 }
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
-const TIPS: WeakMap<IAutoMovieMotionHumanBody, Map<string, IAutoMovieMotionHumanHand.IFrame>> = new WeakMap();
+const TIPS: WeakMap<
+  IAutoMovieMotionHumanBody,
+  Map<string, IAutoMovieMotionHumanHand.IFrame>
+> = new WeakMap();
 
 /** A canonical joint key and its three clinical angles, copied as scalars. */
 type IShapeEntry = readonly [AutoMovieHumanoidBone, number, number, number];
@@ -405,16 +420,31 @@ type IShapeEntry = readonly [AutoMovieHumanoidBone, number, number, number];
 const SHAPES: Map<string, readonly IShapeEntry[]> = new Map();
 
 /** Snapshot numbers before the first caller can edit its returned record or tuples. */
-function rememberShape(key: string, source: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>): void {
+function rememberShape(
+  key: string,
+  source: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >,
+): void {
   const entries: IShapeEntry[] = [];
   for (const [bone, angles] of Object.entries(source))
-    if (angles !== undefined) entries.push([bone as AutoMovieHumanoidBone, angles[0], angles[1], angles[2]]);
+    if (angles !== undefined)
+      entries.push([
+        bone as AutoMovieHumanoidBone,
+        angles[0],
+        angles[1],
+        angles[2],
+      ]);
   SHAPES.set(key, entries);
 }
 
 /** Each call owns its record and every nested tuple, in the original insertion order. */
-function copyShape(entries: readonly IShapeEntry[]): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-  const out: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {};
+function copyShape(
+  entries: readonly IShapeEntry[],
+): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+  const out: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  > = {};
   for (const entry of entries) out[entry[0]] = [entry[1], entry[2], entry[3]];
   return out;
 }

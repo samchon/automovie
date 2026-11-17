@@ -9,8 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanHand } from "./HumanHand";
-
 /**
  * Align the surface's normal exactly and its forward across that normal.
  * World-frame admission precedes rest-frame admission, as in HumanHand.align.
@@ -52,23 +50,33 @@ export namespace alignHumanHandSurface {
    */
   export function prepare(
     rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
-  ): (world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">) => IAutoMovieQuaternion {
-    const fixed: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward"> = {
-      normal: { ...rest.normal }, forward: { ...rest.forward },
-    };
+  ): (
+    world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+  ) => IAutoMovieQuaternion {
+    const fixed: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward"> =
+      {
+        normal: { ...rest.normal },
+        forward: { ...rest.forward },
+      };
     let inverse: IAutoMovieQuaternion | undefined;
-    return (world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">): IAutoMovieQuaternion => {
+    return (
+      world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+    ): IAutoMovieQuaternion => {
       const into: IAutoMovieQuaternion = basis(world);
-      return composed(into, inverse ??= Quaternion.inverse(basis(fixed)));
+      return composed(into, (inverse ??= Quaternion.inverse(basis(fixed))));
     };
   }
 }
 
 /** Complete the original projected normal/forward basis, retaining its parallel refusal. */
-function basis(frame: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">): IAutoMovieQuaternion {
+function basis(
+  frame: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+): IAutoMovieQuaternion {
   const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
-  const across: IAutoMovieVector3 = Vector3.subtract(frame.forward,
-    Vector3.scale(n, Vector3.dot(frame.forward, n)));
+  const across: IAutoMovieVector3 = Vector3.subtract(
+    frame.forward,
+    Vector3.scale(n, Vector3.dot(frame.forward, n)),
+  );
   if (Vector3.length(across) < 1e-9)
     throw new Error("A forward direction must not be parallel to its normal");
   const f: IAutoMovieVector3 = Vector3.normalize(across);
@@ -76,6 +84,9 @@ function basis(frame: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward
 }
 
 /** Keep normalization outside the same ordered world-times-inverse-rest product. */
-function composed(world: IAutoMovieQuaternion, inverse: IAutoMovieQuaternion): IAutoMovieQuaternion {
+function composed(
+  world: IAutoMovieQuaternion,
+  inverse: IAutoMovieQuaternion,
+): IAutoMovieQuaternion {
   return Quaternion.normalize(Quaternion.multiply(world, inverse));
 }

@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  type resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
@@ -31,28 +27,58 @@ export function prepareHumanFootSole(
   body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
 ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[] {
-  let sides: Partial<Record<"left" | "right", (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]>> | undefined = CACHE.get(body);
+  let sides:
+    | Partial<
+        Record<
+          "left" | "right",
+          (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]
+        >
+      >
+    | undefined = CACHE.get(body);
   if (sides === undefined) {
     sides = {};
     CACHE.set(body, sides);
   }
-  const known: ((foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]) | undefined = sides[side];
+  const known:
+    | ((foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[])
+    | undefined = sides[side];
   if (known !== undefined) return known;
   const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
   const local: IAutoMovieVector3[] = [
-    ...HumanFoot.SOCKETS.map((socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 => HumanFoot.offset(body, side, socket)),
+    ...HumanFoot.SOCKETS.map(
+      (socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 =>
+        HumanFoot.offset(body, side, socket),
+    ),
     ...HumanFoot.outline(body, side).map(
-      (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 => frame.bone === `${side}Foot`
-        ? frame.point
-        : Vector3.add(Vector3.subtract(body.rest.get(frame.bone)!, ankle), frame.point),
+      (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+        frame.bone === `${side}Foot`
+          ? frame.point
+          : Vector3.add(
+              Vector3.subtract(body.rest.get(frame.bone)!, ankle),
+              frame.point,
+            ),
     ),
   ];
-  const read: (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[] = (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3[] =>
-    local.map((point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, point)));
+  const read: (
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ) => IAutoMovieVector3[] = (
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieVector3[] =>
+    local.map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, point)),
+    );
   sides[side] = read;
   return read;
 }
 
 /** Intrinsic ankle-local geometry only, at most one reader for each side of a weak body. */
-const CACHE: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<"left" | "right", (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]>>> = new WeakMap();
+const CACHE: WeakMap<
+  IAutoMovieMotionHumanBody,
+  Partial<
+    Record<
+      "left" | "right",
+      (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]
+    >
+  >
+> = new WeakMap();

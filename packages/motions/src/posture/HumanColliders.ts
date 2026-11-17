@@ -1,10 +1,4 @@
-import {
-  Vector3,
-  physicalHullFaces,
-  physicalShapeBounds,
-  physicalShapeNearest,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { Vector3, physicalShapeNearest } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -68,18 +62,16 @@ export namespace HumanColliders {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieMotionHumanColliders.INearestResult {
-    const placements: readonly IAutoMovieMotionHumanColliders.IPlaced[] = placed(body, bones);
-    const found: IAutoMovieMotionHumanColliders.IDistance = HumanColliderDistance(placements, a, b, undefined, 0);
+    const placements: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
+      placed(body, bones);
+    const found: IAutoMovieMotionHumanColliders.IDistance =
+      HumanColliderDistance(placements, a, b, undefined, 0);
     let best: IAutoMoviePhysicalShapeNearest.IResult | undefined;
     for (const { bone, pose, shapes } of placements) {
       if (bone !== found.bone) continue;
       for (const shape of shapes) {
-        const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
-          pose,
-          shape,
-          a,
-          b,
-        );
+        const near: IAutoMoviePhysicalShapeNearest.IResult =
+          physicalShapeNearest(pose, shape, a, b);
         if (best === undefined || near.distance < best.distance) best = near;
       }
     }
@@ -169,18 +161,35 @@ export namespace HumanColliders {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): {
-    segment: (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => IAutoMovieMotionHumanColliders.IDistance;
-    cast: (from: IAutoMovieVector3, direction: IAutoMovieVector3, reach: number) => IAutoMovieMotionHumanColliders.IHit | undefined;
+    segment: (
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      taper?: readonly [number, number],
+    ) => IAutoMovieMotionHumanColliders.IDistance;
+    cast: (
+      from: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      reach: number,
+    ) => IAutoMovieMotionHumanColliders.IHit | undefined;
   } {
     let query: ReturnType<typeof HumanColliderDistance.prepare> | undefined;
     const segment: ReturnType<typeof reading>["segment"] = (
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
       taper?: readonly [number, number],
-    ): IAutoMovieMotionHumanColliders.IDistance => (query ??= HumanColliderDistance.prepare(placed(body, bones)))(a, b, taper);
+    ): IAutoMovieMotionHumanColliders.IDistance =>
+      (query ??= HumanColliderDistance.prepare(placed(body, bones)))(
+        a,
+        b,
+        taper,
+      );
     return {
       segment,
-      cast: (from: IAutoMovieVector3, direction: IAutoMovieVector3, reach: number): IAutoMovieMotionHumanColliders.IHit | undefined =>
+      cast: (
+        from: IAutoMovieVector3,
+        direction: IAutoMovieVector3,
+        reach: number,
+      ): IAutoMovieMotionHumanColliders.IHit | undefined =>
         castOn(segment, from, direction, reach),
     };
   }
@@ -227,15 +236,25 @@ export namespace HumanColliders {
     reach: number,
   ): IAutoMovieMotionHumanColliders.IHit | undefined {
     const along: IAutoMovieVector3 = Vector3.normalize(direction);
-    const atPoint: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance = (point: IAutoMovieVector3): IAutoMovieMotionHumanColliders.IDistance => {
+    const atPoint: (
+      point: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanColliders.IDistance = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanColliders.IDistance => {
       return segment(point, point);
     };
     let travelled: number = 0;
     for (let i: number = 0; i < CAST_STEPS; i++) {
-      const point: IAutoMovieVector3 = Vector3.addScaled(from, along, travelled);
+      const point: IAutoMovieVector3 = Vector3.addScaled(
+        from,
+        along,
+        travelled,
+      );
       const near: IAutoMovieMotionHumanColliders.IDistance = atPoint(point);
       if (near.distance <= CAST_TOLERANCE) {
-        const slope: (axis: IAutoMovieVector3) => number = (axis: IAutoMovieVector3): number =>
+        const slope: (axis: IAutoMovieVector3) => number = (
+          axis: IAutoMovieVector3,
+        ): number =>
           atPoint(Vector3.add(point, axis)).distance -
           atPoint(Vector3.subtract(point, axis)).distance;
         return {
@@ -299,8 +318,10 @@ export namespace HumanColliders {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed unchanged neutral geometry and copied group names establish membership equivalence. Every selected current bone transform and shape minimum still evaluates; no pose, query result or time sample is reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the producer's selected neutral references and bounded name/group metadata until release. The facade retains nothing; query staging ends on return/throw and only a fresh numeric array escapes, without input maps, sets, dynamic frames or growing history.
    */
-  export function prepareMinima(body: IAutoMovieMotionHumanBody,
-    groups?: readonly ReadonlySet<AutoMovieHumanoidBone>[]): ReturnType<typeof HumanColliderPlacement.prepareMinima> {
+  export function prepareMinima(
+    body: IAutoMovieMotionHumanBody,
+    groups?: readonly ReadonlySet<AutoMovieHumanoidBone>[],
+  ): ReturnType<typeof HumanColliderPlacement.prepareMinima> {
     return HumanColliderPlacement.prepareMinima(body, groups);
   }
 
@@ -378,7 +399,9 @@ export namespace HumanColliders {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the established unchanged-body neutral metadata cache, without another body or posed-result cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak body owner holds at most B names with its neutral segments; this facade retains nothing and callers leave the borrowed set unchanged.
    */
-  export function bones(body: IAutoMovieMotionHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
+  export function bones(
+    body: IAutoMovieMotionHumanBody,
+  ): ReadonlySet<AutoMovieHumanoidBone> {
     return HumanColliderPlacement.bones(body);
   }
 
@@ -400,8 +423,6 @@ export namespace HumanColliders {
     HumanColliderPlacement.prepare(body);
   }
 
-  
-
   /**
    * The sphere about a shape's centre that contains it: a sphere's own
    * radius, a capsule's half length plus radius, a box's half diagonal, a
@@ -420,10 +441,11 @@ export namespace HumanColliders {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's centre and radius come from `physicalHullFaces`, which keeps them by its points.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new ball record with a fresh primitive origin or borrowed immutable hull centre; this function retains no shape or result, and the hull owner keeps its existing geometry cache.
    */
-  export function bound(shape: IAutoMoviePhysicalShape): IAutoMovieMotionHumanColliders.IBall {
+  export function bound(
+    shape: IAutoMoviePhysicalShape,
+  ): IAutoMovieMotionHumanColliders.IBall {
     return HumanColliderBound(shape);
   }
-
 }
 
 /** How near a traced ray must come to a surface to have hit it, metres. */

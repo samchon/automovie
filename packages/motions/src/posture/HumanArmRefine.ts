@@ -1,6 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**

@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "./HumanFrame";
-import type { HumanHand } from "./HumanHand";
 
 /**
  * A named direction of a hand as a world vector: how `HumanHand.Direction`,
@@ -67,12 +66,11 @@ export namespace HumanHandDirection {
       if (!(Vector3.length(local) > 1e-9))
         throw new Error("An explicit direction has a length");
     }
-    const unit: IAutoMovieVector3 = typeof direction === "string" && local !== undefined
-      ? local : Vector3.normalize(local);
-    return HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      unit,
-    );
+    const unit: IAutoMovieVector3 =
+      typeof direction === "string" && local !== undefined
+        ? local
+        : Vector3.normalize(local);
+    return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, unit);
   }
   /**
    * Prepare a fixed hand's named axes for changing actual headings.
@@ -88,12 +86,20 @@ export namespace HumanHandDirection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed side/name defines each private unit axis; the last exact current yaw alone establishes reusable trigonometric prerequisites. Changed yaw rebuilds its frame, with no fixed-entry or immutable-input premise added to the caller's borrowed posture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning arm/action retains at most six private unit axes and one copied zero-origin transform with its numeric yaw until release. It retains no posture, source object, current output, target, callback loan or growing history.
    */
-  export function prepare(side: AutoMovieHumanSide):
-    (yaw: number, direction: IAutoMovieMotionHumanHand.Axis) => IAutoMovieVector3 {
+  export function prepare(
+    side: AutoMovieHumanSide,
+  ): (
+    yaw: number,
+    direction: IAutoMovieMotionHumanHand.Axis,
+  ) => IAutoMovieVector3 {
     const sign: number = side === "left" ? 1 : -1;
-    const axes: Map<IAutoMovieMotionHumanHand.Axis, IAutoMovieVector3> = new Map();
+    const axes: Map<IAutoMovieMotionHumanHand.Axis, IAutoMovieVector3> =
+      new Map();
     let frame: { yaw: number; read: HumanFrame.IPrepared } | undefined;
-    return (yaw: number, direction: IAutoMovieMotionHumanHand.Axis): IAutoMovieVector3 => {
+    return (
+      yaw: number,
+      direction: IAutoMovieMotionHumanHand.Axis,
+    ): IAutoMovieVector3 => {
       let local: IAutoMovieVector3 | undefined = axes.get(direction);
       if (local === undefined) {
         local = axis(direction, sign);
@@ -101,14 +107,20 @@ export namespace HumanHandDirection {
         axes.set(direction, local);
       }
       if (frame === undefined || !Object.is(frame.yaw, yaw))
-        frame = { yaw, read: HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw }) };
+        frame = {
+          yaw,
+          read: HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw }),
+        };
       return frame.read.point(local);
     };
   }
 }
 
 /** The same fresh floor-axis vector, with the acting hand's current sign. */
-function axis(name: IAutoMovieMotionHumanHand.Axis, sign: number): IAutoMovieVector3 {
+function axis(
+  name: IAutoMovieMotionHumanHand.Axis,
+  sign: number,
+): IAutoMovieVector3 {
   switch (name) {
     case "out":
       return { x: sign, y: 0, z: 0 };

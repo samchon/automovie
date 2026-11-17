@@ -3,8 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanArmGeometryTypes as G } from "./HumanArmGeometryTypes";
-
 /**
  * A lower bound of a point's distance from a placed body shape: its distance
  * from the box of the shape's hull points in the shape's own frame, which
@@ -29,12 +27,22 @@ import type { HumanArmGeometryTypes as G } from "./HumanArmGeometryTypes";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's box is kept with its points, which do not change once the shape is built.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The boxes are held weakly by their hulls' point arrays and released with them; nothing of a query is kept.
  */
-export function HumanArmShapeBox(shape: IAutoMovieMotionHumanArmGeometry.IShape, p: IAutoMovieVector3): number {
+export function HumanArmShapeBox(
+  shape: IAutoMovieMotionHumanArmGeometry.IShape,
+  p: IAutoMovieVector3,
+): number {
   const solid: IAutoMovieMotionHumanArmGeometry.IShape["shape"] = shape.shape;
   if (solid.kind !== "hull") return 0;
   let box: Float64Array | undefined = BOXES.get(solid.points);
   if (box === undefined) {
-    box = new Float64Array([Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]);
+    box = new Float64Array([
+      Infinity,
+      Infinity,
+      Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+    ]);
     for (const v of solid.points) {
       box[0] = Math.min(box[0]!, v.x);
       box[1] = Math.min(box[1]!, v.y);
@@ -46,9 +54,20 @@ export function HumanArmShapeBox(shape: IAutoMovieMotionHumanArmGeometry.IShape,
     BOXES.set(solid.points, box);
   }
   // The point in the segment's frame, then in the shape's.
-  const segment: IAutoMovieVector3 = unturn(shape.pose.rotation, p.x - shape.pose.position.x, p.y - shape.pose.position.y, p.z - shape.pose.position.z);
-  const t: IAutoMovieMotionHumanArmGeometry.IShape["shape"]["transform"] = solid.transform;
-  const local: IAutoMovieVector3 = unturn(t.rotation, segment.x - t.position.x, segment.y - t.position.y, segment.z - t.position.z);
+  const segment: IAutoMovieVector3 = unturn(
+    shape.pose.rotation,
+    p.x - shape.pose.position.x,
+    p.y - shape.pose.position.y,
+    p.z - shape.pose.position.z,
+  );
+  const t: IAutoMovieMotionHumanArmGeometry.IShape["shape"]["transform"] =
+    solid.transform;
+  const local: IAutoMovieVector3 = unturn(
+    t.rotation,
+    segment.x - t.position.x,
+    segment.y - t.position.y,
+    segment.z - t.position.z,
+  );
   const dx: number = Math.max(0, box[0]! - local.x, local.x - box[3]!);
   const dy: number = Math.max(0, box[1]! - local.y, local.y - box[4]!);
   const dz: number = Math.max(0, box[2]! - local.z, local.z - box[5]!);
@@ -76,7 +95,8 @@ function unturn(
 }
 
 /** Each hull's box, by its point array: least x, y, z, then greatest. */
-const BOXES: WeakMap<readonly IAutoMovieVector3[], Float64Array> = new WeakMap();
+const BOXES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
+  new WeakMap();
 
 /** Metres taken off the box's distance: far more than the rounding of two rotations and three differences of points a few metres from the origin (about 1e-15 m). */
 const ROUNDING: number = 1e-12;

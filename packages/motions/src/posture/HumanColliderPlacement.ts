@@ -13,7 +13,6 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 /**
@@ -69,14 +68,17 @@ export namespace HumanColliderPlacement {
   export function preparePlaced(
     body: IAutoMovieMotionHumanBody,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
-  ): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IPlaced[] {
+  ): (
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ) => IPlaced[] {
     const names: Set<string> = new Set();
     for (const bone of requested) names.add(bone);
     const selected: ISided[] = sided(body).segments.filter(
       (segment: ISided): boolean => names.has(segment.bone),
     );
-    return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IPlaced[] =>
-      place(selected, bones);
+    return (
+      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ): IPlaced[] => place(selected, bones);
   }
 
   /**
@@ -113,7 +115,9 @@ export namespace HumanColliderPlacement {
   export function prepareMinima(
     body: IAutoMovieMotionHumanBody,
     groups?: readonly ReadonlySet<AutoMovieHumanoidBone>[],
-  ): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => number[] {
+  ): (
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ) => number[] {
     if (groups === undefined) return bindMinima(sided(body).segments);
     const membership: Map<string, number[]> = new Map();
     let count: number = 0;
@@ -166,7 +170,9 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged-body neutral cache owns names and offsets; each mirrored shape list is separately materialized only when geometry is observed. Any body/profile change requires a new body under the established cache contract.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak body entry retains at most B canonical names with its neutral segment list, released with that body; callers borrow the set and no posed result/history is retained.
    */
-  export function bones(body: IAutoMovieMotionHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
+  export function bones(
+    body: IAutoMovieMotionHumanBody,
+  ): ReadonlySet<AutoMovieHumanoidBone> {
     return sided(body).bones;
   }
 }
@@ -184,9 +190,12 @@ interface IMinimaSelection {
 function bindMinima(
   segments: readonly ISided[],
   selection?: IMinimaSelection,
-): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => number[] {
-  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number[] =>
-    minima(segments, bones, selection);
+): (
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+) => number[] {
+  return (
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): number[] => minima(segments, bones, selection);
 }
 
 /** Stage the original placement phase, then reduce only the demanded scalar bounds. */
@@ -205,22 +214,38 @@ function minima(
     if (posed === undefined) continue;
     const name: AutoMovieHumanoidBone = posed.bone;
     const origin: IAutoMovieVector3 = posed.worldPosition;
-    const offset: number = Quaternion.rotateVectorY(posed.worldRotation, segment.offset);
+    const offset: number = Quaternion.rotateVectorY(
+      posed.worldRotation,
+      segment.offset,
+    );
     const position: number = origin.y + offset;
-    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(posed.worldRotation, segment.rotation);
+    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
+      posed.worldRotation,
+      segment.rotation,
+    );
     names.push(name);
     positions.push(position);
     rotations.push(rotation);
     shapes.push(segment.shapes);
   }
-  const result: number[] = new Array<number>(selection?.count ?? 1).fill(Infinity);
+  const result: number[] = new Array<number>(selection?.count ?? 1).fill(
+    Infinity,
+  );
   for (let i: number = 0; i < positions.length; i++) {
-    const groups: readonly number[] | undefined = selection?.membership.get(names[i]!);
+    const groups: readonly number[] | undefined = selection?.membership.get(
+      names[i]!,
+    );
     if (selection !== undefined && groups === undefined) continue;
     for (const shape of shapes[i]!) {
-      const low: number = physicalShapeBounds.lowestFromParent(positions[i]!, rotations[i]!, shape);
+      const low: number = physicalShapeBounds.lowestFromParent(
+        positions[i]!,
+        rotations[i]!,
+        shape,
+      );
       if (groups === undefined) result[0] = Math.min(result[0]!, low);
-      else for (const group of groups) result[group] = Math.min(result[group]!, low);
+      else
+        for (const group of groups)
+          result[group] = Math.min(result[group]!, low);
     }
   }
   return result;
@@ -240,7 +265,10 @@ function place(
     // The rotated offset is fresh; keep the original origin-plus-offset order.
     const bone: AutoMovieHumanoidBone = posed.bone;
     const origin: IAutoMovieVector3 = posed.worldPosition;
-    const position: IAutoMovieVector3 = Quaternion.rotateVector(posed.worldRotation, segment.offset);
+    const position: IAutoMovieVector3 = Quaternion.rotateVector(
+      posed.worldRotation,
+      segment.offset,
+    );
     position.x = origin.x + position.x;
     position.y = origin.y + position.y;
     position.z = origin.z + position.z;
@@ -286,7 +314,9 @@ function sided(body: IAutoMovieMotionHumanBody): INeutral {
   const known: INeutral | undefined = SIDED.get(body);
   if (known !== undefined) return known;
   const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
-  const own: (segment: IAutoMoviePhysicalSegment) => ISided | null = (segment: IAutoMoviePhysicalSegment): ISided | null => {
+  const own: (segment: IAutoMoviePhysicalSegment) => ISided | null = (
+    segment: IAutoMoviePhysicalSegment,
+  ): ISided | null => {
     const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
     return rest === undefined
       ? null
@@ -299,11 +329,14 @@ function sided(body: IAutoMovieMotionHumanBody): INeutral {
   };
   const first: Map<string, IAutoMoviePhysicalSegment> = new Map();
   let scanned: number = 0;
-  const twin: (name: string) => IAutoMoviePhysicalSegment | undefined = (name: string): IAutoMoviePhysicalSegment | undefined => {
+  const twin: (name: string) => IAutoMoviePhysicalSegment | undefined = (
+    name: string,
+  ): IAutoMoviePhysicalSegment | undefined => {
     const found: IAutoMoviePhysicalSegment | undefined = first.get(name);
     if (found !== undefined) return found;
     while (scanned < body.profile.segments.length) {
-      const segment: IAutoMoviePhysicalSegment = body.profile.segments[scanned++]!;
+      const segment: IAutoMoviePhysicalSegment =
+        body.profile.segments[scanned++]!;
       const bone: string = segment.bone;
       if (!first.has(bone)) first.set(bone, segment);
       if (bone === name) return segment;
@@ -312,14 +345,13 @@ function sided(body: IAutoMovieMotionHumanBody): INeutral {
   };
   const out: ISided[] = [];
   for (const segment of body.profile.segments) {
-    const mirroredFrom: IAutoMoviePhysicalSegment | undefined = segment.bone.startsWith("left")
-      ? twin(`right${segment.bone.slice(4)}`)
-      : undefined;
+    const mirroredFrom: IAutoMoviePhysicalSegment | undefined =
+      segment.bone.startsWith("left")
+        ? twin(`right${segment.bone.slice(4)}`)
+        : undefined;
     const read: ISided | null = own(mirroredFrom ?? segment);
     if (read === null) continue;
-    out.push(
-      mirroredFrom === undefined ? read : mirrored(read, segment.bone),
-    );
+    out.push(mirroredFrom === undefined ? read : mirrored(read, segment.bone));
   }
   const canonical: Map<string, AutoMovieHumanoidBone> = new Map();
   for (const bone of body.skeleton.bones) canonical.set(bone.bone, bone.bone);
@@ -344,15 +376,21 @@ function mirrored(segment: ISided, bone: string): ISided {
     /** Materialize this actual left collider list once; failed preparation stays uncached. */
     get shapes(): IAutoMoviePhysicalShape[] {
       if (shapes !== undefined) return shapes;
-      shapes = segment.shapes.map((shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
-        const transform: IAutoMovieRigidTransform = {
-          position: mirrorPoint(shape.transform.position),
-          rotation: mirrorTurn(shape.transform.rotation),
-        };
-        return shape.kind === "hull"
-          ? { ...shape, transform, points: physicalHullFaces.mirrorX(shape.points) }
-          : { ...shape, transform };
-      });
+      shapes = segment.shapes.map(
+        (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
+          const transform: IAutoMovieRigidTransform = {
+            position: mirrorPoint(shape.transform.position),
+            rotation: mirrorTurn(shape.transform.rotation),
+          };
+          return shape.kind === "hull"
+            ? {
+                ...shape,
+                transform,
+                points: physicalHullFaces.mirrorX(shape.points),
+              }
+            : { ...shape, transform };
+        },
+      );
       return shapes;
     },
   };
@@ -364,6 +402,8 @@ function mirrorPoint(point: IAutoMovieVector3): IAutoMovieVector3 {
 }
 
 /** M R M keeps quaternion X/W and negates Y/Z, without changing normalization. */
-function mirrorTurn(rotation: IAutoMovieRigidTransform["rotation"]): IAutoMovieRigidTransform["rotation"] {
+function mirrorTurn(
+  rotation: IAutoMovieRigidTransform["rotation"],
+): IAutoMovieRigidTransform["rotation"] {
   return { x: rotation.x, y: -rotation.y, z: -rotation.z, w: rotation.w };
 }
