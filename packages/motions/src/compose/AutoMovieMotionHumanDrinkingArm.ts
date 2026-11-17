@@ -408,18 +408,20 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 
   /**
    * The nearer of an arm tried and the nearest so far: the one lying less
-   * past the drinking range: the flexion's or the abduction's excess over its
-   * bound, the greater.
+   * past what `drinks` admits: the flexion's or the abduction's excess over
+   * its bound, or the forearm twist's shortfall of the margin, the greatest,
+   * all in degrees. The shoulder alone ranked an arm whose forearm stood at
+   * its twist's end as nearest, though it was refused for that.
    *
    * @param nearest The nearest so far; none before the first.
    * @param arm The arm tried.
    * @param at Where it was tried, in words.
    * @returns The nearer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the comparison and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The range bounds each angle on its own, so an arm lies past it by the greater excess.
+   * @evidence contracts/development/common.md#meaningful-documentation States the comparison, its unit and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation `drinks` bounds each angle and the twist room on its own, so an arm lies past it by the greatest excess, every term in degrees.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tie keeps the earlier arm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tie keeps the earlier arm; the hand's tilt, bounded by the searches' own step, is not ranked here.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by both drinking searches.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -430,7 +432,11 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     at: string,
   ): INearest {
     const past = (of: IArm): number =>
-      Math.max(of.flexion - FLEXION, of.abduction - ABDUCTION);
+      Math.max(
+        of.flexion - FLEXION,
+        of.abduction - ABDUCTION,
+        AutoMovieMotionHumanTouchLaid.MARGIN - of.room,
+      );
     return nearest === undefined || past(arm) < past(nearest.arm)
       ? { arm, at }
       : nearest;

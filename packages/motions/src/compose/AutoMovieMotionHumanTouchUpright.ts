@@ -205,9 +205,10 @@ export namespace AutoMovieMotionHumanTouchUpright {
    *
    * @param normal The region's outward normal, world.
    * @param level The length of the normal's level part.
+   * @param span The turn either way of head on, degrees, a multiple of `STEP`; `SPAN` when absent. A search whose vessel's side about its own axis is free as well (`handToFaceVessel`) needs only the turn between two sides.
    * @returns The level unit directions, world.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the candidates and their order.
+   * @evidence contracts/development/common.md#meaningful-documentation States the candidates, their span and their order.
    * @evidence contracts/development/implementation.md#principled-implementation A turn about the world's up of the level normal, by the step either way.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller passes a level part it has checked is not zero.
@@ -218,9 +219,10 @@ export namespace AutoMovieMotionHumanTouchUpright {
   export function facings(
     normal: IAutoMovieVector3,
     level: number,
+    span: number = SPAN,
   ): IAutoMovieVector3[] {
     const out: IAutoMovieVector3[] = [];
-    for (let k: number = 0; k <= 2 * (SPAN / STEP); k++) {
+    for (let k: number = 0; k <= 2 * Math.floor(span / STEP + 1e-9); k++) {
       const turn: number =
         ((k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * STEP * Math.PI) / 180;
       out.push({

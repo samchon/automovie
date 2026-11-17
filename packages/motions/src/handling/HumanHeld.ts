@@ -99,6 +99,47 @@ export namespace HumanHeld {
   export const SIDES: readonly number[] = [0, 45, -45, 90, -90, 135, -135, 180];
 
   /**
+   * The effectors of an upright vessel at every side of its rim the search
+   * tries (`SIDES`, the act's own side first), for an act that searches the
+   * side with its own admission, as a drink does (`handToFaceVessel`).
+   *
+   * @param context The action's context; the prop is read in the hand at the action's entry.
+   * @param row The act's use of the prop.
+   * @param side The holding hand.
+   * @param subject The prop's subject id.
+   * @param point The prop's point; the row's own when absent.
+   * @returns One effector per side, in `SIDES`' order.
+   * @throws {HumanRefusal} As `effector`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the sides, their order, who reads them and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A round rim meets a region on any side, so the side is a free turn of the vessel about its own axis in the hand, each one the shared effector owner's turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One held reading, one turn per side.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is chosen here; the act's search admits one or refuses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK/contact reading and constant vector work per side, no arm solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed held prop and row share one `HumanHeldEffector` geometry across the sides, as `steadiest` does.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh effector weights and retains nothing.
+   */
+  export function sides(
+    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
+    row: IUse,
+    side: HumanHand.Side,
+    subject: string,
+    point: string | undefined,
+  ): AutoMovieMotionHumanTouchEffector.IEffector[] {
+    const effect: ReturnType<typeof HumanHeldEffector> = HumanHeldEffector(
+      context,
+      row,
+      side,
+      subject,
+      point,
+    );
+    return SIDES.map(
+      (turn: number): AutoMovieMotionHumanTouchEffector.IEffector =>
+        effect(turn),
+    );
+  }
+
+  /**
    * The effector of a held prop on the side its arm holds best: for an
    * upright vessel, whose round rim meets a region on any side, the side of
    * `SIDES` at which the arm that brings the rim to the region leaves the

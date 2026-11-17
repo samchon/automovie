@@ -11,12 +11,14 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import type { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
@@ -38,6 +40,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handToFaceArm } from "./handToFaceArm";
 import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
+import { handToFaceVessel } from "./handToFaceVessel";
 
 /**
  * A hand-to-face task of daily living while standing: drinking, sipping,
@@ -190,10 +193,10 @@ export namespace handToFace {
    * @throws {HumanRefusal} When the count is not a positive whole number, the time at the face is negative, `prop` names a prop the hand does not hold or a point the prop lacks, `grasp` comes without a held prop, its point or a region of the face, or `other` comes without `grasp` or names a handle the prop lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases, the rows and the sources.
-   * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope; with `prop`, the acting hand's effector is the held prop's own point on its steadiest side (`HumanHeld`), the fingers are kept and the grip is declared.
+   * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope; with `prop`, the acting hand's effector is the held prop's own point, a vessel drunk from without a kept grasp on the rim side its drink admits (`handToFaceVessel`), any other on its steadiest side (`HumanHeld`), the fingers are kept and the grip is declared.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Row, the head's place at the face, the effector, transport, clock with the task's event names, head pulse, one stroke per hand, composition, the kept hold.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every value comes from the row or a named constant; tool lengths and head angles are marked provisional on the table.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve and one elbow solve per hand at plan time; a held vessel adds the upright search on each of its eight sides.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve and one elbow solve per hand at plan time; a vessel drunk from adds the drink's search per rim side until one admits (its own side's alone when that admits), found once and handed to the arm, which does not search again; another held prop adds the upright search on each of its eight sides.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the touch stroke, the laid arm, the head share, the timing owner, the manner and `HumanHeld`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
    */
@@ -296,23 +299,47 @@ export namespace handToFace {
     }).write(entry, 0);
     const atFace: IHumanPosture = row.upright === true ? entry : turned;
 
-    // The held prop's effector, on the side of the rim held most upright; a
-    // drink leans it at the lips (`AutoMovieMotionHumanTouchDrink`).
+    // A tool held as the grasp it was taken up by keeps that grasp's turn.
+    const kept: HumanGrasp.IKey | null = HumanHeldUse.kept(
+      context,
+      first,
+      {
+        ...p,
+        ...(row.point === undefined ? {} : { point: p.point ?? row.point }),
+      },
+      row.region === null ? null : mirrored(row.region, first),
+    );
+
+    // The held prop's effector. A vessel drunk from without a kept grasp
+    // takes the side of its rim its drink admits, searched with the lean
+    // and the facing (`handToFaceVessel`); any other prop the side held most
+    // upright (`HumanHeld.steadiest`).
+    let drunk: AutoMovieMotionHumanTouchDrink.IDrink | undefined;
     const grasped = (
       subject: string,
-    ): AutoMovieMotionHumanTouchEffector.IEffector =>
-      row.region === null
-        ? HumanHeld.effector(context, row, first, subject, p.point)
-        : HumanHeld.steadiest(
-            context,
-            row,
-            first,
-            subject,
-            p.point,
-            atFace,
-            region(first, mirrored(row.region, first))(atFace, 0),
-            row.upright === true,
-          );
+    ): AutoMovieMotionHumanTouchEffector.IEffector => {
+      if (row.region === null)
+        return HumanHeld.effector(context, row, first, subject, p.point);
+      const at: (
+        posture: IHumanPosture,
+        seconds: number,
+      ) => Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
+        region(first, mirrored(row.region, first));
+      if (row.upright !== true || kept !== null)
+        return HumanHeld.steadiest(context, row, first, subject, p.point,
+          atFace, at(atFace, 0), row.upright === true);
+      const vessel: handToFaceVessel.IVessel = handToFaceVessel.of(
+        body,
+        atFace,
+        first,
+        HumanHeld.sides(context, row, first, subject, p.point),
+        at(atFace, 0),
+        AutoMovieMotionHumanBend.hang(body, atFace, first),
+        { posture: turned, place: at(turned, 0) },
+      );
+      drunk = vessel.drink;
+      return vessel.effector;
+    };
 
     // The transport's length: the farther hand's distance to its place.
     let far: number = 0;
@@ -357,16 +384,6 @@ export namespace handToFace {
       primitives.push(
         AutoMovieMotionHumanJoints.pulse(clock, rises, ["relax", "end"], turn),
       );
-    // A tool held as the grasp it was taken up by keeps that grasp's turn.
-    const kept: HumanGrasp.IKey | null = HumanHeldUse.kept(
-      context,
-      first,
-      {
-        ...p,
-        ...(row.point === undefined ? {} : { point: p.point ?? row.point }),
-      },
-      row.region === null ? null : mirrored(row.region, first),
-    );
     // Two hands are planned as one trajectory.
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
       hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
@@ -383,6 +400,8 @@ export namespace handToFace {
         tangent: row.tangent,
         upright: row.upright === true,
         own,
+        // Read after `effector`, whose held vessel's search sets it.
+        ...(side === first && drunk !== undefined ? { drink: drunk } : {}),
       });
       const { lay, bend, lean, facing } = arm;
       const stroke: AutoMovieMotionHumanTouch.ITouch = {
