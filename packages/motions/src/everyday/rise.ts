@@ -16,6 +16,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -317,7 +318,11 @@ export namespace rise {
     ];
     for (const side of ["left", "right"] as const) {
       const swing: [number, number] | undefined = swings[side];
-      const windows: [IAutoMovieMotionHumanContactWindow["part"], number, number][] =
+      const windows: [
+        IAutoMovieMotionHumanContactWindow["part"],
+        number,
+        number,
+      ][] =
         swing === undefined
           ? [[`${side}Foot`, 0, 1]]
           : [
@@ -338,6 +343,86 @@ export namespace rise {
         });
     }
 
+    // The hands' goals at each second, on the thighs or the armrests and
+    // leaving them, are fitted along the rise's course, each second
+    // continuing the swivel the course chose before it.
+    const rose: (seconds: number) => IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanArmChain.continued(
+        body,
+        duration,
+        (seconds: number): IAutoMovieMotionHumanPosture => {
+          const t: number = Math.min(duration, Math.max(0, seconds));
+          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
+          if (t < prepared) {
+            const socket: IAutoMovieVector3 =
+              edged !== undefined
+                ? edged(minimumJerk.share(t / edging))
+                : begin;
+            const root: IAutoMovieVector3 = entryRoot(socket);
+            return riseRested(
+              body,
+              {
+                root,
+                yaw,
+                pitch: pitch0,
+                roll: 0,
+                joints,
+                limbs: legsAt(root, t),
+              },
+              rests,
+              yaw,
+              1,
+            );
+          }
+          const u: number = t - prepared;
+          const forward: number = minimumJerk.share(
+            (u - away) / (0.85 * rising - away),
+          );
+          const up: number = minimumJerk.share(
+            (u - away - 0.03 * rising) / (0.82 * rising - away),
+          );
+          const socket: IAutoMovieVector3 = {
+            x: begin.x + (goal.x - begin.x) * forward,
+            y: begin.y + (goal.y - begin.y) * up,
+            z: begin.z + (goal.z - begin.z) * forward,
+          };
+          const pitch: number =
+            u < flex
+              ? pitchAt(u, peak)
+              : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
+          const tilt = HumanTrunk.incline(
+            joints,
+            pitch,
+            HumanTrunk.pelvisLimit(
+              body,
+              seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
+              yaw,
+              drawn,
+            ),
+          );
+          const root: IAutoMovieVector3 = seated.root(body, socket, {
+            yaw,
+            pitch: tilt.pitch,
+            roll: 0,
+          });
+          const posture: IAutoMovieMotionHumanPosture = {
+            root,
+            yaw,
+            pitch: tilt.pitch,
+            roll: 0,
+            joints: tilt.joints,
+            limbs: legged(root, drawn),
+          };
+          return riseRested(
+            body,
+            posture,
+            rests,
+            yaw,
+            1 - minimumJerk.share((u - away) / (0.3 * rising)),
+          );
+        },
+      );
+
     return {
       duration,
       events: [
@@ -346,84 +431,7 @@ export namespace rise {
       ],
       contacts,
       base: { kind: "standing" },
-      posture: (
-        seconds: number,
-        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-        if (t < prepared) {
-          const socket: IAutoMovieVector3 =
-            edged !== undefined ? edged(minimumJerk.share(t / edging)) : begin;
-          const root: IAutoMovieVector3 = entryRoot(socket);
-          return riseRested(
-            body,
-            {
-              root,
-              yaw,
-              pitch: pitch0,
-              roll: 0,
-              joints,
-              limbs: legsAt(root, t),
-            },
-            rests,
-            yaw,
-            1,
-            resolution,
-            projection,
-          );
-        }
-        const u: number = t - prepared;
-        const forward: number = minimumJerk.share(
-          (u - away) / (0.85 * rising - away),
-        );
-        const up: number = minimumJerk.share(
-          (u - away - 0.03 * rising) / (0.82 * rising - away),
-        );
-        const socket: IAutoMovieVector3 = {
-          x: begin.x + (goal.x - begin.x) * forward,
-          y: begin.y + (goal.y - begin.y) * up,
-          z: begin.z + (goal.z - begin.z) * forward,
-        };
-        const pitch: number =
-          u < flex
-            ? pitchAt(u, peak)
-            : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
-        const tilt = HumanTrunk.incline(
-          joints,
-          pitch,
-          HumanTrunk.pelvisLimit(
-            body,
-            seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
-            yaw,
-            drawn,
-          ),
-        );
-        const root: IAutoMovieVector3 = seated.root(body, socket, {
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-        });
-        const posture: IAutoMovieMotionHumanPosture = {
-          root,
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-          joints: tilt.joints,
-          limbs: legged(root, drawn),
-        };
-        return riseRested(
-          body,
-          posture,
-          rests,
-          yaw,
-          1 - minimumJerk.share((u - away) / (0.3 * rising)),
-          resolution,
-          projection,
-        );
-      },
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => rose(seconds),
     };
   }
 }
