@@ -23,7 +23,7 @@ export namespace AutoMovieMotionHumanDrinkingPool {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and lifetime.
    * @evidence contracts/development/design.md#principled-representation Two prepared readers of fixed inputs, the running nearest arm and the count of sides the refusal names.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, each read by the drinking search.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, each read by the drinking search.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Valid only for the body, hand and posture it was made for; the search that made it owns it.
    */
   export interface IPool {
@@ -32,6 +32,9 @@ export namespace AutoMovieMotionHumanDrinkingPool {
 
     /** The drinking range's swivel bound on the fixed posture (`AutoMovieMotionHumanDrinkingSwivel.bounded`), prepared at its first use. */
     bounds: () => ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded>;
+
+    /** Whether a wrist's place, world metres, leaves any reaching elbow inside the drinking range on the fixed posture (`AutoMovieMotionHumanDrinkingSwivel.IRanged.admits`), the screen a candidate passes before its fit. */
+    admits: () => AutoMovieMotionHumanDrinkingSwivel.IRanged["admits"];
 
     /** The arm tried so far that lies least past the drinking range (`AutoMovieMotionHumanDrinkingArm.nearer`); absent before the first. */
     nearest?: AutoMovieMotionHumanDrinkingArm.INearest;
@@ -68,13 +71,13 @@ export namespace AutoMovieMotionHumanDrinkingPool {
     sides: number = 1,
     span: number = AutoMovieMotionHumanTouchUpright.SPAN,
   ): IPool {
-    let bound:
-      | ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded>
-      | undefined;
+    let range: AutoMovieMotionHumanDrinkingSwivel.IRanged | undefined;
+    const ranged: () => AutoMovieMotionHumanDrinkingSwivel.IRanged = (): AutoMovieMotionHumanDrinkingSwivel.IRanged =>
+      (range ??= AutoMovieMotionHumanDrinkingSwivel.ranged(body, posture, side));
     return {
       read: AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
-      bounds: (): ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> =>
-        (bound ??= AutoMovieMotionHumanDrinkingSwivel.bounded(body, posture, side)),
+      bounds: (): ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> => ranged().hint,
+      admits: (): AutoMovieMotionHumanDrinkingSwivel.IRanged["admits"] => ranged().admits,
       sides,
       span,
     };

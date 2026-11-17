@@ -116,6 +116,63 @@ export namespace AutoMovieMotionHumanSwivelBound {
   }
 
   /**
+   * Whether an arm can place its wrist with the elbow inside half-plane
+   * bounds: the wrist within the arm's reach, and some swivel on the circle
+   * it leaves the elbow outside every bound's refused arc. An exact
+   * necessary condition of any fit that reaches the wrist with its elbow in
+   * the bounds, so a search may drop a candidate it refuses before fitting.
+   *
+   * @param of The arm.
+   * @param point The wrist's place, world metres.
+   * @param bounds The half-planes.
+   * @returns Whether a reaching elbow in the bounds exists.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two conditions and what a search may conclude.
+   * @evidence contracts/development/implementation.md#principled-implementation The same circle and exact refused arcs as `bounded` (`swivelArcs`): the union covering every swivel, or no circle at all, leaves no reaching elbow in the bounds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The reach, the circle, one sinusoid per bound, their union.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact roots; the reach is `bounded`'s, a wrist on its edge or beyond leaving no circle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bound, no fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The circle and the sinusoid arcs `bounded` builds, through the engine's fit, arcs and union (`swivelArcs`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function admits(
+    of: IArm,
+    point: IAutoMovieVector3,
+    bounds: readonly IHalfPlane[],
+  ): boolean {
+    const { shoulder, upper, lower } = of;
+    const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
+    const distance: number = Vector3.length(reach);
+    if (!(distance > 1e-9) || distance >= upper + lower || distance <= Math.abs(upper - lower))
+      return false;
+    const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const foot: number = (upper * upper - lower * lower + distance * distance) / (2 * distance);
+    const radius: number = Math.sqrt(Math.max(0, upper * upper - foot * foot));
+
+    // Any direction across the line serves as the swivel's zero: the union
+    // covering every swivel does not depend on where the turn starts.
+    const across: IAutoMovieVector3 = Vector3.cross(line,
+      Math.abs(line.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 });
+    const u: IAutoMovieVector3 = Vector3.normalize(across);
+    const v: IAutoMovieVector3 = Vector3.cross(line, u);
+    const at: (swivel: number) => IAutoMovieVector3 = (swivel: number): IAutoMovieVector3 => {
+      const r: number = (swivel * Math.PI) / 180;
+      return Vector3.add(Vector3.scale(line, foot),
+        Vector3.scale(Vector3.add(Vector3.scale(u, Math.cos(r)), Vector3.scale(v, Math.sin(r))), radius));
+    };
+    const refused: swivelArcs.IArc[] = [];
+    for (const bound of bounds) {
+      const past: (elbow: IAutoMovieVector3) => number = (elbow: IAutoMovieVector3): number =>
+        -(Vector3.dot(bound.normal, Vector3.subtract(elbow, Vector3.subtract(bound.point, shoulder))) - bound.margin);
+      const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
+        swivelArcs.fitted(past(at(0)), past(at(90)), past(at(180))), 0);
+      if (arc === "all") return false;
+      if (arc !== null) refused.push(arc);
+    }
+    return swivelArcs.union(refused) !== "all";
+  }
+
+  /**
    * An elbow hint kept inside half-plane bounds: the hint itself when its
    * swivel meets them all, else the place on its circle at the nearest
    * swivel that does, stood the swivel's resolution

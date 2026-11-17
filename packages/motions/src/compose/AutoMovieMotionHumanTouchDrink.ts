@@ -121,7 +121,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the shoulder range healthy drinkers use (Alt Murphy et al. 2006), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean at most thirteen entry fits, ending at the first admitted facing that holds the vessel exactly on its asked axis (no later facing can beat a tilt of 0), then for its best one referred fit and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Each facing's hint is bounded in constant work after one trunk solve per pool.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean at most thirteen entry fits, a facing whose wrist leaves no reaching elbow in the drinking range dropped before its fit (`AutoMovieMotionHumanSwivelBound.admits`, exact), ending at the first admitted facing that holds the vessel exactly on its asked axis (no later facing can beat a tilt of 0), then for its best one referred fit and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Each facing's hint is bounded in constant work after one trunk solve per pool.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One pool (fixed body/side reader and the fixed posture's lazy swivel bound) serves every candidate/reference/after fit, and every side of a rim search; each varying hint still runs the original closed-form bound, and every candidate fit remains actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns or borrows one pool until return or throw; the numeric answer/refusal captures no reader, candidate pose or new query history.
    */
@@ -144,13 +144,13 @@ export namespace AutoMovieMotionHumanTouchDrink {
           (arm: AutoMovieMotionHumanDrinkingArm.IArm, at: string): void => {
             pool.nearest = AutoMovieMotionHumanDrinkingArm.nearer(pool.nearest, arm, at);
           },
-          after, pool.read, pool.bounds, pool.span),
+          after, pool.read, pool.bounds, pool.span, pool.admits()),
     );
     if (found !== undefined) return found;
     throw AutoMovieMotionHumanDrinkingArm.refused(
       side,
       `up to ${LEAN} degrees and no turn of it within ${pool.span} degrees either way of head on${pool.sides > 1 ? ` on any of the ${pool.sides} sides of its rim` : ""}`,
-      pool.nearest!,
+      pool.nearest,
     );
   }
 
@@ -380,6 +380,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
     bounds?: () => ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded>,
     span: number = AutoMovieMotionHumanTouchUpright.SPAN,
+    admits?: (point: IAutoMovieVector3) => boolean,
   ): IDrink | undefined {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     // The vessel's axis in the hand: the effector's along axis, which an
@@ -442,6 +443,9 @@ export namespace AutoMovieMotionHumanTouchDrink {
       level,
       span,
     )) {
+      // A wrist no reaching elbow in the drinking range can place is
+      // refused before any fit (`AutoMovieMotionHumanSwivelBound.admits`).
+      if (admits !== undefined && !admits(goal(facing).point)) continue;
       const arm: AutoMovieMotionHumanDrinkingArm.IArm =
         read(
           posture,

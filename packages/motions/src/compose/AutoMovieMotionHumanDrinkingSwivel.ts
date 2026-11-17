@@ -57,6 +57,50 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     posture: IHumanPosture,
     side: HumanHand.Side,
   ): (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
+    return ranged(body, posture, side).hint;
+  }
+
+  /**
+   * The drinking range on one posture's arm, read once: the hint `bounded`
+   * gives, and whether a wrist's place leaves any reaching elbow inside the
+   * range at all (`AutoMovieMotionHumanSwivelBound.admits`), which a drink's
+   * search reads before fitting a candidate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it reads.
+   * @evidence contracts/development/design.md#principled-representation Two readers of one arm and one set of bounds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the drink's pool.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both read the same bounds, built once.
+   */
+  export interface IRanged {
+    /** From the wrist's place and a hint, world metres, the hint in the range (`bounded`). */
+    hint: (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3;
+
+    /** Whether the wrist's place, world metres, leaves a reaching elbow in the range. */
+    admits: (point: IAutoMovieVector3) => boolean;
+  }
+
+  /**
+   * The drinking range's two readers on one posture's arm (`IRanged`), the
+   * trunk solved and the four bounds built once for both.
+   *
+   * @param body The body.
+   * @param posture The posture the arm is solved on.
+   * @param side The arm.
+   * @returns The hint and the admission.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built once and what is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation The bounds are `bounded`'s; the admission is their exact union on the wrist's circle (`AutoMovieMotionHumanSwivelBound.admits`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk, the four bounds, two readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep and no sampling.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One limb-free canonical solve, then constant work per reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both readers share the one solve and bounds.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The readers retain the arm and the bounds only.
+   */
+  export function ranged(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+  ): IRanged {
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
     ]);
@@ -129,7 +173,11 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         margin: 0,
       }),
     );
-    return hints(of, bounds);
+    return {
+      hint: hints(of, bounds),
+      admits: (point: IAutoMovieVector3): boolean =>
+        AutoMovieMotionHumanSwivelBound.admits(of, point, bounds),
+    };
   }
 }
 

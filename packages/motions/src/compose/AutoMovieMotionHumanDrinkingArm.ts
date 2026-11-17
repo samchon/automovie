@@ -451,7 +451,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    *
    * @param side The arm.
    * @param sought What was sought, in words: the leans and turns tried.
-   * @param closest The arm tried that lay least past the range (`nearer`).
+   * @param closest The arm tried that lay least past the range (`nearer`); none when no candidate passed the reach-and-range screen to be fitted.
    * @returns The refusal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the refusal reports.
@@ -465,13 +465,13 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   export function refused(
     side: HumanHand.Side,
     sought: string,
-    closest: INearest,
+    closest: INearest | undefined,
   ): HumanRefusal {
     return new HumanRefusal({
       kind: "reach",
       axis: "facing",
       value: side,
-      reason: `no lean of the held vessel toward the face ${sought} lets the ${side} arm bring it to the region as a person drinks, the shoulder flexed at most ${FLEXION.toFixed(1)} and abducted at most ${ABDUCTION.toFixed(1)} degrees and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (the arm nearest, ${closest.at}, has the shoulder flexed ${closest.arm.flexion.toFixed(2)} and abducted ${closest.arm.abduction.toFixed(2)} degrees, the forearm's twist at ${closest.arm.twist.toFixed(1)} degrees (pronation positive), ${closest.arm.room.toFixed(1)} inside its range, and the vessel's axis ${closest.arm.tilt.toFixed(1)} degrees off the asked one)`,
+      reason: `no lean of the held vessel toward the face ${sought} lets the ${side} arm bring it to the region as a person drinks, the shoulder flexed at most ${FLEXION.toFixed(1)} and abducted at most ${ABDUCTION.toFixed(1)} degrees and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range ${closest === undefined ? "(no candidate's wrist leaves a reaching elbow in that range)" : `(the arm nearest, ${closest.at}, has the shoulder flexed ${closest.arm.flexion.toFixed(2)} and abducted ${closest.arm.abduction.toFixed(2)} degrees, the forearm's twist at ${closest.arm.twist.toFixed(1)} degrees (pronation positive), ${closest.arm.room.toFixed(1)} inside its range, and the vessel's axis ${closest.arm.tilt.toFixed(1)} degrees off the asked one)`}`,
       fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
     });
   }
