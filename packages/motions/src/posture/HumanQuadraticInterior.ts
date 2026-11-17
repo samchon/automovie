@@ -259,6 +259,14 @@ export function HumanQuadraticInterior(
     return step;
   };
   let fair: Q.IState | undefined;
+
+  // The last step's size against the iterate's, largest components. The
+  // residuals alone do not bound the iterate's error where the curvature is
+  // badly conditioned (a second-difference chain's least curvature is its
+  // length to the minus fourth: a residual of 1e-8 left a twenty-variable
+  // chain 1.6e-6 off its minimiser), so the solve ends only once a Newton
+  // step no longer moves the iterate by more than the accuracy.
+  let moved: number = Infinity;
   for (let it: number = 0; it < ITERATIONS; ++it) {
     // The residuals of the unregularised conditions at the iterate.
     products(x, value);
@@ -321,7 +329,7 @@ export function HumanQuadraticInterior(
       stationary <= accuracy * Math.max(1, curved, drawn, s.qNorm) &&
       missed <= accuracy * Math.max(1, reached) &&
       mu <= accuracy;
-    if (within(ACCURACY)) return unscaled(s, x, value, lambda);
+    if (moved <= ACCURACY && within(ACCURACY)) return unscaled(s, x, value, lambda);
 
     // An iterate within the accepted accuracy is kept, should the solve
     // end short of the accuracy it aims at.
@@ -357,7 +365,14 @@ export function HumanQuadraticInterior(
     // One step for every variable, short of the boundary.
     const step: number = Math.min(1, BOUNDARY * longest());
     if (!(step > LEAST)) return fair;
-    for (let i: number = 0; i < n; ++i) x[i] = x[i]! + step * dx[i]!;
+    let far: number = 0;
+    let size: number = 1;
+    for (let i: number = 0; i < n; ++i) {
+      far = Math.max(far, Math.abs(dx[i]!));
+      x[i] = x[i]! + step * dx[i]!;
+      size = Math.max(size, Math.abs(x[i]!));
+    }
+    moved = (step * far) / size;
     for (let j: number = 0; j < ends; ++j) {
       if (live[j] === 0) continue;
       lambda[j] = lambda[j]! + step * dLambda[j]!;
