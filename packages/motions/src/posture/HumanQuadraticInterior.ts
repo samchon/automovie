@@ -265,8 +265,13 @@ export function HumanQuadraticInterior(
   // badly conditioned (a second-difference chain's least curvature is its
   // length to the minus fourth: a residual of 1e-8 left a twenty-variable
   // chain 1.6e-6 off its minimiser), so the solve ends only once a Newton
-  // step no longer moves the iterate by more than the accuracy.
+  // step no longer moves the iterate by more than the accuracy, or once the
+  // residuals have held through a further Newton step (which, on a
+  // quadratic program whose active ends are found, lands on the minimiser
+  // to the factor's accuracy; a degenerate end can keep a step from
+  // vanishing, and must not keep the solve from ending).
   let moved: number = Infinity;
+  let held: number = 0;
   for (let it: number = 0; it < ITERATIONS; ++it) {
     // The residuals of the unregularised conditions at the iterate.
     products(x, value);
@@ -329,7 +334,9 @@ export function HumanQuadraticInterior(
       stationary <= accuracy * Math.max(1, curved, drawn, s.qNorm) &&
       missed <= accuracy * Math.max(1, reached) &&
       mu <= accuracy;
-    if (moved <= ACCURACY && within(ACCURACY)) return unscaled(s, x, value, lambda);
+    if (within(ACCURACY)) {
+      if (moved <= ACCURACY || ++held >= 2) return unscaled(s, x, value, lambda);
+    } else held = 0;
 
     // An iterate within the accepted accuracy is kept, should the solve
     // end short of the accuracy it aims at.
