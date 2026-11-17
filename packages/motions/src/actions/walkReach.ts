@@ -264,11 +264,11 @@ export namespace walkReach {
    * @returns The pelvis and each stance as reached.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States frames, units, claim replacement, rocker onset and both returned stances.
-   * @evidence contracts/development/implementation.md#principled-implementation Solves the same smooth maximum's fixed point by a bracketed root; only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
+   * @evidence contracts/development/implementation.md#principled-implementation Solves the smooth maximum's fixed point by a bracketed root with every taking foot's whole claim, once for each set of fading feet kept or left out, and runs between those lowerings by the feet's weights (multilinear), so the lowering is continuous in a weight: a weight inside the fixed point is ill-posed where a stance trades heel rise for lowering at a slope of one. Only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Pelvis orientation and fixed weights precede trial placement, the scalar root solve and final endpoint completion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original claim formulas, bracket expansion, root tolerance and foot ranges; inactive stances only skip trials whose residual cannot read them.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each root trial fits at most the two bearing unnamed stances; body-only short-reach preparation is lazy behind an actual unnamed bearing claim, so named/airborne-only claims omit it. Inactive final endpoints fit only if read, and the original root iteration bounds remain.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance weights and claim ownership remain fixed within one ground solve, so its root trials share them without sharing across input postures.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the claim of a whole stance, the bracket expansion, the root tolerance and the foot ranges; a weight of one or none gives the single lowering it gave before, and inactive stances only skip trials whose residual cannot read them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One root solve when no foot is fading, two with one fading foot and four with both; each root trial fits at most the bearing unnamed stances with a share in it; body-only short-reach preparation is lazy behind an actual unnamed bearing claim, so named/airborne-only claims omit it. Inactive final endpoints fit only if read, and the original root iteration bounds remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance weights and claim ownership remain fixed within one ground solve, so its root solves and their trials share them and the prepared stance readers without sharing across input postures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ground result owns two endpoint records and one deferred final-fit callback until the query releases it; no time history or global cache is retained.
    */
   export function ground(
@@ -299,6 +299,7 @@ export namespace walkReach {
       left: claims.left === undefined && weights.left > 0,
       right: claims.right === undefined && weights.right > 0,
     };
+    let share: Record<"left" | "right", number> = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
     const placed: IGround["feet"] = {} as IGround["feet"];
     const contacts: IGround["contacts"] = {} as IGround["contacts"];
     const readers: Partial<Record<"left" | "right", ReturnType<typeof walkReachStance.prepare>>> = {};
@@ -309,6 +310,7 @@ export namespace walkReach {
         // read its stance during the root solve. Place it only at the final
         // root, where the caller may need the returned endpoint.
         if (bearing[side] === inactive) continue;
+        if (!inactive && !(share[side] > 0)) continue;
         const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
           (readers[side] ??= walkReachStance.prepare(
             body,
@@ -322,14 +324,14 @@ export namespace walkReach {
         contacts[side] = out.contact;
       }
     };
-    // A fading foot's claim runs from its stance's to `CLAIM` under none.
+    // A foot claims its stance's lowering, or `CLAIM` under none when it
+    // has no share in the lowering being solved.
     const claim: (side: "left" | "right") => number = (side: "left" | "right"): number => {
       const named: number | undefined = claims[side];
       if (named !== undefined) return named;
-      const w: number = weights[side];
-      if (w <= 0) return -CLAIM;
+      if (!(share[side] > 0)) return -CLAIM;
       if (short === undefined) short = prepareShort(body);
-      return w * short(joints[side], placed[side].ankle) + (w - 1) * CLAIM;
+      return short(joints[side], placed[side].ankle);
     };
     const lowering: () => number = (): number =>
       -smoothMinimum(
@@ -348,9 +350,9 @@ export namespace walkReach {
       place(drop);
       return lowering();
     };
-    const first: number = asked(0);
-    let drop: number = 0;
-    if (first > 0) {
+    const settle: () => number = (): number => {
+      const first: number = asked(0);
+      if (!(first > 0)) return 0;
       let high: number = first;
       let over: number = asked(high) - high;
       for (let k: number = 0; k < 8 && over > 0; k++) {
@@ -361,18 +363,40 @@ export namespace walkReach {
         [0, first],
         [high, over],
       ]);
-      drop =
-        over > 0
-          ? high
-          : bracketedRoot(
-              (d: number): number => ends.get(d) ?? asked(d) - d,
-              0,
-              high,
-              FINE,
-            );
-    }
+      return over > 0
+        ? high
+        : bracketedRoot(
+            (d: number): number => ends.get(d) ?? asked(d) - d,
+            0,
+            high,
+            FINE,
+          );
+    };
 
-    if (first > 0) place(drop);
+    // A fading foot's weight is its share of the settled lowering, not a
+    // factor on its claim: a stance trades its heel's rise for the hips'
+    // lowering one for one, so over that trade a claim follows the lowering
+    // at a slope of one and a factor a little under one on it would carry
+    // the fixed point from one end of the trade to the other at once. The
+    // lowering with the foot's whole claim and the lowering without it are
+    // each well placed, and the weight runs between the two, continuous in
+    // the weight by construction and theirs at its two ends.
+    const fading: ("left" | "right")[] = SIDES.filter(
+      (side: "left" | "right"): boolean => bearing[side] && weights[side] < 1,
+    );
+    let drop: number = 0;
+    for (let mask: number = 0; mask < 1 << fading.length; mask++) {
+      let part: number = 1;
+      share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
+      fading.forEach((side: "left" | "right", i: number): void => {
+        const kept: boolean = (mask & (1 << i)) !== 0;
+        share[side] = kept ? 1 : 0;
+        part *= kept ? weights[side] : 1 - weights[side];
+      });
+      drop += part * settle();
+    }
+    share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
+    place(drop);
     const completed: Pick<IGround, "feet" | "contacts"> = walkReachFeet(
       { feet: placed, contacts }, bearing, (side: "left" | "right"): void => place(drop, true, side),
     );
