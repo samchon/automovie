@@ -12,6 +12,7 @@ import { Quaternion } from "../math/Quaternion";
 import { bilinearAngleBoxCandidates } from "../math/bilinearAngleBoxCandidates";
 import { readNormalizedQuaternion } from "../math/readNormalizedQuaternion";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
 import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
@@ -73,6 +74,10 @@ function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
  * and finally clears all candidate references on return or throw.
  * Unknown clamp outputs own copied bone/F/A/T values, so a callback reusing
  * one mutable result cannot overwrite a retained reference or selected joint.
+ * Explicit swivelCandidates proposes intersections of an algebraic quaternion
+ * half-angle circle with a native two-axis product surface. Its deferred
+ * native-clamp gate leaves ordinary callable observations unchanged; actual
+ * angle ranges, clamping, FK and goals still belong to its curve consumer.
  *
  * Coupled swing/swing-twist gates, three mobile axes and unrepresentable alias
  * arithmetic retain the previous four-sweep, forty-step coordinate refinement.
@@ -334,18 +339,30 @@ export function prepareJointRotationProjection(props: {
   return Object.assign(
     (rotation: IAutoMovieQuaternion): IAutoMovieJointPose =>
       evaluate(rotation, false) as IAutoMovieJointPose,
-    { withQuaternion: (rotation: IAutoMovieQuaternion): prepareJointRotationProjection.IProjection =>
-      evaluate(rotation, true) as prepareJointRotationProjection.IProjection },
+    {
+      withQuaternion: (rotation: IAutoMovieQuaternion): prepareJointRotationProjection.IProjection =>
+        evaluate(rotation, true) as prepareJointRotationProjection.IProjection,
+      swivelCandidates: (cosine: IAutoMovieQuaternion,
+        sine: IAutoMovieQuaternion): ReturnType<prepareJointRotationCoefficientDots.IReader["swivels"]> => {
+        if (!box || mobile.length !== 2 ||
+          clampJointToSkeleton.borrow(props.clamp) === undefined) return null;
+
+        // Genuine box clamps emit numeric fixed coordinates from numeric
+        // decomposition, so the canonical fixed mode governs this family.
+        // These are orientation proposals, never admitted joint results.
+        return coefficientDots!.swivels(fixed, cosine, sine);
+      },
+    },
   );
 }
 
 /**
  * Same-query access to the selected joint's already completed composition.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the original callable, the paired-result method, raw-quaternion normalization boundary and query-local ownership.
- * @evidence contracts/development/design.md#principled-representation A selected clinical articulation and its exact raw quaternion describe the same result; pairing them lets actual rotation consumers reuse completed composition without substituting a normalized or approximate rotation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The callable serves pose authoring and withQuaternion serves the existing distal-score and final-world-score consumers; no last-result getter, score cache or target-history control is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both reads run the same candidates, clamps and reference/tie policy; the result retains no solver, source pose or prior query and introduces no alternate projection method.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines original callable/paired output, raw-quaternion ownership and explicit degree-valued two-axis circle proposals with independent physical acceptance obligations.
+ * @evidence contracts/development/design.md#principled-representation A selected articulation/raw quaternion pair describes one completed projection. The separate half-angle-circle proposal uses the same fixed coefficient basis but returns only geometric roots, never an admitted pose or global score.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pose authoring uses callable projection, distal/final scoring uses withQuaternion, and explicit owned continuation uses optional swivelCandidates. No coefficient state, last-result getter, pose cache or target history is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Both projection reads retain original clamp/candidate/tie policy. Native-only root proposals retain no query and certify no constraint; foreign/coupled/non-two-axis cases decline and actual curve checks/fallback remain mandatory.
  */
 export namespace prepareJointRotationProjection {
   /** The original callable plus an explicit paired-result read; neither caches targets. */
@@ -355,6 +372,16 @@ export namespace prepareJointRotationProjection {
 
     /** Project once and return its joint with the exact unnormalized composition. */
     withQuaternion(rotation: IAutoMovieQuaternion): IProjection;
+
+    /**
+     * Propose degree-valued swivels where the algebraic quaternion half-angle
+     * circle lies on this native two-axis box's unrestricted product surface.
+     * Angle ranges, actual clamp/FK, goals and continuity must still be checked.
+     * Unknown/coupled/non-two-axis projectors decline; public callable scoring
+     * and its callback order are unaffected. Foreign projectors may omit it.
+     */
+    swivelCandidates?(cosine: IAutoMovieQuaternion,
+      sine: IAutoMovieQuaternion): ReturnType<prepareJointRotationCoefficientDots.IReader["swivels"]>;
   }
 
   /** Fresh result wrapper and raw quaternion of one query, with the callable's joint ownership. */

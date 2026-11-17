@@ -10,6 +10,7 @@ import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
+import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /** The numeric sufficient statistics that survive a shape query. */
@@ -247,10 +248,10 @@ export function AirborneShapeHistory(
 /**
  * Exact numeric prerequisites private to instants produced by this owner.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The inverse reader distinguishes factory-issued instants from general history outputs and documents copied coordinate invalidation.
- * @evidence contracts/development/design.md#principled-representation The prepared quantity is the principal-to-root quaternion's inverse, independent of world orientation, conserved momentum and shooting target.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The ODE and dense momentum reconstruction share this numeric prerequisite from the actual instant they already read; neither caller can install or forge its private ownership registration.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts General history outputs retain their original path, and an issued instant's actual quaternion coordinates must still match before reuse; no public prepared-value flag is trusted.
+ * @evidence contracts/development/common.md#meaningful-documentation inverse validates current issued principal coordinates, factor lends an unobserved tensor operator, owned recognizes actual native reader construction, and constant requires a live constructor-proven fixed shape covering the entire requested span with identically zero relative momentum.
+ * @evidence contracts/development/design.md#principled-representation Instant-specific inverse/factor prerequisites are separate from a whole-curve invariant. The latter belongs only to a copied fixed bone/rig constructor whose native FK rates and centroidal reduction establish h=0; all quantities use the root frame and SI inertia/momentum units.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ODE, dense physical reconstruction and invariant dispatch share the actual owning numerical factories. The namespace adds no registration surface, authored flag, duplicate physical model or callback sampling policy.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts General callbacks and wrapped readers retain the original path; issued instant reuse requires actual numeric/accessor checks. Constant membership locates constructor-owned fixed data and additionally checks live epoch/full-span coverage; it does not infer an invariant from native history identity or matching samples.
  */
 export namespace AirborneShapeHistory {
   /**
@@ -269,7 +270,12 @@ export namespace AirborneShapeHistory {
    *
    */
   export function owned(history: IHistory): boolean {
-    return HISTORIES.has(history);
+    return HISTORIES.has(history) || AirborneConstantShapeHistory.owned(history);
+  }
+
+  /** Constructor-owned fixed tensor with zero relative momentum over the whole requested live span; ordinary sampled histories return undefined. */
+  export function constant(history: IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
+    return AirborneConstantShapeHistory.constant(history, from, to);
   }
 
   /**

@@ -4,10 +4,12 @@ import {
   Vector3,
   integrateAirborneRotation,
   resolveAutoMovieCenterOfMass,
+  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -33,14 +35,19 @@ import { nclose } from "../internal/nclose";
  *    1e-6 analytic check. Rotate the world, mix the orthogonal momentum
  *    basis, and scale inertia and momentum together by 1e-3, 1 and 1e3:
  *    orientation is unchanged and sensitivities scale inversely.
+ *    The existing identity-world/basis/unit-scale cell obtains its same
+ *    spherical tensor through actual F.fixed construction. Its unvaried
+ *    flight may be exact, but requesting all three original columns must
+ *    retain numerical fallback and every analytic tangent. Raw constant
+ *    callbacks in the other cells have no constructor constancy proof.
  * 4. Exact query times reuse I/h, fixed boundary stencils reuse their
  *    geometry's moments, and clear releases the memo without making an
  *    already completed flight read shape again.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two physical models, their independent formulas and numerical bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Reads public history, fixed/adaptive momentum tangents and completed playback; a stencil jump, wrong sensitivity sign/frame/unit scaling, lost exact reuse or shape access after memo release fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public history, fixed/adaptive momentum tangents and completed playback; a stencil jump, wrong sensitivity sign/frame/unit scaling, lost exact reuse or shape access after release fails. One existing spherical cell uses actual F.fixed public FK construction; its primal may dispatch exactly while all three requested nonzero-momentum columns retain numerical evaluation.
  * @evidence contracts/development/testing.md#independent-expectations Orbital momentum of two equal masses gives z'/2; an isotropic body's rotation is exp(t L / 2), whose body sensitivity is the time integral of its inverse rotation divided by two.
- * @evidence contracts/development/testing.md#distinguishing-cases Both boundary stencils, fixed/adaptive integration, all three directions, mixed orthogonal bases, world rotations, three common inertia/momentum scales and eleven times; clear/recompute and post-clear playback check lifetime. Asymmetric shooting has separate engine regressions.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both boundary stencils, fixed/adaptive integration, all three directions, mixed orthogonal bases, world rotations, three common inertia/momentum scales and eleven times. The certified identity/unit cell contrasts unvaried exact dispatch with numerical three-column fallback; other raw constant-looking callbacks must still perform actual stage work. No original cell, analytic column or tolerance is dropped. Clear/recompute and post-clear playback retain lifetime coverage; asymmetric shooting is separately owned.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable unit test of in-memory mass models and public engine functions; it starts no host.
  */
 export function test_engine_airborne_variation(): void {
@@ -180,17 +187,23 @@ export function test_engine_airborne_variation(): void {
   for (const world of [identity, turnedWorld])
     for (const basis of [identity, mixedBasis])
       for (const scale of [1e-3, 1, 1e3]) {
+        const nativeCase: boolean = world === identity && basis === identity && scale === 1;
+        const fixed: integrateAirborneRotation.ICachedHistory | undefined = nativeCase ? sphericalHistory() : undefined;
+        if (nativeCase && fixed === undefined) findings.push("the actual spherical fixed-history input was not admitted");
+        let historyReads: number = 0;
+        try {
         const columns: IAutoMovieVector3[] = units.map(
           (unit: IAutoMovieVector3): IAutoMovieVector3 =>
             Quaternion.rotateVector(basis, unit),
         );
         const props: integrateAirborneRotation.IProps = {
-          history: (): integrateAirborneRotation.IInstant => ({
-            inertia: {
+          history: fixed ?? ((): integrateAirborneRotation.IInstant => {
+            historyReads++;
+            return { inertia: {
               moments: { x: 2 * scale, y: 2 * scale, z: 2 * scale },
               rotation: identity,
             },
-            relative: origin,
+            relative: origin };
           }),
           t0: 0,
           t1: 1,
@@ -204,6 +217,7 @@ export function test_engine_airborne_variation(): void {
         };
         const primal: integrateAirborneRotation.IFlight =
           integrateAirborneRotation(props);
+        const primalReads: number = historyReads;
         const varied: integrateAirborneRotation.IFlight =
           integrateAirborneRotation({
             ...props,
@@ -212,6 +226,9 @@ export function test_engine_airborne_variation(): void {
                 Quaternion.rotateVector(world, column),
             ),
           });
+        if (nativeCase ? primal.knots !== 2 || !(varied.knots > 2)
+          : !(primal.knots > 2 && primalReads > 1))
+          findings.push(`constant provenance/requested directions selected wrong public solver route at scale${scale}`);
         for (let k: number = 0; k <= 10; k++) {
           const t: number = k / 10;
           const angle: number = 1.5 * t;
@@ -257,6 +274,9 @@ export function test_engine_airborne_variation(): void {
                 );
             },
           );
+        }
+        } finally {
+          fixed?.clear();
         }
       }
 
@@ -340,4 +360,21 @@ export function test_engine_airborne_variation(): void {
     `airborne history and sensitivity: ${findings.join("; ") || "all hold"}`,
     findings.length === 0,
   );
+}
+
+/** Manufacture the existing moment-two spherical fixture through copied public native FK. */
+function sphericalHistory(): integrateAirborneRotation.ICachedHistory | undefined {
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const skeleton: IAutoMovieSkeleton = { id: "airborne-spherical-invariant", bones: [{
+    bone: "hips", parent: null, constraint: null,
+    rest: { translation: { x: 0, y: 0, z: 0 }, rotation: identity, scale: { x: 1, y: 1, z: 1 } },
+  }] };
+  const model: resolveAutoMovieCenterOfMass.IModel = { mass: 1,
+    segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
+      inertia: { x: 2, y: 2, z: 2 }, axes: identity }],
+  };
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const bone of resolvePose({ skeleton: skeleton.id, root: null, joints: [] }, skeleton))
+    bones.set(bone.bone, bone);
+  return integrateAirborneRotation.fixed(model, skeleton, bones, { from: 0, to: 1 });
 }

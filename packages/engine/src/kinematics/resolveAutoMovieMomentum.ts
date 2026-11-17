@@ -81,15 +81,15 @@ export function resolveAutoMovieMomentum(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The tensor sum is `physicalInertiaTensor`'s, the diagonalization `physicalPrincipalAxes`'s and the ordered mass-weighted centre `resolveAutoMovieCenterOfMass.mean`'s, imported rather than copied.
  */
 export namespace resolveAutoMovieMomentum {
-  /** Linear and angular momentum of a body over an interval. */
+  /** Linear/angular momentum at a measurement instant; the two-pose entry measures at its interval's middle. */
   export interface IMomentum {
-    /** The whole-body centre of mass at the interval's middle, the mean of its two ends, metres. */
+    /** Whole-body centre at the measurement instant, metres; the interval entry uses the mean of its two endpoint centres. */
     centre: IAutoMovieVector3;
 
-    /** The centre's velocity over the interval, metres per second. */
+    /** The centre's velocity at the measurement instant, metres per second; the interval entry uses its endpoint chord. */
     velocity: IAutoMovieVector3;
 
-    /** Linear momentum, the total mass times `velocity`, kg m/s. */
+    /** Whole-body linear momentum in the common frame, kg m/s. */
     linear: IAutoMovieVector3;
 
     /** Angular momentum about `centre`, kg m²/s. */

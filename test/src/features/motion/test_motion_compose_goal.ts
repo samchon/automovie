@@ -12,6 +12,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
 
 /**
  * The body-free rules of the limb-goal, held-base and trunk-tilt primitives:
@@ -35,10 +37,11 @@ import { throwsError } from "../internal/throwsError";
  *    goal at 0.5 s; with a size of 0.5 it is half way at 0.5 s.
  * 5. A still base returns the same posture at every second, lasts the
  *    duration given and carries the two ground plants of both feet over the
- *    shares given.
+ *    shares given. A finite no-goal posture is borrowed identically too:
+ *    later root replacement and a direct joint-tuple edit stay observable.
  * 6. A tilt claims the trunk and adds its pitch and roll to the posture's.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public primitives and reads the returned goals, windows, channels, plans and angles; a mix that keeps a plant, a drive that leaves the wrong origin, a pulse on the wrong window or a tilt that replaces instead of adding fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public primitives and reads goals, windows, channels, plans and angles; wrong planting, origins, clock windows or tilt composition fail. Still bases must borrow the exact input object both with goals and without goals, and later root replacement/direct tuple mutation must stay visible rather than becoming an implicit snapshot.
  * @evidence contracts/development/testing.md#independent-expectations Midpoints are computed by hand from the stated goals, the heading half way between 0° and 90° is 45°, and shares are the clock's envelope at the midpoints of its windows.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers both ends, a clamped weight and the middle of a mix, mismatched frames, a drive with and without an origin and without any goal, rising, full, falling and scaled pulses, two seconds of a held base and a tilt on a posture that already leans.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit that needs no body; it runs in CI.
@@ -178,6 +181,21 @@ export function test_motion_compose_goal(): void {
       ["leftFoot", "plant", 0.25, 0.75, "ground"],
       ["rightFoot", "plant", 0.25, 0.75, "ground"],
     ],
+  );
+
+  const head: [number, number, number] = [1, 2, 3];
+  const plain: IHumanPosture = {
+    root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
+    joints: { head }, limbs: {},
+  };
+  const held: IHumanActionPlan = AutoMovieMotionHumanBase.still(2, plain);
+  const beforeEdit: IHumanPosture = held.posture(0.2);
+  plain.root = { x: 1, y: 2, z: 3 };
+  head[0] = 19;
+  const afterEdit: IHumanPosture = held.posture(1.7);
+  TestValidator.predicate("a no-goal still base borrows current identity, root and joint values",
+    beforeEdit === plain && afterEdit === plain && afterEdit.root === plain.root &&
+    vclose(afterEdit.root, { x: 1, y: 2, z: 3 }, 0) && nclose(afterEdit.joints.head![0], 19, 0),
   );
 
   const tilt: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLean.tilt({

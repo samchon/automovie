@@ -10,6 +10,8 @@ import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
+import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
+import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 
 /** Private nominal identity prevents constructing a prepared model externally. */
 const BRAND: unique symbol = Symbol("prepared mass model");
@@ -27,8 +29,8 @@ const STATES: WeakMap<prepareAutoMovieMassModel.IPrepared, IState> = new WeakMap
  * A getter may reenter this owner. Nested reads use the existing uncached
  * formulas instead of overwriting the outer call's frame or interval scratch.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States finite SI snapshot admission and release ownership. Its namespace's bones supplies a fresh mass-bearing FK demand, pose fresh ordered rigid parts and centre, place only the centre, inertia the current composite tensor, between positive-interval momentum, and release idempotent invalidation; their local comments state common-frame units and caller ownership.
- * @evidence contracts/development/implementation.md#principled-implementation The family retains the existing ordered segmental mean, bone-position-plus-rotated-local-point placement, bone-times-local-principal quaternion, physical tensor with every current parallel-axis term, and two-pose orbital-plus-spin momentum. Fixed bone-local properties are separate from each actual common-frame transform and interval.
+ * @evidence contracts/development/common.md#meaningful-documentation States finite SI snapshot admission and release ownership. Namespace bones supplies fresh FK demand, pose ordered parts/centre, place the centre, inertia the composite tensor, between positive-interval momentum, rates same-instant momentum from actual common-frame bone velocities, and release idempotent invalidation. All outputs are independent and rate maps are borrowed synchronously.
+ * @evidence contracts/development/implementation.md#principled-implementation Preserves segmental means, actual mass-point/principal placement, parallel-axis tensors and two-pose orbital-plus-spin momentum. The rates wrapper delegates the same immutable model and actual pose/bone-rate snapshot to the shared instantaneous centroidal reducer; it neither replaces interval semantics nor invents a missing derivative.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One opaque token owns the admitted model and bounded scalar prerequisites. Pose/place share readFrame, inertia/between lazily acquire the existing numeric workspace, and nested reads delegate uncached formulas while the outer workspace is active. Release deletes the sole live state.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No posed answer, target, time grid or approximate key substitutes for a requested transform. Preparation validates the actual copied numeric snapshot, without rereading source fields after admission. Non-finite properties, negative mass or inertia, zero principal rotations and an inconsistent total mass are refused.
  * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and physical reads are O(S) for S segments; bones returns O(U) names and release is one weak deletion. Centre-only balance trials allocate no unused tensor/interval workspace, while all model scalars are still copied/validated at preparation. Private frame/intrinsic storage is reused; public results remain fresh. Place omits unused principal/part records. Unchanged rotations/intrinsic frames/endpoint quaternions omit local/axis/inverse-log-slerp products; current sums/rates still run.
@@ -247,6 +249,16 @@ export namespace prepareAutoMovieMassModel {
     } finally {
       current.active = false;
     }
+  }
+
+  /** Instantaneous momentum of this exact owned model and its current posed/rate snapshot. No source, rate map or result is retained. */
+  export function rates(
+    prepared: IPrepared,
+    posed: resolveAutoMovieMomentum.IPosed,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
+  ): resolveAutoMovieMomentum.IMomentum {
+    return resolveAutoMovieMomentumRates(state(prepared).model, posed, bones, rates);
   }
 
   /**

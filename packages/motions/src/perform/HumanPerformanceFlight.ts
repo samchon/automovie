@@ -21,6 +21,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
+import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -201,8 +202,29 @@ export namespace HumanPerformanceFlight {
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       readBones({ ...unturned(seconds), root: null }, readResolution());
-    const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
+    // Whole-curve provenance proves constancy; the one actual displayed FK
+    // below supplies its value after all unchanged deterministic clamps.
+    // No sampled equality establishes this predicate, and every dynamic
+    // composition stage keeps the ordinary shape/stencil path.
+    const transition: HumanSegment.ISegment["transition"] = segment.transition;
+    const fixed: createHumanPostureCurve.IConstant | undefined =
+      person.segments.at(-1) === segment && segment.entryTime <= t0 && segment.end >= t1 &&
+      person.layers.length === 0 && person.overlays.length === 0 && person.holds.length === 0 &&
+      person.stops.size === 0 && plan.contacts.length === 0 &&
+      (transition === undefined || transition.kind === "redirect" || t0 - transition.cut >= transition.blend)
+        ? createHumanPostureCurve.fixed(body, plan.posture) : undefined;
+    let history: ReturnType<typeof integrateAirborneRotation.history> | undefined;
+    if (fixed !== undefined && fixed.unchanged()) {
+      const actual: IAutoMoviePose = HumanPerformanceRead.pose(self, subject, t0, undefined, evaluation);
+      const full: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...actual, root: null });
+      if (fixed.unchanged())
+        history = integrateAirborneRotation.fixed(prepared, body.skeleton, full, { from: t0, to: t1 }, observation);
+      if (!fixed.unchanged()) {
+        history?.clear();
+        history = undefined;
+      }
+    }
+    history ??= integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(

@@ -1,5 +1,7 @@
 import {
   type combinePhysicalMassProperties,
+  physicalInertiaTensor,
+  prepareAutoMovieMassModel as M,
   type resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum as P,
 } from "@automovie/engine";
@@ -23,12 +25,19 @@ import { vclose } from "../internal/vclose";
  * 3. Two equal point masses move oppositely along Y from X=-1 and X=1.
  *    Their orbital momentum is -2 about Z, doubles when their displacement
  *    doubles and doubles again when each actual part mass doubles.
+ * 4. One origin-centred part has principal moments(2,3,4). The outer X1rad
+ *    interval over1s gives angular momentum2X; one getter-triggered nested
+ *    Z0.5rad interval over0.25s gives8Z. The same fixture exercises the
+ *    prepared tensor's spin, prepared intervals and mass-model consumer.
+ *    Each outer result survives its nested query; an owned getter exception
+ *    propagates unchanged and the next query retains the numeric answer
+ *    without more live-moment reads than its ordinary positive baseline.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives SI frame/interval units, the independently derived spin and orbital equations, mutable dependencies and output ownership across three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public prepared interval reader on owned posed endpoints and model records, checking actual velocity/linear/angular vectors under independent mutations of seconds, inertia, quaternion, mass and centre, plus old-result isolation.
- * @evidence contracts/development/testing.md#independent-expectations The one-part centre eliminates orbital momentum and a cardinal Z turn has angular rate angle/seconds, so spin is Iz times that rate. Each point-mass cross product (-1,0.5,0) cross (0,1,0) contributes -1 about Z, giving the literal orbital answers. No ordinary momentum output provides an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers same quaternion pair at changed intervals, same-record moment/quaternion/mass/centre mutations, returned-vector mutation, singleton versus two-part endpoints, pure spin versus pure orbit and changing the assembly population. General airborne integration error remains owned by existing physical tests.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns its physical models, endpoint parts and reader. It starts no process, viewer or compiler, replaces no foreign method and changes no accepted Human momentum, delta or contact bound.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives SI frame/interval units, independently derived spin/orbit equations, mutable dependencies, output ownership and three public prepared owners' nested/error-recovery boundaries across four scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared interval, tensor-spin and mass-model readers on owned numeric inputs, checking actual momenta under independent mutations, nested getter queries, exact exception identity and subsequent same-query recovery. A constant owned moment getter observes actual work without exposing an internal flag or replacing a method.
+ * @evidence contracts/development/testing.md#independent-expectations The one-part centre eliminates orbit, so spin equals principal moment times angle/seconds. Outer X1rad/1s requires2X and nested Z0.5rad/0.25s requires8Z even though their midpoint principal frames differ. Two equal point masses' cross products each contribute-1 about Z. The recovery work bound is the same owner's actual successful ordinary positive read baseline for unchanged numeric inputs, not a hardcoded library-call count. No cold result supplies a physical oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers changed intervals, same-record moment/quaternion/mass/centre mutations, result mutation, singleton/two-part endpoints, spin/orbit and changing population. One shared fixture separately reaches tensor spin, interval and mass consumers so an upper wrapper cannot hide every lower owner's defect; nested X/Z requests, an owned exception and post-throw read work distinguish scratch clobbering from permanent slow fallback. Internal guard flags are not asserted. General airborne integration error remains owned by existing tests.
+ * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns its numeric models, endpoint parts, constant input getters and real prepared readers. A single getter triggers each nested call; no foreign method/global is changed, no Human/film/ODE is added and the additional mass token releases in finally. It starts no process, viewer or compiler and changes no physical acceptance bound.
  */
 export function test_physics_prepared_momentum_intervals(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -120,6 +129,101 @@ export function test_physics_prepared_momentum_intervals(): void {
   TestValidator.predicate("changed actual part masses cannot reuse orbital momentum",
     vclose(read(pair, start, end, 1).angular, { x: 0, y: 0, z: -8 }, 1e-12),
   );
+  reentrantReaders();
+}
+
+/** Share one independent spin model across the three real synchronous workspace owners. */
+function reentrantReaders(): void {
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const moments: IAutoMovieVector3 = { x: 2, y: 3, z: 4 };
+  const model: resolveAutoMovieCenterOfMass.IModel = {
+    mass: 1,
+    segments: [{ bone: "hips", mass: 1, point: origin, inertia: moments, axes: identity }],
+  };
+  let enter: (() => void) | undefined;
+  let momentReads: number = 0;
+  const first: combinePhysicalMassProperties.IPart = {
+    get mass(): number {
+      const callback: (() => void) | undefined = enter;
+      enter = undefined;
+      callback?.();
+      return 1;
+    },
+    centerOfMass: origin, inertiaRotation: identity,
+    inertia: { get x(): number { momentReads++; return 2; }, y: 3, z: 4 },
+  };
+  const before: P.IPosed = { centre: origin, parts: [first] };
+  const after: P.IPosed = { centre: origin, parts: [part(1, origin, moments,
+    { x: Math.sin(0.5), y: 0, z: 0, w: Math.cos(0.5) })] };
+  const nestedBefore: P.IPosed = { centre: origin, parts: [part(1, origin, moments, identity)] };
+  const nestedAfter: P.IPosed = { centre: origin, parts: [part(1, origin, moments,
+    { x: 0, y: 0, z: Math.sin(0.25), w: Math.cos(0.25) })] };
+  const tensor: ReturnType<typeof physicalInertiaTensor.prepare> = physicalInertiaTensor.prepare();
+  const interval: ReturnType<typeof P.prepareIntervals> = P.prepareIntervals();
+  const prepared: M.IPrepared = M(model);
+  const findings: string[] = [];
+  const readers: readonly { name: string; outer: () => IAutoMovieVector3; nested: () => IAutoMovieVector3 }[] = [
+    { name: "tensor spin",
+      outer: (): IAutoMovieVector3 => tensor.spin(before.parts, 0,
+        { x: Math.sin(0.25), y: 0, z: 0, w: Math.cos(0.25) }, { x: 1, y: 0, z: 0 }),
+      nested: (): IAutoMovieVector3 => tensor.spin(nestedBefore.parts, 0,
+        { x: 0, y: 0, z: Math.sin(0.125), w: Math.cos(0.125) }, { x: 0, y: 0, z: 2 }) },
+    { name: "momentum interval",
+      outer: (): IAutoMovieVector3 => interval(model, before, after, 1).angular,
+      nested: (): IAutoMovieVector3 => interval(model, nestedBefore, nestedAfter, 0.25).angular },
+    { name: "mass model",
+      outer: (): IAutoMovieVector3 => M.between(prepared, before, after, 1).angular,
+      nested: (): IAutoMovieVector3 => M.between(prepared, nestedBefore, nestedAfter, 0.25).angular },
+  ];
+  try {
+    for (const reader of readers) {
+      let baseline: number = 0;
+      try {
+        momentReads = 0;
+        const ordinary: IAutoMovieVector3 = reader.outer();
+        baseline = momentReads;
+        if (!(baseline > 0 && vclose(ordinary, { x: 2, y: 0, z: 0 }, 1e-12)))
+          findings.push(`${reader.name}: ordinary positive-work control is wrong`);
+        let visits: number = 0;
+        let nested: IAutoMovieVector3 | undefined;
+        enter = (): void => { visits++; nested = reader.nested(); };
+        const outer: IAutoMovieVector3 = reader.outer();
+        if (!(visits === 1 && nested !== undefined &&
+          vclose(nested, { x: 0, y: 0, z: 8 }, 1e-12) &&
+          vclose(outer, { x: 2, y: 0, z: 0 }, 1e-12)))
+          findings.push(`${reader.name}: nested and outer physical spins interfered`);
+      } catch (error) {
+        findings.push(`${reader.name}: nested public query failed: ${String(error)}`);
+      } finally {
+        enter = undefined;
+      }
+      const failure: Error = new Error(`owned ${reader.name} input getter failure`);
+      let thrown: unknown;
+      enter = (): void => { throw failure; };
+      try {
+        reader.outer();
+      } catch (error) {
+        thrown = error;
+      } finally {
+        enter = undefined;
+      }
+      if (thrown !== failure) findings.push(`${reader.name}: lost the owned getter failure identity`);
+      try {
+        momentReads = 0;
+        const recovered: IAutoMovieVector3 = reader.outer();
+        if (!(vclose(recovered, { x: 2, y: 0, z: 0 }, 1e-12) &&
+          momentReads > 0 && momentReads <= baseline))
+          findings.push(`${reader.name}: post-throw result/work did not recover, live reads ${momentReads}, ordinary ${baseline}`);
+      } catch (error) {
+        findings.push(`${reader.name}: post-throw public query failed: ${String(error)}`);
+      }
+    }
+  } finally {
+    enter = undefined;
+    M.release(prepared);
+  }
+  TestValidator.equals("all three prepared consumers retain reentrant and post-throw semantics", findings, []);
 }
 
 /** Copy owned rigid-part SI data into one posed endpoint. */

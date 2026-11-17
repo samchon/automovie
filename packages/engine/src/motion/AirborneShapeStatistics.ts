@@ -9,7 +9,7 @@ const OBSERVERS: WeakMap<AirborneShapeStatistics.IObserver, AirborneShapeStatist
  * cumulative across those histories and their clears. A snapshot callback
  * replacement is never invoked by physics, so it cannot hide its failure.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines five cumulative event totals: attempted history queries, returned exact memo hits, successful first numeric-node insertions per cache epoch, actual SPD-owner calls including null, and public Jacobi calls including throws before clear. Read returns independent snapshots without reset; borrow accepts undefined or a native handle and rejects a foreign handle before shape work.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines five cumulative event totals: attempted history queries, exact memo hits, successful numeric mass-node constructions, SPD-owner calls including null, and public Jacobi calls including throws before clear. Generic nodes count per cache epoch; a compiled fixed shape counts its one actual snapshot during construction. Read returns independent snapshots without reset and borrow rejects foreign handles before shape work.
  * @evidence contracts/development/implementation.md#principled-implementation Counts actual owner events instead of inferring populations from elapsed time, misses or patched methods. A native private numeric record separates observation from physical computation; its dimensionless integer totals are exactly represented within JavaScript's safe range and do not certify physical success.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One factory allocates five scalars and a snapshot reader, a weak registration lends native storage once per history, and the actual history/inertia owners increment their own event counters. Reports explicitly read fresh copies outside the physical call; no notification callback participates in integration or clear.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No ambient observer, replaced global, physical-bound change, fixture label or event log is introduced. Physics never calls the supplied read method or a foreign getter, and copying that method or supplying a prepared flag cannot forge weak-map provenance. Refusal and failed attempts are never reclassified as success.
@@ -48,7 +48,7 @@ export namespace AirborneShapeStatistics {
     /** Query calls that return an already stored exact-time instant. */
     memoHits: number;
 
-    /** Successful first-demand mass-node insertions per cache epoch; clear/reentry adds new work to this cumulative total. A shape/pose call that throws before insertion adds none. */
+    /** Successful numeric mass-node constructions: generic first-demand insertions per cache epoch or the fixed constructor's one compiled snapshot. Clear/reentry adds actual new work; a shape/pose call that throws before completing a node adds none. */
     uniqueNumericNodes: number;
 
     /** Actual calls to the SPD factor owner, including a null admission result. */

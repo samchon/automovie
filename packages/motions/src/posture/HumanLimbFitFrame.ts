@@ -113,6 +113,18 @@ export namespace HumanLimbFitFrame {
 
     /** Rejected current candidates that required a finer deterministic predecessor. */
     curveRefinements: number;
+
+    /** Actual algebraic orientation-root physical candidate trials. */
+    orientationRootTrials: number;
+
+    /** Actual accepted algebraic orientation-root returns. */
+    orientationRootAccepted: number;
+
+    /** Actual ordinary near-refinement calls inside the explicit continuation dispatcher. */
+    continuationNearAttempts: number;
+
+    /** Actual ordinary cold-fit calls inside the explicit continuation dispatcher. */
+    continuationColdAttempts: number;
   }
 
   /**
@@ -336,7 +348,8 @@ export namespace HumanLimbFitFrame {
       out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0, disabledFits: 0,
         evictions: 0, cacheInvalidations: 0, serializedKeys: 0, serializedCharacters: 0,
         curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
-        curveColdFallbacks: 0, curveRefinements: 0 };
+        curveColdFallbacks: 0, curveRefinements: 0, orientationRootTrials: 0,
+        orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0 };
       COUNTS.set(body, out);
     }
     return out;

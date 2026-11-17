@@ -17,6 +17,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { poseBones } from "../posture/poseBones";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -39,6 +40,9 @@ import type { IHumanProp } from "./IHumanProp";
  * One intent placed in the performance: its law found, its entry state
  * read, its context built, its plan made, its cut checked against the
  * interrupt tables, and its action added to its performer.
+ * The native curve owner constructs the existing error-location wrapper,
+ * preserving constant-source provenance while forwarding all posture inputs
+ * and results unchanged. Foreign posture readers remain ordinary readers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the steps of placing an intent.
  * @evidence contracts/development/design.md#principled-representation An intent becomes a placed action through its law's plan, made from the state the performer is in when it starts.
@@ -409,19 +413,7 @@ export namespace HumanPerformancePlace {
     // A law may refuse only once a posture is asked of it (a goal that turns
     // out beyond reach at some second), long after it was placed; that
     // refusal is located here, where the action's place in the film is known.
-    const posture: IHumanActionPlan["posture"] = plan.posture;
-    plan.posture = (
-      seconds: number,
-      channels?: readonly AutoMovieMotionHumanChannel[],
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<IHumanActionPlan["posture"]>[3],
-    ): IHumanPosture => {
-      try {
-        return posture(seconds, channels, resolution, projection);
-      } catch (error) {
-        throw error instanceof HumanRefusal ? error.locate(where) : error;
-      }
-    };
+    plan.posture = createHumanPostureCurve.located(plan.posture, where);
     if (over && previous !== undefined)
       return HumanPerformanceOverlays.place(
         self,

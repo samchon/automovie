@@ -2,12 +2,15 @@ import {
   type IAutoMovieResolvedBone,
   integrateAirborneRotation as F,
   prepareAutoMovieMassModel as M,
+  Quaternion,
+  resolvePose,
   type resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
+import { qunit } from "../internal/qunit";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
@@ -49,11 +52,17 @@ import { vclose } from "../internal/vclose";
  *    a copied observer refuses before a shape read, as its public contract
  *    requires. A pure owned shape failure adds a query but no completed
  *    numeric node. Diagnostic reads never create physical work.
+ * 7. F.fixed consumes actual complete FK, copies its model/rig/bones/span,
+ *    and issues fresh numeric instants. A covered stationary flight keeps
+ *    three real momentum tangents with explicit zero absolute physical
+ *    budget. Uncertified sampled-constant history, an uncovered interval,
+ *    nonzero physical budget and a cleared epoch retain numerical fallback.
+ *    Old instant edits stay live only in that instant, including after clear.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States root-frame SI moments, angular rate, exact millisecond stencil overlap across adjacent and distant reads, whole-owner reuse reason, raw-bone/rate-output isolation, current principal-frame input and clear/separate-epoch lifetimes, independently inverted scaled/repeated Z45 tensors, descriptor replacement and actual cumulative observer/snapshot ownership in six scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public history/rate/clear with raw and prepared models, checks physical principal moments and relative/root angular rates, observes owned pure shape calls at exact overlapping nodes after more than four intervening nodes, mutates issued raw bones/rate outputs, edits then restores a factory-issued instant's actual principal quaternion and requires post-clear/separate-history recomputation plus ordinary rate validity. Native observer snapshots must reflect those same actual events, survive caller edits independently and retain cumulative counts through clear; a copied token must refuse before physical work.
- * @evidence contracts/development/testing.md#independent-expectations A single centre-fixed part has no orbital momentum and spin Iz*omega=5*2=10. Subtracting it from world/body Z momentum20 and dividing Iz5 gives root rate2. The declared central stencil sets share 0/DELTA then DELTA/2DELTA and introduce only one endpoint per adjacent new query, even after the disjoint32DELTA/64DELTA stencils. This derives reads from exact dependency sets and the pure operation lifetime rather than cache capacity; DELTA remains1e-3. For rate input, momentum(4,0,10) minus relative(0,0,10) leaves X4. A Z90 principal frame rotates Iy3 onto world X, so inverse inertia changes4/2 to4/3 without a cached-quaternion oracle. Z45 gives the tensor block[[2.5,-0.5],[-0.5,2.5]], whose determinant6 gives rates(13/6,17/6); equal tensor/momentum scaling preserves these rates. Repeated moments(2,2,3) remain a realizable tensor and give(2,3,10/3). A replacement diagonal(4,6,10) gives(1,1,1), then first moment8 gives(0.5,1,1). Eight successful history calls include one repeated exact instant and seventeen distinct stencil nodes across their epochs; seven previously unseen public inertias require seven Jacobi calls. A ninth call throws before its first node insert and changes only the query count. The unobserved rate fixture factors once without a public Jacobi read.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers raw versus admitted prepared models, changing/repeated exact query times, adjacent and distant-node reuse versus a separate epoch, raw endpoint mutation, same-record principal-frame edits/restoration, rate-output edits, old numeric instant validity after clear and reconstruction. Unobserved noncardinal SPD tensors, repeated principal moments, extreme equal unit scales, public descriptor replacement and later edits distinguish direct factor results from stale principal assumptions. Initial/changed/repeated snapshots, native/copied tokens, first/replayed queries, factor versus observed-principal work and clear across shared histories distinguish each diagnostic boundary. Boundary correction and full flight momentum acceptance retain their existing specifications and are not relaxed here.
+ * @evidence contracts/development/common.md#meaningful-documentation States root-frame SI moments, angular rate, exact millisecond stencil overlap, whole-owner reuse, raw/result isolation, principal/descriptor mutation, cumulative observer events and native fixed-history proof/span/clear lifetime with three actual tangent columns across seven scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public history/rate/clear with raw/prepared models and checks physical moments/rates, exact stencil reuse, mutable issued data and cumulative native observation. Public full FK supplies F.fixed; its stationary exact output retains three real tangents and independent playback, while span/provenance/clear/nonzero-budget boundaries must use numerical admission with unchanged physical outputs.
+ * @evidence contracts/development/testing.md#independent-expectations A single centre-fixed part has no orbital momentum and spin Iz*omega=5*2=10. Subtracting it from world/body Z momentum20 and dividing Iz5 gives root rate2. Exact stencil dependency sets derive node reuse and DELTA remains1e-3. With relative spin10Z, momentum(4,0,10) leaves4X: a Z90 principal frame changes rate4/2 to4/3. Z45 gives the tensor block[[2.5,-0.5],[-0.5,2.5]], whose determinant6 gives rates(13/6,17/6); equal tensor/momentum scaling preserves rates. Realizable repeated moments(2,2,3) give(2,3,10/3). Replacement diagonal(4,6,10) gives(1,1,1), then first moment8 gives(0.5,1,1). Eight successful explicit calls include one memo hit, seventeen nodes and seven first public Jacobi reads; a ninth throwing call adds only its attempted query. Unobserved rate preparation factors once without public Jacobi. At stationary fixed I=(2,3,5), Y90 sends world X/Y/Z into body Z/Y/-X, so the three tangents are dt*(Z/5,Y/3,-X/2). A nonzero principal L=3X gives Rx(1.5t). Exact curves have two logical boundaries; numerical integration with initial h0.25 over1s requires more than two stored knots. All physical orientation/tangent comparisons retain the existing1e-6 analytic bound.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers raw/prepared mass models, exact/stencil reuse, input/output mutation, ordinary principal and unobserved SPD paths, repeated eigenvalues/extreme units, native/copied diagnostic handles, first/replayed/failed queries and clear. F.fixed adds missing-rate refusal, malformed/copied span, three real stationary tangents with a zero absolute budget, fresh results, sampled-constant provenance fallback, a nonzero-budget fallback and permanent clear invalidation with old numeric input validity. Boundary correction and full Human flight acceptance remain unchanged in their existing specifications.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns finite single-part models, pure shape callbacks, native observer tokens/snapshots and issued bones. It edits only its issued numeric instant, explicitly supplies a declared relative spin for the isolated-axis algebra check and mutates owned result vectors/snapshots. It starts no numerical run until invoked by the existing runner, and no renderer/compiler/foreign replacement is involved; prepared model and histories release in finally.
  */
 export function test_motion_prepared_shape_history(): void {
@@ -130,6 +139,139 @@ export function test_motion_prepared_shape_history(): void {
   }
   factorInput();
   isolatedInput();
+  fixedInput(model);
+}
+
+/** Reach the native fixed-history and exact-dispatch boundaries through complete public FK. */
+function fixedInput(model: resolveAutoMovieCenterOfMass.IModel): void {
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const skeleton: IAutoMovieSkeleton = { id: "fixed-inertia-owner", bones: [{
+    bone: "hips", parent: null, constraint: null,
+    rest: { translation: { x: 0, y: 0, z: 0 }, rotation: identity, scale: { x: 1, y: 1, z: 1 } },
+  }] };
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const bone of resolvePose({ skeleton: skeleton.id, root: null, joints: [] }, skeleton))
+    bones.set(bone.bone, bone);
+  const source: resolveAutoMovieCenterOfMass.IModel = structuredClone(model);
+  const span: { from: number; to: number } = { from: 0, to: 1 };
+  const observation: ReturnType<typeof F.observe> = F.observe();
+  const failures: string[] = [];
+  try {
+    const incomplete: F.ICachedHistory | undefined = F.fixed(source, skeleton, new Map(), span);
+    if (incomplete !== undefined) {
+      failures.push("an incomplete fixed FK map manufactured a zero-rate proof");
+      incomplete.clear();
+    }
+  } catch (error) {
+    failures.push(`an unavailable complete rate map did not preserve undefined fallback: ${String(error)}`);
+  }
+  if (!throwsError((): F.ICachedHistory | undefined => F.fixed(source, skeleton, bones, { from: 1, to: 1 }), "span"))
+    failures.push("a fixed construction admitted an invalid span");
+  const history: F.ICachedHistory | undefined = F.fixed(source, skeleton, bones, span, observation);
+  if (history === undefined) throw new Error("The complete one-part fixed input was not admitted");
+  let sampledReads: number = 0;
+  const sampled: F.ICachedHistory = F.history(model, (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    sampledReads++;
+    return bones;
+  });
+  const q0: IAutoMovieQuaternion = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
+  const columns: readonly IAutoMovieVector3[] = [{ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 1 }];
+
+  /** At L=0, q=q0 and eta=dt I^-1 R0^T dL for every actual requested column. */
+  const stationary: (label: string, reader: F.IHistory, from: number, to: number, exact: boolean) => F.IFlight | undefined = (
+    label: string, reader: F.IHistory, from: number, to: number, exact: boolean,
+  ): F.IFlight | undefined => {
+    try {
+      const flight: F.IFlight = F({ history: reader, t0: from, t1: to, q0: { ...q0 },
+        momentum: { x: 0, y: 0, z: 0 }, variations: columns, h: 0.25,
+        tolerance: { relative: 1e-10, absolute: 1e-10 }, momentumTolerance: { relative: 0.01, absolute: 0 } });
+      if (exact ? flight.knots !== 2 : !(flight.knots > 2))
+        failures.push(`${label}: exact/numerical public knot metadata is wrong: ${flight.knots}`);
+      for (const seconds of [from - 0.5, from, from + 0.37 * (to - from), to, to + 0.5]) {
+        const elapsed: number = Math.max(from, Math.min(to, seconds)) - from;
+        const expected: readonly IAutoMovieVector3[] = [
+          { x: 0, y: 0, z: elapsed / 5 }, { x: 0, y: elapsed / 3, z: 0 }, { x: -elapsed / 2, y: 0, z: 0 },
+        ];
+        const actual: readonly IAutoMovieVector3[] = flight.variations(seconds);
+        const shown: IAutoMovieQuaternion = flight.orientation(seconds);
+        if (!(qunit(shown, 1e-12) && Quaternion.angle(shown, q0) <= 1e-6) || actual.length !== 3 ||
+          expected.some((value: IAutoMovieVector3, index: number): boolean => actual[index] === undefined || !vclose(actual[index]!, value, 1e-6)))
+          failures.push(`${label}: actual stationary orientation/three tangents failed at${seconds}`);
+      }
+      return flight;
+    } catch (error) {
+      failures.push(`${label}: public integration failed: ${String(error)}`);
+      return undefined;
+    }
+  };
+  try {
+    const before: number = observation.read().queries;
+    const exact: F.IFlight | undefined = stationary("covered native fixed history", history, 0, 1, true);
+    const queryWork: number = observation.read().queries - before;
+    if (!(Number.isSafeInteger(queryWork) && queryWork >= 0 && queryWork <= 1))
+      failures.push("a proved stationary curve performed numerical stage history work instead of its one physical validation");
+    if (exact !== undefined) {
+      const old: IAutoMovieQuaternion = exact.orientation(0.5);
+      const oldColumns: readonly IAutoMovieVector3[] = exact.variations(0.5);
+      old.x = 999;
+      const oldFirst: IAutoMovieVector3 | undefined = oldColumns[0];
+      if (oldFirst !== undefined) oldFirst.x = 999;
+      const next: IAutoMovieQuaternion = exact.orientation(0.5);
+      const nextFirst: IAutoMovieVector3 | undefined = exact.variations(0.5)[0];
+      if (!(qunit(next, 1e-12) && Quaternion.angle(next, q0) <= 1e-6) ||
+        oldFirst === undefined || nextFirst === undefined || !vclose(nextFirst, { x: 0, y: 0, z: 0.1 }, 1e-6) || old.x !== 999 || oldFirst.x !== 999)
+        failures.push("exact playback outputs escape or overwrite their independent numeric ownership");
+    }
+    stationary("sampled constant callback has no whole-curve proof", sampled, 0, 1, false);
+    if (!(sampledReads > 1)) failures.push("uncertified constant callback did no numerical history work");
+    sampled.clear();
+    span.from = -10;
+    span.to = 10;
+    stationary("copied fixed span does not cover the requested interval", history, -0.25, 0.75, false);
+    const guarded: F.IFlight = F({ history, t0: 0, t1: 1, q0: identity,
+      momentum: { x: 3, y: 0, z: 0 }, h: 0.25,
+      tolerance: { relative: 1e-10, absolute: 1e-10 }, momentumTolerance: { relative: 0.01, absolute: 0 } });
+    if (!(guarded.knots > 2)) failures.push("nonzero explicit physical budget lost its numerical admission");
+    for (const seconds of [0, 0.37, 1]) {
+      const expected: IAutoMovieQuaternion = { x: Math.sin(0.75 * seconds), y: 0, z: 0, w: Math.cos(0.75 * seconds) };
+      const shown: IAutoMovieQuaternion = guarded.orientation(seconds);
+      if (!(qunit(shown, 1e-12) && Quaternion.angle(shown, expected) <= 1e-6))
+        failures.push(`nonzero budget fallback failed its principal-axis closed form at${seconds}`);
+    }
+    const old: F.IInstant = history(0.2);
+    const fresh: F.IInstant = history(0.2);
+    old.inertia.moments.x = 4;
+    old.relative.x = 2;
+    source.segments[0]!.inertia.x = 999;
+    skeleton.bones[0]!.rest.translation.y = 999;
+    bones.get("hips")!.worldPosition.x = 999;
+    const current: F.IInstant = history(0.2);
+    if (!(old !== fresh && fresh !== current && old.relative !== fresh.relative &&
+      vclose(current.relative, { x: 0, y: 0, z: 0 }, 0) &&
+      vclose(current.inertia.moments, { x: 2, y: 3, z: 5 }, 1e-10) &&
+      vclose(F.rate(old, { x: 0, y: 0, z: 0 }), { x: -0.5, y: 0, z: 0 }, 1e-10)))
+      failures.push("fixed constructor snapshots or per-query instant independence were lost");
+    const released: F.IInstant = history(0.3);
+    const retained: ReturnType<typeof observation.read> = observation.read();
+    if (retained.uniqueNumericNodes !== 1 || retained.memoHits !== 0)
+      failures.push("fixed construction repeated physical nodes or memoized mutable query results");
+    history.clear();
+    const cleared: ReturnType<typeof observation.read> = observation.read();
+    stationary("clear permanently ends exact eligibility", history, 0, 1, false);
+    const oldRate: IAutoMovieVector3 = F.rate(old, { x: 0, y: 0, z: 0 });
+    const releasedRate: IAutoMovieVector3 = F.rate(released, { x: 0, y: 0, z: 0 });
+    const continued: IAutoMovieVector3 = history(0.2).relative;
+    const after: ReturnType<typeof observation.read> = observation.read();
+    if (!(Object.keys(cleared) as (keyof typeof cleared)[]).every((key: keyof typeof cleared): boolean => after[key] === cleared[key]) ||
+      !vclose(oldRate, { x: -0.5, y: 0, z: 0 }, 1e-10) ||
+      !vclose(releasedRate, { x: 0, y: 0, z: 0 }, 0) ||
+      !vclose(continued, { x: 0, y: 0, z: 0 }, 0))
+      failures.push("cleared history retained instrumentation or invalidated an issued ordinary numeric input");
+  } finally {
+    history.clear();
+    sampled.clear();
+  }
+  TestValidator.equals("fixed history provenance, physical control and lifetime contracts", failures, []);
 }
 
 /** A coupled tensor can still own an exactly independent scalar axis. */

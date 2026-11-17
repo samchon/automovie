@@ -64,7 +64,7 @@ export namespace HumanPosturePreparation {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IPrepared {
-    return prepareCurrent(body, posture, {}, resolution, projection);
+    return prepareCurrent(body, posture, {}, resolution, projection, coldSource);
   }
 
   /**
@@ -80,20 +80,19 @@ export namespace HumanPosturePreparation {
    */
   export function continued(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IPrepared {
-    return prepareCurrent(body, posture, near, resolution, projection);
+    return prepareCurrent(body, posture, near, resolution, projection, resolveHumanPostureSource.continued);
   }
 
   /** Snapshot first, then use the one source solver under its actual ownership boundary. */
   function prepareCurrent(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): IPrepared {
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
+    solve: typeof coldSource): IPrepared {
     const raw: IHumanPosture = structuredClone(posture);
     const native: boolean = prepareHumanPoseResolution.isNativeSource(resolution);
     const rigUnchanged: (() => boolean) | undefined = native
       ? prepareHumanPostureRigCheck(body) : undefined;
     const solved: resolveHumanPosture.ISeeded = native
-      ? Object.keys(near).length === 0
-        ? resolveHumanPostureSource.owned(body, raw, near, resolution, undefined, projection)
-        : resolveHumanPostureSource.continued(body, raw, near, resolution, projection)
+      ? solve(body, raw, near, resolution, projection)
       : resolveHumanPosture.seeded(body, { ...raw }, undefined, near, resolution, undefined, projection);
     // The cold solve owns its joints; isolate only a possibly borrowed raw root.
     solved.pose = { ...solved.pose, root: structuredClone(solved.pose.root) };
@@ -114,6 +113,12 @@ export namespace HumanPosturePreparation {
     return prepared;
   }
 
+  /** Public cold preparation retains the original ordinary source/memory policy. */
+  function coldSource(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): resolveHumanPosture.ISeeded {
+    return resolveHumanPostureSource.owned(body, posture, near, resolution, undefined, projection);
+  }
+
   /**
    * Copy only actual per-limb branch/swivel data from an issued preparation.
    *
@@ -129,6 +134,51 @@ export namespace HumanPosturePreparation {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined) throw new Error("Unissued canonical posture preparation");
     return structuredClone(source.solved.seeds);
+  }
+
+  /**
+   * Snapshot an issued native preparation's original canonical source facts.
+   * This observes the source epoch, like pose, rather than current-body
+   * fallback; the owned curve separately maintains its live epoch proof.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines original source-time canonical FK, flat nullable clinical-degree order, fresh demanded frames, genuine source requirement and explicit distinction from bones' live-body fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation The genuine issued source owns its solved pose and original immutable FK rig. Observing that actual pose through that rig and copying its exact clinical scalars produces the same source facts as a complete pose copy without B temporary joint objects; this establishes no new-time or current-body validity claim.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Source/rig ownership remains private, while the curve receives only independent primitive arrays and fresh demanded FK records. Existing public pose and live bones observation retain their original behavior.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unissued/foreign sources decline; no private pose, rig, reader or borrowed output escapes, and no prior pose answer or numeric readiness flag certifies current constraints. The curve still verifies current goals/ROM/continuity under its separate live metadata gate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) primitive-copy pass and native demanded-ancestor FK replace full-pose/B-joint-object copying used only for validation. Actual numerical FK admission and every changed-joint ROM check remain, with unmeasured gains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the actual preparation's private solved pose/original rig are shared; exact named scalar values are copied on every observation, and the caller's current source/epoch proof remains separate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two flat primitive arrays and the fresh K-bone map transfer to this observation's caller and end with its query. No source pose, private joint, reader, output history or handle is retained by this method.
+   */
+  export function source(prepared: IPrepared, requested: ReadonlySet<AutoMovieHumanoidBone>): IObservation | undefined {
+    const fixed: ISource | undefined = SOURCES.get(prepared);
+    if (fixed?.rigUnchanged === undefined) return undefined;
+    const names: AutoMovieHumanoidBone[] = new Array<AutoMovieHumanoidBone>(fixed.solved.pose.joints.length);
+    const values: (number | null)[] = new Array<number | null>(3 * names.length);
+    for (let i: number = 0; i < names.length; ++i) {
+      const joint: IAutoMoviePose["joints"][number] = fixed.solved.pose.joints[i]!;
+      names[i] = joint.bone;
+      values[3 * i] = joint.flexion;
+      values[3 * i + 1] = joint.abduction;
+      values[3 * i + 2] = joint.twist;
+    }
+    return { names, values, bones: fixed.rig.resolveMap(fixed.solved.pose, undefined, requested) };
+  }
+
+  /**
+   * Independent observations of one actual canonical preparation source.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation names fixes ordered clinical slots, values stores F/A/T degree-or-null triples, and bones contains fresh canonical source-world FK for exactly the demanded names.
+   * @evidence contracts/development/design.md#principled-representation Flat primitive clinical data and ordinary fresh FK records expose source observations without lending the private pose, joint objects, rig or numerical admission authority.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The free-curve validator consumes these three fields and separately owns actual goal/ROM/phase checks; current-body fallback remains bones' responsibility.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no resolved flag, source/body override, time key, guessed derivative or success verdict; original source-time semantics remain explicit.
+   */
+  export interface IObservation {
+    /** Canonical bone at each flat clinical slot, in the actual source joint order. */
+    names: readonly AutoMovieHumanoidBone[];
+    /** Three exact nullable clinical-degree coordinates per ordered bone. */
+    values: readonly (number | null)[];
+    /** Fresh demanded FK under this preparation's original canonical rig/pose. */
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
   /**

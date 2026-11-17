@@ -11,6 +11,7 @@ import {
   Vector3,
   fitSeededChainToTarget,
   indexSkeletonTopology,
+  prepareSkeletonPoseResolution,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -27,15 +28,19 @@ import { TestValidator } from "@nestia/e2e";
 import { motionFitArms } from "../internal/motionFitArms";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 /**
- * Several targets of one prepared chain preserve the independent one-shot
+ * Several ordinary fits of one prepared chain preserve the one-shot
  * fit's branch, clinical pose, reported strain and callback evaluations,
  * while the prepared rotation reader agrees with full skeleton FK.
+ * Explicit curve continuation separately retains full source admission and
+ * physical endpoint/rotation behavior; it does not promise the cold score's
+ * same global winner.
  *
  * Scenarios:
- * 1. Cold, explicit reference, continued and caller-strain modes fit two
+ * 1. Cold, explicit reference, near-seeded and caller-strain modes fit two
  *    neighbouring reachable targets in A/B/A order. Actual FK pins the hand
  *    within 1 mm and retains the fixture's 0.3 m and 0.25 m bones and unrelated
  *    authored joint; fresh one-shot fits agree within numerical roundoff.
@@ -45,11 +50,15 @@ import { vclose } from "../internal/vclose";
  *    axis override, a nonzero clinical neutral, duplicate hand records and
  *    absent hand articulation retain the full FK rotation. This is an FK
  *    equivalence check, not a reach claim for a noncanonical limb rig.
+ * 4. Explicit continuation admits every original source joint with no rig,
+ *    a genuine fixed rig and an owned structural copy. Raw/foreign readers
+ *    still run the supplied actual full-FK callback. A non-chain NaN joint
+ *    cannot hide behind a reachable near candidate or empty native FK demand.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios, physical dimensions, solver modes and the limitation of the artificial descendant-chain case.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the public prepared and one-shot fits, actual resolved FK and an owned obstruction callback; stale target reuse, changed branch/value, skipped callback work, mutated neighbours or an incorrect chain-only rotation fail.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists four scenarios, physical dimensions, solver modes, actual original-source admission and the artificial descendant-chain case's limitation.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises ordinary prepared/one-shot fits, actual resolved FK and an owned obstruction callback; stale target reuse, changed ordinary branch/value, skipped callback work or incorrect chain rotation fail. Explicit continuation additionally verifies source admission and actual endpoint/rotation through raw, native and structural rig inputs without asserting cold global-score equivalence.
  * @evidence contracts/development/testing.md#independent-expectations The physical targets, 1 mm contact bound, fixed 0.3/0.25 m segment lengths and straight-arm shell are independent geometric expectations. Full resolvePose is the oracle for chain-frame reuse; one-shot equivalence is a metamorphic purity check and is not an independent oracle of the solver's global optimality. Numerical equality uses 1e-9 metres/degrees and 1e-12 quaternion-dot rounding bounds without relaxing physical contact.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers cold/reference/near/strain, repeated target order, valid descendant intermediates and mapping precedence, duplicate/absent articulation, unreachable and degenerate geometry, missing bones and a reference that must remain unread on degenerate admission; full Human contact, mirroring, on/clear/rests and composed playback remain in their existing integration tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers cold/reference/near/strain, repeated target order, descendant intermediates and mapping precedence, duplicate/absent articulation, unreachable/degenerate geometry, missing bones and unread degenerate references. Explicit continuation contrasts raw, genuine native and structural-copy rig admission with a valid source and an invalid non-chain coordinate; required raw/foreign callback work is observed before any later rotation read. Full Human contact, mirroring, on/clear/rests and composed playback remain in existing integration tests.
  * @evidence contracts/development/testing.md#execution-ownership A portable in-memory engine unit with owned rig data and callback counters, discovered by its exported test function; no process, renderer, viewer or GPU is started.
  */
 export function test_motion_fit_chain_workspace(): void {
@@ -128,6 +137,40 @@ export function test_motion_fit_chain_workspace(): void {
       name: "near",
       source: { ...base, near: { ...anchor.seed, tolerance: ROM_TOLERANCE } },
     });
+  if (anchor.seed !== null) {
+    const fixed: prepareSkeletonPoseResolution.IRig = prepareSkeletonPoseResolution(
+      skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME,
+    );
+    const rigs: readonly (prepareSkeletonPoseResolution.IRig | undefined)[] = [undefined, fixed, { ...fixed }];
+    for (const [index, rig] of rigs.entries()) {
+      let authoredReads: number = 0;
+      const workspace: fitSeededChainToTarget.IWorkspace = fitSeededChainToTarget.prepare(base,
+        (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+          authoredReads++;
+          return motionFitArms.fk(skeleton, pose);
+        }, undefined, rig,
+      );
+      const fitted: IAutoMovieSeededChainFit = workspace.continued(first,
+        { ...anchor.seed, tolerance: ROM_TOLERANCE },
+      );
+      const admissionReads: number = authoredReads;
+      const end: IAutoMovieResolvedBone = motionFitArms.fk(skeleton, fitted.pose).get("leftHand")!;
+      check(`continued source mode${index}: actual endpoint and full-FK rotation`,
+        Vector3.length(Vector3.subtract(end.worldPosition, first)) <= 0.001 &&
+        qclose(workspace.rotation(fitted.pose), end.worldRotation, 1e-12),
+      );
+      check(`continued source mode${index}: raw/foreign authored callback cannot be bypassed`,
+        rig === fixed || admissionReads > 0,
+      );
+      const invalid: IAutoMoviePose = { ...pose, joints: [{ ...unrelated, flexion: NaN }] };
+      check(`continued source mode${index}: invalid non-chain source cannot be skipped`,
+        throwsError((): IAutoMovieSeededChainFit => fitSeededChainToTarget.prepare(
+          { ...base, pose: invalid }, (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+            motionFitArms.fk(skeleton, invalid), undefined, rig,
+        ).continued(first, { ...anchor.seed!, tolerance: ROM_TOLERANCE }), "finite"),
+      );
+    }
+  }
 
   // Callback evaluations are effects even when their scores are identical.
   // Sharing invariant rig data must not memoize a target's candidate work.

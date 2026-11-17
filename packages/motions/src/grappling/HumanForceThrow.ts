@@ -125,15 +125,15 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#principled-implementation The fulcrum is the thrower's region on its placed posture at the broken base; the frozen body turns about it by `HumanForceExchange.swing`, whose start rate is the pull's speed across the fulcrum line, whose drive is the pull's moment about the fulcrum while it lasts, and whose inertia is the body's composite tensor on the swing's axis plus the parallel-axis term; after release the centre follows the parabola and the orientation the conserved angular momentum `R I ω` (`integrateAirborneRotation`); the landing is the first integrator step at which the lowest joint reaches the floor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fulcrum, swing, release state, flight, landing, plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops is refused; the landing is searched, never set.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight integration retain their original steps. The fixed rigid-shape mass instant is computed by the original history once instead of repeating equal tensors and stencils at every ODE stage; the unchanged landing grid still evaluates every actual joint offset, requesting only its exact rotated Y component and omitting unused X/Z outputs and vector records.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original history measures actual inertia and relative momentum from the one fixed local frozen-shape map once. That producer never changes with time, so its physical mass instant serves the rigid flight ODE; changing-shape histories remain untouched. Release angle/rate, inverse heading and fixed joint offsets are also shared under their exact fixed-input contracts.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary original mass history is cleared in finally after its one actual rigid-shape measurement, including failure. The rigid instant and landing offsets end with synchronous integration/planning; the plan retains only its original physical scalars, inverse heading and completed swing/flight trajectories, without mass-node or posed-frame history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight retain their original integration budgets. The native fixed-shape constructor copies the actual full local bone map, propagates explicit zero bone rates and reduces its inertia/momentum once in O(B+S) for B bones and S mass parts. The engine may solve a supported principal/spherical residual-only rotation exactly; general anisotropic rotation keeps its original numerical integration over this same fixed tensor. If native rate propagation is unavailable, the original one-instant history path remains. The unchanged landing grid still evaluates every actual joint offset, requesting only its exact rotated Y component and omitting unused X/Z outputs and vector records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged local frozen-shape map is actual complete geometry held throughout this throw's flight, so the native fixed constructor owns a copied whole-curve tensor and zero-relative-momentum proof rather than inferring constancy from callback samples. Its identity reaches the actual flight integrator directly, preserving numeric fallback for unsupported physical classes. The original single-instant reduction remains when fixed construction is unavailable. Release angle/rate, inverse heading and fixed joint offsets are also shared under their exact fixed-input contracts.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The native fixed history is cleared in finally after flight construction, including an integration failure; completed playback retains only numeric flight data. An unavailable native constructor uses the original temporary history, cleared after its one rigid-shape measurement. Rigid instants and landing offsets end with synchronous planning; the plan retains its original physical scalars, inverse heading and completed swing/flight trajectories without a shape-history owner.
    */
   export function plan(
     context: IHumanActionContext<HumanForceResponse.IParams>,
     props: IProps,
   ): IHumanActionPlan {
-    const { model, direction, broken, frozen } = props;
+    const { model, direction, broken, frozen }: IProps = props;
     const body: IHumanBody = context.body;
     const by: string | undefined = context.params.by;
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
@@ -217,7 +217,7 @@ export namespace HumanForceThrow {
         reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}`,
         fix: "pull harder, or bring the fulcrum under the body's centre",
       });
-    const turnAt = (angle: number): IAutoMovieQuaternion =>
+    const turnAt: (angle: number) => IAutoMovieQuaternion = (angle: number): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
     const release: number = broken + swing.release;
     const state: { angle: number; rate: number } = swing.sample?.(swing.release) ?? {
@@ -239,7 +239,7 @@ export namespace HumanForceThrow {
     // The flight lasts at most until the centre itself reaches the floor.
     const fall: number =
       (velocity.y + Math.sqrt(velocity.y * velocity.y + 2 * g * from.y)) / g;
-    const path = (tau: number): IAutoMovieVector3 => ({
+    const path: (tau: number) => IAutoMovieVector3 = (tau: number): IAutoMovieVector3 => ({
       x: from.x + velocity.x * tau,
       y: from.y + velocity.y * tau - (g * tau * tau) / 2,
       z: from.z + velocity.z * tau,
@@ -259,26 +259,37 @@ export namespace HumanForceThrow {
       Quaternion.rotateVector(turned, apply(tensor, axis)),
       rate,
     );
-    // This throw's authored shape is rigid: the original history's actual
-    // inertia and relative momentum are independent of the flight clock.
-    const history: integrateAirborneRotation.ICachedHistory =
-      integrateAirborneRotation.history(model, () => local);
-    let rigid: integrateAirborneRotation.IInstant;
-    try {
-      rigid = history(0);
-    } finally {
-      history.clear();
+
+    // This authored geometry is held for the entire rigid flight. Its copied
+    // native constructor proves that fact without inspecting callback samples.
+    const end: number = Math.max(fall, integrateMotionTrajectory.STEP);
+    const fixed: integrateAirborneRotation.ICachedHistory | undefined =
+      Number.isFinite(end)
+        ? integrateAirborneRotation.fixed(model, body.skeleton, local, { from: 0, to: end })
+        : undefined;
+    let rigid: integrateAirborneRotation.IInstant | undefined;
+    if (fixed === undefined) {
+      const history: integrateAirborneRotation.ICachedHistory =
+        integrateAirborneRotation.history(model, () => local);
+      try {
+        rigid = history(0);
+      } finally {
+        history.clear();
+      }
     }
-    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation(
-      {
-        history: (): integrateAirborneRotation.IInstant => rigid,
+    let flight: integrateAirborneRotation.IFlight;
+    try {
+      flight = integrateAirborneRotation({
+        history: fixed ?? ((): integrateAirborneRotation.IInstant => rigid!),
         t0: 0,
-        t1: Math.max(fall, integrateMotionTrajectory.STEP),
+        t1: end,
         q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
         momentum,
-      },
-    );
-    const turnIn = (tau: number): IAutoMovieQuaternion =>
+      });
+    } finally {
+      fixed?.clear();
+    }
+    const turnIn: (tau: number) => IAutoMovieQuaternion = (tau: number): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(
           flight.orientation(tau),
@@ -292,7 +303,7 @@ export namespace HumanForceThrow {
       (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
         Vector3.subtract(bone.worldPosition, centre),
     );
-    const lowest = (tau: number): number => {
+    const lowest: (tau: number) => number = (tau: number): number => {
       const c: IAutoMovieVector3 = path(tau);
       const q: IAutoMovieQuaternion = turnIn(tau);
       let low: number = Number.POSITIVE_INFINITY;

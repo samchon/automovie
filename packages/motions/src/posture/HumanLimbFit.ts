@@ -20,6 +20,7 @@ import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import type { HumanColliders } from "./HumanColliders";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
+import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
@@ -330,7 +331,7 @@ export namespace HumanLimbFit {
       readResolution(),
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
-      (point: IAutoMovieVector3): IAutoMovieSeededChainFit => read(fitter, point, near));
+      (point: IAutoMovieVector3): IAutoMovieSeededChainFit => read(fitter, point, near, body));
   }
 
   /**
@@ -397,14 +398,22 @@ export namespace HumanLimbFit {
 
   /** Public near/cold fitting retains its original workspace entry and order. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    _near: IAutoMovieSwivelNear | undefined): IAutoMovieSeededChainFit {
+    _near: IAutoMovieSwivelNear | undefined, _body: IHumanBody): IAutoMovieSeededChainFit {
     return workspace.fit(point);
   }
 
   /** Only the actual continuous-curve constructor selects current hinged correction. */
   function correcting(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    near: IAutoMovieSwivelNear | undefined): IAutoMovieSeededChainFit {
-    return near === undefined ? workspace.fit(point) : workspace.continued(point, near);
+    near: IAutoMovieSwivelNear | undefined, body: IHumanBody): IAutoMovieSeededChainFit {
+    return near === undefined ? workspace.fit(point) : workspace.continued(point, near,
+      (event: Parameters<NonNullable<Parameters<typeof workspace.continued>[2]>>[0]): void => {
+        switch (event) {
+          case "orientationRootTrial": HumanLimbFitFrame.work(body, "orientationRootTrials"); break;
+          case "orientationRootAccepted": HumanLimbFitFrame.work(body, "orientationRootAccepted"); break;
+          case "nearAttempt": HumanLimbFitFrame.work(body, "continuationNearAttempts"); break;
+          case "coldAttempt": HumanLimbFitFrame.work(body, "continuationColdAttempts"); break;
+        }
+      });
   }
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */

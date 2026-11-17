@@ -20,6 +20,7 @@ import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { prepareHumanFixedPose } from "./prepareHumanFixedPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /**
@@ -115,12 +116,12 @@ export namespace HumanSegmentPose {
    * @returns The pose and the seeds of its fits.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the leaf, carry, stop and planted fits and explains how only the matching nearby seed continues each one.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluates layers, overlay/carry fits, stopped weapons, transition offset, range clamps and final planted refits in their original order; rate samples continue the cut's own seeds rather than unrelated evaluation history. The performer's rig stays unchanged during this synchronous evaluation, so its repeated clamps may share prepared metadata.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates layers, overlay/carry fits, stops, transitions, clamps and final plants in their original order. A genuinely constructed constant direct curve may reuse its canonical articulation only before any composition modifies its actual raw source; complete current rig/ROM proof governs that reuse. Rate samples retain the cut's own seeds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlay sets and nearby seeds still receive separate fits; no clamp, contact solve, transition sample or tolerance is removed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is one O(H) ordered pass with at most two lazy plan-side drive scans and four scalar side states; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). Cold final plants retain attachment-order checks but omit unused nearby keys and tuple arrays. The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlays and nearby seeds receive separate fits. Only actual immutable no-goal curve coefficients plus current native rig proof permit compiled direct-joint projection; foreign readers/wrappers or altered composition retain ordinary work. Outer stops, transitions, clamps, contacts and physical tolerances remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is O(H), and finger application is O(J+F). A native bare constant leaf replaces repeated assembly/projection/independent issuing with full rig checking and one fresh O(B) canonical copy; its real construction and displayed consumer share a single owner. Other fitting, exact final plants, and repeated-clamp metadata reuse remain. Gains are unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit same-body preparation shares ROM metadata and lazy exact FK prerequisites across raw action calls, synchronous layer contexts, overlays/carries/stops, final plants and transition samples. Actual projections, goals and near fits remain separate; observational omission belongs only to conservative dependency proofs. Offset capture also shares its unchanged-rig codec without sharing numerical conversions.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation; no returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The evaluation owns its preparation, local pose/seeds and side metadata until return/throw; outputs never capture that preparation. Native fixed-curve compilation separately retains one private O(B) canonical observation per weak source/body epoch, without time keys or linked invalidation history. Existing carries/codecs keep their original forget lifetime.
    */
   export function seeded(
     person: HumanSegment.IPerson,
@@ -156,12 +157,13 @@ export namespace HumanSegmentPose {
       pose: IAutoMoviePose;
       seeds: IFits;
     } {
+      const source: HumanSegment.ISegment["plan"]["posture"] = segment.plan.posture;
       let written: IHumanPosture = layered(
         person,
-        segment.plan.posture(
+        Reflect.apply(source, segment.plan, [
           Math.min(segment.plan.duration, Math.max(0, t - segment.start)),
           undefined, prepared.resolution, prepared.clamp,
-        ),
+        ]),
         t,
         prepared.resolution,
         prepared.clamp,
@@ -173,9 +175,13 @@ export namespace HumanSegmentPose {
         for (const h of borne) Object.assign(joints, h.fingers);
         written = { ...written, joints };
       }
-      const overlaid: HumanSegmentOverlay.IOverlaid =
-        HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-          unplantedHumanObservation(written.limbs, observed), prepared);
+      const fixed: IAutoMoviePose | undefined = person.layers.length === 0 &&
+        person.overlays.length === 0 && borne.length === 0 && fits === undefined
+        ? prepareHumanFixedPose(body, source, written, prepared.resolution) : undefined;
+      const overlaid: HumanSegmentOverlay.IOverlaid = fixed === undefined
+        ? HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
+          unplantedHumanObservation(written.limbs, observed), prepared)
+        : { pose: fixed, contacts: {}, seeds: new Map() };
       return {
         posture: {
           ...written,

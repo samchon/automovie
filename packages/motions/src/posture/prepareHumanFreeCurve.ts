@@ -24,8 +24,8 @@ import type { prepareHumanPostureProjection } from "./prepareHumanPostureProject
 import type { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
- * Continue a constructor-owned, pure free-leg goal curve from its phase-zero
- * anchor. This explicit continuous constrained-IK policy is separate from
+ * Continue a constructor-owned, pure free-leg curve from its canonical
+ * endpoint or verified midpoint anchor. This constrained-IK policy is separate from
  * public cold minimization: current goals remain actual solves, and no pose
  * is replayed or interpolated. The supplied producer owns copied curve
  * coefficients and never exposes or changes them during this preparation.
@@ -37,11 +37,11 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines curve ownership, normalized phase/second units, deterministic dyadic predecessor anchors, exact current solves, supported free-goal domain, full physical gates and cold fallback.
  * @evidence contracts/development/implementation.md#principled-implementation Predictor-corrector continuation uses the existing near-basin hinged solver. Canonical preceding dyadic anchors refine until both the actual swivel bracket and actual postclamp chain rotations stay inside the original one-degree search step. FK independently checks each current ankle, requested end orientation, pole side and ROM. This defines continuous constrained IK, not the public cold score winner. A unique smooth local basin is a premise between actual branch events; C1 at anchor-policy seams is not yet qualified by runtime momentum checks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure phase reader owns source preparation; observe owns actual constraints and scalar seed/rotation observations. solve selects canonical predecessors while seedAt retains only deterministic anchors. A singular endpoint remains cold and a canonical one-sided interior phase may supply a new valid anchor; singularity alone never disables the entire curve. Unsupported/invalid/precision-limited cases use cold fitting.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure phase reader owns preparation and observe owns physical facts. Use a validated phase-zero anchor; when it has no usable hinge seed, actually validate the domain midpoint and continue deterministically in both directions from it. If neither reference is usable, canonical one-sided cold anchors remain available. solve/seedAt retain only completed deterministic observations; no repeated same-call FK/ROM observation is needed. Unsupported/invalid/precision-limited cases use cold fitting.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body/law/fixture switch, approximate result key, sampled global smoothness certificate, arbitrary time grid, skipped physical bound or whole-pose result cache is used. Unknown callbacks/readers, changed rig, contacts, attached goals, digits and external clearance cannot enter this narrow constructor path. At every candidate endpoint/rotation/ROM/pole are checked after actual fitting; fallback never manufactures success.
- * @evidence contracts/development/implementation.md#efficient-algorithms Smooth eligible branches replace repeated360-position cold sweeps by local refinement plus actual demanded-chain FK. Refinement work follows actual angular change; no iteration cap or coarse trajectory approximation substitutes for a solve. Recomputed anchors use the same deterministic construction, and total gains remain unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only primitive seeds/chain quaternions of canonical dyadic anchors share under unchanged rig/curve prerequisites. Each current target is solved or read from exact full-dependency continuous-policy memory, with signed zero preserved; the public legacy quantized key is not used by this policy. Cached/evicted anchor availability cannot choose a previous queried pose or change the canonical construction.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its immutable coefficient reader, fixed ROM scorers, root seed and at most one small seed/rotation record per binary64 subdivision level. Finite scale doubling bounds the population by the numeric exponent range; replacement discards an older same-level anchor. No canonical pose, public output, FK loan, input graph, query history, handle or task is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Smooth eligible branches replace repeated360-position cold sweeps by actual constrained correction and demanded-chain FK. Native validation copies flat primitive clinical arrays instead of B temporary joint objects; exact unchanged tuples reuse pure fixed-epoch ROM admission and changed tuples are rescored. Refinement follows actual angular change without an arbitrary cap/grid; gains are unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Primitive seeds/quaternions of canonical dyadic anchors share under unchanged rig/curve prerequisites. Every current target is solved or read from exact continuous-policy memory, preserving signed zero without the legacy GRID. ROM reuse requires the exact same current nullable coordinate tuple and fixed scorer, not a prior pose or fit answer. Eviction/query order cannot change the canonical construction.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns immutable coefficients, fixed scorers, at most one last admitted scalar tuple per rig bone, one root seed and one small anchor record per binary64 subdivision level. Finite scale doubling bounds levels; replacement drops an older same-level anchor and rig invalidation clears both memo populations. No canonical pose, public output, FK loan, input graph, query history, handle or task is retained.
  */
 export function prepareHumanFreeCurve(
   body: IHumanBody,
@@ -53,11 +53,13 @@ export function prepareHumanFreeCurve(
     ? samplePoseVelocity.tolerance(1e-3, duration) : NaN;
   const radians: number = ROM_TOLERANCE * Math.PI / 180;
   const legality: Map<AutoMovieHumanoidBone, (joint: IAutoMovieJointPose) => number> = new Map();
+  const checked: Map<AutoMovieHumanoidBone, readonly [number | null, number | null, number | null]> = new Map();
   for (const bone of body.skeleton.bones)
     legality.set(bone.bone, jointRomOvershoot.prepare(bone.bone,
       getConstraint(bone.bone, bone.constraint ?? null), swingTwistRange.of(bone.bone, body.skeleton)));
   const anchors: Map<number, { share: number; value: IAnchor }> = new Map();
   let origin: IAnchor | undefined;
+  let pivot: number = 0;
   let originRead: boolean = false;
   let supported: boolean = unchanged !== undefined && Number.isFinite(tolerance) && tolerance > 0 && tolerance < hingedArmSwivel.STEP;
 
@@ -65,23 +67,32 @@ export function prepareHumanFreeCurve(
   function cold(share: number, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined, anchor: boolean = false): HumanPosturePreparation.IPrepared {
     HumanLimbFitFrame.work(body, anchor ? "curveColdAnchors" : "curveColdFallbacks");
-    return HumanPosturePreparation.prepare(body, at(share), resolution, projection);
+    return HumanPosturePreparation.continued(body, at(share), {}, resolution, projection);
   }
 
   /** Observe native output independently; no seed or fitted endpoint is a target substitute. */
-  function observe(prepared: HumanPosturePreparation.IPrepared, raw: IHumanPosture): IAnchor | undefined {
+  function observe(prepared: HumanPosturePreparation.IPrepared, raw: IHumanPosture,
+    knownSeeds?: resolveHumanPosture.ISeeded["seeds"]): IAnchor | undefined {
     if (raw.rotation !== undefined || !HumanPostureRaw.eligible(raw)) return undefined;
     const limbs: [IHumanPosture.Limb, IHumanPosture.IGoal][] = Object.entries(raw.limbs) as [IHumanPosture.Limb, IHumanPosture.IGoal][];
     if (limbs.length === 0) return undefined;
-    const pose: HumanPosturePreparation.IPrepared["pose"] = prepared.pose;
-    for (const joint of pose.joints)
-      if ((legality.get(joint.bone)?.(joint) ?? Infinity) > ROM_TOLERANCE) return undefined;
     const names: Set<AutoMovieHumanoidBone> = new Set();
     for (const [limb] of limbs) {
       const side: "left" | "right" = limb === "leftLeg" ? "left" : "right";
       names.add(`${side}UpperLeg`); names.add(`${side}LowerLeg`); names.add(`${side}Foot`);
     }
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose, undefined, names);
+    const source: HumanPosturePreparation.IObservation | undefined = HumanPosturePreparation.source(prepared, names);
+    let bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    if (source === undefined) {
+      const pose: HumanPosturePreparation.IPrepared["pose"] = prepared.pose;
+      for (const joint of pose.joints)
+        if (!legal(joint.bone, joint.flexion, joint.abduction, joint.twist)) return undefined;
+      bones = poseBones(body, pose, undefined, names);
+    } else {
+      for (let i: number = 0; i < source.names.length; ++i)
+        if (!legal(source.names[i]!, source.values[3 * i]!, source.values[3 * i + 1]!, source.values[3 * i + 2]!)) return undefined;
+      bones = source.bones;
+    }
     const rotations: IAutoMovieQuaternion[] = [];
     for (const [limb, goal] of limbs) {
       const side: "left" | "right" = limb === "leftLeg" ? "left" : "right";
@@ -105,39 +116,54 @@ export function prepareHumanFreeCurve(
       if (!(Vector3.length(bent) > precision) || !(Vector3.length(asked) > precision) || !(Vector3.dot(bent, asked) > 0)) return undefined;
       rotations.push(hip.worldRotation, knee.worldRotation, foot.worldRotation);
     }
-    const seeds: resolveHumanPosture.ISeeded["seeds"] = HumanPosturePreparation.seeds(prepared);
+    const seeds: resolveHumanPosture.ISeeded["seeds"] = knownSeeds ?? HumanPosturePreparation.seeds(prepared);
     if (limbs.some(([limb]: [IHumanPosture.Limb, IHumanPosture.IGoal]): boolean => seeds[limb] === null || seeds[limb] === undefined)) return undefined;
     return { seeds, rotations };
+  }
+
+  /** Pure fixed-epoch ROM admission reuses only exactly equal actual nullable coordinates. */
+  function legal(bone: AutoMovieHumanoidBone, flexion: number | null, abduction: number | null, twist: number | null): boolean {
+    const previous: readonly [number | null, number | null, number | null] | undefined = checked.get(bone);
+    if (previous !== undefined && Object.is(previous[0], flexion) &&
+      Object.is(previous[1], abduction) && Object.is(previous[2], twist)) return true;
+    if (!((legality.get(bone)?.({ bone, flexion, abduction, twist }) ?? Infinity) <= ROM_TOLERANCE)) return false;
+    checked.set(bone, [flexion, abduction, twist]);
+    return true;
   }
 
   /** A retained anchor always has the same canonical construction, even after eviction. */
   function seedAt(share: number, level: number, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): IAnchor | undefined {
-    if (share === 0) return origin;
+    if (share === pivot) return origin;
     const kept: { share: number; value: IAnchor } | undefined = anchors.get(level);
     if (kept?.share === share) return kept.value;
-    const prepared: HumanPosturePreparation.IPrepared = origin === undefined
-      ? cold(share, resolution, projection, true) : solve(share, resolution, projection);
-    const value: IAnchor | undefined = observe(prepared, at(share));
+    const solved: ISolved = origin === undefined
+      ? { prepared: cold(share, resolution, projection, true) } : solve(share, resolution, projection);
+    const value: IAnchor | undefined = solved.anchor ?? observe(solved.prepared, at(share));
     if (value !== undefined) anchors.set(level, { share, value });
     return value;
   }
 
   /** Correct actual goals from canonical preceding anchors, never from query order. */
   function solve(share: number, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): HumanPosturePreparation.IPrepared {
+    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): ISolved {
     const raw: IHumanPosture = at(share);
+    const direction: number = share < pivot ? -1 : 1;
+    const extent: number = direction < 0 ? pivot : 1 - pivot;
+    const progress: number = extent === 0 ? 0 : Math.abs(share - pivot) / extent;
     let previous: number = -1;
     for (let level: number = 0, scale: number = 1; Number.isFinite(scale); ++level, scale *= 2) {
-      let anchor: number = Math.floor(share * scale) / scale;
-      if (anchor === share) anchor -= 1 / scale;
-      if (anchor < 0 || !(anchor < share)) return cold(share, resolution, projection);
-      if (anchor === previous) continue;
-      previous = anchor;
+      let before: number = Math.floor(progress * scale) / scale;
+      if (before === progress) before -= 1 / scale;
+      if (before < 0 || !(before < progress)) return { prepared: cold(share, resolution, projection) };
+      if (before === previous) continue;
+      previous = before;
+      const anchor: number = pivot + direction * extent * before;
+      if (anchor === share) return { prepared: cold(share, resolution, projection) };
       const prior: IAnchor | undefined = seedAt(anchor, level, resolution, projection);
       if (prior === undefined) {
-        if (anchor === 0) continue;
-        return cold(share, resolution, projection);
+        if (anchor === pivot) continue;
+        return { prepared: cold(share, resolution, projection) };
       }
       const near: resolveHumanPosture.INear = Object.fromEntries(Object.entries(prior.seeds).flatMap(
         ([limb, seed]: [string, resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb]]): [IHumanPosture.Limb, IAutoMovieSwivelNear][] =>
@@ -152,33 +178,40 @@ export function prepareHumanFreeCurve(
           Math.abs(seed.swivel - before.swivel) < hingedArmSwivel.STEP - tolerance;
       });
       if (!interior) { HumanLimbFitFrame.work(body, "curveRefinements"); continue; }
-      const value: IAnchor | undefined = observe(prepared, raw);
-      if (value === undefined) return cold(share, resolution, projection);
+      const value: IAnchor | undefined = observe(prepared, raw, seeds);
+      if (value === undefined) return { prepared: cold(share, resolution, projection) };
       const continuous: boolean = value.rotations.length === prior.rotations.length && value.rotations.every(
         (rotation: IAutoMovieQuaternion, i: number): boolean => Quaternion.angleAfterNormalize(rotation, prior.rotations[i]!) * 180 / Math.PI <= hingedArmSwivel.STEP,
       );
-      if (continuous) { HumanLimbFitFrame.work(body, "curveAccepted"); return prepared; }
+      if (continuous) { HumanLimbFitFrame.work(body, "curveAccepted"); return { prepared, anchor: value }; }
       HumanLimbFitFrame.work(body, "curveRefinements");
     }
-    return cold(share, resolution, projection);
+    return { prepared: cold(share, resolution, projection) };
   }
 
   return (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>): HumanPosturePreparation.IPrepared => {
     HumanLimbFitFrame.work(body, "curveQueries");
-    if (!supported || !(share > 0 && share <= 1) || !prepareHumanPoseResolution.isNativeSource(resolution)) return cold(share, resolution, projection);
+    if (!supported || !(share > 0 && share < 1) || !prepareHumanPoseResolution.isNativeSource(resolution)) return cold(share, resolution, projection);
     if (!unchanged!()) {
-      supported = false; origin = undefined; anchors.clear();
+      supported = false; origin = undefined; anchors.clear(); checked.clear();
       return cold(share, resolution, projection);
     }
     if (!originRead) {
       originRead = true;
       const initial: IHumanPosture = at(0);
-      if (initial.rotation !== undefined || !HumanPostureRaw.eligible(initial)) { supported = false; return cold(share, resolution, projection); }
+      if (initial.rotation !== undefined || !HumanPostureRaw.eligible(initial) || Object.keys(initial.limbs).length === 0) {
+        supported = false; return cold(share, resolution, projection);
+      }
       const prepared: HumanPosturePreparation.IPrepared = cold(0, resolution, projection, true);
       origin = observe(prepared, at(0));
+      if (origin === undefined) {
+        const middle: HumanPosturePreparation.IPrepared = cold(0.5, resolution, projection, true);
+        const interior: IAnchor | undefined = observe(middle, at(0.5));
+        if (interior !== undefined) { pivot = 0.5; origin = interior; }
+      }
     }
-    return solve(share, resolution, projection);
+    return solve(share, resolution, projection).prepared;
   };
 }
 
@@ -188,4 +221,12 @@ interface IAnchor {
   seeds: resolveHumanPosture.ISeeded["seeds"];
   /** Actual postclamp chain world rotations, in supported goal insertion order. */
   rotations: readonly IAutoMovieQuaternion[];
+}
+
+/** Same-call current solve and already completed physical observation, never a cross-query answer. */
+interface ISolved {
+  /** Current independently issued canonical source. */
+  prepared: HumanPosturePreparation.IPrepared;
+  /** Present only when this same solve completed every actual physical/continuity check. */
+  anchor?: IAnchor;
 }

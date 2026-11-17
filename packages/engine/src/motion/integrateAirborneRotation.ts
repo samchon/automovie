@@ -11,6 +11,7 @@ import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMom
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import { AirborneMomentumDefect } from "./AirborneMomentumDefect";
 import { AirborneRotationFlight } from "./AirborneRotationFlight";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
@@ -18,6 +19,7 @@ import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import type { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
+import { solveAirborneInvariant } from "./solveAirborneInvariant";
 
 /**
  * The root orientation of a body in flight, from its angular momentum about
@@ -57,16 +59,19 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * estimate does not certify a global Jacobian error or Newton convergence.
  * An explicit momentumTolerance additionally controls sampled dense angular
  * momentum directly in kg m²/s, independently of the orientation's RMS.
+ * A constructor-proved constant history may instead use its supported exact
+ * commuting solution. Unsupported controls and derivative requests retain
+ * the numerical integrator, including explicit dense physical admission.
  *
  * @param props The shape's history, the flight and the momentum.
  * @returns The flight's orientation, read by time.
  * @throws {Error} For an invalid failure scope or error budget, a refused trajectory interval or step, or a shape/history reduction failure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States conservation, root/relative decomposition, sources, frames and translation/heading invariance. Namespace history documents pure root-frame bones, unchanged millisecond central differences/boundary correction, exact I/h and operation-owned numeric mass nodes with O(N*S) retention, and separate raw/prepared-model lifetime; clear releases all transient numeric preparation.
- * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia. Unobserved factory tensors use diagonally equilibrated SPD Cholesky solves; public or foreign principals retain their original inverse application. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. Explicit dense control reconstructs R(I omega+h) from the same tensor, retaining anisotropy and cancellation. Companion observe: Delegates to the native observation owner; histories borrow only its private counter storage and never invoke a caller method.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact dispatch requires the native owner's whole-curve constant proof and the helper's supported commuting class and derivative/control capabilities; explicit dense physical budgets retain the original numerical path. The fallback uses conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia. Unobserved factory tensors use diagonally equilibrated SPD Cholesky solves; public or foreign principals retain their original inverse application. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. Explicit dense control reconstructs R(I omega+h) from the same tensor, retaining anisotropy and cancellation. Companion observe: Delegates to the native observation owner; histories borrow only its private counter storage and never invoke a caller method.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator. Companion observe: One factory forwards observation ownership without an ambient context or altered physical input.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give. Only this operation's matching symbol scope permits enriching a numeric failure; foreign history errors retain their identity, message and metadata, even when they have the same error class. Companion observe: No monkeypatch, callback notification, trusted caller flag or default instrumentation is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new right-hand sides per step; adaptive cost follows the owning stepper's trial-stage and dense-probe populations. Each right-hand side reads one history instant and does linear work in requested variation directions, without a separately integrated derivative. Explicit dense physical control adds one history read and fixed-size momentum reconstruction per controller probe. One flat rate array receives tangent components directly; an indexed loop reads each tangent's scalar coordinates without a callback or tangent record, and cross terms keep their original association without intermediate cross/difference records. Inverse applications divide their exclusively owned local rotated vector in place before rotating it back. Companion observe: Allocates one fixed-size counter record only on this explicit request; ordinary histories allocate no observation record.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The exact supported branch keeps only completed constant-size numeric data; its eligibility work belongs to the invariant owner. The numerical fallback uses four new right-hand sides per fixed step; adaptive cost follows the owning stepper's trial-stage and dense-probe populations. Each right-hand side reads one history instant and does linear work in requested variation directions, without a separately integrated derivative. Explicit dense physical control adds one history read and fixed-size momentum reconstruction per controller probe. One flat rate array receives tangent components directly; an indexed loop reads each tangent's scalar coordinates without a callback or tangent record, and cross terms keep their original association without intermediate cross/difference records. Inverse applications divide their exclusively owned local rotated vector in place before rotating it back. Companion observe: Allocates one fixed-size counter record only on this explicit request; ordinary histories allocate no observation record.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's shape-only inertia and relative momentum across stages and shooting trials. Factory-issued unobserved tensors share one factor across physical rate, all tangent columns and dense reconstruction without principal materialization. Observed/changed/foreign instants retain the original principal path and copied Object.is inverse checks. An optional operation partition shares exact time boundaries only; every trial recomputes its current state and error checks. Companion observe: The same explicit handle can accumulate actual history epochs; repeated reads copy totals rather than triggering physical work.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the RHS scope from numeric trajectory/tangent count only; accepted-step count remains unbounded under adaptation. A general history's fallback owns one copied quaternion/inverse until return/throw. An engine history with N exact queries and S parts owns O(N) I/h/inverses and at most 3N+6 numeric mass nodes, O(N*S), until clear. Raw bones/full poses are released after posing and never enter those maps. Companion observe: The caller owns the small handle; private weak registration retains no observer after callers and histories release it. It contains no body, pose, query log or process.
  */
@@ -81,6 +86,14 @@ export function integrateAirborneRotation(
   const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
   if (props.momentumTolerance !== undefined && props.tolerance === undefined)
     throw new Error("Airborne momentum error control requires adaptive integration");
+
+  // Native construction alone is insufficient: the exact solver additionally
+  // requires its history owner's whole-curve constant proof. Unsupported
+  // controls, tangents and physical classes keep the original numeric path.
+  if (AirborneShapeHistory.owned(history)) {
+    const invariant: integrateAirborneRotation.IFlight | undefined = solveAirborneInvariant(props);
+    if (invariant !== undefined) return invariant;
+  }
 
   /** The previous principal rotation's copied numeric key and inverse. */
   let previous: {
@@ -217,6 +230,18 @@ export function integrateAirborneRotation(
  */
 export namespace integrateAirborneRotation {
   /**
+   * Construct a constant root-frame history from the physical owner's copied
+   * fixed rig and fully resolved bones, preserving their actual clinical frames.
+   * The actual constructor admits whole-curve ownership,
+   * zero local kinematic rates and zero relative momentum; unsupported inputs
+   * return undefined so the consumer retains its ordinary shape history.
+   * Snapshots and explicit release belong to that same constructor. This
+   * direct alias shares its exact input/output types and performs no sampling
+   * equality inference or separate numerical implementation.
+   */
+  export const fixed: typeof AirborneConstantShapeHistory = AirborneConstantShapeHistory;
+
+  /**
    * Create an optional callback-free observer for physical history costs.
    * Pass it explicitly to history(); read returns independent numeric totals.
    * Replacing public members cannot install code in physical evaluation.
@@ -327,10 +352,10 @@ export namespace integrateAirborneRotation {
     /** Touchdown, seconds. */
     t1: number;
 
-    /** The integrator's step, seconds; under a tolerance, its first step tried. */
+    /** The numerical integrator's first step tried, seconds; the requested/default step metadata for a supported exact curve. */
     h: number;
 
-    /** The integrator's knot count, the steps plus one; under a tolerance, its accepted steps plus one. */
+    /** Numerical stored-knot count (accepted steps plus one adaptively), or two logical interval boundaries for an exact closed curve. Exact boundaries are not RK/DP stages or stored orientation samples. */
     knots: number;
 
     /**

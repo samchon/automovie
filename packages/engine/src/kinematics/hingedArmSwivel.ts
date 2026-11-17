@@ -163,9 +163,9 @@ export namespace hingedArmSwivel {
      * @evidence contracts/development/implementation.md#principled-implementation prepare's target factory combines the same fixed source with this actual target/range, preserving all later root, shell and aim formulas.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction creates branch/pose readers over one target request; source geometry remains with the existing shared preparation.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No solve, admission, clamping, score or reached-point substitution runs at construction; only the supplied actual target is borrowed.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size request/state and two closures are allocated; numeric work remains lazy at the original reader sites.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size request/state and branch/pose/harmonic closures are allocated; numeric work remains lazy at actual reader sites.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Both readers share this unchanged point/range and one lowered goal, and borrow only the matching source's fixed geometry/inverse.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one request, optional lowered goal and two readers until this target search ends; no target population, handles or tasks are stored.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one request, optional lowered goal and three readers until this target search ends; no target population, handles or tasks are stored.
      */
     target(point: IAutoMovieVector3, range?: IChain["range"]): IPreparedTarget;
   }
@@ -173,9 +173,9 @@ export namespace hingedArmSwivel {
   /**
    * One target's geometric readers under one unchanged prepared source.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the same ordered branch roots and degree-valued swivel poser as the direct functions.
+   * @evidence contracts/development/common.md#meaningful-documentation States ordered branch roots and degree swivel posing, plus optional algebraic upper half-angle coefficients with fixed lower articulation.
    * @evidence contracts/development/design.md#principled-representation The target's local aim direction is shared by its two bend branches, while their lower rotations and swivel axes remain distinct.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The articulation search consumes only the ordered stops and one poser for each hinge angle.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Ordinary articulation consumes ordered stops/poser; explicit orientation-root continuation uses only the same branch's harmonic coefficients. No score or target result cache is exposed.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Degenerate branches return null under the same thresholds; the poser does not clamp, score or change a requested target.
    */
   export interface IPreparedTarget {
@@ -204,6 +204,42 @@ export namespace hingedArmSwivel {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned branch closure owns its lower rotation, line and aim until caller release, with no score/target history or handles; callers keep its borrowed lower record unchanged during use.
      */
     pose(theta: number): ReturnType<typeof hingedArmSwivel.pose>;
+
+    /**
+     * Read one radian hinge branch's algebraic upper half-angle family.
+     * The returned coefficients use bone-local frames and degree swivels as
+     * defined by IHarmonic; this query does not admit goals or constraints.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines radian hinge input, bone-local coefficient frames, degree swivel conversion and the separate actual goal/constraint admission.
+     * @evidence contracts/development/implementation.md#principled-implementation The actual aimed branch is multiplied by the pure unit-axis quaternion generator, giving cosine and sine coefficients directly from the known half-angle law without scored samples or cos(pi/2) leakage.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing aimed owner supplies fixed lower, line and aim; this reader only exposes their algebraic harmonic family to the explicit orientation-root dispatcher.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted, sampled or previous pose coefficient replaces the current branch. Consumers still clamp and verify actual FK, ROM, pole and orientation before accepting any proposed root.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One current branch aim and one constant-size quaternion product return two coefficients and its fixed lower articulation. Its poser factory reuses that completed aim instead of repeating branch geometry; no swivel sweep or objective callback runs.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged source geometry and this target's lowered goal share their existing lazy preparation. The requested branch's actual aim serves both harmonic coefficients and its ordinary poser, without caching a scored pose or another target.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Three numeric quaternion records and one poser factory escape in the returned family. They retain only this current branch's completed geometry and borrowed preparation until caller release; no target history, handle or task is retained.
+     */
+    harmonic?(theta: number): IHarmonic;
+  }
+
+  /**
+   * One branch's exact algebraic quaternion half-angle family in bone-local frames.
+   * Keep its returned coefficient/lower records unchanged while constructing
+   * or using the same branch's poser.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation upper(psi)=cosine*cos(psi/2)+sine*sin(psi/2) uses degree swivels after radians conversion; lower is the fixed hinge articulation.
+   * @evidence contracts/development/design.md#principled-representation Fixed aim times the unit-axis quaternion gives its two half-angle coefficients; the hinge lower rotation is independent of swivel.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the explicit two-axis orientation-root dispatcher needs these three numeric quaternion records and their same-branch poser factory; no score, curve state or fitted answer is exposed.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Coefficients come from the known geometric rotation law, not sampled equality or a solved pose. Actual constraints/FK/goals remain the consumer's admission responsibility.
+   */
+  export interface IHarmonic {
+    /** Upper articulation's cosine half-angle coefficient. */
+    cosine: IAutoMovieQuaternion;
+    /** Upper articulation's sine half-angle coefficient. */
+    sine: IAutoMovieQuaternion;
+    /** Actual fixed lower articulation about its hinge. */
+    lower: IAutoMovieQuaternion;
+    /** Build the ordinary degree-swivel poser from this same completed branch aim. */
+    pose(): ReturnType<typeof hingedArmSwivel.pose>;
   }
 
   /**
@@ -237,6 +273,20 @@ export namespace hingedArmSwivel {
           branches: (): IStop[] | null => branchStops(chain, state),
           pose: (theta: number): ReturnType<typeof hingedArmSwivel.pose> =>
             poseBranch(chain, theta, state, target),
+          harmonic: (theta: number): IHarmonic => {
+            const branch: ReturnType<typeof aimed> =
+              aimed(chain, theta, state, target);
+            const { lower, line, aim }: ReturnType<typeof aimed> =
+              branch;
+            const axis: IAutoMovieQuaternion = Quaternion.fromAxisAngle(line, 180);
+
+            // The pure generator has scalar zero algebraically; do not
+            // leak floating cos(pi/2) from an evaluated pose into it.
+            axis.w = 0;
+            return { lower, cosine: aim, sine: Quaternion.multiply(aim, axis),
+              pose: (): ReturnType<typeof hingedArmSwivel.pose> =>
+                poseBranch(chain, theta, state, target, branch) };
+          },
         };
       },
     };
@@ -248,8 +298,10 @@ export namespace hingedArmSwivel {
     theta: number,
     source?: IPreparation,
     target?: ITargetPreparation,
+    branch?: ReturnType<typeof aimed>,
   ): ReturnType<typeof hingedArmSwivel.pose> {
-    const { lower, line, aim }: ReturnType<typeof aimed> = aimed(chain, theta, source, target);
+    const { lower, line, aim }: ReturnType<typeof aimed> =
+      branch ?? aimed(chain, theta, source, target);
     const swivelRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
       Quaternion.prepareAxisAngle(line);
     return (swivel: number): ReturnType<ReturnType<typeof hingedArmSwivel.pose>> => ({

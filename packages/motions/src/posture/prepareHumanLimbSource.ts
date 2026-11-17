@@ -87,8 +87,8 @@ export namespace prepareHumanLimbSource {
         if (fitted.pose.root !== null) ROOTS.add(fitted.pose.root);
         return fitted;
       },
-      continued: (point: IAutoMovieVector3, near: Parameters<fitSeededChainToTarget.IWorkspace["continued"]>[1]): ReturnType<fitSeededChainToTarget.IWorkspace["continued"]> => {
-        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["continued"]> = workspace.continued(point, near);
+      continued: (point: IAutoMovieVector3, near: Parameters<fitSeededChainToTarget.IWorkspace["continued"]>[1], observe?: Parameters<fitSeededChainToTarget.IWorkspace["continued"]>[2]): ReturnType<fitSeededChainToTarget.IWorkspace["continued"]> => {
+        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["continued"]> = workspace.continued(point, near, observe);
         if (fitted.pose.root !== null) ROOTS.add(fitted.pose.root);
         return fitted;
       },
