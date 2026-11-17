@@ -122,7 +122,8 @@ export const hingedArmArticulation: (props: {
   score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) =>
     { overshoot: number; deviation: number; exact?: () => number; tiebreak?: () => number };
   excluded?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => boolean;
-  bound?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => number;
+  bound?: (upper: (swivel: number) => IAutoMovieQuaternion, posed: ReturnType<typeof hingedArmSwivel.pose>) =>
+    (low: number, high: number) => number;
   pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
   closed?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => readonly number[] | null;
   met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
@@ -195,14 +196,15 @@ export const hingedArmArticulation: (props: {
 
   /**
    * Given the root's bone-local rotation at a swivel on one bend branch,
-   * degrees, a certified lower bound of the exact `deviation` of every
-   * candidate at a swivel from `low` to `high` degrees; omitted, every step
-   * is scored. Read only by a cold sweep with no `tie` and no `minimum`,
+   * degrees, and that branch's poser, a certified lower bound of the exact
+   * `deviation` of every candidate at a swivel from `low` to `high` degrees;
+   * omitted, every step is scored. Read only by a cold sweep with no `tie` and no `minimum`,
    * which then scores only the steps the bound cannot place behind a legal
    * candidate (`hingedSwivelBounded`), with the full sweep's choice.
    */
   bound?: (
     upper: (swivel: number) => IAutoMovieQuaternion,
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
   ) => (low: number, high: number) => number;
 
   /**
@@ -357,7 +359,7 @@ export const hingedArmArticulation: (props: {
                 excluding && props.excluded !== undefined
                   ? props.excluded(upper)
                   : null,
-              bound: props.bound!(upper),
+              bound: props.bound!(upper, branch.posed),
             };
           },
         ),

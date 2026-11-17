@@ -65,5 +65,7 @@ export * from "./validateJointAxesBasis";
 export * from "./markAutoMovieBalance";
 export * from "./markAutoMovieRomOvershoot";
 export * from "./distalEndSwivelArcs";
+export * from "./distalEndSwivelMiss";
+export * from "./distalEndSwivelReadings";
 export * from "./immobileAxisSwivels";
 export * from "./swivelJointReadings";
