@@ -13,8 +13,13 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  * `HumanQuadraticProgram`, warm-started across the region's shrinking and
  * from the multipliers of the last step taken; a step is taken where the
  * merit falls by a tenth of what the model predicts and the region shrunk
- * where not, and the penalty raised tenfold while the constraints are not
- * met. A problem still infeasible at the last penalty is left to the caller
+ * where not. The penalty is steered (Byrd, Nocedal and Waltz 2008,
+ * `HumanSequentialConvex.IOptions.steer`): each round it grows tenfold
+ * until the step keeps its share of what the linearised constraints allow,
+ * from the first of `PENALTIES`, so an iterate is not carried off the
+ * constraints by the objective at a penalty too low and brought back at
+ * the next (measured: a sit's reach feasible at round 2, infeasible again by
+ * round 11, feasible at round 18 under the fixed ladder). A problem still infeasible at the last penalty is left to the caller
  * to refuse. A solve continued from another's result on refined waypoints
  * starts at that result's penalty, the continuation of a penalty method, in
  * place of the first.
@@ -53,60 +58,107 @@ export namespace HumanArmOptimiser {
         evaluation: M.IEvaluation,
         mu: number,
         radius: number,
+        objective: boolean,
       ): SCO.IModel<number[][][]> => {
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
-        const model: QP.IProblem = HumanArmTrajectoryConvex.convexify(
+        const built: QP.IProblem = HumanArmTrajectoryConvex.convexify(
           context,
           x,
           evaluation,
           mu,
           SCHEDULE.expand * radius,
         );
-        let zero: number | undefined;
-        let prepared: ReturnType<typeof QP.prepare> | undefined;
-        let trusted: QP.IProblem | undefined;
-        let warm: QP.IState | undefined;
-        return {
-          solve: (r: number): SCO.IStep<number[][][]> => {
-            trusted = {
-              ...model,
-              rows: [
-                ...model.rows,
-                ...Array.from(
-                  { length: model.n },
-                  (_: unknown, i: number): QP.IRow => ({
-                    index: [i],
-                    coef: [1],
-                    l: -r,
-                    u: r,
-                    key: `t|${i}`,
-                  }),
-                ),
-              ],
-            };
-            prepared ??= QP.prepare(trusted);
-            warm = prepared.solve(trusted.rows, warm, duals);
-            const solved: Float64Array = warm.x;
-            let length: number = 0;
-            for (let i: number = 0; i < warm.x.length; ++i)
-              length = Math.max(length, Math.abs(warm.x[i]!));
-            let trial: number[][][] | undefined;
-            return {
-              get trial(): number[][][] {
-                return (trial ??= M.stepped(context, x, solved));
+
+        // The steering's step of the violation alone is the same rows with
+        // no objective (Byrd, Nocedal and Waltz's (5.10)).
+        return shell(
+          objective
+            ? built
+            : {
+                ...built,
+                p: built.p.map((row: Float64Array): Float64Array => new Float64Array(row.length)),
+                q: new Float64Array(built.q.length),
               },
-              predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
-              length,
-              // The step at the region's edge, to the solver's own accuracy.
-              full: length >= r * (1 - QP.TOLERANCE),
-            };
-          },
-          taken: (): void => {
-            duals = QP.multipliers(trusted!, warm!);
-          },
-        };
+          x,
+        );
       },
+    };
+
+    // One linearisation at one penalty as the loop's model. Every soft row
+    // weighs the penalty itself, so the same linearisation at another
+    // penalty is the same rows reweighed (`reprice`), with no geometry read
+    // again.
+    const shell = (model: QP.IProblem, x: number[][][]): SCO.IModel<number[][][]> => {
+      let zero: number | undefined;
+      let prepared: ReturnType<typeof QP.prepare> | undefined;
+      let trusted: QP.IProblem | undefined;
+      let warm: QP.IState | undefined;
+      return {
+        solve: (r: number): SCO.IStep<number[][][]> => {
+          trusted = {
+            ...model,
+            rows: [
+              ...model.rows,
+              ...Array.from(
+                { length: model.n },
+                (_: unknown, i: number): QP.IRow => ({
+                  index: [i],
+                  coef: [1],
+                  l: -r,
+                  u: r,
+                  key: `t|${i}`,
+                }),
+              ),
+            ],
+          };
+          prepared ??= QP.prepare(trusted);
+          warm = prepared.solve(trusted.rows, warm, duals);
+          const solved: Float64Array = warm.x;
+          let length: number = 0;
+          for (let i: number = 0; i < warm.x.length; ++i)
+            length = Math.max(length, Math.abs(warm.x[i]!));
+
+          // What the step leaves of the linearised constraints: each soft
+          // row's excess past its interval, millimetres, summed as the
+          // model's evaluation sums the constraints' violations.
+          let violation: number = 0;
+          let most: number = 0;
+          for (const row of model.rows) {
+            if (row.weight === undefined) continue;
+            let value: number = 0;
+            for (let i: number = 0; i < row.index.length; ++i)
+              value += row.coef[i]! * solved[row.index[i]!]!;
+            const excess: number = Math.max(0, row.l - value, value - row.u);
+            violation += excess;
+            most = Math.max(most, excess);
+          }
+          let trial: number[][][] | undefined;
+          return {
+            get trial(): number[][][] {
+              return (trial ??= M.stepped(context, x, solved));
+            },
+            predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
+            length,
+            // The step at the region's edge, to the solver's own accuracy.
+            full: length >= r * (1 - QP.TOLERANCE),
+            violation,
+            met: most <= M.TOLERANCE,
+          };
+        },
+        taken: (): void => {
+          duals = QP.multipliers(trusted!, warm!);
+        },
+        reprice: (penalty: number): SCO.IModel<number[][][]> =>
+          shell(
+            {
+              ...model,
+              rows: model.rows.map((row: QP.IRow): QP.IRow =>
+                row.weight === undefined ? row : { ...row, weight: penalty }),
+            },
+            x,
+          ),
+      };
     };
     const solved: SCO.IResult<number[][][], M.IEvaluation> = SCO.minimise(
       problem,
@@ -116,7 +168,8 @@ export namespace HumanArmOptimiser {
       {
         schedule: SCHEDULE,
         penalties: PENALTIES,
-        rounds: ROUNDS,
+        rounds: ROUNDS * PENALTIES.length,
+        steer: true,
         ...(from === undefined ? {} : { from }),
       },
     );
@@ -128,10 +181,10 @@ export namespace HumanArmOptimiser {
   }
 }
 
-/** The penalties tried, each ten times the last from 10: TrajOpt's first penalty and its ratio (sco's merit_error_coeff and merit_coeff_increase_ratio); the last, three increases where TrajOpt allows five, is this planner's value, unsourced. */
+/** The penalty a solve starts at, the first, TrajOpt's own (sco's merit_error_coeff); the steering raises it from there. The ladder's length still sizes the rounds a solve may take (`ROUNDS` each), as the four penalties of the fixed ladder did. */
 const PENALTIES: readonly number[] = [10, 100, 1000, 10000];
 
-/** Convexifications per penalty at most: this planner's value, unsourced (TrajOpt's max_iter is 50). */
+/** Convexifications per ladder penalty at most: this planner's value, unsourced (TrajOpt's max_iter is 50); a steered solve may take as many as the whole ladder could. */
 const ROUNDS: number = 20;
 
 /**
