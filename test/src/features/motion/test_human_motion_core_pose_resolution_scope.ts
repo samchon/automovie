@@ -5,7 +5,9 @@ import {
   type IAutoMovieRestFrame,
   Quaternion,
   Transform,
+  indexSkeletonTopology,
   preparePoseResolution,
+  prepareSkeletonPoseResolution,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -213,6 +215,27 @@ export function test_human_motion_core_pose_resolution_scope(): void {
       (bone: IAutoMovieResolvedBone): boolean => bone.bone === "leftHand",
     )!;
   }
+
+  // The body with its rig read from the skeleton as it stands now, as a
+  // body made from that skeleton holds it (`createHumanBody` prepares the
+  // rig with these tables). Only forward kinematics is asked of it, so the
+  // measures and colliders of the body made before are not read again: an
+  // edited rest is not a recalibrated body.
+  function rerigged(): IHumanBody {
+    const copy: IAutoMovieSkeleton = structuredClone(skeleton);
+    const topology: IHumanBody["topology"] = indexSkeletonTopology(copy);
+    return {
+      ...body,
+      skeleton: copy,
+      topology,
+      poseResolution: prepareSkeletonPoseResolution(
+        copy,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+        topology,
+      ),
+    };
+  }
   function roundtrip(
     label: string,
     change: () => void,
@@ -233,12 +256,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
       const changed: IAutoMovieResolvedBone[] = read(
         `${label} B`,
         pose,
-        rig
-          ? createHumanBody(
-              structuredClone(skeleton),
-              structuredClone(source.profile),
-            )
-          : body,
+        rig ? rerigged() : body,
       );
       if (kept !== undefined)
         compare(
@@ -377,6 +395,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     input: IAutoMoviePose,
     needle: string,
     consumer: boolean = true,
+    rig: boolean = false,
   ): void {
     const expected: unknown = errorOf((): IAutoMovieResolvedBone[] =>
       cold(body, input),
@@ -395,8 +414,10 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     if (consumer)
       errors.push(
         errorOf(
+          // An edit of the rig is refused through a body whose rig is read
+          // from the edited skeleton; a pose's own fault through the body.
           (): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-            poseBones(body, input, prepared),
+            poseBones(rig ? rerigged() : body, input, prepared),
         ),
       );
     for (const error of errors)
@@ -414,7 +435,7 @@ export function test_human_motion_core_pose_resolution_scope(): void {
     const flexion: IAutoMovieJointAxes["flexion"] = { ...axes.flexion };
     Object.assign(axes.flexion, { x: 0, y: 0, z: 0 });
     try {
-      rejected("edited axes rejected", pose, "axes.flexion");
+      rejected("edited axes rejected", pose, "axes.flexion", true, true);
     } finally {
       Object.assign(axes.flexion, flexion);
     }
