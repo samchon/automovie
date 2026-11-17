@@ -1,7 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
   bracketedBisection,
-  type preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -18,6 +17,7 @@ import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanColliders } from "./HumanColliders";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
+import { prepareHumanArmRoom } from "./prepareHumanArmRoom";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
@@ -127,14 +127,13 @@ export namespace HumanArmSwing {
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
       });
-      let prepared: ReturnType<typeof preparePoseResolution> | undefined;
-      let first: boolean = true;
-      const lacking: (a: number) => number = (a: number): number => {
-        const value: number = HumanArmClearance.room(body, pose, side, out(a), [], baseline,
-          source !== undefined ? resolution() : first ? undefined : (prepared ??= resolution()));
-        first = false;
-        return value;
-      };
+
+      // Every candidate turns this arm alone, so the rest of the body is
+      // posed and placed once for the search (`prepareHumanArmRoom`), which
+      // reads each candidate's room as `HumanArmClearance.room` does.
+      const room: (candidate: HumanArmClearance.IArm) => number =
+        prepareHumanArmRoom(body, pose, side, [], baseline, resolution());
+      const lacking: (a: number) => number = (a: number): number => room(out(a));
 
       // The least added abduction that clears the arm, by the engine's
       // bisection to the body's precision: the room is not smooth (a forearm
