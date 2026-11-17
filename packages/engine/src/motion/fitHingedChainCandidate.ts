@@ -215,14 +215,19 @@ export function fitHingedChainCandidate(
   const lowerBasis: IAutoMovieJointAxes =
     rig?.basis(props.chain.lower, "decomposeJointRotation axes") ??
     basisOf(axes);
+  // The overshoot the decomposition's chart choice scored for the angles it
+  // returned (`decomposeJointRotationOnBasis.scored`), the root's gate sum
+  // where its constraint is ungated.
+  const scoredUpper: { overshoot: number } = { overshoot: NaN };
   const upperOf = (
     upper: IAutoMovieQuaternion,
   ): IAutoMovieJointPose => {
-    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis.scored(
       upper,
       upperBasis,
       props.restFrames?.[props.chain.upper],
       prepared.upperDomain,
+      scoredUpper,
     );
     return {
       bone: props.chain.upper,
@@ -338,16 +343,22 @@ export function fitHingedChainCandidate(
         );
   // The root angles of the last two candidates decomposed, kept for the
   // answer.
-  let latest: { rotation: IAutoMovieQuaternion; joint: IAutoMovieJointPose } | undefined;
-  let earlier: { rotation: IAutoMovieQuaternion; joint: IAutoMovieJointPose } | undefined;
-  const anglesOf = (upper: IAutoMovieQuaternion): IAutoMovieJointPose => {
-    if (latest?.rotation === upper) return latest.joint;
-    if (earlier?.rotation === upper) return earlier.joint;
+  // answer, each with the overshoot its chart choice scored.
+  let latest: IAngles | undefined;
+  let earlier: IAngles | undefined;
+  const decomposed = (upper: IAutoMovieQuaternion): IAngles => {
+    if (latest?.rotation === upper) return latest;
+    if (earlier?.rotation === upper) return earlier;
     const joint: IAutoMovieJointPose = upperOf(upper);
     earlier = latest;
-    latest = { rotation: upper, joint };
-    return joint;
+    latest = { rotation: upper, joint, overshoot: scoredUpper.overshoot };
+    return latest;
   };
+  const anglesOf = (upper: IAutoMovieQuaternion): IAutoMovieJointPose => decomposed(upper).joint;
+  // The chart choice scores an ungated root by the gate's own sum on the
+  // same constraint the root's scorer reads, so that sum is its overshoot.
+  const scoredByChart: boolean = !upperRotated &&
+    (rig === undefined || rig.domain(props.chain.upper).constraint === prepared.upperDomain.constraint);
 
   // What a candidate reads besides the hint's side: its root's angles, its
   // mid joint's place, its overshoot, effort and turn from the reference.
@@ -359,10 +370,11 @@ export function fitHingedChainCandidate(
     lower: IAutoMovieQuaternion,
     full: boolean,
   ): IReading => {
-    const u: IAutoMovieJointPose | undefined = rotatedOvershoot !== null && !full &&
+    const angles: IAngles | undefined = rotatedOvershoot !== null && !full &&
       Number.isFinite(upper.x) && Number.isFinite(upper.y) &&
       Number.isFinite(upper.z) && Number.isFinite(upper.w)
-      ? undefined : anglesOf(upper);
+      ? undefined : decomposed(upper);
+    const u: IAutoMovieJointPose | undefined = angles?.joint;
     const known: IMid = midOf(lower);
 
     // Task priority reads no hint midpoint. A reference also replaces its
@@ -407,7 +419,9 @@ export function fitHingedChainCandidate(
       overshoot:
         (u === undefined
           ? rotatedOvershoot!(upper)
-          : upperOvershoot(u, upperRotated ? upper : undefined)) +
+          : scoredByChart && !Number.isNaN(angles!.overshoot)
+            ? angles!.overshoot
+            : upperOvershoot(u, upperRotated ? upper : undefined)) +
         known.overshoot +
         blocked,
       turned:
@@ -993,6 +1007,18 @@ interface IMid {
 
   /** Degrees the mid joint turns from the reference pose's; 0 without one. */
   turned: number;
+}
+
+/** A root rotation's decomposed angles and the overshoot its chart choice scored (NaN where it scored none). */
+interface IAngles {
+  /** The candidate's root rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** Its clinical angles. */
+  joint: IAutoMovieJointPose;
+
+  /** The gate's sum of those angles under the root's ungated constraint, degrees, or NaN. */
+  overshoot: number;
 }
 
 /** What each candidate reads besides the hint's side, shared with its lazy exact score. */
