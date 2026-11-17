@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
@@ -55,7 +56,7 @@ export namespace AutoMovieMotionHumanArmChain {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every instant of the grid is fitted to its own goals, the action's end among them; a second on an instant reads that instant's fit exactly.
    * @evidence contracts/development/implementation.md#efficient-algorithms One continued fit per grid instant, laid once per plan up to the latest second read; a second read fits nothing, three joint blends per arm.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid instants' seeds and arms are the course's own record, read by every second after them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one seed record and one arm record per grid instant of the action, released with the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one seed record and one arm record per grid instant of the action and the course's one FK reader, released with the plan.
    */
   export function continued(
     body: IAutoMovieMotionHumanBody,
@@ -74,6 +75,8 @@ export namespace AutoMovieMotionHumanArmChain {
       times.push(k * step);
     times.push(duration);
     const course: IInstant[] = [];
+    // One reader for the course's fits: the course is one operation on one body.
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
 
     // An instant's goals fitted continuing the seeds given: the arms the fit
     // chose and their seeds; a fit that names no seed leaves the one it
@@ -83,7 +86,7 @@ export namespace AutoMovieMotionHumanArmChain {
       near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     ): IInstant => {
       const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-        resolveHumanPosture.seeded(body, at, undefined, near);
+        resolveHumanPosture.seeded(body, at, undefined, near, resolution);
       const arms: Partial<
         Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
       > = {};

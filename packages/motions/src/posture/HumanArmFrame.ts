@@ -100,20 +100,29 @@ export namespace HumanArmFrame {
 
     // Frame part indices keep the audit's own parts first, then each placed
     // external segment once. External parts share no own-body reference or
-    // joint exclusions, even when their bone names match the body's.
-    const others: IAutoMovieMotionHumanColliders.IPlaced[] = [
-      ...new Set(base.others),
-    ];
-    const parts: ReadonlyMap<IAutoMovieMotionHumanColliders.IPlaced, number> =
-      new Map(
-        others.map(
-          (
-            segment: IAutoMovieMotionHumanColliders.IPlaced,
-            i: number,
-          ): readonly [IAutoMovieMotionHumanColliders.IPlaced, number] =>
-            [segment, model.parts.length + i] as const,
-        ),
-      );
+    // joint exclusions, even when their bone names match the body's. One
+    // segment is one part however many goals of the group name it: two arms
+    // laid on one partner each read the partner's colliders, equal records
+    // that would otherwise be two parts and count each contact twice.
+    const others: IAutoMovieMotionHumanColliders.IPlaced[] = [];
+    const parts: Map<IAutoMovieMotionHumanColliders.IPlaced, number> = new Map();
+    const placedKeys: Map<string, number> = new Map();
+    const shapeIds: Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"], number> = new Map();
+    for (const segment of base.others) {
+      if (parts.has(segment)) continue;
+      const p: IAutoMovieMotionHumanColliders.IPlaced["pose"]["position"] = segment.pose.position;
+      const q: IAutoMovieMotionHumanColliders.IPlaced["pose"]["rotation"] = segment.pose.rotation;
+      let shapeId: number | undefined = shapeIds.get(segment.shapes);
+      if (shapeId === undefined) shapeIds.set(segment.shapes, (shapeId = shapeIds.size));
+      const key: string = `${segment.bone}|${shapeId}|${p.x}|${p.y}|${p.z}|${q.x}|${q.y}|${q.z}|${q.w}`;
+      let part: number | undefined = placedKeys.get(key);
+      if (part === undefined) {
+        part = model.parts.length + others.length;
+        others.push(segment);
+        placedKeys.set(key, part);
+      }
+      parts.set(segment, part);
+    }
     const resting: ReadonlySet<number> = new Set(
       (base.rests ?? [])
         .map(
