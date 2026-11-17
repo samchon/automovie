@@ -15,7 +15,6 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
@@ -24,9 +23,9 @@ import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import { StrikingTwist } from "./StrikingTwist";
 import type { punch } from "./punch";
 import { punchFootwork } from "./punchFootwork";
+import type { punchLaunch } from "./punchLaunch";
 import type { punchGeometry } from "./punchGeometry";
 import { punchReach } from "./punchReach";
 
@@ -157,7 +156,7 @@ export namespace punchContact {
    * @param context The action's context, whose body keeps its topology and skeleton unchanged.
    * @param timing The punch's timing.
    * @param tangent The varied point within a person's region, when the punch varies.
-   * @param requested Optional actual entry-bone output demand; omitting it preserves the complete original entry map and every joint is still admitted.
+   * @param launch What the punch reads of its own entry alone (`punchLaunch`), made once for the plan.
    * @returns The contact's solution.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its inputs, result and the body's unchanged-skeleton topology premise; the namespace states the contact method.
@@ -172,10 +171,10 @@ export namespace punchContact {
     context: IHumanActionContext<punch.IParams>,
     timing: punchGeometry.ITiming,
     tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    launch: punchLaunch.ILaunch,
   ): IContact {
     const p: punch.IParams = context.params;
-    const { side, lead, which, delivery }: punchGeometry.ITiming = timing;
+    const { side, delivery }: punchGeometry.ITiming = timing;
     const body: IHumanBody = context.body;
     const m: IAutoMovieBodyMeasure = body.measure;
     const t0: number = context.start;
@@ -215,10 +214,7 @@ export namespace punchContact {
       first,
       entry.yaw,
     );
-    const turn: number =
-      (lead === "left" ? 1 : -1) *
-      TURN[p.technique][which] *
-      StrikingSkill.amplitude(context.skill);
+    const { turn, bones }: punchLaunch.ILaunch = launch;
     const outward: IAutoMovieVector3 = Vector3.scale(
       Vector3.cross(up, line),
       side === "left" ? 1 : -1,
@@ -226,14 +222,7 @@ export namespace punchContact {
 
     // The shoulder at contact: the entry turned, lowered for a body shot so
     // the fist meets a low target from about its own level.
-    const shoulder0: IAutoMovieVector3 = StrikingBody.trunk(body, {
-      ...entry,
-      yaw: entry.yaw + 0.4 * turn,
-      joints: {
-        ...entry.joints,
-        ...StrikingTwist.trunk(entry.joints, 0.3 * turn),
-      },
-    }, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
+    const shoulder0: IAutoMovieVector3 = launch.shoulder;
     const dip: number = Math.min(
       0.15 * m.hipHeight,
       Math.max(
@@ -310,10 +299,6 @@ export namespace punchContact {
     // By the contact the root has carried the shoulder only a share of the
     // step, as the rear foot is still dragging ({@link punchFootwork}).
     const carried: number = punchFootwork.carried(timing);
-
-    // The arms at the launch, read from the displayed entry pose.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose, undefined, requested);
 
     // The punch returns to the guard where the step ends, so the step never
     // closes past the room in front of the arms ({@link StrikingRoom}). A

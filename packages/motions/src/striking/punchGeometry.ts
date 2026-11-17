@@ -27,6 +27,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import type { punch } from "./punch";
 import { punchContact } from "./punchContact";
+import type { punchLaunch } from "./punchLaunch";
 import { punchFootwork } from "./punchFootwork";
 import type { punchReach } from "./punchReach";
 
@@ -128,6 +129,7 @@ export namespace punchGeometry {
    * @param timing The punch's timing.
    * @param fixed The committed stop's second, null when the arm met nothing, undefined when the punch offers no weapon.
    * @param tangent The varied point within a person's region, when the punch varies.
+   * @param launch What the punch reads of its own entry alone (`punchLaunch`), made once for the plan.
    * @returns The geometry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its inputs and result; the namespace states the method.
@@ -143,6 +145,7 @@ export namespace punchGeometry {
     timing: ITiming,
     fixed: number | null | undefined,
     tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
+    launch: punchLaunch.ILaunch,
   ): IGeometry {
     const p: punch.IParams = context.params;
     const { side, lead, shown, recoil, drop, duration } = timing;
@@ -155,7 +158,7 @@ export namespace punchGeometry {
       context,
       timing,
       tangent,
-      ARM_BONES,
+      launch,
     );
     const { line, rotation, socket, tracker, bones, solved } = contact;
 
@@ -477,8 +480,3 @@ export namespace punchGeometry {
     };
   }
 }
-
-/** Both complete arm sweeps and the launch hand/elbow need these actual entry outputs. */
-const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  "leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand",
-]);

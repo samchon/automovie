@@ -23,6 +23,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { punchGeometry } from "./punchGeometry";
+import { punchLaunch } from "./punchLaunch";
 
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
@@ -309,6 +310,11 @@ export namespace punch {
     };
     let built: punchGeometry.IGeometry | undefined;
     let building: boolean = false;
+
+    // What the punch reads of its own entry alone, made once for the plan;
+    // the geometry, which follows the target and the committed stop, is
+    // built on it at every settle.
+    let launched: punchLaunch.ILaunch | undefined;
     const geometry = (): punchGeometry.IGeometry => {
       if (built !== undefined) return built;
       if (building)
@@ -317,7 +323,7 @@ export namespace punch {
         );
       building = true;
       try {
-        built = punchGeometry.build(context, timing, fixed, aimed());
+        built = punchGeometry.build(context, timing, fixed, aimed(), (launched ??= punchLaunch(context, timing)));
       } finally {
         building = false;
       }
