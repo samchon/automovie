@@ -1,7 +1,6 @@
 export * from "./IAutoMovieAxisFrame";
 export * from "./IAutoMovieRestFrame";
 export * from "./clampJointRom";
-export * from "./clampJointSettled";
 export * from "./clampJointToSkeleton";
 export * from "./clampPose";
 export * from "./constants";

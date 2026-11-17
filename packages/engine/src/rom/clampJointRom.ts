@@ -13,7 +13,6 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
-import { clampJointSettled } from "./clampJointSettled";
 import { swingConeBlend } from "./swingConeBlend";
 
 const clampAxis: (
@@ -143,18 +142,15 @@ export const clampJointRom: (
       value: number,
       anchor: number,
     ): number => anchor + (value - anchor) * t;
-    const out: IAutoMovieJointPose = {
+    return {
       bone: joint.bone,
       // A resting axis stays resting: blending 0 toward its own 0 rest is 0.
       flexion: flexion === null ? null : blend(f, anchorF),
       abduction: abduction === null ? null : blend(a, anchorA),
       twist,
     };
-    // With both anchors at zero, clamping this record again gives it back
-    // (`clampJointSettled`); an anchor off zero need not.
-    return anchorF === 0 && anchorA === 0 ? clampJointSettled.issue(out) : out;
   }
-  return clampJointSettled.issue({ bone: joint.bone, flexion, abduction, twist });
+  return { bone: joint.bone, flexion, abduction, twist };
 };
 
 /** How far past a swing-twist range a joint may lie and count as on its edge, degrees: a millionth, above the rounding of a rotation read back into angles. */
