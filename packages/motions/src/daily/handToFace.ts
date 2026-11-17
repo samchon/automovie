@@ -1,7 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
@@ -37,10 +36,9 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handToFaceArm } from "./handToFaceArm";
+import { handToFaceRegion } from "./handToFaceRegion";
 import { handToFaceRows } from "./handToFaceRows";
-import { handToFaceSheet } from "./handToFaceSheet";
 import { handToFaceVessel } from "./handToFaceVessel";
 
 /**
@@ -245,48 +243,7 @@ export namespace handToFace {
             ],
           ]),
     ];
-    const region =
-      (side: HumanHand.Side, name: AutoMovieHumanoidRegion | null) =>
-      (posture: IHumanPosture, seconds: number) => {
-        if (name === null) return handToFaceSheet.of(context, posture, side);
-        const place: Pick<
-          AutoMovieMotionHumanTarget.IPlace,
-          "point" | "normal"
-        > = AutoMovieMotionHumanTouch.region(
-          context,
-          { kind: "self", region: name } satisfies AutoMovieMotionTarget,
-          context.start + seconds,
-          posture,
-
-          // Over a carrier the face travels with the body, so the region
-          // is read on the bones the posture of that instant gives: posed
-          // only when the region lies on a bone the reader asks them for (a
-          // region on the trunk is read from the posture itself, and posing
-          // the whole body for it at every second was work no one read).
-          context.carrier === undefined
-            ? bones
-            : (): ReturnType<typeof poseBones> =>
-                // Limbs are fitted after the trunk and move no bone of the
-                // midline, so a region on a midline bone is read with no
-                // limb fitted; a bone of a side keeps the whole solve.
-                poseBones(body, resolveHumanPosture(body,
-                  /^(left|right)/.test(body.surfaces.regions[name].bone)
-                    ? posture : { ...posture, limbs: {} })),
-        );
-        // A row that stands its effector upright reads the region's normal
-        // level, so its tangent `up` is the world's up.
-        const level: number = Math.hypot(place.normal.x, place.normal.z);
-        return row.level === true && level > 1e-6
-          ? {
-              ...place,
-              normal: {
-                x: place.normal.x / level,
-                y: 0,
-                z: place.normal.z / level,
-              },
-            }
-          : place;
-      };
+    const region: ReturnType<typeof handToFaceRegion> = handToFaceRegion(context, row, bones);
 
     // The head turns as the hand arrives, or, drinking from a vessel, once
     // the vessel is at the lips: the head tips back with the vessel in the
