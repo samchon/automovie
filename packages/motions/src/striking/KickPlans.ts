@@ -144,6 +144,7 @@ export namespace KickPlans {
             pitch:
               c.pitch + s.weight * (s.to.carriage.pitch - s.from.carriage.pitch),
             step: c.step + s.weight * (s.to.carriage.step - s.from.carriage.step),
+            drive: c.drive + s.weight * (s.to.carriage.drive - s.from.carriage.drive),
           }),
           props.first.carriage,
         ),

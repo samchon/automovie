@@ -161,15 +161,21 @@ export namespace IKickGeometry {
 
     /** The support foot's step-up along the line, metres. */
     step: number;
+
+    /** How far the pelvis drives along the line from the chamber key to the contact, metres: a push kick's thrust of the hips behind the foot, zero for a round kick. */
+    drive: number;
   }
 
-  /** What a redirect keeps of its source: the committed line and the support foot's step. */
+  /** What a redirect keeps of its source: the committed line, the support foot's step and the pelvis's drive. */
   export interface IKept {
     /** The source's line. */
     line: IAutoMovieVector3;
 
     /** The source's step-up, metres. */
     step: number;
+
+    /** The source's pelvis drive, metres. */
+    drive: number;
   }
 
   /** A planned kick another kick may continue from. */

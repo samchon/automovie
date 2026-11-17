@@ -77,13 +77,6 @@ export namespace KickCarriage {
      * was read at.
      */
     rise: number;
-
-    /**
-     * How far the pelvis drives along the line from the chamber key to the
-     * contact, metres: the push kick's thrust of the hips behind the foot
-     * (`KickForm.PUSH_DRIVE_SHARE`), zero for a round kick.
-     */
-    drive: number;
   }
 
   /**
@@ -129,9 +122,9 @@ export namespace KickCarriage {
     // A push kick's pelvis is held back through the chamber and driven along
     // the line into the contact, then drawn back with the recoil.
     const driven: number =
-      props.drive === 0
+      carriage.drive === 0
         ? 0
-        : props.drive *
+        : carriage.drive *
           (minimumJerk.share(
             (turning - timing.chamber) /
               Math.max(1e-3, timing.impact - timing.chamber),

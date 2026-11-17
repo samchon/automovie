@@ -4,7 +4,6 @@ import { HumanFoot, type IHumanBody } from "@automovie/motions";
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
-import { motionKickFlank } from "./motionKickFlank";
 
 /**
  * The reading of a kick's signature on one body, which the kick signature
@@ -69,13 +68,13 @@ export function motionKickSignature(
       `${cell}: launch to impact ${(impact - launch).toFixed(3)} s, [0.2, 1.0] expected (Kim et al. 2010; provisional)`,
       impact - launch >= 0.2 && impact - launch <= 1.0,
     );
-    const picked = (key: string): string | undefined =>
-      row.startsWith(`${key}=`) ? row.slice(key.length + 1) : undefined;
-    const aimed: ReturnType<typeof motionKickFlank> = motionKickFlank(
-      picked("technique"),
-      picked("leg"),
+    const ribs: IAutoMovieVector3 = M.region(
+      s,
+      "b",
+      partner,
+      "ribsLeft",
+      impact,
     );
-    const ribs: IAutoMovieVector3 = M.region(s, "b", partner, aimed, impact);
     const ankle: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);
     const reach: number = Math.hypot(
       ribs.x - ankle.x,
@@ -90,7 +89,7 @@ export function motionKickSignature(
       toe.z - heel.z,
     );
     complaints.check(
-      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ${aimed === "abdomen" ? "abdomen" : "ribs"} at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
+      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ribs at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
       reach <= footLength,
     );
     const set: number = M.event(s, "set") ?? launch;

@@ -59,7 +59,7 @@ export namespace KickRedirect {
       redirected(context, source),
       source.timing,
       source.start,
-      { line: old.line, step: old.carriage.step },
+      { line: old.line, step: old.carriage.step, drive: old.carriage.drive },
       before,
     );
   }
@@ -108,6 +108,7 @@ export namespace KickRedirect {
           lean: mix(from.lean, to.lean, w),
           pitch: mix(from.pitch, to.pitch, w),
           step: to.step,
+          drive: to.drive,
         };
       },
       leg: (

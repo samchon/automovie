@@ -101,7 +101,7 @@ export namespace KickGeometry {
         previous: KickPlans.IPlan,
         goal: IAutoMovieVector3,
       ): KickLaunch.IPlanned =>
-        launch.contact(goal, carriage.step, previous.carriage.lean),
+        launch.contact(goal, carriage.step, previous.carriage.lean, carriage.drive),
       units: (seconds: number): readonly superposeMinimumJerk.IUnit[] =>
         feint ? [] : tracker.units(seconds),
       t0,

@@ -163,7 +163,7 @@ export namespace KickClear {
     for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
       const back: number = planned.carriage.step - stride;
       if (back < furthest) break;
-      planned = launch.contact(launch.planned, back);
+      planned = launch.contact(launch.planned, back, undefined, planned.carriage.drive);
 
       // A step back that puts the target out of the leg's reach clears the
       // way by missing it, which is no answer.

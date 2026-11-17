@@ -168,7 +168,11 @@ export namespace KickChain {
     // The round kick lands the shin's surface, so its axis point lies the
     // tapered shin's radius there behind the planned point; the push kick
     // lands the ball of the foot, so its ankle lies behind the planned point
-    // by the ball's offset under the sole-forward rotation.
+    // by the ball's offset under the sole-forward rotation and by the foot
+    // capsule's radius about the ball, the surface that arrives first
+    // (`StrikingWeapon.legRadii`). Planned with the ball's own point on the
+    // target, the capsule met the trunk a radius early: measured on the
+    // staged push kick, the knee still folded 51.1 degrees at impact.
     const point: IAutoMovieVector3 = round
       ? Vector3.subtract(
           props.planned,
@@ -180,7 +184,10 @@ export namespace KickChain {
             ),
           ),
         )
-      : Vector3.subtract(props.planned, ball(props));
+      : Vector3.subtract(
+          Vector3.subtract(props.planned, ball(props)),
+          Vector3.scale(props.direction, StrikingWeapon.legRadii(props.body)[2]),
+        );
     return StrikingReach.chain({
       root: origin ?? KickCarriage.hip(props.body, base, props.side),
       point,
@@ -370,12 +377,15 @@ export namespace KickChain {
             ),
           )
         : Vector3.add(
-            foot.worldPosition,
-            StrikingBody.socket(
-              body,
-              side === "left" ? "ballLeft" : "ballRight",
-              foot.worldRotation,
+            Vector3.add(
+              foot.worldPosition,
+              StrikingBody.socket(
+                body,
+                side === "left" ? "ballLeft" : "ballRight",
+                foot.worldRotation,
+              ),
             ),
+            Vector3.scale(props.direction, StrikingWeapon.legRadii(body)[2]),
           );
     const residual: number = Vector3.distance(reached, props.planned);
     return {

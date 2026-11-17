@@ -55,7 +55,7 @@ export namespace KickContact {
    *
    * @param props The body's carriage inputs.
    * @param chain The kick's body, side, technique, line, travel and planned point.
-   * @param set The carriage's turn and tip, which the contact does not choose.
+   * @param set The carriage's turn and tip, which the contact does not choose, and the pelvis drive a decided step goes with (none when absent).
    * @param step The support foot's step-up when it is already decided, metres; undefined lets a short leg step up.
    * @param prefer A lean tried before the others, degrees: the lean of the plan this one corrects, so a small correction keeps its carriage.
    * @returns The contact.
@@ -71,7 +71,7 @@ export namespace KickContact {
   export function choose(
     props: KickCarriage.IProps,
     chain: KickChain.IProps,
-    set: Pick<IKickGeometry.ICarriage, "turn" | "pitch">,
+    set: Pick<IKickGeometry.ICarriage, "turn" | "pitch"> & { drive?: number },
     step: number | undefined,
     prefer?: number,
   ): IContact {
@@ -120,7 +120,13 @@ export namespace KickContact {
     let least: number = Number.POSITIVE_INFINITY;
     let landed: boolean = false;
     for (const lean of leans) {
-      let carriage: IKickGeometry.ICarriage = { ...set, lean, step: step ?? 0 };
+      let carriage: IKickGeometry.ICarriage = {
+        turn: set.turn,
+        pitch: set.pitch,
+        lean,
+        step: step ?? 0,
+        drive: set.drive ?? 0,
+      };
       let forward: number = limit;
       let source: ISource | undefined;
       if (step === undefined) {
@@ -149,8 +155,21 @@ export namespace KickContact {
               KickForm.STEP_ROOM_SHARE * m.thigh,
           ),
         );
-        if (solved.status === "short")
-          carriage = { ...carriage, step: Math.min(forward, solved.gap) };
+        if (solved.status === "short") {
+          // A push kick that falls short drives its pelvis along the line
+          // behind the foot by what the leg lacks, as the teep is coached
+          // (the hips thrust into the target), and only what the drive
+          // leaves is stepped up; a round kick steps. The drive is no
+          // longer than the step may be and keeps the same room before
+          // the point.
+          const drive: number =
+            chain.technique === "push" ? Math.min(forward, solved.gap) : 0;
+          carriage = {
+            ...carriage,
+            drive,
+            step: Math.min(forward - drive, solved.gap - drive),
+          };
+        }
         else if (solved.status === "jammed" && ahead > 1e-3)
           // The hip stands `span + gap` from the point, inside the band's
           // shortest reach by the difference, which the step back takes up
@@ -176,7 +195,9 @@ export namespace KickContact {
       for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
         const { contact: candidate, hip }: ITrial = under(
           carriage,
-          round === 0 && Object.is(carriage.step, 0) ? source : undefined,
+          round === 0 && Object.is(carriage.step, 0) && carriage.drive === 0
+            ? source
+            : undefined,
         );
         const fit: KickChain.IFit = candidate.fit;
         if (
@@ -223,7 +244,7 @@ export namespace KickContact {
         if (!(ahead > 1e-3)) break;
         const next: number = Math.max(
           -back,
-          Math.min(forward, carriage.step + lack / ahead),
+          Math.min(forward - carriage.drive, carriage.step + lack / ahead),
         );
         if (Math.abs(next - carriage.step) < 1e-6) break;
         carriage = { ...carriage, step: next };

@@ -14,7 +14,6 @@ import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
 import { KickContact } from "./KickContact";
-import { KickFacing } from "./KickFacing";
 import { KickForm } from "./KickForm";
 import type { KickPlans } from "./KickPlans";
 import { KickSwing } from "./KickSwing";
@@ -97,11 +96,12 @@ export namespace KickLaunch {
     /** Whether the kick is a feint. */
     feint: boolean;
 
-    /** Solve a contact for a goal on this launch's line, with a decided step (metres) and a lean tried first (degrees) when given. */
+    /** Solve a contact for a goal on this launch's line, with a decided step (metres), a lean tried first (degrees) and the pelvis drive a decided step goes with (metres) when given. */
     contact: (
       goal: IAutoMovieVector3,
       decided: number | undefined,
       prefer?: number,
+      driven?: number,
     ) => IPlanned;
 
     /** The launch's own contact, which decides the step. */
@@ -117,7 +117,6 @@ export namespace KickLaunch {
    * @param kept What a redirect keeps of its source; a fresh kick reads its own line and steps up when short.
    * @param before The launch this plan made before, when it has one.
    * @returns The launch.
-   * @throws {HumanRefusal} When a round kick is aimed at a person's surface that faces away from the shin's travel (`KickFacing`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, the result and the refusal; the namespace states what a launch is.
    * @evidence contracts/development/implementation.md#principled-implementation The aimed point is read a look before the start; the line, the height band, the travel and the turn follow from it and the body's measure; the launch's contact is decided on the fitted figure and its chamber folded from it by the skill's range share.
@@ -152,10 +151,7 @@ export namespace KickLaunch {
     // or for the round kick the comfortable share of the lower shin's
     // horizontal reach at the target's height from the hip's standing height.
     const stance: StrikingTarget.IStance = StrikingTarget.stance(context.entry);
-    const drive: number = round
-      ? 0
-      : KickForm.PUSH_DRIVE_SHARE * StrikingStance.length(body);
-    const ahead: number = drive + Vector3.dot(
+    const ahead: number = Vector3.dot(
       Vector3.subtract(
         Vector3.lerp(
           { ...entry.root, y: 0 },
@@ -212,13 +208,6 @@ export namespace KickLaunch {
           ),
         )
       : line;
-    if (round && !feint && p.at.kind === "person")
-      KickFacing.admit(
-        side,
-        p.at,
-        direction,
-        context.aim(p.at, t0 - StrikingTarget.LOOK).normal,
-      );
     const offset: IAutoMovieVector3 = StrikingQuality.offset({
       skill: context.skill,
       random: context.random("scatter"),
@@ -246,6 +235,7 @@ export namespace KickLaunch {
       same(before.first, first) &&
       same(before.planned, planned) &&
       before.kept?.step === kept?.step &&
+      before.kept?.drive === kept?.drive &&
       (before.kept === undefined
         ? kept === undefined
         : kept !== undefined && same(before.kept.line, kept.line))
@@ -264,7 +254,6 @@ export namespace KickLaunch {
       timing,
       amplitude,
       rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
-      drive,
     };
     const origin: IAutoMovieVector3 = feet[side].ankle;
     const knee: IAutoMovieVector3 = poseBones(
@@ -282,11 +271,12 @@ export namespace KickLaunch {
       goal: IAutoMovieVector3,
       decided: number | undefined,
       prefer?: number,
+      driven?: number,
     ): IPlanned => {
       const found: KickContact.IContact = KickContact.choose(
         props,
         { body, side, technique: p.technique, line, direction, planned: goal },
-        { turn, pitch },
+        { turn, pitch, ...(driven === undefined ? {} : { drive: driven }) },
         decided,
         prefer,
       );
@@ -342,7 +332,12 @@ export namespace KickLaunch {
       contact,
 
       // The launch's contact decides the step; a feint does not step.
-      launched: contact(planned, kept?.step ?? (feint ? 0 : undefined)),
+      launched: contact(
+        planned,
+        kept?.step ?? (feint ? 0 : undefined),
+        undefined,
+        kept?.drive,
+      ),
     };
   }
 

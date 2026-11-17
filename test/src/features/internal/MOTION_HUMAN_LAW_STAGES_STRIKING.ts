@@ -2,7 +2,6 @@ import type { IHumanBody } from "@automovie/motions";
 
 import type { MotionHumanSweepChain } from "./MotionHumanSweepChain";
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
-import { motionKickFlank } from "./motionKickFlank";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;
 
@@ -35,10 +34,8 @@ const kicking = (a: IHumanBody, b: IHumanBody): number =>
  * clinch.
  *
  * The two people face each other, each in a guard. A punch is thrown at the
- * face from 1.3 arm lengths and a kick at the trunk (a round kick at the
- * ribs of the flank its leg's side faces, a push kick at the abdomen,
- * `motionKickFlank`) from 0.9 of the shorter leg, the
- * ranges of the striking captures with the arm read as shoulder to
+ * face from 1.3 arm lengths and a kick at the ribs from 0.9 of the shorter
+ * leg, the ranges of the striking captures with the arm read as shoulder to
  * fingertip and the leg as hip height. A knee and a clinch start 0.55 m
  * apart. A defence answers a straight punch, except the check, which answers
  * a round kick. A reaction is to a blow from a point 1 m ahead at shoulder
@@ -99,7 +96,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     return S.duo(a, b, kicking(a, b), [
       guard("a", 0.8).act("kick", {
         technique: pick("technique") ?? "round",
-        at: S.person("b", motionKickFlank(pick("technique"), pick("leg"))),
+        at: S.person("b", "ribsLeft"),
         ...S.set(pick, "leg", "accuracy"),
         ...(feint === undefined ? {} : { feint: feint === "true" }),
       }),
