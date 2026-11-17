@@ -9,6 +9,7 @@ export * from "./createKeyboard";
 export * from "./createLight";
 export * from "./createLongTool";
 export * from "./createMobilityAid";
+export * from "./createPourVessel";
 export * from "./createScenicContainer";
 export * from "./createScenicStandard";
 export * from "./createSmoking";
