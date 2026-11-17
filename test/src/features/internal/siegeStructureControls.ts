@@ -1,5 +1,5 @@
 import type { createSiegeEngine } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -21,9 +21,9 @@ type Engine = ReturnType<typeof createSiegeEngine>;
  * @param label Complete kind/seed/angle identity.
  * @param findings Whole-round failure collector.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines actual source/current primitives, independent degree-to-crank relation, metre control envelopes, pin extraction on local X, cocked-tip catch and fixed guide/base joins.
- * @evidence contracts/development/implementation.md#principled-implementation A radial crank about model X has endpoint Y=hubY+R*cos(turn), Z=R*sin(turn); its real axial grip joins that endpoint. Actual shaft/drum endpoints meet post faces. The independent cocked-arm formula supplies the release drawbar's catch, while actual slider +Z moves the pin and drawbar together and leaves guides/rails fixed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Inspect windlass hub/radius/grip/drum, pull the actual pin, inspect both rod ends and drawbar/catch, then compare fixed trestle joins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual source/current primitives, independent degree-to-crank relation, metre control envelopes, pin extraction on local X, cocked-tip catch, fixed guide/base joins and crosshead support throughout the slider interval.
+ * @evidence contracts/development/implementation.md#principled-implementation A radial crank about model X has endpoint Y=hubY+R*cos(turn), Z=R*sin(turn); its real axial grip joins that endpoint. Actual shaft/drum endpoints meet post faces. The independent cocked-arm formula supplies the release drawbar's catch, while actual slider +Z moves the pin, drawbar and crosshead together and leaves guides/rails fixed. Actual guide axes and bed faces must contain and touch both crosshead ends at zero, middle and full travel, while the centre opening clears the drawbar. Constant transverse coordinates and containment at both translation endpoints establish support throughout the interval.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Inspect windlass hub/radius/grip/drum, pull the actual pin, inspect both rod ends and drawbar/catch, then compare fixed trestle joins and the complete supported slider interval.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads no production fitting/clearance calculation, substitutes no affordance marker for a solid and changes no source/output method. Literal control stock is the existing authored specification, not a claimed historical measurement.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of actual part scans and endpoint observations plus one actual public articulation, independent of film duration.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the independent actual-cylinder endpoint observer and nclose scalar predicate; the same real source/current records serve all coupled-control concerns.
@@ -144,6 +144,8 @@ export function siegeStructureControls(
   );
   for (const id of [
     "release-crossbar",
+    "release-bed--1",
+    "release-bed-1",
     "release-rail-left",
     "release-rail-right",
     "release-guide--1",
@@ -164,10 +166,97 @@ export function siegeStructureControls(
     d.armLength! / 2,
   );
   near(
-    `${label} actual rail reaches release support`,
+    `${label} actual rail reaches fully extracted pin end`,
     rails[1].z,
-    d.armLength!,
+    pin[1].z,
   );
+  for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
+    const bed: IAutoMovieModelPart = part(source, `release-bed-${sign}`);
+    if (bed.geometry.type !== "primitive" || bed.geometry.shape.type !== "box")
+      throw new Error("The retained control requires two actual support beds");
+    const size: typeof bed.geometry.shape = bed.geometry.shape;
+    const centre: IAutoMovieVector3 = bed.transform!.translation;
+    point(
+      `${label}/${side} bed has a horizontal support face`,
+      Quaternion.rotateVector(bed.transform!.rotation, { x: 0, y: 1, z: 0 }),
+      { x: 0, y: 1, z: 0 },
+    );
+    point(
+      `${label}/${side} bed follows the slider direction`,
+      Quaternion.rotateVector(bed.transform!.rotation, { x: 0, y: 0, z: 1 }),
+      { x: 0, y: 0, z: 1 },
+    );
+    const low: IAutoMovieVector3 = {
+      x: centre.x - size.width / 2,
+      y: centre.y - size.height / 2,
+      z: centre.z - size.depth / 2,
+    };
+    const high: IAutoMovieVector3 = {
+      x: centre.x + size.width / 2,
+      y: centre.y + size.height / 2,
+      z: centre.z + size.depth / 2,
+    };
+    const rail: readonly [IAutoMovieVector3, IAutoMovieVector3] = ends(
+      source,
+      `release-rail-${side}`,
+    );
+    const radius: number = rod(source, `release-rail-${side}`).radius;
+    truth(
+      `${label}/${side} fixed bed joins its base-connected rail`,
+      Math.hypot(
+        Math.max(low.x - rail[0].x, 0, rail[0].x - high.x),
+        Math.max(low.y - rail[0].y, 0, rail[0].y - high.y),
+      ) <= radius &&
+        low.z < rail[1].z && high.z > rail[0].z,
+    );
+    near(`${label}/${side} open centre clears the descending drawbar`,
+      sign === 1 ? low.x : -high.x, rod(source, "release-link").radius);
+    for (const travel of [0, 0.15, 0.3]) {
+      const retained: Engine = source.articulate({ arm: angle, pin: travel });
+      const current: readonly [IAutoMovieVector3, IAutoMovieVector3] = ends(
+        retained,
+        "release-pin",
+      );
+      const crosshead: readonly [IAutoMovieVector3, IAutoMovieVector3] = ends(
+        retained,
+        "release-carriage",
+      );
+      const endpoint: IAutoMovieVector3 = crosshead[sign === 1 ? 1 : 0];
+      const crossheadRadius: number = rod(retained, "release-carriage").radius;
+      point(`${label}/${travel} actual crosshead carries the pin centre`,
+        Vector3.scale(Vector3.add(crosshead[0], crosshead[1]), 0.5),
+        Vector3.scale(Vector3.add(current[0], current[1]), 0.5));
+      near(`${label}/${travel}/${side} actual bed touches crosshead underside`,
+        high.y, endpoint.y - crossheadRadius);
+      truth(
+        `${label}/${travel}/${side} bed covers actual crosshead end`,
+        low.x < endpoint.x && high.x > endpoint.x &&
+          low.z <= endpoint.z - crossheadRadius + 1e-9 &&
+          high.z >= endpoint.z + crossheadRadius - 1e-9,
+      );
+      const id: string = `release-guide-${sign}`;
+      const guide: readonly [IAutoMovieVector3, IAutoMovieVector3] = ends(
+        retained,
+        id,
+      );
+      const guideRadius: number = rod(retained, id).radius;
+      for (const end of guide) {
+        near(`${label}/${travel}/${side} side guide touches crosshead cap`,
+          sign * (end.x - endpoint.x), guideRadius);
+        near(`${label}/${travel}/${side} side guide shares crosshead height`,
+          end.y, endpoint.y);
+        near(`${label}/${travel}/${side} fixed guide rests on its bed`,
+          end.y - guideRadius, high.y);
+        truth(`${label}/${travel}/${side} bed supports the guide axis`,
+          low.x < end.x && high.x > end.x);
+      }
+      truth(
+        `${label}/${travel}/${sign} guide covers both actual pin ends`,
+        guide[0].z <= current[0].z + 1e-9 &&
+          guide[1].z >= current[1].z - 1e-9,
+      );
+    }
+  }
 
   /** Read actual cylinder endpoints, never declared span/control positions. */
   function ends(

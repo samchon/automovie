@@ -11,6 +11,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { AnimalEquipmentFixture as equipment } from "../internal/AnimalEquipmentFixture";
+import { animalEquipmentBearingObservation } from "../internal/animalEquipmentBearingObservation";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -19,7 +20,8 @@ import { nclose } from "../internal/nclose";
  * Scenarios:
  * 1. All six explicit camel references carry an authored pack. Every emitted
  *    box/cylinder stays outside the actual hump by the requested clearance,
- *    and the raised horizontal bridges remain connected to both side rails.
+ *    raised horizontal bridges remain connected to both side rails, and actual
+ *    tangent body bearings retain positive axial spans and frame connections.
  * 2. The canonical pooled capture's authored dimensions remain admissible.
  *    Its input formula is independently reconstructed from Diop2020 TableII
  *    pooled girth 1.978 m, neck girth .656 m and body length 1.471 m, with
@@ -32,10 +34,10 @@ import { nclose } from "../internal/nclose";
  *    bound would falsely reject; moving the cap into the requested clearance
  *    refuses. No cylinder is replaced by a capsule during this admission.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States canonical input provenance, every real primitive observation, connected support, additional-body ownership and finite-cylinder distinguishing boundaries; no visual or load-capacity verdict is implied.
- * @evidence contracts/development/testing.md#behavioral-verification Calls actual public camel producers and equipment preparation/emission, inspects actual primitive transforms and genuine builder isolation, and requires structured geometry refusals.
- * @evidence contracts/development/testing.md#independent-expectations The oracle transforms the actual sphere centre into each emitted cylinder/box's local frame and applies their elementary solid distance definitions. It imports no source table, production fit routine or saved geometry. Canonical authoring inputs use independent published literals and declared construction ratios.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers pooled/five morphotypes, canonical/custom packs, additional sphere collision, source-independent ox consumption, connected raised bridges and an admitted flat cap versus a refused nearer cap. Existing cohort units own seed/mass/sex policies.
+ * @evidence contracts/development/common.md#meaningful-documentation States canonical input provenance, every real primitive observation, tangent body-bearing spans and connected support, additional-body ownership and finite-cylinder distinguishing boundaries; no visual or load-capacity verdict is implied.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual public camel producers and equipment preparation/emission, inspects actual primitive transforms, body-bearing tangency and frame endpoints, and genuine builder isolation, and requires structured geometry refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The oracle transforms the actual sphere centre into each emitted cylinder/box's local frame and applies their elementary solid distance definitions. It imports no source table, production fit routine or saved geometry. Actual body-local circular sections supply tangent distances and positive axial overlap, while actual endpoints supply frame joins. Canonical authoring inputs use independent published literals and declared construction ratios.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers pooled/five morphotypes, canonical/custom packs, additional sphere collision, source-independent ox consumption, connected raised bridges, tangent bearings across all six cohorts and an admitted flat cap versus a refused nearer cap. Existing cohort units own seed/mass/sex policies.
  * @evidence contracts/development/testing.md#execution-ownership One portable synchronous discoverable scenario owns a bounded model collection and genuine in-memory builders, starts no process/compiler/renderer and replaces no method or geometry.
  */
 export function test_archetype_camel_equipment_solids(): void {
@@ -60,6 +62,7 @@ export function test_archetype_camel_equipment_solids(): void {
       cohort,
       createCamel({ mass: 450, cohort, equipment: { pack } }, 73),
       pack.clearance,
+      pack.railRadius,
     );
 
   const barrel: number = 1.978 / (2 * Math.PI);
@@ -82,6 +85,7 @@ export function test_archetype_camel_equipment_solids(): void {
       73,
     ),
     canonical.clearance,
+    canonical.railRadius,
   );
 
   const reference: ReturnType<typeof equipment.create> = equipment.create();
@@ -172,9 +176,11 @@ export function test_archetype_camel_equipment_solids(): void {
     label: string,
     model: ReturnType<typeof createCamel>,
     clearance: number,
+    bearingRadius: number,
   ): void {
     if (!validateModel({ model }).success)
       findings.push(`${label}: actual equipped model failed admission`);
+    animalEquipmentBearingObservation(model, "pack", bearingRadius, findings);
     const hump: IAutoMovieModelPart = equipment.part(model, "hump");
     if (
       hump.geometry.type !== "primitive" ||

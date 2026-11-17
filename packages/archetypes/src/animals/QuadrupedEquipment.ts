@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { ArchetypeBuilder } from "../core";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedEquipmentBearing } from "./QuadrupedEquipmentBearing";
 import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
 /**
@@ -14,6 +15,9 @@ import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
  * Additional producer spheres describe actual emitted body solids, not fit
  * proxies; an omitted sphere list is empty. Their centres and radii use this
  * same neutral model frame and metres.
+ * Visible tangent bearing rails and connecting rods support each clear frame
+ * on the actual body. Their coarse line contacts do not claim padding,
+ * restraint, pressure distribution or rated working capacity.
  * The caller supplies total body-plus-equipment mass to the existing builder.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the rest frame, authored SI dimensions, actual-rig fit, common geometry/contact ownership and physical limits.
@@ -88,7 +92,7 @@ export namespace QuadrupedEquipment {
       /** Distance along the actual neck axis from root, inside its positive span. */
       neckAt: number;
 
-      /** Minimum separation from the neck cylinder and trunk envelope, metres, zero allowed. */
+      /** Free beam/hitch separation from neck and trunk, metres, zero allowed; the separate visible bearing rail touches the neck. */
       clearance: number;
 
       /** Authored hitch geometry; its radius cannot exceed the beam's. */
@@ -109,7 +113,7 @@ export namespace QuadrupedEquipment {
       /** Supporting rail radius; its diameter must fit the pad thickness. */
       railRadius: number;
 
-      /** Body-to-pad/crossbar separation, metres, zero allowed. */
+      /** Free pad/frame separation from the body, metres, zero allowed; separate visible bearing rails touch its upper flanks. */
       clearance: number;
 
       /** Both load hooks share these explicit dimensions; each fits within the pad's length. */
@@ -136,7 +140,7 @@ export namespace QuadrupedEquipment {
    * @throws {Error} If the producer already used one of this equipment's part identities.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines assembly admission, no-op absence, rest-frame ownership, geometry/contact equivalence, all units and failure behavior.
-   * @evidence contracts/development/implementation.md#principled-implementation Plan against the actual neck axis and circular barrel. Additional body spheres raise connected pack bridges through their upper support envelope, then every actual finite cylinder and box must retain its authored clearance. U-hook contacts lie on the real bearing bar with outward normal +Y.
+   * @evidence contracts/development/implementation.md#principled-implementation Plan the clear frame against the actual neck axis and circular barrel, then connect it to tangent body-bearing rails using the same body boundaries and actual frame endpoints. Additional spheres raise connected pack bridges; every rod/box retains authored clearance from those additional solids. Bearing rails touch their declared neck/trunk surface. U-hook contacts remain on the real bearing bar with outward normal +Y.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and plan both assemblies completely, then append their real primitives and contact records; one hook planner owns all three sites.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guessed equipment size, floating contact, copied horse rig, patched builder, hidden mass share or contact coefficient is used. An invalid second assembly leaves no first assembly partially appended. A brace of exactly zero length is omitted because the crossbar already joins the rail there.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed assembly sizes require O(S) planning and copied-sphere storage for S additional body spheres, with O(1) equipment records. Append cost includes the builder's existing O(P) id scan per fixed part for P already-built parts; no fitting or mesh search occurs.
@@ -165,7 +169,7 @@ export namespace QuadrupedEquipment {
    * @throws {RangeError} For nonpositive/nonfinite additional sphere radii or nonfinite sphere centres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines non-emitting actual-rig admission, whole assembly inputs and the independent builder-emission boundary.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit complete equipment against the actual rig and copied additional spheres before emission. Connected pack bridges use conservative sphere-top support; final cylinder/box separation checks retain each assembly's authored clearance.
+   * @evidence contracts/development/implementation.md#principled-implementation Admit complete equipment against the actual rig and copied additional spheres before emission. Connected pack bridges use conservative sphere-top clearance. All cylinders/boxes retain authored clearance from additional spheres, while visible bearing rails touch only their declared neck/trunk course.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Create one plan, populate requested assemblies through their existing owners and return that same admitted plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No probe builder, partial emitted model, guessed source dimensions or repeated random construction establishes eligibility.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed assemblies require O(S) work and sphere-copy storage for S additional spheres, plus fixed equipment records. Repeating preflight for K candidate cohorts costs O(KS); no full model or mesh is built.
@@ -257,6 +261,7 @@ export namespace QuadrupedEquipment {
     };
     plan.rod("yoke-hitch-link", yoke.hook.radius, centre, hook, METAL, yoke.clearance);
     plan.hook("yoke-hitch", "hitch", hook, yoke.hook, METAL, yoke.clearance);
+    QuadrupedEquipmentBearing.yoke(plan, rig, yoke, centre, WOOD);
   }
 
   /** Fit pads to the actual side planes; their rails and over-back bridges share those endpoints. */
@@ -310,6 +315,14 @@ export namespace QuadrupedEquipment {
         { x: at.x, y: rail, z: pack.length / 2 },
         WOOD,
         pack.clearance,
+      );
+      QuadrupedEquipmentBearing.pack(
+        plan,
+        rig,
+        pack,
+        side,
+        { x: at.x, y: rail, z: 0 },
+        WOOD,
       );
       for (const end of [-1, 1] as const)
         if (bridge > rail)

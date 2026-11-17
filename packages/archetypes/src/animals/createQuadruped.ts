@@ -216,6 +216,8 @@ export namespace createQuadruped {
         "collar",
         "lead",
         "yoke-beam",
+        "yoke-bearing",
+        "yoke-bearing-link",
         "yoke-hitch-link",
         "yoke-hitch-base",
         "yoke-hitch-upright--1",

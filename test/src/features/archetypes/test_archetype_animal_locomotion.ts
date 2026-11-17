@@ -36,13 +36,14 @@ interface ICase {
   table: QuadrupedGait.ITable;
 }
 
-/** Compare declared carried contacts/equipment with the actual head's independently observed rigid displacement. */
+/** Compare real equipment with its chosen head or trunk's independently observed rigid displacement. */
 function carried<Id extends string, D extends string>(
   animal: Archetype<Id, D | QuadrupedBody.Dimension>,
   speed: number,
   contacts: readonly Id[],
   parts: readonly string[],
   findings: string[],
+  carrier: "head" | "trunk" = "head",
 ): void {
   const table: QuadrupedGait.ITable = QuadrupedLocomotion.admit(
     createQuadruped.species(animal).table,
@@ -52,10 +53,10 @@ function carried<Id extends string, D extends string>(
     rideQuadruped<Id, D>(animal, fixture.course(speed), "walk", table);
   const sample: ReturnType<typeof ride.at> = ride.at(1.137);
   const rest: IAutoMovieTransform = animal.parts.find(
-    (part: IAutoMovieModelPart): boolean => part.id === "head",
+    (part: IAutoMovieModelPart): boolean => part.id === carrier,
   )!.transform!;
   const posed: IAutoMovieTransform = sample.archetype.parts.find(
-    (part: IAutoMovieModelPart): boolean => part.id === "head",
+    (part: IAutoMovieModelPart): boolean => part.id === carrier,
   )!.transform!;
   const change: IAutoMovieQuaternion = Quaternion.multiply(posed.rotation, {
     x: -rest.rotation.x,
@@ -88,7 +89,7 @@ function carried<Id extends string, D extends string>(
     );
     fixture.near(
       findings,
-      `${animal.archetype}/${id} head-carried point`,
+      `${animal.archetype}/${id} ${carrier}-carried point`,
       Vector3.length(
         Vector3.subtract(actual.translation, expected.translation),
       ),
@@ -97,7 +98,7 @@ function carried<Id extends string, D extends string>(
     );
     fixture.near(
       findings,
-      `${animal.archetype}/${id} head-carried rotation`,
+      `${animal.archetype}/${id} ${carrier}-carried rotation`,
       Vector3.length(
         Vector3.subtract(
           Quaternion.rotateVector(actual.rotation, { x: 0, y: 1, z: 0 }),
@@ -134,7 +135,7 @@ function carried<Id extends string, D extends string>(
     )!;
     fixture.near(
       findings,
-      `${animal.archetype}/${id} shares head carriage`,
+      `${animal.archetype}/${id} shares ${carrier} carriage`,
       Vector3.length(
         Vector3.subtract(
           actual.transform!.translation,
@@ -157,15 +158,16 @@ function carried<Id extends string, D extends string>(
  *    a two-row authored interval is ridden at its independent midpoint.
  * 3. Distal joints remain planted while complete actual terminal solids touch
  *    ground, then their entire soles clear it during their own swing intervals.
- * 4. A separately authored nod carries real head equipment and contacts.
+ * 4. A separately authored nod carries real head equipment and contacts; pack
+ *    bearings and their frame links share the actual trunk displacement.
  *
  * These are authored prototype clocks and construction phases, not empirical
  * dromedary/sika timing or proof of anatomical ROM, skin contact or dynamics.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists actual consumers, authored SI clocks, lead/phase cases, separate support durations, endpoint no-slip versus complete-solid floor assertions and unverified biological fidelity.
- * @evidence contracts/development/testing.md#behavioral-verification Calls real factories and the four-argument shared ride, reads actual published landings, transformed lower-bar endpoints and exact terminal cylinder/capsule supports, detecting wrong clocks/order, sliding support, buried rims or missing complete-solid swing clearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real factories and the four-argument shared ride, reads actual published landings, transformed lower-bar endpoints and exact terminal cylinder/capsule supports, detecting wrong clocks/order, sliding support, buried rims or missing complete-solid swing clearance. Actual head/trunk transforms independently predict equipment and bearing carriage.
  * @evidence contracts/development/testing.md#independent-expectations Caller literals supply periods and stance seconds. The specified pace pairs same-side feet, trot pairs diagonals and the authored rotary order is LH→RH→RF→LF with opposite leading sides; right-lead fractions are stated independently. A planted endpoint remains fixed within the existing 1 mm contract. The complete primitive's analytic support touches floor zero in stance and clears it in swing at that same bound; its distal cap centre is not the sole.
- * @evidence contracts/development/testing.md#distinguishing-cases Three faster gaits, two leads, four actual feet, distinct fore/hind release times and nonzero world translation/yaw distinguish correct physical timing from metadata alone; malformed inputs and mutation isolation have separate test files.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three faster gaits, two leads, four actual feet, distinct fore/hind release times and nonzero world translation/yaw distinguish correct physical timing from metadata alone; new yoke and pack bearing paths distinguish head and trunk ownership; malformed inputs and mutation isolation have separate test files.
  * @evidence contracts/development/testing.md#execution-ownership This exported synchronous unit owns finite in-memory models and six-second plans; it launches no renderer, host, compiler or external process and changes no registry or method.
  */
 export function test_archetype_animal_locomotion(): void {
@@ -369,6 +371,37 @@ export function test_archetype_animal_locomotion(): void {
     ["collar", "lead"],
     findings,
   );
+  carried(
+    createCamel(
+      {
+        ...createCamel.REFERENCE,
+        tempo: 0,
+        equipment: {
+          pack: {
+            length: 0.45,
+            width: 0.2,
+            thickness: 0.06,
+            railRadius: 0.02,
+            clearance: 0.01,
+            hook: { radius: 0.008, opening: 0.1, depth: 0.05 },
+          },
+        },
+      },
+      73,
+    ),
+    1.08,
+    ["leftLoad", "rightLoad"],
+    [
+      "pack-left-bearing",
+      "pack-left-bearing-link--1",
+      "pack-left-bearing-link-1",
+      "pack-right-bearing",
+      "pack-right-bearing-link--1",
+      "pack-right-bearing-link-1",
+    ],
+    findings,
+    "trunk",
+  );
   const bare: ReturnType<typeof createOx> = createOx(
     { ...createOx.REFERENCE, tempo: 0, lead },
     73,
@@ -404,6 +437,8 @@ export function test_archetype_animal_locomotion(): void {
       "collar",
       "lead",
       "yoke-beam",
+      "yoke-bearing",
+      "yoke-bearing-link",
       "yoke-hitch-link",
       "yoke-hitch-base",
       "yoke-hitch-upright--1",

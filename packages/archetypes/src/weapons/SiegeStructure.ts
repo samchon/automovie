@@ -51,10 +51,14 @@ export namespace SiegeStructure {
     "winch-grip",
   ];
 
-  /** Actual extracted round pin/drawbar; its guide and supporting rails stay fixed. */
-  export const PIN_PARTS: readonly string[] = ["release-pin", "release-link"];
+  /** Actual extracted pin/drawbar and supported crosshead; guides and beds stay fixed. */
+  export const PIN_PARTS: readonly string[] = [
+    "release-pin",
+    "release-link",
+    "release-carriage",
+  ];
 
-  /** One actual dimension-derived cradle box, reused for design and emission. */
+  /** One actual dimension-derived box, with its complete support bounds. */
   interface IBox {
     /** Actual part identity. */
     id: string;
@@ -132,7 +136,7 @@ export namespace SiegeStructure {
    * @param armRadius The complete tip assembly's admitted actual section radius.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines SI inputs, separate frame/control and admitted moving-arm stocks, actual socket/controls, rigid ownership and real span endpoints. Every actual fitting contributes its real volume to the existing total-mass composite allocation.
-   * @evidence contracts/development/implementation.md#principled-implementation The section-sized crossshaft spans both posts at the true hinge. The same designed cradle records put the inner floor on the actual arm-radius socket. Short sling spans join actual arm/cradle rims. Admit every moving fitting's complete angular box/cylinder support, all crank rotations, and each fixed/pin support before recording the real solid. The release drawbar reaches the cocked tip and extracts on the existing slider.
+   * @evidence contracts/development/implementation.md#principled-implementation The section-sized crossshaft spans both posts at the true hinge. The same designed cradle records put the inner floor on the actual arm-radius socket. Short sling spans join actual arm/cradle rims. Admit every moving fitting's complete angular box/cylinder support, all crank rotations, and each fixed/pin support before recording the real solid. A real crosshead carries the extracted pin/drawbar on two fixed beds and parallel side guides throughout the existing slider interval; the central opening clears the descending drawbar and the trestle reaches the far end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Build pivot and optional short-end axle, the open tip cradle and two spans, fixed release rails/guide and the slider pin, then the rotating windlass.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unsourced moving section is designed by actual whole-domain support, separately from fixed stock. Rope diameter is Tarver's read reconstruction value, explicitly transferred to the counterweight construction. No zero-share fitting, hidden physical proxy, soil offset, runtime pose clamp, hanging-sling dynamics, wound-cable law or rated strength is introduced. Source lengths, angles, total mass and long-thin-bar launch law remain fixed.
    * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of boxes/rods and two spans; builder lookups are linear in the engine's bounded part list, and each pose reuses the generic articulation/span owners.
@@ -203,24 +207,52 @@ export namespace SiegeStructure {
       );
     }
 
-    // Existing pin coordinates lie beyond the old base's front: connect a real trestle.
+    // A crosshead supports the extracted control on two beds. Their open
+    // centre clears the drawbar that slopes below the pin on the trebuchet.
+    const guideStart: number = long - e.pin.length / 2;
+    const guideEnd: number = long + e.pin.pull + e.pin.length / 2;
+    const bedTop: number = e.beam - stock;
+    const bedWidth: number = e.beam / 2 + stock;
+    const railHeight: number = e.beam / 2;
+    const railRadius: number = Math.min(e.post / 2, bedTop - railHeight);
+    for (const sign of [-1, 1] as const) {
+      const bed: IBox = {
+        id: `release-bed-${sign}`,
+        size: v(bedWidth, 2 * stock, guideEnd - guideStart),
+        at: v(sign * (stock + bedWidth / 2), bedTop - stock,
+          (guideStart + guideEnd) / 2),
+      };
+      admit(bed.id, SiegeClearance.box(bed.at, bed.size, 0, 0, 0));
+      builder.box(bed.id, bed.size, bed.at, wood);
+    }
+    rod(
+      "release-carriage",
+      stock,
+      v(-e.beam / 2, e.beam, long),
+      v(e.beam / 2, e.beam, long),
+      iron,
+      "frame",
+    );
+
+    // The trestle connects this whole fixed channel back to the original base.
+    // Its round stock fits below the same carriage support plane as the beds.
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
     ] as const)
       rod(
         `release-rail-${side}`,
-        e.post / 2,
-        v((sign * e.beam) / 2, e.beam / 2, long / 2),
-        v((sign * e.beam) / 2, e.beam / 2, long),
+        railRadius,
+        v((sign * e.beam) / 2, railHeight, long / 2),
+        v((sign * e.beam) / 2, railHeight, guideEnd),
         wood,
         "frame",
       );
     rod(
       "release-crossbar",
-      e.post / 2,
-      v(-e.beam / 2, e.beam / 2, long),
-      v(e.beam / 2, e.beam / 2, long),
+      railRadius,
+      v(-e.beam / 2, railHeight, guideEnd),
+      v(e.beam / 2, railHeight, guideEnd),
       wood,
       "frame",
     );
@@ -245,8 +277,8 @@ export namespace SiegeStructure {
       rod(
         `release-guide-${sign}`,
         stock,
-        v(sign * (stock + stock), e.beam / 2, long),
-        v(sign * (stock + stock), e.beam + stock, long),
+        v(sign * (e.beam / 2 + stock), e.beam, guideStart),
+        v(sign * (e.beam / 2 + stock), e.beam, guideEnd),
         iron,
         "frame",
       );
