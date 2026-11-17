@@ -21,7 +21,6 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
-import { HumanFreeCurveRates } from "../posture/HumanFreeCurveRates";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
@@ -49,8 +48,8 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * The result does not depend on where or facing which way the flight happens.
  * Its history
  * gives the composite inertia and the segments' relative momentum
- * (`integrateAirborneRotation.history`), differenced inside the flight at
- * take-off and touchdown so the push-off and the landing are not read; the
+ * (`integrateAirborneRotation.tabulated`), read inside the flight alone,
+ * from take-off to touchdown, so the push-off and the landing are not read; the
  * momentum is the plan's, or the
  * one `solveAirborneTakeoff` finds for its turns within the take-off's
  * ceiling (the moment of the take-off's momentum about the foot, at most
@@ -67,10 +66,11 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * (`ACCURACY` and an independent physical momentum budget), its steps as short as the shape's changes need, and read
  * between its knots by the integrator's own continuous extension, so a
  * shape that changes fast turns at its momentum's rate there too.
- * A bare native free-foot curve may supply actual current bone rates through
- * its constructor-owned goal/Jacobian proof. Only then does rated history
- * use instantaneous centroidal momentum; unsupported instants retain the
- * original stencil and every physical acceptance bound remains unchanged.
+ * The shape is read off the film's pose track, so its history is tabulated
+ * once on that track's own spacing (`integrateAirborneRotation.tabulated`):
+ * the inertia and the relative momentum at the knots, read between them by a
+ * cubic, in place of a shape read at every stage and a millisecond either
+ * side of it; every physical acceptance bound remains unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States staged authored-turn default, mandatory physics for supplied momentum, current heading/COM/articulation preservation and numeric-only handback. The physical path states root/world frames, momentum source, refusal and independent dense-control budget without applying those conservation claims to staged motion.
  * @evidence contracts/development/design.md#principled-representation One post-contact dispatcher selects an explicit authored-turn policy before preparing physics. Staged turn counts are an unwrapped kinematic curve; physical requests retain one unchanged composed shape history. Both use the same numeric COM/root playback owner and plan handback.
@@ -237,45 +237,28 @@ export namespace HumanPerformanceFlight {
     // Contacts and IK have already resolved the composed joints. FK with no
     // rigid world root gives their root-frame shape directly, rather than
     // applying that root to every bone and then undoing it again.
-    const transition: HumanSegment.ISegment["transition"] = segment.transition;
-    const bare: boolean = person.segments.at(-1) === segment && segment.entryTime <= t0 && segment.end >= t1 &&
-      person.layers.length === 0 && person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0 &&
-      plan.contacts.every((contact: IHumanActionPlan["contacts"][number]): boolean =>
-        contact.to <= declared.from || contact.from >= declared.to) &&
-      (transition === undefined || transition.kind === "redirect" || t0 - transition.cut >= transition.blend);
-    const actual: WeakMap<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, IAutoMoviePose> | undefined =
-      bare ? new WeakMap() : undefined;
     const shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      // The integrator reads the shape at stages of its own choosing, a
-      // millisecond either side of each for the momentum: off the film's
-      // grid (`HumanSegmentPose.tracked`) those cost the flight's knots, not
-      // a displayed pose each.
+      // The shape is read off the film's grid (`HumanSegmentPose.tracked`),
+      // so the history's knots cost the flight's grid knots, not a displayed
+      // pose each.
       const pose: IAutoMoviePose = HumanSegmentPose.tracked(person, seconds, evaluation);
-      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readBones({ ...pose, root: null }, readResolution());
-      actual?.set(bones, pose);
-      return bones;
+      return readBones({ ...pose, root: null }, readResolution());
     };
-    const analytic: Parameters<typeof integrateAirborneRotation.rated>[2] = (
-      seconds: number,
-      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ): ReturnType<Parameters<typeof integrateAirborneRotation.rated>[2]> => {
-      const pose: IAutoMoviePose | undefined = actual?.get(bones);
-      actual?.delete(bones);
-      if (pose === undefined || !(seconds > t0 && seconds < t1)) return undefined;
-      return HumanFreeCurveRates.readCaptured(body, evaluation, pose, bones);
-    };
+
+    // The track holds nothing finer than its knots, so the shape's inertia
+    // and relative momentum are tabulated once at that spacing for every
+    // stage and shooting trial (`integrateAirborneRotation.tabulated`). A
+    // free-foot curve's own instantaneous bone rates are not asked for:
+    // read through the track they were accepted at 27 of the 2,293 instants
+    // of test_human_motion_core_flight_sample, and the other 2,266 fell
+    // back to the millisecond stencil after 6,777 shape reads and as many
+    // rate attempts.
     const history: ReturnType<typeof integrateAirborneRotation.history> =
-      bare ? integrateAirborneRotation.rated(prepared, shape, analytic, { from: t0, to: t1 }, observation)
-        // A composed shape is read off the film's grid (`tracked`), which
-        // holds nothing finer than its knots: its inertia and relative
-        // momentum are tabulated once at that spacing for every stage and
-        // shooting trial, in place of up to three shape reads a stage.
-        : integrateAirborneRotation.tabulated(prepared, shape, { from: t0, to: t1, step: 1 / HumanPoseKnots.RATE }, observation);
-    const releaseRates: (() => void) | undefined = bare ? HumanFreeCurveRates.request(evaluation) : undefined;
+      integrateAirborneRotation.tabulated(prepared, shape, { from: t0, to: t1, step: 1 / HumanPoseKnots.RATE }, observation);
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(
@@ -397,7 +380,6 @@ export namespace HumanPerformanceFlight {
       // Playback was constructed in a numeric-only factory. Clearing the
       // numeric memo is cleared before this flight's history/shape closure,
       // evaluation workspace and borrowed FK key leave their local scope.
-      releaseRates?.();
       history.clear();
     }
   }
