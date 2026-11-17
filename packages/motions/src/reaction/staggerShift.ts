@@ -22,10 +22,12 @@ const SHARE: number = 0.5;
  * and so on, a geometric series whose sum is `e0 / (1 - r)` (Aitken's
  * extrapolation of a linearly converging fixed point, Aitken 1926). Adding
  * the two readings alone stops the series after two terms and leaves
- * `r² e0`: measured, a stagger pushed sideways showed its centre of mass
- * 3.9 mm outside the feet at 1.42 s, and pushed backward 11.9 mm at 1.71 s.
- * The share is read on each level axis from the readings themselves, with
- * no further posture.
+ * `r² e0`. The share is read on each level axis from the readings
+ * themselves, with no further posture. Unmeasured: the stagger's balance
+ * verdicts (the extrapolated centre of mass 4 mm outside the feet's hull at
+ * 1.4 s pushed sideways, 12 mm at 1.71 s pushed backward) read the same
+ * with the two-term sum and with this one, so that remainder is not their
+ * cause.
  *
  * @param first The residual with no shift, world metres, level.
  * @param second The residual with the first residual as the shift, world metres, level.
