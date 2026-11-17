@@ -13,6 +13,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareWalkLegLean } from "./prepareWalkLegLean";
+import { walkLegLow } from "./walkLegLow";
 
 /**
  * The two-bone geometry of a stepping leg, read without solving it: where the
@@ -355,7 +356,7 @@ export namespace walkLeg {
    * one. The pitch is therefore searched past the dip: the room is walked
    * down from the asked pitch in `SCAN` steps to its first low, which the rise
    * meets first (the room is not unimodal over the whole range: past the
-   * first dip it may dip again), that low found by ternary search between the
+   * first dip it may dip again), that low found by golden-section search between the
    * steps around it and the kept room by bisection beyond it, no steeper than
    * `STEEPEST`. A pitch whose ankle lies beyond the leg's reach has no room at
    * all (`-Infinity`): it is no stance, and counting a lean read off a leg
@@ -410,7 +411,7 @@ export namespace walkLeg {
       width > 0 ? -smoothMinimum(-asked, 0, width) : Math.max(asked, 0);
     // The dip is the first low of the room as the heel rises from the asked
     // pitch: walked down in `SCAN` steps until the room grows again, then
-    // narrowed by ternary search between the steps on either side of it, so
+    // narrowed by golden-section search between the steps on either side, so
     // the dip found is the one the rise meets first, not whichever of two
     // lows a search over the whole range happens to fall into.
     let far: number = -STEEPEST;
@@ -427,12 +428,7 @@ export namespace walkLeg {
         }
         before = value;
       }
-      for (let k: number = 0; k < 24; k++) {
-        const a: number = far + (near - far) / 3;
-        const b: number = near - (near - far) / 3;
-        if (room(a) < room(b)) near = b;
-        else far = a;
-      }
+      [far, near] = walkLegLow(room, far, near);
     }
     let low: number = -STEEPEST;
     let high: number = folds ? (far + near) / 2 : pitch;
