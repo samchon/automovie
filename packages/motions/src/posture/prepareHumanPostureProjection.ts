@@ -1,4 +1,4 @@
-import { clampPose } from "@automovie/engine";
+import type { clampPose } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -45,15 +45,15 @@ export namespace prepareHumanPostureProjection {
    * @param source The pose clamp the caller holds, if any.
    * @returns The body's projector's one-joint owner when `source` is that projector, or undefined for ordinary cold preparation.
    *
-   * Identity with the body's projector is tested before the engine's private
-   * factory lookup. Another function declines without being invoked. No
+   * Identity with the body's projector is tested before its joints member
+   * is read. Another function declines without being invoked. No
    * numerical answer, verdict, query history or handle is retained.
    */
   export function joints(
     body: IHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
-  ): ReturnType<typeof clampPose.joints> {
-    return source !== undefined && source === body.projection ? clampPose.joints(source) : undefined;
+  ): clampPose.IPrepared["joints"] | undefined {
+    return source !== undefined && source === body.projection ? body.projection.joints : undefined;
   }
 
   /**
